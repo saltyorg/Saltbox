@@ -33,7 +33,6 @@ rutorrent_paths_folders_list:
 rutorrent_paths_config_php_location: "{{ rutorrent_paths_location }}/rutorrent/settings/config.php"
 rutorrent_paths_rtorrent_rc_location: "{{ rutorrent_paths_location }}/rtorrent/rtorrent.rc"
 rutorrent_paths_nginx_conf_location: "{{ rutorrent_paths_location }}/nginx/nginx.conf"
-rutorrent_paths_nginx_htpasswd_location: "{{ rutorrent_paths_location }}/nginx/.htpasswd"
 rutorrent_paths_php_local_ini_location: "{{ rutorrent_paths_location }}/php/php-local.ini"
 rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/settings/plugins.ini"
 
@@ -52,10 +51,11 @@ rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_we
 # Traefik
 ################################
 
-rutorrent_traefik_middleware: "secureHeaders@file,gzip"
+rutorrent_traefik_middleware: "secureHeaders@file,gzip,rutorrent-auth"
 rutorrent_traefik_host: "{{ rutorrent_web_subdomain + '.' + rutorrent_web_domain }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: yes
+rutorrent_auth: "/etc/traefik/auth"
 
 ################################
 # Config
@@ -205,7 +205,8 @@ rutorrent_docker_hosts: "{{ docker_hosts_common
                                 | combine(rutorrent_docker_hosts_custom) }}"
 
 # Labels
-rutorrent_docker_labels_default: {}
+rutorrent_docker_labels_default:
+  traefik.http.middlewares.rutorrent-auth.basicauth.usersfile: "{{ rutorrent_auth }}"
 rutorrent_docker_labels_custom: {}
 rutorrent_docker_labels: "{{ docker_labels_common
                                   | combine(rutorrent_docker_labels_default)

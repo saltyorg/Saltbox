@@ -21,15 +21,6 @@
     mode: 0664
   loop: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_list }}"
 
-- name: Post-Install | Settings | New Installs | Enable Nginx HTTP Auth
-  htpasswd:
-    path: "{{ rutorrent_paths_nginx_htpasswd_location }}"
-    name: "{{ user.name }}"
-    password: "{{ user.pass }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: 0775
-
 - name: Post-Install | Settings | New Installs | Update 'php-local.ini' config settings
   ini_file:
     path: "{{ rutorrent_paths_php_local_ini_location }}"
