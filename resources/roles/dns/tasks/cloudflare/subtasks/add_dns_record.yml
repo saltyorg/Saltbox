@@ -30,6 +30,6 @@
 
   - name: Cloudflare | Add DNS Record | Display DNS Record creation status
     debug:
-      msg: "DNS Record for '{{ dns_record_print }}', set to '{{ ip_address_public }}', was added."
+      msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added."
 
   when: cloudflare_dns_record_creation_status is succeeded
