@@ -35,6 +35,13 @@ organizr_web_url: "{{ 'https://' + organizr_web_subdomain + '.' + organizr_web_d
                       else 'http://localhost:' + organizr_web_port }}"
 
 ################################
+# DNS
+################################
+
+organizr_dns_record: "{{ organizr_web_subdomain }}"
+organizr_dns_zone: "{{ organizr_web_domain }}"
+
+################################
 # Traefik
 ################################
 
