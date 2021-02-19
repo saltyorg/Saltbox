@@ -161,7 +161,7 @@ global_themepark_theme: organizr-dark
 ################################
 
 traefik_default_certresolver: "cfdns"
-traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled') }}"
+traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default=False) }}"
 
 ################################
 # Docker

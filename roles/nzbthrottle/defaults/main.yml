@@ -25,12 +25,6 @@ nzbthrottle_paths_folders_list:
 nzbthrottle_paths_config_location: "{{ nzbthrottle_paths_location }}/config.json"
 
 ################################
-# Traefik
-################################
-
-nzbthrottle_traefik_enabled: no
-
-################################
 # Docker
 ################################
 
