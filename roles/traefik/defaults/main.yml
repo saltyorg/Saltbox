@@ -102,7 +102,11 @@ traefik_docker_commands_metrics:
 
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
-                              + traefik_docker_commands_custom}}"
+                              + traefik_docker_commands_custom 
+                              if not (traefik.metrics)
+                              else traefik_docker_commands_default
+                              + traefik_docker_commands_custom 
+                              + traefik_docker_commands_metrics }}"
 
 # Volumes
 traefik_docker_volumes_default:
