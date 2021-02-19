@@ -34,6 +34,13 @@ traefik_web_url: "{{ 'https://' + traefik_web_subdomain + '.' + traefik_web_doma
                       else 'http://localhost:' + traefik_web_port }}"
 
 ################################
+# DNS
+################################
+
+traefik_dns_record: "{{ tautulli_web_subdomain }}"
+traefik_dns_zone: "{{ tautulli_web_domain }}"
+
+################################
 # Traefik
 ################################
 
