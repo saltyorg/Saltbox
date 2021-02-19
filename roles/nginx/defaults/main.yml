@@ -38,8 +38,10 @@ nginx_web_url: "{{ 'https://' + nginx_web_subdomain + '.' + nginx_web_domain
 # Traefik
 ################################
 
-nginx_traefik_middleware: "secureHeaders@file"
+nginx_traefik_middleware: "secureHeaders@file,gzip"
 nginx_traefik_host: "{{ nginx_web_subdomain + '.' + nginx_web_domain }}"
+nginx_traefik_certresolver: "{{ traefik_default_certresolver }}"
+nginx_traefik_enabled: yes
 
 ################################
 # Docker
