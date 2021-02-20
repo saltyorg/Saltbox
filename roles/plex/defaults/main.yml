@@ -56,6 +56,14 @@ plex_traefik_middleware: "secureHeaders@file"
 plex_traefik_host: "{{ plex_web_subdomain + '.' + plex_web_domain }}"
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+plex_themepark_enabled: no
+plex_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -121,9 +129,16 @@ plex_docker_volumes_default:
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
 plex_docker_volumes_custom: []
+plex_docker_volumes_theme:
+  - "{{ plex_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 plex_docker_volumes: "{{ plex_docker_volumes_default
-                              + plex_docker_volumes_custom
-                              + docker_volumes_downloads_common }}"
+                                + plex_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                if not (plex_themepark_enabled)
+                                else plex_docker_volumes_default
+                                + plex_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + plex_docker_volumes_theme}}"
 
 # Devices
 plex_docker_devices_default: []
