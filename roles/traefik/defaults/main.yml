@@ -32,6 +32,8 @@ traefik_web_domain: "{{ user.domain }}"
 traefik_web_url: "{{ 'https://' + traefik_web_subdomain + '.' + traefik_web_domain
                       if (reverse_proxy_is_enabled)
                       else 'http://localhost:' + traefik_web_port }}"
+traefik_metrics_subdomain: "metrics"
+traefik_metrics_domain: "{{ user.domain }}"
 
 ################################
 # DNS
@@ -140,7 +142,7 @@ traefik_docker_hosts: "{{ docker_hosts_common
 # Labels
 traefik_docker_labels_default: 
   traefik.enable: "true"
-  traefik.http.routers.traefik.rule: "Host(`dash.{{ user.domain }}`)"
+  traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
@@ -162,7 +164,7 @@ traefik_docker_labels_tls_validation:
   traefik.http.routers.traefik.tls.certresolver: "tlsresolver"
 
 traefik_docker_labels_metrics:
-  traefik.http.routers.metrics.rule: "Host(`metrics.{{ user.domain }}`) && Path(`/prometheus`)"
+  traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
