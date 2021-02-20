@@ -53,6 +53,14 @@ tautulli_traefik_certresolver: "{{ traefik_default_certresolver }}"
 tautulli_traefik_enabled: yes
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+tautulli_themepark_enabled: no
+tautulli_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -61,8 +69,8 @@ tautulli_docker_container: "{{ tautulli_name }}"
 
 # Image
 tautulli_docker_image_pull: yes
-tautulli_docker_image_tag: "latest"
-tautulli_docker_image: "tautulli/tautulli:{{ tautulli_docker_image_tag }}"
+tautulli_docker_image_tag: "release"
+tautulli_docker_image: "hotio/tautulli:{{ tautulli_docker_image_tag }}"
 
 # Ports
 tautulli_docker_ports_defaults:
@@ -101,8 +109,16 @@ tautulli_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "{{ plex_paths_log_location }}:/logs:ro"
 tautulli_docker_volumes_custom: []
+tautulli_docker_volumes_theme:
+  - "{{ tautulli_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 tautulli_docker_volumes: "{{ tautulli_docker_volumes_default
-                                  + tautulli_docker_volumes_custom }}"
+                                + tautulli_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                if not (tautulli_themepark_enabled)
+                                else tautulli_docker_volumes_default
+                                + tautulli_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + tautulli_docker_volumes_theme}}"
 
 # Devices
 tautulli_docker_devices_default: []
