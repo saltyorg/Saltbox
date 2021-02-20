@@ -59,6 +59,14 @@ radarr_traefik_enabled: yes
 radarr_api_key:
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+radarr_themepark_enabled: no
+radarr_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -108,9 +116,16 @@ radarr_docker_volumes_default:
   - "/mnt/unionfs/Media/Movies:/movies"
   - "/mnt:/mnt"
 radarr_docker_volumes_custom: []
+radarr_docker_volumes_theme:
+  - "{{ radarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 radarr_docker_volumes: "{{ radarr_docker_volumes_default
                                 + radarr_docker_volumes_custom
-                                + docker_volumes_downloads_common }}"
+                                + docker_volumes_downloads_common
+                                if not (radarr_themepark_enabled)
+                                else radarr_docker_volumes_default
+                                + radarr_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + radarr_docker_volumes_theme}}"
 
 # Devices
 radarr_docker_devices_default: []
