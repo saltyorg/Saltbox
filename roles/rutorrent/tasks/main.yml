@@ -24,6 +24,15 @@
   file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: Import '98-themepark'
+  template:
+    src: "98-themepark.sh"
+    dest: "{{ rutorrent_paths_location }}/98-themepark.sh"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    force: yes
+
 - name: Check if existing config file exists
   stat:
     path: "{{ rutorrent_paths_rtorrent_rc_location }}"

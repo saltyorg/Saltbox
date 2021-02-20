@@ -132,6 +132,14 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_con
                                                                         + rutorrent_config_existing_installs_rutorrent_rc_settings_custom }}"
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+rutorrent_themepark_enabled: no
+rutorrent_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -194,9 +202,16 @@ rutorrent_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt:/mnt"
 rutorrent_docker_volumes_custom: []
+rutorrent_docker_volumes_theme:
+  - "{{ rutorrent_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
-                                  + rutorrent_docker_volumes_custom
-                                  + docker_volumes_downloads_common }}"
+                                + rutorrent_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                if not (rutorrent_themepark_enabled)
+                                else rutorrent_docker_volumes_default
+                                + rutorrent_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + rutorrent_docker_volumes_theme}}"
 
 # Devices
 rutorrent_docker_devices_default: []
