@@ -81,6 +81,14 @@ sabnzbd_config_settings_list: "{{ sabnzbd_config_settings_default
                                       + sabnzbd_config_settings_custom }}"
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+sabnzbd_themepark_enabled: no
+sabnzbd_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -129,9 +137,16 @@ sabnzbd_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt:/mnt"
 sabnzbd_docker_volumes_custom: []
+sabnzbd_docker_volumes_theme:
+  - "{{ sabnzbd_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
                                 + sabnzbd_docker_volumes_custom
-                                + docker_volumes_downloads_common }}"
+                                + docker_volumes_downloads_common
+                                if not (sabnzbd_themepark_enabled)
+                                else sabnzbd_docker_volumes_default
+                                + sabnzbd_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + sabnzbd_docker_volumes_theme}}"
 
 # Devices
 sabnzbd_docker_devices_default: []
