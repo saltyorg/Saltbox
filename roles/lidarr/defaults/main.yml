@@ -59,6 +59,14 @@ lidarr_traefik_enabled: yes
 lidarr_api_key:
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+lidarr_themepark_enabled: no
+lidarr_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -108,9 +116,16 @@ lidarr_docker_volumes_default:
   - "/mnt/unionfs/Media/Music:/music"
   - "/mnt:/mnt"
 lidarr_docker_volumes_custom: []
+lidarr_docker_volumes_theme:
+  - "{{ lidarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 lidarr_docker_volumes: "{{ lidarr_docker_volumes_default
                                 + lidarr_docker_volumes_custom
-                                + docker_volumes_downloads_common }}"
+                                + docker_volumes_downloads_common
+                                if not (lidarr_themepark_enabled)
+                                else lidarr_docker_volumes_default
+                                + lidarr_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + lidarr_docker_volumes_theme}}"
 
 # Devices
 lidarr_docker_devices_default: []
