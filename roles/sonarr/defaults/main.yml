@@ -117,9 +117,9 @@ sonarr_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media/TV:/tv"
   - "/mnt:/mnt"
+sonarr_docker_volumes_custom: []
 sonarr_docker_volumes_theme:
   - "{{ sonarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
-sonarr_docker_volumes_custom: []
 sonarr_docker_volumes: "{{ sonarr_docker_volumes_default
                                 + sonarr_docker_volumes_custom
                                 + docker_volumes_downloads_common
