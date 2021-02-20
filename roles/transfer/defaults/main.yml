@@ -38,6 +38,13 @@ transfer_web_user: "{{ user.name }}"
 transfer_web_pass: "{{ user.pass }}"
 
 ################################
+# DNS
+################################
+
+transfer_dns_record: "{{ transfer_web_subdomain }}"
+transfer_dns_zone: "{{ transfer_web_domain }}"
+
+################################
 # Traefik
 ################################
 
