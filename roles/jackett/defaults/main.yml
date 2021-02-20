@@ -51,6 +51,14 @@ jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: yes
 
 ################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+jackett_themepark_enabled: no
+jackett_themepark_theme: "{{ global_themepark_theme }}"
+
+################################
 # Docker
 ################################
 
@@ -99,9 +107,16 @@ jackett_docker_volumes_default:
   - "{{ jackett_paths_location }}:/config"
   - "/mnt:/mnt"
 jackett_docker_volumes_custom: []
+jackett_docker_volumes_theme:
+  - "{{ jackett_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
                                 + jackett_docker_volumes_custom
-                                + docker_volumes_downloads_common }}"
+                                + docker_volumes_downloads_common
+                                if not (jackett_themepark_enabled)
+                                else jackett_docker_volumes_default
+                                + jackett_docker_volumes_custom
+                                + docker_volumes_downloads_common
+                                + jackett_docker_volumes_theme}}"
 
 # Devices
 jackett_docker_devices_default: []

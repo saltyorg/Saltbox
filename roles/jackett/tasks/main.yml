@@ -24,5 +24,14 @@
   file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: Import '98-themepark'
+  template:
+    src: "98-themepark.sh"
+    dest: "{{ jackett_paths_location }}/98-themepark.sh"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    force: yes
+
 - name: Create Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
