@@ -14,6 +14,13 @@
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
 
+- name: Add DNS record
+  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_metrics_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_metrics_dns_zone') }}"
+  when: traefik.metrics
+
 - name: Remove existing nginx-proxy container
   docker_container:
     name: "nginx-proxy"
