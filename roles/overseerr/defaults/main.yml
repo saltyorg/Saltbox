@@ -1,0 +1,153 @@
+#########################################################################
+# Title:            Community: Overseerr                                #
+# Author(s):        JackDallas, salty                                   #
+# URL:              https://github.com/Cloudbox/Community               #
+# Docker Image(s):  sctx/overseerr                                      #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Basics
+################################
+
+overseerr_name: overseerr
+
+################################
+# Paths
+################################
+
+overseerr_paths_folder: "{{ overseerr_name }}"
+overseerr_paths_location: "{{ server_appdata_path }}/{{ overseerr_paths_folder }}"
+overseerr_paths_folders_list:
+  - "{{ overseerr_paths_location }}"
+
+################################
+# Web
+################################
+
+overseerr_web_subdomain: "{{ overseerr_name }}"
+overseerr_web_domain: "{{ user.domain }}"
+overseerr_web_port: "5055"
+overseerr_web_url: "{{ 'https://' + overseerr_web_subdomain + '.' + overseerr_web_domain
+                  if (reverse_proxy_is_enabled)
+                  else 'http://localhost:' + overseerr_web_port }}"
+
+################################
+# DNS
+################################
+
+overseerr_dns_record: "{{ overseerr_web_subdomain }}"
+overseerr_dns_zone: "{{ overseerr_web_domain }}"
+
+################################
+# Traefik
+################################
+
+overseerr_traefik_middleware: "secureHeaders@file,gzip"
+overseerr_traefik_host: "{{ overseerr_web_subdomain + '.' + overseerr_web_domain }}"
+overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
+overseerr_traefik_enabled: yes
+
+################################
+# Docker
+################################
+
+# Container
+overseerr_docker_container: "{{ overseerr_name }}"
+
+# Image
+overseerr_docker_image_pull: yes
+overseerr_docker_image_tag: "latest"
+overseerr_docker_image: "sctx/overseerr:{{ overseerr_docker_image_tag }}"
+
+# Ports
+overseerr_docker_ports_defaults:
+  - "{{ overseerr_web_port }}:{{ overseerr_web_port }}"
+overseerr_docker_ports_custom: []
+overseerr_docker_ports: "{{ overseerr_docker_ports_defaults
+                            + overseerr_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + overseerr_docker_ports_custom }}"
+
+# Envs
+overseerr_docker_envs_default:
+  UMASK: "002"
+  TZ: "{{ tz }}"
+overseerr_docker_envs_custom: {}
+overseerr_docker_envs_reverse_proxy: {}
+overseerr_docker_envs: "{{ overseerr_docker_envs_default
+                          | combine(overseerr_docker_envs_custom)
+                          | combine(overseerr_docker_envs_reverse_proxy)
+                          | combine(docker_envs_reverse_proxy_common)
+                      if (reverse_proxy_is_enabled)
+                      else overseerr_docker_envs_default
+                          | combine(overseerr_docker_envs_custom) }}"
+
+# Commands
+overseerr_docker_commands_default: []
+overseerr_docker_commands_custom: []
+overseerr_docker_commands: "{{ overseerr_docker_commands_default
+                              + overseerr_docker_commands_custom}}"
+
+# Volumes
+overseerr_docker_volumes_default:
+  - "{{ overseerr_paths_location }}:/app/config"
+overseerr_docker_volumes_custom: []
+overseerr_docker_volumes: "{{ overseerr_docker_volumes_default
+                              + overseerr_docker_volumes_custom
+                              + docker_volumes_downloads_common }}"
+
+# Devices
+overseerr_docker_devices_default: []
+overseerr_docker_devices_custom: []
+overseerr_docker_devices: "{{ overseer_docker_devices_default
+                              + overseer_docker_devices_custom }}"
+
+# Hosts
+overseer_docker_hosts_default: []
+overseer_docker_hosts_custom: []
+overseer_docker_hosts: "{{ docker_hosts_common
+                            | combine(overseer_docker_hosts_default)
+                            | combine(overseer_docker_hosts_custom) }}"
+
+# Labels
+overseer_docker_labels_default: {}
+overseer_docker_labels_custom: {}
+overseer_docker_labels: "{{ docker_labels_common
+                            | combine(overseer_docker_labels_default)
+                            | combine(overseer_docker_labels_custom) }}"
+
+# Hostname
+overseer_docker_hostname: "{{ overseer_name }}"
+
+# Networks
+overseer_docker_networks_alias: "{{ overseer_name }}"
+overseer_docker_networks_default: []
+overseer_docker_networks_custom: []
+overseer_docker_networks: "{{ docker_networks_common
+                              + overseer_docker_networks_default
+                              + overseer_docker_networks_custom }}"
+
+# Capabilities
+overseer_docker_capabilities_default: []
+overseer_docker_capabilities_custom: []
+overseer_docker_capabilities: "{{ overseer_docker_capabilities_default
+                                  + overseer_docker_capabilities_custom }}"
+
+# Security Opts
+overseer_docker_security_opts_default: []
+overseer_docker_security_opts_custom: []
+overseer_docker_security_opts: "{{ overseer_docker_security_opts_default
+                                    + overseer_docker_security_opts_custom }}"
+
+# Restart Policy
+overseer_docker_restart_policy: unless-stopped
+
+# State
+overseer_docker_state: started
+
+# User
+overseer_docker_user: "{{ uid }}:{{ gid }}"
