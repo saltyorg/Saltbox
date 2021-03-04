@@ -103,51 +103,51 @@ overseerr_docker_volumes: "{{ overseerr_docker_volumes_default
 # Devices
 overseerr_docker_devices_default: []
 overseerr_docker_devices_custom: []
-overseerr_docker_devices: "{{ overseer_docker_devices_default
-                              + overseer_docker_devices_custom }}"
+overseerr_docker_devices: "{{ overseerr_docker_devices_default
+                              + overseerr_docker_devices_custom }}"
 
 # Hosts
-overseer_docker_hosts_default: []
-overseer_docker_hosts_custom: []
-overseer_docker_hosts: "{{ docker_hosts_common
-                            | combine(overseer_docker_hosts_default)
-                            | combine(overseer_docker_hosts_custom) }}"
+overseerr_docker_hosts_default: []
+overseerr_docker_hosts_custom: []
+overseerr_docker_hosts: "{{ docker_hosts_common
+                            | combine(overseerr_docker_hosts_default)
+                            | combine(overseerr_docker_hosts_custom) }}"
 
 # Labels
-overseer_docker_labels_default: {}
-overseer_docker_labels_custom: {}
-overseer_docker_labels: "{{ docker_labels_common
-                            | combine(overseer_docker_labels_default)
-                            | combine(overseer_docker_labels_custom) }}"
+overseerr_docker_labels_default: {}
+overseerr_docker_labels_custom: {}
+overseerr_docker_labels: "{{ docker_labels_common
+                            | combine(overseerr_docker_labels_default)
+                            | combine(overseerr_docker_labels_custom) }}"
 
 # Hostname
-overseer_docker_hostname: "{{ overseer_name }}"
+overseerr_docker_hostname: "{{ overseerr_name }}"
 
 # Networks
-overseer_docker_networks_alias: "{{ overseer_name }}"
-overseer_docker_networks_default: []
-overseer_docker_networks_custom: []
-overseer_docker_networks: "{{ docker_networks_common
-                              + overseer_docker_networks_default
-                              + overseer_docker_networks_custom }}"
+overseerr_docker_networks_alias: "{{ overseerr_name }}"
+overseerr_docker_networks_default: []
+overseerr_docker_networks_custom: []
+overseerr_docker_networks: "{{ docker_networks_common
+                              + overseerr_docker_networks_default
+                              + overseerr_docker_networks_custom }}"
 
 # Capabilities
-overseer_docker_capabilities_default: []
-overseer_docker_capabilities_custom: []
-overseer_docker_capabilities: "{{ overseer_docker_capabilities_default
-                                  + overseer_docker_capabilities_custom }}"
+overseerr_docker_capabilities_default: []
+overseerr_docker_capabilities_custom: []
+overseerr_docker_capabilities: "{{ overseerr_docker_capabilities_default
+                                  + overseerr_docker_capabilities_custom }}"
 
 # Security Opts
-overseer_docker_security_opts_default: []
-overseer_docker_security_opts_custom: []
-overseer_docker_security_opts: "{{ overseer_docker_security_opts_default
-                                    + overseer_docker_security_opts_custom }}"
+overseerr_docker_security_opts_default: []
+overseerr_docker_security_opts_custom: []
+overseerr_docker_security_opts: "{{ overseerr_docker_security_opts_default
+                                    + overseerr_docker_security_opts_custom }}"
 
 # Restart Policy
-overseer_docker_restart_policy: unless-stopped
+overseerr_docker_restart_policy: unless-stopped
 
 # State
-overseer_docker_state: started
+overseerr_docker_state: started
 
 # User
-overseer_docker_user: "{{ uid }}:{{ gid }}"
+overseerr_docker_user: "{{ uid }}:{{ gid }}"
