@@ -11,7 +11,6 @@ mounts:
   unionfs: mergerfs
   remote: rclone_vfs
   feeder: no
-sickbeard_mp4_automator: no
 gpu:
   intel: yes
   nvidia: no
