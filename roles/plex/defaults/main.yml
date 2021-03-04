@@ -61,6 +61,8 @@ plex_dns_zone: "{{ plex_web_domain }}"
 
 plex_traefik_middleware: "secureHeaders@file"
 plex_traefik_host: "{{ plex_web_subdomain + '.' + plex_web_domain }}"
+plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
+plex_traefik_enabled: yes
 
 ################################
 # THEME
