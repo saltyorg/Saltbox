@@ -11,3 +11,11 @@
 - name: APT Tasks
   import_tasks: "subtasks/apt.yml"
   tags: always
+
+- name: Chown '/srv/git/cloudbox'
+  ansible.builtin.file:
+    path: /srv/git/cloudbox
+    state: directory
+    recurse: yes
+    owner: uid
+    group: gid
