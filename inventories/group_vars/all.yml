@@ -12,7 +12,7 @@
 # Resources
 ################################
 
-resources_tasks_path: "{{ playbook_dir }}/resources/tasks"
+resources_tasks_path: "/srv/git/cloudbox/resources/tasks"
 
 ################################
 # Continuous Integration
