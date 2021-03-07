@@ -121,7 +121,6 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
 
 # Volumes
 traefik_docker_volumes_default:
-  - "/etc/localtime:/etc/localtime:ro"
   - "/var/run/docker.sock:/var/run/docker.sock:ro"
   - "{{ traefik_paths_location }}:/etc/traefik"
 traefik_docker_volumes_custom: []
