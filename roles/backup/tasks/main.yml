@@ -492,7 +492,7 @@
   - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
     shell: |
       /usr/bin/rclone lsl \
-        {{ rclone.destination }}/settings.yml \
+        {{ backup.rclone.destination }}/settings.yml \
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
         | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
     become: yes
@@ -556,7 +556,7 @@
       dest: "{{ backup.rsync.destination }}/"
       set_remote_user: yes
       compress: no
-      dest_port: "{{ backup.sync.port }}""
+      dest_port: "{{ backup.sync.port }}"
     become: yes
     become_user: "{{ user.name }}"
     when: (backup.rsync.enable)
