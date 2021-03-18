@@ -556,7 +556,7 @@
       dest: "{{ backup.rsync.destination }}/"
       set_remote_user: yes
       compress: no
-      dest_port: "{{ backup.sync.port }}"
+      dest_port: "{{ backup.rsync.port }}"
     become: yes
     become_user: "{{ user.name }}"
     when: (backup.rsync.enable)
