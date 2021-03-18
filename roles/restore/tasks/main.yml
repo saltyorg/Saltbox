@@ -40,12 +40,12 @@
     - /opt
     - /mnt/local
 
-- name: "Create backup location '{{ local.destination }}'"
-  file: path={{ local.destination }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes
+- name: "Create backup location '{{ backup.local.destination }}'"
+  file: path={{ backup.local.destination }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes
 
 - name: Check if previous backup exists locally
   find:
-    paths: "{{ local.destination }}/opt"
+    paths: "{{ backup.local.destination }}/opt"
     file_type: file
     patterns: '*.tar'
   register: dir_files
@@ -55,14 +55,14 @@
   import_tasks: "restore_remote.yml"
   when: (dir_files.matched|int == 0)
 
-- name: "Look for 'backup_excludes_list.txt' file in '{{ local.destination }}'"
+- name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
   stat:
-    path: "{{ local.destination }}/backup_excludes_list.txt"
+    path: "{{ backup.local.destination }}/backup_excludes_list.txt"
   register: backup_excludes_list
 
-- name: "Copy 'backup_excludes_list.txt' from '{{ local.destination }}'."
+- name: "Copy 'backup_excludes_list.txt' from '{{ backup.local.destination }}'."
   copy:
-    src: "{{ local.destination }}/backup_excludes_list.txt"
+    src: "{{ backup.local.destination }}/backup_excludes_list.txt"
     dest: "{{ playbook_dir }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -75,7 +75,7 @@
   args:
     warn: false
   with_fileglob:
-  - "{{ local.destination }}/opt/*.tar"
+  - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
     label: "'/opt/{{ (item | basename | splitext)[0] }}' --> '/opt/{{ (item | basename | splitext)[0] }}_bak'"
 
@@ -84,7 +84,7 @@
   args:
     warn: false
   with_fileglob:
-  - "{{ local.destination }}/opt/*.tar"
+  - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
     label: "'{{ item | basename }}' --> '/opt/{{ (item | basename | splitext)[0] }}'"
   register: unarchive
@@ -94,10 +94,10 @@
   tags: opt-permissions-reset
 
 - name: Cleanup backup location
-  shell: "rm -rf {{ local.destination }}/*"
+  shell: "rm -rf {{ backup.local.destination }}/*"
   become: yes
   become_user: "{{ user.name }}"
-  when: not (local.enable)
+  when: not (backup.local.enable)
 
 - debug:
     msg: Finished restoring the backup. You are now ready to install Cloudbox!

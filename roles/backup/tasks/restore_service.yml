@@ -15,8 +15,8 @@
 
 - name: Restore Service | Set variables
   set_fact:
-    restore_service_username: "{{ restore_service.user | hash('sha1') }}"
-    restore_service_password: "{{ restore_service.pass }}"
+    restore_service_username: "{{ backup.restore_service.user | hash('sha1') }}"
+    restore_service_password: "{{ backup.restore_service.pass }}"
 
 - name: Restore Service | Cleanup '/tmp/restore_service' path
   file: "path='/tmp/restore_service' state=absent"

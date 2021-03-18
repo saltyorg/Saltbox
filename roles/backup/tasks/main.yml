@@ -51,21 +51,21 @@
 
   - name: Check if previous backup exists locally
     find:
-      paths: "{{ local.destination }}"
+      paths: "{{ backup.local.destination }}"
       file_type: file
       patterns: '*.tar'
       recurse: yes
     register: dir_files
 
   # Remove backup.old folder if it exists.
-  - name: "Remove '{{ local.destination }}.old'"
+  - name: "Remove '{{ backup.local.destination }}.old'"
     file:
-      path: "{{ local.destination }}.old"
+      path: "{{ backup.local.destination }}.old"
       state: absent
 
   # Use mv because Ansible copy & delete takes a lot longer.
-  - name: "Moving '{{ local.destination }}' to '{{ local.destination }}.old'"
-    shell: "mv '{{ local.destination }}' '{{ local.destination }}.old'"
+  - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
+    shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
     become: yes
     become_user: "{{ user.name }}"
     when: dir_files.matched|int != 0
@@ -75,16 +75,16 @@
     with_items:
       - "/home/{{ user.name }}/logs"
       - "/home/{{ user.name }}/logs/backup"
-      - "{{ local.destination }}"
-      - "{{ local.destination }}/opt"
+      - "{{ backup.local.destination }}"
+      - "{{ backup.local.destination }}/opt"
       - "/opt/systemd-backup"
       - "/opt/crontab-backup"
 
   # Backup config files
-  - name: "Copy files to '{{ local.destination }}'"
+  - name: "Copy files to '{{ backup.local.destination }}'"
     copy:
       src: "{{ item }}"
-      dest: "{{ local.destination }}"
+      dest: "{{ backup.local.destination }}"
       owner: "{{ user.name }}"
       group: "{{ user.name }}"
       mode: 0775
@@ -106,10 +106,10 @@
       path: "{{ playbook_dir }}/backup_excludes_list.txt"
     register: backup_excludes_list
 
-  - name: "Copy files to '{{ local.destination }}'."
+  - name: "Copy files to '{{ backup.local.destination }}'."
     copy:
       src: "{{ playbook_dir }}/backup_excludes_list.txt"
-      dest: "{{ local.destination }}"
+      dest: "{{ backup.local.destination }}"
       owner: "{{ user.name }}"
       group: "{{ user.name }}"
       mode: 0775
@@ -355,7 +355,7 @@
     loop_control:
       label: "{{ item.path }}"
 
-  - name: "Archiving '{{ backup_opt_path }}' folders into '{{ local.destination }}/'"
+  - name: "Archiving '{{ backup_opt_path }}' folders into '{{ backup.local.destination }}/'"
     shell: |
       tar \
         --ignore-failed-read \
@@ -363,14 +363,14 @@
         --warning=no-file-removed \
         --exclude='./snapshots' \
         --exclude-from '{{ backup_excludes_list_path }}' \
-        -cf '{{ local.destination }}/opt/{{ item | basename }}.tar' -C '{{ item | dirname }}' './{{ item | basename }}' \
+        -cf '{{ backup.local.destination }}/opt/{{ item | basename }}.tar' -C '{{ item | dirname }}' './{{ item | basename }}' \
         > /dev/null
     args:
       executable: /bin/bash
       warn: no
     with_items: "{{ opt_folders }}"
     loop_control:
-      label: "'{{ item }}' --> '{{ local.destination }}/opt/{{ item | basename }}.tar'"
+      label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
     ignore_errors: yes
 
   - name: Snapshot | Cleanup Tasks
@@ -402,7 +402,7 @@
 
   - name: Check if tarball files were created
     find:
-      paths: "{{ local.destination }}/opt/"
+      paths: "{{ backup.local.destination }}/opt/"
       file_type: file
       patterns: '*.tar'
     register: dir_files2
@@ -412,16 +412,16 @@
       msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ local.destination }}/opt/'"
     when: (dir_files2.matched|int == 0)
 
-  - name: "Remove '{{ local.destination }}.old'"
+  - name: "Remove '{{ backup.local.destination }}.old'"
     file:
-      path: "{{ local.destination }}.old"
+      path: "{{ backup.local.destination }}.old"
       state: absent
     become: yes
     become_user: "{{ user.name }}"
     when: (dir_files2.matched|int != 0)
 
-  - name: "Get size of '{{ local.destination }}'"
-    shell: du -s -B1 --apparent-size {{ local.destination }} | awk '{print $1}'
+  - name: "Get size of '{{ backup.local.destination }}'"
+    shell: du -s -B1 --apparent-size {{ backup.local.destination }} | awk '{print $1}'
     register: backup_new
 
   - name: "Set backup_size"
@@ -474,14 +474,14 @@
     wait_for:
       timeout: 10
 
-  - name: "Reset folder ownership of '{{ local.destination }}/'"
-    shell: "chown -R {{ user.name }}:{{ user.name }} {{ local.destination }}/"
+  - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
+    shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
     args:
       warn: no
 
   # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
-  - name: "Reset permissions and mod dates to files in '{{ local.destination }}/'"
-    shell: find '{{ local.destination }}' -type f  -exec touch {} +
+  - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
+    shell: find '{{ backup.local.destination }}' -type f  -exec touch {} +
     become: yes
     become_user: "{{ user.name }}"
     args:
@@ -489,7 +489,7 @@
       warn: no
 
   # Due to a touch command in a previous backup, all files on rclone.destination have same mod dates, therefore, only one file's mod date is needed.
-  - name: "Get datestamp for previous '{{ rclone.destination }}/settings.yml'"
+  - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
     shell: |
       /usr/bin/rclone lsl \
         {{ rclone.destination }}/settings.yml \
@@ -499,21 +499,21 @@
     become_user: "{{ user.name }}"
     register: rclone_timestamp
     ignore_errors: yes
-    when: (rclone.enable)
+    when: (backup.rclone.enable)
 
   # If rclone_timestamp is blank (would happen if settings.yml was not at destination), default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
-  - name: "Archive previous files in '{{ rclone.destination }}'"
+  - name: "Archive previous files in '{{ backup.rclone.destination }}'"
     shell: |
       /usr/bin/rclone moveto \
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        '{{ rclone.destination }}/{{ item }}' '{{ rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
+        '{{ backup.rclone.destination }}/{{ item }}' '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
         2>/dev/null
     become: yes
     become_user: "{{ user.name }}"
     register: rclone_move
     failed_when: rclone_move.rc > 3
     ignore_errors: yes
-    when: (rclone.enable)
+    when: (backup.rclone.enable)
     with_items:
      - "opt"
      - "ansible.cfg"
@@ -529,7 +529,7 @@
     wait_for:
       timeout: 5
 
-  - name: "Use rclone to upload backup to '{{ rclone.destination }}'"
+  - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
     shell: |
       /usr/bin/rclone copy \
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
@@ -538,34 +538,35 @@
         --stats=30s \
         -vv \
         --log-file='{{ playbook_dir }}/backup_rclone.log' \
-        '{{ local.destination }}' '{{ rclone.destination }}'
+        '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
     become: yes
     become_user: "{{ user.name }}"
-    when: (rclone.enable)
+    when: (backup.rclone.enable)
 
-  - name: "Notify | Cloudbox Backup: Rclone uploaded backup to '{{ rclone.destination }}'"
+  - name: "Notify | Cloudbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Rclone uploaded backup to '{{ rclone.destination }}'."
-    when: (rclone.enable)
+      message: "Cloudbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
+    when: (backup.rclone.enable)
 
-  - name: "Use rsync to upload backup to '{{ rsync.destination }}'"
+  - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
     synchronize:
-      src: "{{ local.destination }}/"
-      dest: "{{ rsync.destination }}/"
+      src: "{{ backup.local.destination }}/"
+      dest: "{{ backup.rsync.destination }}/"
       set_remote_user: yes
       compress: no
+      dest_port: "{{ backup.sync.port }}""
     become: yes
     become_user: "{{ user.name }}"
-    when: (rsync.enable)
+    when: (backup.rsync.enable)
 
-  - name: "Notify | Cloudbox Backup: Rsync uploaded backup to '{{ rsync.destination }}'"
+  - name: "Notify | Cloudbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Rsync uploaded backup to '{{ rsync.destination }}'."
-    when: (rsync.enable)
+      message: "Cloudbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
+    when: (backup.rsync.enable)
 
   - name: Get Current Time
     shell: "date \"+%s\""
@@ -591,11 +592,11 @@
       state: started
     when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
 
-  - name: "Remove {{ local.destination }}"
+  - name: "Remove {{ backup.local.destination }}"
     file:
-      path: "{{ local.destination }}"
+      path: "{{ backup.local.destination }}"
       state: absent
-    when: (dir_files2.matched|int != 0) and (not local.enable)
+    when: (dir_files2.matched|int != 0) and (not backup.local.enable)
 
   - name: Backup Status - Success
     debug:
@@ -629,8 +630,8 @@
 
     when: (use_snapshot) and (snapshot_type == 'btrfs')
 
-  - name: "Reset folder ownership of '{{ local.destination }}/'"
-    shell: "chown -R {{ user.name }}:{{ user.name }} {{ local.destination }}/"
+  - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
+    shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
     args:
       warn: no
 

@@ -17,14 +17,14 @@
 - name: "Snapshot | Determine '/' filesystem type"
   set_fact:
     root_fstype: "{{ item.fstype }}"
-  when: (misc.snapshot) and (item.mount == '/')
+  when: (backup.misc.snapshot) and (item.mount == '/')
   with_items:
     - "{{ ansible_mounts }}"
 
 - name: "Snapshot | Determine '/opt' filesystem type"
   set_fact:
     opt_fstype: "{{ item.fstype }}"
-  when: (misc.snapshot) and (item.mount == '/opt')
+  when: (backup.misc.snapshot) and (item.mount == '/opt')
   with_items:
     - "{{ ansible_mounts }}"
 
@@ -80,5 +80,5 @@
       - "{{ backup_snapshot_destination_path | dirname }}"
 
   when:
-    - (misc.snapshot)
+    - (backup.misc.snapshot)
     - ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))

@@ -1,18 +1,20 @@
 ---
-local:
-  enable: yes
-  destination: /mnt/local/Backups/Cloudbox
-rclone:
-  enable: yes
-  destination: google:/Backups/Cloudbox
-rsync:
-  enable: no
-  destination: rsync://somehost.com/Backups/Cloudbox
-cron:
-  cron_time: weekly
-  cron_state: absent
-restore_service:
-  user:
-  pass:
-misc:
-  snapshot: true
+backup:
+  local:
+    enable: yes
+    destination: /mnt/local/Backups/Cloudbox
+  rclone:
+    enable: yes
+    destination: google:/Backups/Cloudbox
+  rsync:
+    enable: no
+    destination: rsync://somehost.com/Backups/Cloudbox
+    port: 22
+  cron:
+    cron_time: weekly
+    cron_state: absent
+  restore_service:
+    user:
+    pass:
+  misc:
+    snapshot: true

@@ -11,36 +11,45 @@
 # Remove trailing forward slashes from backup paths
 - name: Remove trailing forward slashes from backup paths
   set_fact:
-    local_tmp: { destination: "{{ (local.destination | default('',true)) | regex_replace('\\/$', '') }}" }
-    rclone_tmp: { destination: "{{ (rclone.destination | default('',true)) | regex_replace('\\/$', '') }}" }
-    rsync_tmp: { destination: "{{ (rsync.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    local_tmp: { destination: "{{ (backup.local.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    rclone_tmp: { destination: "{{ (backup.rclone.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    rsync_tmp: { destination: "{{ (backup.rsync.destination | default('',true)) | regex_replace('\\/$', '') }}" }
 
 - name: Merge changes back
   set_fact:
-    local: "{{ local | combine(local_tmp) }}"
-    rclone: "{{ rclone | combine(rclone_tmp) }}"
-    rsync: "{{ rsync | combine(rsync_tmp) }}"
+    backup:
+      local: "{{ backup.local | combine(local_tmp) }}"
+      rclone: "{{ backup.rclone | combine(rclone_tmp) }}"
+      rsync: "{{ backup.rsync | combine(rsync_tmp) }}"
+      cron:
+        cron_time: "{{ backup.cron.cron_time }}"
+        cron_state: "{{ backup.cron.cron_state }}"
+      restore_service:
+        user: "{{ backup.restore_service.user }}"
+        pass: "{{ backup.restore_service.pass }}"
+      misc:
+        snapshot: "{{ backup.misc.snapshot }}"
 
 # Restore service
 - name: "Set 'restore_service_enabled' variable"
   set_fact:
     restore_service_enabled: "{{ true if not(
-        (restore_service is undefined)
+        (backup.restore_service is undefined)
         or
-        (restore_service is none)
+        (backup.restore_service is none)
         or
-        (restore_service | trim | length == 0)
+        (backup.restore_service | trim | length == 0)
         or
-        (restore_service.user is undefined)
+        (backup.restore_service.user is undefined)
         or
-        (restore_service.user is none)
+        (backup.restore_service.user is none)
         or
-        (restore_service.user | trim | length == 0)
+        (backup.restore_service.user | trim | length == 0)
         or
-        (restore_service.pass is undefined)
+        (backup.restore_service.pass is undefined)
         or
-        (restore_service.pass is none)
+        (backup.restore_service.pass is none)
         or
-        (restore_service.pass | trim | length == 0)
+        (backup.restore_service.pass | trim | length == 0)
       )
       else false }}"
