@@ -176,18 +176,6 @@
       set_fact:
         docker_containers: "{{ (docker_containers).split() | sort }}"
 
-    - name: Create lists of ignored apps
-      set_fact:
-        reverse_proxy_apps:
-          - traefik
-        torrent_apps:
-          - deluge
-          - delugevpn
-          - qbittorrent
-          - qbittorrentvpn
-          - rutorrent
-          - transmissionvpn
-
     - name: Filter out ignored apps from Docker containers list
       set_fact:
         docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"

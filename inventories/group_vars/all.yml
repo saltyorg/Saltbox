@@ -208,3 +208,18 @@ docker_networks_common:
 ################################
 
 cvm: https://cvm.cloudbox.works/version?url=
+
+################################
+# Backup
+################################
+
+reverse_proxy_apps:
+  - traefik
+
+torrent_apps:
+  - deluge
+  - delugevpn
+  - qbittorrent
+  - qbittorrentvpn
+  - rutorrent
+  - transmissionvpn
