@@ -27,6 +27,8 @@
       - name: cloudbox
         aliases:
           - docker-socket-proxy
+    labels:
+      "com.github.cloudbox.cloudbox_managed": "true"
     networks_cli_compatible: yes
     network_mode: "{{ docker_networks_name_common }}"
     container_default_behavior: compatibility
