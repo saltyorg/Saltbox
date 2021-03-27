@@ -1,0 +1,158 @@
+##########################################################################
+# Title:         Cloudbox: SSTV | Default Variables                      #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/cloudbox/cloudbox                    #
+# --                                                                     #
+#         Part of the Cloudbox project: https://cloudbox.works           #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+sstv_name: sstv
+
+################################
+# Paths
+################################
+
+sstv_paths_folder: "{{ sstv_name }}"
+sstv_paths_location: "{{ server_appdata_path }}/{{ sstv_paths_folder }}"
+sstv_paths_folders_list:
+  - "{{ sstv_paths_location }}"
+sstv_paths_config_location: "{{ sstv_paths_location }}/config.json"
+
+################################
+# Web
+################################
+
+sstv_web_subdomain: "{{ sstv_name }}"
+sstv_web_domain: "{{ user.domain }}"
+sstv_web_port: "1411"
+sstv_web_url: "{{ 'https://' + sstv_web_subdomain + '.' + sstv_web_domain
+                      if (reverse_proxy_is_enabled)
+                      else 'http://localhost:' + sstv_web_port }}"
+
+################################
+# DNS
+################################
+
+sstv_dns_record: "{{ sstv_web_subdomain }}"
+sstv_dns_zone: "{{ sstv_web_domain }}"
+
+################################
+# Traefik
+################################
+
+sstv_traefik_middleware: "secureHeaders@file,gzip"
+sstv_traefik_host: "{{ sstv_web_subdomain + '.' + sstv_web_domain }}"
+sstv_traefik_certresolver: "{{ traefik_default_certresolver }}"
+sstv_traefik_enabled: yes
+
+################################
+# Docker
+################################
+
+# Container
+sstv_docker_container: "{{ sstv_name }}"
+
+# Image
+sstv_docker_image_pull: yes
+sstv_docker_image_tag: "master"
+sstv_docker_image: "cloudb0x/sstv:{{ sstv_docker_image_tag }}"
+
+# Ports
+sstv_docker_ports_defaults:
+  - "{{ sstv_web_port }}:{{ sstv_web_port }}"
+sstv_docker_ports_custom: []
+sstv_docker_ports: "{{ sstv_docker_ports_defaults
+                                + sstv_docker_ports_custom
+                            if (not reverse_proxy_is_enabled)
+                            else [] + sstv_docker_ports_custom }}"
+
+# Envs
+sstv_docker_envs_log_level: "0"
+sstv_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  VERBOSE: "{{ sstv_docker_envs_log_level }}"
+
+sstv_docker_envs_custom: {}
+
+sstv_docker_envs_reverse_proxy:
+  HTTPS_METHOD: "noredirect"
+
+sstv_docker_envs: "{{ sstv_docker_envs_default
+                              | combine(sstv_docker_envs_custom)
+                              | combine(sstv_docker_envs_reverse_proxy)
+                              | combine(docker_envs_reverse_proxy_common)
+                          if (reverse_proxy_is_enabled)
+                          else sstv_docker_envs_default
+                              | combine(sstv_docker_envs_custom) }}"
+
+# Commands
+sstv_docker_commands_default: []
+sstv_docker_commands_custom: []
+sstv_docker_commands: "{{ sstv_docker_commands_default
+                              + sstv_docker_commands_custom}}"
+
+# Volumes
+sstv_docker_volumes_default:
+  - "{{ sstv_paths_location }}:/config"
+  - "/mnt:/mnt"
+sstv_docker_volumes_custom: []
+sstv_docker_volumes: "{{ sstv_docker_volumes_default
+                                  + sstv_docker_volumes_custom
+                                  + docker_volumes_downloads_common }}"
+
+# Devices
+sstv_docker_devices_default: []
+sstv_docker_devices_custom: []
+sstv_docker_devices: "{{ sstv_docker_devices_default
+                                  + sstv_docker_devices_custom }}"
+
+# Hosts
+sstv_docker_hosts_default: []
+sstv_docker_hosts_custom: []
+sstv_docker_hosts: "{{ docker_hosts_common
+                                | combine(sstv_docker_hosts_default)
+                                | combine(sstv_docker_hosts_custom) }}"
+
+# Labels
+sstv_docker_labels_default: {}
+sstv_docker_labels_custom: {}
+sstv_docker_labels: "{{ docker_labels_common
+                                | combine(sstv_docker_labels_default)
+                                | combine(sstv_docker_labels_custom) }}"
+
+# Hostname
+sstv_docker_hostname: "{{ sstv_name }}"
+
+# Networks
+sstv_docker_networks_alias: "{{ sstv_name }}"
+sstv_docker_networks_default: []
+sstv_docker_networks_custom: []
+sstv_docker_networks: "{{ docker_networks_common
+                                  + sstv_docker_networks_default
+                                  + sstv_docker_networks_custom }}"
+
+# Capabilities
+sstv_docker_capabilities_default: []
+sstv_docker_capabilities_custom: []
+sstv_docker_capabilities: "{{ sstv_docker_capabilities_default
+                                      + sstv_docker_capabilities_custom }}"
+
+# Security Opts
+sstv_docker_security_opts_default: []
+sstv_docker_security_opts_custom: []
+sstv_docker_security_opts: "{{ sstv_docker_security_opts_default
+                                        + sstv_docker_security_opts_custom }}"
+
+# Restart Policy
+sstv_docker_restart_policy: unless-stopped
+
+# State
+sstv_docker_state: started

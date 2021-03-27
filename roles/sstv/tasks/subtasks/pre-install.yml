@@ -1,0 +1,32 @@
+#########################################################################
+# Title:         Cloudbox: SSTV | Pre-Install Tasks                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Pre-Install | Check if SSTV config exists
+  stat:
+    path: "{{ sstv_paths_config_location }}"
+  register: sstv_paths_config_location_stat
+
+- name: Pre-Install | New SSTV config tasks
+  block:
+
+  - name: Pre-Install | Import default SSTV config
+    template:
+      src: 'config.json.j2'
+      dest: "{{ sstv_paths_config_location }}"
+      owner: "{{ user.name }}"
+      group: "{{ user.name }}"
+      mode: 0775
+      force: no
+
+  - name: Pre-Install | Set 'sstv_docker_state' variable
+    set_fact:
+      sstv_docker_state: 'stopped'
+
+  when: not sstv_paths_config_location_stat.stat.exists
