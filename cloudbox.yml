@@ -58,6 +58,7 @@
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: ddclient, tags: ['ddclient'] }
     - { role: trackarr, tags: ['trackarr'] }
+    - { role: sstv, tags: ['sstv'] }
     - { role: sstvirl, tags: ['sstvirl'] }
     - { role: transfer, tags: ['transfer'] }
     - { role: yyq, tags: ['yyq'] }
