@@ -521,8 +521,8 @@
     shell: |
       /usr/bin/rclone copy \
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        --transfers=4 \
-        --drive-chunk-size=128M \
+        --transfers="{{ backup_rclone_transfers }}" \
+        --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
         --stats=30s \
         -vv \
         --log-file='{{ playbook_dir }}/backup_rclone.log' \

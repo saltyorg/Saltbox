@@ -213,6 +213,9 @@ cvm: https://cvm.cloudbox.works/version?url=
 # Backup
 ################################
 
+backup_rclone_transfers: 4
+backup_rclone_drive_chunk_size: 128M
+
 reverse_proxy_apps:
   - traefik
 
