@@ -31,6 +31,7 @@
     docker_container:
       name: "{{ plex_docker_container }}"
       state: stopped
+      container_default_behavior: compatibility
     when: plex_is_running_outer_state
 
   tags:
