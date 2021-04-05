@@ -18,16 +18,16 @@ skip_commits:
     - 'Vagrantfile'
 
     # Ansible Misc
-    - 'defaults/**/*'
-    - 'roles/*/files/**/*'
-    - 'filter_plugins/**/*'
-    - 'inventories/**/*'
-    - 'library/**/*'
+#    - 'defaults/**/*'
+#    - 'roles/*/files/**/*'
+#    - 'filter_plugins/**/*'
+#    - 'inventories/**/*'
+#    - 'library/**/*'
 
     # Ansible Roles - Core
-    - 'roles/settings/**/*'
-    - 'roles/backup/**/*'
-    - 'roles/restore/**/*'
+#    - 'roles/settings/**/*'
+#    - 'roles/backup/**/*'
+#    - 'roles/restore/**/*'
 
     # Ansible Roles - Extras
     - 'roles/cloudflare/**/*'
