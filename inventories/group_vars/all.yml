@@ -13,7 +13,7 @@
 ################################
 
 resources_tasks_path: "{{ '/srv/git/cloudbox/resources/tasks' if not continuous_integration
-                          else '/home/appveyor/projects/cloudbox-3c1ng/resources/tasks'"
+                          else '/home/appveyor/projects/cloudbox-3c1ng/resources/tasks' }}"
 
 ################################
 # Continuous Integration
