@@ -59,17 +59,17 @@ matrix:
 build: off
 
 init:
-  - sh: apt-get install -y --reinstall software-properties-common apt-transport-https
-  - sh: apt-get update
-  - sh: add-apt-repository main
-  - sh: add-apt-repository universe
-  - sh: add-apt-repository restricted
-  - sh: add-apt-repository multiverse
-  - sh: apt-get update
-  - sh: apt-get install -y --reinstall nano git build-essential libssl-dev libffi-dev python3-dev python3-pip python3-apt
-  - sh: python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pip=="21.0.1"
-  - sh: python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade setuptools
-  - sh: python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pyOpenSSL requests netaddr jmespath ansible">=2.10,<2.11"
+  - sh: sudo apt-get install -y --reinstall software-properties-common apt-transport-https
+  - sh: sudo apt-get update
+  - sh: sudo add-apt-repository main
+  - sh: sudo add-apt-repository universe
+  - sh: sudo add-apt-repository restricted
+  - sh: sudo add-apt-repository multiverse
+  - sh: sudo apt-get update
+  - sh: sudo apt-get install -y --reinstall nano git build-essential libssl-dev libffi-dev python3-dev python3-pip python3-apt
+  - sh: sudo python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pip=="21.0.1"
+  - sh: sudo python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade setuptools
+  - sh: sudo python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pyOpenSSL requests netaddr jmespath ansible">=2.10,<2.11"
 
 install:
   - sh: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
