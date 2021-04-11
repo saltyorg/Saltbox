@@ -22,7 +22,7 @@ sstv_paths_folder: "{{ sstv_name }}"
 sstv_paths_location: "{{ server_appdata_path }}/{{ sstv_paths_folder }}"
 sstv_paths_folders_list:
   - "{{ sstv_paths_location }}"
-sstv_paths_config_location: "{{ sstv_paths_location }}/config.json"
+sstv_paths_config_location: "{{ sstv_paths_location }}/config.yml"
 
 ################################
 # Web
