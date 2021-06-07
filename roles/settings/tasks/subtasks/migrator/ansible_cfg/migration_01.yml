@@ -24,7 +24,7 @@
     - { section: 'defaults', option: 'inventory', value: './inventories/local' }
     - { section: 'defaults', option: 'roles_path', value: 'roles:resources/roles' }
     - { section: 'defaults', option: 'fact_path', value: './ansible_facts.d' }
-    - { section: 'defaults', option: 'log_path', value: './community.log' }
+    - { section: 'defaults', option: 'log_path', value: './cloudbox.log' }
     - { section: 'defaults', option: 'callback_whitelist', value: 'profile_tasks' }
     - { section: 'defaults', option: 'command_warnings', value: False }
     - { section: 'defaults', option: 'retry_files_enabled', value: False }
