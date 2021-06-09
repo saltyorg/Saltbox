@@ -50,7 +50,7 @@ skip_commits:
 
   message: /\[minor\]/
 
-build_cloud: Cloudbox
+build_cloud: CLOUDBOX
 
 image: 
   - Ubuntu1804
