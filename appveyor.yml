@@ -57,7 +57,7 @@ image:
   - Ubuntu2004
 
 matrix:
-  fast_finish: true
+  fast_finish: false
 
 # to disable automatic builds
 build: off
