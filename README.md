@@ -13,7 +13,7 @@
 
 Cloudbox is an Ansible-based solution for rapidly deploying a Docker containerized cloud media server.
 
-This project was designed for x64 machines running Ubuntu Server 18.04/20.04.<sup name="a1">[\[1\]](#f1) </sup>
+This project was designed for x64 machines running Ubuntu Server 18.04/20.04.
 
 Featured Applications:
 
