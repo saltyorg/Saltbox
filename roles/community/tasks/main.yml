@@ -1,7 +1,7 @@
 #########################################################################
 # Title:         Cloudbox: Community Role                               #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# URL:           https://github.com/cloudbox2/cloudbox                  #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
@@ -18,7 +18,7 @@
 
 - name: Clone Community repo 'HEAD'
   git:
-    repo: https://github.com/cloudbox/community.git
+    repo: https://github.com/cloudbox2/community.git
     dest: /opt/community
     clone: yes
     version: HEAD
@@ -30,7 +30,7 @@
 
 - name: Clone Community repo 'master'
   git:
-    repo: https://github.com/cloudbox/community.git
+    repo: https://github.com/cloudbox2/community.git
     dest: /opt/community
     clone: yes
     version: master

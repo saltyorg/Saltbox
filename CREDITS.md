@@ -38,7 +38,7 @@
 * [Plexdrive](https://github.com/dweidenfeld/plexdrive)
 * [Plex Autoscan](https://github.com/l3uddz/plex_autoscan)
 * [Cloudplow](https://github.com/l3uddz/cloudplow)
-* [Cloudbox MOTD](https://github.com/Cloudbox/cloudbox_motd)
+* [Cloudbox MOTD](https://github.com/Cloudbox2/cloudbox_motd)
 * [Traktarr](https://github.com/l3uddz/traktarr)
 * [Plex Dupefinder](https://github.com/l3uddz/plex_dupefinder)
 * [WebTools (Plex)](https://github.com/ukdtom/WebTools.bundle)

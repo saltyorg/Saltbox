@@ -2,7 +2,7 @@
 #########################################################################
 # Title:         Restart Running Containers Script                      #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# URL:           https://github.com/cloudbox2/cloudbox                  #
 # Description:   Stop running containers and start them back up.        #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
@@ -20,7 +20,7 @@ $GREEN
  ┌───────────────────────────────────────────────────────────────────────────────────┐
  │ Title:             Restart Running Containers Script                              │
  │ Author(s):         desimaniac                                                     │
- │ URL:               https://github.com/cloudbox/cloudbox                           │
+ │ URL:               https://github.com/cloudbox2/cloudbox                          │
  │ Description:       Stop running containers and start them back up.                │
  ├───────────────────────────────────────────────────────────────────────────────────┤
  │                Part of the Cloudbox project: https://cloudbox.works               │

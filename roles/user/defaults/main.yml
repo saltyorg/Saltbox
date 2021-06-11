@@ -1,7 +1,7 @@
 #########################################################################
 # Title:         Cloudbox: User | Default Variables                     #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# URL:           https://github.com/cloudbox2/cloudbox                  #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
@@ -13,12 +13,12 @@ user_paths_home_location: "/home/{{ user.name }}"
 user_paths_home_cloudbox_location: "{{ user_paths_home_location }}/cloudbox"
 
 # Cloudbox
-cloudbox_git_repo_url: "https://github.com/cloudbox/cloudbox.git"
+cloudbox_git_repo_url: "https://github.com/cloudbox2/cloudbox.git"
 cloudbox_git_repo_dest: "/srv/git/cloudbox"
-cloudbox_git_repo_branch_primary: "develop_python3"
-cloudbox_git_repo_branch_secondary: "develop_python3"
+cloudbox_git_repo_branch_primary: "master"
+cloudbox_git_repo_branch_secondary: "master"
 
 # CB Scripts
-cb_git_repo_url: "https://github.com/cloudbox/cb.git"
+cb_git_repo_url: "https://github.com/cloudbox2/cb.git"
 cb_git_repo_dest: "/srv/git/cb"
-cb_git_repo_branch_primary: "develop_python3"
+cb_git_repo_branch_primary: "master"

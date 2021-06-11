@@ -2,7 +2,7 @@
 #########################################################################
 # Title:         Cloudbox: Ansible | Module | Find Next Open Port       #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# URL:           https://github.com/cloudbox2/cloudbox                  #
 # Description:   Finds and returns next open port in a given range.     #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #

@@ -3,7 +3,7 @@
 #########################################################################
 # Title:         Cloudbox: cont-init.d Script Runner                    #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# URL:           https://github.com/cloudbox2/cloudbox                  #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
