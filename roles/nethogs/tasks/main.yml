@@ -18,29 +18,29 @@
       - libncurses5-dev
       - libpcap-dev
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Pull NetHogs repo from github
   git:
     repo: "{{ nethogs_git_repo_url }}"
     dest: "{{ nethogs_git_repo_dest }}"
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
+    force: true
   register: nethogs_clone_status
 
 - name: Tasks to do with git clone is a success
   block:
 
-  - name: Build and install NetHogs
-    shell: "{{ nethogs_binary_build_command }}"
+    - name: Build and install NetHogs
+      shell: "{{ nethogs_binary_build_command }}"
 
-  - name: Get NetHogs binary version
-    shell: "{{ nethogs_binary_version_lookup_command }}"
-    register: nethogs_binary_version
+    - name: Get NetHogs binary version
+      shell: "{{ nethogs_binary_version_lookup_command }}"
+      register: nethogs_binary_version
 
-  - name: Display nethogs binary version
-    debug:
-      msg: "NetHogs {{ nethogs_binary_version.stdout }} installed."
+    - name: Display nethogs binary version
+      debug:
+        msg: "NetHogs {{ nethogs_binary_version.stdout }} installed."
 
   when: nethogs_clone_status is succeeded

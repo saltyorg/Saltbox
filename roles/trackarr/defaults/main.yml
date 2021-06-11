@@ -49,7 +49,7 @@ trackarr_dns_zone: "{{ trackarr_web_domain }}"
 trackarr_traefik_middleware: "secureHeaders@file,gzip"
 trackarr_traefik_host: "{{ trackarr_web_subdomain + '.' + trackarr_web_domain }}"
 trackarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-trackarr_traefik_enabled: yes
+trackarr_traefik_enabled: true
 
 ################################
 # API
@@ -66,7 +66,7 @@ trackarr_server_apikey:
 trackarr_docker_container: "{{ trackarr_name }}"
 
 # Image
-trackarr_docker_image_pull: yes
+trackarr_docker_image_pull: true
 trackarr_docker_image_tag: "latest"
 trackarr_docker_image: "cloudb0x/trackarr:{{ trackarr_docker_image_tag }}"
 

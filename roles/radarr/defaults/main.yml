@@ -49,7 +49,7 @@ radarr_dns_zone: "{{ radarr_web_domain }}"
 radarr_traefik_middleware: "secureHeaders@file,gzip"
 radarr_traefik_host: "{{ radarr_web_subdomain + '.' + radarr_web_domain }}"
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-radarr_traefik_enabled: yes
+radarr_traefik_enabled: true
 
 ################################
 # API
@@ -63,7 +63,7 @@ radarr_api_key:
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-radarr_themepark_enabled: no
+radarr_themepark_enabled: false
 radarr_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -74,7 +74,7 @@ radarr_themepark_theme: "{{ global_themepark_theme }}"
 radarr_docker_container: "{{ radarr_name }}"
 
 # Image
-radarr_docker_image_pull: yes
+radarr_docker_image_pull: true
 radarr_docker_image_tag: "release"
 radarr_docker_image: "hotio/radarr:{{ radarr_docker_image_tag }}"
 

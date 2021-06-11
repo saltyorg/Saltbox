@@ -14,8 +14,8 @@
   register: traktarr_service
 
 - name: Stop existing traktarr service
-  systemd: 
-    state: stopped 
+  systemd:
+    state: stopped
     name: traktarr
   when: traktarr_service.stat.exists
 
@@ -29,8 +29,8 @@
     repo: https://github.com/l3uddz/traktarr.git
     dest: /opt/traktarr
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
@@ -52,16 +52,16 @@
 - name: "When sonarr exists, add api key to traktar config"
   block:
 
-  - name: Pull sonarr api key
-    xml:
-      path: "/opt/sonarr/config.xml"
-      xpath: /Config/ApiKey
-      content: text
-    register: xmlresp
+    - name: Pull sonarr api key
+      xml:
+        path: "/opt/sonarr/config.xml"
+        xpath: /Config/ApiKey
+        content: text
+      register: xmlresp
 
-  - name: Set sonarr api Key
-    set_fact:
-      sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
+    - name: Set sonarr api Key
+      set_fact:
+        sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (not traktarr_config.stat.exists) and (sonarr_config.stat.exists)
 
@@ -74,16 +74,16 @@
 - name: "When radarr exists, add api key to traktar config"
   block:
 
-  - name: Pull radarr api key
-    xml:
-      path: "/opt/radarr/config.xml"
-      xpath: /Config/ApiKey
-      content: text
-    register: xmlresp
+    - name: Pull radarr api key
+      xml:
+        path: "/opt/radarr/config.xml"
+        xpath: /Config/ApiKey
+        content: text
+      register: xmlresp
 
-  - name: Set radarr api Key
-    set_fact:
-      radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
+    - name: Set radarr api Key
+      set_fact:
+        radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (not traktarr_config.stat.exists) and (radarr_config.stat.exists)
 
@@ -94,7 +94,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not traktarr_config.stat.exists
 
 - name: Set traktarr.py as executable
@@ -117,7 +117,8 @@
   template:
     src: traktarr.service.j2
     dest: /etc/systemd/system/traktarr.service
-    force: yes
+    mode: '0755'
+    force: true
   when: not traktarr_service.stat.exists
 
 - name: Load traktarr service
@@ -125,4 +126,4 @@
     name: traktarr
     state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
     enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"
-    daemon_reload: yes
+    daemon_reload: true

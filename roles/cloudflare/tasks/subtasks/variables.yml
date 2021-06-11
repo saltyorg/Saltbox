@@ -25,7 +25,7 @@
       Content-Type: "application/json"
       X-Auth-Email: '{{ cloudflare.email }}'
       X-Auth-Key: '{{ cloudflare.api }}'
-    return_content: yes
+    return_content: true
   register: cf_zones
 
 - name: Variables | Set 'cloudflare_zone' Variable
@@ -40,7 +40,7 @@
     -H "Content-Type: application/json" \
     | jq -r '.result[] | select(.targets[].constraint.value | contains("{{ user.domain }}/.well-known")) | .id'
   args:
-    warn: no
+    warn: false
   register: cf_page_rules
 
 - name: Variables | Set 'cloudflare_page_rules' Variable

@@ -10,36 +10,36 @@
 ---
 - name: "Mount Path | Force unmount '{{ mount_path }}'"
   shell: "/bin/umount -f '{{ mount_path }}' 2>/dev/null || :"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Mount Path | Check if '{{ mount_path }}' exists"
   stat:
     path: "{{ mount_path }}"
   register: mount_path_stat
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Mount Path | Tasks for '{{ mount_path }}' path"
   block:
 
-  - name: "Mount Path | Remove empty directories in '{{ mount_path }}'"
-    shell: "find '{{ mount_path }}' -type d -empty -delete"
-    ignore_errors: yes
+    - name: "Mount Path | Remove empty directories in '{{ mount_path }}'"
+      shell: "find '{{ mount_path }}' -type d -empty -delete"
+      ignore_errors: true
 
-  - name: "Mount Path | Recursively find '{{ mount_path }}' files"
-    find:
-      paths: '{{ mount_path }}'
-      hidden: yes
-      recurse: yes
-    register: mount_path_stat_files
+    - name: "Mount Path | Recursively find '{{ mount_path }}' files"
+      find:
+        paths: '{{ mount_path }}'
+        hidden: true
+        recurse: true
+      register: mount_path_stat_files
 
-  - name: "Mount Path | Backup non-empty '{{ mount_path }}' path"
-    shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch']|int) }}"
-    ignore_errors: yes
-    when: (mount_path_stat_files.matched|int > 0)
+    - name: "Mount Path | Backup non-empty '{{ mount_path }}' path"
+      shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch']|int) }}"
+      ignore_errors: true
+      when: (mount_path_stat_files.matched|int > 0)
 
-  - name: "Mount Path | Remove '{{ mount_path }}'"
-    file:
-      path: "{{ mount_path }}"
-      state: absent
+    - name: "Mount Path | Remove '{{ mount_path }}'"
+      file:
+        path: "{{ mount_path }}"
+        state: absent
 
   when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)

@@ -10,5 +10,5 @@
 ---
 - name: "Docker | Containers Start | Start all previously running Docker containers"
   shell: "docker start {{ containers_list }}"
-  ignore_errors: yes
+  ignore_errors: true
   when: (containers_list | trim | length > 0)

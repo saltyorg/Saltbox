@@ -9,7 +9,7 @@
 #########################################################################
 ---
 - name: sysctl | Tuning
-  ignore_errors: yes
+  ignore_errors: true
   sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
@@ -80,7 +80,7 @@
   register: netdev_budget_usecs
 
 - name: "sysctl | Tuning - 'netdev_budget_usecs'"
-  ignore_errors: yes
+  ignore_errors: true
   sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"

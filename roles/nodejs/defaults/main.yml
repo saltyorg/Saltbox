@@ -20,6 +20,7 @@ nodejs_nodejs_binary_path: /usr/bin/node
 nodejs_nodejs_binary_version_lookup_command: |
   {{ nodejs_nodejs_binary_path }} --version \
       | head -n 1 | awk '{ print substr($1, 2) }'
+
 ################################
 # NPM
 ################################
@@ -36,6 +37,7 @@ nodejs_npm_binary_path: /usr/bin/npm
 nodejs_npm_binary_version_lookup_command: |
   {{ nodejs_npm_binary_path }} --version \
       | head -n 1 | awk '{ print $1 }'
+
 ################################
 # Frontail
 ################################
@@ -45,6 +47,7 @@ nodejs_frontail_binary_path: /usr/bin/frontail
 nodejs_frontail_binary_version_lookup_command: |
   {{ nodejs_frontail_binary_path }} --version \
       | head -n 1 | awk '{ print $1 }'
+
 ################################
 # Hastebin
 ################################

@@ -21,12 +21,12 @@
 - name: Cloudflare | Remove DNS Record | Tasks on success
   block:
 
-  - name: Cloudflare | Remove DNS Record | Set 'dns_record_print' variable
-    set_fact:
-      dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+    - name: Cloudflare | Remove DNS Record | Set 'dns_record_print' variable
+      set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
 
-  - name: Cloudflare | Remove DNS Record | Display DNS Record removal status
-    debug:
-      msg: "DNS Record for '{{ dns_record_print }}' was removed."
+    - name: Cloudflare | Remove DNS Record | Display DNS Record removal status
+      debug:
+        msg: "DNS Record for '{{ dns_record_print }}' was removed."
 
   when: cloudflare_dns_record_removal_status is succeeded

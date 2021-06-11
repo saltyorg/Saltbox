@@ -49,7 +49,8 @@
     section: null
     option: "ENABLED"
     value: "0"
-    no_extra_spaces: yes
+    no_extra_spaces: true
+    mode: '0644'
     state: present
   when: (motd_news.stat.exists)
 
@@ -63,10 +64,10 @@
   git:
     repo: https://github.com/cloudbox2/motd.git
     dest: /opt/motd
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
@@ -86,7 +87,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: no
+    force: false
   when: (not motd_config.stat.exists)
 
 - name: Touch '/opt/motd/activity.log' file
@@ -112,8 +113,8 @@
     src: /var/run/motd
     dest: /etc/motd
     state: link
-    force: yes
-    follow: no
+    force: true
+    follow: false
 
 - name: Check if '/etc/ssh/sshd_config' exists
   stat:

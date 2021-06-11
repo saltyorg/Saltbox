@@ -17,20 +17,20 @@
 
 - name: Install yyq
   get_url:
-    url:  "https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64"
+    url: "https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64"
     dest: /usr/local/bin/yyq
     mode: 0775
     owner: root
     group: root
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
   register: x
 
 - name: "Get yyq version"
   shell: "/usr/local/bin/yyq --version | head -n 1 | awk '{ print $3 }'"
   register: yyq_version
-  ignore_errors: yes
+  ignore_errors: true
   when: x is success
 
 - name: "Display yyq version"
@@ -38,6 +38,7 @@
     msg: "yyq {{ yyq_version.stdout }} installed."
   when: x is success
 
-- debug:
+- name: "yyq install failed"
+  debug:
     msg: "yyq install failed."
   when: x is not success

@@ -20,18 +20,18 @@
 - name: Kernel | Continue with tasks
   block:
 
-  - name: Kernel | Success message
-    debug:
-      msg: "Disabled nouveau driver. System will now reboot ..."
+    - name: Kernel | Success message
+      debug:
+        msg: "Disabled nouveau driver. System will now reboot ..."
 
-  - name: Kernel | Update initramfs
-    command: update-initramfs -u
+    - name: Kernel | Update initramfs
+      command: update-initramfs -u
 
-  - name: Kernel | Reboot command
-    shell: reboot
+    - name: Kernel | Reboot command
+      shell: reboot
 
-  - name: Kernel | Reboot message
-    fail:
-      msg: "Disabled nouveau driver. You will need to restart the server for changes to take effect."
+    - name: Kernel | Reboot message
+      fail:
+        msg: "Disabled nouveau driver. You will need to restart the server for changes to take effect."
 
   when: (r.changed)

@@ -17,10 +17,10 @@
   git:
     repo: https://github.com/l3uddz/plex_dupefinder.git
     dest: /opt/plex_dupefinder
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
@@ -45,7 +45,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: no
+    force: false
   when: not plex_dupefinder_config.stat.exists
 
 - name: Set plexdupes.py as executable

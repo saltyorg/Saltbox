@@ -20,38 +20,40 @@
 - name: BTRFS | Psuedo-File-System | Tasks when '/var/lib/docker' is not mounted
   block:
 
-  - name: BTRFS | Psuedo-File-System | Create blank '/media/docker-volume.img'
-    shell: touch /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Create blank '/media/docker-volume.img'
+      shell: touch /media/docker-volume.img
 
-  - name: BTRFS | Psuedo-File-System | Set NOCOW on '/media/docker-volume.img'
-    shell: chattr +C /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Set NOCOW on '/media/docker-volume.img'
+      shell: chattr +C /media/docker-volume.img
 
-  - name: BTRFS | Psuedo-File-System | Set size on '/media/docker-volume.img'
-    shell: fallocate -l 20G /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Set size on '/media/docker-volume.img'
+      shell: fallocate -l 20G /media/docker-volume.img
 
-  - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
-    filesystem:
-      fstype: ext4
-      dev: /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
+      filesystem:
+        fstype: ext4
+        dev: /media/docker-volume.img
 
-  - name: BTRFS | Psuedo-File-System | Stop docker service
-    systemd:
-      name: docker
-      state: stopped
+    - name: BTRFS | Psuedo-File-System | Stop docker service
+      systemd:
+        name: docker
+        state: stopped
 
-  - name: BTRFS | Psuedo-File-System | Wait for 30 seconds before commencing
-    wait_for:
-      timeout: 30
+    - name: BTRFS | Psuedo-File-System | Wait for 30 seconds before commencing
+      wait_for:
+        timeout: 30
 
-  - name: BTRFS | Psuedo-File-System | Remove '/var/lib/docker' if it exists
-    shell: rm -rf /var/lib/docker
+    - name: BTRFS | Psuedo-File-System | Remove '/var/lib/docker' if it exists
+      file:
+        path: /var/lib/docker
+        state: absent
 
-  - name: BTRFS | Psuedo-File-System | Mount pseudo-file-system
-    mount:
-      name: /var/lib/docker
-      src: /media/docker-volume.img
-      fstype: ext4
-      opts: loop
-      state: mounted
+    - name: BTRFS | Psuedo-File-System | Mount pseudo-file-system
+      mount:
+        name: /var/lib/docker
+        src: /media/docker-volume.img
+        fstype: ext4
+        opts: loop
+        state: mounted
 
   when: (not var_lib_docker_mount_exists)

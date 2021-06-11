@@ -67,7 +67,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: (backup_excludes_list.stat.exists)
 
 - name: "Backup existing folders in '/opt' to prevent overwriting them"
@@ -75,7 +75,7 @@
   args:
     warn: false
   with_fileglob:
-  - "{{ backup.local.destination }}/opt/*.tar"
+    - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
     label: "'/opt/{{ (item | basename | splitext)[0] }}' --> '/opt/{{ (item | basename | splitext)[0] }}_bak'"
 
@@ -84,7 +84,7 @@
   args:
     warn: false
   with_fileglob:
-  - "{{ backup.local.destination }}/opt/*.tar"
+    - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
     label: "'{{ item | basename }}' --> '/opt/{{ (item | basename | splitext)[0] }}'"
   register: unarchive
@@ -95,10 +95,11 @@
 
 - name: Cleanup backup location
   shell: "rm -rf {{ backup.local.destination }}/*"
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   when: not (backup.local.enable)
 
-- debug:
+- name: Finished restoring the backup
+  debug:
     msg: Finished restoring the backup. You are now ready to install Cloudbox!
   when: (unarchive is succeeded)

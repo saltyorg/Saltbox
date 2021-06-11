@@ -17,8 +17,8 @@
   apt:
     name: "{{ lookup('vars', item + '_package') }}"
     state: "{{ docker_package_state }}"
-    update_cache: yes
-    force: yes
+    update_cache: true
+    force: true
 
 - name: Binary | Put '{{ vars[item ~ '_dpkg'] }}' into hold
   dpkg_selections:
@@ -29,7 +29,7 @@
 - name: Binary | Get '{{ vars[item ~ '_name'] }}' version
   shell: "{{ vars[item ~ '_filepath'] }} --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
   register: binary_version
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: Binary | Display '{{ vars[item ~ '_name'] }}' version

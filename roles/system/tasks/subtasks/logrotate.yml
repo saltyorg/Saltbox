@@ -27,21 +27,22 @@
 - name: Logrotate | Create 'logrotate_d_items' variable
   set_fact:
     logrotate_d_items:
-       - path: "cloudbox"
-         content: |
-            /home/{{ user.name }}/cloudbox/cloudbox.log {
-                weekly
-                rotate 0
-                size 2M
-                missingok
-                notifempty
-                create 644 {{ user.name }} {{ user.name }}
-            }
+      - path: "cloudbox"
+        content: |
+          /home/{{ user.name }}/cloudbox/cloudbox.log {
+              weekly
+              rotate 0
+              size 2M
+              missingok
+              notifempty
+              create 644 {{ user.name }} {{ user.name }}
+          }
 
 - name: Logrotate | Add items to '/etc/logrotate.d'
   blockinfile:
     path: "/etc/logrotate.d/{{ item.path }}"
     marker: "### CLOUDBOX MANAGED BLOCK - {mark} ###"
     block: "{{ item.content }}"
-    create: yes
+    create: true
+    mode: '0644'
   loop: "{{ logrotate_d_items }}"

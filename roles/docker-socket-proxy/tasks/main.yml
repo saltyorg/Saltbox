@@ -18,7 +18,7 @@
   docker_container:
     name: docker-socket-proxy
     image: "tecnativa/docker-socket-proxy"
-    pull: yes
+    pull: true
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     env:
@@ -29,9 +29,9 @@
           - docker-socket-proxy
     labels:
       "com.github.cloudbox.cloudbox_managed": "true"
-    networks_cli_compatible: yes
+    networks_cli_compatible: true
     network_mode: "{{ docker_networks_name_common }}"
     container_default_behavior: compatibility
-    purge_networks: yes
+    purge_networks: true
     restart_policy: unless-stopped
     state: started

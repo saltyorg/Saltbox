@@ -61,14 +61,14 @@ rutorrent_dns_zone: "{{ rutorrent_web_domain }}"
 rutorrent_traefik_middleware: "secureHeaders@file,gzip,rutorrent-auth"
 rutorrent_traefik_host: "{{ rutorrent_web_subdomain + '.' + rutorrent_web_domain }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
-rutorrent_traefik_enabled: yes
+rutorrent_traefik_enabled: true
 rutorrent_auth: "/etc/traefik/auth"
 
 ################################
 # Config
 ################################
 
-rutorrent_config_public_trackers: no
+rutorrent_config_public_trackers: false
 
 ## New Installs
 
@@ -136,7 +136,7 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_con
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-rutorrent_themepark_enabled: no
+rutorrent_themepark_enabled: false
 rutorrent_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -147,7 +147,7 @@ rutorrent_themepark_theme: "{{ global_themepark_theme }}"
 rutorrent_docker_container: "{{ rutorrent_name }}"
 
 # Image
-rutorrent_docker_image_pull: yes
+rutorrent_docker_image_pull: true
 rutorrent_docker_image_tag: "latest"
 rutorrent_docker_image: "horjulf/rutorrent-autodl:{{ rutorrent_docker_image_tag }}"
 

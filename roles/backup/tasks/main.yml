@@ -91,13 +91,13 @@
       decrypt: no
       force: yes
     with_items:
-     - "{{ playbook_dir }}/ansible.cfg"
-     - "{{ playbook_dir }}/accounts.yml"
-     - "{{ playbook_dir }}/settings.yml"
-     - "{{ playbook_dir }}/adv_settings.yml"
-     - "{{ playbook_dir }}/backup_config.yml"
-     - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
-     - "/home/{{ user.name }}/.config/rclone/rclone.conf"
+      - "{{ playbook_dir }}/ansible.cfg"
+      - "{{ playbook_dir }}/accounts.yml"
+      - "{{ playbook_dir }}/settings.yml"
+      - "{{ playbook_dir }}/adv_settings.yml"
+      - "{{ playbook_dir }}/backup_config.yml"
+      - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
+      - "/home/{{ user.name }}/.config/rclone/rclone.conf"
     ignore_errors: yes
 
   # Backup the excludes list if it exists
@@ -172,27 +172,27 @@
   - name: Docker container tasks
     block:
 
-    - name: Convert Docker containers string into a list
-      set_fact:
-        docker_containers: "{{ (docker_containers).split() | sort }}"
+      - name: Convert Docker containers string into a list
+        set_fact:
+          docker_containers: "{{ (docker_containers).split() | sort }}"
 
-    - name: Filter out ignored apps from Docker containers list
-      set_fact:
-        docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
+      - name: Filter out ignored apps from Docker containers list
+        set_fact:
+          docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
 
-    - name: Convert Docker containers list back to string
-      set_fact:
-        docker_containers: "{{ docker_containers | join(' ') }}"
+      - name: Convert Docker containers list back to string
+        set_fact:
+          docker_containers: "{{ docker_containers | join(' ') }}"
 
-    - name: "Stop all running Docker containers"
-      shell: "docker stop {{ docker_containers }}"
-      ignore_errors: yes
+      - name: "Stop all running Docker containers"
+        shell: "docker stop {{ docker_containers }}"
+        ignore_errors: true
 
-    - name: "Notify | Cloudbox Backup: Stopped Docker containers"
-      include_role:
-        name: notify
-      vars:
-        message: "Cloudbox Backup: Stopped Docker containers."
+      - name: "Notify | Cloudbox Backup: Stopped Docker containers"
+        include_role:
+          name: notify
+        vars:
+          message: "Cloudbox Backup: Stopped Docker containers."
 
     when: (docker_containers | trim | length > 0)
 
@@ -211,15 +211,15 @@
   - name: Stop 'plexdrive4' service block
     block:
 
-    - name: Get 'plexdrive4' service state
-      set_fact:
-        plexdrive4_service_running: "{{ (services['plexdrive4.service'] is defined) and (services['plexdrive4.service']['state'] == 'running') }}"
+      - name: Get 'plexdrive4' service state
+        set_fact:
+          plexdrive4_service_running: "{{ (services['plexdrive4.service'] is defined) and (services['plexdrive4.service']['state'] == 'running') }}"
 
-    - name: Stop 'plexdrive4' service
-      systemd:
-        name: plexdrive4
-        state: stopped
-      when: (plexdrive4_service_running)
+      - name: Stop 'plexdrive4' service
+        systemd:
+          name: plexdrive4
+          state: stopped
+        when: (plexdrive4_service_running)
 
     when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists)
 
@@ -233,15 +233,15 @@
   - name: Stop 'plexdrive5' service block
     block:
 
-    - name: Get 'plexdrive5' service state
-      set_fact:
-        plexdrive5_service_running: "{{ (services['plexdrive5.service'] is defined) and (services['plexdrive5.service']['state'] == 'running') }}"
+      - name: Get 'plexdrive5' service state
+        set_fact:
+          plexdrive5_service_running: "{{ (services['plexdrive5.service'] is defined) and (services['plexdrive5.service']['state'] == 'running') }}"
 
-    - name: Stop 'plexdrive5' service
-      systemd:
-        name: plexdrive5
-        state: stopped
-      when: (plexdrive5_service_running)
+      - name: Stop 'plexdrive5' service
+        systemd:
+          name: plexdrive5
+          state: stopped
+        when: (plexdrive5_service_running)
 
     when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists)
 
@@ -255,15 +255,15 @@
   - name: Stop 'cloudplow' service block
     block:
 
-    - name: Get 'cloudplow' service state
-      set_fact:
-        cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
+      - name: Get 'cloudplow' service state
+        set_fact:
+          cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
 
-    - name: Stop 'cloudplow' service
-      systemd:
-        name: cloudplow
-        state: stopped
-      when: (cloudplow_service_running)
+      - name: Stop 'cloudplow' service
+        systemd:
+          name: cloudplow
+          state: stopped
+        when: (cloudplow_service_running)
 
     when: (cloudplow_service is defined) and (cloudplow_service.stat.exists)
 
@@ -272,21 +272,21 @@
   - name: Create Snapshot
     block:
 
-    - name: "Snapshot | Wait for 5 seconds before creating snapshot"
-      wait_for:
-        timeout: 5
+      - name: "Snapshot | Wait for 5 seconds before creating snapshot"
+        wait_for:
+          timeout: 5
 
-    - name: Snapshot | Display snapshot source and destination
-      debug:
-        msg: "Creating snapshot of '{{ backup_snapshot_source_path}}' at '{{ backup_snapshot_destination_path }}' ..."
+      - name: Snapshot | Display snapshot source and destination
+        debug:
+          msg: "Creating snapshot of '{{ backup_snapshot_source_path}}' at '{{ backup_snapshot_destination_path }}' ..."
 
-    - name: Snapshot | Create BTRFS snapshot
-      shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path}} {{ backup_snapshot_destination_path }}'
-      when: (snapshot_type == 'btrfs')
+      - name: Snapshot | Create BTRFS snapshot
+        shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path}} {{ backup_snapshot_destination_path }}'
+        when: (snapshot_type == 'btrfs')
 
-    - name: Snapshot | Display new backup source location in snapshot
-      debug:
-        msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
+      - name: Snapshot | Display new backup source location in snapshot
+        debug:
+          msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
 
     when: (use_snapshot)
 
@@ -295,33 +295,33 @@
   - name: Snapshot | Start Plexdrive and Docker containers
     block:
 
-    - name: "Snapshot | Start 'plexdrive4' service"
-      systemd:
-        name: plexdrive4
-        state: started
-      when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
+      - name: "Snapshot | Start 'plexdrive4' service"
+        systemd:
+          name: plexdrive4
+          state: started
+        when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
 
-    - name: "Snapshot | Start 'plexdrive5' service"
-      systemd:
-        name: plexdrive5
-        state: started
-      when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
+      - name: "Snapshot | Start 'plexdrive5' service"
+        systemd:
+          name: plexdrive5
+          state: started
+        when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
 
-    - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
-      wait_for:
-        timeout: 5
+      - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
+        wait_for:
+          timeout: 5
 
-    - name: "Snapshot | Start all previously running Docker containers"
-      shell: 'docker start {{ docker_containers }}'
-      ignore_errors: yes
-      when: (docker_containers | trim | length > 0)
+      - name: "Snapshot | Start all previously running Docker containers"
+        shell: 'docker start {{ docker_containers }}'
+        ignore_errors: yes
+        when: (docker_containers | trim | length > 0)
 
-    - name: "Snapshot | Notify | Cloudbox Backup: Started Docker containers"
-      include_role:
-        name: notify
-      vars:
-        message: "Cloudbox Backup: Started Docker containers."
-      when: (docker_containers | trim | length > 0)
+      - name: "Snapshot | Notify | Cloudbox Backup: Started Docker containers"
+        include_role:
+          name: notify
+        vars:
+          message: "Cloudbox Backup: Started Docker containers."
+        when: (docker_containers | trim | length > 0)
 
     when: (use_snapshot)
 
@@ -364,27 +364,27 @@
   - name: Snapshot | Cleanup Tasks
     block:
 
-    - name: Snapshot | Check if BTRFS snapshot is mounted
-      stat:
-        path: "{{ backup_snapshot_destination_path }}"
-      register: btrfs_snapshot_mounted
-
-    - name: Snapshot | Delete BTRFS snapshot
-      block:
-
-      - name: Snapshot | Delete existing BTRFS snapshot (1/2)
-        command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
-        register: snapshot_deletion
-        ignore_errors: yes
-
-      - name: Snapshot | Delete existing BTRFS snapshot (2/2)
-        file:
+      - name: Snapshot | Check if BTRFS snapshot is mounted
+        stat:
           path: "{{ backup_snapshot_destination_path }}"
-          state: absent
-        ignore_errors: yes
-        when: (snapshot_deletion is failed)
+        register: btrfs_snapshot_mounted
 
-      when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+      - name: Snapshot | Delete BTRFS snapshot
+        block:
+
+          - name: Snapshot | Delete existing BTRFS snapshot (1/2)
+            command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
+            register: snapshot_deletion
+            ignore_errors: yes
+
+          - name: Snapshot | Delete existing BTRFS snapshot (2/2)
+            file:
+              path: "{{ backup_snapshot_destination_path }}"
+              state: absent
+            ignore_errors: yes
+            when: (snapshot_deletion is failed)
+
+        when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
 
     when: (use_snapshot) and (snapshot_type == 'btrfs')
 
@@ -428,33 +428,33 @@
   - name: Start Plexdrive and Docker Containers
     block:
 
-    - name: "Start 'plexdrive4' service"
-      systemd:
-        name: plexdrive4
-        state: started
-      when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
+      - name: "Start 'plexdrive4' service"
+        systemd:
+          name: plexdrive4
+          state: started
+        when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
 
-    - name: "Start 'plexdrive5' service"
-      systemd:
-        name: plexdrive5
-        state: started
-      when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
+      - name: "Start 'plexdrive5' service"
+        systemd:
+          name: plexdrive5
+          state: started
+        when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
 
-    - name: "Wait for 5 seconds before starting Docker containers"
-      wait_for:
-        timeout: 5
+      - name: "Wait for 5 seconds before starting Docker containers"
+        wait_for:
+          timeout: 5
 
-    - name: "Start all previously running Docker containers"
-      shell: 'docker start {{ docker_containers }}'
-      ignore_errors: yes
-      when: (docker_containers | trim | length > 0)
+      - name: "Start all previously running Docker containers"
+        shell: 'docker start {{ docker_containers }}'
+        ignore_errors: yes
+        when: (docker_containers | trim | length > 0)
 
-    - name: "Notify | Cloudbox Backup: Started Docker containers"
-      include_role:
-        name: notify
-      vars:
-        message: "Cloudbox Backup: Started Docker containers."
-      when: (docker_containers | trim | length > 0)
+      - name: "Notify | Cloudbox Backup: Started Docker containers"
+        include_role:
+          name: notify
+        vars:
+          message: "Cloudbox Backup: Started Docker containers."
+        when: (docker_containers | trim | length > 0)
 
     when: (not use_snapshot)
 
@@ -503,15 +503,15 @@
     ignore_errors: yes
     when: (backup.rclone.enable)
     with_items:
-     - "opt"
-     - "ansible.cfg"
-     - "accounts.yml"
-     - "settings.yml"
-     - "adv_settings.yml"
-     - "backup_config.yml"
-     - "rclone.conf"
-     - "backup_excludes.txt"
-     - "backup_excludes_list.txt"
+      - "opt"
+      - "ansible.cfg"
+      - "accounts.yml"
+      - "settings.yml"
+      - "adv_settings.yml"
+      - "backup_config.yml"
+      - "rclone.conf"
+      - "backup_excludes.txt"
+      - "backup_excludes_list.txt"
 
   - name: "Wait for 5 seconds before uploading"
     wait_for:
@@ -591,87 +591,87 @@
       msg: "Backup Completed Successfully."
 
   rescue:
-  - name: Snapshot | Cleanup Tasks
-    block:
-
-    - name: Snapshot | Check if BTRFS snapshot is mounted
-      stat:
-        path: "{{ backup_snapshot_destination_path }}"
-      register: btrfs_snapshot_mounted
-
-    - name: Snapshot | Delete BTRFS snapshot
+    - name: Snapshot | Cleanup Tasks
       block:
 
-      - name: Snapshot | Delete existing BTRFS snapshot (1/2)
-        command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
-        register: snapshot_deletion
-        ignore_errors: yes
+        - name: Snapshot | Check if BTRFS snapshot is mounted
+          stat:
+            path: "{{ backup_snapshot_destination_path }}"
+          register: btrfs_snapshot_mounted
 
-      - name: Snapshot | Delete existing BTRFS snapshot (2/2)
-        file:
-          path: "{{ backup_snapshot_destination_path }}"
-          state: absent
-        ignore_errors: yes
-        when: (snapshot_deletion is failed)
+        - name: Snapshot | Delete BTRFS snapshot
+          block:
 
-      when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+            - name: Snapshot | Delete existing BTRFS snapshot (1/2)
+              command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
+              register: snapshot_deletion
+              ignore_errors: yes
 
-    when: (use_snapshot) and (snapshot_type == 'btrfs')
+            - name: Snapshot | Delete existing BTRFS snapshot (2/2)
+              file:
+                path: "{{ backup_snapshot_destination_path }}"
+                state: absent
+              ignore_errors: yes
+              when: (snapshot_deletion is failed)
 
-  - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-    shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
-    args:
-      warn: no
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
 
-  - name: Start Plexdrive and Docker Containers
-    block:
+      when: (use_snapshot) and (snapshot_type == 'btrfs')
 
-    - name: "Start 'plexdrive4' service"
+    - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
+      shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
+      args:
+        warn: no
+
+    - name: Start Plexdrive and Docker Containers
+      block:
+
+        - name: "Start 'plexdrive4' service"
+          systemd:
+            name: plexdrive4
+            state: started
+          when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
+
+        - name: "Start 'plexdrive5' service"
+          systemd:
+            name: plexdrive5
+            state: started
+          when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
+
+        - name: "Wait for 5 seconds before starting Docker containers"
+          wait_for:
+            timeout: 5
+
+        - name: "Start all previously running Docker containers"
+          shell: 'docker start {{ docker_containers }}'
+          ignore_errors: yes
+          when: (docker_containers | trim | length > 0)
+
+      when: (not use_snapshot)
+
+    - name: "Start 'cloudplow' service"
       systemd:
-        name: plexdrive4
+        name: cloudplow
         state: started
-      when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
+      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
 
-    - name: "Start 'plexdrive5' service"
-      systemd:
-        name: plexdrive5
-        state: started
-      when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
+    - name: Backup Status - Failure
+      debug:
+        msg: 'Backup terminated due to an error'
 
-    - name: "Wait for 5 seconds before starting Docker containers"
-      wait_for:
-        timeout: 5
-
-    - name: "Start all previously running Docker containers"
-      shell: 'docker start {{ docker_containers }}'
-      ignore_errors: yes
-      when: (docker_containers | trim | length > 0)
-
-    when: (not use_snapshot)
-
-  - name: "Start 'cloudplow' service"
-    systemd:
-      name: cloudplow
-      state: started
-    when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
-
-  - name: Backup Status - Failure
-    debug:
-      msg: 'Backup terminated due to an error'
-
-  - name: "Notify | Cloudbox Backup: Backup terminated due to an error"
-    include_role:
-      name: notify
-    vars:
-      message: "Cloudbox Backup: Backup terminated due to an error."
+    - name: "Notify | Cloudbox Backup: Backup terminated due to an error"
+      include_role:
+        name: notify
+      vars:
+        message: "Cloudbox Backup: Backup terminated due to an error."
 
   always:
-  - name: "Remove 'backup.lock'"
-    file:
-      path: "{{ playbook_dir }}/backup.lock"
-      state: absent
+    - name: "Remove 'backup.lock'"
+      file:
+        path: "{{ playbook_dir }}/backup.lock"
+        state: absent
 
-  - name: "Reset logs folder ownership."
-    shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
-    args:
-      warn: no
+    - name: "Reset logs folder ownership."
+      shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
+      args:
+        warn: no

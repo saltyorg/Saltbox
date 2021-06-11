@@ -18,8 +18,8 @@
     repo: "https://github.com/adamgot/python-plexlibrary.git"
     dest: "/opt/python-plexlibrary"
     version: master
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
@@ -39,13 +39,13 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: no
+    force: false
   when: not python_plexlibrary_config.stat.exists
 
 - name: Add plex url to config file
   shell: |
     yyq w -i /opt/python-plexlibrary/config.yml plex.baseurl 'https://plex.{{ user.domain }}:443'
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
 
 - name: Import Plex Auth Token role
@@ -56,7 +56,7 @@
 - name: Add plex token to config file
   shell: |
     yyq w -i /opt/python-plexlibrary/config.yml plex.token '{{ plex_auth_token }}'
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   when: plex_account_is_enabled
 
@@ -67,7 +67,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664
-    force: yes
+    force: true
   with_fileglob:
     - "recipes/*.yml"
 
@@ -78,7 +78,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775,a+x
-    force: yes
+    force: true
   loop:
     - "plexlibrary.sh"
     - "plexlibrary-cron-helper.sh"

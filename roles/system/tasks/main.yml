@@ -38,4 +38,5 @@
   import_tasks: "subtasks/locale.yml"
   tags: set-locale
 
-- meta: flush_handlers
+- name: flush_handlers
+  meta: flush_handlers

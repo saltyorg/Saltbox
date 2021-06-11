@@ -24,32 +24,32 @@
 - name: Resources | Tasks | systemd | Delete Service | existing '{{ _service_file }}' tasks
   block:
 
-  - name: Resources | Tasks | systemd | Delete Service | populate service facts
-    service_facts:
+    - name: Resources | Tasks | systemd | Delete Service | populate service facts
+      service_facts:
 
-  - name: Resources | Tasks | systemd | Delete Service | get '{{ _service_file }}' state
-    set_fact:
-      service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
+    - name: Resources | Tasks | systemd | Delete Service | get '{{ _service_file }}' state
+      set_fact:
+        service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
-  - name: Resources | Tasks | systemd | Delete Service | stop '{{ _service_file }}'
-    systemd:
-      name: "{{ _service_name }}"
-      state: stopped
-      enabled: no
-    when: service_running
+    - name: Resources | Tasks | systemd | Delete Service | stop '{{ _service_file }}'
+      systemd:
+        name: "{{ _service_name }}"
+        state: stopped
+        enabled: false
+      when: service_running
 
-  - name: Resources | Tasks | systemd | Delete Service | disable '{{ _service_file }}'
-    systemd:
-      name: "{{ _service_name }}"
-      enabled: no
+    - name: Resources | Tasks | systemd | Delete Service | disable '{{ _service_file }}'
+      systemd:
+        name: "{{ _service_name }}"
+        enabled: false
 
-  - name: Resources | Tasks | systemd | Delete Service | remove '{{ _service_file }}' file
-    file:
-      path: "{{ _service_path }}"
-      state: absent
-      force: yes
+    - name: Resources | Tasks | systemd | Delete Service | remove '{{ _service_file }}' file
+      file:
+        path: "{{ _service_path }}"
+        state: absent
+        force: true
 
-  - name: Resources | Tasks | systemd | Delete Service | systemd daemon-reload
-    systemd: daemon_reload=yes
+    - name: Resources | Tasks | systemd | Delete Service | systemd daemon-reload
+      systemd: daemon_reload=yes
 
   when: service_status.stat.exists

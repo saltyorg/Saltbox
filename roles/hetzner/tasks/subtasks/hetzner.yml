@@ -25,29 +25,29 @@
 - name: Hetzner | Hetzner GRUB Edits Block
   block:
 
-  - name: Hetzner | Comment out 'i915' blacklists in 'blacklist-hetzner.conf'
-    replace:
-      path: "/etc/modprobe.d/blacklist-hetzner.conf"
-      regexp: '(^blacklist\si915.*)'
-      replace: '#\1'
+    - name: Hetzner | Comment out 'i915' blacklists in 'blacklist-hetzner.conf'
+      replace:
+        path: "/etc/modprobe.d/blacklist-hetzner.conf"
+        regexp: '(^blacklist\si915.*)'
+        replace: '#\1'
 
-  - name: Hetzner | Hetzner GRUB files
-    set_fact:
-      hetzner_grub_files:
-        - "/etc/default/grub.d/hetzner.cfg"
-        - "/etc/default/grub"
+    - name: Hetzner | Hetzner GRUB files
+      set_fact:
+        hetzner_grub_files:
+          - "/etc/default/grub.d/hetzner.cfg"
+          - "/etc/default/grub"
 
-  - name: Hetzner | Check status of GRUB files
-    stat:
-      path: "{{ item }}"
-    loop: "{{ hetzner_grub_files }}"
-    register: hetzner_grub_files_status
+    - name: Hetzner | Check status of GRUB files
+      stat:
+        path: "{{ item }}"
+      loop: "{{ hetzner_grub_files }}"
+      register: hetzner_grub_files_status
 
-  - name: Hetzner | Hetzner GRUB edits
-    include_tasks: "subtasks/grub_edits.yml"
-    when: outer_item.stat.exists
-    loop: "{{ hetzner_grub_files_status.results }}"
-    loop_control:
-      loop_var: outer_item
+    - name: Hetzner | Hetzner GRUB edits
+      include_tasks: "subtasks/grub_edits.yml"
+      when: outer_item.stat.exists
+      loop: "{{ hetzner_grub_files_status.results }}"
+      loop_control:
+        loop_var: outer_item
 
   when: ('i915' in lscpi_resp.stdout) and (blacklist_hetzner_conf.stat.exists)

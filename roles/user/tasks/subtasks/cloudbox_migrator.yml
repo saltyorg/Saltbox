@@ -23,7 +23,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664
-    force: no
+    force: false
   when: (user_home_ansible_vault_stat.stat.exists)
 
 - name: Cloudbox Migrator | Create '/srv/git/' directory
@@ -50,7 +50,7 @@
     paths: "{{ cb_git_repo_dest }}"
     file_type: file
     patterns: "*.sh"
-    recurse: no
+    recurse: false
   register: cb_git_repo_dest_script_files_find
 
 - name: Cloudbox Migrator | Create links CB script files in '/usr/local/bin/'
@@ -58,7 +58,7 @@
     src: "{{ item.path }}"
     dest: "/usr/local/bin/{{ (item.path | basename | splitext)[0] }}"
     state: link
-    force: yes
+    force: true
   loop: "{{ cb_git_repo_dest_script_files_find.files }}"
 
 - name: Cloudbox Migrator | Check if 'cloudbox' folder exists in '/home'
@@ -74,51 +74,52 @@
 - name: Cloudbox Migrator | Tasks block for when 'cloudbox' folder exist in '/home'
   block:
 
-  - name: Cloudbox Migrator | Find Cloudbox config files in '/home'
-    find:
-      paths: "{{ user_paths_home_cloudbox_location }}"
-      file_type: file
-      patterns: '*.yml,*.cfg,*.conf,*.txt,*.log'
-      recurse: no
-    register: user_paths_home_cloudbox_location_config_files_find
+    - name: Cloudbox Migrator | Find Cloudbox config files in '/home'
+      find:
+        paths: "{{ user_paths_home_cloudbox_location }}"
+        file_type: file
+        patterns: '*.yml,*.cfg,*.conf,*.txt,*.log'
+        recurse: false
+      register: user_paths_home_cloudbox_location_config_files_find
 
-  - name: Cloudbox Migrator | Copy Cloudbox config files from '/home' to '/srv'
-    copy:
-      src: "{{ item.path }}"
-      dest: "{{ cloudbox_git_repo_dest }}"
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0664
-      decrypt: no
-      force: no
-    loop: "{{ user_paths_home_cloudbox_location_config_files_find.files }}"
+    - name: Cloudbox Migrator | Copy Cloudbox config files from '/home' to '/srv'
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ cloudbox_git_repo_dest }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0664
+        decrypt: false
+        force: false
+      loop: "{{ user_paths_home_cloudbox_location_config_files_find.files }}"
 
-  - name: Cloudbox Migrator | Find Cloudbox host_var files in '/home'
-    find:
-      paths: "{{ user_paths_home_cloudbox_location }}/inventories/host_vars/"
-      file_type: file
-      recurse: no
-    register: user_paths_home_cloudbox_location_host_var_files_find
+    - name: Cloudbox Migrator | Find Cloudbox host_var files in '/home'
+      find:
+        paths: "{{ user_paths_home_cloudbox_location }}/inventories/host_vars/"
+        file_type: file
+        recurse: false
+      register: user_paths_home_cloudbox_location_host_var_files_find
 
-  - name: Cloudbox Migrator | Create 'inventories/host_var' folder in '/srv'
-    file:
-      path: "{{ cloudbox_git_repo_dest }}/inventories/host_vars/"
-      state: directory
+    - name: Cloudbox Migrator | Create 'inventories/host_vars' folder in '/srv'
+      file:
+        path: "{{ cloudbox_git_repo_dest }}/inventories/host_vars/"
+        state: directory
+        mode: '0775'
 
-  - name: Cloudbox Migrator | Copy Cloudbox host_var files from '/home' to '/srv'
-    copy:
-      src: "{{ item.path }}"
-      dest: "{{ cloudbox_git_repo_dest }}/inventories/host_vars/"
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0664
-      decrypt: no
-      force: no
-    loop: "{{ user_paths_home_cloudbox_location_host_var_files_find.files }}"
+    - name: Cloudbox Migrator | Copy Cloudbox host_var files from '/home' to '/srv'
+      copy:
+        src: "{{ item.path }}"
+        dest: "{{ cloudbox_git_repo_dest }}/inventories/host_vars/"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0664
+        decrypt: false
+        force: false
+      loop: "{{ user_paths_home_cloudbox_location_host_var_files_find.files }}"
 
-  - name: Cloudbox Migrator | Backup existing 'cloudbox' folder
-    shell: |
-      cp -r -n "{{ user_paths_home_cloudbox_location }}" "{{ user_paths_home_cloudbox_location }}_REMOVE_ME"
+    - name: Cloudbox Migrator | Backup existing 'cloudbox' folder
+      shell: |
+        cp -r -n "{{ user_paths_home_cloudbox_location }}" "{{ user_paths_home_cloudbox_location }}_REMOVE_ME"
 
   when: (home_user_cloudbox_stat.stat.exists and home_user_cloudbox_stat.stat.isdir)
 
@@ -146,7 +147,7 @@
     src: "{{ cloudbox_git_repo_dest }}"
     dest: "{{ user_paths_home_cloudbox_location }}"
     state: link
-    force: yes
+    force: true
   when: (playbook_dir == cloudbox_git_repo_dest)
 
 - name: User Account | Create symlink to cloudbox in root's home folder
@@ -154,7 +155,7 @@
     src: "{{ cloudbox_git_repo_dest }}"
     dest: "/root/cloudbox"
     state: link
-    force: yes
+    force: true
   when: (playbook_dir == cloudbox_git_repo_dest)
 
 - name: Cloudbox Migrator | Check if '.ansible_vault' exists in '/etc/ansible'

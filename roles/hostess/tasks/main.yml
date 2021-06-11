@@ -13,30 +13,30 @@
   args:
     executable: /bin/bash
   register: hostess_download_url
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install Hostess
   get_url:
-    url:  "{{ hostess_download_url.stdout | default(hostess_download_url_backup,true) }}"
+    url: "{{ hostess_download_url.stdout | default(hostess_download_url_backup,true) }}"
     dest: "{{ hostess_binary_path }}"
     mode: 0775
     owner: root
     group: root
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
   register: hostess_download_status
 
 - name: Tasks to do when Hostess download is successful
   block:
 
-  - name: Get Hostess binary version
-    shell: "{{ hostess_binary_version_lookup_command }}"
-    register: hostess_binary_version
-    ignore_errors: yes
+    - name: Get Hostess binary version
+      shell: "{{ hostess_binary_version_lookup_command }}"
+      register: hostess_binary_version
+      ignore_errors: true
 
-  - name: Display Hostess binary version
-    debug:
-      msg: "Hostess {{ hostess_binary_version.stdout }} installed."
+    - name: Display Hostess binary version
+      debug:
+        msg: "Hostess {{ hostess_binary_version.stdout }} installed."
 
   when: hostess_download_status is succeeded

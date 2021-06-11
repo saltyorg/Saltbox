@@ -50,14 +50,14 @@ tautulli_dns_zone: "{{ tautulli_web_domain }}"
 tautulli_traefik_middleware: "secureHeaders@file,gzip"
 tautulli_traefik_host: "{{ tautulli_web_subdomain + '.' + tautulli_web_domain }}"
 tautulli_traefik_certresolver: "{{ traefik_default_certresolver }}"
-tautulli_traefik_enabled: yes
+tautulli_traefik_enabled: true
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-tautulli_themepark_enabled: no
+tautulli_themepark_enabled: false
 tautulli_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -68,7 +68,7 @@ tautulli_themepark_theme: "{{ global_themepark_theme }}"
 tautulli_docker_container: "{{ tautulli_name }}"
 
 # Image
-tautulli_docker_image_pull: yes
+tautulli_docker_image_pull: true
 tautulli_docker_image_tag: "release"
 tautulli_docker_image: "hotio/tautulli:{{ tautulli_docker_image_tag }}"
 

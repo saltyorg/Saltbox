@@ -18,7 +18,7 @@
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
     mode: 0775
-    force: yes
+    force: true
 
 - name: "Daemon | Create override directory"
   file:
@@ -31,7 +31,7 @@
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
     mode: 0775
-    force: no
+    force: false
 
 - name: "Daemon | Edit override file"
   ini_file:
@@ -40,4 +40,5 @@
     option: "After"
     value: "{{ 'unionfs' if (mounts.unionfs|lower) == 'unionfs' else 'mergerfs' }}.service"
     state: present
-    no_extra_spaces: yes
+    mode: '0755'
+    no_extra_spaces: true

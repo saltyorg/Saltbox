@@ -57,7 +57,7 @@
     yyq w -i {{ playbook_dir }}/{{ file }} backup.restore_service.user {{ vault_service.user }}
     yyq w -i {{ playbook_dir }}/{{ file }} backup.restore_service.pass {{ vault_service.pass }}
     yyq d -i {{ playbook_dir }}/{{ file }} vault_service
-  become: yes
+  become: true
   become_user: "{{ cloudbox_yml.stat.pw_name }}"
   when: (old_settings) and not (new_settings)
 

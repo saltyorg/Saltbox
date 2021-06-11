@@ -15,7 +15,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    recurse: yes
+    recurse: true
 
 - name: Post-Install | Update ports in '{{ plex_paths_config_location | basename }}'
   import_tasks: update_ports.yml

@@ -20,7 +20,7 @@
   with_items:
     - /opt/ddclient
 
-- name:
+- name: Set subdomains fact
   set_fact:
     subdomains:
       - plex
@@ -43,14 +43,14 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: no
+    force: false
   when: cloudflare_is_enabled
 
 - name: Create and start container
   docker_container:
     name: ddclient
     image: "linuxserver/ddclient:latest"
-    pull: yes
+    pull: true
     env:
       PUID: "{{ uid }}"
       PGID: "{{ gid }}"
@@ -62,8 +62,8 @@
       - name: cloudbox
         aliases:
           - ddclient
-    networks_cli_compatible: yes
+    networks_cli_compatible: true
     network_mode: "{{ docker_networks_name_common }}"
-    purge_networks: yes
+    purge_networks: true
     restart_policy: unless-stopped
     state: started

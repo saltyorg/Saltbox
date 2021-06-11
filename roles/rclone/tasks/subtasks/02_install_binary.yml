@@ -24,7 +24,7 @@
 - name: Install Binary | Cleanup rclone tmp path
   shell: rm -rf /tmp/rclone-*-linux-amd64
   args:
-    warn: no
+    warn: false
 
 - name: Install Binary | Display rclone version being installed
   debug:
@@ -35,8 +35,8 @@
   unarchive:
     src: "{{ rclone_download_url }}"
     dest: /tmp
-    copy: no
-    validate_certs: no
+    copy: false
+    validate_certs: false
 
 - name: Install Binary | Find rclone tmp dir
   shell: ls -d /tmp/rclone-*-linux-amd64
@@ -49,7 +49,7 @@
     mode: 0775
     owner: root
     group: root
-    force: yes
+    force: true
 
 - name: Install Binary | Make dir for local manpages
   file:
@@ -74,7 +74,7 @@
 - name: Install Binary | Get rclone version
   shell: rclone --version | head -n 1 | awk '{ print substr($2, 2) }'
   register: rclone_version
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Install Binary | Display rclone version"
   debug:

@@ -52,9 +52,9 @@
 - name: Variables | Add feeder entries to variable
   block:
 
-  - name: Variables | Add 'feeder' to 'mount_types' variable
-    set_fact:
-      desired_mount_types: "{{ desired_mount_types + ['feeder'] }}"
+    - name: Variables | Add 'feeder' to 'mount_types' variable
+      set_fact:
+        desired_mount_types: "{{ desired_mount_types + ['feeder'] }}"
 
   when: feeder_mount_is_enabled
 

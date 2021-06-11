@@ -49,7 +49,7 @@ sonarr_dns_zone: "{{ sonarr_web_domain }}"
 sonarr_traefik_middleware: "secureHeaders@file,gzip"
 sonarr_traefik_host: "{{ sonarr_web_subdomain + '.' + sonarr_web_domain }}"
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-sonarr_traefik_enabled: yes
+sonarr_traefik_enabled: true
 
 ################################
 # API
@@ -63,7 +63,7 @@ sonarr_api_key:
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-sonarr_themepark_enabled: no
+sonarr_themepark_enabled: false
 sonarr_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -74,7 +74,7 @@ sonarr_themepark_theme: "{{ global_themepark_theme }}"
 sonarr_docker_container: "{{ sonarr_name }}"
 
 # Image
-sonarr_docker_image_pull: yes
+sonarr_docker_image_pull: true
 sonarr_docker_image_tag: "release"
 sonarr_docker_image: "hotio/sonarr:{{ sonarr_docker_image_tag }}"
 

@@ -33,33 +33,33 @@
 - name: Restore Service | Copy Files to '/tmp/restore_service_temp' path
   shell: cp '{{ item }}' '/tmp/restore_service_temp/'
   args:
-    warn: no
-  become: yes
+    warn: false
+  become: true
   become_user: "{{ user.name }}"
-  ignore_errors: yes
+  ignore_errors: true
   with_items:
-   - "{{ playbook_dir }}/ansible.cfg"
-   - "{{ playbook_dir }}/accounts.yml"
-   - "{{ playbook_dir }}/settings.yml"
-   - "{{ playbook_dir }}/adv_settings.yml"
-   - "{{ playbook_dir }}/backup_config.yml"
-   - "/home/{{ user.name }}/.ansible_vault"
-   - "/home/{{ user.name }}/.config/rclone/rclone.conf"
+    - "{{ playbook_dir }}/ansible.cfg"
+    - "{{ playbook_dir }}/accounts.yml"
+    - "{{ playbook_dir }}/settings.yml"
+    - "{{ playbook_dir }}/adv_settings.yml"
+    - "{{ playbook_dir }}/backup_config.yml"
+    - "/home/{{ user.name }}/.ansible_vault"
+    - "/home/{{ user.name }}/.config/rclone/rclone.conf"
 
 - name: Restore Service | Encrypt config file(s)
   shell: "openssl enc -aes-256-cbc -salt -md md5 -in '{{ item }}' -out '/tmp/restore_service/{{ (item | basename) | regex_replace('^\\.', '') }}.enc' -k '{{ restore_service_password }}'"
   args:
-    warn: no
-  become: yes
+    warn: false
+  become: true
   become_user: "{{ user.name }}"
-  ignore_errors: yes
+  ignore_errors: true
   with_fileglob:
     - "/tmp/restore_service_temp/*"
 
 - name: "Restore Service | Validate config file(s) for encryption."
   shell: "head -c 10 {{ item }} | grep -q Salted"
   register: encryption_check
-  ignore_errors: yes
+  ignore_errors: true
   failed_when: encryption_check.rc > 1
   with_fileglob:
     - "/tmp/restore_service/*"
@@ -92,45 +92,45 @@
 - name: Restore Service | Restore Service Upload Tasks
   block:
 
-  - name: Restore Service | Upload encrypted config file(s)
-    shell: "curl -F 'file=@{{ item }}' 'http://restore.cloudbox.works/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
-    args:
-      warn: no
-    with_fileglob:
-      - "/tmp/restore_service/*"
-    register: files_upload
+    - name: Restore Service | Upload encrypted config file(s)
+      shell: "curl -F 'file=@{{ item }}' 'http://restore.cloudbox.works/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
+      args:
+        warn: false
+      with_fileglob:
+        - "/tmp/restore_service/*"
+      register: files_upload
 
-  - name: Restore Service | Set 'files_too_large_to_upload_list' variable
-    set_fact:
-      files_too_large_to_upload_list: "{{ files_upload.results | selectattr('stdout', 'search', 'too large') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }} "
+    - name: Restore Service | Set 'files_too_large_to_upload_list' variable
+      set_fact:
+        files_too_large_to_upload_list: "{{ files_upload.results | selectattr('stdout', 'search', 'too large') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }} "
 
-  - name: Restore Service | Print error mesage when config file(s) were too large to upload
-    debug:
-      msg: "The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
-    when: (files_too_large_to_upload_list | trim | length > 0)
+    - name: Restore Service | Print error mesage when config file(s) were too large to upload
+      debug:
+        msg: "The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
+      when: (files_too_large_to_upload_list | trim | length > 0)
 
-  - name: "Restore Service | Notify | Cloudbox Backup: Config files were too large to upload to the Cloudbox Restore Service"
-    include_role:
-      name: notify
-    vars:
-      message: "Cloudbox Backup: The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
-    when: (files_too_large_to_upload_list | trim | length > 0)
+    - name: "Restore Service | Notify | Cloudbox Backup: Config files were too large to upload to the Cloudbox Restore Service"
+      include_role:
+        name: notify
+      vars:
+        message: "Cloudbox Backup: The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
+      when: (files_too_large_to_upload_list | trim | length > 0)
 
-  - name: Restore Service | Set 'files_uploaded_list' variable
-    set_fact:
-      files_uploaded_list: "{{ files_upload.results | selectattr('stdout', 'search', 'Successfull') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }} "
+    - name: Restore Service | Set 'files_uploaded_list' variable
+      set_fact:
+        files_uploaded_list: "{{ files_upload.results | selectattr('stdout', 'search', 'Successfull') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }} "
 
-  - name: Restore Service | Print success message when config file(s) were successfully uploaded
-    debug:
-      msg: "The following encrypted config file(s) were successfully uploaded to the Cloudbox Restore Service: '{{ files_uploaded_list | trim }}'"
-    when: (files_uploaded_list | trim | length > 0)
+    - name: Restore Service | Print success message when config file(s) were successfully uploaded
+      debug:
+        msg: "The following encrypted config file(s) were successfully uploaded to the Cloudbox Restore Service: '{{ files_uploaded_list | trim }}'"
+      when: (files_uploaded_list | trim | length > 0)
 
-  - name: "Restore Service | Notify | Cloudbox Backup: Config files were successfully encrypted and uploaded to the Cloudbox Restore Service"
-    include_role:
-      name: notify
-    vars:
-      message: "Cloudbox Backup: Config files uploaded to the Cloudbox Restore Service."
-    when: (files_uploaded_list | trim | length > 0)
+    - name: "Restore Service | Notify | Cloudbox Backup: Config files were successfully encrypted and uploaded to the Cloudbox Restore Service"
+      include_role:
+        name: notify
+      vars:
+        message: "Cloudbox Backup: Config files uploaded to the Cloudbox Restore Service."
+      when: (files_uploaded_list | trim | length > 0)
 
   when:
     - (unencrypted_files_list | trim | length == 0)

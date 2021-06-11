@@ -49,7 +49,7 @@ lidarr_dns_zone: "{{ lidarr_web_domain }}"
 lidarr_traefik_middleware: "secureHeaders@file,gzip"
 lidarr_traefik_host: "{{ lidarr_web_subdomain + '.' + lidarr_web_domain }}"
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-lidarr_traefik_enabled: yes
+lidarr_traefik_enabled: true
 
 ################################
 # API
@@ -63,7 +63,7 @@ lidarr_api_key:
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-lidarr_themepark_enabled: no
+lidarr_themepark_enabled: false
 lidarr_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -74,7 +74,7 @@ lidarr_themepark_theme: "{{ global_themepark_theme }}"
 lidarr_docker_container: "{{ lidarr_name }}"
 
 # Image
-lidarr_docker_image_pull: yes
+lidarr_docker_image_pull: true
 lidarr_docker_image_tag: "latest"
 lidarr_docker_image: "hotio/lidarr:{{ lidarr_docker_image_tag }}"
 

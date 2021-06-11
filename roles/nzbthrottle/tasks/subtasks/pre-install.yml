@@ -16,18 +16,18 @@
 - name: Pre-Install | New config tasks
   block:
 
-  - name: Pre-Install | Import Plex Auth Token role
-    import_role:
-      name: plex_auth_token
-    when: (plex_account_is_enabled)
+    - name: Pre-Install | Import Plex Auth Token role
+      import_role:
+        name: plex_auth_token
+      when: (plex_account_is_enabled)
 
-  - name: Pre-Install | Import default config
-    template:
-      src: 'config.json.j2'
-      dest: "{{ nzbthrottle_paths_config_location }}"
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-      force: yes
+    - name: Pre-Install | Import default config
+      template:
+        src: 'config.json.j2'
+        dest: "{{ nzbthrottle_paths_config_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        force: true
 
   when: not nzbthrottle_paths_config_location_stat.stat.exists

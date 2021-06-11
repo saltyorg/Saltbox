@@ -15,19 +15,19 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    recurse: yes
+    recurse: true
 
 - name: z | Clone 'z' repo
   git:
     repo: "{{ shell_z_git_repo_url }}"
     dest: "{{ shell_z_git_repo_dest }}"
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
   register: shell_z_git_clone_status
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: z | 'z' Installed
   debug:

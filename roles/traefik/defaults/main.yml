@@ -49,7 +49,7 @@ traefik_metrics_dns_zone: "{{ traefik_metrics_domain }}"
 ################################
 
 traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
-traefik_traefik_enabled: yes
+traefik_traefik_enabled: true
 
 ################################
 # Docker
@@ -59,7 +59,7 @@ traefik_traefik_enabled: yes
 traefik_docker_container: "{{ traefik_name }}"
 
 # Image
-traefik_docker_image_pull: yes
+traefik_docker_image_pull: true
 traefik_docker_image_tag: "latest"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
@@ -109,10 +109,10 @@ traefik_docker_commands_metrics:
 
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
-                              + traefik_docker_commands_custom 
+                              + traefik_docker_commands_custom
                               if not (traefik.metrics)
                               else traefik_docker_commands_default
-                              + traefik_docker_commands_custom 
+                              + traefik_docker_commands_custom
                               + traefik_docker_commands_metrics }}"
 
 # Volumes
@@ -137,7 +137,7 @@ traefik_docker_hosts: "{{ docker_hosts_common
                               | combine(traefik_docker_hosts_custom) }}"
 
 # Labels
-traefik_docker_labels_default: 
+traefik_docker_labels_default:
   traefik.enable: "true"
   traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik.entrypoints: "websecure"
@@ -145,11 +145,11 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.tls.options: "securetls@file"
   traefik.http.routers.traefik.middlewares: "traefik-auth,gzip"
   traefik.http.routers.traefik.service: "api@internal"
-  traefik.http.routers.redirs.rule: "hostregexp(`{host:.+}`)"  
-  traefik.http.routers.redirs.entrypoints: "web"  
+  traefik.http.routers.redirs.rule: "hostregexp(`{host:.+}`)"
+  traefik.http.routers.redirs.entrypoints: "web"
   traefik.http.routers.redirs.middlewares: "redirect-to-https"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
-  traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"  
+  traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
   traefik.http.middlewares.gzip.compress: "true"
 
 traefik_docker_labels_cloudflare_validation:
@@ -169,17 +169,17 @@ traefik_docker_labels_metrics:
 
 traefik_docker_labels_custom: {}
 
-traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validation 
+traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validation
                                     if not (traefik.tls)
                                     else traefik_docker_labels_tls_validation }}"
 
-traefik_docker_labels_metrics_temp: "{{ [] 
+traefik_docker_labels_metrics_temp: "{{ []
                                     if not (traefik.metrics)
                                     else traefik_docker_labels_metrics }}"
 
 traefik_docker_labels: "{{ traefik_docker_labels_default
-                              | combine(traefik_docker_labels_custom) 
-                              | combine(traefik_docker_labels_validation) 
+                              | combine(traefik_docker_labels_custom)
+                              | combine(traefik_docker_labels_validation)
                               | combine(traefik_docker_labels_metrics_temp) }}"
 
 # Hostname

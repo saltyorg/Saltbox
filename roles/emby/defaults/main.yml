@@ -54,7 +54,7 @@ emby_dns_zone: "{{ emby_web_domain }}"
 emby_traefik_middleware: "secureHeaders@file,gzip"
 emby_traefik_host: "{{ emby_web_subdomain + '.' + emby_web_domain }}"
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
-emby_traefik_enabled: yes
+emby_traefik_enabled: true
 
 ################################
 # Settings
@@ -82,7 +82,7 @@ emby_config_settings_list: "{{ emby_config_settings_default + emby_config_settin
 emby_docker_container: "{{ emby_name }}"
 
 # Image
-emby_docker_image_pull: yes
+emby_docker_image_pull: true
 emby_docker_image_tag: "latest"
 emby_docker_image: "emby/embyserver:{{ emby_docker_image_tag }}"
 

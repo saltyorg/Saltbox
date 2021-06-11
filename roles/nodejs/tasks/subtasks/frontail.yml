@@ -11,7 +11,7 @@
 - name: Frontail | Install NPM module
   npm:
     name: frontail
-    global: yes
+    global: true
 
 - name: Frontail | Get binary version
   shell: "{{ nodejs_frontail_binary_version_lookup_command }}"

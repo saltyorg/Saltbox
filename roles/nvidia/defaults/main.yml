@@ -54,7 +54,7 @@ nvidia_docker_runtime_docker_daemon_json_jq_command: |
 # Kernel
 ################################
 
-nvidia_kernel_blacklist_nouveau: yes
+nvidia_kernel_blacklist_nouveau: true
 
 nvidia_kernel_blacklist_nouveau_conf_location: "/etc/modprobe.d/blacklist-nouveau.conf"
 

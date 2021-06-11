@@ -48,14 +48,14 @@ jackett_dns_zone: "{{ jackett_web_domain }}"
 jackett_traefik_middleware: "secureHeaders@file,gzip"
 jackett_traefik_host: "{{ jackett_web_subdomain + '.' + jackett_web_domain }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
-jackett_traefik_enabled: yes
+jackett_traefik_enabled: true
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-jackett_themepark_enabled: no
+jackett_themepark_enabled: false
 jackett_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -66,7 +66,7 @@ jackett_themepark_theme: "{{ global_themepark_theme }}"
 jackett_docker_container: "{{ jackett_name }}"
 
 # Image
-jackett_docker_image_pull: yes
+jackett_docker_image_pull: true
 jackett_docker_image_tag: "release"
 jackett_docker_image: "hotio/jackett:{{ jackett_docker_image_tag }}"
 
@@ -134,8 +134,8 @@ jackett_docker_hosts: "{{ docker_hosts_common
 # Labels
 jackett_docker_labels_default: {}
 jackett_docker_labels_custom: {}
-jackett_docker_labels: "{{ docker_labels_common 
-                              | combine(jackett_docker_labels_default) 
+jackett_docker_labels: "{{ docker_labels_common
+                              | combine(jackett_docker_labels_default)
                               | combine(jackett_docker_labels_custom) }}"
 
 # Hostname

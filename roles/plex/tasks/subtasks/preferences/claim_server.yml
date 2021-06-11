@@ -16,7 +16,7 @@
       url: https://plex.tv/api/claim/token.json
       user: "{{ plex.user }}"
       password: "{{ plex.pass }}"
-      force_basic_auth: yes
+      force_basic_auth: true
     register: plex_claim
 
   - name: "Claim Server | Set 'plex_claim_code' variable"
@@ -28,15 +28,15 @@
 - name: Claim Server | Get {{ plex_name | title }} claim code via prompts
   block:
 
-  - name: "Claim Server | Ask user for {{ plex_name | title }} claim code"
-    pause:
-      prompt: "Please visit 'https://plex.tv/claim', login with your Plex account,
-        copy the 'Claim Code', paste it below, and press ENTER."
-    register: plex_claim_code_prompt
+    - name: "Claim Server | Ask user for {{ plex_name | title }} claim code"
+      pause:
+        prompt: "Please visit 'https://plex.tv/claim', login with your Plex account,
+          copy the 'Claim Code', paste it below, and press ENTER."
+      register: plex_claim_code_prompt
 
-  - name: "Claim Server | Set 'plex_claim_code' variable"
-    set_fact:
-      plex_claim_code: "{{ plex_claim_code_prompt.user_input }}"
+    - name: "Claim Server | Set 'plex_claim_code' variable"
+      set_fact:
+        plex_claim_code: "{{ plex_claim_code_prompt.user_input }}"
 
   when: (not plex_account_is_enabled)
 
@@ -46,7 +46,7 @@
       - "plex_claim_code is defined"
       - "plex_claim_code is not none"
       - "plex_claim_code | trim | length > 0"
-    quiet: yes
+    quiet: true
 
 - name: "Claim Server | Display {{ plex_name | title }} claim code"
   debug:

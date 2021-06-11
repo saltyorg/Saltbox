@@ -15,7 +15,7 @@
     zone: "{{ dns_zone }}"
     state: present
     solo: true
-    proxied: no
+    proxied: false
     type: A
     value: "{{ ip_address_public }}"
     record: "{{ dns_record }}"
@@ -24,12 +24,12 @@
 - name: Cloudflare | Add DNS Record | Tasks on success
   block:
 
-  - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
-    set_fact:
-      dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+    - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
+      set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
 
-  - name: Cloudflare | Add DNS Record | Display DNS Record creation status
-    debug:
-      msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added."
+    - name: Cloudflare | Add DNS Record | Display DNS Record creation status
+      debug:
+        msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added."
 
   when: cloudflare_dns_record_creation_status is succeeded

@@ -14,7 +14,7 @@
     marker: "### CLOUDBOX MANAGED BLOCK - {mark} ###"
     block: "{{ shell_bash_bashrc_block_content }}"
     state: present
-    create: no
+    create: false
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664

@@ -19,7 +19,7 @@
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
     mode: 0775
-    force: no
+    force: false
   register: import_override
 
 - name: "Docker | Daemon | Edit override file"
@@ -29,20 +29,21 @@
     option: "After"
     value: "{{ mount_type }}.service"
     state: present
-    no_extra_spaces: yes
+    mode: '0755'
+    no_extra_spaces: true
   register: edit_override
 
 - name: Docker | Daemon | Restart Docker Service
   block:
 
-  - name: "Docker | Daemon | Systemd daemon-reload"
-    systemd: name=docker state=reloaded daemon_reload=yes
+    - name: "Docker | Daemon | Systemd daemon-reload"
+      systemd: name=docker state=reloaded daemon_reload=yes
 
-  - name: "Docker | Daemon | Restart docker service"
-    systemd: name=docker state=restarted
+    - name: "Docker | Daemon | Restart docker service"
+      systemd: name=docker state=restarted
 
-  - name: "Docker | Daemon | Wait for 30 seconds before commencing"
-    wait_for:
-      timeout: 30
+    - name: "Docker | Daemon | Wait for 30 seconds before commencing"
+      wait_for:
+        timeout: 30
 
   when: import_override.changed or edit_override.changed

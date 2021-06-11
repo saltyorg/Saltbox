@@ -36,14 +36,14 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not plex_patrol_config.stat.exists
 
 - name: Create and start container
   docker_container:
     name: plex_patrol
     image: "cloudb0x/plex_patrol:latest"
-    pull: yes
+    pull: true
     user: "{{ uid }}:{{ gid }}"
     volumes:
       - "/opt/plex_patrol:/config"
@@ -55,8 +55,8 @@
       - name: cloudbox
         aliases:
           - plex_patrol
-    networks_cli_compatible: yes
+    networks_cli_compatible: true
     network_mode: "{{ docker_networks_name_common }}"
-    purge_networks: yes
+    purge_networks: true
     restart_policy: unless-stopped
     state: started

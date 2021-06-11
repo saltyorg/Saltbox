@@ -16,5 +16,5 @@
       Using Python version: {{ ansible_python_version }}.
       You need to run Ansible with Python 3.
       Go to the wiki and reinstall your dependencies.
-    success_msg:  >-
+    success_msg: >-
       Ansible running on Python version: {{ ansible_python_version }}

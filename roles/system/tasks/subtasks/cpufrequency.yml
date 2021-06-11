@@ -31,7 +31,7 @@
   shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
   args:
     warn: false
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: CPU Frequency | Ensure 'cpufrequtils' is enabled
   ini_file:
@@ -40,8 +40,9 @@
     option: 'ENABLE'
     value: '"true"'
     state: present
-    create: yes
-    no_extra_spaces: yes
+    create: true
+    mode: '0644'
+    no_extra_spaces: true
 
 - name: CPU Frequency | Set 'GOVERNOR' to performance
   ini_file:
@@ -50,14 +51,16 @@
     option: 'GOVERNOR'
     value: '"performance"'
     state: present
-    create: yes
-    no_extra_spaces: yes
+    create: true
+    mode: '0644'
+    no_extra_spaces: true
 
 - name: CPU Frequency | Remove mispelled 'GOVENOR' entry
   ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
     option: 'GOVENOR'
+    mode: '0644'
     state: absent
 
 - name: Populate Service Facts
@@ -67,7 +70,7 @@
   systemd:
     name: ondemand
     state: stopped
-    enabled: no
-    daemon_reload: yes
-  ignore_errors: yes
+    enabled: false
+    daemon_reload: true
+  ignore_errors: true
   when: "services['ondemand.service']['status'] == 'enabled'"

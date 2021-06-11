@@ -30,7 +30,7 @@
     regexp: '(^GRUB_CMDLINE_LINUX_DEFAULT\s?=.*)'
     replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
   register: x
-  notify: [ 'Reload GRUB' ]
+  notify: ['Reload GRUB']
 
 - name: GRUB Edits | Execute Handlers
   meta: flush_handlers

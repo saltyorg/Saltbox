@@ -15,23 +15,23 @@
   git:
     repo: "{{ iperf3_git_repo_url }}"
     dest: "{{ iperf3_git_repo_dest }}"
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
+    force: true
   register: iperf_clone_status
 
 - name: Tasks to do with git clone is a success
   block:
 
-  - name: Build and install iperf3
-    shell: "{{ iperf3_binary_build_command }}"
+    - name: Build and install iperf3
+      shell: "{{ iperf3_binary_build_command }}"
 
-  - name: Get iperf3 binary version
-    shell: "{{ iperf3_binary_version_lookup_command }}"
-    register: iperf3_binary_version
+    - name: Get iperf3 binary version
+      shell: "{{ iperf3_binary_version_lookup_command }}"
+      register: iperf3_binary_version
 
-  - name: Display iperf3 binary version
-    debug:
-      msg: "iperf3 {{ iperf3_binary_version.stdout }} installed."
+    - name: Display iperf3 binary version
+      debug:
+        msg: "iperf3 {{ iperf3_binary_version.stdout }} installed."
 
   when: iperf_clone_status is success

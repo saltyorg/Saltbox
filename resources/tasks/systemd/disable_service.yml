@@ -24,23 +24,23 @@
 - name: Resources | Tasks | systemd | Disable Service | existing '{{ _service_file }}' tasks
   block:
 
-  - name: Resources | Tasks | systemd | Disable Service | populate service facts
-    service_facts:
+    - name: Resources | Tasks | systemd | Disable Service | populate service facts
+      service_facts:
 
-  - name: Resources | Tasks | systemd | Disable Service | get '{{ _service_file }}' state
-    set_fact:
-      service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
+    - name: Resources | Tasks | systemd | Disable Service | get '{{ _service_file }}' state
+      set_fact:
+        service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
-  - name: Resources | Tasks | systemd | Disable Service | stop '{{ _service_file }}'
-    systemd:
-      name: "{{ _service_name }}"
-      state: stopped
-      enabled: no
-    when: service_running
+    - name: Resources | Tasks | systemd | Disable Service | stop '{{ _service_file }}'
+      systemd:
+        name: "{{ _service_name }}"
+        state: stopped
+        enabled: false
+      when: service_running
 
-  - name: Resources | Tasks | systemd | Disable Service | disable '{{ _service_file }}'
-    systemd:
-      name: "{{ _service_name }}"
-      enabled: no
+    - name: Resources | Tasks | systemd | Disable Service | disable '{{ _service_file }}'
+      systemd:
+        name: "{{ _service_name }}"
+        enabled: false
 
   when: service_status.stat.exists

@@ -14,7 +14,7 @@
     section: null
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-    no_extra_spaces: no
+    no_extra_spaces: false
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -24,7 +24,7 @@
 - name: Post-Install | Settings | Existing Installs | Import custom 'nginx.conf' with htpasswd support
   copy:
     src: nginx.conf
-    force: yes
+    force: true
     dest: "{{ rutorrent_paths_nginx_conf_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

@@ -55,7 +55,7 @@ nzbget_dns_zone: "{{ nzbget_web_domain }}"
 nzbget_traefik_middleware: "secureHeaders@file,gzip"
 nzbget_traefik_host: "{{ nzbget_web_subdomain + '.' + nzbget_web_domain }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
-nzbget_traefik_enabled: yes
+nzbget_traefik_enabled: true
 
 ################################
 # Config
@@ -167,7 +167,7 @@ nzbget_scripts_local_copy_list: "{{ nzbget_scripts_local_copy_default
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-nzbget_themepark_enabled: no
+nzbget_themepark_enabled: false
 nzbget_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -178,7 +178,7 @@ nzbget_themepark_theme: "{{ global_themepark_theme }}"
 nzbget_docker_container: "{{ nzbget_name }}"
 
 # Image
-nzbget_docker_image_pull: yes
+nzbget_docker_image_pull: true
 nzbget_docker_image_tag: "testing"
 nzbget_docker_image: "hotio/nzbget:{{ nzbget_docker_image_tag }}"
 

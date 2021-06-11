@@ -12,7 +12,7 @@
 - name: Ansible Tags | Get all available Ansible tags
   shell: "{{ sanity_check_ansible_tags_lookup_command }}"
   register: t
-  changed_when: no
+  changed_when: false
   when:
    - not continuous_integration
    - "'cloudbox_mod' not in playbook_dir"
@@ -25,7 +25,7 @@
     msg: >-
       You must supply valid tag(s) via '--tags TAG'
       (get a list of valid tags by running 'ansible-playbook cloudbox.yml --list-tags')
-    quiet: yes
+    quiet: true
   with_items: "{{ ansible_run_tags }}"
   when:
    - not continuous_integration

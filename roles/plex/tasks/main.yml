@@ -31,7 +31,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
 
 - name: Preferences Tasks
   import_tasks: "subtasks/preferences/preferences.yml"

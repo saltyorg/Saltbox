@@ -44,7 +44,7 @@
     yyq w -i {{ playbook_dir }}/{{ file }} cloudflare.email {{ user.email }}
     yyq w -i {{ playbook_dir }}/{{ file }} cloudflare.api {{ cloudflare_api_token }}
     yyq d -i {{ playbook_dir }}/{{ file }} cloudflare_api_token
-  become: yes
+  become: true
   become_user: "{{ cloudbox_yml.stat.pw_name }}"
   when: (old_settings) and not (new_settings)
 

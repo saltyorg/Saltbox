@@ -16,15 +16,15 @@
 - name: BTRFS | Do following tasks when '{{ outer_item }}' does not exist
   block:
 
-  - name: BTRFS | Create '{{ outer_item }}' path
-    file: "path={{ outer_item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
+    - name: BTRFS | Create '{{ outer_item }}' path
+      file: "path={{ outer_item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
 
-  - name: BTRFS | Check file system on '{{ outer_item }}'
-    shell: stat -f -c %T "{{ outer_item }}"
-    register: outer_item_file_system
+    - name: BTRFS | Check file system on '{{ outer_item }}'
+      shell: stat -f -c %T "{{ outer_item }}"
+      register: outer_item_file_system
 
-  - name: BTRFS | Set NOCOW on '{{ outer_item }} if BTRFS'
-    shell: "chattr +C {{ outer_item }}"
-    when: ('btrfs' in outer_item_file_system.stdout)
+    - name: BTRFS | Set NOCOW on '{{ outer_item }} if BTRFS'
+      shell: "chattr +C {{ outer_item }}"
+      when: ('btrfs' in outer_item_file_system.stdout)
 
   when: (not outer_item_stat.stat.exists)

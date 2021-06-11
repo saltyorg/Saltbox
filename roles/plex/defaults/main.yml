@@ -62,14 +62,14 @@ plex_dns_zone: "{{ plex_web_domain }}"
 plex_traefik_middleware: "secureHeaders@file"
 plex_traefik_host: "{{ plex_web_subdomain + '.' + plex_web_domain }}"
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
-plex_traefik_enabled: yes
+plex_traefik_enabled: true
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-plex_themepark_enabled: no
+plex_themepark_enabled: false
 plex_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -80,7 +80,7 @@ plex_themepark_theme: "{{ global_themepark_theme }}"
 plex_docker_container: "{{ plex_name }}"
 
 # Image
-plex_docker_image_pull: yes
+plex_docker_image_pull: true
 plex_docker_image_tag: "{{ plex.tag }}"
 plex_docker_image: "cloudb0x/plex:{{ plex_docker_image_tag }}"
 

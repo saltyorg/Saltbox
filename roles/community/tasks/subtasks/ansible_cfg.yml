@@ -16,16 +16,16 @@
 - name: ansible.cfg | Encryption check block
   block:
 
-  - name: ansible.cfg | Check 'accounts.yml' for encryption
-    shell: "head -1 {{ playbook_dir }}/accounts.yml | grep -q \\$ANSIBLE_VAULT"
-    register: encryption_check
-    ignore_errors: yes
-    changed_when: no
-    failed_when: encryption_check.rc > 1
+    - name: ansible.cfg | Check 'accounts.yml' for encryption
+      shell: "head -1 {{ playbook_dir }}/accounts.yml | grep -q \\$ANSIBLE_VAULT"
+      register: encryption_check
+      ignore_errors: true
+      changed_when: false
+      failed_when: encryption_check.rc > 1
 
-  - name: ansible.cfg | Set 'file_is_encrypted' variable
-    set_fact:
-      file_is_encrypted: "{{ ((encryption_check.rc == 0) | default(false,true)) }}"
+    - name: ansible.cfg | Set 'file_is_encrypted' variable
+      set_fact:
+        file_is_encrypted: "{{ ((encryption_check.rc == 0) | default(false,true)) }}"
 
   when: ansible_vault.stat.exists
 
@@ -39,4 +39,5 @@
     section: "defaults"
     option: "vault_password_file"
     value: "$HOME/.ansible_vault"
+    mode: '0775'
     state: "{{ add_vault_password_file_option | ternary('present','absent') }}"

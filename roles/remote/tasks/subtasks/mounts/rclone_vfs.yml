@@ -15,6 +15,7 @@
   template:
     src: rclone_vfs.service.j2
     dest: /etc/systemd/system/rclone_vfs.service
+    mode: '0755'
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_vfs.service'
@@ -22,7 +23,7 @@
 
 - name: Rclone VFS | Get list of Rclone remotes in config
   shell: rclone listremotes
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   register: rclone_config_remotes
 
@@ -37,34 +38,34 @@
 - name: Rclone VFS | Tasks when Rclone remote is configured
   block:
 
-  - name: "Rclone VFS | Test Rclone remote '{{ rclone.remote }}:'"
-    shell: |
-      rclone lsd '{{ rclone.remote }}:' \
-        --user-agent='{{ user_agent }}'
-    become: yes
-    become_user: "{{ user.name }}"
-    register: rclone_test
-    failed_when: (rclone_test.rc|int > 5)
+    - name: "Rclone VFS | Test Rclone remote '{{ rclone.remote }}:'"
+      shell: |
+        rclone lsd '{{ rclone.remote }}:' \
+          --user-agent='{{ user_agent }}'
+      become: true
+      become_user: "{{ user.name }}"
+      register: rclone_test
+      failed_when: (rclone_test.rc|int > 5)
 
-  - name: Rclone VFS | Set 'rclone_remote_is_working' variable
-    set_fact:
-      rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
+    - name: Rclone VFS | Set 'rclone_remote_is_working' variable
+      set_fact:
+        rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
 
-  - name: Rclone VFS | Tasks when Rclone remote is working properly
-    block:
+    - name: Rclone VFS | Tasks when Rclone remote is working properly
+      block:
 
-    - name: Rclone VFS | Start 'rclone_vfs.service'
-      systemd: name=rclone_vfs.service state=started enabled=yes
+        - name: Rclone VFS | Start 'rclone_vfs.service'
+          systemd: name=rclone_vfs.service state=started enabled=yes
 
-    when: rclone_remote_is_working
+      when: rclone_remote_is_working
 
-  - name: "Rclone VFS | Display error message when Rclone remote is not working properly"
-    fail:
-      msg:
-        - "Rclone remote '{{ rclone.remote }}:' is not working properly."
-        - "{{ rclone_test.stderr }}"
-    when: not rclone_remote_is_working
-    ignore_errors: yes
+    - name: "Rclone VFS | Display error message when Rclone remote is not working properly"
+      fail:
+        msg:
+          - "Rclone remote '{{ rclone.remote }}:' is not working properly."
+          - "{{ rclone_test.stderr }}"
+      when: not rclone_remote_is_working
+      ignore_errors: true
 
   when: rclone_remote_is_configured
 
@@ -73,4 +74,4 @@
     msg:
       - "Rclone remote '{{ rclone.remote }}:' is not configured properly."
   when: not rclone_remote_is_configured
-  ignore_errors: yes
+  ignore_errors: true

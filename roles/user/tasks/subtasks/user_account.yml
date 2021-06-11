@@ -19,7 +19,7 @@
     src: "etc/skel/{{ item }}"
     dest: "/etc/skel/"
     mode: 0644
-    force: no
+    force: false
   loop:
     - ".bash_logout"
     - ".bashrc"
@@ -32,8 +32,8 @@
     groups: "{{ user.name }},sudo,video,docker"
     password: "{{ user.pass | string | password_hash('sha512') }}"
     update_password: on_create
-    append: yes
-    create_home: yes
+    append: true
+    create_home: true
     skeleton: /etc/skel
   register: user_info
 
@@ -66,5 +66,5 @@
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: yes
-    follow: no
+    recurse: true
+    follow: false

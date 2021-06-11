@@ -16,43 +16,43 @@
 - name: "Preferences | '{{ plex_paths_config_location | basename }}' Tasks"
   block:
 
-  - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
-    xml:
-      path: "{{ plex_paths_config_location }}"
-      xpath: /Preferences
-      content: attribute
-    register: preferences_xml_resp
-    ignore_errors: yes
+    - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
+      xml:
+        path: "{{ plex_paths_config_location }}"
+        xpath: /Preferences
+        content: attribute
+      register: preferences_xml_resp
+      ignore_errors: true
 
-  - name: "Preferences | Remove '{{ plex_paths_config_location | basename }}' if malformed"
-    file:
-      path: "{{ plex_paths_config_location }}"
-      state: absent
-    when: (preferences_xml_resp is failed)
+    - name: "Preferences | Remove '{{ plex_paths_config_location | basename }}' if malformed"
+      file:
+        path: "{{ plex_paths_config_location }}"
+        state: absent
+      when: (preferences_xml_resp is failed)
 
-  - name: Preferences | Set 'transcoder_path_fix' variable
-    set_fact:
-      transcoder_path_fix: "{{ (preferences_xml_resp is succeeded) and
-        (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory is defined) and
-        (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory | trim == '/transcodes') }}"
+    - name: Preferences | Set 'transcoder_path_fix' variable
+      set_fact:
+        transcoder_path_fix: "{{ (preferences_xml_resp is succeeded) and
+          (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory is defined) and
+          (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory | trim == '/transcodes') }}"
 
-  - name: "Preferences | Fix 'TranscoderTempDirectory'"
-    xml:
-      path: "{{ plex_paths_config_location }}"
-      xpath: /Preferences
-      attribute: TranscoderTempDirectory
-      value: "/transcode"
-      state: present
-    become: yes
-    become_user: "{{ user.name }}"
-    ignore_errors: yes
-    when: (transcoder_path_fix)
+    - name: "Preferences | Fix 'TranscoderTempDirectory'"
+      xml:
+        path: "{{ plex_paths_config_location }}"
+        xpath: /Preferences
+        attribute: TranscoderTempDirectory
+        value: "/transcode"
+        state: present
+      become: true
+      become_user: "{{ user.name }}"
+      ignore_errors: true
+      when: (transcoder_path_fix)
 
-  - name: Preferences | Set 'plex_server_claimed' variable
-    set_fact:
-      plex_server_claimed: "{{ (preferences_xml_resp is succeeded) and
-        (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken is defined) and
-        (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"
+    - name: Preferences | Set 'plex_server_claimed' variable
+      set_fact:
+        plex_server_claimed: "{{ (preferences_xml_resp is succeeded) and
+          (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken is defined) and
+          (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"
 
   when:
     - (preferences_xml.stat.exists)

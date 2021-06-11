@@ -28,8 +28,8 @@
     labels: "{{ lookup('vars', _var_prefix + '_docker_labels') }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit) }}"
     networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
-    networks_cli_compatible: yes
-    purge_networks: yes
+    networks_cli_compatible: true
+    purge_networks: true
     network_mode: "{{ docker_networks_name_common }}"
     container_default_behavior: compatibility
     restart_policy: "{{ lookup('vars', _var_prefix + '_docker_restart_policy', default='unless-stopped') }}"

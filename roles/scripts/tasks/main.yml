@@ -41,36 +41,36 @@
 
 - name: Import 'arrpush.py'
   get_url:
-    url:  "https://raw.githubusercontent.com/l3uddz/arrpush/master/arrpush.py"
+    url: "https://raw.githubusercontent.com/l3uddz/arrpush/master/arrpush.py"
     dest: "/opt/scripts/torrents/arrpush.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
 
 - name: Import 'TorrentCleanup.py'
   get_url:
-    url:  "https://raw.githubusercontent.com/l3uddz/TorrentCleanup/master/TorrentCleanup.py"
+    url: "https://raw.githubusercontent.com/l3uddz/TorrentCleanup/master/TorrentCleanup.py"
     dest: "/opt/scripts/torrents/TorrentCleanup.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
 
 - name: Import 'plex_trash_fixer.py'
   get_url:
-    url:  "https://raw.githubusercontent.com/l3uddz/plex_trash_fixer/master/plex_trash_fixer.py"
+    url: "https://raw.githubusercontent.com/l3uddz/plex_trash_fixer/master/plex_trash_fixer.py"
     dest: "/opt/scripts/plex/plex_trash_fixer.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
 
 - name: Import 'plex_token.sh'
   copy:
@@ -79,7 +79,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
 
 - name: Import 'plex_autoscan_url.sh'
   copy:
@@ -88,7 +88,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
 
 - name: Check if 'restart_containers.sh' exists
   stat:
@@ -106,7 +106,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not restart_containers.stat.exists
 
 - name: Check if 'frontail_custom_preset.json' exists
@@ -125,7 +125,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not frontail_preset.stat.exists
 
 - name: Check if 'sync_torrents_to_rclone_remote.sh' exists
@@ -144,7 +144,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not sync_torrents_to_rclone_remote.stat.exists
 
 - name: Check if 'download_torrents_from_rclone_remote.sh' exists
@@ -163,5 +163,5 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   when: not download_torrents_from_rclone_remote.stat.exists

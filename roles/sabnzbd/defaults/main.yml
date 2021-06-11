@@ -55,7 +55,7 @@ sabnzbd_dns_zone: "{{ sabnzbd_web_domain }}"
 sabnzbd_traefik_middleware: "secureHeaders@file,gzip"
 sabnzbd_traefik_host: "{{ sabnzbd_web_subdomain + '.' + sabnzbd_web_domain }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
-sabnzbd_traefik_enabled: yes
+sabnzbd_traefik_enabled: true
 
 ################################
 # Config
@@ -85,7 +85,7 @@ sabnzbd_config_settings_list: "{{ sabnzbd_config_settings_default
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-sabnzbd_themepark_enabled: no
+sabnzbd_themepark_enabled: false
 sabnzbd_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
@@ -96,7 +96,7 @@ sabnzbd_themepark_theme: "{{ global_themepark_theme }}"
 sabnzbd_docker_container: "{{ sabnzbd_name }}"
 
 # Image
-sabnzbd_docker_image_pull: yes
+sabnzbd_docker_image_pull: true
 sabnzbd_docker_image_tag: "latest"
 sabnzbd_docker_image: "hotio/sabnzbd:{{ sabnzbd_docker_image_tag }}"
 

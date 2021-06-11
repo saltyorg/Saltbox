@@ -11,7 +11,7 @@
 - name: Update | Update linux kernel
   apt:
     name: "{{ kernel_update_apt_package }}"
-    update_cache: yes
+    update_cache: true
     state: latest
   register: r
 

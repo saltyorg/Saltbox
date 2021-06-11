@@ -54,11 +54,12 @@
   template:
     src: cloudplow.service.j2
     dest: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
-    force: no
+    mode: '0755'
+    force: false
 
 - name: Start service
   systemd:
     name: "{{ cloudplow_service_name }}"
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true

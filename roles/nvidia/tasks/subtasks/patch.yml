@@ -10,21 +10,21 @@
 ---
 - name: Patch | Download Nvidia patch
   get_url:
-    url:  "{{ nvidia_patch_download_url }}"
+    url: "{{ nvidia_patch_download_url }}"
     dest: "{{ nvidia_patch_download_dest }}"
     mode: 0775
     owner: root
     group: root
-    force: yes
-    validate_certs: no
+    force: true
+    validate_certs: false
 
 - name: Patch | Install Nvidia patch
   shell: "{{ nvidia_patch_download_dest }}"
   args:
     executable: /bin/bash
-    warn: no
+    warn: false
   register: patch_install
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Patch | Nvidia patch installed
   debug:
@@ -34,6 +34,6 @@
 - name: Patch | Nvidia patch did not install
   fail:
     msg:
-    - "Nvidia patch did not install!"
-    - "{{ patch_install.stdout }}"
+      - "Nvidia patch did not install!"
+      - "{{ patch_install.stdout }}"
   when: (patch_install is failed) or ('Patched!' not in patch_install.stdout)

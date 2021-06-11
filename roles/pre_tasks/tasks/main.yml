@@ -16,6 +16,6 @@
   ansible.builtin.file:
     path: /srv/git/cloudbox
     state: directory
-    recurse: yes
+    recurse: true
     owner: uid
     group: gid

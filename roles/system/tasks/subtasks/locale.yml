@@ -24,7 +24,7 @@
     path: "/etc/default/locale"
     regexp: '^#(LANG=.*)'
     replace: '\1'
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Locale | Set Default 'locale'"
   ini_file:
@@ -33,6 +33,7 @@
     option: "LANG"
     value: "en_US.UTF-8"
     state: present
-    create: yes
-    no_extra_spaces: yes
+    create: true
+    mode: '0644'
+    no_extra_spaces: true
   notify: Handers | Update 'locales'

@@ -49,7 +49,7 @@ overseerr_dns_zone: "{{ overseerr_web_domain }}"
 overseerr_traefik_middleware: "secureHeaders@file,gzip"
 overseerr_traefik_host: "{{ overseerr_web_subdomain + '.' + overseerr_web_domain }}"
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-overseerr_traefik_enabled: yes
+overseerr_traefik_enabled: true
 
 ################################
 # Docker
@@ -59,7 +59,7 @@ overseerr_traefik_enabled: yes
 overseerr_docker_container: "{{ overseerr_name }}"
 
 # Image
-overseerr_docker_image_pull: yes
+overseerr_docker_image_pull: true
 overseerr_docker_image_tag: "latest"
 overseerr_docker_image: "sctx/overseerr:{{ overseerr_docker_image_tag }}"
 

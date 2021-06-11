@@ -48,7 +48,7 @@ nginx_dns_zone: "{{ nginx_web_domain }}"
 nginx_traefik_middleware: "secureHeaders@file,gzip"
 nginx_traefik_host: "{{ nginx_web_subdomain + '.' + nginx_web_domain }}"
 nginx_traefik_certresolver: "{{ traefik_default_certresolver }}"
-nginx_traefik_enabled: yes
+nginx_traefik_enabled: true
 
 ################################
 # Docker
@@ -58,7 +58,7 @@ nginx_traefik_enabled: yes
 nginx_docker_container: "{{ nginx_name }}"
 
 # Image
-nginx_docker_image_pull: yes
+nginx_docker_image_pull: true
 nginx_docker_image_tag: "latest"
 nginx_docker_image: "linuxserver/nginx:{{ nginx_docker_image_tag }}"
 

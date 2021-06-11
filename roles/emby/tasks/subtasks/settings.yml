@@ -24,7 +24,7 @@
     path: "{{ emby_paths_config_location }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   loop: "{{ emby_config_settings_list }}"
 

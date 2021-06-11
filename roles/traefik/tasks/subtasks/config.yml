@@ -12,7 +12,7 @@
   template:
     src: dynamic.yml
     dest: "{{ traefik_paths_location }}/dynamic.yml"
-    force: yes
+    force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775

@@ -26,12 +26,12 @@
 
 - name: "Upgrade Ansible | Check if Ansible was upgraded"
   block:
-  - name: "Upgrade Ansible | Print Instructions"
-    debug:
-      msg:
-        - "Ansible was upgraded"
-        - "You will need to re-run your previous tag."
+    - name: "Upgrade Ansible | Print Instructions"
+      debug:
+        msg:
+          - "Ansible was upgraded"
+          - "You will need to re-run your previous tag."
 
-  - name: "Upgrade Ansible | Exit"
-    meta: end_play
+    - name: "Upgrade Ansible | Exit"
+      meta: end_play
   when: ansible_update

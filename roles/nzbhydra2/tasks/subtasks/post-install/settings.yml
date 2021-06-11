@@ -24,7 +24,7 @@
     yq -y '{{ item }}' \
     '{{ nzbhydra2_paths_config_location }}' \
     | sponge '{{ nzbhydra2_paths_config_location }}'
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   loop: "{{ nzbhydra2_config_settings_list }}"
 

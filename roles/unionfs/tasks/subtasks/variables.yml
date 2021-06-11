@@ -28,7 +28,7 @@
 
 - name: Variables | Set 'mount_type_is_defined' variable
   set_fact:
-    mount_type_is_defined:  "{{ (mount_type is defined) and
+    mount_type_is_defined: "{{ (mount_type is defined) and
                                 (mount_type is not none) and
                                 (mount_type | trim | length > 0) }}"
 

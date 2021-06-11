@@ -27,17 +27,17 @@
 - name: Preinstall | Tasks for kernel restart
   block:
 
-  - name: "Preinstall | Display message when restarting server"
-    debug:
-      msg: "Restarting the server to apply changes..."
+    - name: "Preinstall | Display message when restarting server"
+      debug:
+        msg: "Restarting the server to apply changes..."
 
-  - name: "Preinstall | Reboot"
-    shell: reboot
+    - name: "Preinstall | Reboot"
+      shell: reboot
 
-  - name: "Preinstall | Reboot Manually"
-    debug:
-      msg:
-        - "Failed to reboot automatically."
-        - "You will need to restart the server yourself for changes to take effect."
+    - name: "Preinstall | Reboot Manually"
+      debug:
+        msg:
+          - "Failed to reboot automatically."
+          - "You will need to restart the server yourself for changes to take effect."
 
   when: (preinstall_kernel_restart is defined) and (preinstall_kernel_restart)

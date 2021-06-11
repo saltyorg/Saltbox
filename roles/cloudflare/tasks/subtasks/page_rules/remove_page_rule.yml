@@ -16,7 +16,7 @@
       Content-Type: "application/json"
       X-Auth-Email: '{{ cloudflare.email }}'
       X-Auth-Key: '{{ cloudflare.api }}'
-    return_content: yes
+    return_content: true
   loop: "{{ cloudflare_page_rules }}"
   register: cf_page_rule_destruction
 

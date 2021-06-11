@@ -17,13 +17,13 @@
   git:
     repo: "{{ shell_zsh_omzsh_git_repo_url }}"
     dest: "{{ shell_zsh_omzsh_git_repo_dest }}"
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
   register: cloning
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: ZSH | Check if an existing '.zshrc' file is present
   stat:
@@ -45,7 +45,7 @@
     marker: "### CLOUDBOX MANAGED BLOCK - {mark} ###"
     block: "{{ shell_zsh_zshrc_block_content }}"
     state: present
-    create: no
+    create: false
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664

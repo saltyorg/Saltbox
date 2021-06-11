@@ -30,25 +30,25 @@
 - name: Tasks for when Docker exists and is running
   block:
 
-  - name: Gather list of running Docker containers
-    shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-    register: docker_running_containers
-    ignore_errors: yes
-    changed_when: false
+    - name: Gather list of running Docker containers
+      shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
+      register: docker_running_containers
+      ignore_errors: true
+      changed_when: false
 
-  - name: Stop all running Docker containers
-    shell: "docker stop {{ docker_running_containers.stdout }} &> /dev/null || true"
-    ignore_errors: yes
-    when: (docker_running_containers.stdout | trim | length > 0)
+    - name: Stop all running Docker containers
+      shell: "docker stop {{ docker_running_containers.stdout }} &> /dev/null || true"
+      ignore_errors: true
+      when: (docker_running_containers.stdout | trim | length > 0)
 
-  - name: Import BTRFS Cleanup Tasks
-    include_tasks: "subtasks/btrfs/cleanup.yml"
-    when: ('btrfs' in var_lib_file_system.stdout)
+    - name: Import BTRFS Cleanup Tasks
+      include_tasks: "subtasks/btrfs/cleanup.yml"
+      when: ('btrfs' in var_lib_file_system.stdout)
 
-  - name: Stop docker service
-    systemd:
-      name: docker
-      state: stopped
+    - name: Stop docker service
+      systemd:
+        name: docker
+        state: stopped
 
   when: (docker_binary.stat.exists) and (docker_service_running)
 
@@ -66,8 +66,8 @@
   systemd:
     name: docker
     state: started
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
 
 - name: Wait for 60 seconds before commencing
   wait_for:
@@ -86,7 +86,7 @@
 - name: "Re-start all previously running Docker containers"
   shell: 'docker start {{ docker_running_containers.stdout }}'
   when: (docker_binary.stat.exists) and (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Install ctop"
   import_role:

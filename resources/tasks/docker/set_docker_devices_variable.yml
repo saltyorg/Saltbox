@@ -16,18 +16,18 @@
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Rebuild 'docker_devices' variable
   block:
 
-  - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices_dev_dri' variable
-    set_fact:
-      docker_devices_dev_dri:
-        - "/dev/dri:/dev/dri"
+    - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices_dev_dri' variable
+      set_fact:
+        docker_devices_dev_dri:
+          - "/dev/dri:/dev/dri"
 
-  - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices_var_*' temp variables
-    set_fact:
+    - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices_var_*' temp variables
+      set_fact:
         docker_devices_var_name: "{{ role_name + '_docker_devices_default' }}"
         docker_devices_var_value: "{{ lookup('vars', role_name + '_docker_devices_default') }}"
 
-  - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices' variable
-    set_fact:
-      "{{ docker_devices_var_name }}": "{{ docker_devices_var_value + docker_devices_dev_dri }}"
+    - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set 'docker_devices' variable
+      set_fact:
+        "{{ docker_devices_var_name }}": "{{ docker_devices_var_value + docker_devices_dev_dri }}"
 
   when: dev_dri.stat.exists

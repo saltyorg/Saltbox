@@ -13,12 +13,12 @@
     state: present
     name: "git+https://github.com/Diaoul/subliminal.git@develop"
     executable: pip3
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Get Subliminal version"
   shell: "/usr/local/bin/subliminal --version | head -n 1 | awk '{ print $3 }'"
   register: subliminal_version
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: "Display Subliminal version"
   debug:

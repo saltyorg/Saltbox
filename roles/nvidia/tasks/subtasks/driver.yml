@@ -11,30 +11,30 @@
 - name: Driver | Install 'build-essential'
   apt:
     name: build-essential
-    update_cache: yes
+    update_cache: true
     state: present
 
 - name: Install 'dkms'
   apt:
     name: dkms
-    update_cache: yes
+    update_cache: true
     state: present
 
 - name: Driver | Download Nvidia drivers
   get_url:
-    url:  "{{ nvidia_driver_download_url }}"
+    url: "{{ nvidia_driver_download_url }}"
     dest: "{{ nvidia_driver_download_dest }}"
     mode: 0775
     owner: root
     group: root
-    force: yes
-    validate_certs: no
+    force: true
+    validate_certs: false
   register: driver_download
 
 - name: Driver | Install Nvidia drivers
   shell: "{{ nvidia_driver_install_command }}"
   register: driver_install
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Driver | Nvidia driver did not install
   fail:

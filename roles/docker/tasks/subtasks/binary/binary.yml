@@ -12,7 +12,7 @@
   pip:
     name: docker-py
     state: absent
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Binary | Add official gpg signing key
   apt_key:
@@ -23,7 +23,7 @@
   apt_repository:
     repo: "{{ docker_apt_repo_url }}"
     filename: "{{ docker_apt_repo_filename }}"
-    update_cache: yes
+    update_cache: true
 
 - name: Binary | Install Docker binaries
   include_tasks: "binary2.yml"
@@ -34,4 +34,4 @@
 
 - name: Binary | Install 'docker' pip3 module
   raw: pip3 install docker
-  ignore_errors: yes
+  ignore_errors: true

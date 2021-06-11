@@ -32,7 +32,7 @@ mariadb_paths_folders_list:
 mariadb_docker_container: "{{ mariadb_name }}"
 
 # Image
-mariadb_docker_image_pull: yes
+mariadb_docker_image_pull: true
 mariadb_docker_image_tag: "latest"
 mariadb_docker_image: "linuxserver/mariadb:{{ mariadb_docker_image_tag }}"
 

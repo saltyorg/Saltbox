@@ -18,25 +18,25 @@
   git:
     repo: "{{ item }}"
     dest: "{{ nzbget_scripts_paths_location }}/{{ (item | basename | splitext)[0] }}"
-    clone: yes
+    clone: true
     version: HEAD
-    force: yes
-  become: yes
+    force: true
+  become: true
   become_user: "{{ user.name }}"
   loop: "{{ nzbget_scripts_repos_list }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Post-Install | Scripts | Download script URLs
   get_url:
-    url:  "{{ item }}"
+    url: "{{ item }}"
     dest: "{{ nzbget_scripts_paths_location }}"
-    validate_certs: no
-    force: yes
+    validate_certs: false
+    force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
   loop: "{{ nzbget_scripts_direct_downloads_list }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Post-Install | Scripts | Import local scripts
   copy:
@@ -45,7 +45,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
   loop: "{{ nzbget_scripts_local_copy_list }}"
 
 # Customize Scripts

@@ -19,13 +19,13 @@
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
     state: present
     mode: 0644
-    update_cache: yes
+    update_cache: true
   loop: "{{ nvidia_docker_runtime_apt_repo_url_list }}"
 
 - name: Docker | Install 'nvidia-container-runtime'
   apt:
     name: "{{ nvidia_docker_runtime_apt_package }}"
-    update_cache: yes
+    update_cache: true
     state: present
 
 - name: Docker | Populate Service Facts
@@ -38,12 +38,12 @@
 - name: Docker | Gather list of running Docker containers
   shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
   register: docker_running_containers
-  ignore_errors: yes
+  ignore_errors: true
   when: (docker_service_running)
 
 - name: Docker | Stop all running Docker containers
   shell: "docker stop {{ docker_running_containers.stdout }}"
-  ignore_errors: yes
+  ignore_errors: true
   when: (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
 
 - name: Docker | Stop docker service
@@ -64,5 +64,5 @@
 
 - name: Docker | Re-start all previously running Docker containers
   shell: 'docker start {{ docker_running_containers.stdout }}'
-  ignore_errors: yes
+  ignore_errors: true
   when: (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)

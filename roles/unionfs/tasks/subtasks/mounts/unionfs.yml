@@ -20,6 +20,7 @@
   template:
     src: unionfs.service.j2
     dest: /etc/systemd/system/unionfs.service
+    mode: '0755'
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
 
 - name: "UnionFS | Start 'unionfs.service'"

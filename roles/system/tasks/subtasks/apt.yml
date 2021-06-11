@@ -19,14 +19,14 @@
 
 - name: APT | Kill existing apt and apt-get
   shell: "killall apt apt-get >/dev/null 2>&1 || :"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: APT | Fix any potential apt issues
   shell: apt-get install --fix-broken --quiet --yes
   args:
     warn: false
   environment: "{{ env_vars }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: APT | Install required packages
   apt:
@@ -37,8 +37,8 @@
 
 - name: APT | APT update
   apt:
-    update_cache: yes
-  ignore_errors: yes
+    update_cache: true
+  ignore_errors: true
 
 # https://serverfault.com/a/839563
 # https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
@@ -48,7 +48,7 @@
   args:
     warn: false
   when: not continuous_integration
-  ignore_errors: yes
+  ignore_errors: true
 
 # https://serverfault.com/a/839563
 # https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
@@ -58,14 +58,14 @@
   args:
     warn: false
   when: not continuous_integration
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: APT | Remove useless packages from the cache
   apt:
-    autoclean: yes
-  ignore_errors: yes
+    autoclean: true
+  ignore_errors: true
 
 - name: APT | Remove dependencies that are no longer required
   apt:
-    autoremove: yes
-  ignore_errors: yes
+    autoremove: true
+  ignore_errors: true

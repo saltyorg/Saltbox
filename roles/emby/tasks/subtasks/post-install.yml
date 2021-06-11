@@ -18,7 +18,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    recurse: yes
+    recurse: true
 
 - name: Post-Install | Import 'dlna.xml'
   copy:
@@ -27,7 +27,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: no
+    force: false
 
 - name: Post-Install | Settings Tasks
   import_tasks: "settings.yml"

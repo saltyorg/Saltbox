@@ -11,7 +11,7 @@
 - name: Hastebin | Install NPM module
   npm:
     name: hastebin
-    global: yes
+    global: true
 
 - name: Hastebin | Lookup binary path
   stat:

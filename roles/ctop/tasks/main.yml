@@ -13,30 +13,30 @@
   args:
     executable: /bin/bash
   register: ctop_download_url_lookup
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install ctop
   get_url:
-    url:  "{{ ctop_download_url_lookup.stdout | default(ctop_download_url_backup,true) }}"
+    url: "{{ ctop_download_url_lookup.stdout | default(ctop_download_url_backup,true) }}"
     dest: "{{ ctop_binary_path }}"
     mode: 0775
     owner: root
     group: root
-    force: yes
-    validate_certs: no
-  ignore_errors: yes
+    force: true
+    validate_certs: false
+  ignore_errors: true
   register: ctop_download_status
 
 - name: Tasks to do when ctop download is successful
   block:
 
-  - name: Get ctop binary version
-    shell: "{{ ctop_binary_version_lookup_command }}"
-    register: ctop_binary_version
-    ignore_errors: yes
+    - name: Get ctop binary version
+      shell: "{{ ctop_binary_version_lookup_command }}"
+      register: ctop_binary_version
+      ignore_errors: true
 
-  - name: Display ctop binary version
-    debug:
-      msg: "ctop {{ ctop_binary_version.stdout }} installed."
+    - name: Display ctop binary version
+      debug:
+        msg: "ctop {{ ctop_binary_version.stdout }} installed."
 
   when: ctop_download_status is succeeded

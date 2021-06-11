@@ -43,7 +43,7 @@
     yyq w -i {{ playbook_dir }}/{{ file }} user.domain {{ domain }}
     yyq d -i {{ playbook_dir }}/{{ file }} email
     yyq w -i {{ playbook_dir }}/{{ file }} user.email {{ email }}
-  become: yes
+  become: true
   become_user: "{{ cloudbox_yml.stat.pw_name }}"
   when: (old_settings) and not (new_settings)
 

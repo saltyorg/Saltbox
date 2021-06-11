@@ -52,7 +52,7 @@ nzbhydra2_dns_zone: "{{ nzbhydra2_web_domain }}"
 nzbhydra2_traefik_middleware: "secureHeaders@file,gzip"
 nzbhydra2_traefik_host: "{{ nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain }}"
 nzbhydra2_traefik_certresolver: "{{ traefik_default_certresolver }}"
-nzbhydra2_traefik_enabled: yes
+nzbhydra2_traefik_enabled: true
 
 ################################
 # Config
@@ -64,7 +64,7 @@ nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
 
 nzbhydra2_config_settings_default:
   # Authentication
-  -  >-
+  - >-
     .auth.authType = "FORM"
     | .auth.restrictAdmin = true
     | .auth.restrictDetailsDl = true
@@ -72,7 +72,7 @@ nzbhydra2_config_settings_default:
     | .auth.restrictSearch = true
     | .auth.restrictStats = true
   # User
-  -  >-
+  - >-
     .auth.users = []
     | .auth.users[0].username = "{{ user.name }}"
     | .auth.users[0].password = "{noop}{{ user.pass }}"
@@ -80,7 +80,7 @@ nzbhydra2_config_settings_default:
     | .auth.users[0].maySeeDetailsDl = true
     | .auth.users[0].showIndexerSelection = true
   # NZBGet
-  -  >-
+  - >-
     .downloading.downloaders = []
     | .downloading.downloaders[0].apiKey = null
     | .downloading.downloaders[0].defaultCategory = null
@@ -109,7 +109,7 @@ nzbhydra2_config_settings_list: "{{ nzbhydra2_config_settings_default
 nzbhydra2_docker_container: "{{ nzbhydra2_name }}"
 
 # Image
-nzbhydra2_docker_image_pull: yes
+nzbhydra2_docker_image_pull: true
 nzbhydra2_docker_image_tag: "release"
 nzbhydra2_docker_image: "hotio/nzbhydra2:{{ nzbhydra2_docker_image_tag }}"
 

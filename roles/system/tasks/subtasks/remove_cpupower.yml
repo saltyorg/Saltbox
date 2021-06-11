@@ -17,9 +17,9 @@
   systemd:
     name: cpupower
     state: stopped
-    enabled: no
-    daemon_reload: yes
-  ignore_errors: yes
+    enabled: false
+    daemon_reload: true
+  ignore_errors: true
   when: cpupower_service.stat.exists
 
 - name: Remove CPU Power | Delete 'cpupower.service'

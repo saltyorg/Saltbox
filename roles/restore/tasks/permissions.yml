@@ -11,9 +11,9 @@
 - name: Set '/opt' ownership recursively
   shell: "chown -R {{ user.name }}:{{ user.name }} /opt"
   args:
-    warn: no
+    warn: false
 
 - name: Set '/opt' permissions recursively
   shell: "chmod -R ugo+X /opt"
   args:
-    warn: no
+    warn: false

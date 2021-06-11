@@ -42,7 +42,7 @@
   apt_repository:
     repo: "{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   with_items:
     - 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse'
     - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse'
@@ -54,7 +54,7 @@
   apt_repository:
     repo: "{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   with_items:
     - deb https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib non-free
     - deb-src https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib non-free
@@ -100,14 +100,14 @@
       - "jq"
       - "lib32z1"
       - "moreutils"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install extra packages
   apt:
     state: present
     name:
       - "run-one"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Fetch PCI Info
   shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
@@ -128,7 +128,7 @@
   apt:
     name: unrar
     state: present
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Check to see if 'unrar' installed
   stat:
@@ -139,7 +139,7 @@
   apt:
     name: unrar-free
     state: present
-  ignore_errors: yes
+  ignore_errors: true
   when: (not unrar_binary.stat.exists)
 
 - name: "Import 'pip.conf'"
@@ -149,7 +149,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
 
 - name: Install common pip modules
   pip:
@@ -160,7 +160,7 @@
       - ndg-httpsclient
       - yq
     executable: pip3
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install pip3 modules needed by Ansible via raw method
   raw: "pip3 install {{ item }}"
@@ -171,18 +171,18 @@
     - jmespath
     - passlib
     - PyMySQL
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Uninstall apt 'glances'
   apt:
     name: glances
     state: absent
-  ignore_errors: yes
+  ignore_errors: true
   tags: glances
 
 - name: Install pip 'glances'
   shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
-  ignore_errors: yes
+  ignore_errors: true
   tags: glances
 
 - name: Create glances directory
@@ -197,34 +197,34 @@
     owner: root
     group: root
     mode: '0644'
-    force: no
+    force: false
 
 - name: Install 'nodejs'
   import_role:
     name: nodejs
   tags: nodejs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install 'hostess'
   import_role:
     name: hostess
   tags: hostess
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install 'ngrok'
   import_role:
     name: ngrok
   tags: ngrok
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install 'iperf3'
   import_role:
     name: iperf3
   tags: iperf3
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install 'nethogs'
   import_role:
     name: nethogs
   tags: nethogs
-  ignore_errors: yes
+  ignore_errors: true

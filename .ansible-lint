@@ -4,8 +4,5 @@ skip_list:
   - command-instead-of-shell
   - no-changed-when
   - ignore-errors
-
-extends: default
-rules:
-  truthy:
-    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
+  - line-length
+  - risky-shell-pipe

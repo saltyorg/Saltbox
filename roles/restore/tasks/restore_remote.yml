@@ -21,7 +21,7 @@
 
 - name: Cleanup backup location
   shell: "rm -rf {{ backup.local.destination }}/*"
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
 
 # Rclone
@@ -45,7 +45,7 @@
   shell: |
     /usr/bin/rclone lsd {{ backup.rclone.destination }} \
       --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
   register: rclone_test
   failed_when: (rclone_test.rc > 5)
@@ -65,7 +65,7 @@
       -vv \
       --log-file='{{ playbook_dir }}/restore_rclone.log' \
       '{{ backup.rclone.destination }}/' '{{ backup.local.destination }}'
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
 
 # Checks
