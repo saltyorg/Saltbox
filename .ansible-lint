@@ -1,0 +1,11 @@
+skip_list:
+  - braces
+  - git-latest
+  - command-instead-of-shell
+  - no-changed-when
+  - ignore-errors
+
+extends: default
+rules:
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
