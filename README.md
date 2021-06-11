@@ -3,7 +3,7 @@
 <br /><br />
 [![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fcloudbox.works-blue)](https://cloudbox.works)
 [![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fcloudbox.wiki-blue)](https://cloudbox.wiki)
-[![Lines of Code:](https://img.shields.io/tokei/lines/github/cloudbox2/cloudbox)](https://cloudbox.wiki)
+[![Lines of Code:](https://img.shields.io/tokei/lines/github/cloudbox2/cloudbox)](https://github.com/Cloudbox2/Cloudbox)
 [![Issues:](https://img.shields.io/github/issues/Cloudbox2/Cloudbox?color=blue)](https://github.com/Cloudbox2/Cloudbox/issues)
 [![Build status](https://appveyor.cloudbox.work/api/projects/status/ydmbhstv697aosa8/branch/master?svg=true)](https://appveyor.cloudbox.work/project/AppVeyor/cloudbox/branch/master)
 [![Discord:](https://img.shields.io/discord/381077432285003776?color=blue)](https://discord.io/cloudbox)
