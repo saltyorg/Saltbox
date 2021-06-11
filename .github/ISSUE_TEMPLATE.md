@@ -12,8 +12,8 @@ Please use [Discord Chat](https://discord.io/cloudbox) for support. Support ques
 
 ## Bug Report
 
-Use https://github.com/Cloudbox/Cloudbox/issues/new?template=bug_report.md
+Use https://github.com/Cloudbox2/Cloudbox/issues/new?template=bug_report.md
 
 ## Feature Request
 
-Use https://github.com/Cloudbox/Cloudbox/issues/new?template=feature_request.md
+Use https://github.com/Cloudbox2/Cloudbox/issues/new?template=feature_request.md
