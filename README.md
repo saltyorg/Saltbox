@@ -1,6 +1,4 @@
-<br /><img src="https://raw.githubusercontent.com/Cloudbox/assets/master/images/readme/Cloudbox-logo_dark.png" width="600">
-
-<br /><br />
+# Cloudbox
 [![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fcloudbox.works-blue)](https://cloudbox.works)
 [![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fcloudbox.wiki-blue)](https://cloudbox.wiki)
 [![Lines of Code:](https://img.shields.io/tokei/lines/github/cloudbox2/cloudbox)](https://github.com/Cloudbox2/Cloudbox)
