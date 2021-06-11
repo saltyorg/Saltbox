@@ -63,7 +63,7 @@ matrix:
 build: off
 
 init:
-  - sh: curl -s https://raw.githubusercontent.com/Cloudbox/cb/develop_python3/cb_dep.sh | sudo -H bash
+  - sh: curl -s https://raw.githubusercontent.com/Cloudbox2/cb/master/cb_dep.sh | sudo -H bash
   - sh: sudo mkdir /srv/git
   - sh: sudo ln -s /home/appveyor/projects/cloudbox /srv/git/cloudbox
   - sh: sudo chown -R appveyor:appveyor /srv/git
