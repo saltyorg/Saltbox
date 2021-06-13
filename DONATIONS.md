@@ -1,6 +1,6 @@
 ## Donations
 
-If you find this project helpful, feel free to make a small donation to the developers.
+If you find this project helpful, feel free to make a small donation to the developers. Desimaniac and l3uddz are the creators of the original [project](https://github.com/Cloudbox/Cloudbox). This is a forked version of it.
 
 #### Developers:
 
