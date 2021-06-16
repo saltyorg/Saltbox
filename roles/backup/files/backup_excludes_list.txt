@@ -9,7 +9,7 @@
 
 ./bazarr/log/*
 
-./cloudbox/backup/modified_files/*
+./saltbox/backup/modified_files/*
 
 ./cloudplow/cloudplow.log
 ./cloudplow/cloudplow.log.*

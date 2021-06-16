@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Subdomains | Add Subdomain | Cloudflare: Add '{{ cloudbox_type }}' subdomain to '{{ user.domain }}'"
+- name: "Subdomains | Add Subdomain | Cloudflare: Add '{{ saltbox_type }}' subdomain to '{{ user.domain }}'"
   cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
@@ -17,4 +17,4 @@
     proxied: "{{ dns.proxied | default('no') }}"
     type: A
     value: "{{ ip_address_public }}"
-    record: "{{ cloudbox_type }}"
+    record: "{{ saltbox_type }}"

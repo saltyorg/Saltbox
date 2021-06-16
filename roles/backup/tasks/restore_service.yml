@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: Backup | Cloudbox Restore Service             #
+# Title:         Saltbox: Backup | Saltbox Restore Service              #
 # Author(s):     desimaniac, l3uddz                                     #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -43,6 +43,7 @@
     - "{{ playbook_dir }}/settings.yml"
     - "{{ playbook_dir }}/adv_settings.yml"
     - "{{ playbook_dir }}/backup_config.yml"
+    - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
     - "/home/{{ user.name }}/.ansible_vault"
     - "/home/{{ user.name }}/.config/rclone/rclone.conf"
 
@@ -73,14 +74,14 @@
   debug:
     msg:
       - "The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'"
-      - "Cloudbox Restore Service will now be skipped."
+      - "Saltbox Restore Service will now be skipped."
   when: (unencrypted_files_list | trim | length > 0)
 
-- name: "Restore Service | Notify | Cloudbox Backup: Config files were not encrypted successfully encrypted"
+- name: "Restore Service | Notify | Saltbox Backup: Config files were not encrypted successfully encrypted"
   include_role:
     name: notify
   vars:
-    message: "Cloudbox Backup: The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'. Restore Service will now be skipped."
+    message: "Saltbox Backup: The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'. Restore Service will now be skipped."
   when: (unencrypted_files_list | trim | length > 0)
 
 - name: Restore Service | Print error message when config file(s) were encrypted successfully
@@ -106,14 +107,14 @@
 
     - name: Restore Service | Print error mesage when config file(s) were too large to upload
       debug:
-        msg: "The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
+        msg: "The following encrypted config file(s) were too large to upload to the Saltbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
       when: (files_too_large_to_upload_list | trim | length > 0)
 
-    - name: "Restore Service | Notify | Cloudbox Backup: Config files were too large to upload to the Cloudbox Restore Service"
+    - name: "Restore Service | Notify | Saltbox Backup: Config files were too large to upload to the Saltbox Restore Service"
       include_role:
         name: notify
       vars:
-        message: "Cloudbox Backup: The following encrypted config file(s) were too large to upload to the Cloudbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
+        message: "Saltbox Backup: The following encrypted config file(s) were too large to upload to the Saltbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
       when: (files_too_large_to_upload_list | trim | length > 0)
 
     - name: Restore Service | Set 'files_uploaded_list' variable
@@ -122,14 +123,14 @@
 
     - name: Restore Service | Print success message when config file(s) were successfully uploaded
       debug:
-        msg: "The following encrypted config file(s) were successfully uploaded to the Cloudbox Restore Service: '{{ files_uploaded_list | trim }}'"
+        msg: "The following encrypted config file(s) were successfully uploaded to the Saltbox Restore Service: '{{ files_uploaded_list | trim }}'"
       when: (files_uploaded_list | trim | length > 0)
 
-    - name: "Restore Service | Notify | Cloudbox Backup: Config files were successfully encrypted and uploaded to the Cloudbox Restore Service"
+    - name: "Restore Service | Notify | Saltbox Backup: Config files were successfully encrypted and uploaded to the Saltbox Restore Service"
       include_role:
         name: notify
       vars:
-        message: "Cloudbox Backup: Config files uploaded to the Cloudbox Restore Service."
+        message: "Saltbox Backup: Config files uploaded to the Saltbox Restore Service."
       when: (files_uploaded_list | trim | length > 0)
 
   when:

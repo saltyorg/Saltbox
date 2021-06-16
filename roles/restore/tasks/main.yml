@@ -100,5 +100,5 @@
 
 - name: Finished restoring the backup
   debug:
-    msg: Finished restoring the backup. You are now ready to install Cloudbox!
+    msg: Finished restoring the backup. You are now ready to install Saltbox!
   when: (unarchive is succeeded)

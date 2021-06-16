@@ -25,7 +25,7 @@ sanity_check_python_version_min: 3.6
 ################################
 
 sanity_check_ansible_tags_lookup_command: |
-    ansible-playbook cloudbox.yml --list-tags 2>&1 | grep "TASK TAGS" \
+    ansible-playbook saltbox.yml --list-tags 2>&1 | grep "TASK TAGS" \
       | cut -d":" -f2 | awk '{sub(/\[/, "")sub(/\]/, "")}1' | sed -e 's/,//g' | xargs -n 1 | sort -u
 
 ################################

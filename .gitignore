@@ -6,7 +6,6 @@
 
 ### Ansible ###
 /backup.lock
-/cloudbox.retry
 
 # Vars
 /inventories/host_vars/*

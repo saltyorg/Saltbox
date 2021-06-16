@@ -1,4 +1,4 @@
-# Cloudbox
+# Saltbox
 [![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fsaltbox.dev-blue)](https://saltbox.dev)
 [![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fwiki.saltbox.dev/Saltbox-blue)](https://wiki.saltbox.dev/Saltbox)
 [![Contributors:](https://img.shields.io/github/contributors/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/graphs/contributors)

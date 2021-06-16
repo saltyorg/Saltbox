@@ -12,28 +12,28 @@
   register: docker_networks_list
   changed_when: false
 
-- name: Network | Get cloudbox docker network gateway
-  shell: docker network inspect cloudbox -f '{{ '{{' }}range .IPAM.Config{{ '}}' }}{{ '{{' }}.Gateway{{ '}}' }}{{ '{{' }}end{{ '}}' }}'
+- name: Network | Get saltbox docker network gateway
+  shell: docker network inspect saltbox -f '{{ '{{' }}range .IPAM.Config{{ '}}' }}{{ '{{' }}.Gateway{{ '}}' }}{{ '{{' }}end{{ '}}' }}'
   register: docker_gateway
-  when: ('cloudbox' in docker_networks_list.stdout_lines)
+  when: ('saltbox' in docker_networks_list.stdout_lines)
 
-- name: "Network | Create new cloudbox docker network block"
+- name: "Network | Create new saltbox docker network block"
   block:
 
-  - name: Create cloudbox network
+  - name: Create saltbox network
     docker_network:
-      name: cloudbox
+      name: saltbox
       state: present
 
-  when: ('cloudbox' not in docker_networks_list.stdout_lines)
+  when: ('saltbox' not in docker_networks_list.stdout_lines)
 
 # Migrate Legacy Setups
 
-- name: "Network | Rebuild existing cloudbox docker network block"
+- name: "Network | Rebuild existing saltbox docker network block"
   block:
 
-    - name: Network | Get list of containers on cloudbox network
-      shell: docker ps -a --filter network=cloudbox --format '{{ '{{' }}.Names{{ '}}' }}'
+    - name: Network | Get list of containers on saltbox network
+      shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
       changed_when: false
 
@@ -44,20 +44,20 @@
       failed_when: r.rc > 1
       ignore_errors: true
 
-    - name: Network | Rebuild cloudbox network
+    - name: Network | Rebuild saltbox network
       docker_network:
-        name: cloudbox
+        name: saltbox
         state: present
         force: true
 
-    - name: Network | Connect containers to cloudbox network
-      shell: docker network connect cloudbox {{ item }} --alias {{ item }}
+    - name: Network | Connect containers to saltbox network
+      shell: docker network connect saltbox {{ item }} --alias {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
       register: q
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('cloudbox' in docker_networks_list.stdout_lines) and (docker_gateway.stdout == '172.18.0.254')
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_gateway.stdout == '172.18.0.254')
 
 - name: Unset variables
   set_fact:

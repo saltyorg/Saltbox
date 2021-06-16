@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'cloudbox' subdomain from '{{ user.domain }}'"
+- name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' subdomain from '{{ user.domain }}'"
   cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ user.domain }}"
     state: absent
     type: A
-    record: "cloudbox"
+    record: "saltbox"

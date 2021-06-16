@@ -62,7 +62,7 @@
 - name: "Copy example recipes to '/opt/python-plexlibrary' folder"
   copy:
     src: "{{ item }}"
-    dest: "/opt/python-plexlibrary/recipes/examples/cloudbox/"
+    dest: "/opt/python-plexlibrary/recipes/examples/saltbox/"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664
@@ -95,7 +95,7 @@
     insertafter: EOF
     line: '{{ item }}'
   with_items:
-    - "recipes/examples/cloudbox/*.yml"
+    - "recipes/examples/saltbox/*.yml"
     - "plexlibrary.sh"
     - "plexlibrary-cron-helper.sh"
     - "*.log"

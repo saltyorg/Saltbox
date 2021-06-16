@@ -14,6 +14,6 @@
 - name: Checks | Warn when linux kernel version is lower than 4.10
   debug:
     msg:
-      - "Cloudbox was designed for use on linux kernel version 4.10+."
+      - "Saltbox was designed for use on linux kernel version 4.10+."
       - "Running Saltbox on a lower kernel may lead to reduced performance."
   when: (ansible_kernel is version('4.00', '>=')) and (ansible_kernel is version('4.10', '<'))

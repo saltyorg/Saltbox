@@ -95,7 +95,7 @@ function build_url() {
     SERVER_PORT=$(cat ${PAS_CONFIG} | jq -r .SERVER_PORT)
     SERVER_PASS=$(cat ${PAS_CONFIG} | jq -r .SERVER_PASS)
 
-    # Get variables from Cloudbox account settings
+    # Get variables from Saltbox account settings
     head -1 ${SB_ACCOUNTS} | grep -q "\$ANSIBLE_VAULT"
     rc=$?
     if [[ ${rc} == 0 ]]; then

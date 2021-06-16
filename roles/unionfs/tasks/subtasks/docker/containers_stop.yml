@@ -9,13 +9,13 @@
 ---
 - name: "Docker | Containers Stop | Gather list of running Docker containers"
   shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
-  register: cloudbox_managed_containers
+  register: saltbox_managed_containers
   ignore_errors: true
 
 # This is needed to not conflict with the other role
 - name: "Docker | Containers Stop | Set 'containers_list' variable"
   set_fact:
-    containers_list: "{{ cloudbox_managed_containers.stdout }}"
+    containers_list: "{{ saltbox_managed_containers.stdout }}"
 
 - name: "Docker | Containers Stop | Stop all running Docker containers"
   shell: "docker stop {{ containers_list }}"

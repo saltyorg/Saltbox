@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-## Add 'cloudbox_type' subdomain
-- name: "Cloudflare | Subdomains | Add '{{ cloudbox_type }}' subdomain to '{{ user.domain }}'"
+## Add 'saltbox_type' subdomain
+- name: "Cloudflare | Subdomains | Add '{{ saltbox_type }}' subdomain to '{{ user.domain }}'"
   import_tasks: "subdomains/add_subdomain.yml"
 
-## Remove 'cloudbox' subdomain for Mediabox/Feederbox setups.
-- name: "Cloudflare | Subdomains | Remove 'cloudbox' subdomain from '{{ user.domain }}'"
+## Remove 'saltbox' subdomain for Mediabox/Feederbox setups.
+- name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ user.domain }}'"
   import_tasks: "subdomains/remove_subdomain.yml"
-  when: cloudbox_type is regex('mediabox|feederbox')
+  when: saltbox_type is regex('mediabox|feederbox')

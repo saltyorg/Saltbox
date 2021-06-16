@@ -16,7 +16,7 @@
     tags:
       - set-backup
       - restore-service
-      - cloudbox-restore-service
+      - saltbox-restore-service
 
   - name: Cron
     import_tasks: "cron.yml"
@@ -34,11 +34,11 @@
   - name: Snapshot
     import_tasks: "snapshot.yml"
 
-  - name: "Notify | Cloudbox Backup: Started Cloudbox backup task"
+  - name: "Notify | Saltbox Backup: Started Saltbox backup task"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task."
+      message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task."
 
   - name: "Create 'backup.lock'."
     file:
@@ -100,7 +100,7 @@
     ignore_errors: true
 
   # Backup the excludes list if it exists
-  - name: "Look for 'backup_excludes_list.txt' file in cloudbox folder"
+  - name: "Look for 'backup_excludes_list.txt' file in saltbox folder"
     stat:
       path: "{{ playbook_dir }}/backup_excludes_list.txt"
     register: backup_excludes_list
@@ -127,7 +127,7 @@
     when: restore_service_enabled
     tags:
       - restore-service
-      - cloudbox-restore-service
+      - saltbox-restore-service
 
   - name: "Synchronize '/etc/systemd/system' to '/opt/systemd-backup' for inclusion in backup"
     shell: |
@@ -187,11 +187,11 @@
         shell: "docker stop {{ docker_containers }}"
         ignore_errors: true
 
-      - name: "Notify | Cloudbox Backup: Stopped Docker containers"
+      - name: "Notify | Saltbox Backup: Stopped Docker containers"
         include_role:
           name: notify
         vars:
-          message: "Cloudbox Backup: Stopped Docker containers."
+          message: "Saltbox Backup: Stopped Docker containers."
 
     when: (docker_containers | trim | length > 0)
 
@@ -200,51 +200,7 @@
   - name: Populate Service Facts
     service_facts:
 
-  # Stop Plexdrive 4
-
-  - name: Check if 'plexdrive4.service' exists
-    stat:
-      path: "/etc/systemd/system/plexdrive4.service"
-    register: plexdrive4_service
-
-  - name: Stop 'plexdrive4' service block
-    block:
-
-      - name: Get 'plexdrive4' service state
-        set_fact:
-          plexdrive4_service_running: "{{ (services['plexdrive4.service'] is defined) and (services['plexdrive4.service']['state'] == 'running') }}"
-
-      - name: Stop 'plexdrive4' service
-        systemd:
-          name: plexdrive4
-          state: stopped
-        when: (plexdrive4_service_running)
-
-    when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists)
-
-  # Stop Plexdrive 5
-
-  - name: Check if 'plexdrive5.service' exists
-    stat:
-      path: "/etc/systemd/system/plexdrive5.service"
-    register: plexdrive5_service
-
-  - name: Stop 'plexdrive5' service block
-    block:
-
-      - name: Get 'plexdrive5' service state
-        set_fact:
-          plexdrive5_service_running: "{{ (services['plexdrive5.service'] is defined) and (services['plexdrive5.service']['state'] == 'running') }}"
-
-      - name: Stop 'plexdrive5' service
-        systemd:
-          name: plexdrive5
-          state: stopped
-        when: (plexdrive5_service_running)
-
-    when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists)
-
-  # Stop Cloudplow
+    # Stop Cloudplow
 
   - name: Check if 'cloudplow.service' exists
     stat:
@@ -291,20 +247,8 @@
 
   # Start Plexdrive and Docker containers when snapshot is enabled
 
-  - name: Snapshot | Start Plexdrive and Docker containers
+  - name: Snapshot | Start Docker containers
     block:
-
-      - name: "Snapshot | Start 'plexdrive4' service"
-        systemd:
-          name: plexdrive4
-          state: started
-        when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
-
-      - name: "Snapshot | Start 'plexdrive5' service"
-        systemd:
-          name: plexdrive5
-          state: started
-        when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
 
       - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
         wait_for:
@@ -315,11 +259,11 @@
         ignore_errors: true
         when: (docker_containers | trim | length > 0)
 
-      - name: "Snapshot | Notify | Cloudbox Backup: Started Docker containers"
+      - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
         include_role:
           name: notify
         vars:
-          message: "Cloudbox Backup: Started Docker containers."
+          message: "Saltbox Backup: Started Docker containers."
         when: (docker_containers | trim | length > 0)
 
     when: (use_snapshot)
@@ -415,29 +359,17 @@
     set_fact:
       backup_size: "{{ (backup_new.stdout|int) | filesizeformat }}"
 
-  - name: "Notify | Cloudbox Backup: Backup created with total size of {{ backup_size }}."
+  - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Backup created with total size of {{ backup_size }}."
+      message: "Saltbox Backup: Backup created with total size of {{ backup_size }}."
     ignore_errors: true
 
   # Start Plexdrive and Docker containers when snapshot is not enabled
 
-  - name: Start Plexdrive and Docker Containers
+  - name: Start Docker Containers
     block:
-
-      - name: "Start 'plexdrive4' service"
-        systemd:
-          name: plexdrive4
-          state: started
-        when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
-
-      - name: "Start 'plexdrive5' service"
-        systemd:
-          name: plexdrive5
-          state: started
-        when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
 
       - name: "Wait for 5 seconds before starting Docker containers"
         wait_for:
@@ -448,11 +380,11 @@
         ignore_errors: true
         when: (docker_containers | trim | length > 0)
 
-      - name: "Notify | Cloudbox Backup: Started Docker containers"
+      - name: "Notify | Saltbox Backup: Started Docker containers"
         include_role:
           name: notify
         vars:
-          message: "Cloudbox Backup: Started Docker containers."
+          message: "Saltbox Backup: Started Docker containers."
         when: (docker_containers | trim | length > 0)
 
     when: (not use_snapshot)
@@ -509,6 +441,7 @@
       - "adv_settings.yml"
       - "backup_config.yml"
       - "rclone.conf"
+      - "localhost.yml"
       - "backup_excludes.txt"
       - "backup_excludes_list.txt"
 
@@ -530,11 +463,11 @@
     become_user: "{{ user.name }}"
     when: (backup.rclone.enable)
 
-  - name: "Notify | Cloudbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
+  - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
+      message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
     when: (backup.rclone.enable)
 
   - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
@@ -548,11 +481,11 @@
     become_user: "{{ user.name }}"
     when: (backup.rsync.enable)
 
-  - name: "Notify | Cloudbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
+  - name: "Notify | Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
+      message: "Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
     when: (backup.rsync.enable)
 
   - name: Get Current Time
@@ -567,11 +500,11 @@
     set_fact:
       total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
 
-  - name: "Notify | Cloudbox Backup: Finished Cloudbox backup task in {{ total_time }} minutes"
+  - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
     include_role:
       name: notify
     vars:
-      message: "Cloudbox Backup: Finished Cloudbox {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task in {{ total_time }} minutes."
+      message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task in {{ total_time }} minutes."
 
   - name: "Start 'cloudplow' service"
     systemd:
@@ -622,20 +555,8 @@
       args:
         warn: false
 
-    - name: Start Plexdrive and Docker Containers
+    - name: Start Docker Containers
       block:
-
-        - name: "Start 'plexdrive4' service"
-          systemd:
-            name: plexdrive4
-            state: started
-          when: (plexdrive4_service is defined) and (plexdrive4_service.stat.exists) and (plexdrive4_service_running)
-
-        - name: "Start 'plexdrive5' service"
-          systemd:
-            name: plexdrive5
-            state: started
-          when: (plexdrive5_service is defined) and (plexdrive5_service.stat.exists) and (plexdrive5_service_running)
 
         - name: "Wait for 5 seconds before starting Docker containers"
           wait_for:
@@ -658,11 +579,11 @@
       debug:
         msg: 'Backup terminated due to an error'
 
-    - name: "Notify | Cloudbox Backup: Backup terminated due to an error"
+    - name: "Notify | Saltbox Backup: Backup terminated due to an error"
       include_role:
         name: notify
       vars:
-        message: "Cloudbox Backup: Backup terminated due to an error."
+        message: "Saltbox Backup: Backup terminated due to an error."
 
   always:
     - name: "Remove 'backup.lock'"

@@ -10,12 +10,12 @@
 - name: Logs | Get '{{ sanity_check_logs_playbook_path | basename }}' info
   stat:
     path: "{{ sanity_check_logs_playbook_path }}"
-  register: cloudbox_yml
+  register: saltbox_yml
 
 - name: Logs | Touch '{{ sanity_check_logs_logfile_path | basename }}'
   file:
     path: "{{ sanity_check_logs_logfile_path }}"
     state: touch
-    owner: "{{ cloudbox_yml.stat.uid }}"
-    group: "{{ cloudbox_yml.stat.gid }}"
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664

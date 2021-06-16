@@ -49,7 +49,7 @@
         path: "/etc/rc.local"
         state: present
         create: false
-        marker: "### {mark} CLOUDBOX MANAGED BLOCK ###"
+        marker: "### {mark} SALTBOX MANAGED BLOCK ###"
         block: |
           /sbin/ifconfig {{ ansible_default_ipv4.interface }} txqueuelen 10000
           ethtool -G {{ ansible_default_ipv4.interface }} rx 4096 tx 4096

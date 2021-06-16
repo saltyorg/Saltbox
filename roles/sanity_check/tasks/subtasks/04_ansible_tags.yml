@@ -23,7 +23,7 @@
       - '"{{ item }}" in t.stdout_lines'
     msg: >-
       You must supply valid tag(s) via '--tags TAG'
-      (get a list of valid tags by running 'ansible-playbook cloudbox.yml --list-tags')
+      (get a list of valid tags by running 'ansible-playbook saltbox.yml --list-tags')
     quiet: true
   with_items: "{{ ansible_run_tags }}"
   when:
