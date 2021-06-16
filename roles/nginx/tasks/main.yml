@@ -1,10 +1,9 @@
 #########################################################################
-# Title:         Cloudbox: Nginx Role                                   #
+# Title:         Saltbox: Nginx Role                                    #
 # Author(s):     desimaniac, salty                                      #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # Docker Image:  linuxserver/nginx                                      #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################

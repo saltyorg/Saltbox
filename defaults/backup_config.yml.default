@@ -2,13 +2,13 @@
 backup:
   local:
     enable: yes
-    destination: /mnt/local/Backups/Cloudbox
+    destination: /mnt/local/Backups/Saltbox
   rclone:
     enable: yes
-    destination: google:/Backups/Cloudbox
+    destination: google:/Backups/Saltbox
   rsync:
     enable: no
-    destination: rsync://somehost.com/Backups/Cloudbox
+    destination: rsync://somehost.com/Backups/Saltbox
     port: 22
   cron:
     cron_time: weekly

@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: ruTorrent Role                               #
+# Title:         Saltbox: ruTorrent Role                                #
 # Author(s):     desimaniac, l3uddz, salty                              #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -31,7 +30,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    force: yes
+    force: true
 
 - name: Check if existing config file exists
   stat:

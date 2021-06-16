@@ -1,10 +1,9 @@
 #!/bin/bash
 #########################################################################
-# Title:         Cloudbox: Python-PlexLibrary Helper Script             #
+# Title:         Saltbox: Python-PlexLibrary Helper Script              #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################

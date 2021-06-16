@@ -2,7 +2,7 @@
 user:
   name: seed
   pass: password123
-  domain: testcloudbox.ml
+  domain: testsaltbox.ml
   email: your@email.com
 cloudflare:
   email:

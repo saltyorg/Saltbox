@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: System | Logrotate Tasks                     #
+# Title:         Saltbox: System | Logrotate Tasks                      #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -27,9 +26,9 @@
 - name: Logrotate | Create 'logrotate_d_items' variable
   set_fact:
     logrotate_d_items:
-      - path: "cloudbox"
+      - path: "saltbox"
         content: |
-          /home/{{ user.name }}/cloudbox/cloudbox.log {
+          /srv/git/saltbox/saltbox.log {
               weekly
               rotate 0
               size 2M
@@ -41,7 +40,7 @@
 - name: Logrotate | Add items to '/etc/logrotate.d'
   blockinfile:
     path: "/etc/logrotate.d/{{ item.path }}"
-    marker: "### CLOUDBOX MANAGED BLOCK - {mark} ###"
+    marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
     block: "{{ item.content }}"
     create: true
     mode: '0644'

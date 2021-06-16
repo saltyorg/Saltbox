@@ -1,9 +1,8 @@
 ##########################################################################
-# Title:         Cloudbox: Plex Auth Token | Default Variables           #
+# Title:         Saltbox: Plex Auth Token | Default Variables            #
 # Author(s):     desimaniac                                              #
-# URL:           https://github.com/cloudbox2/cloudbox                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
-#         Part of the Cloudbox project: https://cloudbox.works           #
 ##########################################################################
 #                   GNU General Public License v3.0                      #
 ##########################################################################
@@ -14,6 +13,6 @@
 
 plex_auth_token_version: "1.0.0"
 
-plex_auth_token_product: "CB"
+plex_auth_token_product: "SB"
 
 plex_auth_token_client_identifier: "XXXX"

@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve Cloudbox
+about: Create a report to help us improve Saltbox
 labels: Bug
 ---
 
@@ -27,7 +27,7 @@ If issue occurs during Ansible playbook, run playbook with `-vv` to output detai
 
 **System Information**
 
- - Cloudbox Version: [e.g. Master (latest), Develop (latest)]
+ - Saltbox Version: [e.g. Master (latest), Develop (latest)]
  - Operating System: [e.g. Ubuntu Server 18.04 LTS]
  - Linux Kernel: [e.g. 4.15]
 

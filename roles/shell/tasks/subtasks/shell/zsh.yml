@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Shell | ZSH Tasks                            #
+# Title:         Saltbox: Shell | ZSH Tasks                             #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -42,7 +41,7 @@
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
   blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
-    marker: "### CLOUDBOX MANAGED BLOCK - {mark} ###"
+    marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
     block: "{{ shell_zsh_zshrc_block_content }}"
     state: present
     create: false

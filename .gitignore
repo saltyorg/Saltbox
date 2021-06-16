@@ -1,18 +1,12 @@
 ### MacOS ###
 .DS_Store
 
-### Vagrant ###
-.vagrant/
-*.box
-
 ### Python ###
 *.pyc
 
 ### Ansible ###
 /backup.lock
 /cloudbox.retry
-
-### Cloudbox ###
 
 # Vars
 /inventories/host_vars/*

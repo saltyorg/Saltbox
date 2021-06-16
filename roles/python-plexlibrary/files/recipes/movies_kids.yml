@@ -8,17 +8,17 @@ source_list_urls:
 
 # Source library details
 source_libraries:
-    # [Cloudbox] 'name' = Plex library name.
+    # [Saltbox] 'name' = Plex library name.
   - name: 'Movies'
-    # [Cloudbox] Plex library path (i.e /data/...).
+    # [Saltbox] Plex library path (i.e /data/...).
     folders:
-        # [Cloudbox] Example path below assumes main movies are located in "/mnt/unionfs/Media/Movies/Movies/" (i.e. Customizing Plex Library - Scenario 1 style).
+        # [Saltbox] Example path below assumes main movies are located in "/mnt/unionfs/Media/Movies/Movies/" (i.e. Customizing Plex Library - Scenario 1 style).
       - '/data/Movies/Movies'
 
 # New library details
 new_library:
   name: 'Movies - Kids'
-  # [Cloudbox] 'folder' = Path on host where symlinks are stored (i.e. '/mnt/local/Media/...').
+  # [Saltbox] 'folder' = Path on host where symlinks are stored (i.e. '/mnt/local/Media/...').
   folder: '/mnt/local/Media/Movies/Movies-Kids/'
   sort: false
   sort_title:

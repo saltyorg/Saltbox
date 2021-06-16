@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Sanity Check | Ansible Tags                  #
+# Title:         Saltbox: Sanity Check | Ansible Tags                   #
 # Author(s):     desimaniac, EnorMOZ                                    #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -15,7 +14,7 @@
   changed_when: false
   when:
    - not continuous_integration
-   - "'cloudbox_mod' not in playbook_dir"
+   - "'saltbox_mod' not in playbook_dir"
    - "'community' not in playbook_dir"
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
@@ -29,5 +28,5 @@
   with_items: "{{ ansible_run_tags }}"
   when:
    - not continuous_integration
-   - "'cloudbox_' not in playbook_dir"
+   - "'saltbox_' not in playbook_dir"
    - "'community' not in playbook_dir"

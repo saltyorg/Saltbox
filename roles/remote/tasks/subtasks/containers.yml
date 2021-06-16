@@ -1,15 +1,14 @@
 #########################################################################
-# Title:         Cloudbox: Remote | Container Tasks                     #
+# Title:         Saltbox: Remote | Container Tasks                      #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
 - name: "Containers | Gather list of running Docker containers"
-  shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.cloudbox.cloudbox_managed=true | xargs echo -n"
+  shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
   register: cloudbox_managed_containers
   ignore_errors: true
 

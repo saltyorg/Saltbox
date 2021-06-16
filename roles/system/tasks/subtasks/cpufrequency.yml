@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: System | CPU Frequency Tasks                 #
+# Title:         Saltbox: System | CPU Frequency Tasks                  #
 # Author(s):     l3uddz, EnorMOZ, desimaniac                            #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -20,12 +19,6 @@
       - linux-tools-common
       - linux-tools-generic
   when: ansible_distribution == 'Ubuntu'
-
-- name: CPU Frequency | Install 'linux-tools' for Debian
-  apt:
-    name: linux-tools
-    state: present
-  when: ansible_distribution == 'Debian'
 
 - name: "CPU Frequency | Install 'linux-tools-{{ ansible_kernel }}'"
   shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"

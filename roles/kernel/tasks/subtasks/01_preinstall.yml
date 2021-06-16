@@ -1,16 +1,15 @@
 #########################################################################
-# Title:         Cloudbox: Kernel | Preinstall Tasks                    #
+# Title:         Saltbox: Kernel | Preinstall Tasks                     #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Preinstall | Cloudbox pre-install has started!"
+- name: "Preinstall | Saltbox pre-install has started!"
   debug:
-    msg: "Cloudbox pre-install has started!"
+    msg: "Saltbox pre-install has started!"
 
 - name: Preinstall | Set default preinstall variables
   set_fact:

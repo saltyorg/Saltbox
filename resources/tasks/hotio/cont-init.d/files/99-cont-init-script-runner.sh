@@ -1,11 +1,10 @@
 #!/usr/bin/with-contenv bash
 
 #########################################################################
-# Title:         Cloudbox: cont-init.d Script Runner                    #
+# Title:         Saltbox: cont-init.d Script Runner                     #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################

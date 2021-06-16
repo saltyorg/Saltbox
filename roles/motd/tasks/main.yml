@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: MOTD Role                                    #
+# Title:         Saltbox: MOTD Role                                     #
 # Author(s):     l3uddz, desimaniac                                     #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -60,9 +59,9 @@
     state: directory
     mode: 0775
 
-- name: Clone Cloudbox MOTD
+- name: Clone Saltbox MOTD
   git:
-    repo: https://github.com/cloudbox2/motd.git
+    repo: https://github.com/saltyorg/motd.git
     dest: /opt/motd
     clone: true
     version: HEAD
@@ -98,9 +97,9 @@
     group: "{{ user.name }}"
     mode: 0775
 
-- name: Set 'cloudbox-motd.py' as executable
+- name: Set 'saltbox-motd.py' as executable
   file:
-    path: /opt/motd/cloudbox-motd.py
+    path: /opt/motd/saltbox-motd.py
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: a+x

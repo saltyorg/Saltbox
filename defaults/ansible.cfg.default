@@ -2,7 +2,7 @@
 inventory = ./inventories/local
 roles_path = roles:resources/roles
 fact_path = ./ansible_facts.d
-log_path = ./cloudbox.log
+log_path = ./saltbox.log
 callback_whitelist = profile_tasks
 command_warnings = False
 retry_files_enabled = False

@@ -2,10 +2,9 @@
 #########################################################################
 # Title:         Plex Autoscan URL Script                               #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # Description:   Prints out the Plex Autoscan URL.                      #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -24,8 +23,8 @@ readonly BWHITE="\033[1;37m"
 readonly BBLUE="\033[1;34m"
 
 # Config files
-readonly CB_ANSIBLE="${HOME}/cloudbox/ansible.cfg"
-readonly CB_ACCOUNTS="${HOME}/cloudbox/accounts.yml"
+readonly SB_ANSIBLE="${HOME}/saltbox/ansible.cfg"
+readonly SB_ACCOUNTS="${HOME}/saltbox/accounts.yml"
 readonly PAS_CONFIG="/opt/plex_autoscan/config/config.json"
 
 # Boolean vars
@@ -48,10 +47,8 @@ echo -e "
 ${GREEN}┌───────────────────────────────────────────────────────────────────────────────────┐
 ${GREEN}│ Title:             Plex Autoscan URL Script                                       │
 ${GREEN}│ Author(s):         desimaniac                                                     │
-${GREEN}│ URL:               https://github.com/cloudbox2/cloudbox                          │
+${GREEN}│ URL:               https://github.com/saltyorg/Saltbox                            │
 ${GREEN}│ Description:       Prints out the Plex Autoscan URL.                              │
-${GREEN}├───────────────────────────────────────────────────────────────────────────────────┤
-${GREEN}│                Part of the Cloudbox project: https://cloudbox.works               │
 ${GREEN}├───────────────────────────────────────────────────────────────────────────────────┤
 ${GREEN}│                        GNU General Public License v3.0                            │
 ${GREEN}└───────────────────────────────────────────────────────────────────────────────────┘
@@ -74,8 +71,8 @@ function sanity_check() {
         echo -e ${BRED}" Error: "${NORMAL}"File '"${BWHITE}${PAS_CONFIG}${NORMAL}"' is not found." >&2
         echo ""
         exit 1
-    elif [[ ! -f ${CB_ACCOUNTS} ]]; then
-        echo -e ${BRED}" Error: "${NORMAL}"File '"${BWHITE}${CB_ACCOUNTS}${NORMAL}"' is not found." >&2
+    elif [[ ! -f ${SB_ACCOUNTS} ]]; then
+        echo -e ${BRED}" Error: "${NORMAL}"File '"${BWHITE}${SB_ACCOUNTS}${NORMAL}"' is not found." >&2
         echo ""
         exit 1
     fi
@@ -99,13 +96,13 @@ function build_url() {
     SERVER_PASS=$(cat ${PAS_CONFIG} | jq -r .SERVER_PASS)
 
     # Get variables from Cloudbox account settings
-    head -1 ${CB_ACCOUNTS} | grep -q "\$ANSIBLE_VAULT"
+    head -1 ${SB_ACCOUNTS} | grep -q "\$ANSIBLE_VAULT"
     rc=$?
     if [[ ${rc} == 0 ]]; then
-        VAULT_FILE=$(cat ${CB_ANSIBLE} | grep "^vault_password_file" | sed 's/^.*=//' | sed "s/ //g")
-        DOMAIN=$(ansible-vault view --vault-password-file=${VAULT_FILE} ${CB_ACCOUNTS} | yq -r .user.domain)
+        VAULT_FILE=$(cat ${SB_ANSIBLE} | grep "^vault_password_file" | sed 's/^.*=//' | sed "s/ //g")
+        DOMAIN=$(ansible-vault view --vault-password-file=${VAULT_FILE} ${SB_ACCOUNTS} | yq -r .user.domain)
     elif [[ ${rc} == 1 ]]; then
-        DOMAIN=$(cat ${CB_ACCOUNTS} | yq -r .user.domain)
+        DOMAIN=$(cat ${SB_ACCOUNTS} | yq -r .user.domain)
     fi
 
     # If SERVER_IP is 0.0.0.0, assign public IP address to REAL_IP.
@@ -119,7 +116,7 @@ function build_url() {
     declare -a SUBDOMAINS=(
         "plex.${DOMAIN}"
         "mediabox.${DOMAIN}"
-        "cloudbox.${DOMAIN}"
+        "saltbox.${DOMAIN}"
         "${REAL_IP}"
     )
 

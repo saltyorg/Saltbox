@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Backup Role                                  #
+# Title:         Saltbox: Backup Role                                   #
 # Author(s):     l3uddz, desimaniac, RXWatcher1                         #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -54,7 +53,7 @@
       paths: "{{ backup.local.destination }}"
       file_type: file
       patterns: '*.tar'
-      recurse: yes
+      recurse: true
     register: dir_files
 
   # Remove backup.old folder if it exists.
@@ -66,7 +65,7 @@
   # Use mv because Ansible copy & delete takes a lot longer.
   - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
     shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     when: dir_files.matched|int != 0
 
@@ -88,8 +87,8 @@
       owner: "{{ user.name }}"
       group: "{{ user.name }}"
       mode: 0775
-      decrypt: no
-      force: yes
+      decrypt: false
+      force: true
     with_items:
       - "{{ playbook_dir }}/ansible.cfg"
       - "{{ playbook_dir }}/accounts.yml"
@@ -98,7 +97,7 @@
       - "{{ playbook_dir }}/backup_config.yml"
       - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
       - "/home/{{ user.name }}/.config/rclone/rclone.conf"
-    ignore_errors: yes
+    ignore_errors: true
 
   # Backup the excludes list if it exists
   - name: "Look for 'backup_excludes_list.txt' file in cloudbox folder"
@@ -113,7 +112,7 @@
       owner: "{{ user.name }}"
       group: "{{ user.name }}"
       mode: 0775
-      force: yes
+      force: true
     when: (backup_excludes_list.stat.exists)
 
   - name: Set 'backup_excludes_list_path' variable
@@ -123,7 +122,7 @@
         if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
         else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
 
-  - name: Cloudbox Restore Service
+  - name: saltbox Restore Service
     import_tasks: "restore_service.yml"
     when: restore_service_enabled
     tags:
@@ -145,12 +144,12 @@
         /etc/systemd/system/* /opt/systemd-backup/
     args:
       executable: /bin/bash
-      warn: no
-    ignore_errors: yes
+      warn: false
+    ignore_errors: true
 
   - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
     shell: "cp -f /var/spool/cron/crontabs/* /opt/crontab-backup"
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: "Reset permissions of folders"
     file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
@@ -161,9 +160,9 @@
   # Stop Containers
 
   - name: "Gather list of running Docker containers"
-    shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.cloudbox.cloudbox_managed=true | xargs echo -n"
+    shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
     register: docker_containers
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: Set 'docker_containers' variable
     set_fact:
@@ -313,7 +312,7 @@
 
       - name: "Snapshot | Start all previously running Docker containers"
         shell: 'docker start {{ docker_containers }}'
-        ignore_errors: yes
+        ignore_errors: true
         when: (docker_containers | trim | length > 0)
 
       - name: "Snapshot | Notify | Cloudbox Backup: Started Docker containers"
@@ -328,7 +327,7 @@
   - name: "Get list of all folders in '{{ backup_opt_path }}'"
     find:
       paths: "{{ backup_opt_path }}"
-      recurse: no
+      recurse: false
       file_type: directory
     register: opt_folders_temp
 
@@ -355,11 +354,11 @@
         > /dev/null
     args:
       executable: /bin/bash
-      warn: no
+      warn: false
     with_items: "{{ opt_folders }}"
     loop_control:
       label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: Snapshot | Cleanup Tasks
     block:
@@ -375,13 +374,13 @@
           - name: Snapshot | Delete existing BTRFS snapshot (1/2)
             command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
             register: snapshot_deletion
-            ignore_errors: yes
+            ignore_errors: true
 
           - name: Snapshot | Delete existing BTRFS snapshot (2/2)
             file:
               path: "{{ backup_snapshot_destination_path }}"
               state: absent
-            ignore_errors: yes
+            ignore_errors: true
             when: (snapshot_deletion is failed)
 
         when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
@@ -404,7 +403,7 @@
     file:
       path: "{{ backup.local.destination }}.old"
       state: absent
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     when: (dir_files2.matched|int != 0)
 
@@ -421,7 +420,7 @@
       name: notify
     vars:
       message: "Cloudbox Backup: Backup created with total size of {{ backup_size }}."
-    ignore_errors: yes
+    ignore_errors: true
 
   # Start Plexdrive and Docker containers when snapshot is not enabled
 
@@ -446,7 +445,7 @@
 
       - name: "Start all previously running Docker containers"
         shell: 'docker start {{ docker_containers }}'
-        ignore_errors: yes
+        ignore_errors: true
         when: (docker_containers | trim | length > 0)
 
       - name: "Notify | Cloudbox Backup: Started Docker containers"
@@ -465,16 +464,16 @@
   - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
     shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
     args:
-      warn: no
+      warn: false
 
   # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
   - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
     shell: find '{{ backup.local.destination }}' -type f  -exec touch {} +
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     args:
       executable: /bin/bash
-      warn: no
+      warn: false
 
   # Due to a touch command in a previous backup, all files on rclone.destination have same mod dates, therefore, only one file's mod date is needed.
   - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
@@ -483,10 +482,10 @@
         {{ backup.rclone.destination }}/settings.yml \
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
         | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     register: rclone_timestamp
-    ignore_errors: yes
+    ignore_errors: true
     when: (backup.rclone.enable)
 
   # If rclone_timestamp is blank (would happen if settings.yml was not at destination), default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
@@ -496,11 +495,11 @@
         --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
         '{{ backup.rclone.destination }}/{{ item }}' '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
         2>/dev/null
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     register: rclone_move
     failed_when: rclone_move.rc > 3
-    ignore_errors: yes
+    ignore_errors: true
     when: (backup.rclone.enable)
     with_items:
       - "opt"
@@ -527,7 +526,7 @@
         -vv \
         --log-file='{{ playbook_dir }}/backup_rclone.log' \
         '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     when: (backup.rclone.enable)
 
@@ -542,10 +541,10 @@
     synchronize:
       src: "{{ backup.local.destination }}/"
       dest: "{{ backup.rsync.destination }}/"
-      set_remote_user: yes
-      compress: no
+      set_remote_user: true
+      compress: false
       dest_port: "{{ backup.rsync.port }}"
-    become: yes
+    become: true
     become_user: "{{ user.name }}"
     when: (backup.rsync.enable)
 
@@ -605,13 +604,13 @@
             - name: Snapshot | Delete existing BTRFS snapshot (1/2)
               command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
               register: snapshot_deletion
-              ignore_errors: yes
+              ignore_errors: true
 
             - name: Snapshot | Delete existing BTRFS snapshot (2/2)
               file:
                 path: "{{ backup_snapshot_destination_path }}"
                 state: absent
-              ignore_errors: yes
+              ignore_errors: true
               when: (snapshot_deletion is failed)
 
           when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
@@ -621,7 +620,7 @@
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
       args:
-        warn: no
+        warn: false
 
     - name: Start Plexdrive and Docker Containers
       block:
@@ -644,7 +643,7 @@
 
         - name: "Start all previously running Docker containers"
           shell: 'docker start {{ docker_containers }}'
-          ignore_errors: yes
+          ignore_errors: true
           when: (docker_containers | trim | length > 0)
 
       when: (not use_snapshot)
@@ -674,4 +673,4 @@
     - name: "Reset logs folder ownership."
       shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
       args:
-        warn: no
+        warn: false

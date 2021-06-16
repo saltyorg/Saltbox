@@ -1,24 +1,23 @@
 #########################################################################
-# Title:         Cloudbox: User | Default Variables                     #
+# Title:         Saltbox: User | Default Variables                      #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
 # User
 user_paths_home_location: "/home/{{ user.name }}"
-user_paths_home_cloudbox_location: "{{ user_paths_home_location }}/cloudbox"
+user_paths_home_cloudbox_location: "{{ user_paths_home_location }}/saltbox"
 
 # Cloudbox
-cloudbox_git_repo_url: "https://github.com/cloudbox2/cloudbox.git"
-cloudbox_git_repo_dest: "/srv/git/cloudbox"
-cloudbox_git_repo_branch_primary: "master"
-cloudbox_git_repo_branch_secondary: "master"
+saltbox_git_repo_url: "https://github.com/saltyorg/Saltbox.git"
+saltbox_git_repo_dest: "/srv/git/saltbox"
+saltbox_git_repo_branch_primary: "master"
+saltbox_git_repo_branch_secondary: "master"
 
 # CB Scripts
-cb_git_repo_url: "https://github.com/cloudbox2/cb.git"
-cb_git_repo_dest: "/srv/git/cb"
-cb_git_repo_branch_primary: "master"
+sb_git_repo_url: "https://github.com/saltyorg/sb.git"
+sb_git_repo_dest: "/srv/git/sb"
+sb_git_repo_branch_primary: "master"

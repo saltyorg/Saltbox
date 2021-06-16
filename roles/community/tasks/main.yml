@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Community Role                               #
+# Title:         Saltbox: Community Role                                #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -18,7 +17,7 @@
 
 - name: Clone Community repo 'HEAD'
   git:
-    repo: https://github.com/cloudbox2/community.git
+    repo: https://github.com/saltyorg/community.git
     dest: /opt/community
     clone: true
     version: HEAD
@@ -30,7 +29,7 @@
 
 - name: Clone Community repo 'master'
   git:
-    repo: https://github.com/cloudbox2/community.git
+    repo: https://github.com/saltyorg/community.git
     dest: /opt/community
     clone: true
     version: master

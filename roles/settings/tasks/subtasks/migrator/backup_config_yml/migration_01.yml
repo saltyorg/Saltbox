@@ -1,9 +1,8 @@
 ########################################################################################
-# Title:         Cloudbox: Settings | Migrator | 'backup_config.yml' | Migration 02    #
+# Title:         Saltbox: Settings | Migrator | 'backup_config.yml' | Migration 02     #
 # Author(s):     desimaniac                                                            #
-# URL:           https://github.com/cloudbox2/cloudbox                                 #
+# URL:           https://github.com/saltyorg/Saltbox                                   #
 # --                                                                                   #
-#                 Part of the Cloudbox project: https://cloudbox.works                 #
 ########################################################################################
 #                            GNU General Public License v3.0                           #
 ########################################################################################
@@ -58,7 +57,7 @@
     yyq w -i {{ playbook_dir }}/{{ file }} backup.restore_service.pass {{ vault_service.pass }}
     yyq d -i {{ playbook_dir }}/{{ file }} vault_service
   become: true
-  become_user: "{{ cloudbox_yml.stat.pw_name }}"
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (old_settings) and not (new_settings)
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Remove 'null' values
@@ -66,8 +65,8 @@
     path: "{{ playbook_dir }}/{{ file }}"
     regexp: '(?<=: )\bnull\s*$'
     replace: ''
-    owner: "{{ cloudbox_yml.stat.uid }}"
-    group: "{{ cloudbox_yml.stat.gid }}"
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Re-import Variables

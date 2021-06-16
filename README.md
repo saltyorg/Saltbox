@@ -1,16 +1,14 @@
 # Cloudbox
-[![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fcloudbox.works-blue)](https://cloudbox.works)
-[![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fcloudbox.wiki-blue)](https://cloudbox.wiki)
-[![Contributors:](https://img.shields.io/github/contributors/cloudbox2/cloudbox?color=blue)](https://github.com/Cloudbox2/Cloudbox)
-[![Lines of Code:](https://img.shields.io/tokei/lines/github/cloudbox2/cloudbox)](https://github.com/Cloudbox2/Cloudbox)
-[![Issues:](https://img.shields.io/github/issues/Cloudbox2/Cloudbox?color=blue)](https://github.com/Cloudbox2/Cloudbox/issues)
-[![Build status](https://appveyor.cloudbox.work/api/projects/status/ydmbhstv697aosa8/branch/master?svg=true)](https://appveyor.cloudbox.work/project/AppVeyor/cloudbox/branch/master)
-[![Discord:](https://img.shields.io/discord/381077432285003776?color=blue)](https://discord.io/cloudbox)
-[![Reddit:](https://img.shields.io/badge/reddit-r/Cloudbox-blue)](https://reddit.com/r/Cloudbox)
-[![License:](https://img.shields.io/github/license/Cloudbox2/Cloudbox)](LICENSE.md)
+[![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fsaltbox.dev-blue)](https://saltbox.dev)
+[![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fwiki.saltbox.dev/Saltbox-blue)](https://wiki.saltbox.dev/Saltbox)
+[![Contributors:](https://img.shields.io/github/contributors/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/graphs/contributors)
+[![Lines of Code:](https://img.shields.io/tokei/lines/github/saltyorg/Saltbox)](https://github.com/saltyorg/Saltbox)
+[![Issues:](https://img.shields.io/github/issues/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/issues)
+[![Build status](https://appveyor.cloudbox.work/api/projects/status/78ee11wmikuxc0ay/branch/master?svg=true)](https://appveyor.cloudbox.work/project/AppVeyor/saltbox/branch/master)
+[![License:](https://img.shields.io/github/license/saltyorg/Saltbox)](LICENSE.md)
 
 
-Cloudbox is an Ansible-based solution for rapidly deploying a Docker containerized cloud media server.
+Saltbox is an Ansible-based solution for rapidly deploying a Docker containerized cloud media server heavily based on [Cloudbox](https://github.com/Cloudbox/Cloudbox).
 
 This project was designed for x64 machines running Ubuntu Server 18.04/20.04.
 
@@ -21,14 +19,13 @@ Featured Applications:
 - Sonarr
 - Radarr
 - Lidarr
-- Plexdrive
+- Rclone
 - NZBGet
 - ruTorrent
 - Tautulli
 - NZBHydra2
 - Jackett
-- Ombi
-- Plex Requests
+- Overseer
 - Plex Autoscan
 - Cloudplow
 - Organizr

@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: ruTorrent | Pre-Install Tasks                #
+# Title:         Saltbox: ruTorrent | Pre-Install Tasks                 #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -18,7 +17,7 @@
     low_bound: 51413
     high_bound: 51423
   register: port_lookup_51413
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Pre-Install | Get next available port within the range of '6881-6891'
   find_next_open_port:
@@ -26,4 +25,4 @@
     high_bound: 6891
     type: udp
   register: port_lookup_6881
-  ignore_errors: yes
+  ignore_errors: true

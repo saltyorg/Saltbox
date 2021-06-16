@@ -1,10 +1,9 @@
 #########################################################################
-# Title:            Cloudbox: Overseerr                                 #
+# Title:            Saltbox: Overseerr                                  #
 # Author(s):        JackDallas, salty                                   #
-# URL:              https://github.com/cloudbox2/Cloudbox               #
+# URL:              https://github.com/saltyorg/Saltbox                 #
 # Docker Image(s):  sctx/overseerr                                      #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################

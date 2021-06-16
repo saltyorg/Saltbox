@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Traefik | Config Task                        #
+# Title:         Saltbox: Traefik | Config Task                         #
 # Author(s):     RXWatcher, salty                                       #
-# URL:           https://github.com/cloudbox2/Cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -25,3 +24,4 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0664
+  no_log: true

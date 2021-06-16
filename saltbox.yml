@@ -1,0 +1,62 @@
+---
+- hosts: localhost
+  vars_files:
+    - ['accounts.yml', 'defaults/accounts.yml.default']
+    - ['settings.yml', 'defaults/settings.yml.default']
+    - ['adv_settings.yml', 'defaults/adv_settings.yml.default']
+    - ['backup_config.yml', 'defaults/backup_config.yml.default']
+  roles:
+    - { role: sanity_check, tags: ['sanity_check'] }
+    - { role: settings, tags: ['always', 'settings'] }
+    - { role: pre_tasks, tags: ['pre_tasks'] }
+    - { role: backup, tags: ['backup'] }
+    - { role: restore, tags: ['restore'] }
+    - { role: kernel, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'kernel'] }
+    - { role: hetzner, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'hetzner'] }
+    - { role: user, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'user'] }
+    - { role: shell, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'shell'] }
+    - { role: rclone, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'rclone'] }
+    - { role: system, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'system'] }
+    - { role: common, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'common'] }
+    - { role: motd, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'motd'] }
+    - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker'] }
+    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
+    - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'], when: ['use_remote'] }
+    - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'] }
+    - { role: scripts, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'scripts'] }
+    - { role: community, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'community'] }
+    - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik'] }
+    - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
+    - { role: plex, tags: ['saltbox', 'mediabox', 'plex'] }
+    - { role: plex-extra-tasks, tags: ['saltbox', 'mediabox', 'plex-extra-tasks'] }
+    - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
+    - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
+    - { role: plex_autoscan, tags: ['saltbox', 'mediabox', 'plex_autoscan'] }
+    - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
+    - { role: organizr, tags: ['saltbox', 'feederbox', 'organizr'] }
+    - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow'], when: ['use_remote'] }
+    - { role: nzbget, tags: ['saltbox', 'feederbox', 'nzbget'], when: ['use_nzbs'] }
+    - { role: rutorrent, tags: ['saltbox', 'feederbox', 'rutorrent'], when: ['use_torrents'] }
+    - { role: jackett, tags: ['saltbox', 'feederbox', 'jackett'], when: ['use_torrents'] }
+    - { role: nzbhydra2, tags: ['saltbox', 'feederbox', 'nzbhydra2'], when: ['use_nzbs'] }
+    - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
+    - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
+    - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
+    - { role: plex_auth_token, tags: ['plex_auth_token'] }
+    - { role: plex-plugins/sub-zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
+    - { role: plex-plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
+    - { role: subliminal, tags: ['subliminal'] }
+    - { role: mariadb, tags: ['mariadb'] }
+    - { role: emby, tags: ['emby'] }
+    - { role: traktarr, tags: ['traktarr'] }
+    - { role: plex_dupefinder, tags: ['plex_dupefinder'] }
+    - { role: netdata, tags: ['netdata'] }
+    - { role: plex_patrol, tags: ['plex_patrol'] }
+    - { role: python-plexlibrary, tags: ['python-plexlibrary'] }
+    - { role: sabnzbd, tags: ['sabnzbd'] }
+    - { role: nginx, tags: ['nginx'] }
+    - { role: nzbthrottle, tags: ['nzbthrottle'] }
+    - { role: ddclient, tags: ['ddclient'] }
+    - { role: trackarr, tags: ['trackarr'] }
+    - { role: sstv, tags: ['sstv'] }
+    - { role: yyq, tags: ['yyq'] }

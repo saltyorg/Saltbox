@@ -12,17 +12,17 @@ source_list_urls:
 
 # Source library details
 source_libraries:
-    # [Cloudbox] 'name' = Plex library name.
+    # [Saltbox] 'name' = Plex library name.
   - name: 'TV Shows'
-    # [Cloudbox] 'folders' = Plex library path (i.e '/data/...').
+    # [Saltbox] 'folders' = Plex library path (i.e '/data/...').
     folders:
-      # [Cloudbox] Example path below assumes main TV shows are located in "/mnt/unionfs/Media/TV/TV/" (i.e. Customizing Plex Library - Scenario 1 style).
+      # [Saltbox] Example path below assumes main TV shows are located in "/mnt/unionfs/Media/TV/TV/" (i.e. Customizing Plex Library - Scenario 1 style).
       - '/data/TV/TV'
 
 # New library details
 new_library:
   name: 'TV - Trending'
-  # [Cloudbox] 'folder' = Path on host where symlinks are stored (i.e. '/mnt/local/Media/...').
+  # [Saltbox] 'folder' = Path on host where symlinks are stored (i.e. '/mnt/local/Media/...').
   folder: '/mnt/local/Media/TV/TV-Trending/'
   sort: true
   sort_title:

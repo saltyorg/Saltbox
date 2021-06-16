@@ -1,18 +1,17 @@
 #########################################################################
-# Title:         Cloudbox: Sanity Check | System                        #
+# Title:         Saltbox: Sanity Check | System                         #
 # Author(s):     l3uddz, desimaniac                                     #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: System | Cloudbox support message
+- name: System | Saltbox support message
   debug:
     msg:
-      - "Cloudbox was designed for use on Ubuntu servers running versions 18.04+. With basic support for other Debian systems."
-      - "Running Cloudbox on unsupported systems may cause unpredictable results."
+      - "Saltbox was designed for use on Ubuntu servers running versions 18.04+. With basic support for other Debian systems."
+      - "Running Saltbox on unsupported systems may cause unpredictable results."
   when: (ansible_distribution != 'Ubuntu') or
     ((ansible_distribution == 'Ubuntu') and (ansible_distribution_version is version('18.04', '<')))
 

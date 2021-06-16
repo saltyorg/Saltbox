@@ -1,18 +1,12 @@
 #########################################################################
-# Title:         Cloudbox: Remote Role                                  #
+# Title:         Saltbox: Remote Role                                   #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Sanity Check
-
-- name: Sanity Check Tasks
-  import_tasks: "subtasks/sanity_checks.yml"
-
 # Variables
 
 - name: Variables Task
@@ -31,9 +25,6 @@
   vars:
     _service_file: "{{ item }}"
   loop: "{{ service_files }}"
-
-- name: Rclone Tasks
-  import_tasks: "subtasks/rclone.yml"
 
 - name: Mount Path Tasks
   include_tasks: "subtasks/mount_path.yml"

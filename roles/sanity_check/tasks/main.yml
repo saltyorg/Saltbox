@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Sanity Check                                 #
+# Title:         Saltbox: Sanity Check                                  #
 # Author(s):     l3uddz, desimaniac, salty                              #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -17,17 +16,17 @@
   tags: always
 
 - name: Python Version Check
-  import_tasks: "subtasks/06_python_version.yml"
+  import_tasks: "subtasks/03_python_version.yml"
   tags: always
 
 - name: Tags Check
-  import_tasks: "subtasks/03_ansible_tags.yml"
+  import_tasks: "subtasks/04_ansible_tags.yml"
   tags: always
 
 - name: Backup Lock Check
-  import_tasks: "subtasks/04_backup.yml"
+  import_tasks: "subtasks/05_backup.yml"
   tags: always
 
 - name: Touch Logs
-  import_tasks: "subtasks/05_logs.yml"
+  import_tasks: "subtasks/06_logs.yml"
   tags: always

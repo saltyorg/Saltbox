@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Kernel | Check Tasks                         #
+# Title:         Saltbox: Kernel | Check Tasks                          #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -16,5 +15,5 @@
   debug:
     msg:
       - "Cloudbox was designed for use on linux kernel version 4.10+."
-      - "Running Cloudbox on a lower kernel may lead to reduced performance."
+      - "Running Saltbox on a lower kernel may lead to reduced performance."
   when: (ansible_kernel is version('4.00', '>=')) and (ansible_kernel is version('4.10', '<'))

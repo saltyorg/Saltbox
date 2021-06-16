@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Settings | Start                             #
+# Title:         Saltbox: Settings | Start                              #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -23,10 +22,10 @@
     name: yyq
   when: (not yyq_binary.stat.exists)
 
-- name: "Start | Get 'cloudbox.yml' info"
+- name: "Start | Get 'saltbox.yml' info"
   stat:
-    path: "{{ playbook_dir }}/cloudbox.yml"
-  register: cloudbox_yml
+    path: "{{ playbook_dir }}/saltbox.yml"
+  register: saltbox_yml
 
 - name: "Start | Create list of config files"
   set_fact:
@@ -52,7 +51,7 @@
   file:
     path: "{{ playbook_dir }}/settings-updater.log"
     state: file
-    owner: "{{ cloudbox_yml.stat.uid }}"
-    group: "{{ cloudbox_yml.stat.gid }}"
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664
   when: (settings_updater_log.stat.exists)

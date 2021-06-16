@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Settings | Copy                              #
+# Title:         Saltbox: Settings | Copy                               #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -18,7 +17,7 @@
   copy:
     src: "{{ playbook_dir }}/defaults/{{ file }}.default"
     dest: "{{ playbook_dir }}/{{ file }}"
-    owner: "{{ cloudbox_yml.stat.uid }}"
-    group: "{{ cloudbox_yml.stat.gid }}"
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664
   when: not file0.stat.exists

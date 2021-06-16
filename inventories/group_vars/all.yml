@@ -1,9 +1,8 @@
 ##########################################################################
-# Title:         Cloudbox: Global Variables                              #
+# Title:         Saltbox: Global Variables                               #
 # Author(s):     desimaniac, salty                                       #
-# URL:           https://github.com/cloudbox2/cloudbox                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
-#         Part of the Cloudbox project: https://cloudbox.works           #
 ##########################################################################
 #                   GNU General Public License v3.0                      #
 ##########################################################################
@@ -12,7 +11,7 @@
 # Resources
 ################################
 
-resources_tasks_path: "/srv/git/cloudbox/resources/tasks"
+resources_tasks_path: "/srv/git/saltbox/resources/tasks"
 
 ################################
 # Continuous Integration
@@ -66,7 +65,7 @@ torrents_downloads_path_is_defined: "{{ (downloads is defined) and
 
 use_torrents: "{{ torrents_downloads_path_is_defined }}"
 
-feeder_mount_is_enabled:  "{{ (mounts is defined) and
+feeder_mount_is_enabled: "{{ (mounts is defined) and
                               (mounts is not none) and
                               (mounts | trim | length > 0) and
                               (mounts.feeder is defined) and
@@ -179,8 +178,8 @@ docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volu
 
 docker_hosts_common: []
 
-docker_labels_cloudbox:
-  - com.github.cloudbox.cloudbox_managed: "true"
+docker_labels_saltbox:
+  - com.github.saltbox.saltbox_managed: "true"
 
 docker_labels_traefik:
   - traefik.enable: "true"
@@ -191,12 +190,12 @@ docker_labels_traefik:
   - '{ "traefik.http.routers.{{ lookup("vars", role_name + "_web_subdomain", default=omit) }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
   - '{ "traefik.http.services.{{ lookup("vars", role_name + "_web_subdomain", default=omit) }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
 
-docker_labels_common: "{{ docker_labels_cloudbox | combine(docker_labels_traefik)
+docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                                     if (traefik_role_enabled)
-                                    else 
-                                    docker_labels_cloudbox }}"
+                                    else
+                                    docker_labels_saltbox }}"
 
-docker_networks_name_common: cloudbox
+docker_networks_name_common: saltbox
 
 docker_networks_common:
   - name: "{{ docker_networks_name_common }}"
@@ -207,7 +206,7 @@ docker_networks_common:
 # Cloudbox Version Manager
 ################################
 
-cvm: https://cvm.cloudbox.works/version?url=
+cvm: https://cvm.saltbox.dev/version?url=
 
 ################################
 # Backup

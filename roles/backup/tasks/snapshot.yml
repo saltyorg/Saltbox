@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Backup | Snapshot                            #
+# Title:         Saltbox: Backup | Snapshot                             #
 # Author(s):     desimaniac, RXWatcher1                                 #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -63,13 +62,13 @@
         - name: Snapshot | Delete existing BTRFS snapshot (1/2)
           command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
           register: snapshot_deletion
-          ignore_errors: yes
+          ignore_errors: true
 
         - name: Snapshot | Delete existing BTRFS snapshot (2/2)
           file:
             path: "{{ backup_snapshot_destination_path }}"
             state: absent
-          ignore_errors: yes
+          ignore_errors: true
           when: (snapshot_deletion is failed)
 
       when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)

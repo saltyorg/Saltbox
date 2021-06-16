@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Settings | Updater                           #
+# Title:         Saltbox: Settings | Updater                            #
 # Author(s):     desimaniac, l3uddz                                     #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -11,7 +10,7 @@
 - name: "Updater | Run 'settings-updater.py' for '{{ file }}'"
   script: "'roles/settings/files/settings-updater.py' '{{ playbook_dir }}' 'defaults/{{ file }}.default' '{{ file }}'"
   become: true
-  become_user: "{{ cloudbox_yml.stat.pw_name }}"
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
   register: settings_updater
   ignore_errors: true
   changed_when: false

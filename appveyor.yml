@@ -1,55 +1,6 @@
 ---
 version: 1.0.0-{build}
 
-skip_tags: true
-
-skip_commits:
-  files:
-
-    # Git
-    - '.gitignore'
-    - '.gitmodules'
-    - '.github/**/*'
-
-    # Docs
-    - '*.md'
-
-    # Vagrant
-    - 'Vagrantfile'
-
-    # Ansible Misc
-#    - 'defaults/**/*'
-#    - 'roles/*/files/**/*'
-#    - 'filter_plugins/**/*'
-#    - 'inventories/**/*'
-#    - 'library/**/*'
-
-    # Ansible Roles - Core
-#    - 'roles/settings/**/*'
-#    - 'roles/backup/**/*'
-#    - 'roles/restore/**/*'
-
-    # Ansible Roles - Extras
-    - 'roles/cloudflare/**/*'
-    - 'roles/ddclient/**/*'
-    - 'roles/feeder/**/*'
-    - 'roles/mariadb/**/*'
-    - 'roles/nginx/**/*'
-    - 'roles/notify/**/*'
-    - 'roles/nvidia/**/*'
-    - 'roles/nzbthrottle/**/*'
-    - 'roles/plex_auth_token/**/*'
-    - 'roles/plex_dupefinder/**/*'
-    - 'roles/plex_patrol/**/*'
-    - 'roles/python-plexlibrary/**/*'
-    - 'roles/sickbeard_mp4_automator/**/*'
-    - 'roles/sstvirl/**/*'
-    - 'roles/subliminal/**/*'
-    - 'roles/trackarr/**/*'
-    - 'roles/traktarr/**/*'
-
-  message: /\[minor\]/
-
 build_cloud: CLOUDBOX
 
 image: 
@@ -59,21 +10,22 @@ image:
 matrix:
   fast_finish: false
 
-# to disable automatic builds
+# to disable automatic builds and tests
 build: off
+test: off
 
 init:
-  - sh: curl -s https://raw.githubusercontent.com/Cloudbox2/cb/master/cb_dep.sh | sudo -H bash
+  - sh: curl -s https://raw.githubusercontent.com/saltyorg/cb/master/cb_dep.sh | sudo -H bash
   - sh: sudo mkdir /srv/git
-  - sh: sudo ln -s /home/appveyor/projects/cloudbox /srv/git/cloudbox
+  - sh: sudo ln -s /home/appveyor/projects/saltbox /srv/git/saltbox
   - sh: sudo chown -R appveyor:appveyor /srv/git
 
 install:
   - sh: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
   - sh: curl -o daemon.json https://raw.githubusercontent.com/saltydk/AppveyorTest/main/daemon.json
-  - sh: cp -f daemon.json /home/appveyor/projects/cloudbox/roles/docker/templates/daemon.json.j2
-  - sh: sudo ansible-playbook cloudbox.yml --syntax-check
+  - sh: cp -f daemon.json /home/appveyor/projects/saltbox/roles/docker/templates/daemon.json.j2
+  - sh: sudo ansible-playbook saltbox.yml --syntax-check
   - sh: |
-      sudo ansible-playbook cloudbox.yml --tags "cloudbox,emby,netdata,sabnzbd" \
+      sudo ansible-playbook saltbox.yml --tags "saltbox,emby,netdata,sabnzbd" \
           --skip-tags "settings" \
           --extra-vars '{"continuous_integration":true}'

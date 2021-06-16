@@ -1,9 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Rclone - Preinstall Tasks                    #
+# Title:         Saltbox: Rclone - Preinstall Tasks                     #
 # Author(s):     desimaniac                                             #
-# URL:           https://github.com/cloudbox2/cloudbox                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -13,16 +12,9 @@
     msg: "Kernel was updated."
   when: (preinstall_kernel_restart is defined) and (preinstall_kernel_restart)
 
-- name: "Preinstall | Display message when cloudbox folder location has been migrated"
+- name: "Preinstall | Saltbox pre-install has completed!"
   debug:
-    msg:
-      - "Cloudbox folder was migrated to a new home location."
-      - "Re-login with the '{{ user.name }}' account and run the Cloudbox installer from the '{{ new_home_path }}/cloudbox/' path."
-  when: (preinstall_user_relogin is defined) and (preinstall_user_relogin)
-
-- name: "Preinstall | Cloudbox pre-install has completed!"
-  debug:
-    msg: "Cloudbox pre-install has completed!"
+    msg: "Saltbox pre-install has completed!"
 
 - name: Preinstall | Tasks for kernel restart
   block:

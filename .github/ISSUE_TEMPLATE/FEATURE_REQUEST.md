@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for Cloudbox
+about: Suggest an idea for Saltbox
 labels: Feature Request
 ---
 ---
