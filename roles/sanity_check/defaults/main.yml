@@ -38,6 +38,6 @@ sanity_check_backup_lockfile_path: "{{ playbook_dir }}/backup.lock"
 # Logs
 ################################
 
-sanity_check_logs_playbook_path: "{{ playbook_dir }}/cloudbox.yml"
+sanity_check_logs_playbook_path: "{{ playbook_dir }}/saltbox.yml"
 
-sanity_check_logs_logfile_path: "{{ playbook_dir }}/cloudbox.log"
+sanity_check_logs_logfile_path: "{{ playbook_dir }}/saltbox.log"
