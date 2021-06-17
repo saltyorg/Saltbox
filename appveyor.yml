@@ -27,5 +27,5 @@ install:
   - sh: sudo ansible-playbook saltbox.yml --syntax-check
   - sh: |
       sudo ansible-playbook saltbox.yml --tags "saltbox,emby,netdata,sabnzbd" \
-          --skip-tags "settings" \
+          --skip-tags "settings,plex-extra-tasks" \
           --extra-vars '{"continuous_integration":true}'
