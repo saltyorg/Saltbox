@@ -30,9 +30,6 @@ sstv_paths_config_location: "{{ sstv_paths_location }}/config.yml"
 sstv_web_subdomain: "{{ sstv_name }}"
 sstv_web_domain: "{{ user.domain }}"
 sstv_web_port: "1411"
-sstv_web_url: "{{ 'https://' + sstv_web_subdomain + '.' + sstv_web_domain
-                      if (reverse_proxy_is_enabled)
-                      else 'http://localhost:' + sstv_web_port }}"
 
 ################################
 # DNS
@@ -78,18 +75,9 @@ sstv_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   VERBOSE: "{{ sstv_docker_envs_log_level }}"
-
-sstv_docker_envs_custom: {}
-
-sstv_docker_envs_reverse_proxy:
   HTTPS_METHOD: "noredirect"
-
+sstv_docker_envs_custom: {}
 sstv_docker_envs: "{{ sstv_docker_envs_default
-                              | combine(sstv_docker_envs_custom)
-                              | combine(sstv_docker_envs_reverse_proxy)
-                              | combine(docker_envs_reverse_proxy_common)
-                          if (reverse_proxy_is_enabled)
-                          else sstv_docker_envs_default
                               | combine(sstv_docker_envs_custom) }}"
 
 # Commands

@@ -164,8 +164,6 @@ traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default
 # Docker
 ################################
 
-docker_envs_reverse_proxy_common: []
-
 docker_volumes_downloads_nzbs: "{{ [downloads.nzbs + ':/downloads/nzbs']
                                     if nzbs_downloads_path_is_defined
                                     else [] }}"

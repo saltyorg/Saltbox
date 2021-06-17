@@ -32,13 +32,6 @@ nzbget_paths_config_location: "{{ nzbget_paths_location }}/nzbget.conf"
 nzbget_web_subdomain: "{{ nzbget_name }}"
 nzbget_web_domain: "{{ user.domain }}"
 nzbget_web_port: "6789"
-nzbget_web_url: "{{ 'https://' + nzbget_web_subdomain + '.' + nzbget_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + nzbget_web_port }}"
-nzbget_web_login: "{{ user.name }}:{{ user.pass }}"
-nzbget_web_url_with_login: "{{ 'https://' + nzbget_web_login + '@' + nzbget_web_subdomain + '.' + nzbget_web_domain
-                                if (reverse_proxy_is_enabled)
-                                else 'http://' + nzbget_web_login + '@' + 'localhost:' + nzbget_web_port }}"
 
 ################################
 # DNS
@@ -198,13 +191,7 @@ nzbget_docker_envs_default:
   TZ: "{{ tz }}"
   LC_ALL: "C"
 nzbget_docker_envs_custom: {}
-nzbget_docker_envs_reverse_proxy: {}
 nzbget_docker_envs: "{{ nzbget_docker_envs_default
-                            | combine(nzbget_docker_envs_custom)
-                            | combine(nzbget_docker_envs_reverse_proxy)
-                            | combine(docker_envs_reverse_proxy_common)
-                        if (reverse_proxy_is_enabled)
-                        else nzbget_docker_envs_default
                             | combine(nzbget_docker_envs_custom) }}"
 
 # Commands

@@ -30,9 +30,6 @@ radarr_paths_config_location: "{{ radarr_paths_location }}/config.xml"
 radarr_web_subdomain: "{{ radarr_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
-radarr_web_url: "{{ 'https://' + radarr_web_subdomain + '.' + radarr_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + radarr_web_port }}"
 
 ################################
 # DNS
@@ -93,13 +90,7 @@ radarr_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
 radarr_docker_envs_custom: {}
-radarr_docker_envs_reverse_proxy: {}
 radarr_docker_envs: "{{ radarr_docker_envs_default
-                            | combine(radarr_docker_envs_custom)
-                            | combine(radarr_docker_envs_reverse_proxy)
-                            | combine(docker_envs_reverse_proxy_common)
-                        if (reverse_proxy_is_enabled)
-                        else radarr_docker_envs_default
                             | combine(radarr_docker_envs_custom) }}"
 
 # Commands

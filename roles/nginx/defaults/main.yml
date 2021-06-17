@@ -29,9 +29,6 @@ nginx_paths_folders_list:
 nginx_web_subdomain: "web"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
-nginx_web_url: "{{ 'https://' + nginx_web_subdomain + '.' + nginx_web_domain
-                      if (reverse_proxy_is_enabled
-                      else 'http://localhost:' + nginx_web_port }}"
 
 ################################
 # DNS
@@ -76,13 +73,7 @@ nginx_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
 nginx_docker_envs_custom: {}
-nginx_docker_envs_reverse_proxy: {}
 nginx_docker_envs: "{{ nginx_docker_envs_default
-                            | combine(nginx_docker_envs_custom)
-                            | combine(nginx_docker_envs_reverse_proxy)
-                            | combine(docker_envs_reverse_proxy_common)
-                        if (reverse_proxy_is_enabled)
-                        else nginx_docker_envs_default
                             | combine(nginx_docker_envs_custom) }}"
 
 # Commands

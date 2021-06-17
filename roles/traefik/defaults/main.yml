@@ -28,9 +28,6 @@ traefik_paths_folders_list:
 
 traefik_web_subdomain: "dash"
 traefik_web_domain: "{{ user.domain }}"
-traefik_web_url: "{{ 'https://' + traefik_web_subdomain + '.' + traefik_web_domain
-                      if (reverse_proxy_is_enabled)
-                      else 'http://localhost:' + traefik_web_port }}"
 traefik_metrics_subdomain: "metrics"
 traefik_metrics_domain: "{{ user.domain }}"
 
@@ -68,18 +65,24 @@ traefik_docker_ports_defaults:
   - "443:443/tcp"
 traefik_docker_ports_custom: []
 traefik_docker_ports: "{{ traefik_docker_ports_defaults
-                              + traefik_docker_ports_custom}}"
+                              + traefik_docker_ports_custom }}"
 
 # Envs
 traefik_docker_envs_default:
   TZ: "{{ tz }}"
+traefik_docker_envs_cloudflare:
   CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
   CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
 traefik_docker_envs_custom: {}
 traefik_docker_envs_reverse_proxy: {}
 traefik_docker_envs: "{{ traefik_docker_envs_default
                               | combine(traefik_docker_envs_custom)
-                              | combine(traefik_docker_envs_reverse_proxy)}}"
+                              | combine(traefik_docker_envs_reverse_proxy)
+                              if not (cloudflare_is_enabled)
+                              else traefik_docker_envs_default
+                              | combine(traefik_docker_envs_cloudflare)
+                              | combine(traefik_docker_envs_custom)
+                              | combine(traefik_docker_envs_reverse_proxy) }}"
 
 # Commands
 traefik_docker_commands_default:
@@ -99,13 +102,11 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
   - "{{ '--certificatesresolvers.tlsresolver.acme.email=' + user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
-
 traefik_docker_commands_metrics:
   - "--metrics.prometheus=true"
   - "--metrics.prometheus.addEntryPointsLabels=true"
   - "--metrics.prometheus.addServicesLabels=true"
   - "--metrics.prometheus.manualrouting=true"
-
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                               + traefik_docker_commands_custom

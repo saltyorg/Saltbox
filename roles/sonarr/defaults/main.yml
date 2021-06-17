@@ -30,9 +30,6 @@ sonarr_paths_config_location: "{{ sonarr_paths_location }}/config.xml"
 sonarr_web_subdomain: "{{ sonarr_name }}"
 sonarr_web_domain: "{{ user.domain }}"
 sonarr_web_port: "8989"
-sonarr_web_url: "{{ 'https://' + sonarr_web_subdomain + '.' + sonarr_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + sonarr_web_port }}"
 
 ################################
 # DNS
@@ -95,13 +92,7 @@ sonarr_docker_envs_default:
   TP_DOMAIN: "gilbn.github.io"
   TP_THEME: "{{ sonarr_themepark_theme }}"
 sonarr_docker_envs_custom: {}
-sonarr_docker_envs_reverse_proxy: {}
 sonarr_docker_envs: "{{ sonarr_docker_envs_default
-                            | combine(sonarr_docker_envs_custom)
-                            | combine(sonarr_docker_envs_reverse_proxy)
-                            | combine(docker_envs_reverse_proxy_common)
-                        if (reverse_proxy_is_enabled)
-                        else sonarr_docker_envs_default
                             | combine(sonarr_docker_envs_custom) }}"
 
 # Commands
