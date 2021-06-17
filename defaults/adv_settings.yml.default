@@ -8,7 +8,6 @@ traefik:
   tls: no
   metrics: no
 mounts:
-  unionfs: mergerfs
   remote: rclone_vfs
   feeder: no
 gpu:
