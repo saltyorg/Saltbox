@@ -11,9 +11,9 @@
   import_tasks: "subtasks/apt.yml"
   tags: always
 
-- name: Chown '/srv/git/saltbox'
-  ansible.builtin.file:
-    path: /srv/git/saltbox
+- name: Chown '/srv/git'
+  file:
+    path: /srv/git
     state: directory
     recurse: true
     owner: uid

@@ -49,22 +49,6 @@
     - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates multiverse'
   when: ansible_distribution == 'Ubuntu'
 
-- name: Add Debian repositories
-  apt_repository:
-    repo: "{{ item }}"
-    state: present
-    update_cache: true
-  with_items:
-    - deb https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib non-free
-    - deb-src https://deb.debian.org/debian {{ ansible_distribution_release }} main contrib non-free
-    - deb https://deb.debian.org/debian-security/ {{ ansible_distribution_release }}/updates main contrib non-free
-    - deb-src https://deb.debian.org/debian-security/ {{ ansible_distribution_release }}/updates main contrib non-free
-    - deb https://deb.debian.org/debian {{ ansible_distribution_release }}-updates main contrib non-free
-    - deb-src https://deb.debian.org/debian {{ ansible_distribution_release }}-updates main contrib non-free
-    - deb https://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free
-    - deb-src https://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free
-  when: ansible_distribution == 'Debian'
-
 - name: Install common packages
   apt:
     state: present
@@ -197,24 +181,6 @@
     group: root
     mode: '0644'
     force: false
-
-- name: Install 'nodejs'
-  import_role:
-    name: nodejs
-  tags: nodejs
-  ignore_errors: true
-
-- name: Install 'hostess'
-  import_role:
-    name: hostess
-  tags: hostess
-  ignore_errors: true
-
-- name: Install 'ngrok'
-  import_role:
-    name: ngrok
-  tags: ngrok
-  ignore_errors: true
 
 - name: Install 'iperf3'
   import_role:
