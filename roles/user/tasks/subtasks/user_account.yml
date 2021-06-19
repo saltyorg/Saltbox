@@ -68,3 +68,12 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
+
+- name: User Account | Reset ownership of '{{ git_folder }}/' path
+  file:
+    path: "{{ git_folder }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+    follow: false
