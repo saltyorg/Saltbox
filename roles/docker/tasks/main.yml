@@ -68,9 +68,9 @@
     enabled: true
     daemon_reload: true
 
-- name: Wait for 60 seconds before commencing
-  wait_for:
-    timeout: 60
+#- name: Wait for 60 seconds before commencing
+#  wait_for:
+#    timeout: 60
 
 - name: "Stop all Docker containers"
   shell: docker stop $(docker ps -aq) &> /dev/null || true
