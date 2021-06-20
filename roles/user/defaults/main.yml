@@ -9,7 +9,7 @@
 ---
 # User
 user_paths_home_location: "/home/{{ user.name }}"
-user_paths_home_saltbox_location: "{{ user_paths_home_location }}/saltbox"
+user_paths_home_saltbox_location: "/srv/git/saltbox"
 
 # Git
 git_folder: "/srv/git"
