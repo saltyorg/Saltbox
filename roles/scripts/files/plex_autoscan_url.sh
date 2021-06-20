@@ -23,8 +23,8 @@ readonly BWHITE="\033[1;37m"
 readonly BBLUE="\033[1;34m"
 
 # Config files
-readonly SB_ANSIBLE="${HOME}/saltbox/ansible.cfg"
-readonly SB_ACCOUNTS="${HOME}/saltbox/accounts.yml"
+readonly SB_ANSIBLE="/srv/git/saltbox/ansible.cfg"
+readonly SB_ACCOUNTS="/srv/git/saltbox/accounts.yml"
 readonly PAS_CONFIG="/opt/plex_autoscan/config/config.json"
 
 # Boolean vars
