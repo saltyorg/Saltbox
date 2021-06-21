@@ -64,6 +64,9 @@
           docker_container:
             name: "{{ plex_docker_container }}"
             state: "stopped"
+            container_default_behavior: compatibility
+            tls_hostname: localhost
+
           when: (plex_docker_container in docker_running_containers_list)
 
       when: ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
