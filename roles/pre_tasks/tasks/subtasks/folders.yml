@@ -12,8 +12,8 @@
     path: "{{ item }}"
     state: directory
     mode: "0775"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
+    owner: uid
+    group: gid
   with_items:
     - /srv/ansible
     - /srv/ansible/tmp
