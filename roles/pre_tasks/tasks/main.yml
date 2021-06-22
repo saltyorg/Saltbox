@@ -11,9 +11,20 @@
   import_tasks: "subtasks/apt.yml"
   tags: always
 
-- name: Chown '/srv/git'
+- name: Create Ansible Temp directories
   file:
-    path: /srv/git
+    path: "{{ item }}"
+    state: directory
+    mode: "0775"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+  with_items:
+    - /srv/ansible
+    - /srv/ansible/tmp
+
+- name: Chown '/srv'
+  file:
+    path: /srv
     state: directory
     recurse: true
     owner: uid
