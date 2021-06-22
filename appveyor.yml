@@ -4,7 +4,6 @@ version: 1.0.0-{build}
 build_cloud: CLOUDBOX
 
 image: 
-  - Ubuntu1804
   - Ubuntu2004
 
 matrix:
