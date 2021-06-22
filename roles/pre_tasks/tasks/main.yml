@@ -10,7 +10,3 @@
 - name: APT Tasks
   import_tasks: "subtasks/apt.yml"
   tags: always
-
-- name: Folders Tasks
-  import_tasks: "subtasks/folders.yml"
-  tags: always
