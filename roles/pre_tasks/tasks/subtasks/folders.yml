@@ -12,8 +12,8 @@
     path: "{{ item }}"
     state: directory
     mode: "0775"
-    owner: uid
-    group: gid
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
   with_items:
     - /srv/ansible
     - /srv/ansible/tmp
@@ -23,5 +23,5 @@
     path: /srv
     state: directory
     recurse: true
-    owner: uid
-    group: gid
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
