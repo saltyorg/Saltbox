@@ -23,6 +23,8 @@ install:
   - sh: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
   - sh: curl -o daemon.json https://raw.githubusercontent.com/saltydk/AppveyorTest/main/daemon.json
   - sh: cp -f daemon.json /home/appveyor/projects/saltbox/roles/docker/templates/daemon.json.j2
+  - sh: rm -rf accounts.yml
+  - sh: curl -o accounts.yml https://raw.githubusercontent.com/saltydk/AppveyorTest/main/accounts.yml
   - sh: sudo ansible-playbook saltbox.yml --syntax-check
   - sh: |
       sudo ansible-playbook saltbox.yml --tags "saltbox,emby,netdata,sabnzbd" \
