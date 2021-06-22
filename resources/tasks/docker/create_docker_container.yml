@@ -31,6 +31,7 @@
     purge_networks: true
     network_mode: "{{ docker_networks_name_common }}"
     container_default_behavior: compatibility
+    tls_hostname: localhost
     restart_policy: "{{ lookup('vars', _var_prefix + '_docker_restart_policy', default='unless-stopped') }}"
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
     security_opts: "{{ lookup('vars', _var_prefix + '_docker_security_opts', default=omit) }}"
