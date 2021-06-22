@@ -25,6 +25,6 @@ kernel_script_url: https://api.github.com/repos/pimlie/ubuntu-mainline-kernel.sh
 # Update
 ################################
 
-kernel_update_apt_package: linux-generic-hwe-18.04
+kernel_update_apt_package: linux-generic-hwe-20.04
 
 kernel_update_apt_fix: apt-get --fix-broken --yes install

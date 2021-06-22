@@ -27,8 +27,8 @@
   include_tasks: "subtasks/04_update.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
-    - (ansible_distribution_version is version('18.04', '=='))
-    - (ansible_kernel is version('5.4', '<'))
+    - (ansible_distribution_version is version('20.04', '=='))
+    - (ansible_kernel is version('5.8', '<'))
 
 - name: Restart Tasks
   include_tasks: "subtasks/05_restart.yml"

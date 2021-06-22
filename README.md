@@ -10,7 +10,7 @@
 
 Saltbox is an Ansible-based solution for rapidly deploying a Docker containerized cloud media server heavily based on [Cloudbox](https://github.com/Cloudbox/Cloudbox).
 
-This project was designed for x64 machines running Ubuntu Server 18.04/20.04.
+This project was designed for x64 machines running Ubuntu Server 20.04.
 
 Featured Applications:
 
