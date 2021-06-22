@@ -86,27 +86,27 @@ portainer_docker_volumes_default:
   - "/var/run/docker.sock:/var/run/docker.sock"
 portainer_docker_volumes_custom: []
 portainer_docker_volumes: "{{ portainer_docker_volumes_default
-                                  + portainer_docker_volumes_custom }}"
+                              + portainer_docker_volumes_custom }}"
 
 # Devices
 portainer_docker_devices_default: []
 portainer_docker_devices_custom: []
 portainer_docker_devices: "{{ portainer_docker_devices_default
-                                  + portainer_docker_devices_custom }}"
+                              + portainer_docker_devices_custom }}"
 
 # Hosts
 portainer_docker_hosts_default: []
 portainer_docker_hosts_custom: []
 portainer_docker_hosts: "{{ docker_hosts_common
-                                | combine(portainer_docker_hosts_default)
-                                | combine(portainer_docker_hosts_custom) }}"
+                            | combine(portainer_docker_hosts_default)
+                            | combine(portainer_docker_hosts_custom) }}"
 
 # Labels
 portainer_docker_labels_default: {}
 portainer_docker_labels_custom: {}
 portainer_docker_labels: "{{ docker_labels_common
-                                  | combine(portainer_docker_labels_default)
-                                  | combine(portainer_docker_labels_custom) }}"
+                              | combine(portainer_docker_labels_default)
+                              | combine(portainer_docker_labels_custom) }}"
 
 # Hostname
 portainer_docker_hostname: "{{ portainer_name }}"
@@ -116,20 +116,20 @@ portainer_docker_networks_alias: "{{ portainer_name }}"
 portainer_docker_networks_default: []
 portainer_docker_networks_custom: []
 portainer_docker_networks: "{{ docker_networks_common
-                                    + portainer_docker_networks_default
-                                    + portainer_docker_networks_custom }}"
+                                + portainer_docker_networks_default
+                                + portainer_docker_networks_custom }}"
 
 # Capabilities
 portainer_docker_capabilities_default: []
 portainer_docker_capabilities_custom: []
 portainer_docker_capabilities: "{{ portainer_docker_capabilities_default
-                                        + portainer_docker_capabilities_custom }}"
+                                    + portainer_docker_capabilities_custom }}"
 
 # Security Opts
 portainer_docker_security_opts_default: []
 portainer_docker_security_opts_custom: []
 portainer_docker_security_opts: "{{ portainer_docker_security_opts_default
-                                        + portainer_docker_security_opts_custom }}"
+                                    + portainer_docker_security_opts_custom }}"
 
 # Restart Policy
 portainer_docker_restart_policy: unless-stopped
