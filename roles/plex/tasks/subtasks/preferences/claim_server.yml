@@ -17,6 +17,7 @@
       password: "{{ plex.pass }}"
       force_basic_auth: true
     register: plex_claim
+    no_log: true
 
   - name: "Claim Server | Set 'plex_claim_code' variable"
     set_fact:
