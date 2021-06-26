@@ -6,3 +6,6 @@ skip_list:
   - ignore-errors
   - line-length
   - risky-shell-pipe
+  - no-handler
+  - package-latest
+  - command-instead-of-module

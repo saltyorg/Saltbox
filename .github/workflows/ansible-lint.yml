@@ -52,5 +52,5 @@ jobs:
         #                         path to directories or files to skip. This option is
         #                         repeatable.
         #   -c C                  Specify configuration file to use. Defaults to ".ansible-lint"
-        args: "-c .ansible-lint"
+        args: "-x braces -x git-latest -x command-instead-of-shell -x no-changed-when -x ignore-errors -x line-length -x risky-shell-pipe -x no-handler -x package-latest -x command-instead-of-module"
 
