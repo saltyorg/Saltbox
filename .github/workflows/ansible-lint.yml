@@ -52,5 +52,13 @@ jobs:
         #                         path to directories or files to skip. This option is
         #                         repeatable.
         #   -c C                  Specify configuration file to use. Defaults to ".ansible-lint"
-        args: "-x braces -x git-latest -x command-instead-of-shell -x no-changed-when -x ignore-errors -x line-length -x risky-shell-pipe -x no-handler -x package-latest -x command-instead-of-module"
+        # [106] Role name plex-extra-tasks does not match ``^[a-z][a-z0-9_]+$`` pattern
+        # [301] Commands should not change things if nothing needs doing
+        # [303] curl used in place of get_url or uri module
+        # [305] Use shell only when shell functionality is required
+        # [306] Shells that use pipes should set the pipefail option
+        # [401] Git checkouts must contain explicit version
+        # [403] Package installs should not use latest
+        # [503] Tasks that run when changed should likely be handlers
+        args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 503"
 

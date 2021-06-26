@@ -1,11 +1,10 @@
 skip_list:
   - braces
   - git-latest
-  - command-instead-of-shell
   - no-changed-when
   - ignore-errors
-  - line-length
   - risky-shell-pipe
-  - no-handler
   - package-latest
+  - no-handler
   - command-instead-of-module
+  - command-instead-of-shell
