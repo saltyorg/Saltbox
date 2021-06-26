@@ -17,7 +17,7 @@
   copy:
     src: "etc/skel/{{ item }}"
     dest: "/etc/skel/"
-    mode: 0644
+    mode: 0664
     force: false
   loop:
     - ".bash_logout"
@@ -64,7 +64,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: "0775"
+    mode: 0664
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
@@ -78,6 +78,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true
+    mode: 0664
     follow: false
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
@@ -87,4 +88,5 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true
+    mode: 0664
     follow: false
