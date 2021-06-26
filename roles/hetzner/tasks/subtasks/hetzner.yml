@@ -43,7 +43,7 @@
       register: hetzner_grub_files_status
 
     - name: Hetzner | Hetzner GRUB edits
-      include_tasks: "subtasks/grub_edits.yml"
+      include_tasks: "grub_edits.yml"
       when: outer_item.stat.exists
       loop: "{{ hetzner_grub_files_status.results }}"
       loop_control:
