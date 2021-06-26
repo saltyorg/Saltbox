@@ -93,7 +93,9 @@
   tags: opt-permissions-reset
 
 - name: Cleanup backup location
-  shell: "rm -rf {{ backup.local.destination }}/*"
+  file:
+    path: "{{ backup.local.destination }}"
+    state: absent
   become: true
   become_user: "{{ user.name }}"
   when: not (backup.local.enable)
