@@ -8,7 +8,13 @@
 #########################################################################
 ---
 - name: Create python-plexlibrary directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} recurse=yes"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+    mode: 0664
   with_items:
     - "/opt/python-plexlibrary"
 
@@ -37,7 +43,7 @@
     dest: "/opt/python-plexlibrary/config.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: 0664
     force: false
   when: not python_plexlibrary_config.stat.exists
 
