@@ -20,6 +20,7 @@
     password: '{{ plex.pass }}'
     status_code: 201
   register: plex_token_raw
+  no_log: true
 
 - name: Display 'Plex Pass' status
   debug:
