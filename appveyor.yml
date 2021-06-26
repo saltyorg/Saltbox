@@ -1,4 +1,12 @@
 ---
+skip_commits:
+  files:
+    - .github/*
+    - '.gitignore'
+    - '*.md'
+
+  message: /\[skip_ci\]/
+
 version: 1.0.0-{build}
 
 build_cloud: CLOUDBOX
