@@ -92,7 +92,7 @@
     dest: /opt/traktarr/config.json
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: 0664
     force: true
   when: not traktarr_config.stat.exists
 
@@ -104,7 +104,13 @@
     mode: a+x
 
 - name: Set directory permissions
-  file: "path=/opt/traktarr state=directory owner={{ user.name }} group={{ user.name }} recurse=yes"
+  file:
+    path: "/opt/traktarr"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+    mode: 0664
 
 - name: "Create /usr/local/bin symlink"
   file:
@@ -116,7 +122,7 @@
   template:
     src: traktarr.service.j2
     dest: /etc/systemd/system/traktarr.service
-    mode: '0755'
+    mode: 0664
     force: true
   when: not traktarr_service.stat.exists
 
