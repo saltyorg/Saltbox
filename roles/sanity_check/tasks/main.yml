@@ -30,3 +30,8 @@
 - name: Touch Logs
   import_tasks: "subtasks/06_logs.yml"
   tags: always
+
+- name: Create Temp Folder
+  import_tasks: "subtasks/07_tmp.yml"
+  tags: always
+

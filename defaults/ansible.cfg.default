@@ -6,4 +6,4 @@ log_path = ./saltbox.log
 callback_enabled = profile_tasks
 retry_files_enabled = False
 interpreter_python = /usr/bin/python3
-remote_tmp = /srv/ansible/tmp
+remote_tmp = /tmp/ansible

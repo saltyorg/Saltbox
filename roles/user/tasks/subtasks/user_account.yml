@@ -60,17 +60,6 @@
     state: present
   when: etc_sudoers.stat.exists
 
-- name: User Account | Create Ansible Temp directories
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0777
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-  with_items:
-    - /srv/ansible
-    - /srv/ansible/tmp
-
 - name: User Account | Reset ownership of '{{ user_paths_home_location }}/' path
   file:
     path: "{{ user_paths_home_location }}"
