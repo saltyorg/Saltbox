@@ -233,10 +233,10 @@
 
       - name: Snapshot | Display snapshot source and destination
         debug:
-          msg: "Creating snapshot of '{{ backup_snapshot_source_path}}' at '{{ backup_snapshot_destination_path }}' ..."
+          msg: "Creating snapshot of '{{ backup_snapshot_source_path }}' at '{{ backup_snapshot_destination_path }}' ..."
 
       - name: Snapshot | Create BTRFS snapshot
-        shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path}} {{ backup_snapshot_destination_path }}'
+        shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path }} {{ backup_snapshot_destination_path }}'
         when: (snapshot_type == 'btrfs')
 
       - name: Snapshot | Display new backup source location in snapshot
