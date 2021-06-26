@@ -3,7 +3,7 @@ name: Ansible Lint  # feel free to pick your own name
 on: [push, pull_request]
 
 jobs:
-  build:
+  ansible-lint:
 
     runs-on: ubuntu-latest
 
@@ -61,4 +61,3 @@ jobs:
         # [403] Package installs should not use latest
         # [503] Tasks that run when changed should likely be handlers
         args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
-
