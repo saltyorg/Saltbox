@@ -60,5 +60,5 @@ jobs:
         # [401] Git checkouts must contain explicit version
         # [403] Package installs should not use latest
         # [503] Tasks that run when changed should likely be handlers
-        args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 503"
+        args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
 
