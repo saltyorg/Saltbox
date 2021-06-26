@@ -420,12 +420,13 @@
     ignore_errors: true
     when: (backup.rclone.enable)
 
-  # If rclone_timestamp is blank (would happen if settings.yml was not at destination), default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
+  # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
   - name: "Archive previous files in '{{ backup.rclone.destination }}'"
-    shell: |
-      /usr/bin/rclone moveto \
-        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        '{{ backup.rclone.destination }}/{{ item }}' '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
+    shell: >-
+        /usr/bin/rclone moveto
+        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
+        '{{ backup.rclone.destination }}/{{ item }}'
+        '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}'
         2>/dev/null
     become: true
     become_user: "{{ user.name }}"
