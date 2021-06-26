@@ -30,12 +30,6 @@
     - { section: 'defaults', option: 'hash_behaviour', state: 'absent' }
     - { section: 'defaults', option: 'interpreter_python', value: '/usr/bin/python3' }
 
-- name: "Migrator | 'ansible.cfg' | Remove deprecated hash_behaviour entry"
-  shell: |
-    sed -i '/hash_behaviour/d' /srv/git/saltbox/ansible.cfg
-  become: true
-  become_user: "{{ saltbox_yml.stat.pw_name }}"
-
 - name: "Migrator | 'ansible.cfg' | Build 'files_updated_successfully' list"
   set_fact:
     files_updated_successfully: "{{ files_updated_successfully }} + [ '{{ file }}' ]"
