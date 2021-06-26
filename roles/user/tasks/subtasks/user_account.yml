@@ -64,7 +64,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: 0664
+    mode: 0777
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
