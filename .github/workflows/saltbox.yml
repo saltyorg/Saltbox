@@ -25,7 +25,13 @@ jobs:
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
 
-      - name: Download accounts.yml
+      - name: Import default configuration
+        run: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
+
+      - name: Remove accounts.yml
+        run: rm -rf accounts.yml
+
+      - name: Download Github Actions accounts.yml
         run: curl -o accounts.yml https://raw.githubusercontent.com/saltydk/AppveyorTest/main/github.yml
 
       - name: Syntax Check
