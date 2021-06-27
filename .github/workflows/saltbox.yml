@@ -1,0 +1,35 @@
+name: Install
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  # This workflow contains a single job called "build"
+  install:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v
+        
+      - name: Create /srv/git
+        run: sudo mkdir /srv/git
+
+      - name: Symlink cloned repository to /srv/git/saltbox
+        run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
+
+      - name: Chown /srv/git
+        run: sudo chown -R runner:runner /srv/git
+
+      - name: Download accounts.yml
+        run: curl -o accounts.yml https://raw.githubusercontent.com/saltydk/AppveyorTest/main/github.yml
+
+      - name: Syntax Check
+        run: sudo ansible-playbook saltbox.yml --syntax-check
+
+      - name: Install Saltbox
+        run: sudo ansible-playbook saltbox.yml --tags "saltbox,emby,netdata,sabnzbd" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
