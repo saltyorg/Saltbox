@@ -69,6 +69,8 @@
     recurse: true
     mode: 0664
     follow: false
+  when:
+    - (not continuous_integration)
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
   file:
