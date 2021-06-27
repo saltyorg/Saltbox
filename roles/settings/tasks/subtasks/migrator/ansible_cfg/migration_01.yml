@@ -24,8 +24,7 @@
     - { section: 'defaults', option: 'roles_path', value: 'roles:resources/roles' }
     - { section: 'defaults', option: 'fact_path', value: './ansible_facts.d' }
     - { section: 'defaults', option: 'log_path', value: './saltbox.log' }
-    - { section: 'defaults', option: 'callback_whitelist', value: 'profile_tasks' }
-    - { section: 'defaults', option: 'command_warnings', value: false }
+    - { section: 'defaults', option: 'callback_enabled', value: 'profile_tasks' }
     - { section: 'defaults', option: 'retry_files_enabled', value: false }
     - { section: 'defaults', option: 'hash_behaviour', state: 'absent' }
     - { section: 'defaults', option: 'interpreter_python', value: '/usr/bin/python3' }
