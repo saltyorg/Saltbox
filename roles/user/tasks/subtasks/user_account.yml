@@ -59,13 +59,3 @@
     line: '%sudo   ALL=(ALL) NOPASSWD:ALL'
     state: present
   when: etc_sudoers.stat.exists
-
-- name: User Account | Reset ownership of '{{ srv_folder }}/' path
-  file:
-    path: "{{ srv_folder }}"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    recurse: true
-    mode: 0664
-    follow: false
