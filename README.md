@@ -4,7 +4,7 @@
 [![Contributors:](https://img.shields.io/github/contributors/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/graphs/contributors)
 [![Lines of Code:](https://img.shields.io/tokei/lines/github/saltyorg/Saltbox)](https://github.com/saltyorg/Saltbox)
 [![Issues:](https://img.shields.io/github/issues/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/issues)
-[![Build status](https://appveyor.cloudbox.work/api/projects/status/78ee11wmikuxc0ay/branch/master?svg=true)](https://appveyor.cloudbox.work/project/AppVeyor/saltbox/branch/master)
+[![Build status](https://img.shields.io/github/workflow/status/saltyorg/saltbox/Install)](https://github.com/saltyorg/Saltbox/actions)
 [![License:](https://img.shields.io/github/license/saltyorg/Saltbox)](LICENSE.md)
 
 
