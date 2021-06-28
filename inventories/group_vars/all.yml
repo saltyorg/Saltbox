@@ -201,7 +201,7 @@ docker_networks_common:
       - "{{ lookup('vars', role_name + '_docker_networks_alias') }}"
 
 ################################
-# Saltbox Version Manager
+# Cloudbox Version Manager
 ################################
 
 cvm: https://cvm.saltbox.dev/version?url=
