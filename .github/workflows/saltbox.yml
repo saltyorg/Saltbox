@@ -39,3 +39,8 @@ jobs:
 
       - name: Install Saltbox
         run: sudo ansible-playbook saltbox.yml --tags "saltbox,emby,netdata,sabnzbd" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
+
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
