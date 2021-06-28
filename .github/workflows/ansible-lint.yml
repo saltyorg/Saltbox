@@ -1,18 +1,14 @@
-name: Ansible Lint  # feel free to pick your own name
+name: Lint
 
 on: [push, pull_request]
 
 jobs:
   ansible-lint:
-
     runs-on: ubuntu-latest
-
     steps:
-    # Important: This sets up your GITHUB_WORKSPACE environment variable
     - uses: actions/checkout@v2
 
     - name: Lint Ansible Playbook
-      # replace "master" with any valid ref
       uses: ansible/ansible-lint-action@master
       with:
         # [required]
@@ -61,3 +57,8 @@ jobs:
         # [403] Package installs should not use latest
         # [503] Tasks that run when changed should likely be handlers
         args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
