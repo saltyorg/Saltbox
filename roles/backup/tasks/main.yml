@@ -245,7 +245,7 @@
 
     when: (use_snapshot)
 
-  # Start Plexdrive and Docker containers when snapshot is enabled
+  # Start Docker containers when snapshot is enabled
 
   - name: Snapshot | Start Docker containers
     block:
@@ -366,7 +366,7 @@
       message: "Saltbox Backup: Backup created with total size of {{ backup_size }}."
     ignore_errors: true
 
-  # Start Plexdrive and Docker containers when snapshot is not enabled
+  # Start Docker containers when snapshot is not enabled
 
   - name: Start Docker Containers
     block:
