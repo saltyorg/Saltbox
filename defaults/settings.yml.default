@@ -2,7 +2,7 @@
 downloads:
   nzbs: /mnt/local/downloads/nzbs
   torrents: /mnt/local/downloads/torrents
-plex:
+plex_settings:
   tag: public
   transcodes: /mnt/local/transcodes
   open_main_ports: no

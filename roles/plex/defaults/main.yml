@@ -80,7 +80,7 @@ plex_docker_container: "{{ plex_name }}"
 
 # Image
 plex_docker_image_pull: true
-plex_docker_image_tag: "{{ plex.tag }}"
+plex_docker_image_tag: "{{ plex_settings.tag }}"
 plex_docker_image: "cloudb0x/plex:{{ plex_docker_image_tag }}"
 
 # Ports
@@ -94,7 +94,7 @@ plex_docker_ports: "{{ plex_docker_ports_defaults
                             + plex_docker_ports_webtools
                             + plex_docker_ports_custom
                         if (not reverse_proxy_is_enabled
-                            or plex.open_main_ports)
+                            or plex_settings.open_main_ports)
                         else plex_docker_ports_webtools
                             + plex_docker_ports_custom }}"
 # Envs
