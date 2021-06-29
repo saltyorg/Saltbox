@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Get X-Plex-Token"
+- name: "Get X-Plex-Token"  # noqa no-log-password
   uri:
     url: https://plex.tv/users/sign_in.json
     method: POST
@@ -20,7 +20,6 @@
     password: '{{ plex.pass }}'
     status_code: 201
   register: plex_token_raw
-  no_log: true
 
 - name: Display 'Plex Pass' status
   debug:
