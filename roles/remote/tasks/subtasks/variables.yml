@@ -1,6 +1,6 @@
 ##########################################################################
 # Title:         Saltbox: Remote | Variable Tasks                        #
-# Author(s):     desimaniac                                              #
+# Author(s):     desimaniac, salty                                       #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
 ##########################################################################
@@ -10,11 +10,6 @@
 ################################
 # Mount Types
 ################################
-
-- name: Variables | Set 'rclone_cache' mount variables
-  set_fact:
-    desired_mount_types: ['rclone_cache']
-  when: (mounts.remote | lower == 'rclone_cache')
 
 - name: Variables | Set 'rclone_vfs' mount variables
   set_fact:
@@ -62,7 +57,6 @@
 - name: Variables | Set 'service_files' variable
   set_fact:
     service_files:
-      - 'rclone_cache.service'
       - 'rclone_vfs.service'
       - 'feeder.service'
 
