@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: System Handler                                #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -9,6 +9,3 @@
 ---
 - name: Handers | Update 'locales'
   command: dpkg-reconfigure --frontend noninteractive locales
-
-- name: Handers | Update 'tzdata'
-  command: dpkg-reconfigure --frontend noninteractive tzdata

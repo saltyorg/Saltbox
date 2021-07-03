@@ -1,21 +1,23 @@
 #########################################################################
 # Title:         Saltbox: System | Time Zone Tasks                      #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
+# https://github.com/galexrt/ansible-timezone/blob/master/tasks/timedatectl.yml
 ---
-- name: Time Zone | Remove '/etc/localtime'
-  file:
-    path: "/etc/localtime"
-    state: absent
+- name: Get timedatectl information
+  command: timedatectl
+  register: timedatectl
+  ignore_errors: true
 
-- name: Time Zone | Install tzdata
-  apt:
-    name: tzdata
-    state: present
+- name: Get timezone list
+  command: timedatectl list-timezones --no-pager
+  register: timezone_list
+  changed_when: false
+  no_log: true
 
 - name: Time Zone | Fetch Time Zone if set to 'auto'
   block:
@@ -26,9 +28,9 @@
         return_content: true
       register: ip_api_timezone_response
 
-    - name: Time Zone | Set 'tz' variable from 'http://ip-api.com'
+    - name: Time Zone | Set 'timezone' variable from 'http://ip-api.com'
       set_fact:
-        tz: "{{ ip_api_timezone_response.content | trim }}"
+        timezone: "{{ ip_api_timezone_response.content | trim }}"
       when:
         - (ip_api_timezone_response is succeeded)
         - (ip_api_timezone_response.content | trim | length > 0)
@@ -39,15 +41,19 @@
     - ('auto' in system.timezone | lower)
   ignore_errors: true
 
-- name: Time Zone | Set Time Zone
-  timezone:
-    name: "{{ tz }}"
-  notify: Handers | Update 'tzdata'
+- name: Check if timezone is valid
+  fail:
+    msg: "Invalid timezone given, given timezone was {{ timezone }}\"."
+  when: timezone_list.stdout is defined and timezone not in timezone_list.stdout
 
-- name: Time Zone | Import '/etc/timezone'
-  template:
-    src: "etc/timezone.j2"
-    dest: "/etc/timezone"
-    mode: 0644
-    force: true
-  notify: Handers | Update 'tzdata'
+- name: Set timezone
+  shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
+  register: timedatectl_utc
+  changed_when: "timedatectl_utc.stdout is defined and 'Time zone: UTC' in timedatectl_utc.stdout"
+  when: "timedatectl.stdout is defined and 'Time zone: UTC' not in timedatectl.stdout"
+
+- name: Set hardware clock to use or not use local RTC
+  shell: "timedatectl set-local-rtc {% if timezone_use_local_rtc %}1{% else %}0{% endif %} && timedatectl || true"
+  register: timedatectl_rtc
+  changed_when: "timedatectl_rtc.stdout is defined and 'RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout"
+  when: "timedatectl_rtc.stdout is defined and timezone_use_local_rtc and 'RTC in local TZ: no' not in timedatectl_rtc.stdout"

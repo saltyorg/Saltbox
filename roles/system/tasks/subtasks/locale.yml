@@ -1,38 +1,35 @@
 #########################################################################
 # Title:         Saltbox: System | Locale Tasks                         #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Locale | Install 'locales'"
-  apt:
-    name: locales
-    state: present
-
-- name: "Locale | Generate 'locales'"
+- name: Ensure localisation files for '{{ system_locale }}' are available
   locale_gen:
-    name: "en_US.UTF-8"
+    name: "{{ system_locale }}"
     state: present
-  notify: Handers | Update 'locales'
 
-- name: "Locale | Uncomment '#LANG='"
-  replace:
-    path: "/etc/default/locale"
-    regexp: '^#(LANG=.*)'
-    replace: '\1'
-  ignore_errors: true
-
-- name: "Locale | Set Default 'locale'"
-  ini_file:
-    path: "/etc/default/locale"
-    section: null
-    option: "LANG"
-    value: "en_US.UTF-8"
+- name: Ensure localisation files for '{{ system_language }}' are available
+  locale_gen:
+    name: "{{ system_language }}"
     state: present
-    create: true
-    mode: '0644'
-    no_extra_spaces: true
-  notify: Handers | Update 'locales'
+
+- name: Get current locale and language configuration
+  command: localectl status
+  register: locale_status
+  changed_when: false
+
+- name: Parse 'LANG' from current locale and language configuration
+  set_fact:
+    locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
+
+- name: Parse 'LANGUAGE' from current locale and language configuration
+  set_fact:
+    locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
+
+- name: Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'
+  command: localectl set-locale LANG={{ system_locale }} LANGUAGE={{ system_language }}
+  changed_when: locale_lang != system_locale or locale_language != system_language
