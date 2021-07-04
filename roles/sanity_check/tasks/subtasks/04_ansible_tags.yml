@@ -7,7 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Source: http://blog.leifmadsen.com/blog/2017/01/04/finding-available-ansible-tags-in-playbooks-and-roles/
 - name: Ansible Tags | Get all available Ansible tags
   shell: "{{ sanity_check_ansible_tags_lookup_command }}"
   register: t

@@ -4,7 +4,8 @@
 [![Contributors:](https://img.shields.io/github/contributors/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/graphs/contributors)
 [![Lines of Code:](https://img.shields.io/tokei/lines/github/saltyorg/Saltbox)](https://github.com/saltyorg/Saltbox)
 [![Issues:](https://img.shields.io/github/issues/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/issues)
-[![Build status](https://img.shields.io/github/workflow/status/saltyorg/saltbox/Install)](https://github.com/saltyorg/Saltbox/actions)
+[![CI](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml)
+[![Ansible Lint](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml)
 [![License:](https://img.shields.io/github/license/saltyorg/Saltbox)](LICENSE.md)
 
 

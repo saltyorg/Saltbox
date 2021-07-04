@@ -47,6 +47,7 @@ rclone_vfs_mount_start_command: |-
     --allow-other \
     --allow-non-empty \
     --rc \
+    --rc-no-auth \
     --rc-addr=localhost:5572 \
     --fast-list \
     --drive-skip-gdocs \
@@ -57,6 +58,7 @@ rclone_vfs_mount_start_command: |-
     --dir-cache-time=168h \
     --timeout=10m \
     --drive-chunk-size=64M \
+    --drive-pacer-min-sleep=10ms \
     --umask=002 \
     --syslog \
     -v \
@@ -65,4 +67,45 @@ rclone_vfs_mount_start_command: |-
 rclone_vfs_mount_stop_command: /bin/fusermount -uz /mnt/remote
 
 rclone_vfs_mount_start_post_command: |-
+  /usr/bin/rclone rc vfs/refresh recursive=true --rc-addr localhost:5572 _async=true
+
+################################
+# Rclone VFS Cache
+################################
+
+rclone_vfs_cache_max_size: 50G
+rclone_vfs_cache_max_age: 504h
+
+rclone_vfs_cache_mount_start_command: |-
+  /usr/bin/rclone mount \
+    --user-agent='{{ user_agent }}' \
+    --config={{ rclone_config_path }} \
+    --allow-other \
+    --fast-list \
+    --async-read=true \
+    --dir-cache-time=1000h \
+    --buffer-size=32M \
+    --poll-interval=15s \
+    --rc \
+    --rc-no-auth \
+    --rc-addr=localhost:5572 \
+    --use-mmap \
+    --vfs-read-ahead=128M \
+    --vfs-read-chunk-size=32M \
+    --vfs-read-chunk-size-limit=2G \
+    --vfs-cache-max-age={{ rclone_vfs_cache_max_age }} \
+    --vfs-cache-mode=full \
+    --vfs-cache-poll-interval=30s \
+    --vfs-cache-max-size={{ rclone_vfs_cache_max_size }} \
+    --timeout=10m \
+    --drive-skip-gdocs \
+    --drive-pacer-min-sleep=10ms \
+    --umask=002 \
+    --syslog \
+    -v \
+    {{ rclone.remote }}: /mnt/remote
+
+rclone_vfs_cache_mount_stop_command: /bin/fusermount -uz /mnt/remote
+
+rclone_vfs_cache_mount_start_post_command: |-
   /usr/bin/rclone rc vfs/refresh recursive=true --rc-addr localhost:5572 _async=true

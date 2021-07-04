@@ -16,6 +16,11 @@
     desired_mount_types: ['rclone_vfs']
   when: (mounts.remote | lower == 'rclone_vfs')
 
+- name: Variables | Set 'rclone_vfs_cache' mount variables
+  set_fact:
+    desired_mount_types: ['rclone_vfs_cache']
+  when: (mounts.remote | lower == 'rclone_vfs_cache')
+
 - name: Variables | Set 'mount_types_is_defined' variable
   set_fact:
     mount_types_is_defined: "{{ (desired_mount_types is defined) and

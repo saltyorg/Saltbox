@@ -1,0 +1,76 @@
+#########################################################################
+# Title:         Saltbox: Remote | Rclone VFS Cache Tasks               #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Rclone VFS | Reset permissions for 'rclone.conf'
+  file: "path={{ rclone_config_path }} state=file owner={{ user.name }} group={{ user.name }} mode=0775"
+
+- name: Rclone VFS | Import 'rclone_vfs.service'
+  template:
+    src: rclone_vfs_cache.service.j2
+    dest: /etc/systemd/system/rclone_vfs.service
+    mode: '0755'
+    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+
+- name: Rclone VFS | Systemd daemon-reload 'rclone_vfs.service'
+  systemd: name=rclone_vfs.service state=stopped enabled=no daemon_reload=yes
+
+- name: Rclone VFS | Get list of Rclone remotes in config
+  shell: rclone listremotes
+  become: true
+  become_user: "{{ user.name }}"
+  register: rclone_config_remotes
+
+- name: Rclone VFS | Set 'rclone_config_remotes' variable
+  set_fact:
+    rclone_config_remotes: "{{ (rclone_config_remotes.stdout).split() }}"
+
+- name: Rclone VFS | Set 'rclone_remote_is_configured' variable
+  set_fact:
+    rclone_remote_is_configured: "{{ (rclone.remote + ':') in rclone_config_remotes }}"
+
+- name: Rclone VFS | Tasks when Rclone remote is configured
+  block:
+
+    - name: "Rclone VFS | Test Rclone remote '{{ rclone.remote }}:'"
+      shell: |
+        rclone lsd '{{ rclone.remote }}:' \
+          --user-agent='{{ user_agent }}'
+      become: true
+      become_user: "{{ user.name }}"
+      register: rclone_test
+      failed_when: (rclone_test.rc|int > 5)
+
+    - name: Rclone VFS | Set 'rclone_remote_is_working' variable
+      set_fact:
+        rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
+
+    - name: Rclone VFS | Tasks when Rclone remote is working properly
+      block:
+
+        - name: Rclone VFS | Start 'rclone_vfs.service'
+          systemd: name=rclone_vfs.service state=started enabled=yes
+
+      when: rclone_remote_is_working
+
+    - name: "Rclone VFS | Display error message when Rclone remote is not working properly"
+      fail:
+        msg:
+          - "Rclone remote '{{ rclone.remote }}:' is not working properly."
+          - "{{ rclone_test.stderr }}"
+      when: not rclone_remote_is_working
+      ignore_errors: true
+
+  when: rclone_remote_is_configured
+
+- name: "Rclone VFS | Display error message when Rclone remote is not configured properly"
+  fail:
+    msg:
+      - "Rclone remote '{{ rclone.remote }}:' is not configured properly."
+  when: not rclone_remote_is_configured
+  ignore_errors: true

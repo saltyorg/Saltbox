@@ -23,7 +23,7 @@ sanity_check_python_version_min: 3.6
 ################################
 # Ansible Tags
 ################################
-
+# Source: http://blog.leifmadsen.com/blog/2017/01/04/finding-available-ansible-tags-in-playbooks-and-roles/
 sanity_check_ansible_tags_lookup_command: |
     ansible-playbook saltbox.yml --list-tags 2>&1 | grep "TASK TAGS" \
       | cut -d":" -f2 | awk '{sub(/\[/, "")sub(/\]/, "")}1' | sed -e 's/,//g' | xargs -n 1 | sort -u
