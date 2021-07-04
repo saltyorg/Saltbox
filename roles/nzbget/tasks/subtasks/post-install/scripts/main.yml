@@ -8,7 +8,12 @@
 #########################################################################
 ---
 - name: Post-Install | Scripts | Create directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
   with_items: "{{ nzbget_scripts_paths_folders_list }}"
 
 # Add Scripts

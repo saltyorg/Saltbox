@@ -24,7 +24,12 @@
   import_tasks: "subtasks/variables.yml"
 
 - name: Create directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Create Docker container

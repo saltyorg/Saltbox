@@ -15,7 +15,12 @@
     container_default_behavior: compatibility
 
 - name: Create ddclient directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
   with_items:
     - /opt/ddclient
 
