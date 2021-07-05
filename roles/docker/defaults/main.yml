@@ -68,3 +68,5 @@ containerd_io_dpkg: "containerd.io"
 docker_package_state: "{{ 'latest' if (docker_version is defined and docker_version | lower == 'latest') else 'present' }}"
 
 put_docker_dpkg_into_hold: true
+
+docker_service_sleep: 120
