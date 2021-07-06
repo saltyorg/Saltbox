@@ -71,9 +71,9 @@ jackett_docker_ports_defaults:
   - "{{ jackett_web_port }}:{{ jackett_web_port }}"
 jackett_docker_ports_custom: []
 jackett_docker_ports: "{{ jackett_docker_ports_defaults
-                              + jackett_docker_ports_custom
-                          if (not reverse_proxy_is_enabled)
-                          else [] + jackett_docker_ports_custom }}"
+                          + jackett_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + jackett_docker_ports_custom }}"
 
 # Envs
 jackett_docker_envs_git_branch: "nightly"
@@ -84,7 +84,7 @@ jackett_docker_envs_default:
   TZ: "{{ tz }}"
 jackett_docker_envs_custom: {}
 jackett_docker_envs: "{{ jackett_docker_envs_default
-                              | combine(jackett_docker_envs_custom) }}"
+                          | combine(jackett_docker_envs_custom) }}"
 
 # Commands
 jackett_docker_commands_default: []
@@ -100,33 +100,33 @@ jackett_docker_volumes_custom: []
 jackett_docker_volumes_theme:
   - "{{ jackett_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
-                                + jackett_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                if not (jackett_themepark_enabled)
-                                else jackett_docker_volumes_default
-                                + jackett_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                + jackett_docker_volumes_theme}}"
+                            + jackett_docker_volumes_custom
+                            + docker_volumes_downloads_common
+                        if not (jackett_themepark_enabled)
+                        else jackett_docker_volumes_default
+                            + jackett_docker_volumes_custom
+                            + docker_volumes_downloads_common
+                            + jackett_docker_volumes_theme}}"
 
 # Devices
 jackett_docker_devices_default: []
 jackett_docker_devices_custom: []
 jackett_docker_devices: "{{ jackett_docker_devices_default
-                                + jackett_docker_devices_custom }}"
+                            + jackett_docker_devices_custom }}"
 
 # Hosts
 jackett_docker_hosts_default: []
 jackett_docker_hosts_custom: []
 jackett_docker_hosts: "{{ docker_hosts_common
-                              | combine(jackett_docker_hosts_default)
-                              | combine(jackett_docker_hosts_custom) }}"
+                          | combine(jackett_docker_hosts_default)
+                          | combine(jackett_docker_hosts_custom) }}"
 
 # Labels
 jackett_docker_labels_default: {}
 jackett_docker_labels_custom: {}
 jackett_docker_labels: "{{ docker_labels_common
-                              | combine(jackett_docker_labels_default)
-                              | combine(jackett_docker_labels_custom) }}"
+                            | combine(jackett_docker_labels_default)
+                            | combine(jackett_docker_labels_custom) }}"
 
 # Hostname
 jackett_docker_hostname: "{{ jackett_name }}"
@@ -136,20 +136,20 @@ jackett_docker_networks_alias: "{{ jackett_name }}"
 jackett_docker_networks_default: []
 jackett_docker_networks_custom: []
 jackett_docker_networks: "{{ docker_networks_common
-                                  + jackett_docker_networks_default
-                                  + jackett_docker_networks_custom }}"
+                              + jackett_docker_networks_default
+                              + jackett_docker_networks_custom }}"
 
 # Capabilities
 jackett_docker_capabilities_default: []
 jackett_docker_capabilities_custom: []
 jackett_docker_capabilities: "{{ jackett_docker_capabilities_default
-                                      + jackett_docker_capabilities_custom }}"
+                                  + jackett_docker_capabilities_custom }}"
 
 # Security Opts
 jackett_docker_security_opts_default: []
 jackett_docker_security_opts_custom: []
 jackett_docker_security_opts: "{{ jackett_docker_security_opts_default
-                                      + jackett_docker_security_opts_custom }}"
+                                  + jackett_docker_security_opts_custom }}"
 
 # Restart Policy
 jackett_docker_restart_policy: unless-stopped

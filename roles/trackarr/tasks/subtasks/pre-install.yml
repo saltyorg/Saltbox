@@ -24,15 +24,15 @@
 
     - name: Pre-Install | Import default Trackarr config
       template:
-        src: 'config.yaml.j2'
+        src: "config.yaml.j2"
         dest: "{{ trackarr_paths_config_location }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: false
 
     - name: Pre-Install | Set 'trackarr_docker_state' variable
       set_fact:
-        trackarr_docker_state: 'stopped'
+        trackarr_docker_state: "stopped"
 
   when: not trackarr_paths_config_location_stat.stat.exists

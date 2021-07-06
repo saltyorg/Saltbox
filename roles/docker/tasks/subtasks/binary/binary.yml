@@ -7,12 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Binary | Uninstall 'docker-py' pip module
-  pip:
-    name: docker-py
-    state: absent
-  ignore_errors: true
-
 - name: Binary | Add official gpg signing key
   apt_key:
     id: "{{ docker_apt_key_id }}"

@@ -16,7 +16,7 @@
     create: false
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
 
 - name: Bash | Set Bash as default shell
   user:

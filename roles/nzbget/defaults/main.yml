@@ -34,8 +34,8 @@ nzbget_web_domain: "{{ user.domain }}"
 nzbget_web_port: "6789"
 nzbget_web_login: "{{ user.name }}:{{ user.pass }}"
 nzbget_web_url_with_login: "{{ 'https://' + nzbget_web_login + '@' + nzbget_web_subdomain + '.' + nzbget_web_domain
-                                if (reverse_proxy_is_enabled)
-                                else 'http://' + nzbget_web_login + '@' + 'localhost:' + nzbget_web_port }}"
+                            if (reverse_proxy_is_enabled)
+                            else 'http://' + nzbget_web_login + '@' + 'localhost:' + nzbget_web_port }}"
 
 ################################
 # DNS
@@ -110,7 +110,7 @@ nzbget_config_new_installs_settings_default:
                                                               .xxx, .rev, .iso, .img, .ifo, .vob' }
 nzbget_config_new_installs_settings_custom: []
 nzbget_config_new_installs_settings_list: "{{ nzbget_config_new_installs_settings_default
-                                                  + nzbget_config_new_installs_settings_custom }}"
+                                              + nzbget_config_new_installs_settings_custom }}"
 
 # Existing Installs
 
@@ -122,7 +122,7 @@ nzbget_config_existing_installs_settings_default:
   - { regexp: '^ShellOverride\s?=.*', line: 'ShellOverride=.py=/usr/bin/python3' }
 nzbget_config_existing_installs_settings_custom: []
 nzbget_config_existing_installs_settings_list: "{{ nzbget_config_existing_installs_settings_default
-                                                        + nzbget_config_existing_installs_settings_custom }}"
+                                                    + nzbget_config_existing_installs_settings_custom }}"
 
 ################################
 # Scripts
@@ -150,13 +150,13 @@ nzbget_scripts_direct_downloads_default:
   - "https://raw.githubusercontent.com/l3uddz/nzbgetScripts/master/HashRenamer.py"
 nzbget_scripts_direct_downloads_custom: []
 nzbget_scripts_direct_downloads_list: "{{ nzbget_scripts_direct_downloads_default
-                                              + nzbget_scripts_direct_downloads_custom }}"
+                                          + nzbget_scripts_direct_downloads_custom }}"
 
 # Locally Copied
 nzbget_scripts_local_copy_default: []
 nzbget_scripts_local_copy_custom: []
 nzbget_scripts_local_copy_list: "{{ nzbget_scripts_local_copy_default
-                                        + nzbget_scripts_local_copy_custom }}"
+                                    + nzbget_scripts_local_copy_custom }}"
 
 ################################
 # THEME
@@ -175,7 +175,7 @@ nzbget_docker_container: "{{ nzbget_name }}"
 
 # Image
 nzbget_docker_image_pull: true
-nzbget_docker_image_tag: "testing"
+nzbget_docker_image_tag: "release"
 nzbget_docker_image: "hotio/nzbget:{{ nzbget_docker_image_tag }}"
 
 # Ports
@@ -183,9 +183,9 @@ nzbget_docker_ports_defaults:
   - "{{ nzbget_web_port }}:{{ nzbget_web_port }}"
 nzbget_docker_ports_custom: []
 nzbget_docker_ports: "{{ nzbget_docker_ports_defaults
-                              + nzbget_docker_ports_custom
-                          if (not reverse_proxy_is_enabled)
-                          else [] + nzbget_docker_ports_custom }}"
+                          + nzbget_docker_ports_custom
+                      if (not reverse_proxy_is_enabled)
+                      else [] + nzbget_docker_ports_custom }}"
 
 # Envs
 nzbget_docker_envs_default:
@@ -196,13 +196,13 @@ nzbget_docker_envs_default:
   LC_ALL: "C"
 nzbget_docker_envs_custom: {}
 nzbget_docker_envs: "{{ nzbget_docker_envs_default
-                            | combine(nzbget_docker_envs_custom) }}"
+                        | combine(nzbget_docker_envs_custom) }}"
 
 # Commands
 nzbget_docker_commands_default: []
 nzbget_docker_commands_custom: []
 nzbget_docker_commands: "{{ nzbget_docker_commands_default
-                              + nzbget_docker_commands_custom}}"
+                            + nzbget_docker_commands_custom}}"
 
 # Volumes
 nzbget_docker_volumes_default:
@@ -214,33 +214,33 @@ nzbget_docker_volumes_custom: []
 nzbget_docker_volumes_theme:
   - "{{ nzbget_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 nzbget_docker_volumes: "{{ nzbget_docker_volumes_default
-                                + nzbget_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                if not (nzbget_themepark_enabled)
-                                else nzbget_docker_volumes_default
-                                + nzbget_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                + nzbget_docker_volumes_theme}}"
+                            + nzbget_docker_volumes_custom
+                            + docker_volumes_downloads_common
+                        if not (nzbget_themepark_enabled)
+                        else nzbget_docker_volumes_default
+                            + nzbget_docker_volumes_custom
+                            + docker_volumes_downloads_common
+                            + nzbget_docker_volumes_theme}}"
 
 # Devices
 nzbget_docker_devices_default: []
 nzbget_docker_devices_custom: []
 nzbget_docker_devices: "{{ nzbget_docker_devices_default
-                                + nzbget_docker_devices_custom }}"
+                            + nzbget_docker_devices_custom }}"
 
 # Hosts
 nzbget_docker_hosts_default: []
 nzbget_docker_hosts_custom: []
 nzbget_docker_hosts: "{{ docker_hosts_common
-                              | combine(nzbget_docker_hosts_default)
-                              | combine(nzbget_docker_hosts_custom) }}"
+                          | combine(nzbget_docker_hosts_default)
+                          | combine(nzbget_docker_hosts_custom) }}"
 
 # Labels
 nzbget_docker_labels_default: {}
 nzbget_docker_labels_custom: {}
 nzbget_docker_labels: "{{ docker_labels_common
-                              | combine(nzbget_docker_labels_default)
-                              | combine(nzbget_docker_labels_custom) }}"
+                          | combine(nzbget_docker_labels_default)
+                          | combine(nzbget_docker_labels_custom) }}"
 
 # Hostname
 nzbget_docker_hostname: "{{ nzbget_name }}"
@@ -250,20 +250,20 @@ nzbget_docker_networks_alias: "{{ nzbget_name }}"
 nzbget_docker_networks_default: []
 nzbget_docker_networks_custom: []
 nzbget_docker_networks: "{{ docker_networks_common
-                                + nzbget_docker_networks_default
-                                + nzbget_docker_networks_custom }}"
+                            + nzbget_docker_networks_default
+                            + nzbget_docker_networks_custom }}"
 
 # Capabilities
 nzbget_docker_capabilities_default: []
 nzbget_docker_capabilities_custom: []
 nzbget_docker_capabilities: "{{ nzbget_docker_capabilities_default
-                                    + nzbget_docker_capabilities_custom }}"
+                                + nzbget_docker_capabilities_custom }}"
 
 # Security Opts
 nzbget_docker_security_opts_default: []
 nzbget_docker_security_opts_custom: []
 nzbget_docker_security_opts: "{{ nzbget_docker_security_opts_default
-                                      + nzbget_docker_security_opts_custom }}"
+                                  + nzbget_docker_security_opts_custom }}"
 
 # Restart Policy
 nzbget_docker_restart_policy: unless-stopped

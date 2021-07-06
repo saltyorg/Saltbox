@@ -14,7 +14,7 @@
     force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
 
 - name: Create auth file
   community.general.htpasswd:
@@ -23,5 +23,5 @@
     password: "{{ user.pass }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
   no_log: true

@@ -55,8 +55,8 @@ nzbhydra2_traefik_enabled: true
 ################################
 
 nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
-                                              | round(0,'ceil') | int >= 8 )
-                                              | ternary('512','256') }}"
+                                            | round(0,'ceil') | int >= 8 )
+                                            | ternary('512','256') }}"
 
 nzbhydra2_config_settings_default:
   # Authentication
@@ -95,7 +95,7 @@ nzbhydra2_config_settings_default:
 nzbhydra2_config_settings_custom: []
 
 nzbhydra2_config_settings_list: "{{ nzbhydra2_config_settings_default
-                                        + nzbhydra2_config_settings_custom }}"
+                                    + nzbhydra2_config_settings_custom }}"
 
 ################################
 # Docker
@@ -114,9 +114,9 @@ nzbhydra2_docker_ports_defaults:
   - "{{ nzbhydra2_web_port }}:{{ nzbhydra2_web_port }}"
 nzbhydra2_docker_ports_custom: []
 nzbhydra2_docker_ports: "{{ nzbhydra2_docker_ports_defaults
-                                + nzbhydra2_docker_ports_custom
-                            if (not reverse_proxy_is_enabled)
-                            else [] + nzbhydra2_docker_ports_custom }}"
+                            + nzbhydra2_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + nzbhydra2_docker_ports_custom }}"
 
 # Envs
 nzbhydra2_docker_envs_default:
@@ -126,13 +126,13 @@ nzbhydra2_docker_envs_default:
   TZ: "{{ tz }}"
 nzbhydra2_docker_envs_custom: {}
 nzbhydra2_docker_envs: "{{ nzbhydra2_docker_envs_default
-                                | combine(nzbhydra2_docker_envs_custom) }}"
+                            | combine(nzbhydra2_docker_envs_custom) }}"
 
 # Commands
 nzbhydra2_docker_commands_default: []
 nzbhydra2_docker_commands_custom: []
 nzbhydra2_docker_commands: "{{ nzbhydra2_docker_commands_default
-                              + nzbhydra2_docker_commands_custom}}"
+                                + nzbhydra2_docker_commands_custom}}"
 
 # Volumes
 nzbhydra2_docker_volumes_nzbhydra1_migration:
@@ -142,28 +142,28 @@ nzbhydra2_docker_volumes_default:
   - "/mnt:/mnt"
 nzbhydra2_docker_volumes_custom: []
 nzbhydra2_docker_volumes: "{{ nzbhydra2_docker_volumes_default
-                                  + nzbhydra2_docker_volumes_custom
-                                  + docker_volumes_downloads_common }}"
+                              + nzbhydra2_docker_volumes_custom
+                              + docker_volumes_downloads_common }}"
 
 # Devices
 nzbhydra2_docker_devices_default: []
 nzbhydra2_docker_devices_custom: []
 nzbhydra2_docker_devices: "{{ nzbhydra2_docker_devices_default
-                                  + nzbhydra2_docker_devices_custom }}"
+                              + nzbhydra2_docker_devices_custom }}"
 
 # Hosts
 nzbhydra2_docker_hosts_default: []
 nzbhydra2_docker_hosts_custom: []
 nzbhydra2_docker_hosts: "{{ docker_hosts_common
-                                | combine(nzbhydra2_docker_hosts_default)
-                                | combine(nzbhydra2_docker_hosts_custom) }}"
+                            | combine(nzbhydra2_docker_hosts_default)
+                            | combine(nzbhydra2_docker_hosts_custom) }}"
 
 # Labels
 nzbhydra2_docker_labels_default: {}
 nzbhydra2_docker_labels_custom: {}
 nzbhydra2_docker_labels: "{{ docker_labels_common
-                                | combine(nzbhydra2_docker_labels_default)
-                                | combine(nzbhydra2_docker_labels_custom) }}"
+                              | combine(nzbhydra2_docker_labels_default)
+                              | combine(nzbhydra2_docker_labels_custom) }}"
 
 # Hostname
 nzbhydra2_docker_hostname: "{{ nzbhydra2_name }}"
@@ -173,8 +173,8 @@ nzbhydra2_docker_networks_alias: "{{ nzbhydra2_name }}"
 nzbhydra2_docker_networks_default: []
 nzbhydra2_docker_networks_custom: []
 nzbhydra2_docker_networks: "{{ docker_networks_common
-                                  + nzbhydra2_docker_networks_default
-                                  + nzbhydra2_docker_networks_custom }}"
+                                + nzbhydra2_docker_networks_default
+                                + nzbhydra2_docker_networks_custom }}"
 
 # Capabilities
 nzbhydra2_docker_capabilities_default: []
@@ -186,7 +186,7 @@ nzbhydra2_docker_capabilities: "{{ nzbhydra2_docker_capabilities_default
 nzbhydra2_docker_security_opts_default: []
 nzbhydra2_docker_security_opts_custom: []
 nzbhydra2_docker_security_opts: "{{ nzbhydra2_docker_security_opts_default
-                                        + nzbhydra2_docker_security_opts_custom }}"
+                                    + nzbhydra2_docker_security_opts_custom }}"
 
 # Restart Policy
 nzbhydra2_docker_restart_policy: unless-stopped

@@ -37,7 +37,7 @@
         dest: "/etc/rc.local"
         owner: "root"
         group: "root"
-        mode: 0755
+        mode: "0755"
         force: false
 
     - name: Network | Get NIC Info
@@ -57,7 +57,7 @@
         insertbefore: "^exit 0"
         owner: "root"
         group: "root"
-        mode: 0755
+        mode: "0755"
       when: ('I218' in nic.stdout) or ('I219' in nic.stdout)
 
   when: (ansible_default_ipv4 is defined) and (ansible_default_ipv4.type == "ether")

@@ -17,7 +17,7 @@
   copy:
     src: "etc/skel/{{ item }}"
     dest: "/etc/skel/"
-    mode: 0664
+    mode: "0664"
     force: false
   loop:
     - ".bash_logout"

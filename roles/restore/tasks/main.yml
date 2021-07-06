@@ -45,7 +45,13 @@
     - /mnt/local
 
 - name: "Create backup location '{{ backup.local.destination }}'"
-  file: path={{ backup.local.destination }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes
+  file:
+    path: "{{ backup.local.destination }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
 
 - name: Check if previous backup exists locally
   find:
@@ -70,7 +76,7 @@
     dest: "{{ playbook_dir }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   when: (backup_excludes_list.stat.exists)
 

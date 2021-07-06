@@ -13,7 +13,7 @@
     path: "{{ plex_paths_transcodes_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     recurse: true
 
 - name: Post-Install | Update ports in '{{ plex_paths_config_location | basename }}'

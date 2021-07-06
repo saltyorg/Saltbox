@@ -49,6 +49,7 @@ nvidia_docker_runtime_docker_daemon_json_jq_command: |
       | .runtimes.nvidia.path = "/usr/bin/nvidia-container-runtime"
       | .runtimes.nvidia.runtimeArgs = []' \
       /etc/docker/daemon.json | jq . | sponge /etc/docker/daemon.json
+
 ################################
 # Kernel
 ################################
@@ -61,6 +62,7 @@ nvidia_kernel_blacklist_nouveau_conf_content: |
   # Saltbox - Nvidia Role
   blacklist nouveau
   options nouveau modeset=0
+
 ################################
 # nvtop
 ################################

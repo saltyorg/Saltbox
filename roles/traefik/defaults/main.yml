@@ -65,7 +65,7 @@ traefik_docker_ports_defaults:
   - "443:443/tcp"
 traefik_docker_ports_custom: []
 traefik_docker_ports: "{{ traefik_docker_ports_defaults
-                              + traefik_docker_ports_custom }}"
+                          + traefik_docker_ports_custom }}"
 
 # Envs
 traefik_docker_envs_default:
@@ -76,13 +76,13 @@ traefik_docker_envs_cloudflare:
 traefik_docker_envs_custom: {}
 traefik_docker_envs_reverse_proxy: {}
 traefik_docker_envs: "{{ traefik_docker_envs_default
-                              | combine(traefik_docker_envs_custom)
-                              | combine(traefik_docker_envs_reverse_proxy)
-                              if not (cloudflare_is_enabled)
-                              else traefik_docker_envs_default
-                              | combine(traefik_docker_envs_cloudflare)
-                              | combine(traefik_docker_envs_custom)
-                              | combine(traefik_docker_envs_reverse_proxy) }}"
+                          | combine(traefik_docker_envs_custom)
+                          | combine(traefik_docker_envs_reverse_proxy)
+                      if not (cloudflare_is_enabled)
+                      else traefik_docker_envs_default
+                          | combine(traefik_docker_envs_cloudflare)
+                          | combine(traefik_docker_envs_custom)
+                          | combine(traefik_docker_envs_reverse_proxy) }}"
 
 # Commands
 traefik_docker_commands_default:
@@ -110,8 +110,8 @@ traefik_docker_commands_metrics:
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                               + traefik_docker_commands_custom
-                              if not (traefik.metrics)
-                              else traefik_docker_commands_default
+                          if not (traefik.metrics)
+                          else traefik_docker_commands_default
                               + traefik_docker_commands_custom
                               + traefik_docker_commands_metrics }}"
 
@@ -121,20 +121,20 @@ traefik_docker_volumes_default:
   - "{{ traefik_paths_location }}:/etc/traefik"
 traefik_docker_volumes_custom: []
 traefik_docker_volumes: "{{ traefik_docker_volumes_default
-                                + traefik_docker_volumes_custom }}"
+                            + traefik_docker_volumes_custom }}"
 
 # Devices
 traefik_docker_devices_default: []
 traefik_docker_devices_custom: []
 traefik_docker_devices: "{{ traefik_docker_devices_default
-                                + traefik_docker_devices_custom }}"
+                            + traefik_docker_devices_custom }}"
 
 # Hosts
 traefik_docker_hosts_default: []
 traefik_docker_hosts_custom: []
 traefik_docker_hosts: "{{ docker_hosts_common
-                              | combine(traefik_docker_hosts_default)
-                              | combine(traefik_docker_hosts_custom) }}"
+                          | combine(traefik_docker_hosts_default)
+                          | combine(traefik_docker_hosts_custom) }}"
 
 # Labels
 traefik_docker_labels_default:
@@ -178,9 +178,9 @@ traefik_docker_labels_metrics_temp: "{{ []
                                     else traefik_docker_labels_metrics }}"
 
 traefik_docker_labels: "{{ traefik_docker_labels_default
-                              | combine(traefik_docker_labels_custom)
-                              | combine(traefik_docker_labels_validation)
-                              | combine(traefik_docker_labels_metrics_temp) }}"
+                            | combine(traefik_docker_labels_custom)
+                            | combine(traefik_docker_labels_validation)
+                            | combine(traefik_docker_labels_metrics_temp) }}"
 
 # Hostname
 traefik_docker_hostname: "{{ traefik_name }}"
@@ -190,20 +190,20 @@ traefik_docker_networks_alias: "{{ traefik_name }}"
 traefik_docker_networks_default: []
 traefik_docker_networks_custom: []
 traefik_docker_networks: "{{ docker_networks_common
-                                  + traefik_docker_networks_default
-                                  + traefik_docker_networks_custom }}"
+                              + traefik_docker_networks_default
+                              + traefik_docker_networks_custom }}"
 
 # Capabilities
 traefik_docker_capabilities_default: []
 traefik_docker_capabilities_custom: []
 traefik_docker_capabilities: "{{ traefik_docker_capabilities_default
-                                      + traefik_docker_capabilities_custom }}"
+                                  + traefik_docker_capabilities_custom }}"
 
 # Security Opts
 traefik_docker_security_opts_default: []
 traefik_docker_security_opts_custom: []
 traefik_docker_security_opts: "{{ traefik_docker_security_opts_default
-                                      + traefik_docker_security_opts_custom }}"
+                                  + traefik_docker_security_opts_custom }}"
 
 # Restart Policy
 traefik_docker_restart_policy: unless-stopped

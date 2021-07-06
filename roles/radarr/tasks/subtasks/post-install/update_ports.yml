@@ -46,5 +46,5 @@
     path: "{{ radarr_paths_config_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0644
+    mode: "0775"
   when: radarr_port_update is changed

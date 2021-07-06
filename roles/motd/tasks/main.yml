@@ -33,7 +33,13 @@
     - /etc/motd.dynamic
 
 - name: Create motd directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
   with_items:
     - /opt/motd
 
@@ -49,7 +55,7 @@
     option: "ENABLED"
     value: "0"
     no_extra_spaces: true
-    mode: '0644'
+    mode: "0644"
     state: present
   when: (motd_news.stat.exists)
 

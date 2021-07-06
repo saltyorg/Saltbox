@@ -71,9 +71,9 @@ trackarr_docker_ports_defaults:
   - "{{ trackarr_web_port }}:{{ trackarr_web_port }}"
 trackarr_docker_ports_custom: []
 trackarr_docker_ports: "{{ trackarr_docker_ports_defaults
-                                + trackarr_docker_ports_custom
-                            if (not reverse_proxy_is_enabled)
-                            else [] + trackarr_docker_ports_custom }}"
+                            + trackarr_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + trackarr_docker_ports_custom }}"
 
 # Envs
 trackarr_docker_envs_log_level: "1"
@@ -84,7 +84,7 @@ trackarr_docker_envs_default:
   VERBOSE: "{{ trackarr_docker_envs_log_level }}"
 trackarr_docker_envs_custom: {}
 trackarr_docker_envs: "{{ trackarr_docker_envs_default
-                              | combine(trackarr_docker_envs_custom) }}"
+                          | combine(trackarr_docker_envs_custom) }}"
 
 # Commands
 trackarr_docker_commands_default: []
@@ -98,28 +98,28 @@ trackarr_docker_volumes_default:
   - "/mnt:/mnt"
 trackarr_docker_volumes_custom: []
 trackarr_docker_volumes: "{{ trackarr_docker_volumes_default
-                                  + trackarr_docker_volumes_custom
-                                  + docker_volumes_downloads_common }}"
+                              + trackarr_docker_volumes_custom
+                              + docker_volumes_downloads_common }}"
 
 # Devices
 trackarr_docker_devices_default: []
 trackarr_docker_devices_custom: []
 trackarr_docker_devices: "{{ trackarr_docker_devices_default
-                                  + trackarr_docker_devices_custom }}"
+                              + trackarr_docker_devices_custom }}"
 
 # Hosts
 trackarr_docker_hosts_default: []
 trackarr_docker_hosts_custom: []
 trackarr_docker_hosts: "{{ docker_hosts_common
-                                | combine(trackarr_docker_hosts_default)
-                                | combine(trackarr_docker_hosts_custom) }}"
+                            | combine(trackarr_docker_hosts_default)
+                            | combine(trackarr_docker_hosts_custom) }}"
 
 # Labels
 trackarr_docker_labels_default: {}
 trackarr_docker_labels_custom: {}
 trackarr_docker_labels: "{{ docker_labels_common
-                                | combine(trackarr_docker_labels_default)
-                                | combine(trackarr_docker_labels_custom) }}"
+                            | combine(trackarr_docker_labels_default)
+                            | combine(trackarr_docker_labels_custom) }}"
 
 # Hostname
 trackarr_docker_hostname: "{{ trackarr_name }}"
@@ -129,20 +129,20 @@ trackarr_docker_networks_alias: "{{ trackarr_name }}"
 trackarr_docker_networks_default: []
 trackarr_docker_networks_custom: []
 trackarr_docker_networks: "{{ docker_networks_common
-                                  + trackarr_docker_networks_default
-                                  + trackarr_docker_networks_custom }}"
+                              + trackarr_docker_networks_default
+                              + trackarr_docker_networks_custom }}"
 
 # Capabilities
 trackarr_docker_capabilities_default: []
 trackarr_docker_capabilities_custom: []
 trackarr_docker_capabilities: "{{ trackarr_docker_capabilities_default
-                                      + trackarr_docker_capabilities_custom }}"
+                                  + trackarr_docker_capabilities_custom }}"
 
 # Security Opts
 trackarr_docker_security_opts_default: []
 trackarr_docker_security_opts_custom: []
 trackarr_docker_security_opts: "{{ trackarr_docker_security_opts_default
-                                        + trackarr_docker_security_opts_custom }}"
+                                    + trackarr_docker_security_opts_custom }}"
 
 # Restart Policy
 trackarr_docker_restart_policy: unless-stopped

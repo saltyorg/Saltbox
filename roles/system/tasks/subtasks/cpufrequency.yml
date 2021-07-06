@@ -34,7 +34,7 @@
     value: '"true"'
     state: present
     create: true
-    mode: '0644'
+    mode: "0644"
     no_extra_spaces: true
 
 - name: CPU Frequency | Set 'GOVERNOR' to performance
@@ -45,7 +45,7 @@
     value: '"performance"'
     state: present
     create: true
-    mode: '0644'
+    mode: "0644"
     no_extra_spaces: true
 
 - name: CPU Frequency | Remove mispelled 'GOVENOR' entry
@@ -53,7 +53,7 @@
     path: "/etc/default/cpufrequtils"
     section: null
     option: 'GOVENOR'
-    mode: '0644'
+    mode: "0644"
     state: absent
 
 - name: Populate Service Facts

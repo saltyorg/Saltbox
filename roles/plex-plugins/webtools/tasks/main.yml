@@ -63,9 +63,10 @@
         - name: Stop {{ plex_name | title }} container
           docker_container:
             name: "{{ plex_docker_container }}"
-            state: "stopped"
             container_default_behavior: compatibility
             tls_hostname: localhost
+            state: "stopped"
+
 
           when: (plex_docker_container in docker_running_containers_list)
 
@@ -102,7 +103,7 @@
         copy: false
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         validate_certs: false
       register: plex_plugin_webtools_download_status
       ignore_errors: true

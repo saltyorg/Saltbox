@@ -37,7 +37,7 @@
     path: /etc/systemd/system/docker.service.d/override.conf
     section: Unit
     option: "After"
-    value: "mergerfs.service"
+    value: "{{ mount_type }}.service"
     state: present
     mode: '0755'
     no_extra_spaces: true

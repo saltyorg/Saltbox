@@ -14,7 +14,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true
-    mode: 0664
+    mode: "0775"
   with_items:
     - "/opt/python-plexlibrary"
 
@@ -30,7 +30,7 @@
 - name: Install pip requirements
   pip:
     requirements: "/opt/python-plexlibrary/requirements.txt"
-    executable: pip
+    executable: pip3
 
 - name: Check config exists
   stat:
@@ -43,13 +43,13 @@
     dest: "/opt/python-plexlibrary/config.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0775"
     force: false
   when: not python_plexlibrary_config.stat.exists
 
 - name: Add plex url to config file
   shell: |
-    yyq w -i /opt/python-plexlibrary/config.yml plex.baseurl 'https://plex.{{ user.domain }}:443'
+    yyq w -i /opt/python-plexlibrary/config.yml plex.baseurl '{{ plex_web_url }}'
   become: true
   become_user: "{{ user.name }}"
 
@@ -71,7 +71,7 @@
     dest: "/opt/python-plexlibrary/recipes/examples/saltbox/"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0775"
     force: true
   with_fileglob:
     - "recipes/*.yml"

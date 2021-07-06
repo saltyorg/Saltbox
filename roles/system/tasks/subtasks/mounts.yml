@@ -32,5 +32,5 @@
   copy:
     src: etc/fuse.conf
     dest: /etc/fuse.conf
-    mode: 0775
+    mode: "0775"
     force: true

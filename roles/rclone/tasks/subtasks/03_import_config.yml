@@ -28,7 +28,7 @@
         dest: "/home/{{ user.name }}/.config/rclone/rclone.conf.bak"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
       when: (rclone_conf_default_path.stat.exists)
 
@@ -44,7 +44,7 @@
         dest: "/home/{{ user.name }}/.config/rclone/rclone.conf"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
 
     - name: "Import Config | Remove imported 'rclone.conf' from '{{ playbook_dir }}'"
@@ -74,7 +74,7 @@
         dest: "/home/{{ user.name }}/.config/rclone/rclone.conf"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
       when: (rclone_conf_current_location.stdout.find('Configuration file doesn\'t exist') == -1)
 
@@ -88,7 +88,7 @@
       file:
         path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
         state: touch
-        mode: 0775
+        mode: "0775"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
       when: (rclone_conf_current_location.stdout.find('Configuration file doesn\'t exist') != -1)

@@ -26,7 +26,7 @@
 
     - name: "Mount Path | Recursively find '/mnt/unionfs' files"
       find:
-        paths: '/mnt/unionfs'
+        paths: "/mnt/unionfs"
         hidden: true
         recurse: true
       register: mnt_unionfs_files

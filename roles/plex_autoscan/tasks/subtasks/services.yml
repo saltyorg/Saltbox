@@ -35,7 +35,7 @@
         option: "{{ item.option }}"
         value: "{{ item.value }}"
         state: present
-        mode: '0755'
+        mode: "0755"
         no_extra_spaces: true
       loop:
         - { option: 'User', value: "{{ user.name }}" }
@@ -50,7 +50,7 @@
       template:
         src: plex_autoscan.service.j2
         dest: /etc/systemd/system/plex_autoscan.service
-        mode: '0755'
+        mode: "0755"
         force: true
 
   when: not plex_autoscan_service.stat.exists

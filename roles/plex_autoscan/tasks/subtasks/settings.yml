@@ -37,7 +37,7 @@
         dest: /opt/plex_autoscan/config/config.json
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
 
   when: not plex_autoscan_config.stat.exists

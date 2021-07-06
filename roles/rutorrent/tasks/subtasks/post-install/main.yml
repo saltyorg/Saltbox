@@ -25,6 +25,7 @@
   docker_container:
     name: "{{ rutorrent_docker_container }}"
     container_default_behavior: compatibility
+    tls_hostname: localhost
     state: stopped
 
 - name: Post-Install | Settings Task
@@ -34,4 +35,5 @@
   docker_container:
     name: "{{ rutorrent_docker_container }}"
     container_default_behavior: compatibility
+    tls_hostname: localhost
     state: "{{ rutorrent_docker_state }}"

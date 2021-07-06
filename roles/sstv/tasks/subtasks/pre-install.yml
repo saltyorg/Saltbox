@@ -17,15 +17,15 @@
 
     - name: Pre-Install | Import default SSTV config
       template:
-        src: 'config.yml.j2'
+        src: "config.yml.j2"
         dest: "{{ sstv_paths_config_location }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: false
 
     - name: Pre-Install | Set 'sstv_docker_state' variable
       set_fact:
-        sstv_docker_state: 'stopped'
+        sstv_docker_state: "stopped"
 
   when: not sstv_paths_config_location_stat.stat.exists

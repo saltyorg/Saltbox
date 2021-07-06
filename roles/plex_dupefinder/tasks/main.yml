@@ -43,7 +43,7 @@
     dest: /opt/plex_dupefinder/config.json
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: false
   when: not plex_dupefinder_config.stat.exists
 

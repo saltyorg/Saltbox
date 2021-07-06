@@ -35,7 +35,7 @@
     dest: "{{ shell_zsh_zshrc_path }}"
     group: "{{ user.name }}"
     owner: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
   when: (cloning is success) and (not existing_zshrc.stat.exists)
 
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
@@ -47,7 +47,7 @@
     create: false
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
 
 # alternatives link
 - name: ZSH | Check if '/bin/zsh' exists

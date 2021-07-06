@@ -16,6 +16,8 @@
 - name: Post-Install | Settings | Stop container
   docker_container:
     name: "{{ nzbhydra2_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
     state: stopped
 
 - name: Post-Install | Settings | Update settings
@@ -30,4 +32,6 @@
 - name: Post-Install | Settings | Start container
   docker_container:
     name: "{{ nzbhydra2_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
     state: "{{ nzbhydra2_docker_state }}"

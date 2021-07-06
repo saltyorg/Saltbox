@@ -31,7 +31,7 @@
     dest: "{{ radarr_paths_location }}/98-themepark.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
 
 - name: Create Docker container

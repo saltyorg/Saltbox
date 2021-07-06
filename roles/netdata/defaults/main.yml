@@ -66,9 +66,9 @@ netdata_docker_ports_defaults:
   - "{{ netdata_web_port }}:{{ netdata_web_port }}"
 netdata_docker_ports_custom: []
 netdata_docker_ports: "{{ netdata_docker_ports_defaults
-                              + netdata_docker_ports_custom
-                          if (not reverse_proxy_is_enabled)
-                          else [] + netdata_docker_ports_custom }}"
+                          + netdata_docker_ports_custom
+                      if (not reverse_proxy_is_enabled)
+                      else [] + netdata_docker_ports_custom }}"
 
 # Envs
 netdata_docker_envs_default:
@@ -76,7 +76,7 @@ netdata_docker_envs_default:
   DOCKER_HOST: "docker-socket-proxy:2375"
 netdata_docker_envs_custom: {}
 netdata_docker_envs: "{{ netdata_docker_envs_default
-                            | combine(netdata_docker_envs_custom) }}"
+                          | combine(netdata_docker_envs_custom) }}"
 
 # Commands
 netdata_docker_commands_default: []
@@ -95,28 +95,28 @@ netdata_docker_volumes_default:
   - "/etc/os-release:/host/etc/os-release:ro"
 netdata_docker_volumes_custom: []
 netdata_docker_volumes: "{{ netdata_docker_volumes_default
-                                + netdata_docker_volumes_custom }}"
+                            + netdata_docker_volumes_custom }}"
 
 # Devices
 netdata_docker_devices_default: []
 netdata_docker_devices_custom: []
 netdata_docker_devices: "{{ netdata_docker_devices_default
-                                + netdata_docker_devices_custom }}"
+                            + netdata_docker_devices_custom }}"
 
 # Hosts
 netdata_docker_hosts_default: []
 netdata_docker_hosts_custom: []
 netdata_docker_hosts: "{{ docker_hosts_common
-                              | combine(netdata_docker_hosts_default)
-                              | combine(netdata_docker_hosts_custom) }}"
+                          | combine(netdata_docker_hosts_default)
+                          | combine(netdata_docker_hosts_custom) }}"
 
 # Labels
 netdata_docker_labels_default:
   traefik.http.middlewares.netdata-auth.basicauth.usersfile: "{{ netdata_auth }}"
 netdata_docker_labels_custom: {}
 netdata_docker_labels: "{{ docker_labels_common
-                              | combine(netdata_docker_labels_default)
-                              | combine(netdata_docker_labels_custom) }}"
+                            | combine(netdata_docker_labels_default)
+                            | combine(netdata_docker_labels_custom) }}"
 
 # Hostname
 netdata_docker_hostname: "{{ netdata_name }}"
@@ -126,22 +126,22 @@ netdata_docker_networks_alias: "{{ netdata_name }}"
 netdata_docker_networks_default: []
 netdata_docker_networks_custom: []
 netdata_docker_networks: "{{ docker_networks_common
-                                + netdata_docker_networks_default
-                                + netdata_docker_networks_custom }}"
+                              + netdata_docker_networks_default
+                              + netdata_docker_networks_custom }}"
 
 # Capabilities
 netdata_docker_capabilities_default:
   - SYS_PTRACE
 netdata_docker_capabilities_custom: []
 netdata_docker_capabilities: "{{ netdata_docker_capabilities_default
-                                    + netdata_docker_capabilities_custom }}"
+                                  + netdata_docker_capabilities_custom }}"
 
 # Security Opts
 netdata_docker_security_opts_default:
   - apparmor=unconfined
 netdata_docker_security_opts_custom: []
 netdata_docker_security_opts: "{{ netdata_docker_security_opts_default
-                                      + netdata_docker_security_opts_custom }}"
+                                  + netdata_docker_security_opts_custom }}"
 
 # Restart Policy
 netdata_docker_restart_policy: unless-stopped

@@ -98,7 +98,7 @@ rutorrent_config_new_installs_rutorrent_rc_settings_default:
   - { option: "schedule", value: 'watch_directory,5,5,"load.start=/downloads/torrents/rutorrent/watched/*.torrent,d.delete_tied="' }
 rutorrent_config_new_installs_rutorrent_rc_settings_custom: []
 rutorrent_config_new_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_default
-                                                                  + rutorrent_config_new_installs_rutorrent_rc_settings_custom }}"
+                                                              + rutorrent_config_new_installs_rutorrent_rc_settings_custom }}"
 
 # php-local.ini
 rutorrent_config_new_installs_php_local_ini_settings_default:
@@ -106,7 +106,7 @@ rutorrent_config_new_installs_php_local_ini_settings_default:
   - { option: "upload_max_filesize", value: "20M" }
 rutorrent_config_new_installs_php_local_ini_settings_custom: []
 rutorrent_config_new_installs_php_local_ini_settings_list: "{{ rutorrent_config_new_installs_php_local_ini_settings_default
-                                                                    + rutorrent_config_new_installs_php_local_ini_settings_custom }}"
+                                                                + rutorrent_config_new_installs_php_local_ini_settings_custom }}"
 
 ## Existing Installs
 
@@ -125,7 +125,7 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_default:
   - { option: "protocol.pex.set", value: "{{ rutorrent_config_public_trackers | ternary('yes','no') }}" }
 rutorrent_config_existing_installs_rutorrent_rc_settings_custom: []
 rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_default
-                                                                        + rutorrent_config_existing_installs_rutorrent_rc_settings_custom }}"
+                                                                    + rutorrent_config_existing_installs_rutorrent_rc_settings_custom }}"
 
 ################################
 # THEME
@@ -153,23 +153,23 @@ rutorrent_docker_ports_defaults:
 # - Internal and External ports need to match for the next set of ports
 # - Lookup available ports and set docker ports accordingly
 rutorrent_docker_ports_51413: "{{ port_lookup_51413.port
-                                  if (port_lookup_51413.port is defined)
-                                      and (port_lookup_51413.port | trim | length > 0)
-                                  else '51413' }}"
+                              if (port_lookup_51413.port is defined)
+                                  and (port_lookup_51413.port | trim | length > 0)
+                              else '51413' }}"
 rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
-                                  if (port_lookup_6881.port is defined)
-                                      and (port_lookup_6881.port | trim | length > 0)
-                                  else '6881' }}"
+                              if (port_lookup_6881.port is defined)
+                                  and (port_lookup_6881.port | trim | length > 0)
+                              else '6881' }}"
 rutorrent_docker_ports_torrents:
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}"
   - "{{ rutorrent_docker_ports_6881 }}:{{ rutorrent_docker_ports_6881 }}/udp"
 rutorrent_docker_ports_custom: []
 rutorrent_docker_ports: "{{ rutorrent_docker_ports_defaults
-                                + rutorrent_docker_ports_torrents
-                                + rutorrent_docker_ports_custom
-                            if (not reverse_proxy_is_enabled)
-                            else rutorrent_docker_ports_torrents
-                                + rutorrent_docker_ports_custom }}"
+                            + rutorrent_docker_ports_torrents
+                            + rutorrent_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else rutorrent_docker_ports_torrents
+                            + rutorrent_docker_ports_custom }}"
 
 # Envs
 rutorrent_docker_envs_default:
@@ -178,13 +178,13 @@ rutorrent_docker_envs_default:
   TZ: "{{ tz }}"
 rutorrent_docker_envs_custom: {}
 rutorrent_docker_envs: "{{ rutorrent_docker_envs_default
-                                | combine(rutorrent_docker_envs_custom) }}"
+                            | combine(rutorrent_docker_envs_custom) }}"
 
 # Commands
 rutorrent_docker_commands_default: []
 rutorrent_docker_commands_custom: []
 rutorrent_docker_commands: "{{ rutorrent_docker_commands_default
-                              + rutorrent_docker_commands_custom}}"
+                                + rutorrent_docker_commands_custom}}"
 
 # Volumes
 rutorrent_docker_volumes_default:
@@ -195,34 +195,34 @@ rutorrent_docker_volumes_custom: []
 rutorrent_docker_volumes_theme:
   - "{{ rutorrent_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
-                                + rutorrent_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                if not (rutorrent_themepark_enabled)
-                                else rutorrent_docker_volumes_default
-                                + rutorrent_docker_volumes_custom
-                                + docker_volumes_downloads_common
-                                + rutorrent_docker_volumes_theme}}"
+                              + rutorrent_docker_volumes_custom
+                              + docker_volumes_downloads_common
+                          if not (rutorrent_themepark_enabled)
+                          else rutorrent_docker_volumes_default
+                              + rutorrent_docker_volumes_custom
+                              + docker_volumes_downloads_common
+                              + rutorrent_docker_volumes_theme}}"
 
 # Devices
 rutorrent_docker_devices_default: []
 rutorrent_docker_devices_custom: []
 rutorrent_docker_devices: "{{ rutorrent_docker_devices_default
-                                  + rutorrent_docker_devices_custom }}"
+                              + rutorrent_docker_devices_custom }}"
 
 # Hosts
 rutorrent_docker_hosts_default: []
 rutorrent_docker_hosts_custom: []
 rutorrent_docker_hosts: "{{ docker_hosts_common
-                                | combine(rutorrent_docker_hosts_default)
-                                | combine(rutorrent_docker_hosts_custom) }}"
+                            | combine(rutorrent_docker_hosts_default)
+                            | combine(rutorrent_docker_hosts_custom) }}"
 
 # Labels
 rutorrent_docker_labels_default:
   traefik.http.middlewares.rutorrent-auth.basicauth.usersfile: "{{ rutorrent_auth }}"
 rutorrent_docker_labels_custom: {}
 rutorrent_docker_labels: "{{ docker_labels_common
-                                  | combine(rutorrent_docker_labels_default)
-                                  | combine(rutorrent_docker_labels_custom) }}"
+                              | combine(rutorrent_docker_labels_default)
+                              | combine(rutorrent_docker_labels_custom) }}"
 
 # Hostname
 rutorrent_docker_hostname: "{{ rutorrent_name }}"
@@ -232,20 +232,20 @@ rutorrent_docker_networks_alias: "{{ rutorrent_name }}"
 rutorrent_docker_networks_default: []
 rutorrent_docker_networks_custom: []
 rutorrent_docker_networks: "{{ docker_networks_common
-                                    + rutorrent_docker_networks_default
-                                    + rutorrent_docker_networks_custom }}"
+                                + rutorrent_docker_networks_default
+                                + rutorrent_docker_networks_custom }}"
 
 # Capabilities
 rutorrent_docker_capabilities_default: []
 rutorrent_docker_capabilities_custom: []
 rutorrent_docker_capabilities: "{{ rutorrent_docker_capabilities_default
-                                        + rutorrent_docker_capabilities_custom }}"
+                                    + rutorrent_docker_capabilities_custom }}"
 
 # Security Opts
 rutorrent_docker_security_opts_default: []
 rutorrent_docker_security_opts_custom: []
 rutorrent_docker_security_opts: "{{ rutorrent_docker_security_opts_default
-                                        + rutorrent_docker_security_opts_custom }}"
+                                    + rutorrent_docker_security_opts_custom }}"
 
 # Restart Policy
 rutorrent_docker_restart_policy: unless-stopped

@@ -144,7 +144,6 @@
     state: present
     name:
       - certbot
-      - ansible-toolbox
       - ndg-httpsclient
       - yq
     executable: pip3

@@ -44,7 +44,7 @@
     dest: "/opt/scripts/torrents/arrpush.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
     validate_certs: false
   ignore_errors: true
@@ -55,7 +55,7 @@
     dest: "/opt/scripts/torrents/TorrentCleanup.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
     validate_certs: false
   ignore_errors: true
@@ -66,7 +66,7 @@
     dest: "/opt/scripts/plex/plex_trash_fixer.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
     validate_certs: false
   ignore_errors: true
@@ -77,7 +77,7 @@
     dest: "/opt/scripts/plex/plex_token.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
 
 - name: Import 'plex_autoscan_url.sh'
@@ -86,7 +86,7 @@
     dest: "/opt/scripts/plex_autoscan/plex_autoscan_url.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
 
 - name: Check if 'restart_containers.sh' exists
@@ -104,7 +104,7 @@
     dest: "/opt/scripts/docker/restart_containers.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   when: not restart_containers.stat.exists
 
@@ -123,7 +123,7 @@
     dest: "/opt/scripts/frontail/frontail_custom_preset.json"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   when: not frontail_preset.stat.exists
 
@@ -142,7 +142,7 @@
     dest: "/opt/scripts/rclone/sync_torrents_to_rclone_remote.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   when: not sync_torrents_to_rclone_remote.stat.exists
 
@@ -161,6 +161,6 @@
     dest: "/opt/scripts/rclone/download_torrents_from_rclone_remote.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   when: not download_torrents_from_rclone_remote.stat.exists

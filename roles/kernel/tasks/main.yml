@@ -35,6 +35,3 @@
   when:
     - (reboot_is_necessary)
     - (not continuous_integration)
-
-- name: Checks Task
-  include_tasks: "subtasks/06_checks.yml"

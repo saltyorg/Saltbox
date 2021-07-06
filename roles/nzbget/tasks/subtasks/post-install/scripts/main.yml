@@ -38,7 +38,7 @@
     force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
   loop: "{{ nzbget_scripts_direct_downloads_list }}"
   ignore_errors: true
 
@@ -48,7 +48,7 @@
     dest: "{{ nzbget_scripts_paths_location }}/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
   loop: "{{ nzbget_scripts_local_copy_list }}"
 
@@ -67,5 +67,5 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
   when: nzbget_scripts_rarfile_py_stat.stat.exists

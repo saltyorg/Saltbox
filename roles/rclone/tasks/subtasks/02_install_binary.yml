@@ -45,7 +45,7 @@
   copy:
     src: "{{ rclone_tmp_dir.stdout }}/rclone"
     dest: "/usr/bin/rclone"
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
     force: true
@@ -54,7 +54,7 @@
   file:
     path: '/usr/local/share/man/man1'
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
 
@@ -62,7 +62,7 @@
   copy:
     src: "{{ rclone_tmp_dir.stdout }}/rclone.1"
     dest: /usr/local/share/man/man1/rclone.1
-    mode: 0664
+    mode: "0664"
     owner: root
     group: root
 

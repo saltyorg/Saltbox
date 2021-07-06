@@ -17,7 +17,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0775"
   loop: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_list }}"
 
 - name: Post-Install | Settings | Existing Installs | Import custom 'nginx.conf' with htpasswd support
@@ -27,4 +27,4 @@
     dest: "{{ rutorrent_paths_nginx_conf_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"

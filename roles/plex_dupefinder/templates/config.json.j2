@@ -39,7 +39,7 @@
     "Movies": 1,
     "TV Shows": 2
   },
-  "PLEX_SERVER": "https://plex.{{ user.domain }}",
+  "PLEX_SERVER": "{{ plex_web_url }}",
   "PLEX_TOKEN": "{{ plex_auth_token | default('') }}",
   "SCORE_FILESIZE": true,
   "SKIP_LIST": [
