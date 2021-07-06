@@ -59,6 +59,6 @@ jobs:
         args: "-x 106 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
 
     - uses: sarisia/actions-status-discord@v1
-      if: always
+      if: always()
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK }}
