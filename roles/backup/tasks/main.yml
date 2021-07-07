@@ -48,6 +48,11 @@
       group: "{{ user.name }}"
       mode: 0775
 
+  - name: Check if previous backup folder exists
+    stat:
+      path: "{{ backup.local.destination }}"
+    register: backup_local_folder
+
   - name: Check if previous backup exists locally
     find:
       paths: "{{ backup.local.destination }}"
@@ -55,6 +60,7 @@
       patterns: '*.tar'
       recurse: true
     register: dir_files
+    when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
   # Remove backup.old folder if it exists.
   - name: "Remove '{{ backup.local.destination }}.old'"
