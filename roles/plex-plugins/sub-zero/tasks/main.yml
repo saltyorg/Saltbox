@@ -149,10 +149,9 @@
     - name: Sub-Zero Plugin install failed
       debug:
         msg: "Sub-Zero Plugin install failed."
-      when: >-
-        (plex_plugin_subzero_download_status is failed) or
-            ((plex_plugin_subzero_download_status is success) and
-            (not plex_plugin_subzero_info_plist_status.stat.exists))
+      when:
+        - (plex_plugin_subzero_download_status is failed) or ((plex_plugin_subzero_download_status is success)
+        - (not plex_plugin_subzero_info_plist_status.stat.exists))
 
     - name: "Start {{ plex_name | title }} container"
       docker_container:
@@ -162,10 +161,9 @@
         - ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)
 
-  when: >-
-    (not plex_plugin_subzero_bundle_status.stat.exists) or
-        ((plex_plugin_subzero_bundle_status.stat.exists) and
-        (plex_plugin_subzero_is_outdated)) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
+  when:
+    - (not plex_plugin_subzero_bundle_status.stat.exists) or ((plex_plugin_subzero_bundle_status.stat.exists)
+    - (plex_plugin_subzero_is_outdated)) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
 
 - name: Sub-Zero Plugin was not updated
   debug:

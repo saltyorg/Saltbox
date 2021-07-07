@@ -53,9 +53,9 @@
 
 - name: "Fail when rclone is misconfigured."
   fail:
-    msg: >-
-      "The rclone remote is misconfigured - You must place a valid 'rclone.conf' file in '{{ playbook_dir }}'
-      (or setup Rclone via 'rclone config') and verify that the 'backup.rclone.destination' in settings is valid."
+    msg: >
+      The rclone remote is misconfigured - You must place a valid 'rclone.conf' file in '{{ playbook_dir }}'
+      (or setup Rclone via 'rclone config') and verify that the 'backup.rclone.destination' in settings is valid.
   when: (rclone_test.rc > 0)
 
 - name: "Fetch backup from '{{ backup.rclone.destination }}'"
