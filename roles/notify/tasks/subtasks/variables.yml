@@ -21,4 +21,3 @@
   when: item.enabled
   loop:
     - { service: 'apprise', enabled: '{{ apprise_account_is_enabled }}' }
-    - { service: 'pushover', enabled: '{{ pushover_account_is_enabled }}' }

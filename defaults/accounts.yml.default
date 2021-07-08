@@ -10,8 +10,4 @@ cloudflare:
 plex:
   user:
   pass:
-pushover:
-  app_token:
-  user_key:
-  priority:
 apprise:
