@@ -7,45 +7,6 @@
 #                            GNU General Public License v3.0                           #
 ########################################################################################
 ---
-- name: "Migrator | 'accounts.yml' | Migration 01 | Set variables"
-  set_fact:
-    old_settings: "{{ true if not(
-        (passwd is undefined)
-        or
-        (passwd is none)
-        or
-        (passwd | trim | length == 0)
-      )
-        else false }}"
-    new_settings: "{{ true if not(
-        (user.name is undefined)
-        or
-        (user.name is none)
-        or
-        (user.name | trim | length == 0)
-        or
-        (user.pass is undefined)
-        or
-        (user.pass is none)
-        or
-        (user.pass | trim | length == 0)
-      )
-        else false }}"
-
-- name: Migrator | 'accounts.yml' | Migration 01 | Add 'user' key
-  shell: |
-    yyq d -i {{ playbook_dir }}/{{ file }} user
-    yyq w -i {{ playbook_dir }}/{{ file }} user.name {{ user }}
-    yyq d -i {{ playbook_dir }}/{{ file }} passwd
-    yyq w -i {{ playbook_dir }}/{{ file }} user.pass {{ passwd }}
-    yyq d -i {{ playbook_dir }}/{{ file }} domain
-    yyq w -i {{ playbook_dir }}/{{ file }} user.domain {{ domain }}
-    yyq d -i {{ playbook_dir }}/{{ file }} email
-    yyq w -i {{ playbook_dir }}/{{ file }} user.email {{ email }}
-  become: true
-  become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: (old_settings) and not (new_settings)
-
 - name: Migrator | 'accounts.yml' | Migration 01 | Remove 'null' values
   replace:
     path: "{{ playbook_dir }}/{{ file }}"

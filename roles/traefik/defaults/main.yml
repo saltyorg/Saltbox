@@ -170,7 +170,7 @@ traefik_docker_labels_metrics:
 traefik_docker_labels_custom: {}
 
 traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validation
-                                    if not (traefik.tls)
+                                    if not (traefik_tls)
                                     else traefik_docker_labels_tls_validation }}"
 
 traefik_docker_labels_metrics_temp: "{{ []
