@@ -96,7 +96,7 @@ server_appdata_path: "{{ server_root_path | regex_replace('\\/$', '') + '/opt' }
 # Paths
 ################################
 
-transcodes_path: "{{ plex_settings.transcodes }}"
+transcodes_path: "{{ transcodes }}"
 
 ################################
 # User

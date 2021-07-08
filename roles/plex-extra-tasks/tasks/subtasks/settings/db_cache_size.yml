@@ -26,22 +26,22 @@
   set_fact:
     default_db_cache_size: '2000'
 
-- name: Settings | DB Cache Size | Check if 'plex_settings.db_cache_size' was specified
+- name: Settings | DB Cache Size | Check if 'plex_db_cache_size' was specified
   set_fact:
     db_cache_size_is_specified: "{{ true if not (
-        (plex_settings.db_cache_size is undefined)
+        (plex_db_cache_size is undefined)
         or
-        (plex_settings.db_cache_size is none)
+        (plex_db_cache_size is none)
         or
-        (plex_settings.db_cache_size | trim | length == 0)
+        (plex_db_cache_size | trim | length == 0)
       )
       else false }}"
 
 - name: Settings | DB Cache Size | Get Desired Plex DB Cache Size
   set_fact:
     desired_db_cache_size: "{{ default_db_cache_size
-      if ( (not db_cache_size_is_specified) or (plex_settings.db_cache_size == 'default') )
-      else ( (plex_settings.db_cache_size) | regex_replace(',', '') | int ) }}"
+      if ( (not db_cache_size_is_specified) or (plex_db_cache_size == 'default') )
+      else ( (plex_.db_cache_size) | regex_replace(',', '') | int ) }}"
 
 - name: Settings | DB Cache Size | Make Plex DB Edits
   block:
