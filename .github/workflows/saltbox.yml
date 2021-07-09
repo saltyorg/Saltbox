@@ -1,6 +1,29 @@
 name: CI
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'roles/backup/**'
+      - 'roles/restore/**'
+      - 'roles/settings/**'
+      - 'roles/nvidia/**'
+      - 'roles/plex_extra_tasks/**'
+      - 'roles/plex_auth_token/**'
+      - 'roles/feeder/**'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - 'roles/backup/**'
+      - 'roles/restore/**'
+      - 'roles/settings/**'
+      - 'roles/nvidia/**'
+      - 'roles/plex_extra_tasks/**'
+      - 'roles/plex_auth_token/**'
+      - 'roles/feeder/**'
+  workflow_dispatch:
 
 jobs:
   install:
