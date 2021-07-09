@@ -1,6 +1,3 @@
-exclude_paths:
-  - ./roles/python_plexlibrary/files/
-
 skip_list:
   - braces
   - git-latest
