@@ -110,7 +110,7 @@
 
       - name: Check if 'nvtop' exists
         stat:
-          path: "{{ nvidia_nvtop_location }}"
+          path: "{{ nvidia_nvtop_binary_path }}"
         register: nvtop_binary
 
       - name: "Nvidia Nvtop Task"

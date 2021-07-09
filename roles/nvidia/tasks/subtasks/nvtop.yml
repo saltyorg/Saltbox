@@ -18,7 +18,7 @@
 
 - name: nvtop | Pull nvtop repo from github
   git:
-    clone: true
+    clone: yes
     repo: "{{ nvidia_nvtop_git_repo_url }}"
     dest: "/tmp/nvtop/"
     register: nvtop_repo_clone_status
