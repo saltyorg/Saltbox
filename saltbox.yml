@@ -28,7 +28,7 @@
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
     - { role: plex, tags: ['saltbox', 'mediabox', 'plex'] }
-    - { role: plex-extra-tasks, tags: ['saltbox', 'mediabox', 'plex-extra-tasks'] }
+    - { role: plex_extra_tasks, tags: ['saltbox', 'mediabox', 'plex-extra-tasks'] }
     - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
     - { role: plex_autoscan, tags: ['saltbox', 'mediabox', 'plex_autoscan'] }
@@ -43,8 +43,8 @@
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
     - { role: plex_auth_token, tags: ['plex_auth_token'] }
-    - { role: plex-plugins/sub-zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
-    - { role: plex-plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
+    - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
+    - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
     - { role: subliminal, tags: ['subliminal'] }
     - { role: mariadb, tags: ['mariadb'] }
     - { role: emby, tags: ['emby'] }
@@ -52,7 +52,7 @@
     - { role: plex_dupefinder, tags: ['plex_dupefinder'] }
     - { role: netdata, tags: ['netdata'] }
     - { role: plex_patrol, tags: ['plex_patrol'] }
-    - { role: python-plexlibrary, tags: ['python-plexlibrary'] }
+    - { role: python_plexlibrary, tags: ['python-plexlibrary'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: nginx, tags: ['nginx'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }

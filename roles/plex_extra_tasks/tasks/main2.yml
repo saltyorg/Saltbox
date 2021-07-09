@@ -42,11 +42,11 @@
 
 - name: "Install Sub-Zero Plugin"
   import_role:
-    name: plex-plugins/sub-zero
+    name: plex_plugins/sub_zero
 
 - name: "Install WebTools Plugin"
   import_role:
-    name: plex-plugins/webtools
+    name: plex_plugins/webtools
 
 - name: Start Docker Container
   docker_container:
