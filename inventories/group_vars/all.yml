@@ -147,6 +147,12 @@ reverse_proxy_is_enabled: "{{ (user is defined) and
                               (user.email | trim | length > 0) }}"
 
 ################################
+# DNS
+################################
+
+dns_record_suffix: ""
+
+################################
 # Theme
 ################################
 

@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
   set_fact:
-    _dns_tasker_record: "{{ [dns_record] | flatten }}"
+    _dns_tasker_record: "{{ [dns_record] | flatten | product([dns_record_suffix]) | map('join') | list }}"
     _dns_tasker_zone: "{{ dns_zone | default(user.domain) }}"
     _dns_tasker_action: "{{ dns_action | default('add') }}"
 
