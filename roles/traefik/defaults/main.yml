@@ -76,13 +76,13 @@ traefik_docker_envs_cloudflare:
 traefik_docker_envs_custom: {}
 traefik_docker_envs_reverse_proxy: {}
 traefik_docker_envs: "{{ traefik_docker_envs_default
-                          | combine(traefik_docker_envs_custom)
-                          | combine(traefik_docker_envs_reverse_proxy)
+                         | combine(traefik_docker_envs_custom)
+                         | combine(traefik_docker_envs_reverse_proxy)
                       if not (cloudflare_is_enabled)
                       else traefik_docker_envs_default
-                          | combine(traefik_docker_envs_cloudflare)
-                          | combine(traefik_docker_envs_custom)
-                          | combine(traefik_docker_envs_reverse_proxy) }}"
+                         | combine(traefik_docker_envs_cloudflare)
+                         | combine(traefik_docker_envs_custom)
+                         | combine(traefik_docker_envs_reverse_proxy) }}"
 
 # Commands
 traefik_docker_commands_default:
@@ -109,11 +109,11 @@ traefik_docker_commands_metrics:
   - "--metrics.prometheus.manualrouting=true"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
-                              + traefik_docker_commands_custom
+                             + traefik_docker_commands_custom
                           if not (traefik.metrics)
                           else traefik_docker_commands_default
-                              + traefik_docker_commands_custom
-                              + traefik_docker_commands_metrics }}"
+                             + traefik_docker_commands_custom
+                             + traefik_docker_commands_metrics }}"
 
 # Volumes
 traefik_docker_volumes_default:
@@ -139,7 +139,7 @@ traefik_docker_hosts: "{{ docker_hosts_common
 # Labels
 traefik_docker_labels_default:
   traefik.enable: "true"
-  traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
+  traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain + dns_record_suffix }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
@@ -161,7 +161,7 @@ traefik_docker_labels_tls_validation:
   traefik.http.routers.traefik.tls.certresolver: "tlsresolver"
 
 traefik_docker_labels_metrics:
-  traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
+  traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain + dns_record_suffix }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
@@ -170,17 +170,17 @@ traefik_docker_labels_metrics:
 traefik_docker_labels_custom: {}
 
 traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validation
-                                    if not (traefik_tls)
-                                    else traefik_docker_labels_tls_validation }}"
+                                   if not (traefik_tls)
+                                   else traefik_docker_labels_tls_validation }}"
 
 traefik_docker_labels_metrics_temp: "{{ []
-                                    if not (traefik.metrics)
-                                    else traefik_docker_labels_metrics }}"
+                                     if not (traefik.metrics)
+                                     else traefik_docker_labels_metrics }}"
 
 traefik_docker_labels: "{{ traefik_docker_labels_default
-                            | combine(traefik_docker_labels_custom)
-                            | combine(traefik_docker_labels_validation)
-                            | combine(traefik_docker_labels_metrics_temp) }}"
+                           | combine(traefik_docker_labels_custom)
+                           | combine(traefik_docker_labels_validation)
+                           | combine(traefik_docker_labels_metrics_temp) }}"
 
 # Hostname
 traefik_docker_hostname: "{{ traefik_name }}"
@@ -190,14 +190,14 @@ traefik_docker_networks_alias: "{{ traefik_name }}"
 traefik_docker_networks_default: []
 traefik_docker_networks_custom: []
 traefik_docker_networks: "{{ docker_networks_common
-                              + traefik_docker_networks_default
-                              + traefik_docker_networks_custom }}"
+                             + traefik_docker_networks_default
+                             + traefik_docker_networks_custom }}"
 
 # Capabilities
 traefik_docker_capabilities_default: []
 traefik_docker_capabilities_custom: []
 traefik_docker_capabilities: "{{ traefik_docker_capabilities_default
-                                  + traefik_docker_capabilities_custom }}"
+                                 + traefik_docker_capabilities_custom }}"
 
 # Security Opts
 traefik_docker_security_opts_default: []

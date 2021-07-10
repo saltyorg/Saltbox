@@ -49,7 +49,6 @@ nzbget_dns_zone: "{{ nzbget_web_domain }}"
 ################################
 
 nzbget_traefik_middleware: "secureHeaders@file,gzip"
-nzbget_traefik_host: "{{ nzbget_web_subdomain + '.' + nzbget_web_domain }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbget_traefik_enabled: true
 

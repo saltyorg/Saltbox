@@ -48,7 +48,6 @@ emby_dns_zone: "{{ emby_web_domain }}"
 ################################
 
 emby_traefik_middleware: "secureHeaders@file,gzip"
-emby_traefik_host: "{{ emby_web_subdomain + '.' + emby_web_domain }}"
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
 emby_traefik_enabled: true
 

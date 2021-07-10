@@ -43,7 +43,6 @@ sstv_dns_zone: "{{ sstv_web_domain }}"
 ################################
 
 sstv_traefik_middleware: "secureHeaders@file,gzip"
-sstv_traefik_host: "{{ sstv_web_subdomain + '.' + sstv_web_domain }}"
 sstv_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sstv_traefik_enabled: true
 
