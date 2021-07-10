@@ -23,25 +23,25 @@ continuous_integration: false
 # Accounts
 ################################
 
-cloudflare_is_enabled: "{{  (cloudflare is defined) and
-                            (cloudflare is not none) and
-                            (cloudflare | trim | length > 0) and
-                            (cloudflare.email is defined) and
-                            (cloudflare.email is not none) and
-                            (cloudflare.email | trim | length > 0) and
-                            (cloudflare.api is defined) and
-                            (cloudflare.api is not none) and
-                            (cloudflare.api | trim | length > 0) }}"
+cloudflare_is_enabled: "{{ (cloudflare is defined) and
+                           (cloudflare is not none) and
+                           (cloudflare | trim | length > 0) and
+                           (cloudflare.email is defined) and
+                           (cloudflare.email is not none) and
+                           (cloudflare.email | trim | length > 0) and
+                           (cloudflare.api is defined) and
+                           (cloudflare.api is not none) and
+                           (cloudflare.api | trim | length > 0) }}"
 
-plex_account_is_enabled: "{{  (plex is defined) and
-                              (plex is not none) and
-                              (plex | trim | length > 0) and
-                              (plex.user is defined) and
-                              (plex.user is not none) and
-                              (plex.user | trim | length > 0) and
-                              (plex.pass is defined) and
-                              (plex.pass is not none) and
-                              (plex.pass | trim | length > 0) }}"
+plex_account_is_enabled: "{{ (plex is defined) and
+                             (plex is not none) and
+                             (plex | trim | length > 0) and
+                             (plex.user is defined) and
+                             (plex.user is not none) and
+                             (plex.user | trim | length > 0) and
+                             (plex.pass is defined) and
+                             (plex.pass is not none) and
+                             (plex.pass | trim | length > 0) }}"
 
 ################################
 # Role Conditionals
@@ -66,12 +66,12 @@ torrents_downloads_path_is_defined: "{{ (downloads is defined) and
 use_torrents: "{{ torrents_downloads_path_is_defined }}"
 
 feeder_mount_is_enabled: "{{ (mounts is defined) and
-                              (mounts is not none) and
-                              (mounts | trim | length > 0) and
-                              (mounts.feeder is defined) and
-                              (mounts.feeder is not none) and
-                              (mounts.feeder | trim | length > 0) and
-                              (mounts.feeder) }}"
+                             (mounts is not none) and
+                             (mounts | trim | length > 0) and
+                             (mounts.feeder is defined) and
+                             (mounts.feeder is not none) and
+                             (mounts.feeder | trim | length > 0) and
+                             (mounts.feeder) }}"
 
 rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone is not none) and
@@ -113,14 +113,14 @@ vgid: "{{ ansible_local.group.video.gid }}"
 ################################
 
 tz: "{{ system.timezone
-        if system is defined and
-            system.timezone is defined and
-            'auto' not in system.timezone | lower
-        else ansible_local.timezone
-            if ansible_local is defined and
-                ansible_local.timezone is defined and
-                ansible_local.timezone | trim | length > 0
-        else 'UTC' }}"
+     if system is defined and
+        system.timezone is defined and
+        'auto' not in system.timezone | lower
+     else ansible_local.timezone
+        if ansible_local is defined and
+            ansible_local.timezone is defined and
+            ansible_local.timezone | trim | length > 0
+     else 'UTC' }}"
 
 ################################
 # Network
@@ -175,12 +175,12 @@ traefik_host: "{{ traefik_subdomain + dns_record_suffix + '.' + traefik_domain }
 ################################
 
 docker_volumes_downloads_nzbs: "{{ [downloads.nzbs + ':/downloads/nzbs']
-                                    if nzbs_downloads_path_is_defined
-                                    else [] }}"
+                                if nzbs_downloads_path_is_defined
+                                else [] }}"
 
 docker_volumes_downloads_torrents: "{{ [downloads.torrents + ':/downloads/torrents']
-                                        if torrents_downloads_path_is_defined
-                                        else [] }}"
+                                    if torrents_downloads_path_is_defined
+                                    else [] }}"
 
 docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volumes_downloads_torrents }}"
 
@@ -199,9 +199,9 @@ docker_labels_traefik:
   - '{ "traefik.http.services.{{ traefik_subdomain }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
-                                    if (traefik_role_enabled)
-                                    else
-                                    docker_labels_saltbox }}"
+                       if (traefik_role_enabled)
+                       else
+                          docker_labels_saltbox }}"
 
 docker_networks_name_common: saltbox
 
