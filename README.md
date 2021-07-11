@@ -1,6 +1,5 @@
 # Saltbox
-[![Website:](https://img.shields.io/badge/website-https%3A%2F%2Fsaltbox.dev-blue)](https://saltbox.dev)
-[![Wiki:](https://img.shields.io/badge/wiki-https%3A%2F%2Fwiki.saltbox.dev/Saltbox-blue)](https://wiki.saltbox.dev/Saltbox)
+[![Docs:](https://img.shields.io/badge/docs-docs.saltbox.dev-blue)](https://docs.saltbox.dev)
 [![Contributors:](https://img.shields.io/github/contributors/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/graphs/contributors)
 [![Lines of Code:](https://img.shields.io/tokei/lines/github/saltyorg/Saltbox)](https://github.com/saltyorg/Saltbox)
 [![Issues:](https://img.shields.io/github/issues/saltyorg/Saltbox?color=blue)](https://github.com/saltyorg/Saltbox/issues)
@@ -13,7 +12,11 @@ Saltbox is an Ansible-based solution for rapidly deploying a Docker containerize
 
 This project was designed for x64 machines running Ubuntu Server 20.04.
 
-Featured Applications:
+### Documentation
+
+- [Docs](https://docs.saltbox.dev) (WIP)
+
+### Featured Applications
 
 - Plex
 - Emby

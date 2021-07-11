@@ -1,13 +1,13 @@
 ---
 backup:
   local:
-    enable: yes
+    enable: true
     destination: /mnt/local/Backups/Saltbox
   rclone:
-    enable: yes
+    enable: true
     destination: google:/Backups/Saltbox
   rsync:
-    enable: no
+    enable: false
     destination: rsync://somehost.com/Backups/Saltbox
     port: 22
   cron:

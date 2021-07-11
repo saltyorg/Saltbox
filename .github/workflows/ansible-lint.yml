@@ -1,6 +1,27 @@
 name: Lint
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - '*.sh'
+      - '*.j2'
+      - '*.conf'
+      - '*.py'
+      - '*.json'
+      - '*.ini'
+      - '.gitignore'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - '*.sh'
+      - '*.j2'
+      - '*.conf'
+      - '*.py'
+      - '*.json'
+      - '*.ini'
+      - '.gitignore'
+  workflow_dispatch:
 
 jobs:
   ansible-lint:
