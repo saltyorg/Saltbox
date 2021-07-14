@@ -20,7 +20,7 @@
     image: "tecnativa/docker-socket-proxy"
     pull: true
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     env:
       CONTAINERS: "1"
     networks:
@@ -34,5 +34,5 @@
     container_default_behavior: compatibility
     purge_networks: true
     restart_policy: unless-stopped
-    privileged: yes
+    privileged: true
     state: started

@@ -39,4 +39,4 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 - Plex Patrol
 - and more...
 
-If you find this project helpful, feel free to make a small [donation](DONATIONS.md) to the developers.
+If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
