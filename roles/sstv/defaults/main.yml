@@ -32,7 +32,7 @@ sstv_web_domain: "{{ user.domain }}"
 sstv_web_port: "1411"
 sstv_web_url: "{{ 'https://' + sstv_web_subdomain + '.' + sstv_web_domain
               if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + sstv_web_port }}
+              else 'http://localhost:' + sstv_web_port }}"
 
 ################################
 # DNS
