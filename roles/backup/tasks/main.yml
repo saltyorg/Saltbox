@@ -68,12 +68,15 @@
       path: "{{ backup.local.destination }}.old"
       state: absent
 
-  # Use mv because Ansible copy & delete takes a lot longer.
-  - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
-    shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
-    become: true
-    become_user: "{{ user.name }}"
-    when: dir_files.matched|int != 0
+  - name: Move previous backup if it exists locally
+    block:
+      # Use mv because Ansible copy & delete takes a lot longer.
+      - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
+        shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
+        become: true
+        become_user: "{{ user.name }}"
+        when: dir_files.matched|int != 0
+    when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
   - name: "Create backup folders."
     file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
