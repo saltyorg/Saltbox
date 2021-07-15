@@ -44,8 +44,8 @@ plex_web_subdomain: "{{ plex_name }}"
 plex_web_domain: "{{ user.domain }}"
 plex_web_port: "32400"
 plex_web_url: "{{ 'https://' + plex_web_subdomain + '.' + plex_web_domain
-              if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + plex_web_port }}"
+               if (reverse_proxy_is_enabled)
+               else 'http://localhost:' + plex_web_port }}"
 
 ################################
 # DNS

@@ -31,8 +31,8 @@ sonarr_web_subdomain: "{{ sonarr_name }}"
 sonarr_web_domain: "{{ user.domain }}"
 sonarr_web_port: "8989"
 sonarr_web_url: "{{ 'https://' + sonarr_web_subdomain + '.' + sonarr_web_domain
-              if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + sonarr_web_port }}"
+                 if (reverse_proxy_is_enabled)
+                 else 'http://localhost:' + sonarr_web_port }}"
 
 ################################
 # DNS

@@ -30,8 +30,8 @@ nginx_web_subdomain: "web"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
 nginx_web_url: "{{ 'https://' + nginx_web_subdomain + '.' + nginx_web_domain
-              if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + nginx_web_port }}"
+                if (reverse_proxy_is_enabled)
+                else 'http://localhost:' + nginx_web_port }}"
 
 ################################
 # DNS

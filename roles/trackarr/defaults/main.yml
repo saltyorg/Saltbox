@@ -31,8 +31,8 @@ trackarr_web_subdomain: "{{ trackarr_name }}"
 trackarr_web_domain: "{{ user.domain }}"
 trackarr_web_port: "7337"
 trackarr_web_url: "{{ 'https://' + trackarr_web_subdomain + '.' + trackarr_web_domain
-              if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + trackarr_web_port }}"
+                   if (reverse_proxy_is_enabled)
+                   else 'http://localhost:' + trackarr_web_port }}"
 
 ################################
 # DNS

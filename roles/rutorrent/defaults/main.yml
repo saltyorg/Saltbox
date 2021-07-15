@@ -43,8 +43,8 @@ rutorrent_web_subdomain: "{{ rutorrent_name }}"
 rutorrent_web_domain: "{{ user.domain }}"
 rutorrent_web_port: "80"
 rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain
-              if (reverse_proxy_is_enabled)
-              else 'http://localhost:' + rutorrent_web_port }}"
+                    if (reverse_proxy_is_enabled)
+                    else 'http://localhost:' + rutorrent_web_port }}"
 
 ################################
 # DNS
