@@ -19,10 +19,8 @@ netdata_name: netdata
 
 netdata_paths_folder: "{{ netdata_name }}"
 netdata_paths_location: "{{ server_appdata_path }}/{{ netdata_paths_folder }}"
-netdata_paths_downloads_location: "{{ downloads.nzbs }}/{{ netdata_paths_folder }}"
 netdata_paths_folders_list:
   - "{{ netdata_paths_location }}"
-netdata_paths_config_override_location: "{{ netdata_paths_location }}/override"
 
 ################################
 # Web
@@ -69,8 +67,8 @@ netdata_docker_ports_defaults:
 netdata_docker_ports_custom: []
 netdata_docker_ports: "{{ netdata_docker_ports_defaults
                           + netdata_docker_ports_custom
-                      if (not reverse_proxy_is_enabled)
-                      else [] + netdata_docker_ports_custom }}"
+                       if (not reverse_proxy_is_enabled)
+                       else [] + netdata_docker_ports_custom }}"
 
 # Envs
 netdata_docker_envs_default:
@@ -78,17 +76,15 @@ netdata_docker_envs_default:
   DOCKER_HOST: "tcp://docker-socket-proxy:2375"
 netdata_docker_envs_custom: {}
 netdata_docker_envs: "{{ netdata_docker_envs_default
-                          | combine(netdata_docker_envs_custom) }}"
+                         | combine(netdata_docker_envs_custom) }}"
 
 # Commands
 netdata_docker_commands_default: []
 netdata_docker_commands_custom: []
 netdata_docker_commands: "{{ netdata_docker_commands_default
-                              + netdata_docker_commands_custom}}"
+                             + netdata_docker_commands_custom}}"
 
 # Volumes
-netdata_docker_volumes_config_override:
-  - "{{ netdata_paths_config_override_location }}:/etc/netdata/override:ro"
 netdata_docker_volumes_default:
   - "/etc/passwd:/host/etc/passwd:ro"
   - "/etc/group:/host/etc/group:ro"
@@ -117,8 +113,8 @@ netdata_docker_labels_default:
   traefik.http.middlewares.netdata-auth.basicauth.usersfile: "{{ netdata_auth }}"
 netdata_docker_labels_custom: {}
 netdata_docker_labels: "{{ docker_labels_common
-                            | combine(netdata_docker_labels_default)
-                            | combine(netdata_docker_labels_custom) }}"
+                           | combine(netdata_docker_labels_default)
+                           | combine(netdata_docker_labels_custom) }}"
 
 # Hostname
 netdata_docker_hostname: "{{ netdata_name }}"
@@ -128,15 +124,15 @@ netdata_docker_networks_alias: "{{ netdata_name }}"
 netdata_docker_networks_default: []
 netdata_docker_networks_custom: []
 netdata_docker_networks: "{{ docker_networks_common
-                              + netdata_docker_networks_default
-                              + netdata_docker_networks_custom }}"
+                             + netdata_docker_networks_default
+                             + netdata_docker_networks_custom }}"
 
 # Capabilities
 netdata_docker_capabilities_default:
   - SYS_PTRACE
 netdata_docker_capabilities_custom: []
 netdata_docker_capabilities: "{{ netdata_docker_capabilities_default
-                                  + netdata_docker_capabilities_custom }}"
+                                 + netdata_docker_capabilities_custom }}"
 
 # Security Opts
 netdata_docker_security_opts_default:
