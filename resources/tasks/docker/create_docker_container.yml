@@ -10,8 +10,8 @@
 - name: Resources | Tasks | Docker | Create Docker Container | Set '_var_prefix' variable
   set_fact:
     _var_prefix: "{{ var_prefix
-                      if (var_prefix is defined)
-                      else role_name }}"
+                  if (var_prefix is defined)
+                  else role_name }}"
 
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container
   docker_container:
