@@ -67,7 +67,6 @@
             tls_hostname: localhost
             state: "stopped"
 
-
           when: (plex_docker_container in docker_running_containers_list)
 
       when: ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
@@ -151,9 +150,9 @@
         - ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)
 
-  when:
-    - (not plex_plugin_webtools_bundle_status.stat.exists) or ((plex_plugin_webtools_bundle_status.stat.exists)
-    - (plex_plugin_webtools_is_outdated)) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
+  when: (not plex_plugin_webtools_bundle_status.stat.exists) or
+        ((plex_plugin_webtools_bundle_status.stat.exists) and (plex_plugin_webtools_is_outdated)) or
+        ('plex-plugin-webtools-reinstall' in ansible_run_tags)
 
 - name: WebTools Plugin was not updated
   debug:
