@@ -157,13 +157,13 @@
       docker_container:
         name: "{{ plex_docker_container }}"
         state: "{{ plex_docker_state }}"
-      when:
-        - ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
-        - (plex_docker_container in docker_running_containers_list)
+      when: ('plex-plugin-sub-zero' in ansible_run_tags) or
+            ('plex-plugin-sub-zero-reinstall' in ansible_run_tags) or
+            (plex_docker_container in docker_running_containers_list)
 
-  when:
-    - (not plex_plugin_subzero_bundle_status.stat.exists) or ((plex_plugin_subzero_bundle_status.stat.exists)
-    - (plex_plugin_subzero_is_outdated)) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
+  when: (not plex_plugin_subzero_bundle_status.stat.exists) or
+        ((plex_plugin_subzero_bundle_status.stat.exists) and (plex_plugin_subzero_is_outdated)) or
+        ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
 
 - name: Sub-Zero Plugin was not updated
   debug:
