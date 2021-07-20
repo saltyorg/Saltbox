@@ -54,11 +54,12 @@ rclone_vfs_mount_start_command: |-
     --vfs-read-chunk-size=64M \
     --vfs-read-chunk-size-limit=2048M \
     --buffer-size=64M \
-    --poll-interval=1m \
-    --dir-cache-time=168h \
+    --poll-interval=15s \
+    --dir-cache-time=1000h \
     --timeout=10m \
     --drive-chunk-size=64M \
     --drive-pacer-min-sleep=10ms \
+    --drive-pacer-burst=1000 \
     --umask=002 \
     --syslog \
     -v \
@@ -100,6 +101,7 @@ rclone_vfs_cache_mount_start_command: |-
     --timeout=10m \
     --drive-skip-gdocs \
     --drive-pacer-min-sleep=10ms \
+    --drive-pacer-burst=1000 \
     --umask=002 \
     --syslog \
     -v \
