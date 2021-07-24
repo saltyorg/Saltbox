@@ -1,0 +1,21 @@
+##################################################################################
+# Title:         Saltbox: Resources | Tasks | Docker | Start Docker Container    #
+# Author(s):     salty                                                           #
+# URL:           https://github.com/saltyorg/Saltbox                             #
+# --                                                                             #
+##################################################################################
+#                   GNU General Public License v3.0                              #
+##################################################################################
+---
+- name: Resources | Tasks | Docker | Start Docker Container | Set '_var_prefix' variable
+  set_fact:
+    _var_prefix: "{{ var_prefix
+                  if (var_prefix is defined)
+                  else role_name }}"
+
+- name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
+  docker_container:
+    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    state: started
+    container_default_behavior: compatibility
+    tls_hostname: localhost

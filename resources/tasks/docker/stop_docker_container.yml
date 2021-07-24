@@ -1,0 +1,23 @@
+##################################################################################
+# Title:         Saltbox: Resources | Tasks | Docker | Stop Docker Container     #
+# Author(s):     salty                                                           #
+# URL:           https://github.com/saltyorg/Saltbox                             #
+# --                                                                             #
+##################################################################################
+#                   GNU General Public License v3.0                              #
+##################################################################################
+---
+- name: Resources | Tasks | Docker | Stop Docker Container | Set '_var_prefix' variable
+  set_fact:
+    _var_prefix: "{{ var_prefix
+                  if (var_prefix is defined)
+                  else role_name }}"
+
+- name: Resources | Tasks | Docker | Stop Docker Container | Stop Docker Container
+  docker_container:
+    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    state: stopped
+    container_default_behavior: compatibility
+    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    tls_hostname: localhost
