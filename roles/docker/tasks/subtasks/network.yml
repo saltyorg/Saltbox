@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Docker | Network Tasks                        #
-# Author(s):     desimaniac, l3uddz                                     #
+# Author(s):     desimaniac, l3uddz, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -13,21 +13,35 @@
   changed_when: false
 
 - name: Network | Get saltbox docker network gateway
-  shell: docker network inspect saltbox -f '{{ '{{' }}range .IPAM.Config{{ '}}' }}{{ '{{' }}.Gateway{{ '}}' }}{{ '{{' }}end{{ '}}' }}'
-  register: docker_gateway
+  shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
+  register: docker_ipv6
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
 - name: "Network | Create new saltbox docker network block"
   block:
 
-  - name: Create saltbox network
-    docker_network:
-      name: saltbox
-      state: present
+    - name: Create saltbox network
+      docker_network:
+        name: saltbox
+        state: present
+        enable_ipv6: true
+        ipam_config:
+          - subnet: 172.19.0.0/16
+          - subnet: fd00:dead:beef::/48
 
-  when: ('saltbox' not in docker_networks_list.stdout_lines)
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and (dns.ipv6)
 
-# Migrate Legacy Setups
+- name: "Network | Create new saltbox docker network block"
+  block:
+
+    - name: Create saltbox network
+      docker_network:
+        name: saltbox
+        state: present
+
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not dns.ipv6)
+
+# Migrate to IPv6
 
 - name: "Network | Rebuild existing saltbox docker network block"
   block:
@@ -48,7 +62,10 @@
       docker_network:
         name: saltbox
         state: present
-        force: true
+        enable_ipv6: true
+        ipam_config:
+          - subnet: 172.19.0.0/16
+          - subnet: fd00:dead:beef::/48
 
     - name: Network | Connect containers to saltbox network
       shell: docker network connect saltbox {{ item }} --alias {{ item }}
@@ -57,7 +74,38 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_gateway.stdout == '172.18.0.254')
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'false')
+
+# Migrate to IPv4
+
+- name: "Network | Rebuild existing saltbox docker network block"
+  block:
+
+    - name: Network | Get list of containers on saltbox network
+      shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
+      register: docker_containers
+      changed_when: false
+
+    - name: Network | Disconnect containers from bridge network
+      shell: docker network disconnect -f bridge {{ item }}
+      with_items: "{{ docker_containers.stdout_lines }}"
+      register: r
+      failed_when: r.rc > 1
+      ignore_errors: true
+
+    - name: Network | Rebuild saltbox network
+      docker_network:
+        name: saltbox
+        state: present
+
+    - name: Network | Connect containers to saltbox network
+      shell: docker network connect saltbox {{ item }} --alias {{ item }}
+      with_items: "{{ docker_containers.stdout_lines }}"
+      register: q
+      failed_when: q.rc > 1
+      ignore_errors: true
+
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'true')
 
 - name: Unset variables
   set_fact:

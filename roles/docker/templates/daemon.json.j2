@@ -3,5 +3,6 @@
     "userland-proxy": false,
     "log-driver": "json-file",
     "init": true,
+    "ipv6": {{ 'true' if dns.ipv6 else 'false' }},
     "log-opts": {"max-size": "10m", "max-file": "3"}
 }
