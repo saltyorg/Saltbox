@@ -98,6 +98,15 @@
 - name: "Network | Rebuild existing saltbox docker network block"
   block:
 
+    - name: Network | Remove IPv6 NAT Container
+      docker_container:
+        name: "ipv6nat"
+        state: absent
+        container_default_behavior: compatibility
+        timeout: "180"
+        stop_timeout: "180"
+        tls_hostname: localhost
+
     - name: Network | Get list of containers on saltbox network
       shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
@@ -109,15 +118,6 @@
       register: r
       failed_when: r.rc > 1
       ignore_errors: true
-
-    - name: Network | Remove IPv6 NAT Container
-      docker_container:
-        name: "ipv6nat"
-        state: absent
-        container_default_behavior: compatibility
-        timeout: "180"
-        stop_timeout: "180"
-        tls_hostname: localhost
 
     - name: Network | Rebuild saltbox network
       docker_network:
