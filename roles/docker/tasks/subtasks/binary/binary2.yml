@@ -17,7 +17,6 @@
     name: "{{ lookup('vars', item + '_package') }}"
     state: "{{ docker_package_state }}"
     update_cache: true
-    force: true
 
 - name: Binary | Put '{{ vars[item ~ '_dpkg'] }}' into hold
   dpkg_selections:
