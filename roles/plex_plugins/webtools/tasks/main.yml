@@ -138,9 +138,8 @@
     - name: WebTools Plugin install failed
       debug:
         msg: "WebTools Plugin install failed."
-      when:
-        - (plex_plugin_webtools_download_status is failed) or ((plex_plugin_webtools_download_status is success)
-        - (not plex_plugin_webtools_version_status.stat.exists))
+      when: (plex_plugin_webtools_download_status is failed) or
+            ((plex_plugin_webtools_download_status is success) and (not plex_plugin_webtools_version_status.stat.exists))
 
     - name: Start {{ plex_name | title }} container
       docker_container:
