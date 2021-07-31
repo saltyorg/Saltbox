@@ -17,33 +17,6 @@
   register: docker_ipv6
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
-- name: Network | Remove IPv6 NAT Container
-  docker_container:
-    name: "ipv6nat"
-    state: absent
-    container_default_behavior: compatibility
-    timeout: "180"
-    stop_timeout: "180"
-    tls_hostname: localhost
-
-- name: Network | Create IPv6 NAT Container
-  docker_container:
-    name: "ipv6nat"
-    image: "robbertkl/ipv6nat"
-    pull: "yes"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/lib/modules:/lib/modules:ro"
-    hostname: "ipv6nat"
-    networks_cli_compatible: true
-    purge_networks: true
-    network_mode: "host"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    restart_policy: "unless-stopped"
-    privileged: yes
-  when: dns.ipv6
-
 - name: "Network | Create new IPv6 saltbox docker network block"
   block:
 
