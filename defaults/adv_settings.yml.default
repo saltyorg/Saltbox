@@ -1,6 +1,6 @@
 ---
 system:
-  timezone: auto
+  timezone: UTC
 dns:
   enabled: yes
   proxied: no
