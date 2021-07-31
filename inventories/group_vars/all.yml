@@ -114,7 +114,12 @@ vgid: "{{ ansible_local.group.video.gid }}"
 
 tz: "{{ system.timezone
      if system is defined and
-        system.timezone is defined
+        system.timezone is defined and
+        'auto' not in system.timezone | lower
+     else ansible_local.timezone
+        if ansible_local is defined and
+            ansible_local.timezone is defined and
+            ansible_local.timezone | trim | length > 0
      else 'UTC' }}"
 
 ################################
@@ -126,8 +131,6 @@ ip_address_host: "0.0.0.0"
 ip_address_localhost: "127.0.0.1"
 
 ip_address_public: "{{ ansible_local.network.ip.public_ip | default(ansible_default_ipv4.address) }}"
-
-ip_address_public_ipv6: "{{ ansible_default_ipv6.address | default(omit) }}"
 
 ################################
 # Reverse Proxy
@@ -222,7 +225,6 @@ backup_rclone_drive_chunk_size: 128M
 
 reverse_proxy_apps:
   - traefik
-  - authelia
 
 torrent_apps:
   - deluge
