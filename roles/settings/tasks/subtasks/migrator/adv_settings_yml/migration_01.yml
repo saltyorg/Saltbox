@@ -40,32 +40,6 @@
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   set_fact:
-    old_settings: "{{ false if not(
-        (system is undefined)
-        or
-        (system is none)
-        or
-        (system | trim | length == 0)
-        or
-        (system.timezone is undefined)
-        or
-        (system.timezone is none)
-        or
-        (system.timezone | trim | length == 0)
-        or
-        (system.timezone == 'auto')
-      )
-        else true }}"
-
-- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'system.timezone' dict
-  shell: |
-    yyq w -i {{ playbook_dir }}/{{ file }} system.timezone UTC
-  become: true
-  become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: old_settings
-
-- name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  set_fact:
     traefik_tls_settings: "{{ true if not(
         (traefik is undefined)
         or
