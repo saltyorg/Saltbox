@@ -17,7 +17,34 @@
   register: docker_ipv6
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
-- name: "Network | Create new saltbox docker network block"
+- name: Network | Remove IPv6 NAT Container
+  docker_container:
+    name: "ipv6nat"
+    state: absent
+    container_default_behavior: compatibility
+    timeout: "180"
+    stop_timeout: "180"
+    tls_hostname: localhost
+
+- name: Network | Create IPv6 NAT Container
+  docker_container:
+    name: "ipv6nat"
+    image: "robbertkl/ipv6nat"
+    pull: "yes"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/lib/modules:/lib/modules:ro"
+    hostname: "ipv6nat"
+    networks_cli_compatible: true
+    purge_networks: true
+    network_mode: "host"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+    restart_policy: "unless-stopped"
+    privileged: yes
+  when: dns.ipv6
+
+- name: "Network | Create new IPv6 saltbox docker network block"
   block:
 
     - name: Create saltbox network
@@ -31,7 +58,7 @@
 
   when: ('saltbox' not in docker_networks_list.stdout_lines) and (dns.ipv6)
 
-- name: "Network | Create new saltbox docker network block"
+- name: "Network | Create new IPv4 saltbox docker network block"
   block:
 
     - name: Create saltbox network
@@ -41,9 +68,7 @@
 
   when: ('saltbox' not in docker_networks_list.stdout_lines) and (not dns.ipv6)
 
-# Migrate to IPv6
-
-- name: "Network | Rebuild existing saltbox docker network block"
+- name: "Network | Migrating existing saltbox docker network block to IPv6"
   block:
 
     - name: Network | Get list of containers on saltbox network
@@ -57,23 +82,6 @@
       register: r
       failed_when: r.rc > 1
       ignore_errors: true
-
-    - name: Network | Create IPv6 NAT Container
-      docker_container:
-        name: "ipv6nat"
-        image: "robbertkl/ipv6nat"
-        pull: "yes"
-        volumes:
-          - "/var/run/docker.sock:/var/run/docker.sock:ro"
-          - "/lib/modules:/lib/modules:ro"
-        hostname: "ipv6nat"
-        networks_cli_compatible: true
-        purge_networks: true
-        network_mode: "host"
-        container_default_behavior: compatibility
-        tls_hostname: localhost
-        restart_policy: "unless-stopped"
-        privileged: yes
 
     - name: Network | Rebuild saltbox network
       docker_network:
@@ -91,21 +99,10 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'false')
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (not docker_ipv6.stdout) and (dns.ipv6)
 
-# Migrate to IPv4
-
-- name: "Network | Rebuild existing saltbox docker network block"
+- name: "Network | Migrating existing saltbox docker network block to IPv4"
   block:
-
-    - name: Network | Remove IPv6 NAT Container
-      docker_container:
-        name: "ipv6nat"
-        state: absent
-        container_default_behavior: compatibility
-        timeout: "180"
-        stop_timeout: "180"
-        tls_hostname: localhost
 
     - name: Network | Get list of containers on saltbox network
       shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
@@ -131,7 +128,7 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'true')
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout) and (not dns.ipv6)
 
 - name: Unset variables
   set_fact:

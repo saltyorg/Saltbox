@@ -4,5 +4,6 @@
     "log-driver": "json-file",
     "init": true,
     "ipv6": {{ 'true' if dns.ipv6 else 'false' }},
+    "fixed-cidr-v6": "2001:db8::/64",
     "log-opts": {"max-size": "10m", "max-file": "3"}
 }
