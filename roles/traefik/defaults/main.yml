@@ -32,6 +32,14 @@ traefik_metrics_subdomain: "metrics"
 traefik_metrics_domain: "{{ user.domain }}"
 
 ################################
+# Logging
+################################
+
+traefik_log: false
+traefik_access_log: false
+traefik_access_buffer: 100
+
+################################
 # DNS
 ################################
 
@@ -97,12 +105,12 @@ traefik_docker_commands_default:
   - "--entrypoints.websecure.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,172.64.0.0/13,131.0.72.0/22,104.16.0.0/13,104.24.0.0/14,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32"
   - "--api.dashboard=true"
   - "--api=true"
-  - "--log=false"
+  - "--log={{ traefik_log }}"
   - "--log.level=INFO"
   - "--log.filePath=/etc/traefik/traefik.log"
-  - "--accessLog=true"
+  - "--accessLog={{ traefik_access_log }}"
   - "--accessLog.filePath=/etc/traefik/access.log"
-  - "--accessLog.bufferingSize=100"
+  - "--accessLog.bufferingSize={{ traefik_access_buffer }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.provider=cloudflare"
   - "{{ '--certificatesresolvers.cfdns.acme.email=' + user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
