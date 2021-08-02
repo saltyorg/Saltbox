@@ -98,6 +98,7 @@ traefik_docker_commands_default:
   - "--providers.file.directory=/etc/traefik"
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
+  - "--providers.docker.endpoint=tcp://docker-socket-proxy:2375"
   - "--entrypoints.web.address=:80"
   - "--entrypoints.websecure.address=:443"
   - "--entryPoints.websecure.forwardedHeaders.insecure"
@@ -132,7 +133,6 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
 
 # Volumes
 traefik_docker_volumes_default:
-  - "/var/run/docker.sock:/var/run/docker.sock:ro"
   - "{{ traefik_paths_location }}:/etc/traefik"
 traefik_docker_volumes_custom: []
 traefik_docker_volumes: "{{ traefik_docker_volumes_default
@@ -225,3 +225,6 @@ traefik_docker_restart_policy: unless-stopped
 
 # State
 traefik_docker_state: started
+
+# User
+traefik_docker_user: "{{ uid }}:{{ gid }}"
