@@ -39,7 +39,6 @@
       - path: "traefik"
         content: |
           /opt/traefik/*.log {
-              weekly
               rotate 5
               size 10M
               missingok
