@@ -57,7 +57,7 @@ rutorrent_dns_zone: "{{ rutorrent_web_domain }}"
 # Traefik
 ################################
 
-rutorrent_traefik_middleware: "secureHeaders@file,gzip,rutorrent-auth"
+rutorrent_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip,rutorrent-auth"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
 rutorrent_auth: "/etc/traefik/auth"

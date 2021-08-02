@@ -21,8 +21,13 @@ http:
         stsIncludeSubdomains: true
         contentTypeNosniff: true
         browserXssFilter: true
+
+    customRequestHeaders:
+      headers:
         customRequestHeaders:
           X-Script-Name: "X-Robots-Tag=noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex"
           X-Forwarded-Proto: "https"
+    customResponseHeaders:
+      headers:
         customResponseHeaders:
           X-Custom-Response-Header: "X-Robots-Tag=noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex"

@@ -45,7 +45,7 @@ overseerr_dns_zone: "{{ overseerr_web_domain }}"
 # Traefik
 ################################
 
-overseerr_traefik_middleware: "secureHeaders@file,gzip"
+overseerr_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip"
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 overseerr_traefik_enabled: true
 

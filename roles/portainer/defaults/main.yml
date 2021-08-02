@@ -44,7 +44,7 @@ portainer_dns_zone: "{{ portainer_web_domain }}"
 # Traefik
 ################################
 
-portainer_traefik_middleware: "secureHeaders@file,gzip"
+portainer_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip"
 portainer_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_traefik_enabled: true
 
