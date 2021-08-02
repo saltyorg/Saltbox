@@ -45,7 +45,7 @@ sonarr_dns_zone: "{{ sonarr_web_domain }}"
 # Traefik
 ################################
 
-sonarr_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip"
+sonarr_traefik_middleware: "secureHeaders@file,gzip"
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_traefik_enabled: true
 

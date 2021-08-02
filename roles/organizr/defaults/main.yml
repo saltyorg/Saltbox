@@ -44,7 +44,7 @@ organizr_dns_zone: "{{ organizr_web_domain }}"
 # Traefik
 ################################
 
-organizr_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip"
+organizr_traefik_middleware: "secureHeaders@file,gzip"
 organizr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 organizr_traefik_enabled: true
 

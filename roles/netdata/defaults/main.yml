@@ -46,7 +46,7 @@ netdata_dns_zone: "{{ netdata_web_domain }}"
 # Traefik
 ################################
 
-netdata_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip,netdata-auth"
+netdata_traefik_middleware: "secureHeaders@file,gzip,netdata-auth"
 netdata_traefik_certresolver: "{{ traefik_default_certresolver }}"
 netdata_traefik_enabled: true
 netdata_auth: "/etc/traefik/auth"

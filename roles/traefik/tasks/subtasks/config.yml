@@ -9,7 +9,7 @@
 ---
 - name: "Import 'dynamic.yml'"
   template:
-    src: dynamic.yml
+    src: dynamic.yml.j2
     dest: "{{ traefik_paths_location }}/dynamic.yml"
     force: true
     owner: "{{ user.name }}"

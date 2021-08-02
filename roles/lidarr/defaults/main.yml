@@ -45,7 +45,7 @@ lidarr_dns_zone: "{{ lidarr_web_domain }}"
 # Traefik
 ################################
 
-lidarr_traefik_middleware: "secureHeaders@file,customRequestHeaders@file,customResponseHeaders@file,gzip"
+lidarr_traefik_middleware: "secureHeaders@file,gzip"
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
 
