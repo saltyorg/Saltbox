@@ -15,9 +15,13 @@ http:
   middlewares:
     secureHeaders:
       headers:
-        accessControlAllowMethods: "GET, OPTIONS, PUT"
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
         accessControlMaxAge: 100
-        hostsProxyHeaders: "X-Forwarded-Host"
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
         sslRedirect: true
         stsSeconds: 63072000
         stsIncludeSubdomains: true
