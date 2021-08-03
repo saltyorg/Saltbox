@@ -165,6 +165,7 @@ traefik_docker_labels_default:
   traefik.http.routers.redirs.middlewares: "redirect-to-https"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
   traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+  traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
   traefik.http.middlewares.gzip.compress: "true"
 
 traefik_docker_labels_cloudflare_validation:
