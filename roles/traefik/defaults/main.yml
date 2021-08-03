@@ -107,7 +107,7 @@ traefik_docker_commands_default:
   - "--api.dashboard=true"
   - "--api=true"
   - "--log={{ traefik_log }}"
-  - "--log.level=INFO"
+  - "--log.level=ERROR"
   - "--log.filePath=/etc/traefik/traefik.log"
   - "--accessLog={{ traefik_access_log }}"
   - "--accessLog.filePath=/etc/traefik/access.log"
@@ -158,7 +158,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
-  traefik.http.routers.traefik.middlewares: "traefik-auth,gzip"
+  traefik.http.routers.traefik.middlewares: "secureHeaders@file,traefik-auth,gzip"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.routers.redirs.rule: "hostregexp(`{host:.+}`)"
   traefik.http.routers.redirs.entrypoints: "web"
@@ -180,7 +180,7 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
-  traefik.http.routers.metrics.middlewares: "traefik-auth,gzip"
+  traefik.http.routers.metrics.middlewares: "secureHeaders@file,traefik-auth,gzip"
 
 traefik_docker_labels_custom: {}
 
