@@ -42,6 +42,9 @@
     - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
+    - { role: iperf3, tags: ['saltbox', 'mediabox', 'feederbox', 'iperf3'] }
+    - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
+    - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
     - { role: plex_auth_token, tags: ['plex_auth_token'] }
     - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }

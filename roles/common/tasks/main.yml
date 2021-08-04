@@ -63,12 +63,10 @@
       - "unzip"
       - "p7zip"
       - "curl"
-      - "httpie"
       - "sqlite3"
       - "tree"
       - "lsof"
       - "man-db"
-      - "ksmtuned"
       - "git"
       - "pwgen"
       - "rsync"
@@ -88,6 +86,7 @@
       - "jq"
       - "lib32z1"
       - "moreutils"
+      - "unrar"
   ignore_errors: true
 
 - name: Install extra packages
@@ -111,12 +110,6 @@
   when:
     - (gpu.intel)
     - ('i915' in lscpi_resp.stdout)
-
-- name: Install 'unrar'
-  apt:
-    name: unrar
-    state: present
-  ignore_errors: true
 
 - name: Check to see if 'unrar' installed
   stat:
@@ -146,54 +139,11 @@
       - certbot
       - ndg-httpsclient
       - yq
+      - apprise
+      - dnspython
+      - lxml
+      - jmespath
+      - passlib
+      - PyMySQL
     executable: pip3
-  ignore_errors: true
-
-- name: Install pip3 modules needed by Ansible via raw method
-  raw: "pip3 install {{ item }}"
-  loop:
-    - apprise
-    - dnspython
-    - lxml
-    - jmespath
-    - passlib
-    - PyMySQL
-  ignore_errors: true
-
-- name: Uninstall apt 'glances'
-  apt:
-    name: glances
-    state: absent
-  ignore_errors: true
-  tags: glances
-
-- name: Install pip 'glances'
-  shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
-  ignore_errors: true
-  tags: glances
-
-- name: Create glances directory
-  file: "path={{ item }} state=directory owner=root group=root mode=0775"
-  with_items:
-    - /etc/glances
-
-- name: Copy glances.conf if it doesn't exist
-  copy:
-    src: /usr/local/share/doc/glances/glances.conf
-    dest: /etc/glances/glances.conf
-    owner: root
-    group: root
-    mode: '0644'
-    force: false
-
-- name: Install 'iperf3'
-  import_role:
-    name: iperf3
-  tags: iperf3
-  ignore_errors: true
-
-- name: Install 'nethogs'
-  import_role:
-    name: nethogs
-  tags: nethogs
   ignore_errors: true

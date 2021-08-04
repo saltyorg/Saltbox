@@ -1,0 +1,34 @@
+#########################################################################
+# Title:         Saltbox: Glances Role                                  #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Uninstall apt 'glances'
+  apt:
+    name: glances
+    state: absent
+  ignore_errors: true
+  tags: glances
+
+- name: Install pip 'glances'
+  shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
+  ignore_errors: true
+  tags: glances
+
+- name: Create glances directory
+  file: "path={{ item }} state=directory owner=root group=root mode=0775"
+  with_items:
+    - /etc/glances
+
+- name: Copy glances.conf if it doesn't exist
+  copy:
+    src: /usr/local/share/doc/glances/glances.conf
+    dest: /etc/glances/glances.conf
+    owner: root
+    group: root
+    mode: '0644'
+    force: false

@@ -26,5 +26,9 @@
     - 'docker_ce_cli'
 
 - name: Binary | Install 'docker' pip3 module
-  raw: pip3 install docker
+  pip:
+    state: present
+    name:
+      - docker
+    executable: pip3
   ignore_errors: true
