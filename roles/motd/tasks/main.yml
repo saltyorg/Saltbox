@@ -111,15 +111,11 @@
     mode: a+x
 
 - name: Import dynamic motd files
-  copy: "src=/opt/motd/motd/ dest=/etc/update-motd.d/ force=yes mode=0775"
-
-- name: Create symlink to dynamic motd
-  file:
-    src: /var/run/motd
-    dest: /etc/motd
-    state: link
+  copy:
+    src: /opt/motd/motd/
+    dest: /etc/update-motd.d/
     force: true
-    follow: false
+    mode: 0775
 
 - name: Check if '/etc/ssh/sshd_config' exists
   stat:
