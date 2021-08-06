@@ -7,7 +7,6 @@ dns:
   ipv6: no
 traefik:
   tls: no
-  api: no
   metrics: no
 mounts:
   remote: rclone_vfs
