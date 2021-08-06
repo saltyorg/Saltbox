@@ -27,11 +27,11 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         forceSTSHeader: true
-        customFrameOptionsValue: "allow-from https:{{ organizr_web_subdomain + '.' + organizr_web_domain }}"
+        customFrameOptionsValue: "allow-from https:{{ organizr_web_subdomain + dns_record_suffix + '.' + organizr_web_domain }}"
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "same-origin"
-        featurePolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';"
+        featurePolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none';"
         sslProxyHeaders:
           X-Forwarded-Proto: https
         customResponseHeaders:

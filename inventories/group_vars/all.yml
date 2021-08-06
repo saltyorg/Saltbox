@@ -232,4 +232,5 @@ torrent_apps:
   - qbittorrent
   - qbittorrentvpn
   - rutorrent
+  - transmission
   - transmissionvpn

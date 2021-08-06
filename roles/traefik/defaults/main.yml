@@ -28,6 +28,8 @@ traefik_paths_folders_list:
 
 traefik_web_subdomain: "dash"
 traefik_web_domain: "{{ user.domain }}"
+traefik_api_subdomain: "api"
+traefik_api_domain: "{{ user.domain }}"
 traefik_metrics_subdomain: "metrics"
 traefik_metrics_domain: "{{ user.domain }}"
 
@@ -45,6 +47,8 @@ traefik_access_buffer: 100
 
 traefik_dns_record: "{{ traefik_web_subdomain }}"
 traefik_dns_zone: "{{ traefik_web_domain }}"
+traefik_api_record: "{{ traefik_api_subdomain }}"
+traefik_api_zone: "{{ traefik_api_domain }}"
 traefik_metrics_dns_record: "{{ traefik_metrics_subdomain }}"
 traefik_metrics_dns_zone: "{{ traefik_metrics_domain }}"
 
@@ -99,17 +103,20 @@ traefik_docker_commands_default:
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.web.address=:80"
+  - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+  - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
   - "--entrypoints.websecure.address=:443"
-  - "--entryPoints.websecure.forwardedHeaders.insecure"
-  - "--entryPoints.websecure.proxyProtocol.insecure"
+  - "--entrypoints.websecure.forwardedheaders.insecure"
+  - "--entrypoints.websecure.proxyprotocol.insecure"
   - "--api.dashboard=true"
   - "--api=true"
   - "--log={{ traefik_log }}"
   - "--log.level=ERROR"
-  - "--log.filePath=/etc/traefik/traefik.log"
-  - "--accessLog={{ traefik_access_log }}"
-  - "--accessLog.filePath=/etc/traefik/access.log"
-  - "--accessLog.bufferingSize={{ traefik_access_buffer }}"
+  - "--log.filepath=/etc/traefik/traefik.log"
+  - "--accesslog={{ traefik_access_log }}"
+  - "--accesslog.filepath=/etc/traefik/access.log"
+  - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.provider=cloudflare"
   - "{{ '--certificatesresolvers.cfdns.acme.email=' + user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
@@ -118,8 +125,8 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_metrics:
   - "--metrics.prometheus=true"
-  - "--metrics.prometheus.addEntryPointsLabels=true"
-  - "--metrics.prometheus.addServicesLabels=true"
+  - "--metrics.prometheus.addentrypointslabels=true"
+  - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
@@ -159,12 +166,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.tls.options: "securetls@file"
   traefik.http.routers.traefik.middlewares: "secureHeaders@file,traefik-auth,gzip"
   traefik.http.routers.traefik.service: "api@internal"
-  traefik.http.routers.redirs.rule: "hostregexp(`{host:.+}`)"
-  traefik.http.routers.redirs.entrypoints: "web"
-  traefik.http.routers.redirs.middlewares: "redirect-to-https"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
-  traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
-  traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
   traefik.http.middlewares.gzip.compress: "true"
 
 traefik_docker_labels_cloudflare_validation:
@@ -174,6 +176,11 @@ traefik_docker_labels_cloudflare_validation:
 
 traefik_docker_labels_tls_validation:
   traefik.http.routers.traefik.tls.certresolver: "tlsresolver"
+
+traefik_docker_labels_api:
+  traefik.http.routers.api.rule: "Host(`{{ traefik_api_subdomain + dns_record_suffix }}.{{ traefik_api_domain }}`)"
+  traefik.http.routers.api.service: "api@internal"
+  traefik.http.routers.api.middlewares: "secureHeaders@file,traefik-auth,gzip"
 
 traefik_docker_labels_metrics:
   traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain + dns_record_suffix }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
@@ -188,6 +195,10 @@ traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validatio
                                    if not (traefik_tls)
                                    else traefik_docker_labels_tls_validation }}"
 
+traefik_docker_labels_api_temp: "{{ []
+                                     if not (traefik.api)
+                                     else traefik_docker_labels_api }}"
+
 traefik_docker_labels_metrics_temp: "{{ []
                                      if not (traefik.metrics)
                                      else traefik_docker_labels_metrics }}"
@@ -195,6 +206,7 @@ traefik_docker_labels_metrics_temp: "{{ []
 traefik_docker_labels: "{{ traefik_docker_labels_default
                            | combine(traefik_docker_labels_custom)
                            | combine(traefik_docker_labels_validation)
+                           | combine(traefik_docker_labels_api_temp)
                            | combine(traefik_docker_labels_metrics_temp) }}"
 
 # Hostname
