@@ -103,7 +103,9 @@
 - name: Migrate value of motd banner
   shell: |
     jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
-  when: motd_banner.stdout == '"Cloudbox"'
+  when:
+    - motd_config.stat.exists
+    - motd_banner.stdout == '"Cloudbox"'
 
 - name: Touch '/opt/motd/activity.log' file
   file:
