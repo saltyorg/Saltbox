@@ -95,6 +95,16 @@
     force: false
   when: (not motd_config.stat.exists)
 
+- name: Check value of motd banner
+  shell: "jq '.motd.banner_title' /opt/motd/config.json"
+  register: motd_banner
+  when: motd_config.stat.exists
+
+- name: Migrate value of motd banner
+  shell: |
+    jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
+  when: motd_banner.stdout == '"Cloudbox"'
+
 - name: Touch '/opt/motd/activity.log' file
   file:
     path: /opt/motd/activity.log
