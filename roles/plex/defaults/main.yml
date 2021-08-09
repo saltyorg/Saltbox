@@ -87,7 +87,7 @@ plex_docker_container: "{{ plex_name }}"
 # Image
 plex_docker_image_pull: true
 plex_docker_image_tag: "public"
-plex_docker_image: "cloudb0x/plex:{{ plex_docker_image_tag }}"
+plex_docker_image: "plexinc/pms-docker:{{ plex_docker_image_tag }}"
 
 # Ports
 plex_docker_ports_defaults:
@@ -112,7 +112,6 @@ plex_docker_envs_default:
   PLEX_GID: "{{ gid }}"
   PLEX_CLAIM: "{{ (plex_claim_code) | default(omit) }}"
   CHANGE_CONFIG_DIR_OWNERSHIP: "false"
-  HEALTHCHECK_MOUNT: /mnt/unionfs
   NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
