@@ -15,9 +15,10 @@
 
 - name: Resources | Tasks | Docker | Remove Docker Container | Remove Docker Container
   docker_container:
+    container_default_behavior: compatibility
+    force_kill: "{{ lookup('vars', _var_prefix + '_docker_force_kill', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: absent
-    container_default_behavior: compatibility
-    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost

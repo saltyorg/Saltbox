@@ -15,7 +15,7 @@
 
 - name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
   docker_container:
+    container_default_behavior: compatibility
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: started
-    container_default_behavior: compatibility
     tls_hostname: localhost

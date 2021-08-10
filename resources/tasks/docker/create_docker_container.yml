@@ -15,32 +15,32 @@
 
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container
   docker_container:
-    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
-    image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
-    pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
-    published_ports: "{{ lookup('vars', _var_prefix + '_docker_ports', default=omit) }}"
-    env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
+    cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
+    capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
     command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
-    volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
+    container_default_behavior: compatibility
+    default_host_ip: ""
     devices: "{{ lookup('vars', _var_prefix + '_docker_devices', default=omit) }}"
+    env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
-    labels: "{{ lookup('vars', _var_prefix + '_docker_labels') }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit) }}"
+    image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
+    labels: "{{ lookup('vars', _var_prefix + '_docker_labels') }}"
+    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    network_mode: "{{ docker_networks_name_common }}"
     networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
     networks_cli_compatible: true
+    pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
+    privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
+    published_ports: "{{ lookup('vars', _var_prefix + '_docker_ports', default=omit) }}"
+    pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
     purge_networks: true
-    network_mode: "{{ docker_networks_name_common }}"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
     restart_policy: "{{ lookup('vars', _var_prefix + '_docker_restart_policy', default='unless-stopped') }}"
     restart_retries: "{{ lookup('vars', _var_prefix + '_docker_restart_retries', default=omit) }}"
-    capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
-    cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
     security_opts: "{{ lookup('vars', _var_prefix + '_docker_security_opts', default=omit) }}"
-    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    state: started
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
-    privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
-    pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
-    state: "started"
-    default_host_ip: ""
+    volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
