@@ -11,14 +11,14 @@
 # Ansible Version
 ################################
 
-sanity_check_ansible_version_min: 2.11.0
+sanity_check_ansible_version_min: 4.4.0
 ansible_update: false
 
 ################################
 # Python Version
 ################################
 
-sanity_check_python_version_min: 3.6
+sanity_check_python_version_min: 3.8
 
 ################################
 # Ansible Tags

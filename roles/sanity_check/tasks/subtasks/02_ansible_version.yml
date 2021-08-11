@@ -7,14 +7,18 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Find Ansible version
+  shell: python3 -c 'from ansible_collections.ansible_release import ansible_version; print(ansible_version)'
+  register: registered_ansible_version
+
 - name: Print Ansible version
   debug:
-    msg: "Installed Ansible version: {{ ansible_version.full }}."
+    msg: "Installed Ansible version: {{ registered_ansible_version.stdout }}."
 
 - name: Check if Ansible needs upgrading
   set_fact:
     ansible_update: true
-  when: ansible_version.full is version(sanity_check_ansible_version_min, '<=')
+  when: registered_ansible_version.stdout is version(sanity_check_ansible_version_min, 'lt', version_type='semver')
 
 - name: Upgrade Ansible
   script:
