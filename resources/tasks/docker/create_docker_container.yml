@@ -18,6 +18,7 @@
     cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
     command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
+    command_handling: compatibility
     container_default_behavior: compatibility
     default_host_ip: ""
     devices: "{{ lookup('vars', _var_prefix + '_docker_devices', default=omit) }}"
@@ -40,7 +41,6 @@
     security_opts: "{{ lookup('vars', _var_prefix + '_docker_security_opts', default=omit) }}"
     state: started
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
-    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
     volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
