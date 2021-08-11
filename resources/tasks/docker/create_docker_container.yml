@@ -44,3 +44,7 @@
     tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
     volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
+  register: result
+  retries: 5
+  delay: 10
+  until: result is succeeded
