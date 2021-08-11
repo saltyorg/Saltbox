@@ -18,7 +18,7 @@
     cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
     command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
-    command_handling: compatibility
+#    command_handling: compatibility
     container_default_behavior: compatibility
     default_host_ip: ""
     devices: "{{ lookup('vars', _var_prefix + '_docker_devices', default=omit) }}"

@@ -13,7 +13,9 @@
 
 - name: Print Ansible version
   debug:
-    msg: "Installed Ansible version: {{ registered_ansible_version.stdout }}."
+    msg:
+      - "Installed Ansible version: {{ registered_ansible_version.stdout }}."
+      - "Installed Ansible Core version: {{ ansible_version.full }}."
 
 - name: Check if Ansible needs upgrading
   set_fact:
