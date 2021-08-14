@@ -11,6 +11,10 @@
   apt_key:
     id: "{{ docker_apt_key_id }}"
     url: "{{ docker_apt_key_url }}"
+  register: result
+  retries: 5
+  delay: 10
+  until: result is succeeded
 
 - name: Binary | Add official repository
   apt_repository:
