@@ -8,7 +8,12 @@
 #########################################################################
 ---
 - name: Create docker directory
-  file: "path={{ item }} state=directory mode=0775 owner=root group=root"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+    owner: root
+    group: root
   with_items:
     - /etc/docker
 

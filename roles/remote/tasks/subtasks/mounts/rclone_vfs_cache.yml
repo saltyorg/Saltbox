@@ -8,7 +8,12 @@
 #########################################################################
 ---
 - name: Rclone VFS | Reset permissions for 'rclone.conf'
-  file: "path={{ rclone_config_path }} state=file owner={{ user.name }} group={{ user.name }} mode=0775"
+  file:
+    path: "{{ rclone_config_path }}"
+    state: file
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
 
 - name: Rclone VFS | Import 'rclone_vfs.service'
   template:
@@ -18,7 +23,11 @@
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_vfs.service'
-  systemd: name=rclone_vfs.service state=stopped enabled=no daemon_reload=yes
+  systemd:
+    name: rclone_vfs.service
+    state: stopped
+    enabled: no
+    daemon_reload: yes
 
 - name: Rclone VFS | Get list of Rclone remotes in config
   shell: rclone listremotes

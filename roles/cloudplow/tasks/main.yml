@@ -23,7 +23,13 @@
     _service_name: "{{ cloudplow_service_name }}"
 
 - name: Create directory
-  file: "path={{ cloudplow_path }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
+  file:
+    path: "{{ cloudplow_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    recurse: true
 
 - name: Clone project git repo
   include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"

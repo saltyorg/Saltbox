@@ -11,7 +11,13 @@
   import_tasks: "subtasks/services.yml"
 
 - name: Create plex_autoscan directories
-  file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    recurse: yes
   with_items:
     - /opt/plex_autoscan
 

@@ -26,7 +26,9 @@
   when: (ansible_distribution|lower == 'ubuntu')
 
 - name: Remove existing motd
-  file: "path={{ item }} state=absent"
+  file:
+    path: "{{ item }}"
+    state: absent"
   with_items:
     - /etc/update-motd.d
     - /etc/motd

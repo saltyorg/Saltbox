@@ -20,7 +20,12 @@
   tags: glances
 
 - name: Create glances directory
-  file: "path={{ item }} state=directory owner=root group=root mode=0775"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
   with_items:
     - /etc/glances
 

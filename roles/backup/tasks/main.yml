@@ -79,7 +79,13 @@
     when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
   - name: "Create backup folders."
-    file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ user.name }}"
+      group: "{{ user.name }}"
+      mode: 0775
+      recurse: true
     with_items:
       - "/home/{{ user.name }}/logs"
       - "/home/{{ user.name }}/logs/backup"
@@ -161,7 +167,13 @@
     ignore_errors: true
 
   - name: "Reset permissions of folders"
-    file: "path={{ item }} state=directory owner={{ user.name }} group={{ user.name }} mode=0775 recurse=yes"
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ user.name }}"
+      group: "{{ user.name }}"
+      mode: 0775
+      recurse: true
     with_items:
       - "/opt/systemd-backup"
       - "/opt/crontab-backup"
