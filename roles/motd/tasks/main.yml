@@ -28,7 +28,7 @@
 - name: Remove existing motd
   file:
     path: "{{ item }}"
-    state: absent"
+    state: absent
   with_items:
     - /etc/update-motd.d
     - /etc/motd
