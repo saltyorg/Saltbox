@@ -198,6 +198,7 @@ docker_labels_traefik:
   - '{ "traefik.http.routers.{{ traefik_subdomain }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
   - '{ "traefik.http.routers.{{ traefik_subdomain }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_subdomain }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_subdomain }}.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_scheme", default=omit) }}" }'
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if (traefik_role_enabled)
