@@ -22,7 +22,6 @@ http:
         accessControlMaxAge: 100
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        sslRedirect: true
         stsSeconds: 63072000
         stsIncludeSubdomains: true
         stsPreload: true
@@ -31,7 +30,7 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "same-origin"
-        featurePolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none';"
+        permissionsPolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';"
         sslProxyHeaders:
           X-Forwarded-Proto: https
         customResponseHeaders:
