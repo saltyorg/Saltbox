@@ -3,6 +3,7 @@ name: Lint
 on:
   push:
     paths-ignore:
+      - '.github/**'
       - '*.md'
       - '*.sh'
       - '*.j2'

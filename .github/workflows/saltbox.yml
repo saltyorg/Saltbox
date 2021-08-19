@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     paths-ignore:
+      - '.github/**'
       - '*.md'
       - '.gitignore'
       - 'roles/backup/**'
