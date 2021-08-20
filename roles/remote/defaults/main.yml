@@ -26,7 +26,6 @@ feeder_mount_start_command: |-
     --allow-other \
     --allow-non-empty \
     --copy-links \
-    --fast-list \
     --dir-cache-time=1m \
     --max-read-ahead=200M \
     --umask=002 \
@@ -49,7 +48,6 @@ rclone_vfs_mount_start_command: |-
     --rc \
     --rc-no-auth \
     --rc-addr=localhost:5572 \
-    --fast-list \
     --drive-skip-gdocs \
     --vfs-read-chunk-size=64M \
     --vfs-read-chunk-size-limit=2048M \
@@ -82,7 +80,6 @@ rclone_vfs_cache_mount_start_command: |-
     --user-agent='{{ user_agent }}' \
     --config={{ rclone_config_path }} \
     --allow-other \
-    --fast-list \
     --async-read=true \
     --dir-cache-time=1000h \
     --buffer-size=32M \

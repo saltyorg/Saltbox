@@ -26,8 +26,8 @@
   systemd:
     name: rclone_vfs.service
     state: stopped
-    enabled: no
-    daemon_reload: yes
+    enabled: false
+    daemon_reload: true
 
 - name: Rclone VFS | Get list of Rclone remotes in config
   shell: rclone listremotes

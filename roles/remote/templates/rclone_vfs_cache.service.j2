@@ -25,6 +25,8 @@ RestartSec=5
 StartLimitInterval=60s
 StartLimitBurst=3
 TimeoutSec=21600
+LimitNOFILE=infinity
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=default.target
