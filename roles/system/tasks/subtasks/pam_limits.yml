@@ -1,0 +1,15 @@
+#########################################################################
+# Title:         Saltbox: System | PAM limits Tasks                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Set nofile limit for all users.
+  pam_limits:
+    domain: "*"
+    limit_type: "-"
+    limit_item: nofile
+    value: "{{ pam_limit_nofile }}"

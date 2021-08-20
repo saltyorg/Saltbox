@@ -8,6 +8,7 @@
 ##########################################################################
 ---
 system_inotify: "524288"
+pam_limit_nofile: "100000"
 
 timezone: "{{ tz }}"
 timezone_use_local_rtc: false

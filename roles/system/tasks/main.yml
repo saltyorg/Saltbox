@@ -19,6 +19,9 @@
 - name: sysctl tasks
   include_tasks: "subtasks/sysctl.yml"
 
+- name: pam_limits tasks
+  include_tasks: "subtasks/pam_limits.yml"
+
 - name: Mounts tasks
   import_tasks: "subtasks/mounts.yml"
 
