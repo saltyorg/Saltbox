@@ -123,6 +123,10 @@
   when: (docker_binary.stat.exists) and (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
   ignore_errors: true
 
+- name: "Import Docker Hub tasks"
+  import_tasks: "subtasks/dockerhub.yml"
+  when: dockerhub_is_enabled
+
 - name: "Install ctop"
   import_role:
     name: ctop
