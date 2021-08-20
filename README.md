@@ -42,3 +42,147 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
 
 ### Contributors
+
+<table>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/desimaniac>
+            <img src=https://avatars.githubusercontent.com/u/5501908?v=4 width="100;"  alt=desimaniac/>
+            <br />
+            <sub style="font-size:14px"><b>desimaniac</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/saltydk>
+            <img src=https://avatars.githubusercontent.com/u/6587950?v=4 width="100;"  alt=salty/>
+            <br />
+            <sub style="font-size:14px"><b>salty</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/l3uddz>
+            <img src=https://avatars.githubusercontent.com/u/7897162?v=4 width="100;"  alt=l3uddz/>
+            <br />
+            <sub style="font-size:14px"><b>l3uddz</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/EnorMOZ>
+            <img src=https://avatars.githubusercontent.com/u/13998170?v=4 width="100;"  alt=EnorMOZ/>
+            <br />
+            <sub style="font-size:14px"><b>EnorMOZ</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/owine>
+            <img src=https://avatars.githubusercontent.com/u/4283702?v=4 width="100;"  alt=owine/>
+            <br />
+            <sub style="font-size:14px"><b>owine</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/jonfinley>
+            <img src=https://avatars.githubusercontent.com/u/23283167?v=4 width="100;"  alt=jonfinley/>
+            <br />
+            <sub style="font-size:14px"><b>jonfinley</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/RXWatcher>
+            <img src=https://avatars.githubusercontent.com/u/14085001?v=4 width="100;"  alt=RXWatcher/>
+            <br />
+            <sub style="font-size:14px"><b>RXWatcher</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/andrewkhunn>
+            <img src=https://avatars.githubusercontent.com/u/116436?v=4 width="100;"  alt=Andrew Hunn/>
+            <br />
+            <sub style="font-size:14px"><b>Andrew Hunn</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/BeansIsFat>
+            <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=BeansIsFat/>
+            <br />
+            <sub style="font-size:14px"><b>BeansIsFat</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/maximuskowalski>
+            <img src=https://avatars.githubusercontent.com/u/13492750?v=4 width="100;"  alt=Max Kowalski/>
+            <br />
+            <sub style="font-size:14px"><b>Max Kowalski</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Migz93>
+            <img src=https://avatars.githubusercontent.com/u/33037112?v=4 width="100;"  alt=Migz93/>
+            <br />
+            <sub style="font-size:14px"><b>Migz93</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/lonix>
+            <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
+            <br />
+            <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/chazlarson>
+            <img src=https://avatars.githubusercontent.com/u/3865541?v=4 width="100;"  alt=Chaz Larson/>
+            <br />
+            <sub style="font-size:14px"><b>Chaz Larson</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/horjulf>
+            <img src=https://avatars.githubusercontent.com/u/6215635?v=4 width="100;"  alt=Filipe/>
+            <br />
+            <sub style="font-size:14px"><b>Filipe</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Arcanemagus>
+            <img src=https://avatars.githubusercontent.com/u/427137?v=4 width="100;"  alt=Landon Abney/>
+            <br />
+            <sub style="font-size:14px"><b>Landon Abney</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/ldub>
+            <img src=https://avatars.githubusercontent.com/u/3114081?v=4 width="100;"  alt=Lev Dubinets/>
+            <br />
+            <sub style="font-size:14px"><b>Lev Dubinets</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/FML128>
+            <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=Merlin Jehli/>
+            <br />
+            <sub style="font-size:14px"><b>Merlin Jehli</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/bandwith>
+            <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
+            <br />
+            <sub style="font-size:14px"><b>bandwith</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/kinv>
+            <img src=https://avatars.githubusercontent.com/u/42412447?v=4 width="100;"  alt=kinv/>
+            <br />
+            <sub style="font-size:14px"><b>kinv</b></sub>
+        </a>
+    </td>
+</tr>
+</table>
