@@ -40,3 +40,5 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 - and more...
 
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
+
+### Contributors
