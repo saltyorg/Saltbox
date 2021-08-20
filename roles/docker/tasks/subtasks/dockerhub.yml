@@ -10,3 +10,9 @@
 - name: Docker Hub | Login
   shell: "docker login -u {{ dockerhub.user }} -p {{ dockerhub.token }}"
   no_log: true
+
+- name: Docker Hub | Login
+  shell: "docker login -u {{ dockerhub.user }} -p {{ dockerhub.token }}"
+  become: true
+  become_user: "{{ user.name }}"
+  no_log: true
