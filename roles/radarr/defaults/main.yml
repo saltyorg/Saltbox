@@ -30,7 +30,7 @@ radarr_paths_config_location: "{{ radarr_paths_location }}/config.xml"
 radarr_web_subdomain: "{{ radarr_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
-radarr_web_url: "{{ 'https://' + radarr_web_subdomain + '.' + radarr_web_domain
+radarr_web_url: "{{ 'https://' + radarr_web_subdomain + dns_record_suffix + '.' + radarr_web_domain
                  if (reverse_proxy_is_enabled)
                  else 'http://localhost:' + radarr_web_port }}"
 
