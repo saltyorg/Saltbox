@@ -41,6 +41,7 @@
     security_opts: "{{ lookup('vars', _var_prefix + '_docker_security_opts', default=omit) }}"
     state: started
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    sysctls: "{{ lookup('vars', _var_prefix + '_docker_sysctls', default=omit) }}"
     tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
     volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
