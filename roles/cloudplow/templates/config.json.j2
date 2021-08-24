@@ -4,15 +4,8 @@
         "rclone_binary_path": "{{ rclone_binary_path }}",
         "rclone_config_path": "{{ rclone_config_path }}"
     },
-    "hidden": {
-        "/mnt/local/.unionfs-fuse": {
-            "hidden_remotes": [
-                "{{ rclone.remote }}"
-            ]
-        }
-    },
-    "notifications": {
-    },
+    "hidden": {},
+    "notifications": {},
     "nzbget": {
         "enabled": false,
         "url": "{{ nzbget_web_url_with_login }}"
@@ -42,9 +35,7 @@
             "rclone_excludes": [
                 "**partial~",
                 "**_HIDDEN~",
-                ".unionfs/**",
-                ".unionfs-fuse/**",
-                ".fuse_hidden**"
+                "*.db"
             ],
             "rclone_extras": {
                 "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
@@ -77,8 +68,7 @@
             "upload_remote": "{{ rclone.remote }}:/Media"
         }
     },
-    "syncer": {
-    },
+    "syncer": {},
     "uploader": {
         "{{ rclone.remote }}": {
             "check_interval": 30,
