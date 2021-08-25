@@ -63,7 +63,10 @@
       block:
 
         - name: Rclone VFS | Start 'rclone_vfs.service'
-          systemd: name=rclone_vfs.service state=started enabled=yes
+          systemd:
+            name: rclone_vfs.service
+            state: started
+            enabled: yes
 
       when: rclone_remote_is_working
 

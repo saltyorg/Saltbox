@@ -15,7 +15,11 @@
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
 
 - name: Feeder | Systemd daemon-reload 'feeder.service'
-  systemd: name=feeder.service state=stopped enabled=no daemon_reload=yes
+  systemd:
+    name: feeder.service
+    state: stopped
+    enabled: no
+    daemon_reload: yes
 
 - name: Feeder | Get list of Rclone remotes in config
   shell: rclone listremotes
@@ -48,7 +52,10 @@
         rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
 
     - name: Feeder | Start 'feeder.service'
-      systemd: name=feeder.service state=started enabled=yes
+      systemd:
+        name: feeder.service
+        state: started
+        enabled: yes
       when: rclone_remote_is_working
 
     - name: "Feeder | Display error message when Rclone remote is not working properly"
