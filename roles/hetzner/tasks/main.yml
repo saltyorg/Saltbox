@@ -13,4 +13,4 @@
 - name: "Restart Tasks"
   include_tasks: "subtasks/restart.yml"
   when: (reboot_is_necessary) and
-    (not continuous_integration)
+        (not continuous_integration)
