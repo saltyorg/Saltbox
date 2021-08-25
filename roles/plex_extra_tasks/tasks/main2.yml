@@ -51,7 +51,9 @@
 - name: Start Docker Container
   docker_container:
     name: "{{ plex_docker_container }}"
-    state: "{{ plex_docker_state }}"
+    state: started
+    container_default_behavior: compatibility
+    tls_hostname: localhost
 
   when:
     - plex_is_running_outer_state
