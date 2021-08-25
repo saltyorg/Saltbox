@@ -8,7 +8,9 @@
 #########################################################################
 ---
 - name: User Account | Create common groups
-  group: "name={{ item }} state=present"
+  group:
+    name: "{{ item }}"
+    state: present
   with_items:
     - docker
     - "{{ user.name }}"
