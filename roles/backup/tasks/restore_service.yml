@@ -107,8 +107,7 @@
 
 - name: Restore Service | Print error message when config file(s) were encrypted successfully
   debug:
-    msg:
-      - "The following config file(s) were encrypted successfully: '{{ encrypted_files_list | trim }}'"
+    msg: "The following config file(s) were encrypted successfully: '{{ encrypted_files_list | trim }}'"
   when: (encrypted_files_list | trim | length > 0)
 
 - name: Restore Service | Restore Service Upload Tasks

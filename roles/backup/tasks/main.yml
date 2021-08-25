@@ -7,542 +7,543 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- block:
-  - name: Sanity Check
-    import_tasks: "sanity_check.yml"
-
-  - name: Variables
-    import_tasks: "variables.yml"
-    tags:
-      - set-backup
-      - restore-service
-      - saltbox-restore-service
-
-  - name: Cron
-    import_tasks: "cron.yml"
-    when: ('set-backup' in ansible_run_tags) and not ('backup' in ansible_run_tags)
-    tags: set-backup
-
-  - name: Get Current Time
-    shell: "date \"+%s\""
-    register: start_time_lookup
-
-  - name: "Set 'start_time' variable"
-    set_fact:
-      start_time: "{{ start_time_lookup.stdout }}"
-
-  - name: Snapshot
-    import_tasks: "snapshot.yml"
-
-  - name: "Notify | Saltbox Backup: Started Saltbox backup task"
-    include_role:
-      name: notify
-    vars:
-      message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task."
-
-  - name: "Create 'backup.lock'."
-    file:
-      path: "{{ playbook_dir }}/backup.lock"
-      state: touch
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-
-  - name: Check if previous backup folder exists
-    stat:
-      path: "{{ backup.local.destination }}"
-    register: backup_local_folder
-
-  - name: Check if previous backup exists locally
-    find:
-      paths: "{{ backup.local.destination }}"
-      file_type: file
-      patterns: '*.tar'
-      recurse: true
-    register: dir_files
-    when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
-
-  # Remove backup.old folder if it exists.
-  - name: "Remove '{{ backup.local.destination }}.old'"
-    file:
-      path: "{{ backup.local.destination }}.old"
-      state: absent
-
-  - name: Move previous backup if it exists locally
-    block:
-      # Use mv because Ansible copy & delete takes a lot longer.
-      - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
-        shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
-        become: true
-        become_user: "{{ user.name }}"
-        when: dir_files.matched|int != 0
-    when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
-
-  - name: "Create backup folders."
-    file:
-      path: "{{ item }}"
-      state: directory
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-      recurse: true
-    with_items:
-      - "/home/{{ user.name }}/logs"
-      - "/home/{{ user.name }}/logs/backup"
-      - "{{ backup.local.destination }}"
-      - "{{ backup.local.destination }}/opt"
-      - "/opt/systemd-backup"
-      - "/opt/crontab-backup"
-
-  # Backup config files
-  - name: "Copy files to '{{ backup.local.destination }}'"
-    copy:
-      src: "{{ item }}"
-      dest: "{{ backup.local.destination }}"
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-      decrypt: false
-      force: true
-    with_items:
-      - "{{ playbook_dir }}/ansible.cfg"
-      - "{{ playbook_dir }}/accounts.yml"
-      - "{{ playbook_dir }}/settings.yml"
-      - "{{ playbook_dir }}/adv_settings.yml"
-      - "{{ playbook_dir }}/backup_config.yml"
-      - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
-      - "/home/{{ user.name }}/.config/rclone/rclone.conf"
-    ignore_errors: true
-
-  # Backup the excludes list if it exists
-  - name: "Look for 'backup_excludes_list.txt' file in saltbox folder"
-    stat:
-      path: "{{ playbook_dir }}/backup_excludes_list.txt"
-    register: backup_excludes_list
-
-  - name: "Copy files to '{{ backup.local.destination }}'."
-    copy:
-      src: "{{ playbook_dir }}/backup_excludes_list.txt"
-      dest: "{{ backup.local.destination }}"
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-      force: true
-    when: (backup_excludes_list.stat.exists)
-
-  - name: Set 'backup_excludes_list_path' variable
-    set_fact:
-      backup_excludes_list_path: "{{
-        (playbook_dir + '/backup_excludes_list.txt')
-        if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
-        else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
-
-  - name: saltbox Restore Service
-    import_tasks: "restore_service.yml"
-    when: restore_service_enabled
-    tags:
-      - restore-service
-      - saltbox-restore-service
-
-  - name: "Synchronize '/etc/systemd/system' to '/opt/systemd-backup' for inclusion in backup"
-    shell: |
-      /usr/bin/rsync \
-        --delay-updates \
-        -F \
-        --compress \
-        --archive \
-        --no-recursive \
-        --no-links \
-        --no-perms \
-        --include='*.service' \
-        --include='*.mount' \
-        /etc/systemd/system/* /opt/systemd-backup/
-    args:
-      executable: /bin/bash
-      warn: false
-    ignore_errors: true
-
-  - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
-    shell: "cp -f /var/spool/cron/crontabs/* /opt/crontab-backup"
-    ignore_errors: true
-
-  - name: "Reset permissions of folders"
-    file:
-      path: "{{ item }}"
-      state: directory
-      owner: "{{ user.name }}"
-      group: "{{ user.name }}"
-      mode: 0775
-      recurse: true
-    with_items:
-      - "/opt/systemd-backup"
-      - "/opt/crontab-backup"
-
-  # Stop Containers
-
-  - name: "Gather list of running Docker containers"
-    shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
-    register: docker_containers
-    ignore_errors: true
-
-  - name: Set 'docker_containers' variable
-    set_fact:
-      docker_containers: "{{ docker_containers.stdout if (docker_containers is success) else '' }}"
-
-  - name: Docker container tasks
-    block:
-
-      - name: Convert Docker containers string into a list
-        set_fact:
-          docker_containers: "{{ (docker_containers).split() | sort }}"
-
-      - name: Filter out ignored apps from Docker containers list
-        set_fact:
-          docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
-
-      - name: Convert Docker containers list back to string
-        set_fact:
-          docker_containers: "{{ docker_containers | join(' ') }}"
-
-      - name: "Stop all running Docker containers"
-        shell: "docker stop {{ docker_containers }}"
-        ignore_errors: true
-
-      - name: "Notify | Saltbox Backup: Stopped Docker containers"
-        include_role:
-          name: notify
-        vars:
-          message: "Saltbox Backup: Stopped Docker containers."
-
-    when: (docker_containers | trim | length > 0)
-
-  # Services
-
-  - name: Populate Service Facts
-    service_facts:
-
-    # Stop Cloudplow
-
-  - name: Check if 'cloudplow.service' exists
-    stat:
-      path: "/etc/systemd/system/cloudplow.service"
-    register: cloudplow_service
-
-  - name: Stop 'cloudplow' service block
-    block:
-
-      - name: Get 'cloudplow' service state
-        set_fact:
-          cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
-
-      - name: Stop 'cloudplow' service
-        systemd:
-          name: cloudplow
-          state: stopped
-        when: (cloudplow_service_running)
-
-    when: (cloudplow_service is defined) and (cloudplow_service.stat.exists)
-
-  # Create snapshot
-
-  - name: Create Snapshot
-    block:
-
-      - name: "Snapshot | Wait for 5 seconds before creating snapshot"
-        wait_for:
-          timeout: 5
-
-      - name: Snapshot | Display snapshot source and destination
-        debug:
-          msg: "Creating snapshot of '{{ backup_snapshot_source_path }}' at '{{ backup_snapshot_destination_path }}' ..."
-
-      - name: Snapshot | Create BTRFS snapshot
-        shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path }} {{ backup_snapshot_destination_path }}'
-        when: (snapshot_type == 'btrfs')
-
-      - name: Snapshot | Display new backup source location in snapshot
-        debug:
-          msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
-
-    when: (use_snapshot)
-
-  # Start Docker containers when snapshot is enabled
-
-  - name: Snapshot | Start Docker containers
-    block:
-
-      - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
-        wait_for:
-          timeout: 5
-
-      - name: "Snapshot | Start all previously running Docker containers"
-        shell: 'docker start {{ docker_containers }}'
-        ignore_errors: true
-        when: (docker_containers | trim | length > 0)
-
-      - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
-        include_role:
-          name: notify
-        vars:
-          message: "Saltbox Backup: Started Docker containers."
-        when: (docker_containers | trim | length > 0)
-
-    when: (use_snapshot)
-
-  - name: "Get list of all folders in '{{ backup_opt_path }}'"
-    find:
-      paths: "{{ backup_opt_path }}"
-      recurse: false
-      file_type: directory
-    register: opt_folders_temp
-
-  - name: Create 'opt_folders' variable
-    set_fact:
-      opt_folders: []
-
-  - name: Add folder list to 'opt_folders' variable
-    set_fact:
-      opt_folders: "{{ opt_folders }} + [ '{{ item.path }}' ]"
-    with_items: "{{ opt_folders_temp.files }}"
-    loop_control:
-      label: "{{ item.path }}"
-
-  - name: "Archiving '{{ backup_opt_path }}' folders into '{{ backup.local.destination }}/'"
-    shell: |
-      tar \
-        --ignore-failed-read \
-        --warning=no-file-changed \
-        --warning=no-file-removed \
-        --exclude='./snapshots' \
-        --exclude-from '{{ backup_excludes_list_path }}' \
-        -cf '{{ backup.local.destination }}/opt/{{ item | basename }}.tar' -C '{{ item | dirname }}' './{{ item | basename }}' \
-        > /dev/null
-    args:
-      executable: /bin/bash
-      warn: false
-    with_items: "{{ opt_folders }}"
-    loop_control:
-      label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
-    ignore_errors: true
-
-  - name: Snapshot | Cleanup Tasks
-    block:
-
-      - name: Snapshot | Check if BTRFS snapshot is mounted
-        stat:
-          path: "{{ backup_snapshot_destination_path }}"
-        register: btrfs_snapshot_mounted
-
-      - name: Snapshot | Delete BTRFS snapshot
-        block:
-
-          - name: Snapshot | Delete existing BTRFS snapshot (1/2)
-            command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
-            register: snapshot_deletion
-            ignore_errors: true
-
-          - name: Snapshot | Delete existing BTRFS snapshot (2/2)
-            file:
-              path: "{{ backup_snapshot_destination_path }}"
-              state: absent
-            ignore_errors: true
-            when: (snapshot_deletion is failed)
-
-        when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
-
-    when: (use_snapshot) and (snapshot_type == 'btrfs')
-
-  - name: Check if tarball files were created
-    find:
-      paths: "{{ backup.local.destination }}/opt/"
-      file_type: file
-      patterns: '*.tar'
-    register: dir_files2
-
-  - name: Abort backup when the creation of tarball files fails
-    fail:
-      msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ local.destination }}/opt/'"
-    when: (dir_files2.matched|int == 0)
-
-  - name: "Remove '{{ backup.local.destination }}.old'"
-    file:
-      path: "{{ backup.local.destination }}.old"
-      state: absent
-    become: true
-    become_user: "{{ user.name }}"
-    when: (dir_files2.matched|int != 0)
-
-  - name: "Get size of '{{ backup.local.destination }}'"
-    shell: du -s -B1 --apparent-size {{ backup.local.destination }} | awk '{print $1}'
-    register: backup_new
-
-  - name: "Set backup_size"
-    set_fact:
-      backup_size: "{{ (backup_new.stdout|int) | filesizeformat }}"
-
-  - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
-    include_role:
-      name: notify
-    vars:
-      message: "Saltbox Backup: Backup created with total size of {{ backup_size }}."
-    ignore_errors: true
-
-  # Start Docker containers when snapshot is not enabled
-
-  - name: Start Docker Containers
-    block:
-
-      - name: "Wait for 5 seconds before starting Docker containers"
-        wait_for:
-          timeout: 5
-
-      - name: "Start all previously running Docker containers"
-        shell: 'docker start {{ docker_containers }}'
-        ignore_errors: true
-        when: (docker_containers | trim | length > 0)
-
-      - name: "Notify | Saltbox Backup: Started Docker containers"
-        include_role:
-          name: notify
-        vars:
-          message: "Saltbox Backup: Started Docker containers."
-        when: (docker_containers | trim | length > 0)
-
-    when: (not use_snapshot)
-
-  - name: "Wait for 10 seconds before uploads"
-    wait_for:
-      timeout: 10
-
-  - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-    shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
-    args:
-      warn: false
-
-  # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
-  - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
-    shell: find '{{ backup.local.destination }}' -type f  -exec touch {} +
-    become: true
-    become_user: "{{ user.name }}"
-    args:
-      executable: /bin/bash
-      warn: false
-
-  # Due to a touch command in a previous backup, all files on rclone.destination have same mod dates, therefore, only one file's mod date is needed.
-  - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
-    shell: |
-      /usr/bin/rclone lsl \
-        {{ backup.rclone.destination }}/settings.yml \
-        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
-    become: true
-    become_user: "{{ user.name }}"
-    register: rclone_timestamp
-    ignore_errors: true
-    when: (backup.rclone.enable)
-
-  # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
-  - name: "Archive previous files in '{{ backup.rclone.destination }}'"
-    shell: |
-      /usr/bin/rclone moveto \
-        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        '{{ backup.rclone.destination }}/{{ item }}' \
-        '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
-        2>/dev/null
-    become: true
-    become_user: "{{ user.name }}"
-    register: rclone_move
-    failed_when: rclone_move.rc > 3
-    ignore_errors: true
-    when: (backup.rclone.enable)
-    with_items:
-      - "opt"
-      - "ansible.cfg"
-      - "accounts.yml"
-      - "settings.yml"
-      - "adv_settings.yml"
-      - "backup_config.yml"
-      - "rclone.conf"
-      - "localhost.yml"
-      - "backup_excludes.txt"
-      - "backup_excludes_list.txt"
-
-  - name: "Wait for 5 seconds before uploading"
-    wait_for:
-      timeout: 5
-
-  - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
-    shell: |
-      /usr/bin/rclone copy \
-        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-        --transfers="{{ backup_rclone_transfers }}" \
-        --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
-        --stats=30s \
-        -vv \
-        --log-file='{{ playbook_dir }}/backup_rclone.log' \
-        '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
-    become: true
-    become_user: "{{ user.name }}"
-    when: (backup.rclone.enable)
-
-  - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
-    include_role:
-      name: notify
-    vars:
-      message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-    when: (backup.rclone.enable)
-
-  - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
-    synchronize:
-      src: "{{ backup.local.destination }}/"
-      dest: "{{ backup.rsync.destination }}/"
-      set_remote_user: true
-      compress: false
-      dest_port: "{{ backup.rsync.port }}"
-    become: true
-    become_user: "{{ user.name }}"
-    when: (backup.rsync.enable)
-
-  - name: "Notify | Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
-    include_role:
-      name: notify
-    vars:
-      message: "Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
-    when: (backup.rsync.enable)
-
-  - name: Get Current Time
-    shell: "date \"+%s\""
-    register: end_time_lookup
-
-  - name: "Set 'end_time' variable"
-    set_fact:
-      end_time: "{{ end_time_lookup.stdout }}"
-
-  - name: "Calculate Total Time"
-    set_fact:
-      total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
-
-  - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
-    include_role:
-      name: notify
-    vars:
-      message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task in {{ total_time }} minutes."
-
-  - name: "Start 'cloudplow' service"
-    systemd:
-      name: cloudplow
-      state: started
-    when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
-
-  - name: "Remove {{ backup.local.destination }}"
-    file:
-      path: "{{ backup.local.destination }}"
-      state: absent
-    when: (dir_files2.matched|int != 0) and (not backup.local.enable)
-
-  - name: Backup Status - Success
-    debug:
-      msg: "Backup Completed Successfully."
+- name: Backup
+  block:
+    - name: Sanity Check
+      import_tasks: "sanity_check.yml"
+
+    - name: Variables
+      import_tasks: "variables.yml"
+      tags:
+        - set-backup
+        - restore-service
+        - saltbox-restore-service
+
+    - name: Cron
+      import_tasks: "cron.yml"
+      when: ('set-backup' in ansible_run_tags) and not ('backup' in ansible_run_tags)
+      tags: set-backup
+
+    - name: Get Current Time
+      shell: "date \"+%s\""
+      register: start_time_lookup
+
+    - name: "Set 'start_time' variable"
+      set_fact:
+        start_time: "{{ start_time_lookup.stdout }}"
+
+    - name: Snapshot
+      import_tasks: "snapshot.yml"
+
+    - name: "Notify | Saltbox Backup: Started Saltbox backup task"
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task."
+
+    - name: "Create 'backup.lock'."
+      file:
+        path: "{{ playbook_dir }}/backup.lock"
+        state: touch
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+
+    - name: Check if previous backup folder exists
+      stat:
+        path: "{{ backup.local.destination }}"
+      register: backup_local_folder
+
+    - name: Check if previous backup exists locally
+      find:
+        paths: "{{ backup.local.destination }}"
+        file_type: file
+        patterns: '*.tar'
+        recurse: true
+      register: dir_files
+      when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
+
+    # Remove backup.old folder if it exists.
+    - name: "Remove '{{ backup.local.destination }}.old'"
+      file:
+        path: "{{ backup.local.destination }}.old"
+        state: absent
+
+    - name: Move previous backup if it exists locally
+      block:
+        # Use mv because Ansible copy & delete takes a lot longer.
+        - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
+          shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
+          become: true
+          become_user: "{{ user.name }}"
+          when: dir_files.matched|int != 0
+      when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
+
+    - name: "Create backup folders."
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        recurse: true
+      with_items:
+        - "/home/{{ user.name }}/logs"
+        - "/home/{{ user.name }}/logs/backup"
+        - "{{ backup.local.destination }}"
+        - "{{ backup.local.destination }}/opt"
+        - "/opt/systemd-backup"
+        - "/opt/crontab-backup"
+
+    # Backup config files
+    - name: "Copy files to '{{ backup.local.destination }}'"
+      copy:
+        src: "{{ item }}"
+        dest: "{{ backup.local.destination }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        decrypt: false
+        force: true
+      with_items:
+        - "{{ playbook_dir }}/ansible.cfg"
+        - "{{ playbook_dir }}/accounts.yml"
+        - "{{ playbook_dir }}/settings.yml"
+        - "{{ playbook_dir }}/adv_settings.yml"
+        - "{{ playbook_dir }}/backup_config.yml"
+        - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
+        - "/home/{{ user.name }}/.config/rclone/rclone.conf"
+      ignore_errors: true
+
+    # Backup the excludes list if it exists
+    - name: "Look for 'backup_excludes_list.txt' file in saltbox folder"
+      stat:
+        path: "{{ playbook_dir }}/backup_excludes_list.txt"
+      register: backup_excludes_list
+
+    - name: "Copy files to '{{ backup.local.destination }}'."
+      copy:
+        src: "{{ playbook_dir }}/backup_excludes_list.txt"
+        dest: "{{ backup.local.destination }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        force: true
+      when: (backup_excludes_list.stat.exists)
+
+    - name: Set 'backup_excludes_list_path' variable
+      set_fact:
+        backup_excludes_list_path: "{{
+          (playbook_dir + '/backup_excludes_list.txt')
+          if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
+          else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
+
+    - name: saltbox Restore Service
+      import_tasks: "restore_service.yml"
+      when: restore_service_enabled
+      tags:
+        - restore-service
+        - saltbox-restore-service
+
+    - name: "Synchronize '/etc/systemd/system' to '/opt/systemd-backup' for inclusion in backup"
+      shell: |
+        /usr/bin/rsync \
+          --delay-updates \
+          -F \
+          --compress \
+          --archive \
+          --no-recursive \
+          --no-links \
+          --no-perms \
+          --include='*.service' \
+          --include='*.mount' \
+          /etc/systemd/system/* /opt/systemd-backup/
+      args:
+        executable: /bin/bash
+        warn: false
+      ignore_errors: true
+
+    - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
+      shell: "cp -f /var/spool/cron/crontabs/* /opt/crontab-backup"
+      ignore_errors: true
+
+    - name: "Reset permissions of folders"
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        recurse: true
+      with_items:
+        - "/opt/systemd-backup"
+        - "/opt/crontab-backup"
+
+    # Stop Containers
+
+    - name: "Gather list of running Docker containers"
+      shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
+      register: docker_containers
+      ignore_errors: true
+
+    - name: Set 'docker_containers' variable
+      set_fact:
+        docker_containers: "{{ docker_containers.stdout if (docker_containers is success) else '' }}"
+
+    - name: Docker container tasks
+      block:
+
+        - name: Convert Docker containers string into a list
+          set_fact:
+            docker_containers: "{{ (docker_containers).split() | sort }}"
+
+        - name: Filter out ignored apps from Docker containers list
+          set_fact:
+            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
+
+        - name: Convert Docker containers list back to string
+          set_fact:
+            docker_containers: "{{ docker_containers | join(' ') }}"
+
+        - name: "Stop all running Docker containers"
+          shell: "docker stop {{ docker_containers }}"
+          ignore_errors: true
+
+        - name: "Notify | Saltbox Backup: Stopped Docker containers"
+          include_role:
+            name: notify
+          vars:
+            message: "Saltbox Backup: Stopped Docker containers."
+
+      when: (docker_containers | trim | length > 0)
+
+    # Services
+
+    - name: Populate Service Facts
+      service_facts:
+
+      # Stop Cloudplow
+
+    - name: Check if 'cloudplow.service' exists
+      stat:
+        path: "/etc/systemd/system/cloudplow.service"
+      register: cloudplow_service
+
+    - name: Stop 'cloudplow' service block
+      block:
+
+        - name: Get 'cloudplow' service state
+          set_fact:
+            cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
+
+        - name: Stop 'cloudplow' service
+          systemd:
+            name: cloudplow
+            state: stopped
+          when: (cloudplow_service_running)
+
+      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists)
+
+    # Create snapshot
+
+    - name: Create Snapshot
+      block:
+
+        - name: "Snapshot | Wait for 5 seconds before creating snapshot"
+          wait_for:
+            timeout: 5
+
+        - name: Snapshot | Display snapshot source and destination
+          debug:
+            msg: "Creating snapshot of '{{ backup_snapshot_source_path }}' at '{{ backup_snapshot_destination_path }}' ..."
+
+        - name: Snapshot | Create BTRFS snapshot
+          shell: 'btrfs subvolume snapshot {{ backup_snapshot_source_path }} {{ backup_snapshot_destination_path }}'
+          when: (snapshot_type == 'btrfs')
+
+        - name: Snapshot | Display new backup source location in snapshot
+          debug:
+            msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
+
+      when: (use_snapshot)
+
+    # Start Docker containers when snapshot is enabled
+
+    - name: Snapshot | Start Docker containers
+      block:
+
+        - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
+          wait_for:
+            timeout: 5
+
+        - name: "Snapshot | Start all previously running Docker containers"
+          shell: 'docker start {{ docker_containers }}'
+          ignore_errors: true
+          when: (docker_containers | trim | length > 0)
+
+        - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
+          include_role:
+            name: notify
+          vars:
+            message: "Saltbox Backup: Started Docker containers."
+          when: (docker_containers | trim | length > 0)
+
+      when: (use_snapshot)
+
+    - name: "Get list of all folders in '{{ backup_opt_path }}'"
+      find:
+        paths: "{{ backup_opt_path }}"
+        recurse: false
+        file_type: directory
+      register: opt_folders_temp
+
+    - name: Create 'opt_folders' variable
+      set_fact:
+        opt_folders: []
+
+    - name: Add folder list to 'opt_folders' variable
+      set_fact:
+        opt_folders: "{{ opt_folders }} + [ '{{ item.path }}' ]"
+      with_items: "{{ opt_folders_temp.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: "Archiving '{{ backup_opt_path }}' folders into '{{ backup.local.destination }}/'"
+      shell: |
+        tar \
+          --ignore-failed-read \
+          --warning=no-file-changed \
+          --warning=no-file-removed \
+          --exclude='./snapshots' \
+          --exclude-from '{{ backup_excludes_list_path }}' \
+          -cf '{{ backup.local.destination }}/opt/{{ item | basename }}.tar' -C '{{ item | dirname }}' './{{ item | basename }}' \
+          > /dev/null
+      args:
+        executable: /bin/bash
+        warn: false
+      with_items: "{{ opt_folders }}"
+      loop_control:
+        label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
+      ignore_errors: true
+
+    - name: Snapshot | Cleanup Tasks
+      block:
+
+        - name: Snapshot | Check if BTRFS snapshot is mounted
+          stat:
+            path: "{{ backup_snapshot_destination_path }}"
+          register: btrfs_snapshot_mounted
+
+        - name: Snapshot | Delete BTRFS snapshot
+          block:
+
+            - name: Snapshot | Delete existing BTRFS snapshot (1/2)
+              command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
+              register: snapshot_deletion
+              ignore_errors: true
+
+            - name: Snapshot | Delete existing BTRFS snapshot (2/2)
+              file:
+                path: "{{ backup_snapshot_destination_path }}"
+                state: absent
+              ignore_errors: true
+              when: (snapshot_deletion is failed)
+
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+
+      when: (use_snapshot) and (snapshot_type == 'btrfs')
+
+    - name: Check if tarball files were created
+      find:
+        paths: "{{ backup.local.destination }}/opt/"
+        file_type: file
+        patterns: '*.tar'
+      register: dir_files2
+
+    - name: Abort backup when the creation of tarball files fails
+      fail:
+        msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ local.destination }}/opt/'"
+      when: (dir_files2.matched|int == 0)
+
+    - name: "Remove '{{ backup.local.destination }}.old'"
+      file:
+        path: "{{ backup.local.destination }}.old"
+        state: absent
+      become: true
+      become_user: "{{ user.name }}"
+      when: (dir_files2.matched|int != 0)
+
+    - name: "Get size of '{{ backup.local.destination }}'"
+      shell: du -s -B1 --apparent-size {{ backup.local.destination }} | awk '{print $1}'
+      register: backup_new
+
+    - name: "Set backup_size"
+      set_fact:
+        backup_size: "{{ (backup_new.stdout|int) | filesizeformat }}"
+
+    - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Backup created with total size of {{ backup_size }}."
+      ignore_errors: true
+
+    # Start Docker containers when snapshot is not enabled
+
+    - name: Start Docker Containers
+      block:
+
+        - name: "Wait for 5 seconds before starting Docker containers"
+          wait_for:
+            timeout: 5
+
+        - name: "Start all previously running Docker containers"
+          shell: 'docker start {{ docker_containers }}'
+          ignore_errors: true
+          when: (docker_containers | trim | length > 0)
+
+        - name: "Notify | Saltbox Backup: Started Docker containers"
+          include_role:
+            name: notify
+          vars:
+            message: "Saltbox Backup: Started Docker containers."
+          when: (docker_containers | trim | length > 0)
+
+      when: (not use_snapshot)
+
+    - name: "Wait for 10 seconds before uploads"
+      wait_for:
+        timeout: 10
+
+    - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
+      shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
+      args:
+        warn: false
+
+    # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
+    - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
+      shell: find '{{ backup.local.destination }}' -type f  -exec touch {} +
+      become: true
+      become_user: "{{ user.name }}"
+      args:
+        executable: /bin/bash
+        warn: false
+
+    # Due to a touch command in a previous backup, all files on rclone.destination have same mod dates, therefore, only one file's mod date is needed.
+    - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
+      shell: |
+        /usr/bin/rclone lsl \
+          {{ backup.rclone.destination }}/settings.yml \
+          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
+      become: true
+      become_user: "{{ user.name }}"
+      register: rclone_timestamp
+      ignore_errors: true
+      when: (backup.rclone.enable)
+
+    # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
+    - name: "Archive previous files in '{{ backup.rclone.destination }}'"
+      shell: |
+        /usr/bin/rclone moveto \
+          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          '{{ backup.rclone.destination }}/{{ item }}' \
+          '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
+          2>/dev/null
+      become: true
+      become_user: "{{ user.name }}"
+      register: rclone_move
+      failed_when: rclone_move.rc > 3
+      ignore_errors: true
+      when: (backup.rclone.enable)
+      with_items:
+        - "opt"
+        - "ansible.cfg"
+        - "accounts.yml"
+        - "settings.yml"
+        - "adv_settings.yml"
+        - "backup_config.yml"
+        - "rclone.conf"
+        - "localhost.yml"
+        - "backup_excludes.txt"
+        - "backup_excludes_list.txt"
+
+    - name: "Wait for 5 seconds before uploading"
+      wait_for:
+        timeout: 5
+
+    - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
+      shell: |
+        /usr/bin/rclone copy \
+          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          --transfers="{{ backup_rclone_transfers }}" \
+          --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
+          --stats=30s \
+          -vv \
+          --log-file='{{ playbook_dir }}/backup_rclone.log' \
+          '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
+      become: true
+      become_user: "{{ user.name }}"
+      when: (backup.rclone.enable)
+
+    - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
+      when: (backup.rclone.enable)
+
+    - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
+      synchronize:
+        src: "{{ backup.local.destination }}/"
+        dest: "{{ backup.rsync.destination }}/"
+        set_remote_user: true
+        compress: false
+        dest_port: "{{ backup.rsync.port }}"
+      become: true
+      become_user: "{{ user.name }}"
+      when: (backup.rsync.enable)
+
+    - name: "Notify | Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
+      when: (backup.rsync.enable)
+
+    - name: Get Current Time
+      shell: "date \"+%s\""
+      register: end_time_lookup
+
+    - name: "Set 'end_time' variable"
+      set_fact:
+        end_time: "{{ end_time_lookup.stdout }}"
+
+    - name: "Calculate Total Time"
+      set_fact:
+        total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
+
+    - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task in {{ total_time }} minutes."
+
+    - name: "Start 'cloudplow' service"
+      systemd:
+        name: cloudplow
+        state: started
+      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
+
+    - name: "Remove {{ backup.local.destination }}"
+      file:
+        path: "{{ backup.local.destination }}"
+        state: absent
+      when: (dir_files2.matched|int != 0) and (not backup.local.enable)
+
+    - name: Backup Status - Success
+      debug:
+        msg: "Backup Completed Successfully."
 
   rescue:
     - name: Snapshot | Cleanup Tasks
