@@ -82,5 +82,6 @@
   register: dir_files2
 
 - name: "Fail if tar files are missing"
-  fail: msg="There must have been an issue retrieving the tar files as they are missing in '{{ backup.local.destination }}/opt/'"
+  fail:
+    msg: "There must have been an issue retrieving the tar files as they are missing in '{{ backup.local.destination }}/opt/'"
   when: (dir_files2.matched|int == 0)
