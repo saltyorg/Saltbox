@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #########################################################################
 # Title:         Saltbox: Ansible | Module | Find Next Open Port        #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # Description:   Finds and returns next open port in a given range.     #
 # --                                                                    #
@@ -27,13 +27,9 @@ require high_bound
 
 # https://unix.stackexchange.com/a/330776
 function find_port(){
-    nc_cmd="nc -vz"
-    if [ $type == "udp" ]; then
-        nc_cmd=$nc_cmd"u"
-    fi
     candidate="$low_bound";
     while [ "$candidate" -le "$high_bound" ]; do
-        ($nc_cmd 0.0.0.0 ${candidate}) >/dev/null 2>&1
+        (docker container ls --format "{{.Ports}}" -a | grep 0.0.0.0:${candidate}) >/dev/null 2>&1
         if [ $? -ne 0 ]; then
             echo '{"changed": false, "port": '\"${candidate}\"'}';
             exit 0

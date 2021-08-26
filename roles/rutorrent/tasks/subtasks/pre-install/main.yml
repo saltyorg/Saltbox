@@ -23,6 +23,5 @@
   find_next_open_port:
     low_bound: 6881
     high_bound: 6891
-    type: udp
   register: port_lookup_6881
   ignore_errors: true
