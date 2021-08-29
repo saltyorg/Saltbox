@@ -89,7 +89,7 @@ emby_docker_ports_defaults:
   - "{{ emby_web_port }}:{{ emby_web_port }}"
 emby_docker_ports_custom: []
 emby_docker_ports: "{{ emby_docker_ports_defaults
-                        + emby_docker_ports_custom
+                       + emby_docker_ports_custom
                     if (not reverse_proxy_is_enabled)
                     else [] + emby_docker_ports_custom }}"
 
@@ -122,21 +122,21 @@ emby_docker_volumes_default:
   - "{{ emby_paths_transcodes_location }}:/transcode"
 emby_docker_volumes_custom: []
 emby_docker_volumes: "{{ emby_docker_volumes_default
-                          + emby_docker_volumes_custom
-                          + docker_volumes_downloads_common }}"
+                         + emby_docker_volumes_custom
+                         + docker_volumes_downloads_common }}"
 
 # Devices
 emby_docker_devices_default: []
 emby_docker_devices_custom: []
 emby_docker_devices: "{{ emby_docker_devices_default
-                          + emby_docker_devices_custom }}"
+                         + emby_docker_devices_custom }}"
 
 # Hosts
 emby_docker_hosts_default: []
 emby_docker_hosts_custom: []
 emby_docker_hosts: "{{ docker_hosts_common
-                        | combine(emby_docker_hosts_default)
-                        | combine(emby_docker_hosts_custom) }}"
+                       | combine(emby_docker_hosts_default)
+                       | combine(emby_docker_hosts_custom) }}"
 
 # Labels
 emby_docker_labels_default: {}
@@ -166,7 +166,7 @@ emby_docker_capabilities: "{{ emby_docker_capabilities_default
 emby_docker_security_opts_default: []
 emby_docker_security_opts_custom: []
 emby_docker_security_opts: "{{ emby_docker_security_opts_default
-                                + emby_docker_security_opts_custom }}"
+                               + emby_docker_security_opts_custom }}"
 
 # Restart Policy
 emby_docker_restart_policy: unless-stopped
