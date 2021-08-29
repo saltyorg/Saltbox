@@ -75,7 +75,7 @@ tautulli_docker_ports_defaults:
   - "{{ tautulli_web_port }}:{{ tautulli_web_port }}"
 tautulli_docker_ports_custom: []
 tautulli_docker_ports: "{{ tautulli_docker_ports_defaults
-                            + tautulli_docker_ports_custom
+                           + tautulli_docker_ports_custom
                         if (not reverse_proxy_is_enabled)
                         else [] + tautulli_docker_ports_custom }}"
 
@@ -104,26 +104,26 @@ tautulli_docker_volumes_custom: []
 tautulli_docker_volumes_theme:
   - "{{ tautulli_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 tautulli_docker_volumes: "{{ tautulli_docker_volumes_default
-                              + tautulli_docker_volumes_custom
-                              + docker_volumes_downloads_common
+                             + tautulli_docker_volumes_custom
+                             + docker_volumes_downloads_common
                           if not (tautulli_themepark_enabled)
                           else tautulli_docker_volumes_default
-                              + tautulli_docker_volumes_custom
-                              + docker_volumes_downloads_common
-                              + tautulli_docker_volumes_theme}}"
+                             + tautulli_docker_volumes_custom
+                             + docker_volumes_downloads_common
+                             + tautulli_docker_volumes_theme}}"
 
 # Devices
 tautulli_docker_devices_default: []
 tautulli_docker_devices_custom: []
 tautulli_docker_devices: "{{ tautulli_docker_devices_default
-                              + tautulli_docker_devices_custom }}"
+                             + tautulli_docker_devices_custom }}"
 
 # Hosts
 tautulli_docker_hosts_default: []
 tautulli_docker_hosts_custom: []
 tautulli_docker_hosts: "{{ docker_hosts_common
-                            | combine(tautulli_docker_hosts_default)
-                            | combine(tautulli_docker_hosts_custom) }}"
+                           | combine(tautulli_docker_hosts_default)
+                           | combine(tautulli_docker_hosts_custom) }}"
 
 # Labels
 tautulli_docker_labels_default: {}
@@ -153,7 +153,7 @@ tautulli_docker_capabilities: "{{ tautulli_docker_capabilities_default
 tautulli_docker_security_opts_default: []
 tautulli_docker_security_opts_custom: []
 tautulli_docker_security_opts: "{{ tautulli_docker_security_opts_default
-                                    + tautulli_docker_security_opts_custom }}"
+                                   + tautulli_docker_security_opts_custom }}"
 
 # Restart Policy
 tautulli_docker_restart_policy: unless-stopped
