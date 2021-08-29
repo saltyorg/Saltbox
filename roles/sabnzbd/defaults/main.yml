@@ -115,13 +115,13 @@ sabnzbd_docker_envs_default:
   TZ: "{{ tz }}"
 sabnzbd_docker_envs_custom: {}
 sabnzbd_docker_envs: "{{ sabnzbd_docker_envs_default
-                          | combine(sabnzbd_docker_envs_custom) }}"
+                         | combine(sabnzbd_docker_envs_custom) }}"
 
 # Commands
 sabnzbd_docker_commands_default: []
 sabnzbd_docker_commands_custom: []
 sabnzbd_docker_commands: "{{ sabnzbd_docker_commands_default
-                              + sabnzbd_docker_commands_custom}}"
+                             + sabnzbd_docker_commands_custom}}"
 
 # Volumes
 sabnzbd_docker_volumes_default:
@@ -134,8 +134,8 @@ sabnzbd_docker_volumes_theme:
 sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
                             + docker_volumes_downloads_common
-                        if not (sabnzbd_themepark_enabled)
-                        else sabnzbd_docker_volumes_default
+                         if not (sabnzbd_themepark_enabled)
+                         else sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
                             + docker_volumes_downloads_common
                             + sabnzbd_docker_volumes_theme}}"
@@ -157,8 +157,8 @@ sabnzbd_docker_hosts: "{{ docker_hosts_common
 sabnzbd_docker_labels_default: {}
 sabnzbd_docker_labels_custom: {}
 sabnzbd_docker_labels: "{{ docker_labels_common
-                            | combine(sabnzbd_docker_labels_default)
-                            | combine(sabnzbd_docker_labels_custom) }}"
+                           | combine(sabnzbd_docker_labels_default)
+                           | combine(sabnzbd_docker_labels_custom) }}"
 
 # Hostname
 sabnzbd_docker_hostname: "{{ sabnzbd_name }}"
@@ -168,14 +168,14 @@ sabnzbd_docker_networks_alias: "{{ sabnzbd_name }}"
 sabnzbd_docker_networks_default: []
 sabnzbd_docker_networks_custom: []
 sabnzbd_docker_networks: "{{ docker_networks_common
-                              + sabnzbd_docker_networks_default
-                              + sabnzbd_docker_networks_custom }}"
+                             + sabnzbd_docker_networks_default
+                             + sabnzbd_docker_networks_custom }}"
 
 # Capabilities
 sabnzbd_docker_capabilities_default: []
 sabnzbd_docker_capabilities_custom: []
 sabnzbd_docker_capabilities: "{{ sabnzbd_docker_capabilities_default
-                                  + sabnzbd_docker_capabilities_custom }}"
+                                 + sabnzbd_docker_capabilities_custom }}"
 
 # Security Opts
 sabnzbd_docker_security_opts_default: []
