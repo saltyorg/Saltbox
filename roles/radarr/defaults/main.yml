@@ -81,7 +81,7 @@ radarr_docker_ports_defaults:
   - "{{ radarr_web_port }}"
 radarr_docker_ports_custom: []
 radarr_docker_ports: "{{ radarr_docker_ports_defaults
-                          + radarr_docker_ports_custom
+                         + radarr_docker_ports_custom
                       if (not reverse_proxy_is_enabled)
                       else [] + radarr_docker_ports_custom }}"
 
@@ -111,26 +111,26 @@ radarr_docker_volumes_custom: []
 radarr_docker_volumes_theme:
   - "{{ radarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 radarr_docker_volumes: "{{ radarr_docker_volumes_default
-                            + radarr_docker_volumes_custom
-                            + docker_volumes_downloads_common
+                           + radarr_docker_volumes_custom
+                           + docker_volumes_downloads_common
                         if not (radarr_themepark_enabled)
                         else radarr_docker_volumes_default
-                            + radarr_docker_volumes_custom
-                            + docker_volumes_downloads_common
-                            + radarr_docker_volumes_theme}}"
+                           + radarr_docker_volumes_custom
+                           + docker_volumes_downloads_common
+                           + radarr_docker_volumes_theme}}"
 
 # Devices
 radarr_docker_devices_default: []
 radarr_docker_devices_custom: []
 radarr_docker_devices: "{{ radarr_docker_devices_default
-                            + radarr_docker_devices_custom }}"
+                           + radarr_docker_devices_custom }}"
 
 # Hosts
 radarr_docker_hosts_default: []
 radarr_docker_hosts_custom: []
 radarr_docker_hosts: "{{ docker_hosts_common
-                          | combine(radarr_docker_hosts_default)
-                          | combine(radarr_docker_hosts_custom) }}"
+                         | combine(radarr_docker_hosts_default)
+                         | combine(radarr_docker_hosts_custom) }}"
 
 # Labels
 radarr_docker_labels_default: {}
@@ -160,7 +160,7 @@ radarr_docker_capabilities: "{{ radarr_docker_capabilities_default
 radarr_docker_security_opts_default: []
 radarr_docker_security_opts_custom: []
 radarr_docker_security_opts: "{{ radarr_docker_security_opts_default
-                                  + radarr_docker_security_opts_custom }}"
+                                 + radarr_docker_security_opts_custom }}"
 
 # Restart Policy
 radarr_docker_restart_policy: unless-stopped
