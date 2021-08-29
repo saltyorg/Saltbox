@@ -29,8 +29,7 @@
 - name: Binary | Install 'docker' pip3 module
   pip:
     state: present
-    name:
-      - docker
+    name: docker
     executable: pip3
   ignore_errors: true
 
