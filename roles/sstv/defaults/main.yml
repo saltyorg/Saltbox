@@ -66,7 +66,7 @@ sstv_docker_ports_defaults:
   - "{{ sstv_web_port }}:{{ sstv_web_port }}"
 sstv_docker_ports_custom: []
 sstv_docker_ports: "{{ sstv_docker_ports_defaults
-                        + sstv_docker_ports_custom
+                       + sstv_docker_ports_custom
                     if (not reverse_proxy_is_enabled)
                     else [] + sstv_docker_ports_custom }}"
 
@@ -77,7 +77,7 @@ sstv_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   VERBOSE: "{{ sstv_docker_envs_log_level }}"
-  HTTPS_METHOD: "noredirect"
+  APP_SSDP: "false"
 sstv_docker_envs_custom: {}
 sstv_docker_envs: "{{ sstv_docker_envs_default
                       | combine(sstv_docker_envs_custom) }}"
@@ -94,21 +94,21 @@ sstv_docker_volumes_default:
   - "/mnt:/mnt"
 sstv_docker_volumes_custom: []
 sstv_docker_volumes: "{{ sstv_docker_volumes_default
-                          + sstv_docker_volumes_custom
-                          + docker_volumes_downloads_common }}"
+                         + sstv_docker_volumes_custom
+                         + docker_volumes_downloads_common }}"
 
 # Devices
 sstv_docker_devices_default: []
 sstv_docker_devices_custom: []
 sstv_docker_devices: "{{ sstv_docker_devices_default
-                          + sstv_docker_devices_custom }}"
+                         + sstv_docker_devices_custom }}"
 
 # Hosts
 sstv_docker_hosts_default: []
 sstv_docker_hosts_custom: []
 sstv_docker_hosts: "{{ docker_hosts_common
-                        | combine(sstv_docker_hosts_default)
-                        | combine(sstv_docker_hosts_custom) }}"
+                       | combine(sstv_docker_hosts_default)
+                       | combine(sstv_docker_hosts_custom) }}"
 
 # Labels
 sstv_docker_labels_default: {}
@@ -138,7 +138,7 @@ sstv_docker_capabilities: "{{ sstv_docker_capabilities_default
 sstv_docker_security_opts_default: []
 sstv_docker_security_opts_custom: []
 sstv_docker_security_opts: "{{ sstv_docker_security_opts_default
-                                + sstv_docker_security_opts_custom }}"
+                               + sstv_docker_security_opts_custom }}"
 
 # Restart Policy
 sstv_docker_restart_policy: unless-stopped
