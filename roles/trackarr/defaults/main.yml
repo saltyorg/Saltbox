@@ -73,7 +73,7 @@ trackarr_docker_ports_defaults:
   - "{{ trackarr_web_port }}:{{ trackarr_web_port }}"
 trackarr_docker_ports_custom: []
 trackarr_docker_ports: "{{ trackarr_docker_ports_defaults
-                            + trackarr_docker_ports_custom
+                           + trackarr_docker_ports_custom
                         if (not reverse_proxy_is_enabled)
                         else [] + trackarr_docker_ports_custom }}"
 
@@ -100,21 +100,21 @@ trackarr_docker_volumes_default:
   - "/mnt:/mnt"
 trackarr_docker_volumes_custom: []
 trackarr_docker_volumes: "{{ trackarr_docker_volumes_default
-                              + trackarr_docker_volumes_custom
-                              + docker_volumes_downloads_common }}"
+                             + trackarr_docker_volumes_custom
+                             + docker_volumes_downloads_common }}"
 
 # Devices
 trackarr_docker_devices_default: []
 trackarr_docker_devices_custom: []
 trackarr_docker_devices: "{{ trackarr_docker_devices_default
-                              + trackarr_docker_devices_custom }}"
+                             + trackarr_docker_devices_custom }}"
 
 # Hosts
 trackarr_docker_hosts_default: []
 trackarr_docker_hosts_custom: []
 trackarr_docker_hosts: "{{ docker_hosts_common
-                            | combine(trackarr_docker_hosts_default)
-                            | combine(trackarr_docker_hosts_custom) }}"
+                           | combine(trackarr_docker_hosts_default)
+                           | combine(trackarr_docker_hosts_custom) }}"
 
 # Labels
 trackarr_docker_labels_default: {}
@@ -144,7 +144,7 @@ trackarr_docker_capabilities: "{{ trackarr_docker_capabilities_default
 trackarr_docker_security_opts_default: []
 trackarr_docker_security_opts_custom: []
 trackarr_docker_security_opts: "{{ trackarr_docker_security_opts_default
-                                    + trackarr_docker_security_opts_custom }}"
+                                   + trackarr_docker_security_opts_custom }}"
 
 # Restart Policy
 trackarr_docker_restart_policy: unless-stopped
