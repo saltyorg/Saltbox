@@ -40,8 +40,8 @@ mariadb_docker_ports_defaults: []
 mariadb_docker_ports_custom: []
 mariadb_docker_ports: "{{ mariadb_docker_ports_defaults
                           + mariadb_docker_ports_custom
-                      if (not reverse_proxy_is_enabled)
-                      else [] + mariadb_docker_ports_custom }}"
+                       if (not reverse_proxy_is_enabled)
+                       else [] + mariadb_docker_ports_custom }}"
 
 # Envs
 mariadb_docker_envs_mysql_root_password: password321
@@ -52,13 +52,13 @@ mariadb_docker_envs_default:
   MYSQL_ROOT_PASSWORD: "{{ mariadb_docker_envs_mysql_root_password }}"
 mariadb_docker_envs_custom: {}
 mariadb_docker_envs: "{{ mariadb_docker_envs_default
-                          | combine(mariadb_docker_envs_custom) }}"
+                         | combine(mariadb_docker_envs_custom) }}"
 
 # Commands
 mariadb_docker_commands_default: []
 mariadb_docker_commands_custom: []
 mariadb_docker_commands: "{{ mariadb_docker_commands_default
-                              + mariadb_docker_commands_custom}}"
+                             + mariadb_docker_commands_custom}}"
 
 # Volumes
 mariadb_docker_volumes_default:
@@ -85,8 +85,8 @@ mariadb_docker_hosts: "{{ docker_hosts_common
 mariadb_docker_labels_default: {}
 mariadb_docker_labels_custom: {}
 mariadb_docker_labels: "{{ docker_labels_common
-                            | combine(mariadb_docker_labels_default)
-                            | combine(mariadb_docker_labels_custom) }}"
+                           | combine(mariadb_docker_labels_default)
+                           | combine(mariadb_docker_labels_custom) }}"
 
 # Hostname
 mariadb_docker_hostname: "{{ mariadb_name }}"
@@ -96,14 +96,14 @@ mariadb_docker_networks_alias: "{{ mariadb_name }}"
 mariadb_docker_networks_default: []
 mariadb_docker_networks_custom: []
 mariadb_docker_networks: "{{ docker_networks_common
-                              + mariadb_docker_networks_default
-                              + mariadb_docker_networks_custom }}"
+                             + mariadb_docker_networks_default
+                             + mariadb_docker_networks_custom }}"
 
 # Capabilities
 mariadb_docker_capabilities_default: []
 mariadb_docker_capabilities_custom: []
 mariadb_docker_capabilities: "{{ mariadb_docker_capabilities_default
-                                  + mariadb_docker_capabilities_custom }}"
+                                 + mariadb_docker_capabilities_custom }}"
 
 # Security Opts
 mariadb_docker_security_opts_default: []
