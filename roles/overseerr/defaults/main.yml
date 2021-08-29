@@ -67,8 +67,8 @@ overseerr_docker_ports_defaults:
 overseerr_docker_ports_custom: []
 overseerr_docker_ports: "{{ overseerr_docker_ports_defaults
                             + overseerr_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else [] + overseerr_docker_ports_custom }}"
+                         if (not reverse_proxy_is_enabled)
+                         else [] + overseerr_docker_ports_custom }}"
 
 # Envs
 overseerr_docker_envs_default:
@@ -76,13 +76,13 @@ overseerr_docker_envs_default:
   TZ: "{{ tz }}"
 overseerr_docker_envs_custom: {}
 overseerr_docker_envs: "{{ overseerr_docker_envs_default
-                            | combine(overseerr_docker_envs_custom) }}"
+                           | combine(overseerr_docker_envs_custom) }}"
 
 # Commands
 overseerr_docker_commands_default: []
 overseerr_docker_commands_custom: []
 overseerr_docker_commands: "{{ overseerr_docker_commands_default
-                                + overseerr_docker_commands_custom}}"
+                               + overseerr_docker_commands_custom}}"
 
 # Volumes
 overseerr_docker_volumes_default:
@@ -109,8 +109,8 @@ overseerr_docker_hosts: "{{ docker_hosts_common
 overseerr_docker_labels_default: {}
 overseerr_docker_labels_custom: {}
 overseerr_docker_labels: "{{ docker_labels_common
-                              | combine(overseerr_docker_labels_default)
-                              | combine(overseerr_docker_labels_custom) }}"
+                             | combine(overseerr_docker_labels_default)
+                             | combine(overseerr_docker_labels_custom) }}"
 
 # Hostname
 overseerr_docker_hostname: "{{ overseerr_name }}"
@@ -120,14 +120,14 @@ overseerr_docker_networks_alias: "{{ overseerr_name }}"
 overseerr_docker_networks_default: []
 overseerr_docker_networks_custom: []
 overseerr_docker_networks: "{{ docker_networks_common
-                                + overseerr_docker_networks_default
-                                + overseerr_docker_networks_custom }}"
+                               + overseerr_docker_networks_default
+                               + overseerr_docker_networks_custom }}"
 
 # Capabilities
 overseerr_docker_capabilities_default: []
 overseerr_docker_capabilities_custom: []
 overseerr_docker_capabilities: "{{ overseerr_docker_capabilities_default
-                                    + overseerr_docker_capabilities_custom }}"
+                                   + overseerr_docker_capabilities_custom }}"
 
 # Security Opts
 overseerr_docker_security_opts_default: []
