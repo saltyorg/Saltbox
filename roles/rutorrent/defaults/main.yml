@@ -155,9 +155,9 @@ rutorrent_docker_ports_defaults:
 # - Internal and External ports need to match for the next set of ports
 # - Lookup available ports and set docker ports accordingly
 rutorrent_docker_ports_51413: "{{ port_lookup_51413.port
-                              if (port_lookup_51413.port is defined)
+                               if (port_lookup_51413.port is defined)
                                   and (port_lookup_51413.port | trim | length > 0)
-                              else '51413' }}"
+                               else '51413' }}"
 rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
                               if (port_lookup_6881.port is defined)
                                   and (port_lookup_6881.port | trim | length > 0)
