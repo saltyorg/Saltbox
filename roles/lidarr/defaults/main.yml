@@ -81,7 +81,7 @@ lidarr_docker_ports_defaults:
   - "{{ lidarr_web_port }}:{{ lidarr_web_port }}"
 lidarr_docker_ports_custom: []
 lidarr_docker_ports: "{{ lidarr_docker_ports_defaults
-                          + lidarr_docker_ports_custom
+                         + lidarr_docker_ports_custom
                       if (not reverse_proxy_is_enabled)
                       else [] + lidarr_docker_ports_custom }}"
 
@@ -111,26 +111,26 @@ lidarr_docker_volumes_custom: []
 lidarr_docker_volumes_theme:
   - "{{ lidarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
 lidarr_docker_volumes: "{{ lidarr_docker_volumes_default
-                            + lidarr_docker_volumes_custom
-                            + docker_volumes_downloads_common
+                           + lidarr_docker_volumes_custom
+                           + docker_volumes_downloads_common
                         if not (lidarr_themepark_enabled)
                         else lidarr_docker_volumes_default
-                            + lidarr_docker_volumes_custom
-                            + docker_volumes_downloads_common
-                            + lidarr_docker_volumes_theme}}"
+                           + lidarr_docker_volumes_custom
+                           + docker_volumes_downloads_common
+                           + lidarr_docker_volumes_theme}}"
 
 # Devices
 lidarr_docker_devices_default: []
 lidarr_docker_devices_custom: []
 lidarr_docker_devices: "{{ lidarr_docker_devices_default
-                            + lidarr_docker_devices_custom }}"
+                           + lidarr_docker_devices_custom }}"
 
 # Hosts
 lidarr_docker_hosts_default: []
 lidarr_docker_hosts_custom: []
 lidarr_docker_hosts: "{{ docker_hosts_common
-                          | combine(lidarr_docker_hosts_default)
-                          | combine(lidarr_docker_hosts_custom) }}"
+                         | combine(lidarr_docker_hosts_default)
+                         | combine(lidarr_docker_hosts_custom) }}"
 
 # Labels
 lidarr_docker_labels_default: {}
@@ -160,7 +160,7 @@ lidarr_docker_capabilities: "{{ lidarr_docker_capabilities_default
 lidarr_docker_security_opts_default: []
 lidarr_docker_security_opts_custom: []
 lidarr_docker_security_opts: "{{ lidarr_docker_security_opts_default
-                                  + lidarr_docker_security_opts_custom }}"
+                                 + lidarr_docker_security_opts_custom }}"
 
 # Restart Policy
 lidarr_docker_restart_policy: unless-stopped
