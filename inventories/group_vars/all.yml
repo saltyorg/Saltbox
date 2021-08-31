@@ -132,6 +132,8 @@ ip_address_localhost: "127.0.0.1"
 
 ip_address_public: "{{ ansible_local.network.ip.public_ip | default(ansible_default_ipv4.address) }}"
 
+ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 | default(ansible_default_ipv6.address) }}"
+
 ################################
 # Reverse Proxy
 ################################
@@ -213,14 +215,14 @@ docker_networks_common:
       - "{{ lookup('vars', role_name + '_docker_networks_alias') }}"
 
 dockerhub_is_enabled: "{{ (dockerhub is defined) and
-                              (dockerhub is not none) and
-                              (dockerhub | trim | length > 0) and
-                              (dockerhub.user is defined) and
-                              (dockerhub.user is not none) and
-                              (dockerhub.user | trim | length > 0) and
-                              (dockerhub.token is defined) and
-                              (dockerhub.token is not none) and
-                              (dockerhub.token | trim | length > 0) }}"
+                          (dockerhub is not none) and
+                          (dockerhub | trim | length > 0) and
+                          (dockerhub.user is defined) and
+                          (dockerhub.user is not none) and
+                          (dockerhub.user | trim | length > 0) and
+                          (dockerhub.token is defined) and
+                          (dockerhub.token is not none) and
+                          (dockerhub.token | trim | length > 0) }}"
 
 ################################
 # Cloudbox Version Manager
