@@ -32,7 +32,7 @@ mergerfs_release_lookup_command: |
     | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}_amd64\")) \
     | .browser_download_url"
 
-mergerfs_download_backup_version: 2.32.4
+mergerfs_download_backup_version: 2.32.6
 
 mergerfs_download_backup_url: "
   {{ mergerfs_releases_download_url }}/\
