@@ -50,8 +50,8 @@ jobs:
       - name: Remove accounts.yml
         run: rm -rf accounts.yml
 
-      - name: Download Github Actions accounts.yml
-        run: curl -o accounts.yml https://raw.githubusercontent.com/saltydk/AppveyorTest/main/github.yml
+      - name: Edit accounts.yml
+        run: sed -i 's/seed/runner/g' accounts.yml
 
       - name: Syntax Check
         run: sudo ansible-playbook saltbox.yml --syntax-check
