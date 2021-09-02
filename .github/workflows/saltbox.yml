@@ -47,9 +47,6 @@ jobs:
       - name: Import default configuration
         run: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
 
-      - name: Remove accounts.yml
-        run: rm -rf accounts.yml
-
       - name: Edit accounts.yml
         run: sed -i 's/seed/runner/g' accounts.yml
 
