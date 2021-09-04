@@ -37,7 +37,7 @@
     mode: "0644"
     no_extra_spaces: true
 
-- name: CPU Frequency | Set 'GOVERNOR' to performance
+- name: CPU Frequency | Set 'GOVERNOR' used on boot to performance
   ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
@@ -55,6 +55,12 @@
     option: 'GOVENOR'
     mode: "0644"
     state: absent
+
+- name: CPU Frequency | Set 'GOVERNOR' used currently to performance
+  shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+  args:
+    warn: false
+  ignore_errors: true
 
 - name: Populate Service Facts
   service_facts:
