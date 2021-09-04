@@ -98,6 +98,15 @@
     mode: "0775"
     recurse: true
 
+- name: "Create backup location '{{ backup.local.destination }}/opt'"
+  file:
+    path: "{{ backup.local.destination }}/opt"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+
 - name: Check if previous backup exists locally
   find:
     paths: "{{ backup.local.destination }}/opt"
