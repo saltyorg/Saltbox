@@ -61,6 +61,12 @@
     state: present
   when: (motd_news.stat.exists)
 
+- name: Disable MOTD news service
+  systemd:
+    name: motd-news.service
+    state: stopped
+    enabled: no
+
 - name: Create dynamic motd directory
   file:
     path: /etc/update-motd.d
