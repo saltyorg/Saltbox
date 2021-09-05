@@ -25,18 +25,9 @@ require() {
 require low_bound
 require high_bound
 
-# https://unix.stackexchange.com/a/330776
 function find_port(){
-    candidate="$low_bound";
-    while [ "$candidate" -le "$high_bound" ]; do
-        (docker container ls --format "{{.Ports}}" -a | grep 0.0.0.0:${candidate}) >/dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            echo '{"changed": false, "port": '\"${candidate}\"'}';
-            exit 0
-        fi
-        candidate=$((candidate + 1))
-    done
-    echo '{"changed": false, "port": '\"\"'}';
+    candidate=$(comm -23 <(seq $low_bound $high_bound | sort) <(ss -Han | grep 0.0.0.0 | awk '{print $5}' | cut -d':' -f2 | sort -u) | head -n 1)
+    echo '{"changed": false, "port": '\"${candidate}\"'}';
     exit 0
 }
 
