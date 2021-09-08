@@ -51,3 +51,12 @@
     force: false
   with_fileglob:
     - /opt/community/defaults/*.*
+
+- name: Force overwrite community ansible.cfg
+  copy:
+    src: "/opt/community/defaults/ansible.cfg.default"
+    dest: "/opt/community/ansible.cfg"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0664
+    force: true
