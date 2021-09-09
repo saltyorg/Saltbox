@@ -93,6 +93,7 @@ sonarr_docker_envs_default:
   TZ: "{{ tz }}"
   TP_DOMAIN: "gilbn.github.io"
   TP_THEME: "{{ sonarr_themepark_theme }}"
+  TP_HOTIO: "true"
 sonarr_docker_envs_custom: {}
 sonarr_docker_envs: "{{ sonarr_docker_envs_default
                         | combine(sonarr_docker_envs_custom) }}"
