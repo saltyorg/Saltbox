@@ -67,6 +67,12 @@
     state: stopped
     enabled: no
 
+- name: Disable MOTD news timer
+  systemd:
+    name: motd-news.timer
+    state: stopped
+    enabled: no
+
 - name: Create dynamic motd directory
   file:
     path: /etc/update-motd.d
