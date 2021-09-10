@@ -1,20 +1,17 @@
 #########################################################################
 # Title:         Saltbox: Sanity Check | System                         #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: System | Saltbox support message
-  debug:
-    msg:
-      - "Saltbox was designed for use on Ubuntu servers running versions 18.04+. With basic support for other Debian systems."
-      - "Running Saltbox on unsupported systems may cause unpredictable results."
-  when: (ansible_distribution != 'Ubuntu') or
-    ((ansible_distribution == 'Ubuntu') and (ansible_distribution_version is version('18.04', '<')))
-
-- name: System | Display System Info
-  debug:
-    msg: "System is running {{ ansible_lsb.description if ansible_lsb is defined else (ansible_distribution + ' ' + ansible_distribution_version) }}."
+- name: System | Ensure Ansible is running on Ubuntu 20.04
+  assert:
+    that:
+      - ((ansible_distribution == 'Ubuntu') and (ansible_facts['distribution_version'] is version('20.04', '>=')))
+    fail_msg: >-
+      Saltbox was designed for use on Ubuntu servers running version 20.04.
+    success_msg: >-
+      System is running {{ ansible_lsb.description if ansible_lsb is defined else (ansible_distribution + ' ' + ansible_distribution_version) }}.
