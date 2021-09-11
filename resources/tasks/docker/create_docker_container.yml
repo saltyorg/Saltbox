@@ -26,7 +26,7 @@
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit) }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
-    labels: "{{ lookup('vars', _var_prefix + '_docker_labels') }}"
+    labels: "{{ lookup('vars', _var_prefix + '_docker_labels', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     network_mode: "{{ docker_networks_name_common }}"
     networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
