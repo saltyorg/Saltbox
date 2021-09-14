@@ -35,7 +35,7 @@
     # Set dirty_background_ratio
     - { name: vm.dirty_background_ratio, value: 10 }
     # Set somaxconn to 1024
-    - { name: net.core.somaxconn, value: 1024 }
+    - { name: net.core.somaxconn, value: 4096 }
     # Increase netdev_max_backlog
     - { name: net.core.netdev_max_backlog, value: 100000 }
     # Increase tcp_max_syn_backlog
