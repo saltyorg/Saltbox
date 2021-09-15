@@ -41,18 +41,8 @@
 
 # https://serverfault.com/a/839563
 # https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
-- name: APT | APT upgrade
-  shell: apt-get upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
-  environment: "{{ env_vars }}"
-  args:
-    warn: false
-  when: not continuous_integration
-  ignore_errors: true
-
-# https://serverfault.com/a/839563
-# https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
-- name: APT | APT dist-upgrade
-  shell: apt-get dist-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+- name: APT | APT full-upgrade
+  shell: apt-get full-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
   environment: "{{ env_vars }}"
   args:
     warn: false
