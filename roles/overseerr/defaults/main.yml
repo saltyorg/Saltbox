@@ -42,6 +42,12 @@ overseerr_dns_record: "{{ overseerr_web_subdomain }}"
 overseerr_dns_zone: "{{ overseerr_web_domain }}"
 
 ################################
+# Settings
+################################
+
+overseerr_log_level: "INFO"
+
+################################
 # Traefik
 ################################
 
@@ -74,6 +80,7 @@ overseerr_docker_ports: "{{ overseerr_docker_ports_defaults
 overseerr_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
+  LOG_LEVEL: "{{ overseerr_log_level }}"
 overseerr_docker_envs_custom: {}
 overseerr_docker_envs: "{{ overseerr_docker_envs_default
                            | combine(overseerr_docker_envs_custom) }}"
