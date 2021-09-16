@@ -22,7 +22,7 @@
   include_tasks: "subtasks/03_script.yml"
   when: (ansible_distribution == 'Ubuntu')
 
-# Ubuntu 18.04 HWE Update
+# Ubuntu 20.04 HWE Update
 - name: Update Tasks
   include_tasks: "subtasks/04_update.yml"
   when:
