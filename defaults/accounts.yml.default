@@ -10,4 +10,7 @@ cloudflare:
 plex:
   user:
   pass:
+dockerhub:
+  user:
+  token:
 apprise:
