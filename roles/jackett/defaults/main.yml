@@ -74,8 +74,8 @@ jackett_docker_ports_defaults:
 jackett_docker_ports_custom: []
 jackett_docker_ports: "{{ jackett_docker_ports_defaults
                           + jackett_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else [] + jackett_docker_ports_custom }}"
+                       if (not reverse_proxy_is_enabled)
+                       else [] + jackett_docker_ports_custom }}"
 
 # Envs
 jackett_docker_envs_git_branch: "nightly"
@@ -84,6 +84,9 @@ jackett_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
+  TP_DOMAIN: "gilbn.github.io"
+  TP_THEME: "{{ jackett_themepark_theme }}"
+  TP_HOTIO: "true"
 jackett_docker_envs_custom: {}
 jackett_docker_envs: "{{ jackett_docker_envs_default
                          | combine(jackett_docker_envs_custom) }}"
