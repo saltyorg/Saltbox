@@ -91,6 +91,9 @@ lidarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
+  TP_DOMAIN: "gilbn.github.io"
+  TP_THEME: "{{ lidarr_themepark_theme }}"
+  TP_HOTIO: "true"
 lidarr_docker_envs_custom: {}
 lidarr_docker_envs: "{{ lidarr_docker_envs_default
                         | combine(lidarr_docker_envs_custom) }}"
