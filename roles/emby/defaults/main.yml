@@ -73,14 +73,6 @@ emby_config_settings_custom: []
 emby_config_settings_list: "{{ emby_config_settings_default + emby_config_settings_custom }}"
 
 ################################
-# THEME
-################################
-
-# Options can be found at https://github.com/gilbN/theme.park
-emby_themepark_enabled: false
-emby_themepark_theme: "{{ global_themepark_theme }}"
-
-################################
 # Docker
 ################################
 
@@ -109,9 +101,6 @@ emby_docker_envs_default:
   NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
-  TP_THEME: "{{ emby_themepark_theme }}"
-  TP_HOTIO: "true"
 emby_docker_envs_custom: {}
 emby_docker_envs: "{{ emby_docker_envs_default
                       | combine(emby_docker_envs_custom) }}"
