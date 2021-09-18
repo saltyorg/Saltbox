@@ -85,6 +85,9 @@ tautulli_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
+  TP_DOMAIN: "gilbn.github.io"
+  TP_THEME: "{{ tautulli_themepark_theme }}"
+  TP_HOTIO: "true"
 tautulli_docker_envs_custom: {}
 tautulli_docker_envs: "{{ tautulli_docker_envs_default
                           | combine(tautulli_docker_envs_custom) }}"
