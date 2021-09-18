@@ -80,7 +80,7 @@ portainer_docker_envs: "{{ portainer_docker_envs_default
 portainer_docker_commands_default: []
 portainer_docker_commands_custom: []
 portainer_docker_commands: "{{ portainer_docker_commands_default
-                               + portainer_docker_commands_custom}}"
+                               + portainer_docker_commands_custom }}"
 
 # Volumes
 portainer_docker_volumes_default:

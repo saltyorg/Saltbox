@@ -54,7 +54,7 @@ nzbthrottle_docker_envs: "{{ nzbthrottle_docker_envs_default
 nzbthrottle_docker_commands_default: []
 nzbthrottle_docker_commands_custom: []
 nzbthrottle_docker_commands: "{{ nzbthrottle_docker_commands_default
-                                  + nzbthrottle_docker_commands_custom}}"
+                                  + nzbthrottle_docker_commands_custom }}"
 
 # Volumes
 nzbthrottle_docker_volumes_default:

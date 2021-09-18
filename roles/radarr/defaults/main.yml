@@ -102,7 +102,7 @@ radarr_docker_envs: "{{ radarr_docker_envs_default
 radarr_docker_commands_default: []
 radarr_docker_commands_custom: []
 radarr_docker_commands: "{{ radarr_docker_commands_default
-                            + radarr_docker_commands_custom}}"
+                            + radarr_docker_commands_custom }}"
 
 # Volumes
 radarr_docker_volumes_default:
@@ -120,7 +120,7 @@ radarr_docker_volumes: "{{ radarr_docker_volumes_default
                         else radarr_docker_volumes_default
                            + radarr_docker_volumes_custom
                            + docker_volumes_downloads_common
-                           + radarr_docker_volumes_theme}}"
+                           + radarr_docker_volumes_theme }}"
 
 # Devices
 radarr_docker_devices_default: []

@@ -126,7 +126,7 @@ plex_docker_envs: "{{ plex_docker_envs_default
 plex_docker_commands_default: []
 plex_docker_commands_custom: []
 plex_docker_commands: "{{ plex_docker_commands_default
-                          + plex_docker_commands_custom}}"
+                          + plex_docker_commands_custom }}"
 
 # Volumes
 plex_docker_volumes_default:
@@ -147,7 +147,7 @@ plex_docker_volumes: "{{ plex_docker_volumes_default
                       else plex_docker_volumes_default
                          + plex_docker_volumes_custom
                          + docker_volumes_downloads_common
-                         + plex_docker_volumes_theme}}"
+                         + plex_docker_volumes_theme }}"
 
 # Devices
 plex_docker_devices_default: []

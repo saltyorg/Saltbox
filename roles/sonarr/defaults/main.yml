@@ -102,7 +102,7 @@ sonarr_docker_envs: "{{ sonarr_docker_envs_default
 sonarr_docker_commands_default: []
 sonarr_docker_commands_custom: []
 sonarr_docker_commands: "{{ sonarr_docker_commands_default
-                            + sonarr_docker_commands_custom}}"
+                            + sonarr_docker_commands_custom }}"
 
 # Volumes
 sonarr_docker_volumes_default:

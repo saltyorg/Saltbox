@@ -86,7 +86,7 @@ sstv_docker_envs: "{{ sstv_docker_envs_default
 sstv_docker_commands_default: []
 sstv_docker_commands_custom: []
 sstv_docker_commands: "{{ sstv_docker_commands_default
-                          + sstv_docker_commands_custom}}"
+                          + sstv_docker_commands_custom }}"
 
 # Volumes
 sstv_docker_volumes_default:
