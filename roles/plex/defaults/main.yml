@@ -118,7 +118,6 @@ plex_docker_envs_default:
   ADVERTISE_IP: "{{ plex_docker_envs_advertise_ip }}"
   TP_DOMAIN: "gilbn.github.io"
   TP_THEME: "{{ plex_themepark_theme }}"
-  TP_HOTIO: "true"
 plex_docker_envs_custom: {}
 plex_docker_envs: "{{ plex_docker_envs_default
                       | combine(plex_docker_envs_custom) }}"
