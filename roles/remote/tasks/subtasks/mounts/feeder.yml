@@ -31,9 +31,9 @@
   set_fact:
     rclone_config_remotes: "{{ (rclone_config_remotes.stdout).split() }}"
 
-- name: Feeder | Set 'rclone_remote_is_configured' variable
+- name: Feeder | Set 'feeder_remote_is_configured' variable
   set_fact:
-    rclone_remote_is_configured: "{{ 'feeder:' in rclone_config_remotes }}"
+    feeder_remote_is_configured: "{{ 'feeder:' in rclone_config_remotes }}"
 
 - name: Feeder | Tasks when Rclone remote is configured
   block:
@@ -49,30 +49,30 @@
 
     - name: Feeder | Set 'rclone_remote_is_working' variable
       set_fact:
-        rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
+        feeder_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
 
     - name: Feeder | Start 'feeder.service'
       systemd:
         name: feeder.service
         state: started
         enabled: yes
-      when: rclone_remote_is_working
+      when: feeder_remote_is_working
 
     - name: "Feeder | Display error message when Rclone remote is not working properly"
       fail:
         msg:
           - "Rclone remote 'feeder:' is not working properly."
           - "{{ rclone_test.stderr }}"
-      when: not rclone_remote_is_working
+      when: not feeder_remote_is_working
       ignore_errors: true
 
-  when: rclone_remote_is_configured
+  when: feeder_remote_is_configured
 
 - name: "Feeder | Display error message when Rclone remote is not configured properly"
   fail:
     msg:
       - "Rclone remote 'feeder:' is not configured properly."
-  when: not rclone_remote_is_configured
+  when: not feeder_remote_is_configured
   ignore_errors: true
 
 - name: Feeder | Set 'feeder_remote_is_active' variable
