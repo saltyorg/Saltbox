@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Install pip 'psutil'
+  shell: pip3 install psutil --upgrade
+  ignore_errors: true
+
 - name: Install pip 'bpytop'
-  shell: pip3 install bpytop
+  shell: pip3 install bpytop --upgrade
   ignore_errors: true
