@@ -76,6 +76,8 @@ plex_themepark_theme: "{{ global_themepark_theme }}"
 
 plex_open_main_ports: false
 plex_db_cache_size: default
+plex_plugin_webtools: true
+plex_plugin_sub_zero: true
 
 ################################
 # Docker
