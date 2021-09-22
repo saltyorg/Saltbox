@@ -42,7 +42,7 @@
     path: /etc/systemd/system/docker.service.d/override.conf
     section: Unit
     option: "After"
-    value: "{{ mount_type }}.service"
+    value: "{{ docker_service_after }}"
     state: present
     mode: '0755'
     no_extra_spaces: true
