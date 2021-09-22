@@ -9,7 +9,7 @@
 #########################################################################
 
 [Unit]
-After={{ mount_type }}.service
+After={{ docker_service_after }}
 
 [Service]
 ExecStartPre=/bin/sleep {{ docker_service_sleep }}

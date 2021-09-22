@@ -71,4 +71,8 @@ docker_package_state: "{{ 'latest' if (docker_version is defined and docker_vers
 
 put_docker_dpkg_into_hold: true
 
+# Service
+
+docker_service_after: "{{ mount_type }}.service"
+
 docker_service_sleep: 120
