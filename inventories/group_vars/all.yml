@@ -120,7 +120,7 @@ tz: "{{ system.timezone
         if ansible_local is defined and
             ansible_local.timezone is defined and
             ansible_local.timezone | trim | length > 0
-     else 'UTC' }}"
+     else 'Etc/UTC' }}"
 
 ################################
 # Network
