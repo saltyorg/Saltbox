@@ -45,7 +45,7 @@ mergerfs_mount_branches: "{{ local_mount_branch }}=RW:/mnt/remote=NC"
 
 mergerfs_mount_start_command: |-
   /usr/bin/mergerfs \
-    -o category.create=ff,async_read=true \
+    -o category.create=ff,async_read=true,cache.files=partial \
     -o dropcacheonclose=true,use_ino,minfreespace=0 \
     -o xattr=nosys,statfs_ignore=ro,allow_other,umask=002,noatime \
     {{ mergerfs_mount_branches }} /mnt/unionfs
