@@ -86,6 +86,24 @@
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: not traefik_metrics_settings
 
+- name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
+  set_fact:
+    old_dockerhub: "{{ true if not(
+        (dockerhub is undefined)
+        or
+        (dockerhub is none)
+        or
+        (dockerhub | trim | length == 0)
+      )
+        else false }}"
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
+  shell: |
+    yyq d -i {{ playbook_dir }}/{{ file }} dockerhub
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_dockerhub
+
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   replace:
     path: "{{ playbook_dir }}/{{ file }}"
