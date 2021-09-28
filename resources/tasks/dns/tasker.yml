@@ -7,11 +7,26 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Get FLD
+  shell: |
+    python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
+  register: fld
+
+- name: Get suffix
+  shell: |
+    python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
+  register: suffix
+
 - name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
   set_fact:
-    _dns_tasker_record: "{{ [dns_record] | flatten | product([dns_record_suffix]) | map('join') | list }}"
-    _dns_tasker_zone: "{{ dns_zone | default(user.domain) }}"
+    _dns_tasker_zone: "{{ fld.stdout }}"
+    _dns_tasker_record: "{{ dns_record }}"
     _dns_tasker_action: "{{ dns_action | default('add') }}"
+
+- name: Append subdomain suffix
+  set_fact:
+    _dns_tasker_record: "{{ _dns_tasker_record + '.' + suffix.stdout }}"
+  when: suffix|length > 0
 
 - name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role
   include_role:

@@ -149,12 +149,6 @@ reverse_proxy_is_enabled: "{{ (user is defined) and
                               (user.email | trim | length > 0) }}"
 
 ################################
-# DNS
-################################
-
-dns_record_suffix: ""
-
-################################
 # Theme
 ################################
 
@@ -170,7 +164,7 @@ traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default
 traefik_tls: "{{ true if (not cloudflare_is_enabled) or (traefik.tls) else false }}"
 traefik_subdomain: "{{ lookup('vars', role_name + '_web_subdomain', default=omit) }}"
 traefik_domain: "{{ lookup('vars', role_name + '_web_domain', default=omit) }}"
-traefik_host: "{{ traefik_subdomain + dns_record_suffix + '.' + traefik_domain }}"
+traefik_host: "{{ traefik_subdomain + '.' + traefik_domain }}"
 
 ################################
 # Docker

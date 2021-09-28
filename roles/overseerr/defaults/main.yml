@@ -30,7 +30,7 @@ overseerr_paths_folders_list:
 overseerr_web_subdomain: "{{ overseerr_name }}"
 overseerr_web_domain: "{{ user.domain }}"
 overseerr_web_port: "5055"
-overseerr_web_url: "{{ 'https://' + overseerr_web_subdomain + dns_record_suffix + '.' + overseerr_web_domain
+overseerr_web_url: "{{ 'https://' + overseerr_web_subdomain + overseerr_web_domain
                     if (reverse_proxy_is_enabled)
                     else 'http://localhost:' + overseerr_web_port }}"
 

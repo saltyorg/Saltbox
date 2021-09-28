@@ -29,7 +29,7 @@ organizr_paths_folders_list:
 organizr_web_subdomain: "organizr"
 organizr_web_domain: "{{ user.domain }}"
 organizr_web_port: "80"
-organizr_web_url: "{{ 'https://' + organizr_web_subdomain + dns_record_suffix + '.' + organizr_web_domain
+organizr_web_url: "{{ 'https://' + organizr_web_subdomain + organizr_web_domain
                    if (reverse_proxy_is_enabled)
                    else 'http://localhost:' + organizr_web_port }}"
 

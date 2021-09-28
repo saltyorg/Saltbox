@@ -10,8 +10,7 @@
 - name: DNS Tasks
   include_tasks: "main2.yml"
   vars:
-    dns_record: "{{ item }}"
+    dns_record: "{{ _dns_role_record }}"
     dns_zone: "{{ _dns_role_zone }}"
     dns_action: "{{ _dns_role_action }}"
-  loop: "{{ _dns_role_record }}"
   when: reverse_proxy_is_enabled
