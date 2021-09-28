@@ -145,5 +145,6 @@
       - jmespath
       - passlib
       - PyMySQL
+      - tld
     executable: pip3
   ignore_errors: true
