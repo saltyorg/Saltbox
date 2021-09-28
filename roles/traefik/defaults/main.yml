@@ -30,6 +30,7 @@ traefik_web_subdomain: "dash"
 traefik_web_domain: "{{ user.domain }}"
 traefik_metrics_subdomain: "metrics"
 traefik_metrics_domain: "{{ user.domain }}"
+traefik_subdomain_suffix: "{{ ( dns_record_suffix ) | replace('.','') }}"
 
 ################################
 # Logging
@@ -165,8 +166,8 @@ traefik_docker_labels_default:
 
 traefik_docker_labels_cloudflare_validation:
   traefik.http.routers.traefik.tls.certresolver: "cfdns"
-  traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
-  traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
+  traefik.http.routers.traefik.tls.domains[0].main: "{{ traefik_subdomain_suffix + '.' + user.domain }}"
+  traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + traefik_subdomain_suffix + '.' + user.domain }}"
 
 traefik_docker_labels_tls_validation:
   traefik.http.routers.traefik.tls.certresolver: "tlsresolver"
