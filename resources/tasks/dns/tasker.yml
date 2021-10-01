@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Install tld python package
+  pip:
+    name: tld
+    executable: pip3
+
 - name: Get FLD
   shell: |
     python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
