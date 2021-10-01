@@ -33,7 +33,7 @@ nzbhydra_paths_db_location: "{{ server_appdata_path }}/nzbhydra/hydra/nzbhydra.d
 nzbhydra2_web_subdomain: "{{ nzbhydra2_name }}"
 nzbhydra2_web_domain: "{{ user.domain }}"
 nzbhydra2_web_port: "5076"
-nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + nzbhydra2_web_domain
+nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain
                     if (reverse_proxy_is_enabled)
                     else 'http://localhost:' + nzbhydra2_web_port }}"
 
