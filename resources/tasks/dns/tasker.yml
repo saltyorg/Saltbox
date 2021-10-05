@@ -18,14 +18,39 @@
   register: fld
 
 - name: Get subdomain
-  shell: |
-    python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_record }}.{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
-  register: subdomain
+  block:
+    - name: Get subdomain var
+      set_fact:
+        subdomain_block: 1
+        
+    - name: Get subdomain
+      shell: |
+        python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_record }}.{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
+      register: subdomain_notempty 
+  when: dns_record | length > 0
+
+- name: Get subdomain
+  block:
+    - name: Get subdomain var
+      set_fact:
+        subdomain_block: 0
+        
+    - name: Get subdomain
+      shell: |
+        python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
+      register: subdomain_empty  
+  when: dns_record | length == 0
+
+- name: Get subdomain var
+  set_fact:
+    subdomain: "{{ subdomain_notempty.stdout if (subdomain_block)
+                else subdomain_empty.stdout }}"
 
 - name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
   set_fact:
     _dns_tasker_zone: "{{ fld.stdout }}"
-    _dns_tasker_record: "{{ subdomain.stdout }}"
+    _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
+                         else '@' }}"
     _dns_tasker_action: "{{ dns_action | default('add') }}"
 
 - name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role

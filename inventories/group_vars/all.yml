@@ -164,7 +164,10 @@ traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default
 traefik_tls: "{{ true if (not cloudflare_is_enabled) or (traefik.tls) else false }}"
 traefik_subdomain: "{{ lookup('vars', role_name + '_web_subdomain', default=omit) }}"
 traefik_domain: "{{ lookup('vars', role_name + '_web_domain', default=omit) }}"
-traefik_host: "{{ traefik_subdomain + '.' + traefik_domain }}"
+traefik_router: "{{ lookup('vars', role_name + '_name', default=omit) }}"
+traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
+               if (traefik_subdomain | length > 0)
+               else traefik_domain }}"
 
 ################################
 # Docker
@@ -187,14 +190,14 @@ docker_labels_saltbox:
 
 docker_labels_traefik:
   - traefik.enable: "true"
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.entrypoints": "websecure" }'
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.service": "{{ traefik_subdomain }}" }'
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.rule": "Host(`{{ traefik_host }}`)" }'
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
-  - '{ "traefik.http.routers.{{ traefik_subdomain }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
-  - '{ "traefik.http.services.{{ traefik_subdomain }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
-  - '{ "traefik.http.services.{{ traefik_subdomain }}.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_scheme", default=omit) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "websecure" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_subdomain }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.rule": "Host(`{{ traefik_host }}`)" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_scheme", default=omit) }}" }'
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if (traefik_role_enabled)
