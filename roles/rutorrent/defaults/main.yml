@@ -95,9 +95,9 @@ rutorrent_config_new_installs_rutorrent_rc_settings_default:
   # Disk space allocation - disabled
   - { option: "system.file.allocate.set", value: "0" }
   # Download Directory
-  - { option: "directory.default.set", value: "/downloads/torrents/rutorrent/completed" }
+  - { option: "directory.default.set", value: "/mnt/unionfs/downloads/torrents/rutorrent/completed" }
   # Watched Directory
-  - { option: "schedule", value: 'watch_directory,5,5,"load.start=/downloads/torrents/rutorrent/watched/*.torrent,d.delete_tied="' }
+  - { option: "schedule", value: 'watch_directory,5,5,"load.start=/mnt/unionfs/downloads/torrents/rutorrent/watched/*.torrent,d.delete_tied="' }
 rutorrent_config_new_installs_rutorrent_rc_settings_custom: []
 rutorrent_config_new_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_default
                                                               + rutorrent_config_new_installs_rutorrent_rc_settings_custom }}"
