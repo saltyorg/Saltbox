@@ -44,7 +44,7 @@ nginx_dns_zone: "{{ nginx_web_domain }}"
 # Traefik
 ################################
 
-nginx_traefik_middleware: "secureHeaders@file,gzip"
+nginx_traefik_middleware: "{{ traefik_default_middleware }}"
 nginx_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nginx_traefik_enabled: true
 

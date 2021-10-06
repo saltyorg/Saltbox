@@ -51,7 +51,7 @@ overseerr_log_level: "INFO"
 # Traefik
 ################################
 
-overseerr_traefik_middleware: "secureHeaders@file,gzip"
+overseerr_traefik_middleware: "{{ traefik_default_middleware }}"
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 overseerr_traefik_enabled: true
 

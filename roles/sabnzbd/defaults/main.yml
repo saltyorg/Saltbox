@@ -51,7 +51,7 @@ sabnzbd_dns_zone: "{{ sabnzbd_web_domain }}"
 # Traefik
 ################################
 
-sabnzbd_traefik_middleware: "secureHeaders@file,gzip"
+sabnzbd_traefik_middleware: "{{ traefik_default_middleware }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
 

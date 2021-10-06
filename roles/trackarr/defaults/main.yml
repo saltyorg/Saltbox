@@ -45,7 +45,7 @@ trackarr_dns_zone: "{{ trackarr_web_domain }}"
 # Traefik
 ################################
 
-trackarr_traefik_middleware: "secureHeaders@file,gzip"
+trackarr_traefik_middleware: "{{ traefik_default_middleware }}"
 trackarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 trackarr_traefik_enabled: true
 

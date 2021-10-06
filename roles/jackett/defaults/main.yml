@@ -44,7 +44,7 @@ jackett_dns_zone: "{{ jackett_web_domain }}"
 # Traefik
 ################################
 
-jackett_traefik_middleware: "secureHeaders@file,gzip"
+jackett_traefik_middleware: "{{ traefik_default_middleware }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
 
