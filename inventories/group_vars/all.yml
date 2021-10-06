@@ -160,7 +160,7 @@ global_themepark_theme: organizr-dark
 ################################
 
 traefik_default_certresolver: "{{ 'tlsresolver' if (not cloudflare_is_enabled) or (traefik.tls) else 'cfdns' }}"
-traefik_default_middleware: "{{ traefik_default_middleware }}"
+traefik_default_middleware: "secureHeaders@file,gzip"
 traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default=False) }}"
 traefik_tls: "{{ true if (not cloudflare_is_enabled) or (traefik.tls) else false }}"
 traefik_subdomain: "{{ lookup('vars', role_name + '_web_subdomain', default=omit) }}"
