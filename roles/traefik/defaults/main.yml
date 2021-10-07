@@ -36,6 +36,7 @@ traefik_metrics_domain: "{{ user.domain }}"
 ################################
 
 traefik_log: false
+traefik_log_level: "ERROR"
 traefik_access_log: false
 traefik_access_buffer: 100
 
@@ -105,7 +106,7 @@ traefik_docker_commands_default:
   - "--api.dashboard=true"
   - "--api=true"
   - "--log={{ traefik_log }}"
-  - "--log.level=ERROR"
+  - "--log.level={{ traefik_log_level }}"
   - "--log.filepath=/etc/traefik/traefik.log"
   - "--accesslog={{ traefik_access_log }}"
   - "--accesslog.filepath=/etc/traefik/access.log"
