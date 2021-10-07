@@ -1,7 +1,7 @@
 ---
 downloads:
-  nzbs: /mnt/local/downloads/nzbs
-  torrents: /mnt/local/downloads/torrents
+  nzbs: /mnt/unionfs/downloads/nzbs
+  torrents: /mnt/unionfs/downloads/torrents
 transcodes: /mnt/local/transcodes
 rclone:
   version: latest

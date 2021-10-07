@@ -68,10 +68,10 @@ sabnzbd_config_settings_default:
   - { option: "username", value: "{{ user.name }}" }
   - { option: "password", value: "{{ user.pass }}" }
   # Paths
-  - { option: "dirscan_dir", value: "/downloads/nzbs/sabnzbd/watch" }
-  - { option: "download_dir", value: "/downloads/nzbs/sabnzbd/incomplete" }
-  - { option: "complete_dir", value: "/downloads/nzbs/sabnzbd/complete" }
-  - { option: "log_dir", value: "/downloads/nzbs/sabnzbd/logs'" }
+  - { option: "dirscan_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/watch" }
+  - { option: "download_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/incomplete" }
+  - { option: "complete_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/complete" }
+  - { option: "log_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/logs'" }
 
 sabnzbd_config_settings_custom: []
 
