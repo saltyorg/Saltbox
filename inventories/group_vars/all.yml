@@ -192,7 +192,7 @@ docker_labels_saltbox:
 docker_labels_traefik:
   - traefik.enable: "true"
   - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "websecure" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_subdomain }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.rule": "Host(`{{ traefik_host }}`)" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
