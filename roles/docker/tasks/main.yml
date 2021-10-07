@@ -126,6 +126,9 @@
   import_tasks: "subtasks/dockerhub.yml"
   when: dockerhub_is_enabled
 
+- name: "Import DNS tasks"
+  import_tasks: "subtasks/dns.yml"
+
 - name: "Install ctop"
   import_role:
     name: ctop

@@ -1,0 +1,20 @@
+# /etc/systemd/system/docker-update-hosts.service
+#########################################################################
+# Title:         Saltbox: Docker Host DNS Resolution                    #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+[Unit]
+Description=Update Docker containers in /etc/hosts
+Requires=docker.service
+After=docker.service
+PartOf=docker.service
+
+[Service]
+ExecStart=/usr/local/bin/docker-update-hosts
+
+[Install]
+WantedBy=docker.service
