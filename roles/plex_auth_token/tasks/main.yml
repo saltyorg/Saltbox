@@ -76,8 +76,8 @@
               Accept: "application/json"
             status_code: 201
           register: plex_pin
-      
-        - name: "Auth Token | Prompt user to login"
+
+        - name: "Auth Token | Prompt user to login" # noqa 204
           pause:
             prompt: "Please open https://app.plex.tv/auth#?clientID={{ plex_pin.json.clientIdentifier }}&code={{ plex_pin.json.code }}&context%5Bdevice%5D%5Bproduct%5D={{ plex_pin.json.product }} and login. Hit enter after having logged in"
 
