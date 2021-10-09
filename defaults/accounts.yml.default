@@ -10,6 +10,7 @@ cloudflare:
 plex:
   user:
   pass:
+  tfa: no
 dockerhub:
   user:
   token:

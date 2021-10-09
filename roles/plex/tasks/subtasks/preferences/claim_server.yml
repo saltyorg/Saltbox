@@ -1,27 +1,37 @@
 ##########################################################################
 # Title:         Saltbox: Plex | Claim Server                            #
-# Author(s):     desimaniac                                              #
+# Author(s):     desimaniac, salty                                       #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
 ##########################################################################
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+- name: Claim Server | Import plex_auth_token
+  import_role:
+    name: plex_auth_token
+
 - name: Claim Server | Get {{ plex_name | title }} claim code via API
   block:
+    - name: "Get {{ plex_name | title }} claim code"
+      uri:
+        url: https://plex.tv/api/claim/token.json
+        method: GET
+        return_content: yes
+        body:
+          X-Plex-Version: "{{ plex_auth_token_version }}"
+          X-Plex-Product: "{{ plex_auth_token_product }}"
+          X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
+          X-Plex-Token: "{{ plex_auth_token }}"
+        body_format: form-urlencoded
+        headers:
+          Accept: "application/json"
+        status_code: 200
+      register: plex_claim
 
-  - name: "Get {{ plex_name | title }} claim code"
-    uri:
-      url: https://plex.tv/api/claim/token.json
-      user: "{{ plex.user }}"
-      password: "{{ plex.pass }}"
-      force_basic_auth: true
-    register: plex_claim
-    no_log: true
-
-  - name: "Claim Server | Set 'plex_claim_code' variable"
-    set_fact:
-      plex_claim_code: "{{ plex_claim.json.token }}"
+    - name: "Claim Server | Set 'plex_claim_code' variable"
+      set_fact:
+        plex_claim_code: "{{ plex_claim.json.token }}"
 
   when: (plex_account_is_enabled)
 
