@@ -38,6 +38,8 @@
       docker_network:
         name: saltbox
         state: present
+        ipam_config:
+          - subnet: 172.19.0.0/16
 
   when: ('saltbox' not in docker_networks_list.stdout_lines) and (not dns.ipv6)
 
@@ -93,6 +95,8 @@
       docker_network:
         name: saltbox
         state: present
+        ipam_config:
+          - subnet: 172.19.0.0/16
 
     - name: Network | Connect containers to saltbox network
       shell: docker network connect saltbox {{ item }} --alias {{ item }}
