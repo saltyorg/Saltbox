@@ -1,0 +1,2 @@
+echo "changes were made, running settings update"
+sb install settings
