@@ -1,0 +1,24 @@
+#########################################################################
+# Title:         Saltbox: Traefik | ZeroSSL Task                        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Get new credentials
+  uri:
+    url: https://api.zerossl.com/acme/eab-credentials-email
+    method: POST
+    body:
+      email: "{{ user.email }}"
+    body_format: form-urlencoded
+    return_content: yes
+  register: zerossl
+
+- name: "Set ZeroSSL variables"
+  set_fact:
+    traefik_zerossl_kid: "{{ zerossl.json.eab_kid }}"
+    traefik_zerossl_hmacencoded: "{{ zerossl.json.eab_hmac_key }}"
+  when: zerossl.status == 200

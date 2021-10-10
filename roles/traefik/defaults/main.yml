@@ -57,13 +57,6 @@ traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
 traefik_traefik_enabled: true
 
 ################################
-# ZeroSSL
-################################
-
-traefik_zerossl_kid: ""
-traefik_zerossl_hmacencoded: ""
-
-################################
 # Docker
 ################################
 
