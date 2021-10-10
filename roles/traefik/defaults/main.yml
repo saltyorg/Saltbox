@@ -121,7 +121,7 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
   - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid }}"
   - "--certificatesresolvers.zerossl.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded }}"
-  - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/zerossl.json"
+  - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
   - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
