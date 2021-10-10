@@ -57,6 +57,13 @@ traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
 traefik_traefik_enabled: true
 
 ################################
+# ZeroSSL
+################################
+
+traefik_zerossl_kid: ""
+traefik_zerossl_hmacencoded: ""
+
+################################
 # Docker
 ################################
 
@@ -113,10 +120,17 @@ traefik_docker_commands_default:
   - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.provider=cloudflare"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
-  - "{{ '--certificatesresolvers.cfdns.acme.email=' + user.email }}"
+  - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider=cloudflare"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+  - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
+  - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
+  - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid }}"
+  - "--certificatesresolvers.zerossl.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded }}"
+  - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/zerossl.json"
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
-  - "{{ '--certificatesresolvers.tlsresolver.acme.email=' + user.email }}"
+  - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_metrics:
   - "--metrics.prometheus=true"
@@ -165,7 +179,7 @@ traefik_docker_labels_default:
   traefik.http.middlewares.gzip.compress: "true"
 
 traefik_docker_labels_cloudflare_validation:
-  traefik.http.routers.traefik.tls.certresolver: "cfdns"
+  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
   traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
   traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
 
