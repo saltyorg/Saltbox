@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Subdomains | Add Subdomain | Cloudflare: Add '{{ saltbox_type }}' subdomain to '{{ user.domain }}'"
+- name: "Subdomains | Add Subdomain | Cloudflare: Add '{{ saltbox_type }}' subdomain to '{{ fld.stdout }}'"
   cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
-    zone: "{{ user.domain }}"
+    zone: "{{ fld.stdout }}"
     state: present
     solo: true
     proxied: "{{ dns.proxied | default('no') }}"

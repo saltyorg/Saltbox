@@ -22,7 +22,7 @@
         - target: url
           constraint:
             operator: matches
-            value: "*{{ user.domain }}/.well-known/acme-challenge/*"
+            value: "*{{ fld.stdout }}/.well-known/acme-challenge/*"
       actions:
         - id: browser_check
           value: 'off'
@@ -31,5 +31,5 @@
 
 - name: Page Rules | Add Page Rule | Print result of Cloudflare Page Rule Creation
   debug:
-    msg: "Successfully created Let's Encrypt Cloudflare page rule for '{{ user.domain }}'"
+    msg: "Successfully created Let's Encrypt Cloudflare page rule for '{{ fld.stdout }}'"
   when: (cf_page_rule_creation.json.success is defined) and (cf_page_rule_creation.json.success)
