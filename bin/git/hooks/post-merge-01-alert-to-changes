@@ -1,6 +1,6 @@
 echo "**************************************************"
 echo "*                                                *"
-echo "*    Please use `sb update` instead of git to    *"
+echo "*    Please use \"sb update\" instead of git to    *"
 echo "*    update Saltbox.  The update script does     *"
 echo "*    other actions such as updating settings     *"
 echo "*    that may cause problems if skipped.         *"
