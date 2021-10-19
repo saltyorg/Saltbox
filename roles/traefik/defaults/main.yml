@@ -94,6 +94,7 @@ traefik_docker_envs: "{{ traefik_docker_envs_default
 traefik_docker_commands_default:
   - "--global.sendanonymoususage=false"
   - "--providers.file.directory=/etc/traefik"
+  - "--providers.file.watch=true"
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.web.address=:80"
