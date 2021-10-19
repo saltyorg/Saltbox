@@ -100,6 +100,7 @@ traefik_docker_commands_default:
   - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
   - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
   - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+  - "--entrypoints.web.http.redirections.entrypoint.priority=1000"
   - "--entrypoints.websecure.address=:443"
   - "--entrypoints.websecure.forwardedheaders.insecure"
   - "--entrypoints.websecure.proxyprotocol.insecure"
