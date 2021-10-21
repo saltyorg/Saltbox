@@ -1,0 +1,29 @@
+##########################################################################
+# Title:         Saltbox: Netdata | Settings Task                        #
+# Author(s):     desimaniac                                              #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Settings | Check if '{{ netdata_paths_config_file_location }}' exists
+  stat:
+    path: "{{ netdata_paths_config_file_location }}"
+  register: netdata_config
+
+- name: Settings | Copy Default Config if it doesn't exist
+  shell: |
+    docker run -d --name netdata_tmp "{{ netdata_docker_image }}"
+    docker cp netdata_tmp:/etc/netdata/ "{{ netdata_paths_config_location }}"
+    docker rm -f netdata_tmp
+  when: not netdata_config.stat.exists
+
+- name: Chown directories
+  file:
+    path: "netdata_paths_location"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
