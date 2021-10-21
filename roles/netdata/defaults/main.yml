@@ -20,7 +20,7 @@ netdata_name: netdata
 netdata_paths_folder: "{{ netdata_name }}"
 netdata_paths_location: "{{ server_appdata_path }}/{{ netdata_paths_folder }}"
 netdata_paths_config_location: "{{ netdata_paths_location }}/config"
-netdata_paths_config_file_location: "{{ netdata_paths_location }}/config/netdata/netdata.conf"
+netdata_paths_config_file_location: "{{ netdata_paths_location }}/config/netdata.conf"
 netdata_paths_folders_list:
   - "{{ netdata_paths_location }}"
   - "{{ netdata_paths_location }}/config"
