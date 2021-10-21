@@ -21,7 +21,7 @@
 
 - name: Chown directories
   file:
-    path: "netdata_paths_location"
+    path: "{{ netdata_paths_location }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
