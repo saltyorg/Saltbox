@@ -9,6 +9,7 @@ dns:
 traefik:
   tls: no
   metrics: no
+  hsts: no
 mounts:
   remote: rclone_vfs
   feeder: no

@@ -22,10 +22,6 @@ http:
         accessControlMaxAge: 100
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        stsSeconds: 63072000
-        stsIncludeSubdomains: true
-        stsPreload: true
-        forceSTSHeader: true
         customFrameOptionsValue: "allow-from https:{{ user.domain }}"
         contentTypeNosniff: true
         browserXssFilter: true
@@ -36,3 +32,9 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
           server: ""
+    hsts:
+      headers:
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        forceSTSHeader: true
