@@ -1,6 +1,6 @@
 #########################################################################
-# Title:         Saltbox: Traefik Role                                  #
-# Author(s):     RXWatcher, salty                                       #
+# Title:         Saltbox: Jaeger Role                                   #
+# Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -13,20 +13,8 @@
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
 
-- name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
-  vars:
-    dns_record: "{{ lookup('vars', role_name + '_metrics_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_metrics_dns_zone') }}"
-  when: traefik.metrics
-
 - name: Remove existing Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-
-- name: "Import Jaeger Role"
-  import_role:
-    name: jaeger
-  when: traefik.tracing
 
 - name: Create directories
   file:
@@ -36,14 +24,6 @@
     group: "{{ user.name }}"
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
-
-- name: Traefik ZeroSSL Tasks
-  import_tasks: "subtasks/zerossl.yml"
-  when: (not continuous_integration)
-
-- name: Traefik config Tasks
-  import_tasks: "subtasks/config.yml"
-  when: (not continuous_integration)
 
 - name: Create Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

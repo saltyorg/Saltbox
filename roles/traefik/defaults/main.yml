@@ -136,18 +136,32 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
   - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
-traefik_docker_commands_metrics:
+traefik_docker_commands_metrics_tmp:
   - "--metrics.prometheus=true"
   - "--metrics.prometheus.addentrypointslabels=true"
   - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
+traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp if traefik.metrics
+                                  else [] }}"
+traefik_docker_commands_tracing_tmp:
+  - "--tracing.serviceName=traefik"
+  - "--tracing.spanNameLimit=250"
+  - "--tracing.jaeger=true"
+  - "--tracing.jaeger.samplingServerURL=http://jaeger:5778/sampling"
+  - "--tracing.jaeger.samplingType=const"
+  - "--tracing.jaeger.samplingParam=1"
+  - "--tracing.jaeger.localAgentHostPort=jaeger:6831"
+  - "--tracing.jaeger.gen128Bit"
+  - "--tracing.jaeger.propagation=jaeger"
+  - "--tracing.jaeger.traceContextHeaderName=uber-trace-id"
+  - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
+traefik_docker_commands_tracing: "{{ traefik_docker_commands_tracing_tmp if traefik.tracing
+                                  else [] }}"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
-                          if not (traefik.metrics)
-                          else traefik_docker_commands_default
-                             + traefik_docker_commands_custom
-                             + traefik_docker_commands_metrics }}"
+                             + traefik_docker_commands_metrics
+                             + traefik_docker_commands_tracing }}"
 
 # Volumes
 traefik_docker_volumes_default:

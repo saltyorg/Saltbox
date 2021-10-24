@@ -1,0 +1,141 @@
+##########################################################################
+# Title:         Saltbox: Jaeger | Default Variables                     #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+jaeger_name: jaeger
+
+################################
+# Paths
+################################
+
+jaeger_paths_folder: "{{ jaeger_name }}"
+jaeger_paths_location: "{{ server_appdata_path }}/{{ jaeger_paths_folder }}"
+jaeger_paths_folders_list:
+  - "{{ jaeger_paths_location }}"
+
+################################
+# Web
+################################
+
+jaeger_web_subdomain: "{{ jaeger_name }}"
+jaeger_web_domain: "{{ user.domain }}"
+jaeger_web_port: "16686"
+jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain
+                 if (reverse_proxy_is_enabled)
+                 else 'http://localhost:' + jaeger_web_port }}"
+
+################################
+# DNS
+################################
+
+jaeger_dns_record: "{{ jaeger_web_subdomain }}"
+jaeger_dns_zone: "{{ jaeger_web_domain }}"
+
+################################
+# Traefik
+################################
+
+jaeger_traefik_middleware: "{{ traefik_default_middleware }},jaeger-auth"
+jaeger_traefik_certresolver: "{{ traefik_default_certresolver }}"
+jaeger_traefik_enabled: true
+jaeger_auth: "/etc/traefik/auth"
+
+################################
+# Docker
+################################
+
+# Container
+jaeger_docker_container: "{{ jaeger_name }}"
+
+# Image
+jaeger_docker_image_pull: true
+jaeger_docker_image_tag: "latest"
+jaeger_docker_image: "jaegertracing/all-in-one:{{ jaeger_docker_image_tag }}"
+
+# Ports
+jaeger_docker_ports_defaults:
+  - "{{ jaeger_web_port }}:{{ jaeger_web_port }}"
+jaeger_docker_ports_custom: []
+jaeger_docker_ports: "{{ jaeger_docker_ports_defaults
+                         + jaeger_docker_ports_custom
+                      if (not reverse_proxy_is_enabled)
+                      else [] + jaeger_docker_ports_custom }}"
+
+# Envs
+jaeger_docker_envs_default:
+  TZ: "{{ tz }}"
+  COLLECTOR_ZIPKIN_HTTP_PORT: "9411"
+jaeger_docker_envs_custom: {}
+jaeger_docker_envs: "{{ jaeger_docker_envs_default
+                        | combine(jaeger_docker_envs_custom) }}"
+
+# Commands
+jaeger_docker_commands_default: []
+jaeger_docker_commands_custom: []
+jaeger_docker_commands: "{{ jaeger_docker_commands_default
+                            + jaeger_docker_commands_custom }}"
+
+# Volumes
+jaeger_docker_volumes_default: []
+jaeger_docker_volumes_custom: []
+jaeger_docker_volumes: "{{ jaeger_docker_volumes_default
+                           + jaeger_docker_volumes_custom }}"
+
+# Devices
+jaeger_docker_devices_default: []
+jaeger_docker_devices_custom: []
+jaeger_docker_devices: "{{ jaeger_docker_devices_default
+                           + jaeger_docker_devices_custom }}"
+
+# Hosts
+jaeger_docker_hosts_default: []
+jaeger_docker_hosts_custom: []
+jaeger_docker_hosts: "{{ docker_hosts_common
+                         | combine(jaeger_docker_hosts_default)
+                         | combine(jaeger_docker_hosts_custom) }}"
+
+# Labels
+jaeger_docker_labels_default:
+  traefik.http.middlewares.jaeger-auth.basicauth.usersfile: "{{ jaeger_auth }}"
+jaeger_docker_labels_custom: {}
+jaeger_docker_labels: "{{ docker_labels_common
+                          | combine(jaeger_docker_labels_default)
+                          | combine(jaeger_docker_labels_custom) }}"
+
+# Hostname
+jaeger_docker_hostname: "{{ jaeger_name }}"
+
+# Networks
+jaeger_docker_networks_alias: "{{ jaeger_name }}"
+jaeger_docker_networks_default: []
+jaeger_docker_networks_custom: []
+jaeger_docker_networks: "{{ docker_networks_common
+                            + jaeger_docker_networks_default
+                            + jaeger_docker_networks_custom }}"
+
+# Capabilities
+jaeger_docker_capabilities_default: []
+jaeger_docker_capabilities_custom: []
+jaeger_docker_capabilities: "{{ jaeger_docker_capabilities_default
+                                + jaeger_docker_capabilities_custom }}"
+
+# Security Opts
+jaeger_docker_security_opts_default: []
+jaeger_docker_security_opts_custom: []
+jaeger_docker_security_opts: "{{ jaeger_docker_security_opts_default
+                                 + jaeger_docker_security_opts_custom }}"
+
+# Restart Policy
+jaeger_docker_restart_policy: unless-stopped
+
+# State
+jaeger_docker_state: started
