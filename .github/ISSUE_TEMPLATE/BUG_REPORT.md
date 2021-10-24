@@ -27,9 +27,8 @@ If issue occurs during Ansible playbook, run playbook with `-vv` to output detai
 
 **System Information**
 
- - Saltbox Version: [e.g. Master (latest), Develop (latest)]
- - Operating System: [e.g. Ubuntu Server 18.04 LTS]
- - Linux Kernel: [e.g. 4.15]
+ - Operating System: [e.g. Ubuntu Server 20.04 LTS]
+ - Linux Kernel: [e.g. 5.8]
 
 **Additional context**
 Add any other context about the problem here.
