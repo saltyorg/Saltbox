@@ -60,7 +60,7 @@ sstv_docker_container: "{{ sstv_name }}"
 # Image
 sstv_docker_image_pull: true
 sstv_docker_image_tag: "master"
-sstv_docker_image: "cloudb0x/sstv:{{ sstv_docker_image_tag }}"
+sstv_docker_image: "saltydk/sstv:{{ sstv_docker_image_tag }}"
 
 # Ports
 sstv_docker_ports_defaults:
