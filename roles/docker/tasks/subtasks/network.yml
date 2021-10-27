@@ -74,7 +74,7 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (not docker_ipv6.stdout) and (dns.ipv6)
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'false') and (dns.ipv6)
 
 - name: "Network | Migrating existing saltbox docker network block to IPv4"
   block:
@@ -105,7 +105,7 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout) and (not dns.ipv6)
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'true') and (not dns.ipv6)
 
 - name: Unset variables
   set_fact:
