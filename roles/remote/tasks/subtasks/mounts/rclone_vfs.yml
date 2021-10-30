@@ -29,6 +29,32 @@
     enabled: false
     daemon_reload: true
 
+- name: Rclone VFS | Import 'rclone_refresh.timer'
+  template:
+    src: rclone_refresh.timer.j2
+    dest: /etc/systemd/system/rclone_refresh.timer
+    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+
+- name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.timer'
+  systemd:
+    name: rclone_refresh.timer
+    state: stopped
+    enabled: no
+    daemon_reload: yes
+
+- name: Rclone VFS | Import 'rclone_refresh.service'
+  template:
+    src: rclone_refresh.service.j2
+    dest: /etc/systemd/system/rclone_refresh.service
+    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+
+- name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.service'
+  systemd:
+    name: rclone_refresh.service
+    state: stopped
+    enabled: no
+    daemon_reload: yes
+
 - name: Rclone VFS | Get list of Rclone remotes in config
   shell: rclone listremotes
   become: true
@@ -67,6 +93,24 @@
             name: rclone_vfs.service
             state: started
             enabled: true
+
+        - name: Rclone VFS | "Wait for 5 seconds"
+          wait_for:
+            timeout: 5
+
+        - name: Rclone VFS | Start 'rclone_refresh.timer'
+          systemd:
+            name: rclone_refresh.timer
+            state: started
+            enabled: yes
+
+        - name: Rclone VFS | Start 'rclone_refresh.service'
+          systemd:
+            name: rclone_refresh.service
+            state: started
+            enabled: yes
+          async: 900
+          poll: 0
 
       when: rclone_remote_is_working
 

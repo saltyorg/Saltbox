@@ -1,0 +1,18 @@
+# /etc/systemd/system/rclone_refresh.timer
+#########################################################################
+# Title:         Saltbox: Rclone VFS Refresh - Timer                    #
+# Author(s):     desimaniac, Horjulf, salty                             #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+Description=Rclone VFS Refresh - Timer
+
+[Timer]
+OnUnitInactiveSec={{ rclone_vfs_refresh_interval }}
+
+[Install]
+WantedBy=timers.target

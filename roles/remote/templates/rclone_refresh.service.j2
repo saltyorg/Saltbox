@@ -1,0 +1,24 @@
+# /etc/systemd/system/rclone_refresh.service
+#########################################################################
+# Title:         Saltbox: Rclone VFS Mount                              #
+# Author(s):     EnorMOZ, salty                                         #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+Description=Rclone VFS Refresh - Service
+Requires=rclone_vfs.service
+After=rclone_vfs.service
+
+[Service]
+User={{ user.name }}
+Group={{ user.name }}
+Type=oneshot
+ExecStartPre=/bin/sleep 10
+ExecStart={{ rclone_vfs_refresh_command }}
+
+[Install]
+WantedBy=default.target
