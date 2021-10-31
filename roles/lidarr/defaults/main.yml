@@ -63,6 +63,7 @@ lidarr_api_key:
 # Options can be found at https://github.com/gilbN/theme.park
 lidarr_themepark_enabled: false
 lidarr_themepark_theme: "{{ global_themepark_theme }}"
+lidarr_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -91,7 +92,7 @@ lidarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ lidarr_themepark_domain }}"
   TP_THEME: "{{ lidarr_themepark_theme }}"
   TP_HOTIO: "true"
 lidarr_docker_envs_custom: {}
