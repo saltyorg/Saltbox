@@ -63,6 +63,7 @@ radarr_api_key:
 # Options can be found at https://github.com/gilbN/theme.park
 radarr_themepark_enabled: false
 radarr_themepark_theme: "{{ global_themepark_theme }}"
+radarr_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -91,7 +92,7 @@ radarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ radarr_themepark_domain }}"
   TP_THEME: "{{ radarr_themepark_theme }}"
   TP_HOTIO: "true"
 radarr_docker_envs_custom: {}
