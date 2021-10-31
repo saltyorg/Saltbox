@@ -95,6 +95,7 @@
       - "lib32z1"
       - "moreutils"
       - "unrar"
+      - "python3-virtualenv"
   ignore_errors: true
 
 - name: Install extra packages
