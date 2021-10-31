@@ -28,18 +28,12 @@
         state: stopped
       when: plex_autoscan_service_running
 
-    - name: Services | Update 'User/Group' in 'plex_autoscan.service'
-      ini_file:
-        path: "/etc/systemd/system/plex_autoscan.service"
-        section: Service
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-        state: present
+    - name: Import 'plex_autoscan.service'
+      template:
+        src: plex_autoscan.service.j2
+        dest: /etc/systemd/system/plex_autoscan.service
         mode: "0755"
-        no_extra_spaces: true
-      loop:
-        - { option: 'User', value: "{{ user.name }}" }
-        - { option: 'Group', value: "{{ user.name }}" }
+        force: true
 
   when: plex_autoscan_service.stat.exists
 
