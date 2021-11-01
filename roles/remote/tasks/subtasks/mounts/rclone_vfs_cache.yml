@@ -34,6 +34,7 @@
     src: rclone_refresh.timer.j2
     dest: /etc/systemd/system/rclone_refresh.timer
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    mode: '0755'
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.timer'
   systemd:
@@ -47,6 +48,7 @@
     src: rclone_refresh.service.j2
     dest: /etc/systemd/system/rclone_refresh.service
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    mode: '0755'
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.service'
   systemd:
