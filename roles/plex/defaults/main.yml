@@ -76,6 +76,7 @@ plex_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
 # Options can be found at https://github.com/gilbN/theme.park
 plex_themepark_enabled: false
 plex_themepark_theme: "{{ global_themepark_theme }}"
+plex_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Settings
@@ -119,7 +120,7 @@ plex_docker_envs_default:
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
   ADVERTISE_IP: "{{ plex_docker_envs_advertise_ip }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ plex_themepark_domain }}"
   TP_THEME: "{{ plex_themepark_theme }}"
 plex_docker_envs_custom: {}
 plex_docker_envs: "{{ plex_docker_envs_default
