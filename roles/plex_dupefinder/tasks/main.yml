@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Plex Dupefinder Role                          #
-# Author(s):     l3uddz                                                 #
+# Author(s):     l3uddz, salty                                          #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -57,7 +57,7 @@
     force: false
   when: not plex_dupefinder_config.stat.exists
 
-- name: Set plexdupes.py as executable
+- name: Set plex_dupefinder.py as executable
   file:
     path: /opt/plex_dupefinder/plex_dupefinder.py
     owner: "{{ user.name }}"
