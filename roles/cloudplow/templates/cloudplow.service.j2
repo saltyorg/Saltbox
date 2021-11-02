@@ -1,7 +1,7 @@
 # /etc/systemd/system/{{ cloudplow_service_name }}.service
 #########################################################################
 # Title:         Saltbox: Cloudplow Service                             #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -19,7 +19,7 @@ Type=simple
 Environment=LC_ALL=C.UTF-8
 Environment=LANG=C.UTF-8
 WorkingDirectory={{ cloudplow_path }}/
-ExecStart=/usr/bin/python3 {{ cloudplow_script_path }} run --loglevel=INFO
+ExecStart={{ cloudplow_python_path }} {{ cloudplow_script_path }} run --loglevel=INFO
 ExecStopPost=/bin/rm -rf {{ cloudplow_path }}/locks
 Restart=always
 RestartSec=10

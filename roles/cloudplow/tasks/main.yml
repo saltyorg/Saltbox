@@ -1,24 +1,14 @@
 #########################################################################
 # Title:         Saltbox: Cloudplow Role                                #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove legacy service
-  include_tasks: "{{ resources_tasks_path }}/systemd/delete_service.yml"
-  vars:
-    _service_name: unionfs_cleaner
-
 - name: Stop Service
   include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
-  vars:
-    _service_name: "{{ cloudplow_service_name }}"
-
-- name: Update Service Credentials
-  include_tasks: "{{ resources_tasks_path }}/systemd/update_service_credentials.yml"
   vars:
     _service_name: "{{ cloudplow_service_name }}"
 
@@ -37,7 +27,10 @@
 - name: Install pip requirements
   pip:
     requirements: "{{ cloudplow_requirements_path }}"
-    executable: "{{ cloudplow_pip_excutable }}"
+    virtualenv_python: python3
+    virtualenv: "{{ cloudplow_venv_path }}"
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Set script as executable
   file:
@@ -47,10 +40,11 @@
     mode: a+x
 
 - name: Create script alias
-  file:
-    src: "{{ cloudplow_script_path }}"
+  template:
+    src: cloudplow.sh.j2
     dest: "{{ cloudplow_alias_path }}"
-    state: link
+    mode: "0755"
+    force: true
 
 - name: Import Settings Task
   import_tasks: "subtasks/settings.yml"
@@ -60,7 +54,7 @@
     src: cloudplow.service.j2
     dest: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
     mode: "0755"
-    force: false
+    force: true
 
 - name: Start service
   systemd:
