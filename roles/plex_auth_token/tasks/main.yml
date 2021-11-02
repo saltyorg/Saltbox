@@ -140,3 +140,11 @@
 - name: "Auth Token | Display Plex Auth Token"
   debug:
     msg: "Plex Auth Token: {{ plex_auth_token }}"
+
+- name: Change permissions
+  file:
+    path: /opt/saltbox
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0755'
+    recurse: true
