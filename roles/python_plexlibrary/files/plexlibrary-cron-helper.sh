@@ -11,7 +11,7 @@
 PATH='/usr/bin:/bin:/usr/local/bin'
 export PYTHONIOENCODING=UTF-8
 
-PYTHON_PATH='/usr/bin/python3'
+PYTHON_PATH='/opt/python-plexlibrary/venv/bin/python3'
 LOG_PATH='/opt/python-plexlibrary/plexlibrary-cron.log'
 RECIPES_PATH='/opt/python-plexlibrary/recipes'
 SCRIPT_PATH='/opt/python-plexlibrary/plexlibrary/plexlibrary.py'
