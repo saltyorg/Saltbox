@@ -45,9 +45,14 @@ lidarr_dns_zone: "{{ lidarr_web_domain }}"
 # Traefik
 ################################
 
-lidarr_traefik_middleware: "{{ traefik_default_middleware }}"
+lidarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+lidarr_traefik_middleware: "{{ traefik_default_middleware + ',' + lidarr_traefik_sso_middleware
+                            if (lidarr_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
+lidarr_traefik_api_enabled: true
+lidarr_traefik_api_endpoint: "`/api`"
 
 ################################
 # API

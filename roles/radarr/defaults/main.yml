@@ -45,9 +45,14 @@ radarr_dns_zone: "{{ radarr_web_domain }}"
 # Traefik
 ################################
 
-radarr_traefik_middleware: "{{ traefik_default_middleware }}"
+radarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+radarr_traefik_middleware: "{{ traefik_default_middleware + ',' + radarr_traefik_sso_middleware
+                            if (radarr_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_traefik_enabled: true
+radarr_traefik_api_enabled: true
+radarr_traefik_api_endpoint: "`/api`"
 
 ################################
 # API

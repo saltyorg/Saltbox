@@ -47,10 +47,12 @@ netdata_dns_zone: "{{ netdata_web_domain }}"
 # Traefik
 ################################
 
-netdata_traefik_middleware: "{{ traefik_default_middleware }},netdata-auth"
+netdata_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+netdata_traefik_middleware: "{{ traefik_default_middleware + ',' + netdata_traefik_sso_middleware
+                             if (netdata_traefik_sso_middleware | length > 0) 
+                             else traefik_default_middleware }}"
 netdata_traefik_certresolver: "{{ traefik_default_certresolver }}"
 netdata_traefik_enabled: true
-netdata_auth: "/etc/traefik/auth"
 
 ################################
 # Docker
@@ -113,8 +115,7 @@ netdata_docker_hosts: "{{ docker_hosts_common
                           | combine(netdata_docker_hosts_custom) }}"
 
 # Labels
-netdata_docker_labels_default:
-  traefik.http.middlewares.netdata-auth.basicauth.usersfile: "{{ netdata_auth }}"
+netdata_docker_labels_default: {}
 netdata_docker_labels_custom: {}
 netdata_docker_labels: "{{ docker_labels_common
                            | combine(netdata_docker_labels_default)

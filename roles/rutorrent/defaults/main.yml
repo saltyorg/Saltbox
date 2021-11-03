@@ -57,10 +57,14 @@ rutorrent_dns_zone: "{{ rutorrent_web_domain }}"
 # Traefik
 ################################
 
-rutorrent_traefik_middleware: "{{ traefik_default_middleware }},rutorrent-auth"
+rutorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+rutorrent_traefik_middleware: "{{ traefik_default_middleware + ',' + rutorrent_traefik_sso_middleware
+                               if (rutorrent_traefik_sso_middleware | length > 0) 
+                               else traefik_default_middleware }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
-rutorrent_auth: "/etc/traefik/auth"
+rutorrent_traefik_api_enabled: true
+rutorrent_traefik_api_endpoint: "`/RPC2`"
 
 ################################
 # Config
@@ -222,8 +226,7 @@ rutorrent_docker_hosts: "{{ docker_hosts_common
                             | combine(rutorrent_docker_hosts_custom) }}"
 
 # Labels
-rutorrent_docker_labels_default:
-  traefik.http.middlewares.rutorrent-auth.basicauth.usersfile: "{{ rutorrent_auth }}"
+rutorrent_docker_labels_default: {}
 rutorrent_docker_labels_custom: {}
 rutorrent_docker_labels: "{{ docker_labels_common
                              | combine(rutorrent_docker_labels_default)

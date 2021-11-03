@@ -48,9 +48,15 @@ nzbget_dns_zone: "{{ nzbget_web_domain }}"
 # Traefik
 ################################
 
-nzbget_traefik_middleware: "{{ traefik_default_middleware }}"
+nzbget_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+nzbget_traefik_middleware: "{{ traefik_default_middleware + ',' + nzbget_traefik_sso_middleware
+                            if (nzbget_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
+nzbget_traefik_middleware_api: "{{ traefik_global_middleware }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbget_traefik_enabled: true
+nzbget_traefik_api_enabled: true
+nzbget_traefik_api_endpoint: "`/{[A-Za-z0-9]+}:{[A-Za-z0-9]+}/{xml|jsonp?}rpc`,`/{xml|jsonp?}rpc`"
 
 ################################
 # Config
@@ -60,9 +66,9 @@ nzbget_traefik_enabled: true
 
 nzbget_config_new_installs_settings_default:
   # Authentication
-  - { regexp: '^ControlUsername\s?=.*', line: "ControlUsername={{ user.name }}" }
-  - { regexp: '^ControlPassword\s?=.*', line: "ControlPassword={{ user.pass }}" }
-  - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=yes' }
+#  - { regexp: '^ControlUsername\s?=.*', line: "ControlUsername={{ user.name }}" }
+#  - { regexp: '^ControlPassword\s?=.*', line: "ControlPassword={{ user.pass }}" }
+  - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=no' }
   # Paths
   - { regexp: '^MainDir\s?=.*', line: 'MainDir=/mnt/unionfs/downloads/nzbs/nzbget' }
   - { regexp: '^QueueDir\s?=.*', line: "QueueDir=${MainDir}/queue" }

@@ -1,0 +1,140 @@
+##########################################################################
+# Title:         Saltbox: Netdata | Default Variables                    #
+# Author(s):     desimaniac, salty                                       #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+authelia_name: authelia
+
+################################
+# Paths
+################################
+
+authelia_paths_folder: "{{ authelia_name }}"
+authelia_paths_location: "{{ server_appdata_path }}/{{ authelia_paths_folder }}"
+authelia_paths_folders_list:
+  - "{{ authelia_paths_location }}"
+
+################################
+# Web
+################################
+
+authelia_web_subdomain: "{{ authelia.subdomain }}"
+authelia_web_domain: "{{ user.domain }}"
+authelia_web_port: "9091"
+authelia_web_url: "{{ 'https://' + authelia_web_subdomain + '.' + authelia_web_domain
+                   if (reverse_proxy_is_enabled)
+                   else 'http://localhost:' + authelia_web_port }}"
+
+################################
+# DNS
+################################
+
+authelia_dns_record: "{{ authelia_web_subdomain }}"
+authelia_dns_zone: "{{ authelia_web_domain }}"
+
+################################
+# Traefik
+################################
+
+authelia_traefik_middleware: "{{ traefik_default_middleware }}"
+authelia_traefik_certresolver: "{{ traefik_default_certresolver }}"
+authelia_traefik_enabled: true
+
+################################
+# Docker
+################################
+
+# Container
+authelia_docker_container: "{{ authelia_name }}"
+
+# Image
+authelia_docker_image_pull: true
+authelia_docker_image_tag: "latest"
+authelia_docker_image: "authelia/authelia:{{ authelia_docker_image_tag }}"
+
+# Ports
+authelia_docker_ports_defaults: []
+authelia_docker_ports_custom: []
+authelia_docker_ports: "{{ authelia_docker_ports_defaults
+                           + authelia_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + authelia_docker_ports_custom }}"
+
+# Envs
+authelia_docker_envs_default:
+  TZ: "{{ tz }}"
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+authelia_docker_envs_custom: {}
+authelia_docker_envs: "{{ authelia_docker_envs_default
+                          | combine(authelia_docker_envs_custom) }}"
+
+# Commands
+authelia_docker_commands_default: []
+authelia_docker_commands_custom: []
+authelia_docker_commands: "{{ authelia_docker_commands_default
+                              + authelia_docker_commands_custom }}"
+
+# Volumes
+authelia_docker_volumes_default:
+  - "{{ authelia_paths_location }}:/config"
+authelia_docker_volumes_custom: []
+authelia_docker_volumes: "{{ authelia_docker_volumes_default
+                             + authelia_docker_volumes_custom }}"
+
+# Devices
+authelia_docker_devices_default: []
+authelia_docker_devices_custom: []
+authelia_docker_devices: "{{ authelia_docker_devices_default
+                             + authelia_docker_devices_custom }}"
+
+# Hosts
+authelia_docker_hosts_default: []
+authelia_docker_hosts_custom: []
+authelia_docker_hosts: "{{ docker_hosts_common
+                           | combine(authelia_docker_hosts_default)
+                           | combine(authelia_docker_hosts_custom) }}"
+
+# Labels
+authelia_docker_labels_default: {}
+authelia_docker_labels_custom: {}
+authelia_docker_labels: "{{ docker_labels_common
+                            | combine(authelia_docker_labels_default)
+                            | combine(authelia_docker_labels_custom) }}"
+
+# Hostname
+authelia_docker_hostname: "{{ authelia_name }}"
+
+# Networks
+authelia_docker_networks_alias: "{{ authelia_name }}"
+authelia_docker_networks_default: []
+authelia_docker_networks_custom: []
+authelia_docker_networks: "{{ docker_networks_common
+                              + authelia_docker_networks_default
+                              + authelia_docker_networks_custom }}"
+
+# Capabilities
+authelia_docker_capabilities_default: []
+authelia_docker_capabilities_custom: []
+authelia_docker_capabilities: "{{ authelia_docker_capabilities_default
+                                  + authelia_docker_capabilities_custom }}"
+
+# Security Opts
+authelia_docker_security_opts_default: []
+authelia_docker_security_opts_custom: []
+authelia_docker_security_opts: "{{ authelia_docker_security_opts_default
+                                   + authelia_docker_security_opts_custom }}"
+
+# Restart Policy
+authelia_docker_restart_policy: unless-stopped
+
+# State
+authelia_docker_state: started

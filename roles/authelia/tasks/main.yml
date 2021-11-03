@@ -1,33 +1,26 @@
 #########################################################################
-# Title:         Saltbox: Traefik Role                                  #
-# Author(s):     RXWatcher, salty                                       #
+# Title:         Saltbox: Authelia Role                                 #
+# Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Import Authelia Role"
+- name: "Import Redis Role"
   import_role:
-    name: authelia
+    name: redis
 
-- name: "Import Jaeger Role"
-  import_role:
-    name: jaeger
-  when: traefik.tracing
+- name: Install argon2_cffi python package
+  pip:
+    name: argon2_cffi
+    executable: pip3
 
 - name: Add DNS record
   include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-
-- name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
-  vars:
-    dns_record: "{{ lookup('vars', role_name + '_metrics_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_metrics_dns_zone') }}"
-  when: traefik.metrics
 
 - name: Remove existing Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -41,19 +34,21 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
-- name: Traefik ZeroSSL Tasks
-  import_tasks: "subtasks/zerossl.yml"
-  when: (not continuous_integration)
+- name: Import default 'configuration.yml'
+  template:
+    src: configuration.yml.j2
+    dest: "{{ authelia_paths_location }}/configuration.yml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
 
-- name: Traefik config Tasks
-  import_tasks: "subtasks/config.yml"
-  when: (not continuous_integration)
-
-- name: Remove Certificates
-  file:
-    path: "{{ traefik_paths_location }}/acme.json"
-    state: absent
-  when: ('traefik_reset_certs' in ansible_run_tags)
+- name: Import default 'users_database.yml'
+  template:
+    src: users_database.yml.j2
+    dest: "{{ authelia_paths_location }}/users_database.yml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
 
 - name: Create Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

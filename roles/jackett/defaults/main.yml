@@ -44,9 +44,14 @@ jackett_dns_zone: "{{ jackett_web_domain }}"
 # Traefik
 ################################
 
-jackett_traefik_middleware: "{{ traefik_default_middleware }}"
+jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+jackett_traefik_middleware: "{{ traefik_default_middleware + ',' + jackett_traefik_sso_middleware
+                             if (jackett_traefik_sso_middleware | length > 0) 
+                             else traefik_default_middleware }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
+jackett_traefik_api_enabled: true
+jackett_traefik_api_endpoint: "`/api`,`/dl`"
 
 ################################
 # THEME

@@ -1,0 +1,62 @@
+---
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+
+jwt_secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
+
+server:
+  host: 0.0.0.0
+  port: 9091
+
+log:
+  level: debug
+
+totp:
+  issuer: authelia.com
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: sha512
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain:
+        - "{{ '*.' + user.domain }}"
+        - "{{ user.domain }}"
+      policy: bypass
+      networks:
+        - {{ ip_address_public }}/32
+    - domain:
+        - "{{ '*.' + user.domain }}"
+        - "{{ user.domain }}"
+      policy: one_factor
+
+session:
+  name: authelia_session
+  secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
+  expiration: 3600
+  inactivity: 300
+  domain: {{ user.domain }}
+
+  redis:
+    host: redis
+    port: 6379
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  disable_startup_check: false
+  filesystem:
+    filename: /config/notification.txt
+...

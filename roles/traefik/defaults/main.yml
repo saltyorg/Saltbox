@@ -191,10 +191,15 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
-  traefik.http.routers.traefik.middlewares: "secureHeaders@file,traefik-auth,gzip"
+  traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
+                                             if (traefik_default_sso_middleware | length > 0) 
+                                             else traefik_default_middleware }}"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
   traefik.http.middlewares.gzip.compress: "true"
+  traefik.http.middlewares.authelia.forwardauth.address: "http://authelia:9091/api/verify?rd={{ authelia_web_url + '/' }}"
+  traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
+  traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
 traefik_docker_labels_cloudflare_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
@@ -209,7 +214,7 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
-  traefik.http.routers.metrics.middlewares: "secureHeaders@file,traefik-auth,gzip"
+  traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
 
 traefik_docker_labels_custom: {}
 

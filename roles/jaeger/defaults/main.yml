@@ -44,10 +44,12 @@ jaeger_dns_zone: "{{ jaeger_web_domain }}"
 # Traefik
 ################################
 
-jaeger_traefik_middleware: "{{ traefik_default_middleware }},jaeger-auth"
+jaeger_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+jaeger_traefik_middleware: "{{ traefik_default_middleware + ',' + jaeger_traefik_sso_middleware
+                            if (jaeger_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
 jaeger_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jaeger_traefik_enabled: true
-jaeger_auth: "/etc/traefik/auth"
 
 ################################
 # Docker
@@ -104,8 +106,7 @@ jaeger_docker_hosts: "{{ docker_hosts_common
                          | combine(jaeger_docker_hosts_custom) }}"
 
 # Labels
-jaeger_docker_labels_default:
-  traefik.http.middlewares.jaeger-auth.basicauth.usersfile: "{{ jaeger_auth }}"
+jaeger_docker_labels_default: {}
 jaeger_docker_labels_custom: {}
 jaeger_docker_labels: "{{ docker_labels_common
                           | combine(jaeger_docker_labels_default)
