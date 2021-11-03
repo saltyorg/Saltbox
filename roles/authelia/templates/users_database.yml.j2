@@ -9,7 +9,7 @@
 users:
   {{ user.name }}:
     displayname: "{{ user.name }}"
-    password: "{{ user.pass | string | password_hash('sha512', rounds=50000) }}"
+    password: "{{ authelia_password.stdout }}"
     email: {{ user.email }}
     groups:
       - admins

@@ -34,6 +34,10 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: "Generate Password Hash"
+  shell: "docker run --rm authelia/authelia:latest authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+  register: authelia_password
+
 - name: Import default 'configuration.yml'
   template:
     src: configuration.yml.j2
