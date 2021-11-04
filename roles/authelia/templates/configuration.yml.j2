@@ -44,7 +44,11 @@ authentication_backend:
   file:
     path: /config/users_database.yml
     password:
-      algorithm: sha512
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 64
 
 #
 # Read more at https://www.authelia.com/docs/configuration/access-control.html
