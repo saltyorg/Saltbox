@@ -34,9 +34,20 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: Check if 'configuration.yml' exists
+  stat:
+    path: "{{ authelia_paths_location }}/configuration.yml"
+  register: authelia_config_stat
+
+- name: Check if 'users_database.yml' exists
+  stat:
+    path: "{{ authelia_paths_location }}/users_database.yml"
+  register: authelia_user_config_stat
+
 - name: "Generate Password Hash"
   shell: "docker run --rm authelia/authelia:latest authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
   register: authelia_password
+  when: (not authelia_user_config_stat.stat.exists)
 
 - name: Import default 'configuration.yml'
   template:
@@ -45,6 +56,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+  when: (not authelia_config_stat.stat.exists)
 
 - name: Import default 'users_database.yml'
   template:
@@ -53,6 +65,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+  when: (not authelia_user_config_stat.stat.exists)
 
 - name: Create Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
