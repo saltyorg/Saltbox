@@ -5,15 +5,40 @@
 
 jwt_secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
 
+# Options are light, dark or grey
+theme: light
+
 server:
   host: 0.0.0.0
   port: 9091
+  path: ""
+  read_buffer_size: 4096
+  write_buffer_size: 4096
+  enable_pprof: false
+  enable_expvars: false
+  disable_healthcheck: false
 
 log:
-  level: debug
+  level: info
+  format: text
+  file_path: "/config/authelia.log"
+  keep_stdout: false
 
 totp:
   issuer: authelia.com
+  period: 30
+  skew: 1
+
+#
+# If you want to use Due Push notifications
+#
+# duo_api:
+#   hostname: api-123456789.example.com
+#   integration_key: ABCDEF
+#   secret_key: 1234567890abcdefghifjkl
+#
+# Read more at https://www.authelia.com/docs/configuration/duo-push-notifications.html
+#
 
 authentication_backend:
   file:
@@ -21,6 +46,9 @@ authentication_backend:
     password:
       algorithm: sha512
 
+#
+# Read more at https://www.authelia.com/docs/configuration/access-control.html
+#
 access_control:
   default_policy: deny
   rules:
@@ -36,10 +64,12 @@ access_control:
       policy: one_factor
 
 session:
-  name: authelia_session
+  name: "{{ authelia_web_subdomain + '.' + authelia_web_domain }}"
   secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
-  expiration: 3600
-  inactivity: 300
+  expiration: 1h
+  inactivity: 5m
+  remember_me_duration: 1M
+  same_site: lax
   domain: {{ user.domain }}
 
   redis:
@@ -48,15 +78,47 @@ session:
 
 regulation:
   max_retries: 3
-  find_time: 120
-  ban_time: 300
+  find_time: 2m
+  ban_time: 5m
 
 storage:
   local:
     path: /config/db.sqlite3
 
+ntp:
+  address: "time.cloudflare.com:123"
+  version: 3
+  max_desync: 3s
+  disable_startup_check: false
+  disable_failure: false
+
 notifier:
   disable_startup_check: false
   filesystem:
     filename: /config/notification.txt
+
+#
+# If you want to use email here is a template (Replace the above entry as you can only have one notifier configured)
+#
+# notifier:
+#   disable_startup_check: false
+#   smtp:
+#     host: 127.0.0.1
+#     port: 1025
+#     timeout: 5s
+#     username: test
+#     password: password
+#     sender: admin@example.com
+#     identifier: localhost
+#     subject: "[Authelia] {title}"
+#     startup_check_address: test@authelia.com
+#     disable_require_tls: false
+#     disable_html_emails: false
+#     tls:
+#       server_name: smtp.example.com
+#       skip_verify: false
+#       minimum_version: TLS1.2
+#
+# Read more at https://www.authelia.com/docs/configuration/notifier/smtp.html
+#
 ...
