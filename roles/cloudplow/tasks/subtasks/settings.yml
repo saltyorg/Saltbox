@@ -68,7 +68,7 @@
   when: cloudplow_config.stat.exists
 
 - name: Settings | Upgrade 'config.json'
-  shell: "{{ cloudplow_script_path }} update_config"
+  shell: "{{ cloudplow_python_path }} {{ cloudplow_script_path }} update_config"
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true
