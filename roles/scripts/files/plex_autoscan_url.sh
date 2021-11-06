@@ -62,9 +62,9 @@ function sanity_check() {
         ${NORMAL}"Run '"${BWHITE}"sudo apt-get install jq"${NORMAL}"' to install." >&2
         echo ""
         exit 1
-    elif ! [[ -x "$(command -v yq)" ]]; then
+    elif ! [[ -x "$(command -v yyq)" ]]; then
         echo -e ${BRED}" Error: "${NORMAL}"'"${BWHITE}"yq"${NORMAL}"' is not installed."\
-        ${NORMAL}"Run '"${BWHITE}"sudo pip3 install yq"${NORMAL}"' to install." >&2
+        ${NORMAL}"Run '"${BWHITE}"sb install yyq"${NORMAL}"' to install." >&2
         echo ""
         exit 1
     elif [[ ! -f ${PAS_CONFIG} ]]; then
@@ -96,14 +96,7 @@ function build_url() {
     SERVER_PASS=$(cat ${PAS_CONFIG} | jq -r .SERVER_PASS)
 
     # Get variables from Saltbox account settings
-    head -1 ${SB_ACCOUNTS} | grep -q "\$ANSIBLE_VAULT"
-    rc=$?
-    if [[ ${rc} == 0 ]]; then
-        VAULT_FILE=$(cat ${SB_ANSIBLE} | grep "^vault_password_file" | sed 's/^.*=//' | sed "s/ //g")
-        DOMAIN=$(ansible-vault view --vault-password-file=${VAULT_FILE} ${SB_ACCOUNTS} | yq -r .user.domain)
-    elif [[ ${rc} == 1 ]]; then
-        DOMAIN=$(cat ${SB_ACCOUNTS} | yq -r .user.domain)
-    fi
+    DOMAIN=$(yyq r ${SB_ACCOUNTS} user.domain)
 
     # If SERVER_IP is 0.0.0.0, assign public IP address to REAL_IP.
     if [[ ${SERVER_IP} = 0.0.0.0 ]]; then

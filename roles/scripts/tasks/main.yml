@@ -17,13 +17,6 @@
       - boxes
       - dnsutils
 
-- name: Install common pip modules
-  pip:
-    state: present
-    executable: pip3
-    name:
-      - yq
-
 - name: Create script directories
   file:
     path: "{{ item }}"
