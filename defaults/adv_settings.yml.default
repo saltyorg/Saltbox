@@ -5,7 +5,7 @@ dns:
   enabled: yes
   proxied: no
   ipv6: no
-  zerossl: no
+  zerossl: yes
 traefik:
   tls: no
   metrics: no
