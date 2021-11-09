@@ -39,6 +39,9 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
 
+### JetBrains
+Thank you to [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains" width="32"> JetBrains](http://www.jetbrains.com/) for providing us with free licenses to their great tools.
+
 ### Contributors
 
 <table>
