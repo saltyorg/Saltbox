@@ -61,22 +61,6 @@ nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
                                             | ternary('512','256') }}"
 
 nzbhydra2_config_settings_default:
-  # Authentication
-  - >-
-    .auth.authType = "FORM"
-    | .auth.restrictAdmin = true
-    | .auth.restrictDetailsDl = true
-    | .auth.restrictIndexerSelection = true
-    | .auth.restrictSearch = true
-    | .auth.restrictStats = true
-  # User
-  - >-
-    .auth.users = []
-    | .auth.users[0].username = "{{ user.name }}"
-    | .auth.users[0].password = "{noop}{{ user.pass }}"
-    | .auth.users[0].maySeeAdmin = true
-    | .auth.users[0].maySeeDetailsDl = true
-    | .auth.users[0].showIndexerSelection = true
   # NZBGet
   - >-
     .downloading.downloaders = []
