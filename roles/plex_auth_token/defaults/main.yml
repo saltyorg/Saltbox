@@ -1,6 +1,6 @@
 ##########################################################################
 # Title:         Saltbox: Plex Auth Token | Default Variables            #
-# Author(s):     desimaniac                                              #
+# Author(s):     desimaniac, salty                                       #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
 ##########################################################################
@@ -14,5 +14,3 @@
 plex_auth_token_version: "1.0.0"
 
 plex_auth_token_product: "SB"
-
-plex_auth_token_client_identifier: "XXXX"

@@ -1,6 +1,6 @@
 ##########################################################################
 # Title:         Saltbox: Cloudplow | Default Variables                  #
-# Author(s):     desimaniac                                              #
+# Author(s):     desimaniac, salty                                       #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
 ##########################################################################
@@ -21,11 +21,13 @@ cloudplow_folder: "{{ cloudplow_name }}"
 
 cloudplow_path: "{{ server_appdata_path }}/{{ cloudplow_folder }}"
 
+cloudplow_venv_path: "{{ cloudplow_path }}/venv"
+
+cloudplow_python_path: "{{ cloudplow_venv_path }}/bin/python3"
+
 cloudplow_script_path: "{{ cloudplow_path }}/cloudplow.py"
 
 cloudplow_requirements_path: "{{ cloudplow_path }}/requirements.txt"
-
-cloudplow_pip_excutable: "pip3"
 
 cloudplow_config_path: "{{ cloudplow_path }}/config.json"
 

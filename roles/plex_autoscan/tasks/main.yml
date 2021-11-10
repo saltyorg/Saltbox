@@ -23,7 +23,7 @@
 
 - name: Clone plex_autoscan repo 'HEAD'
   git:
-    repo: https://github.com/l3uddz/plex_autoscan.git
+    repo: https://github.com/saltyorg/plex_autoscan.git
     dest: /opt/plex_autoscan
     clone: true
     version: HEAD
@@ -35,7 +35,7 @@
 
 - name: Clone plex_autoscan repo 'master'
   git:
-    repo: https://github.com/l3uddz/plex_autoscan.git
+    repo: https://github.com/saltyorg/plex_autoscan.git
     dest: /opt/plex_autoscan
     clone: true
     version: master
@@ -47,7 +47,10 @@
 - name: Install pip requirements
   pip:
     requirements: /opt/plex_autoscan/requirements.txt
-    executable: pip3
+    virtualenv_python: python3
+    virtualenv: "/opt/plex_autoscan/venv"
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Set 'scan.py' as executable
   file:

@@ -34,6 +34,14 @@
     - /mnt/local/Media/Music
     - /mnt/local/Media/TV
 
+- name: "Import 'localhost.yml'"
+  copy:
+    src: "localhost.yml"
+    dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+
 - name: Install required packages
   apt:
     state: present
@@ -87,6 +95,7 @@
       - "lib32z1"
       - "moreutils"
       - "unrar"
+      - "python3-virtualenv"
   ignore_errors: true
 
 - name: Install extra packages

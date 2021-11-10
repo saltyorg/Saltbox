@@ -1,7 +1,7 @@
 # /etc/systemd/system/plex_autoscan.service
 #########################################################################
 # Title:         Saltbox: Plex Autoscan Service                         #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -20,7 +20,7 @@ Environment=LC_ALL=C.UTF-8
 Environment=LANG=C.UTF-8
 Environment=FLASK_ENV=development
 WorkingDirectory=/opt/plex_autoscan/
-ExecStart=/usr/bin/python3 /opt/plex_autoscan/scan.py server --loglevel=INFO
+ExecStart=/opt/plex_autoscan/venv/bin/python3 /opt/plex_autoscan/scan.py server --loglevel=INFO
 Restart=always
 RestartSec=10
 

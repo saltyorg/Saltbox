@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Purge Cache | Purge Cloudflare Cache for '{{ user.domain }}'
+- name: Purge Cache | Purge Cloudflare Cache for '{{ fld.stdout }}'
   uri:
     url: 'https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/purge_cache'
     method: 'POST'
@@ -23,4 +23,4 @@
   debug:
     msg: "{{ ((cf_purge.json.success is defined) and (cf_purge.json.success))
     | ternary('Successfully','Unsuccessfully') }}
-    purged Cloudflare cache for '{{ user.domain }}'"
+    purged Cloudflare cache for '{{ fld.stdout }}'"

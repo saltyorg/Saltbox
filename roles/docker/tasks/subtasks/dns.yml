@@ -1,0 +1,38 @@
+#########################################################################
+# Title:         Saltbox: Docker | DNS Tasks                            #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: DNS | Import 'docker-update-hosts'
+  copy:
+    src: docker-update-hosts
+    force: true
+    dest: "/usr/local/bin/docker-update-hosts"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: DNS | Set 'docker-update-hosts' as executable
+  file:
+    path: /usr/local/bin/docker-update-hosts
+    owner: "root"
+    group: "root"
+    mode: a+x
+
+- name: DNS | Import 'docker-update-hosts.service'
+  template:
+    src: docker-update-hosts.service.j2
+    dest: /etc/systemd/system/docker-update-hosts.service
+    mode: "0755"
+    force: true
+
+- name: DNS | Start 'docker-update-hosts.service'
+  systemd:
+    name: docker-update-hosts
+    state: started
+    enabled: true
+    daemon_reload: true

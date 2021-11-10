@@ -57,10 +57,14 @@ rutorrent_dns_zone: "{{ rutorrent_web_domain }}"
 # Traefik
 ################################
 
-rutorrent_traefik_middleware: "{{ traefik_default_middleware }},rutorrent-auth"
+rutorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+rutorrent_traefik_middleware: "{{ traefik_default_middleware + ',' + rutorrent_traefik_sso_middleware
+                               if (rutorrent_traefik_sso_middleware | length > 0) 
+                               else traefik_default_middleware }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
-rutorrent_auth: "/etc/traefik/auth"
+rutorrent_traefik_api_enabled: true
+rutorrent_traefik_api_endpoint: "`/RPC2`"
 
 ################################
 # Config
@@ -136,6 +140,7 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_con
 # Options can be found at https://github.com/gilbN/theme.park
 rutorrent_themepark_enabled: false
 rutorrent_themepark_theme: "{{ global_themepark_theme }}"
+rutorrent_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -178,7 +183,7 @@ rutorrent_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ rutorrent_themepark_domain }}"
   TP_THEME: "{{ rutorrent_themepark_theme }}"
 rutorrent_docker_envs_custom: {}
 rutorrent_docker_envs: "{{ rutorrent_docker_envs_default
@@ -221,8 +226,7 @@ rutorrent_docker_hosts: "{{ docker_hosts_common
                             | combine(rutorrent_docker_hosts_custom) }}"
 
 # Labels
-rutorrent_docker_labels_default:
-  traefik.http.middlewares.rutorrent-auth.basicauth.usersfile: "{{ rutorrent_auth }}"
+rutorrent_docker_labels_default: {}
 rutorrent_docker_labels_custom: {}
 rutorrent_docker_labels: "{{ docker_labels_common
                              | combine(rutorrent_docker_labels_default)

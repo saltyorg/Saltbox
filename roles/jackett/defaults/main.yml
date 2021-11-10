@@ -44,9 +44,14 @@ jackett_dns_zone: "{{ jackett_web_domain }}"
 # Traefik
 ################################
 
-jackett_traefik_middleware: "{{ traefik_default_middleware }}"
+jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+jackett_traefik_middleware: "{{ traefik_default_middleware + ',' + jackett_traefik_sso_middleware
+                             if (jackett_traefik_sso_middleware | length > 0) 
+                             else traefik_default_middleware }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
+jackett_traefik_api_enabled: true
+jackett_traefik_api_endpoint: "`/api`,`/dl`"
 
 ################################
 # THEME
@@ -55,6 +60,7 @@ jackett_traefik_enabled: true
 # Options can be found at https://github.com/gilbN/theme.park
 jackett_themepark_enabled: false
 jackett_themepark_theme: "{{ global_themepark_theme }}"
+jackett_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -84,7 +90,7 @@ jackett_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ jackett_themepark_domain }}"
   TP_THEME: "{{ jackett_themepark_theme }}"
   TP_HOTIO: "true"
 jackett_docker_envs_custom: {}

@@ -1,0 +1,115 @@
+##########################################################################
+# Title:         Saltbox: Redis | Default Variables                      #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+redis_name: redis
+
+################################
+# Paths
+################################
+
+redis_paths_folder: "{{ redis_name }}"
+redis_paths_location: "{{ server_appdata_path }}/{{ redis_paths_folder }}"
+redis_paths_folders_list:
+  - "{{ redis_paths_location }}"
+
+################################
+# Docker
+################################
+
+# Container
+redis_docker_container: "{{ redis_name }}"
+
+# Image
+redis_docker_image_pull: true
+redis_docker_image_tag: "alpine"
+redis_docker_image: "redis:{{ redis_docker_image_tag }}"
+
+# Ports
+redis_docker_ports_defaults: []
+redis_docker_ports_custom: []
+redis_docker_ports: "{{ redis_docker_ports_defaults
+                        + redis_docker_ports_custom
+                     if (not reverse_proxy_is_enabled)
+                     else [] + redis_docker_ports_custom }}"
+
+# Envs
+redis_docker_envs_default:
+  TZ: "{{ tz }}"
+redis_docker_envs_custom: {}
+redis_docker_envs: "{{ redis_docker_envs_default
+                       | combine(redis_docker_envs_custom) }}"
+
+# Commands
+redis_docker_commands_default: []
+redis_docker_commands_custom: []
+redis_docker_commands: "{{ redis_docker_commands_default
+                           + redis_docker_commands_custom }}"
+
+# Volumes
+redis_docker_volumes_default:
+  - "{{ redis_paths_location }}:/data"
+redis_docker_volumes_custom: []
+redis_docker_volumes: "{{ redis_docker_volumes_default
+                          + redis_docker_volumes_custom }}"
+
+# Devices
+redis_docker_devices_default: []
+redis_docker_devices_custom: []
+redis_docker_devices: "{{ redis_docker_devices_default
+                          + redis_docker_devices_custom }}"
+
+# Hosts
+redis_docker_hosts_default: []
+redis_docker_hosts_custom: []
+redis_docker_hosts: "{{ docker_hosts_common
+                        | combine(redis_docker_hosts_default)
+                        | combine(redis_docker_hosts_custom) }}"
+
+# Labels
+redis_docker_labels_default: {}
+redis_docker_labels_custom: {}
+redis_docker_labels: "{{ docker_labels_common
+                         | combine(redis_docker_labels_default)
+                         | combine(redis_docker_labels_custom) }}"
+
+# Hostname
+redis_docker_hostname: "{{ redis_name }}"
+
+# Networks
+redis_docker_networks_alias: "{{ redis_name }}"
+redis_docker_networks_default: []
+redis_docker_networks_custom: []
+redis_docker_networks: "{{ docker_networks_common
+                           + redis_docker_networks_default
+                           + redis_docker_networks_custom }}"
+
+# Capabilities
+redis_docker_capabilities_default: []
+redis_docker_capabilities_custom: []
+redis_docker_capabilities: "{{ redis_docker_capabilities_default
+                               + redis_docker_capabilities_custom }}"
+
+# Security Opts
+redis_docker_security_opts_default: []
+redis_docker_security_opts_custom: []
+redis_docker_security_opts: "{{ redis_docker_security_opts_default
+                                + redis_docker_security_opts_custom }}"
+
+# Restart Policy
+redis_docker_restart_policy: unless-stopped
+
+# State
+redis_docker_state: started
+
+# User
+redis_docker_user: "{{ uid }}:{{ gid }}"

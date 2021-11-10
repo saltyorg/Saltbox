@@ -1,4 +1,5 @@
 # Saltbox
+[![Discord](https://img.shields.io/discord/853755447970758686)](https://discord.gg/ugfKXpFND8)
 [![Docs:](https://img.shields.io/badge/docs-docs.saltbox.dev-blue)](https://docs.saltbox.dev)
 [![CI](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml)
 [![Ansible Lint](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml)
@@ -7,7 +8,7 @@
 
 Saltbox is an Ansible-based solution for rapidly deploying a Docker containerized cloud media server heavily based on [Cloudbox](https://github.com/Cloudbox/Cloudbox).
 
-This project was designed for x64 machines running Ubuntu Server 20.04.
+This project was designed for x64 machines running Ubuntu Server 20.04. 
 
 ### Documentation
 
@@ -38,6 +39,9 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
 
+### JetBrains
+Thank you to [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains" width="32"> JetBrains](http://www.jetbrains.com/) for providing us with free licenses to their great tools.
+
 ### Contributors
 
 <table>
@@ -64,17 +68,17 @@ If you find this project helpful, feel free to make a small [donation](https://g
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/EnorMOZ>
-            <img src=https://avatars.githubusercontent.com/u/13998170?v=4 width="100;"  alt=EnorMOZ/>
-            <br />
-            <sub style="font-size:14px"><b>EnorMOZ</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/owine>
             <img src=https://avatars.githubusercontent.com/u/4283702?v=4 width="100;"  alt=owine/>
             <br />
             <sub style="font-size:14px"><b>owine</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/EnorMOZ>
+            <img src=https://avatars.githubusercontent.com/u/13998170?v=4 width="100;"  alt=EnorMOZ/>
+            <br />
+            <sub style="font-size:14px"><b>EnorMOZ</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -101,6 +105,13 @@ If you find this project helpful, feel free to make a small [donation](https://g
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/chazlarson>
+            <img src=https://avatars.githubusercontent.com/u/3865541?v=4 width="100;"  alt=Chaz Larson/>
+            <br />
+            <sub style="font-size:14px"><b>Chaz Larson</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/BeansIsFat>
             <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=BeansIsFat/>
             <br />
@@ -121,20 +132,13 @@ If you find this project helpful, feel free to make a small [donation](https://g
             <sub style="font-size:14px"><b>Migz93</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/lonix>
             <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
             <br />
             <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
-        </a>
-    </td>
-</tr>
-<tr>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/chazlarson>
-            <img src=https://avatars.githubusercontent.com/u/3865541?v=4 width="100;"  alt=Chaz Larson/>
-            <br />
-            <sub style="font-size:14px"><b>Chaz Larson</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">

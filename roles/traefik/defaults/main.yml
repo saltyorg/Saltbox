@@ -36,6 +36,7 @@ traefik_metrics_domain: "{{ user.domain }}"
 ################################
 
 traefik_log: false
+traefik_log_level: "ERROR"
 traefik_access_log: false
 traefik_access_buffer: 100
 
@@ -93,42 +94,74 @@ traefik_docker_envs: "{{ traefik_docker_envs_default
 traefik_docker_commands_default:
   - "--global.sendanonymoususage=false"
   - "--providers.file.directory=/etc/traefik"
+  - "--providers.file.watch=true"
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.web.address=:80"
   - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
   - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
   - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+  - "--entrypoints.web.http.redirections.entrypoint.priority=1000"
   - "--entrypoints.websecure.address=:443"
   - "--entrypoints.websecure.forwardedheaders.insecure"
   - "--entrypoints.websecure.proxyprotocol.insecure"
   - "--api.dashboard=true"
   - "--api=true"
   - "--log={{ traefik_log }}"
-  - "--log.level=ERROR"
+  - "--log.level={{ traefik_log_level }}"
   - "--log.filepath=/etc/traefik/traefik.log"
   - "--accesslog={{ traefik_access_log }}"
+  - "--accesslog.fields.names.StartUTC=drop"
+  - "--accesslog.fields.headers.names.User-Agent=keep"
+  - "--accesslog.fields.headers.names.Content-Type=keep"
   - "--accesslog.filepath=/etc/traefik/access.log"
   - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.provider=cloudflare"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
-  - "{{ '--certificatesresolvers.cfdns.acme.email=' + user.email }}"
+  - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider=cloudflare"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+  - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
+  - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
+  - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid }}"
+  - "--certificatesresolvers.zerossl.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded }}"
+  - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/acme.json"
+  - "--certificatesresolvers.zerossl-tls.acme.tlschallenge=true"
+  - "--certificatesresolvers.zerossl-tls.acme.email={{ user.email }}"
+  - "--certificatesresolvers.zerossl-tls.acme.caserver=https://acme.zerossl.com/v2/DV90"
+  - "--certificatesresolvers.zerossl-tls.acme.eab.kid={{ traefik_zerossl_tls_kid }}"
+  - "--certificatesresolvers.zerossl-tls.acme.eab.hmacencoded={{ traefik_zerossl_tls_hmacencoded }}"
+  - "--certificatesresolvers.zerossl-tls.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
-  - "{{ '--certificatesresolvers.tlsresolver.acme.email=' + user.email }}"
+  - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
-traefik_docker_commands_metrics:
+traefik_docker_commands_metrics_tmp:
   - "--metrics.prometheus=true"
   - "--metrics.prometheus.addentrypointslabels=true"
   - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
+traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp if traefik.metrics
+                                  else [] }}"
+traefik_docker_commands_tracing_tmp:
+  - "--tracing.serviceName=traefik"
+  - "--tracing.spanNameLimit=250"
+  - "--tracing.jaeger=true"
+  - "--tracing.jaeger.samplingServerURL=http://jaeger:5778/sampling"
+  - "--tracing.jaeger.samplingType=const"
+  - "--tracing.jaeger.samplingParam=1"
+  - "--tracing.jaeger.localAgentHostPort=jaeger:6831"
+  - "--tracing.jaeger.gen128Bit"
+  - "--tracing.jaeger.propagation=jaeger"
+  - "--tracing.jaeger.traceContextHeaderName=uber-trace-id"
+  - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
+traefik_docker_commands_tracing: "{{ traefik_docker_commands_tracing_tmp if traefik.tracing
+                                  else [] }}"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
-                          if not (traefik.metrics)
-                          else traefik_docker_commands_default
-                             + traefik_docker_commands_custom
-                             + traefik_docker_commands_metrics }}"
+                             + traefik_docker_commands_metrics
+                             + traefik_docker_commands_tracing }}"
 
 # Volumes
 traefik_docker_volumes_default:
@@ -158,13 +191,18 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
-  traefik.http.routers.traefik.middlewares: "secureHeaders@file,traefik-auth,gzip"
+  traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
+                                             if (traefik_default_sso_middleware | length > 0) 
+                                             else traefik_default_middleware }}"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
   traefik.http.middlewares.gzip.compress: "true"
+  traefik.http.middlewares.authelia.forwardauth.address: "http://authelia:9091/api/verify?rd={{ authelia_web_url + '/' }}"
+  traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
+  traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
 traefik_docker_labels_cloudflare_validation:
-  traefik.http.routers.traefik.tls.certresolver: "cfdns"
+  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
   traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
   traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
 
@@ -176,7 +214,7 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
-  traefik.http.routers.metrics.middlewares: "secureHeaders@file,traefik-auth,gzip"
+  traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
 
 traefik_docker_labels_custom: {}
 

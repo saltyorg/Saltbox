@@ -60,3 +60,8 @@
     group: "{{ user.name }}"
     mode: 0664
     force: true
+
+- name: Activate Git Hooks
+  shell: bash /opt/community/bin/git/init-hooks
+  args:
+    chdir: "/opt/community"

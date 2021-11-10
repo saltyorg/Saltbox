@@ -153,19 +153,45 @@ reverse_proxy_is_enabled: "{{ (user is defined) and
 ################################
 
 # Options can be found at https://github.com/gilbN/theme.park
-global_themepark_theme: organizr-dark
+global_themepark_theme: organizr
+global_themepark_domain: theme-park.dev
 
 ################################
 # Traefik
 ################################
 
-traefik_default_certresolver: "{{ 'tlsresolver' if (not cloudflare_is_enabled) or (traefik.tls) else 'cfdns' }}"
-traefik_default_middleware: "secureHeaders@file,gzip"
+traefik_default_certprovider: "{{ 'cfdns' 
+                               if (not dns.zerossl)
+                               else 'zerossl' }}"
+
+traefik_default_tlsresolver: "{{ 'tlsresolver' 
+                              if (not dns.zerossl)
+                              else 'zerossl-tls' }}"
+
+traefik_default_certresolver: "{{ traefik_default_tlsresolver 
+                               if (not cloudflare_is_enabled) or (traefik.tls)
+                               else traefik_default_certprovider }}"
+
+traefik_default_middleware: "{{ 'secureHeaders@file,gzip'
+                             if (not traefik.hsts)
+                             else 'secureHeaders@file,gzip,hsts@file' }}" 
+
+traefik_default_sso_middleware: "authelia"
+
 traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default=False) }}"
-traefik_tls: "{{ true if (not cloudflare_is_enabled) or (traefik.tls) else false }}"
+
+traefik_role_api_enabled: "{{ lookup('vars', role_name + '_traefik_api_enabled', default=False) }}"
+
+traefik_tls: "{{ true
+              if (not cloudflare_is_enabled) or (traefik.tls)
+              else false }}"
+
 traefik_subdomain: "{{ lookup('vars', role_name + '_web_subdomain', default=omit) }}"
+
 traefik_domain: "{{ lookup('vars', role_name + '_web_domain', default=omit) }}"
+
 traefik_router: "{{ lookup('vars', role_name + '_name', default=omit) }}"
+
 traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
                else traefik_domain }}"
@@ -189,16 +215,30 @@ docker_hosts_common: []
 docker_labels_saltbox:
   - com.github.saltbox.saltbox_managed: "true"
 
-docker_labels_traefik:
+docker_labels_traefik_main:
   - traefik.enable: "true"
   - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "websecure" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_subdomain }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.rule": "Host(`{{ traefik_host }}`)" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.priority": "{{ lookup("vars", role_name + "_traefik_priority", default="20") }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_port", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_scheme", default=omit) }}" }'
+
+docker_labels_traefik_api:
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "websecure" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", role_name + "_traefik_api_endpoint", default=omit) }}))" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", role_name + "_traefik_api_middleware", default=omit) }}" }'
+
+docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
+                        if traefik_role_api_enabled
+                        else docker_labels_traefik_main }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if (traefik_role_enabled)

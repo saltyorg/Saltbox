@@ -45,9 +45,14 @@ sonarr_dns_zone: "{{ sonarr_web_domain }}"
 # Traefik
 ################################
 
-sonarr_traefik_middleware: "{{ traefik_default_middleware }}"
+sonarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+sonarr_traefik_middleware: "{{ traefik_default_middleware + ',' + sonarr_traefik_sso_middleware
+                            if (sonarr_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_traefik_enabled: true
+sonarr_traefik_api_enabled: true
+sonarr_traefik_api_endpoint: "`/api`"
 
 ################################
 # API
@@ -63,6 +68,7 @@ sonarr_api_key:
 # Options can be found at https://github.com/gilbN/theme.park
 sonarr_themepark_enabled: false
 sonarr_themepark_theme: "{{ global_themepark_theme }}"
+sonarr_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -91,7 +97,7 @@ sonarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ sonarr_themepark_domain }}"
   TP_THEME: "{{ sonarr_themepark_theme }}"
   TP_HOTIO: "true"
 sonarr_docker_envs_custom: {}

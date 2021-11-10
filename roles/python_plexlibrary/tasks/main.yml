@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Python-PlexLibrary Role                       #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -30,7 +30,10 @@
 - name: Install pip requirements
   pip:
     requirements: "/opt/python-plexlibrary/requirements.txt"
-    executable: pip3
+    virtualenv_python: python3
+    virtualenv: "/opt/plex_autoscan/venv"
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Check config exists
   stat:

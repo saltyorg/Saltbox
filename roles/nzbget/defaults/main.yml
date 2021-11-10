@@ -48,9 +48,15 @@ nzbget_dns_zone: "{{ nzbget_web_domain }}"
 # Traefik
 ################################
 
-nzbget_traefik_middleware: "{{ traefik_default_middleware }}"
+nzbget_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+nzbget_traefik_middleware: "{{ traefik_default_middleware + ',' + nzbget_traefik_sso_middleware
+                            if (nzbget_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
+nzbget_traefik_middleware_api: "{{ traefik_global_middleware }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbget_traefik_enabled: true
+nzbget_traefik_api_enabled: true
+nzbget_traefik_api_endpoint: "`/{[A-Za-z0-9]+}:{[A-Za-z0-9]+}/{xml|jsonp?}rpc`,`/{xml|jsonp?}rpc`"
 
 ################################
 # Config
@@ -164,6 +170,7 @@ nzbget_scripts_local_copy_list: "{{ nzbget_scripts_local_copy_default
 # Options can be found at https://github.com/gilbN/theme.park
 nzbget_themepark_enabled: false
 nzbget_themepark_theme: "{{ global_themepark_theme }}"
+nzbget_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -193,7 +200,7 @@ nzbget_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
   LC_ALL: "C"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ nzbget_themepark_domain }}"
   TP_THEME: "{{ nzbget_themepark_theme }}"
   TP_HOTIO: "true"
 nzbget_docker_envs_custom: {}

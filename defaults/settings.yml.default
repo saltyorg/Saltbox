@@ -7,3 +7,5 @@ rclone:
   version: latest
   remote: google
 shell: bash
+authelia:
+  subdomain: login

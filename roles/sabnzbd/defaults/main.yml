@@ -51,9 +51,14 @@ sabnzbd_dns_zone: "{{ sabnzbd_web_domain }}"
 # Traefik
 ################################
 
-sabnzbd_traefik_middleware: "{{ traefik_default_middleware }}"
+sabnzbd_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+sabnzbd_traefik_middleware: "{{ traefik_default_middleware + ',' + sabnzbd_traefik_sso_middleware
+                            if (sabnzbd_traefik_sso_middleware | length > 0) 
+                            else traefik_default_middleware }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
+sabnzbd_traefik_api_enabled: true
+sabnzbd_traefik_api_endpoint: "`/api`"
 
 ################################
 # Config
@@ -85,6 +90,7 @@ sabnzbd_config_settings_list: "{{ sabnzbd_config_settings_default
 # Options can be found at https://github.com/gilbN/theme.park
 sabnzbd_themepark_enabled: false
 sabnzbd_themepark_theme: "{{ global_themepark_theme }}"
+sabnzbd_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -113,7 +119,7 @@ sabnzbd_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ sabnzbd_themepark_domain }}"
   TP_THEME: "{{ sabnzbd_themepark_theme }}"
   TP_HOTIO: "true"
 sabnzbd_docker_envs_custom: {}

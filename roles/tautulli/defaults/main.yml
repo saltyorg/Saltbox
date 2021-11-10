@@ -57,6 +57,7 @@ tautulli_traefik_enabled: true
 # Options can be found at https://github.com/gilbN/theme.park
 tautulli_themepark_enabled: false
 tautulli_themepark_theme: "{{ global_themepark_theme }}"
+tautulli_themepark_domain: "{{ global_themepark_domain }}"
 
 ################################
 # Docker
@@ -85,7 +86,7 @@ tautulli_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "gilbn.github.io"
+  TP_DOMAIN: "{{ tautulli_themepark_domain }}"
   TP_THEME: "{{ tautulli_themepark_theme }}"
   TP_HOTIO: "true"
 tautulli_docker_envs_custom: {}

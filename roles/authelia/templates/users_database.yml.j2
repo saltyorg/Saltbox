@@ -1,0 +1,16 @@
+---
+###############################################################
+#                         Users Database                      #
+###############################################################
+
+# This file can be used if you do not have an LDAP set up.
+
+# List of users
+users:
+  {{ user.name }}:
+    displayname: "{{ user.name }}"
+    password: "{{ authelia_password.stdout }}"
+    email: {{ user.email }}
+    groups:
+      - admins
+...

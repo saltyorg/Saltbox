@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Plex Dupefinder Role                          #
-# Author(s):     l3uddz                                                 #
+# Author(s):     l3uddz, salty                                          #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -20,7 +20,7 @@
 
 - name: Clone plex_dupefinder
   git:
-    repo: https://github.com/l3uddz/plex_dupefinder.git
+    repo: https://github.com/saltyorg/plex_dupefinder.git
     dest: /opt/plex_dupefinder
     clone: true
     version: HEAD
@@ -31,7 +31,10 @@
 - name: Install pip requirements
   pip:
     requirements: /opt/plex_dupefinder/requirements.txt
-    executable: pip3
+    virtualenv_python: python3
+    virtualenv: "/opt/plex_dupefinder/venv"
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Check config exists
   stat:
@@ -53,7 +56,7 @@
     force: false
   when: not plex_dupefinder_config.stat.exists
 
-- name: Set plexdupes.py as executable
+- name: Set plex_dupefinder.py as executable
   file:
     path: /opt/plex_dupefinder/plex_dupefinder.py
     owner: "{{ user.name }}"

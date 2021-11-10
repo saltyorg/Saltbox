@@ -20,8 +20,8 @@
 - name: Remove existing Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Variables Task
-  import_tasks: "subtasks/variables.yml"
+- name: Settings Task
+  import_tasks: "subtasks/settings.yml"
 
 - name: Create directories
   file:
