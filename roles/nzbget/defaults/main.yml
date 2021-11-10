@@ -60,8 +60,8 @@ nzbget_traefik_enabled: true
 
 nzbget_config_new_installs_settings_default:
   # Authentication
-  - { regexp: '^ControlUsername\s?=.*', line: "ControlUsername={{ user.name }}" }
-  - { regexp: '^ControlPassword\s?=.*', line: "ControlPassword={{ user.pass }}" }
+  - { regexp: '^AddUsername\s?=.*', line: "AddUsername={{ user.name }}" }
+  - { regexp: '^AddPassword\s?=.*', line: "AddPassword={{ user.pass }}" }
   - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=yes' }
   # Paths
   - { regexp: '^MainDir\s?=.*', line: 'MainDir=/mnt/unionfs/downloads/nzbs/nzbget' }
