@@ -241,7 +241,7 @@ docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_tr
                         else docker_labels_traefik_main }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
-                       if (traefik_role_enabled)
+                       if (traefik_role_enabled and reverse_proxy_is_enabled)
                        else docker_labels_saltbox }}"
 
 docker_networks_name_common: saltbox
