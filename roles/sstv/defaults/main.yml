@@ -51,6 +51,12 @@ sstv_traefik_enabled: true
 sstv_auth: "/etc/traefik/sstv"
 
 ################################
+# Settings
+################################
+
+sstv_force_proxy: false
+
+################################
 # Docker
 ################################
 
@@ -79,6 +85,7 @@ sstv_docker_envs_default:
   TZ: "{{ tz }}"
   VERBOSE: "{{ sstv_docker_envs_log_level }}"
   APP_SSDP: "false"
+  APP_FORCE_PROXY: "{{ sstv_force_proxy }}"
 sstv_docker_envs_custom: {}
 sstv_docker_envs: "{{ sstv_docker_envs_default
                       | combine(sstv_docker_envs_custom) }}"
