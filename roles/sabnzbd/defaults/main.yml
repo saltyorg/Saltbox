@@ -68,10 +68,6 @@ sabnzbd_config_settings_default:
   # Web
   - { option: "host_whitelist", value: "{{ sabnzbd_web_subdomain }}.{{ sabnzbd_web_domain }}" }
   - { option: "url_base", value: "" }
-  # Authentication
-  - { option: "html_login", value: "1" }
-  - { option: "username", value: "{{ user.name }}" }
-  - { option: "password", value: "{{ user.pass }}" }
   # Paths
   - { option: "dirscan_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/watch" }
   - { option: "download_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/incomplete" }
