@@ -35,7 +35,7 @@ traefik_metrics_domain: "{{ user.domain }}"
 # Logging
 ################################
 
-traefik_log: false
+traefik_log: true
 traefik_log_level: "ERROR"
 traefik_access_log: false
 traefik_access_buffer: 100
