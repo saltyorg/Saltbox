@@ -81,3 +81,12 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
+
+- name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
+  file:  # noqa 208
+    path: "{{ server_appdata_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+    follow: false
