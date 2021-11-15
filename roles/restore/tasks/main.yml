@@ -109,7 +109,8 @@
 
 - name: Check if previous backup exists locally
   find:
-    paths: "{{ backup.local.destination }}/opt"
+    paths:
+      - "{{ backup.local.destination }}/opt"
     file_type: file
     patterns: '*.tar'
   register: dir_files
