@@ -63,7 +63,7 @@ function sanity_check() {
         echo ""
         exit 1
     elif ! [[ -x "$(command -v yyq)" ]]; then
-        echo -e ${BRED}" Error: "${NORMAL}"'"${BWHITE}"yq"${NORMAL}"' is not installed."\
+        echo -e ${BRED}" Error: "${NORMAL}"'"${BWHITE}"yyq"${NORMAL}"' is not installed."\
         ${NORMAL}"Run '"${BWHITE}"sb install yyq"${NORMAL}"' to install." >&2
         echo ""
         exit 1
