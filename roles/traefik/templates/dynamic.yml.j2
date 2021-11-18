@@ -15,6 +15,7 @@ http:
   middlewares:
     secureHeaders:
       headers:
+        accessControlAllowOriginList: "*"
         accessControlAllowMethods:
           - GET
           - OPTIONS
@@ -26,7 +27,6 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         referrerPolicy: "same-origin"
-        permissionsPolicy: "camera 'none'; geolocation 'none'; microphone 'none'; payment 'none'; usb 'none'; vr 'none';"
         sslProxyHeaders:
           X-Forwarded-Proto: https
         customResponseHeaders:
