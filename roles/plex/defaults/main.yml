@@ -100,8 +100,13 @@ plex_docker_image_tag: "public"
 plex_docker_image: "plexinc/pms-docker:{{ plex_docker_image_tag }}"
 
 # Ports
+plex_docker_ports_32400: "{{ port_lookup_32400.port
+                          if (port_lookup_32400.port is defined)
+                             and (port_lookup_32400.port | trim | length > 0)
+                          else '32400' }}"
+
 plex_docker_ports_defaults:
-  - "{{ plex_web_port }}-{{ plex_web_port | int + 10 }}:{{ plex_web_port }}"
+  - "{{ plex_docker_ports_32400 }}:{{ plex_web_port }}"
 plex_docker_ports_custom: []
 plex_docker_ports: "{{ plex_docker_ports_defaults
                        + plex_docker_ports_custom

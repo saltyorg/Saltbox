@@ -40,6 +40,10 @@
     mode: "0775"
     force: true
 
+- name: Pre-Install Tasks
+  import_tasks: "subtasks/pre-install/main.yml"
+  when: not continuous_integration
+
 - name: Preferences Tasks
   import_tasks: "subtasks/preferences/preferences.yml"
   when: (not continuous_integration)

@@ -25,8 +25,8 @@
       set_fact:
         plex_docker_port_lookup: >-
           {{ (plex_docker_port_lookup_cmd.stdout | trim)
-              if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
-              else plex_web_port }}
+          if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
+          else plex_web_port }}
 
   when: plex_open_main_ports or not reverse_proxy_is_enabled
 
