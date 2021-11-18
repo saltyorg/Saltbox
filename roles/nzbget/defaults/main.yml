@@ -66,9 +66,9 @@ nzbget_traefik_api_endpoint: "`/{[A-Za-z0-9]+}:{[A-Za-z0-9]+}/{xml|jsonp?}rpc`,`
 
 nzbget_config_new_installs_settings_default:
   # Authentication
-  - { regexp: '^AddUsername\s?=.*', line: "AddUsername={{ user.name }}" }
-  - { regexp: '^AddPassword\s?=.*', line: "AddPassword={{ user.pass }}" }
-  - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=no' }
+  - { regexp: '^ControlUsername\s?=.*', line: "ControlUsername={{ user.name }}" }
+  - { regexp: '^ControlPassword\s?=.*', line: "ControlPassword={{ user.pass }}" }
+  - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=yes' }
   # Paths
   - { regexp: '^MainDir\s?=.*', line: 'MainDir=/mnt/unionfs/downloads/nzbs/nzbget' }
   - { regexp: '^QueueDir\s?=.*', line: "QueueDir=${MainDir}/queue" }
