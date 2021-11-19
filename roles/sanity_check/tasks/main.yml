@@ -34,3 +34,8 @@
 - name: Create Temp Folder
   import_tasks: "subtasks/07_tmp.yml"
   tags: always
+
+- name: Settings Check
+  import_tasks: "subtasks/08_settings.yml"
+  tags: always
+  when: dns.zerossl

@@ -164,9 +164,7 @@ traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
 
-traefik_default_tlsresolver: "{{ 'tlsresolver' 
-                              if (not dns.zerossl)
-                              else 'zerossl-tls' }}"
+traefik_default_tlsresolver: "tlsresolver"
 
 traefik_default_certresolver: "{{ traefik_default_tlsresolver 
                                if (not cloudflare_is_enabled) or (traefik.tls)
