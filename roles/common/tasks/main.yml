@@ -34,6 +34,11 @@
     - /mnt/local/Media/Music
     - /mnt/local/Media/TV
 
+- name: Check if 'localhost.yml' exists
+  stat:
+    path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  register: localhost_yml
+
 - name: "Import 'localhost.yml'"
   copy:
     src: "localhost.yml"
@@ -41,6 +46,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
+  when: (not localhost_yml.stat.exists)
 
 - name: Install required packages
   apt:
