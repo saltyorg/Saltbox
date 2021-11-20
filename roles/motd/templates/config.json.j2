@@ -3,6 +3,9 @@
     "api_key": "YOUR_SERVER_PASS",
     "url": "http://plex.{{ user.domain }}:3468"
   },
+  "disk": {
+    "path": "/"
+  },
   "motd": {
     "banner_title": "{{ ( saltbox_type | default('Saltbox',true) ) | capitalize }}",
     "banner_type": "peek",
