@@ -232,7 +232,7 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", role_name + "_traefik_api_middleware", default=omit) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", role_name + "_traefik_api_middleware", default=traefik_default_middleware) }}" }'
 
 docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled
