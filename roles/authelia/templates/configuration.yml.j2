@@ -62,6 +62,9 @@ access_control:
       policy: bypass
       networks:
         - {{ ip_address_public }}/32
+{% if dns.ipv6 %}
+        - {{ ipv6_address_public }}/32
+{% endif %}
     - domain:
         - "{{ '*.' + user.domain }}"
         - "{{ user.domain }}"
