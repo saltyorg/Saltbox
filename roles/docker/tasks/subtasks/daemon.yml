@@ -28,13 +28,13 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
-    mode: 0775
+    mode: 0644
 
 - name: "Daemon | Import override file"
   template:
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
-    mode: 0775
+    mode: 0644
     force: false
 
 - name: "Daemon | Edit override file"
@@ -44,5 +44,5 @@
     option: "After"
     value: "{{ docker_service_after }}"
     state: present
-    mode: '0755'
+    mode: '0644'
     no_extra_spaces: true
