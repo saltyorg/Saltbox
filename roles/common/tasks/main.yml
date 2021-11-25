@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Common Role                                   #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -66,7 +66,7 @@
     - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse'
     - 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates multiverse'
     - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates multiverse'
-  when: ansible_distribution == 'Ubuntu'
+  when: (ansible_distribution == 'Ubuntu') and (not continuous_integration)
 
 - name: Install common packages
   apt:
