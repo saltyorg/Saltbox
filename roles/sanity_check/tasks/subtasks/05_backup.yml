@@ -15,7 +15,7 @@
 # Age in hours
 - name: Backup | Get age of '{{ sanity_check_backup_lockfile_path | basename }}' file
   set_fact:
-    backup_lock_age: "{{ ( ( ( (ansible_date_time.epoch|int) - (backup_lock.stat.ctime|int) ) / (60*60) ) | int ) }}"
+    backup_lock_age: "{{ ((ansible_date_time.epoch|float - backup_lock.stat.mtime ) / 3600) | int  }}"
   when: backup_lock.stat.exists
 
 # Delete if older than 2 hours.
