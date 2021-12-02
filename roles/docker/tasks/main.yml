@@ -41,8 +41,8 @@
         name: "ipv6nat"
         state: absent
         container_default_behavior: compatibility
-        timeout: "180"
-        stop_timeout: "180"
+        timeout: 180
+        stop_timeout: 180
         tls_hostname: localhost
 
     - name: Network | Create IPv6 NAT Container
