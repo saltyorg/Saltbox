@@ -50,7 +50,7 @@ nzbget_dns_zone: "{{ nzbget_web_domain }}"
 
 nzbget_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 nzbget_traefik_middleware: "{{ traefik_default_middleware + ',' + nzbget_traefik_sso_middleware
-                            if (nzbget_traefik_sso_middleware | length > 0) 
+                            if (nzbget_traefik_sso_middleware | length > 0)
                             else traefik_default_middleware }}"
 nzbget_traefik_middleware_api: "{{ traefik_global_middleware }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"

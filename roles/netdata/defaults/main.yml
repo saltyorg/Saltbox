@@ -49,7 +49,7 @@ netdata_dns_zone: "{{ netdata_web_domain }}"
 
 netdata_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 netdata_traefik_middleware: "{{ traefik_default_middleware + ',' + netdata_traefik_sso_middleware
-                             if (netdata_traefik_sso_middleware | length > 0) 
+                             if (netdata_traefik_sso_middleware | length > 0)
                              else traefik_default_middleware }}"
 netdata_traefik_certresolver: "{{ traefik_default_certresolver }}"
 netdata_traefik_enabled: true

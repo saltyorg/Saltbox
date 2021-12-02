@@ -9,23 +9,21 @@
 ---
 - name: Ansible Tags | Get all available Ansible tags
   shell: "{{ sanity_check_ansible_tags_lookup_command }}"
-  register: t
+  register: available_ansible_tags
   changed_when: false
-  when:
-   - not continuous_integration
-   - "'saltbox_mod' not in playbook_dir"
-   - "'community' not in playbook_dir"
+  when: (not continuous_integration)
+        and ('saltbox_mod' not in playbook_dir)
+        and ('community' not in playbook_dir)
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
   assert:
     that:
-      - '"{{ item }}" in t.stdout_lines'
+      - '"{{ item }}" in available_ansible_tags.stdout_lines'
     msg: >-
       You must supply valid tag(s) via '--tags TAG'
       (get a list of valid tags by running 'ansible-playbook saltbox.yml --list-tags')
     quiet: true
   with_items: "{{ ansible_run_tags }}"
-  when:
-   - not continuous_integration
-   - "'saltbox_' not in playbook_dir"
-   - "'community' not in playbook_dir"
+  when: (not continuous_integration)
+        and ('saltbox_' not in playbook_dir)
+        and ('community' not in playbook_dir)

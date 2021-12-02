@@ -46,7 +46,7 @@ jackett_dns_zone: "{{ jackett_web_domain }}"
 
 jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 jackett_traefik_middleware: "{{ traefik_default_middleware + ',' + jackett_traefik_sso_middleware
-                             if (jackett_traefik_sso_middleware | length > 0) 
+                             if (jackett_traefik_sso_middleware | length > 0)
                              else traefik_default_middleware }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true

@@ -53,7 +53,7 @@ sabnzbd_dns_zone: "{{ sabnzbd_web_domain }}"
 
 sabnzbd_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 sabnzbd_traefik_middleware: "{{ traefik_default_middleware + ',' + sabnzbd_traefik_sso_middleware
-                            if (sabnzbd_traefik_sso_middleware | length > 0) 
+                            if (sabnzbd_traefik_sso_middleware | length > 0)
                             else traefik_default_middleware }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true

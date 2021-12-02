@@ -187,7 +187,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
   traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
-                                             if (traefik_default_sso_middleware | length > 0) 
+                                             if (traefik_default_sso_middleware | length > 0)
                                              else traefik_default_middleware }}"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
