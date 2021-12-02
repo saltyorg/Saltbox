@@ -12,9 +12,6 @@
 
     - name: Migrator | All | Migration 01
       include_tasks: "migrator/all/migration_01.yml"
-
-    - name: Migrator | All | Migration 02
-      include_tasks: "migrator/all/migration_02.yml"
       when: (file != "backup_config.yml")
 
   when: (file != "ansible.cfg")
