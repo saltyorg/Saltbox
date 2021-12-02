@@ -54,7 +54,6 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: false
-  when: not plex_dupefinder_config.stat.exists
 
 - name: Set plex_dupefinder.py as executable
   file:
