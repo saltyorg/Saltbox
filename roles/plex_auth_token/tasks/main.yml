@@ -79,7 +79,7 @@
 
         - name: "Auth Token | Prompt user to login"
           pause:
-            prompt: "Please open https://app.plex.tv/auth#?clientID={{ plex_pin.json.clientIdentifier }}&code={{ plex_pin.json.code }}&context%5Bdevice%5D%5Bproduct%5D={{ plex_pin.json.product }} and login. Hit enter after having logged in"  # noqa 204
+            prompt: "Please open https://app.plex.tv/auth#?clientID={{ plex_pin.json.clientIdentifier }}&code={{ plex_pin.json.code }}&context%5Bdevice%5D%5Bproduct%5D={{ plex_pin.json.product }} and login. Hit enter after having logged in"  # noqa 204 line-length
 
         - name: "Auth Token | Check PIN"
           uri:
