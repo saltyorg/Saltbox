@@ -130,7 +130,7 @@
       shell: "jq '.disk.path' /opt/motd/config.json"
       register: disk_path
 
-    - name: Migrate value of motd banner
+    - name: Migrate value of motd banner  # noqa var-spacing
       shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
       when: disk_path.stdout == 'null'
