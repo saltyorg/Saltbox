@@ -93,7 +93,6 @@
     path: "/opt/scripts/docker/restart_containers.sh"
     get_attributes: false
     get_checksum: false
-    get_md5: false
     get_mime: false
   register: restart_containers
 
@@ -112,7 +111,6 @@
     path: "/opt/scripts/frontail/frontail_custom_preset.json"
     get_attributes: false
     get_checksum: false
-    get_md5: false
     get_mime: false
   register: frontail_preset
 
@@ -131,7 +129,6 @@
     path: "/opt/scripts/rclone/sync_torrents_to_rclone_remote.sh"
     get_attributes: false
     get_checksum: false
-    get_md5: false
     get_mime: false
   register: sync_torrents_to_rclone_remote
 
@@ -150,7 +147,6 @@
     path: "/opt/scripts/rclone/download_torrents_from_rclone_remote.sh"
     get_attributes: false
     get_checksum: false
-    get_md5: false
     get_mime: false
   register: download_torrents_from_rclone_remote
 
