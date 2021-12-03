@@ -89,6 +89,7 @@ regulation:
   ban_time: 5m
 
 storage:
+  encryption_key: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}
   local:
     path: /config/db.sqlite3
 

@@ -1,0 +1,21 @@
+##########################################################################
+# Title:         Saltbox: Authelia | Settings Task                       #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Load encryption_key value
+  shell: |
+    yyq read {{ authelia_paths_location }}/configuration.yml storage.encryption_key
+  register: authelia_encryption_key
+
+- name: Add encryption_key to config file
+  shell: |
+    yyq w -i {{ authelia_paths_location }}/configuration.yml storage.encryption_key {{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}
+  become: true
+  become_user: "{{ user.name }}"
+  when: authelia_encryption_key.stdout | length == 0
+
