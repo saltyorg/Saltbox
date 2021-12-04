@@ -22,99 +22,93 @@
 - name: Nvidia Setup block
   block:
 
-  # Install Ubuntu drivers
+    # Install Ubuntu drivers
 
-  - name: Install Ubuntu drivers
-    apt:
-      name: ubuntu-drivers-common
-      update_cache: true
-      state: present
+    - name: Install Ubuntu drivers
+      apt:
+        name: ubuntu-drivers-common
+        update_cache: true
+        state: present
 
-  - name: Get list of devices
-    shell: ubuntu-drivers devices
-    register: ubuntu_devices
+    - name: Get list of devices
+      shell: ubuntu-drivers devices
+      register: ubuntu_devices
 
-  - name: Set 'manual_install_is_disabled' variable
-    set_fact:
-      manual_install_is_disabled: "{{ 'manual_install: True' not in ubuntu_devices.stdout }}"
+    - name: Set 'manual_install_is_disabled' variable
+      set_fact:
+        manual_install_is_disabled: "{{ 'manual_install: True' not in ubuntu_devices.stdout }}"
 
-  # Configure Nvidia Kernel
+    # Configure Nvidia Kernel
 
-  - name: Nvidia Kernel Tasks
-    block:
+    - name: Nvidia Kernel Tasks
+      block:
 
-      - name: Check if 'blacklist-nouveau.conf' exists
-        stat:
-          path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
-        register: blacklist_nouveau_conf
+        - name: Check if 'blacklist-nouveau.conf' exists
+          stat:
+            path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
+          register: blacklist_nouveau_conf
 
-      - name: "Nvidia Kernel Task"
-        include_tasks: "subtasks/kernel.yml"
-        when:
-          - (not blacklist_nouveau_conf.stat.exists)
-          - (nvidia_kernel_blacklist_nouveau)
+        - name: "Nvidia Kernel Task"
+          include_tasks: "subtasks/kernel.yml"
+          when:
+            - (not blacklist_nouveau_conf.stat.exists)
+            - (nvidia_kernel_blacklist_nouveau)
 
-    when: manual_install_is_disabled
+      when: manual_install_is_disabled
 
-  # Install Nvidia Driver
+    # Install Nvidia Driver
 
-  - name: Nvidia Driver Tasks
-    block:
+    - name: Nvidia Driver Tasks
+      block:
 
-      - name: "Nvidia Driver Task"
-        include_tasks: "subtasks/driver.yml"
-        when: (nvidia_driver_version | lower != 'ignore')
+        - name: "Nvidia Driver Task"
+          include_tasks: "subtasks/driver.yml"
+          when: (nvidia_driver_version | lower != 'ignore')
 
-    when: manual_install_is_disabled
+      when: manual_install_is_disabled
 
-  # Install Nvidia Driver Patch to remove transcode limit
+    # Install Nvidia Driver Patch to remove transcode limit
 
-  - name: Nvidia Driver Patch Tasks
-    block:
+    - name: Nvidia Driver Patch Tasks
+      block:
 
-      - name: Check to see if patch backup files exist
-        find:
-          paths: "{{ nvidia_patch_backup_file_location }}"
-          file_type: file
-          recurse: true
-          patterns: '*.so*'
-        register: nvidia_patch_backup_files
+        - name: Check to see if patch backup files exist
+          find:
+            paths: "{{ nvidia_patch_backup_file_location }}"
+            file_type: file
+            recurse: true
+            patterns: '*.so*'
+          register: nvidia_patch_backup_files
 
-      - name: "Nvidia Driver Patch Task"
-        include_tasks: "subtasks/patch.yml"
-        when: (nvidia_patch_backup_files.matched|int == 0)
+        - name: "Nvidia Driver Patch Task"
+          include_tasks: "subtasks/patch.yml"
+          when: (nvidia_patch_backup_files.matched|int == 0)
 
-    when: ('GeForce' in lspci_resp.stdout)
+      when: ('GeForce' in lspci_resp.stdout)
 
-  # Install Nvidia Runtime Container
+    # Install Nvidia Runtime Container
 
-  - name: Nvidia Runtime Container Tasks
-    block:
+    - name: Get contents of 'daemon.json'
+      shell: cat /etc/docker/daemon.json
+      register: docker_daemon_json
 
-      - name: Get contents of 'daemon.json'
-        shell: cat /etc/docker/daemon.json
-        register: docker_daemon_json
+    - name: Set 'docker_default_runtime'
+      set_fact:
+        docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
 
-      - name: Set 'docker_default_runtime'
-        set_fact:
-          docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
+    - name: "Nvidia Docker Task"
+      include_tasks: "subtasks/docker.yml"
+      when: (docker_default_runtime != 'nvidia')
 
-      - name: "Nvidia Docker Task"
-        include_tasks: "subtasks/docker.yml"
-        when: (docker_default_runtime != 'nvidia')
+    # Install Nvidia Nvtop Tool
 
-  # Install Nvidia Nvtop Tool
+    - name: Check if 'nvtop' exists
+      stat:
+        path: "{{ nvidia_nvtop_binary_path }}"
+      register: nvtop_binary
 
-  - name: Nvidia Nvtop Tasks
-    block:
-
-      - name: Check if 'nvtop' exists
-        stat:
-          path: "{{ nvidia_nvtop_binary_path }}"
-        register: nvtop_binary
-
-      - name: "Nvidia Nvtop Task"
-        include_tasks: "subtasks/nvtop.yml"
-        when: not nvtop_binary.stat.exists
+    - name: "Nvidia Nvtop Task"
+      include_tasks: "subtasks/nvtop.yml"
+      when: not nvtop_binary.stat.exists
 
   when: (ansible_distribution == 'Ubuntu') and ('NVIDIA' in lspci_resp.stdout)
