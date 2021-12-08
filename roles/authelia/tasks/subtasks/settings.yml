@@ -18,4 +18,3 @@
   become: true
   become_user: "{{ user.name }}"
   when: authelia_encryption_key.stdout | length == 0
-

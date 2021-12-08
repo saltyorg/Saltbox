@@ -160,19 +160,19 @@ global_themepark_domain: theme-park.dev
 # Traefik
 ################################
 
-traefik_default_certprovider: "{{ 'cfdns' 
+traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
 
 traefik_default_tlsresolver: "tlsresolver"
 
-traefik_default_certresolver: "{{ traefik_default_tlsresolver 
+traefik_default_certresolver: "{{ traefik_default_tlsresolver
                                if (not cloudflare_is_enabled) or (traefik.tls)
                                else traefik_default_certprovider }}"
 
 traefik_default_middleware: "{{ 'secureHeaders@file,gzip'
                              if (not traefik.hsts)
-                             else 'secureHeaders@file,gzip,hsts@file' }}" 
+                             else 'secureHeaders@file,gzip,hsts@file' }}"
 
 traefik_default_sso_middleware: "authelia"
 
@@ -228,11 +228,11 @@ docker_labels_traefik_main:
 docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", role_name + "_traefik_api_endpoint", default=omit) }}))" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", role_name + "_traefik_api_endpoint", default=omit) }}))" }'  # noqa line-length
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", role_name + "_traefik_api_middleware", default=traefik_default_middleware) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", role_name + "_traefik_api_middleware", default=traefik_default_middleware) }}" }'  # noqa line-length
 
 docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled

@@ -46,7 +46,7 @@ jaeger_dns_zone: "{{ jaeger_web_domain }}"
 
 jaeger_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 jaeger_traefik_middleware: "{{ traefik_default_middleware + ',' + jaeger_traefik_sso_middleware
-                            if (jaeger_traefik_sso_middleware | length > 0) 
+                            if (jaeger_traefik_sso_middleware | length > 0)
                             else traefik_default_middleware }}"
 jaeger_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jaeger_traefik_enabled: true
