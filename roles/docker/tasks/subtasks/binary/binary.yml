@@ -21,6 +21,10 @@
     repo: "{{ docker_apt_repo_url }}"
     filename: "{{ docker_apt_repo_filename }}"
     update_cache: true
+  register: result
+  retries: 5
+  delay: 10
+  until: result is succeeded
 
 - name: Binary | Install Docker binaries
   include_tasks: "binary2.yml"
