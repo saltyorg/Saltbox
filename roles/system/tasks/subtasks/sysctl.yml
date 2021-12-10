@@ -27,7 +27,7 @@
     # Set tcp_congestion_control to bbr
     - { name: net.ipv4.tcp_congestion_control, value: bbr }
     # Increase system file descriptor limit
-    - { name: fs.file-max, value: 100000 }
+    - { name: fs.file-max, value: "{{ fs_file_max }}" }
     # Reduce swappiness
     - { name: vm.swappiness, value: 10 }
     # Set dirty_ratio
