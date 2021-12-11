@@ -181,6 +181,7 @@ traefik_docker_hosts: "{{ docker_hosts_common
 
 # Labels
 traefik_docker_labels_default:
+  com.github.saltbox.saltbox_managed: "true"
   traefik.enable: "true"
   traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik.entrypoints: "websecure"
