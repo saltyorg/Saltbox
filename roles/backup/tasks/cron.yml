@@ -23,5 +23,5 @@
     job: >
       sudo PATH='/usr/bin:/bin:/usr/local/bin' env ANSIBLE_CONFIG='{{ playbook_dir }}/ansible.cfg' '{{ playbook_binary.stdout }}'
       '{{ playbook_dir }}/backup.yml' >> '{{ playbook_dir }}/saltbox_backup.log' 2>&1
-    state: "{{ backup.cron.cron_state }}"
+    state: "{{ backup.cron.enable | ternary('present', 'absent') }}"
     user: "{{ user.name }}"

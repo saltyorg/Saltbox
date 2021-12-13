@@ -12,7 +12,7 @@ backup:
     port: 22
   cron:
     cron_time: weekly
-    cron_state: absent
+    enable: no
   restore_service:
     user:
     pass:

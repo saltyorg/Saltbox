@@ -22,7 +22,7 @@
       rsync: "{{ backup.rsync | combine(rsync_tmp) }}"
       cron:
         cron_time: "{{ backup.cron.cron_time }}"
-        cron_state: "{{ backup.cron.cron_state }}"
+        enable: "{{ backup.cron.enable }}"
       restore_service:
         user: "{{ backup.restore_service.user }}"
         pass: "{{ backup.restore_service.pass }}"
