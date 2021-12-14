@@ -38,7 +38,7 @@
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Traefik ZeroSSL Tasks
@@ -71,4 +71,5 @@
     recurse: yes
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
+    mode: "0664"
   when: (not continuous_integration)
