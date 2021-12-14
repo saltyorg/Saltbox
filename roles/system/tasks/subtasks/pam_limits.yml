@@ -7,9 +7,16 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Set nofile limit for all users.
+- name: Set PAM limits for all users.
   pam_limits:
     domain: "*"
-    limit_type: "-"
-    limit_item: nofile
-    value: "{{ pam_limit_nofile }}"
+    limit_type: "{{item.limit_type}}"
+    limit_item: "{{item.limit_item}}"
+    value: "{{item.value}}"
+  with_items:
+    - { limit_type: '-', limit_item: 'nofile', value: "{{ pam_limit_nofile }}" }
+    - { limit_type: 'soft', limit_item: 'memlock', value: unlimited }
+    - { limit_type: 'hard', limit_item: 'memlock', value: unlimited }
+
+- name: Reload sysctl settings.
+  shell: sysctl --system
