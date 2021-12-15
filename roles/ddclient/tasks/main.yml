@@ -53,7 +53,7 @@
 - name: Create and start container
   docker_container:
     name: ddclient
-    image: "linuxserver/ddclient:latest"
+    image: "lscr.io/linuxserver/ddclient:latest"
     pull: true
     env:
       PUID: "{{ uid }}"

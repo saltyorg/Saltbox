@@ -69,7 +69,7 @@ tautulli_docker_container: "{{ tautulli_name }}"
 # Image
 tautulli_docker_image_pull: true
 tautulli_docker_image_tag: "release"
-tautulli_docker_image: "hotio/tautulli:{{ tautulli_docker_image_tag }}"
+tautulli_docker_image: "cr.hotio.dev/hotio/tautulli:{{ tautulli_docker_image_tag }}"
 
 # Ports
 tautulli_docker_ports_defaults:
