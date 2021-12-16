@@ -58,7 +58,7 @@ nginx_docker_container: "{{ nginx_name }}"
 # Image
 nginx_docker_image_pull: true
 nginx_docker_image_tag: "latest"
-nginx_docker_image: "linuxserver/nginx:{{ nginx_docker_image_tag }}"
+nginx_docker_image: "lscr.io/linuxserver/nginx:{{ nginx_docker_image_tag }}"
 
 # Ports
 nginx_docker_ports_defaults:
