@@ -63,7 +63,7 @@ plex_webtools_dns_zone: "{{ plex_webtools_web_domain }}"
 # Traefik
 ################################
 
-plex_traefik_middleware: "{{ traefik_default_middleware }}"
+plex_traefik_middleware: ""
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
 plex_webtools_traefik_middleware: "{{ traefik_default_middleware }}"
