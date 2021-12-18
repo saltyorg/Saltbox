@@ -71,5 +71,5 @@
     recurse: yes
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0664"
+    mode: "0600"
   when: (not continuous_integration)
