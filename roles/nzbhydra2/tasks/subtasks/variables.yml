@@ -17,5 +17,5 @@
 - name: Variables | Add '{{ nzbhydra_paths_db_location }}' to variables
   set_fact:
     nzbhydra2_docker_volumes_default: "{{ nzbhydra2_docker_volumes_default
-                                              + nzbhydra2_docker_volumes_nzbhydra1_migration }}"
+                                          + nzbhydra2_docker_volumes_nzbhydra1_migration }}"
   when: nzbhydra_paths_db_location_stat.stat.exists
