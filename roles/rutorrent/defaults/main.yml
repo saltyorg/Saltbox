@@ -210,7 +210,7 @@ rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
                            else rutorrent_docker_volumes_default
                               + rutorrent_docker_volumes_custom
                               + docker_volumes_downloads_common
-                              + rutorrent_docker_volumes_theme}}"
+                              + rutorrent_docker_volumes_theme }}"
 
 # Devices
 rutorrent_docker_devices_default: []
