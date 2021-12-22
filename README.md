@@ -168,9 +168,9 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/FML128>
-            <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=Merlin Jehli/>
+            <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=FML128/>
             <br />
-            <sub style="font-size:14px"><b>Merlin Jehli</b></sub>
+            <sub style="font-size:14px"><b>FML128</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
