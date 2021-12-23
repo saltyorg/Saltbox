@@ -47,4 +47,4 @@ sanity_check_logs_logfile_path: "{{ playbook_dir }}/saltbox.log"
 ################################
 
 sanity_check_settings_check: "{{ false if (dns.zerossl and traefik.tls)
-                              else true}}"
+                              else true }}"
