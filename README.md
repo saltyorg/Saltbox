@@ -42,6 +42,7 @@ If you find this project helpful, feel free to make a small [donation](https://g
 For those that prefer donating with cryptocurrencies:
 
 Bitcoin: 34ayAsKQqtXUC7MzDX4qdiQ7xhAbxYpmoZ
+
 Ethereum: 0xc5983b8F8B25380335BdAfE7dc06765E6D77ffaC
 
 ### JetBrains
