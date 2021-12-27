@@ -40,6 +40,7 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
 
 For those that prefer donating with cryptocurrencies:
+
 Bitcoin: 34ayAsKQqtXUC7MzDX4qdiQ7xhAbxYpmoZ
 Ethereum: 0xc5983b8F8B25380335BdAfE7dc06765E6D77ffaC
 
