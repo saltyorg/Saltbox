@@ -15,23 +15,16 @@ http:
   middlewares:
     secureHeaders:
       headers:
-        accessControlAllowOriginList: "*"
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - PUT
-        accessControlMaxAge: 100
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        customFrameOptionsValue: "allow-from https:{{ user.domain }}"
+        frameDeny: false
         contentTypeNosniff: true
         browserXssFilter: true
-        referrerPolicy: "same-origin"
-        sslProxyHeaders:
-          X-Forwarded-Proto: https
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
           server: ""
+        sslProxyHeaders:
+          X-Forwarded-Proto: https
     hsts:
       headers:
         stsSeconds: 63072000
