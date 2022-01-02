@@ -163,18 +163,25 @@
     executable: pip3
   ignore_errors: true
 
-- name: Check to see if yyq is installed
+- name: "Check to see if yyq is installed"
   stat:
     path: "/usr/local/bin/yyq"
   register: yyq_binary
 
 - name: "Get yyq version"
   shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
-  register: yyq_version_common_check
+  register: yyq_version_settings_check
   ignore_errors: true
   when: yyq_binary.stat.exists
 
-- name: Install yyq
+- name: "Set yyq version"
+  set_fact:
+    yyq_current_version: "{{ yyq_version_settings_check.stdout
+                          if yyq_version_settings_check.stdout is defined
+                          else '0.0.0' }}"
+
+- name: "Install yyq"
   import_role:
     name: yyq
-  when: (yyq_version_common_check is defined and yyq_version_common_check.stdout is version(yyq_install_version, 'lt', version_type='semver')) or (not yyq_binary.stat.exists)
+  when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver'))
+        or (not yyq_binary.stat.exists)
