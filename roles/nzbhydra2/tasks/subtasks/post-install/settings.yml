@@ -22,7 +22,7 @@
 
 - name: Post-Install | Settings | Update settings
   shell: |
-    yyq w -i {{ nzbhydra2_paths_config_location }} {{ item }}
+    yyq e -i '{{ item }}' {{ nzbhydra2_paths_config_location }}
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ nzbhydra2_config_settings_list }}"

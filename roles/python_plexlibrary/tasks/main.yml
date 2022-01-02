@@ -52,7 +52,7 @@
 
 - name: Add plex url to config file
   shell: |
-    yyq w -i /opt/python-plexlibrary/config.yml plex.baseurl '{{ plex_web_url }}'
+    yyq e -i '.plex.baseurl = "{{ plex_web_url }}"' /opt/python-plexlibrary/config.yml
   become: true
   become_user: "{{ user.name }}"
 
@@ -63,7 +63,7 @@
 
 - name: Add plex token to config file
   shell: |
-    yyq w -i /opt/python-plexlibrary/config.yml plex.token '{{ plex_auth_token }}'
+    yyq e -i '.plex.token = "{{ plex_auth_token }}"' /opt/python-plexlibrary/config.yml
   become: true
   become_user: "{{ user.name }}"
   when: plex_account_is_enabled

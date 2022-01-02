@@ -168,7 +168,13 @@
     path: "/usr/local/bin/yyq"
   register: yyq_binary
 
+- name: "Get yyq version"
+  shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+  register: yyq_version_common_check
+  ignore_errors: true
+  when: yyq_binary.stat.exists
+
 - name: Install yyq
   import_role:
     name: yyq
-  when: (not yyq_binary.stat.exists)
+  when: (yyq_version_common_check is defined and yyq_version_common_check.stdout is version(yyq_install_version, 'lt', version_type='semver')) or (not yyq_binary.stat.exists)

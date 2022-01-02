@@ -27,7 +27,7 @@
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
   shell: |
-    yyq w -i {{ playbook_dir }}/{{ file }} traefik.tls no
+    yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: not traefik_tls_settings
@@ -51,7 +51,7 @@
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
   shell: |
-    yyq w -i {{ playbook_dir }}/{{ file }} traefik.metrics no
+    yyq e -i '.traefik.metrics = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: not traefik_metrics_settings
@@ -69,7 +69,7 @@
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
   shell: |
-    yyq d -i {{ playbook_dir }}/{{ file }} dockerhub
+    yyq e -i 'del(.dockerhub)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_dockerhub

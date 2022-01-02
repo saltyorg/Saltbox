@@ -16,7 +16,7 @@
 
 - name: Install yyq
   get_url:
-    url: "https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64"
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ yyq_install_version }}/yq_linux_amd64"
     dest: /usr/local/bin/yyq
     mode: "0775"
     owner: root
@@ -27,7 +27,7 @@
   register: x
 
 - name: "Get yyq version"
-  shell: "/usr/local/bin/yyq --version | head -n 1 | awk '{ print $3 }'"
+  shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
   register: yyq_version
   ignore_errors: true
   when: x is success

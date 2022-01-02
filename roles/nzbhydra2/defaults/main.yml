@@ -67,20 +67,21 @@ nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
 
 nzbhydra2_config_settings_default:
   # NZBGet
-  - downloading.downloaders []
-  - downloading.downloaders[0].apiKey null
-  - downloading.downloaders[0].defaultCategory null
-  - downloading.downloaders[0].downloadType NZB
-  - downloading.downloaders[0].enabled true
-  - downloading.downloaders[0].iconCssClass ""
-  - downloading.downloaders[0].name NZBGet
-  - downloading.downloaders[0].nzbAddingType UPLOAD
-  - downloading.downloaders[0].downloaderType "NZBGET"
-  - downloading.downloaders[0].url http://{{ nzbget_docker_networks_alias }}:{{ nzbget_web_port }}
-  - downloading.downloaders[0].username {{ user.name }}
-  - downloading.downloaders[0].password {{ user.pass }}
+  - del(.downloading.downloaders)
+  - .downloading.downloaders[0].apiKey = null
+  - .downloading.downloaders[0].defaultCategory = null
+  - .downloading.downloaders[0].downloadType = "NZB" | .downloading.downloaders[0].downloadType style="double"
+  - .downloading.downloaders[0].enabled = true
+  - .downloading.downloaders[0].iconCssClass = ""
+  - .downloading.downloaders[0].name = "NZBGet" | .downloading.downloaders[0].name style="double"
+  - .downloading.downloaders[0].nzbAddingType = "UPLOAD" | .downloading.downloaders[0].nzbAddingType style="double"
+  - .downloading.downloaders[0].downloaderType = "NZBGET" | .downloading.downloaders[0].downloaderType style="double"
+  - .downloading.downloaders[0].url = "http://{{ nzbget_docker_networks_alias }}:{{ nzbget_web_port }}" | .downloading.downloaders[0].url style="double"
+  - .downloading.downloaders[0].username = "{{ user.name }}" | .downloading.downloaders[0].username style="double"
+  - .downloading.downloaders[0].password = "{{ user.pass }}" | .downloading.downloaders[0].password style="double"
+  - .downloading.downloaders[0].addPaused = false
   # JVM Memory. If RAM >= 8GB, set XMX to 512, else 256.
-  - main.xmx {{ nzbhydra2_config_settings_jvm_memory }}
+  - .main.xmx = {{ nzbhydra2_config_settings_jvm_memory }}
 
 nzbhydra2_config_settings_custom: []
 

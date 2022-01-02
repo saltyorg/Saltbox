@@ -29,11 +29,11 @@
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'backup.cron' dict
   shell: |
-    yyq d -i {{ playbook_dir }}/{{ file }} backup.cron.cron_state
-    yyq w -i {{ playbook_dir }}/{{ file }} backup.cron.enable {{
+    yyq e -i 'del(.backup.cron.cron_state)' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.backup.cron.enable = "{{
               'yes'
               if (backup is defined and backup.cron is defined and backup.cron.cron_state is defined and backup.cron.cron_state == "present")
-              else 'no' }}
+              else 'no' }}"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: not new_settings
