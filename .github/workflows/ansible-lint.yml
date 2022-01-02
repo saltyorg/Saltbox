@@ -70,6 +70,7 @@ jobs:
         #                         path to directories or files to skip. This option is
         #                         repeatable.
         #   -c C                  Specify configuration file to use. Defaults to ".ansible-lint"
+        # [204] Lines should be no longer than 160 chars
         # [301] Commands should not change things if nothing needs doing
         # [303] curl used in place of get_url or uri module
         # [305] Use shell only when shell functionality is required
@@ -77,7 +78,7 @@ jobs:
         # [401] Git checkouts must contain explicit version
         # [403] Package installs should not use latest
         # [503] Tasks that run when changed should likely be handlers
-        args: "-x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
+        args: "-x 204 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
 
     - uses: sarisia/actions-status-discord@v1
       if: always()
