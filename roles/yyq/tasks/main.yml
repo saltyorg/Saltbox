@@ -36,8 +36,3 @@
   debug:
     msg: "yyq {{ yyq_version.stdout }} installed."
   when: x is success
-
-- name: "yyq install failed"
-  debug:
-    msg: "yyq install failed."
-  when: x is not success
