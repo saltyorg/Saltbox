@@ -97,7 +97,7 @@ emby_docker_ports: "{{ emby_docker_ports_defaults
 emby_docker_envs_default:
   UID: "{{ uid }}"
   GID: "{{ gid }}"
-  GIDLIST: "{{ vgid }}"
+  GIDLIST: "{{ vgid }},{{ rgid }}"
   NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"

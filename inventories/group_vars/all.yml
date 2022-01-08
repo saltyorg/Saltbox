@@ -108,7 +108,9 @@ uid: "{{ ansible_local.user[user.name].uid }}"
 
 gid: "{{ ansible_local.user[user.name].gid }}"
 
-vgid: "{{ ansible_local.group.video.gid }},{{ ansible_local.group.render.gid }}"
+vgid: "{{ ansible_local.group.video.gid }}"
+
+rgid: "{{ ansible_local.group.render.gid }}"
 
 ################################
 # Timezone
