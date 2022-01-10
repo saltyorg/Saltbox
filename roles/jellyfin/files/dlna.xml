@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnablePlayTo>false</EnablePlayTo>
+  <EnableServer>false</EnableServer>
+  <EnableDebugLog>false</EnableDebugLog>
+  <EnablePlayToTracing>false</EnablePlayToTracing>
+  <ClientDiscoveryIntervalSeconds>60</ClientDiscoveryIntervalSeconds>
+  <AliveMessageIntervalSeconds>1800</AliveMessageIntervalSeconds>
+  <BlastAliveMessageIntervalSeconds>1800</BlastAliveMessageIntervalSeconds>
+  <AutoCreatePlayToProfiles>false</AutoCreatePlayToProfiles>
+  <BlastAliveMessages>false</BlastAliveMessages>
+  <SendOnlyMatchedHost>true</SendOnlyMatchedHost>
+</DlnaOptions>

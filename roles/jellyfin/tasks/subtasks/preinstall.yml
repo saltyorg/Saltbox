@@ -1,0 +1,82 @@
+#########################################################################
+# Title:         Saltbox: Jellyfin - Pre-install Tasks                  #
+# Author(s):     kowalski, desimaniac, owine                            #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Migrate old non hotio setup
+################################
+
+- name: Preinstall MIGRATE | Check if `{{ jellyfin_paths_xml_loct_old | basename }}` exists
+  stat:
+    path: "{{ jellyfin_paths_xml_loct_old }}"
+  register: jellyfin_xml_old
+
+- name: Preinstall MIGRATE | New `{{ jellyfin_paths_xml_loct_old | basename }}` tasks
+  block:
+
+    - name: Preinstall MIGRATE | Import `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists
+      copy:
+        src: "{{ jellyfin_paths_xml_loct_old }}"
+        dest: "{{ jellyfin_paths_sys_xml_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        force: false
+
+    - name: Preinstall MIGRATE | Remove old `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists"
+      file:
+        path: "{{ jellyfin_paths_xml_loct_old }}"
+        state: absent
+
+  when: jellyfin_xml_old.stat.exists
+
+# Low priority as migrate should not be needed.
+# Need to find out what other files need to be moved, network.xml - metadata, db's.
+# Missing from nginx community role.
+
+################################
+# Register | STATS 'n' FACTS
+################################
+
+- name: Preinstall STAT | Check if `{{ jellyfin_paths_sys_xml_location | basename }}` exists
+  stat:
+    path: "{{ jellyfin_paths_sys_xml_location }}"
+  register: jellyfin_sys_xml
+
+- name: Preinstall STAT | Check also if `{{ jellyfin_paths_sys_xml_location | basename }}` exists
+  stat:
+    path: "{{ jellyfin_paths_sys_xml_location }}"
+  register: jellyfin_existing_install
+
+- name: Preinstall STAT | Check if `{{ jellyfin_paths_net_xml_location | basename }}` exists
+  stat:
+    path: "{{ jellyfin_paths_net_xml_location }}"
+  register: network_xml
+
+- name: Preinstall STAT | Check if `{{ jellyfin_paths_dlna_location | basename }}` exists
+  stat:
+    path: "{{ jellyfin_paths_dlna_location }}"
+  register: jellyfin_dlna
+
+################################
+# Block DLNA network spam
+################################
+
+- name: Settings DLNA | New `{{ jellyfin_paths_dlna_location | basename }}` tasks
+  block:
+
+    - name: Import 'dlna.xml' config
+      copy:
+        src: "dlna.xml"
+        dest: "{{ jellyfin_paths_dlna_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        force: false
+
+  when: not jellyfin_dlna.stat.exists

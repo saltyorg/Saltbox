@@ -71,3 +71,4 @@
     - { role: asshama, tags: ['asshama'] }
     - { role: autoscan, tags: ['autoscan'] }
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
+    - { role: jellyfin, tags: ['jellyfin'] }

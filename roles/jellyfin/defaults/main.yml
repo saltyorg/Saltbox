@@ -1,0 +1,183 @@
+#########################################################################
+# Title:         Saltbox: Jellyfin                                      #
+# Author(s):     kowalski, desimaniac, owine                            #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Basics
+################################
+
+jellyfin_name: jellyfin
+
+################################
+# Paths
+################################
+
+jellyfin_paths_folder: "{{ jellyfin_name }}"
+jellyfin_paths_location: "{{ server_appdata_path }}/{{ jellyfin_paths_folder }}"
+jellyfin_paths_transcodes_location: "{{ transcodes_path }}/{{ jellyfin_paths_folder }}"
+jellyfin_paths_folders_list:
+  - "{{ jellyfin_paths_location }}"
+  - "{{ jellyfin_paths_location }}/data"
+  - "{{ jellyfin_paths_location }}/log"
+  - "{{ jellyfin_paths_location }}/cache"
+  - "{{ jellyfin_paths_transcodes_location }}"
+jellyfin_paths_dlna_location: "{{ jellyfin_paths_location }}/dlna.xml"
+jellyfin_paths_sys_xml_location: "{{ jellyfin_paths_location }}/system.xml"
+jellyfin_paths_net_xml_location: "{{ jellyfin_paths_location }}/network.xml"
+jellyfin_paths_xml_loct_old: "{{ jellyfin_paths_location }}/app/config/system.xml"
+
+################################
+# Web
+################################
+
+jellyfin_web_subdomain: "{{ jellyfin_name }}"
+jellyfin_web_domain: "{{ user.domain }}"
+jellyfin_web_port: "8096"
+jellyfin_web_url: "{{ 'https://' + jellyfin_web_subdomain + '.' + jellyfin_web_domain
+                   if (reverse_proxy_is_enabled)
+                   else 'http://localhost:' + jellyfin_web_port }}"
+
+################################
+# DNS
+################################
+
+jellyfin_dns_record: "{{ jellyfin_web_subdomain }}"
+jellyfin_dns_zone: "{{ jellyfin_web_domain }}"
+
+################################
+# Traefik
+################################
+
+jellyfin_traefik_middleware: "{{ traefik_default_middleware }}"
+jellyfin_traefik_certresolver: "{{ traefik_default_certresolver }}"
+jellyfin_traefik_enabled: true
+
+################################
+# Settings
+################################
+
+# System
+jellyfin_system_settings_default:
+  - { xpath: 'PublicPort', value: '80' }
+  - { xpath: 'PublicHttpsPort', value: '443' }
+  - { xpath: 'EnableFolderView', value: 'true' }
+  - { xpath: 'QuickConnectAvailable', value: 'true' }
+  - { xpath: 'EnableRemoteAccess', value: 'true' }
+  - { xpath: 'ServerName', value: 'saltbox' }
+jellyfin_system_settings_custom: []
+jellyfin_system_settings_list: "{{ jellyfin_system_settings_default + jellyfin_system_settings_custom }}"
+
+# Network
+jellyfin_network_settings_default:
+  - { xpath: 'PublicPort', value: '80' }
+  - { xpath: 'PublicHttpsPort', value: '443' }
+  - { xpath: 'PublishedServerUriBySubnet/string', value: '{{ jellyfin_web_subdomain }}.{{ jellyfin_web_domain }}' }
+jellyfin_network_settings_custom: []
+jellyfin_network_settings_list: "{{ jellyfin_network_settings_default + jellyfin_network_settings_custom }}"
+
+################################
+# Docker
+################################
+
+# Container
+jellyfin_docker_container: "{{ jellyfin_name }}"
+
+# Image
+jellyfin_docker_image_pull: true
+jellyfin_docker_image_tag: "release"
+jellyfin_docker_image: "cr.hotio.dev/hotio/jellyfin:{{ jellyfin_docker_image_tag }}"
+
+# Ports
+jellyfin_docker_ports_defaults:
+  - "{{ jellyfin_web_port }}:{{ jellyfin_web_port }}"
+jellyfin_docker_ports_custom: []
+jellyfin_docker_ports: "{{ jellyfin_docker_ports_defaults
+                           + jellyfin_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + jellyfin_docker_ports_custom }}"
+
+# Envs
+jellyfin_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
+  NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
+jellyfin_docker_envs_custom: {}
+jellyfin_docker_envs: "{{ jellyfin_docker_envs_default
+                          | combine(jellyfin_docker_envs_custom) }}"
+
+# Commands
+jellyfin_docker_commands_default: []
+jellyfin_docker_commands_custom: []
+jellyfin_docker_commands: "{{ jellyfin_docker_commands_default
+                              + jellyfin_docker_commands_custom }}"
+
+# Volumes
+jellyfin_docker_volumes_default:
+  - "{{ jellyfin_paths_location }}:/config:rw"
+  - "{{ server_appdata_path }}/scripts:/scripts"
+  - "/mnt/unionfs/Media:/data"
+  - "/mnt:/mnt"
+  - "/tmp:/tmp"
+  - "/dev/shm:/dev/shm"
+  - "{{ jellyfin_paths_transcodes_location }}:/transcode"
+jellyfin_docker_volumes_custom: []
+jellyfin_docker_volumes: "{{ jellyfin_docker_volumes_default
+                             + jellyfin_docker_volumes_custom
+                             + docker_volumes_downloads_common }}"
+
+# Devices
+jellyfin_docker_devices_default: []
+jellyfin_docker_devices_custom: []
+jellyfin_docker_devices: "{{ jellyfin_docker_devices_default
+                             + jellyfin_docker_devices_custom }}"
+
+# Hosts
+
+jellyfin_docker_hosts_default: []
+jellyfin_docker_hosts_custom: []
+jellyfin_docker_hosts: "{{ docker_hosts_common
+                           | combine(jellyfin_docker_hosts_default)
+                           | combine(jellyfin_docker_hosts_custom) }}"
+
+# Labels
+jellyfin_docker_labels_default: {}
+jellyfin_docker_labels_custom: {}
+jellyfin_docker_labels: "{{ docker_labels_common
+                            | combine(jellyfin_docker_labels_default)
+                            | combine(jellyfin_docker_labels_custom) }}"
+
+# Hostname
+jellyfin_docker_hostname: "{{ jellyfin_name }}"
+
+# Networks
+jellyfin_docker_networks_alias: "{{ jellyfin_name }}"
+jellyfin_docker_networks_default: []
+jellyfin_docker_networks_custom: []
+jellyfin_docker_networks: "{{ docker_networks_common
+                              + jellyfin_docker_networks_default
+                              + jellyfin_docker_networks_custom }}"
+
+# Capabilities
+jellyfin_docker_capabilities_default: []
+jellyfin_docker_capabilities_custom: []
+jellyfin_docker_capabilities: "{{ jellyfin_docker_capabilities_default
+                                  + jellyfin_docker_capabilities_custom }}"
+
+# Security Opts
+jellyfin_docker_security_opts_default: []
+jellyfin_docker_security_opts_custom: []
+jellyfin_docker_security_opts: "{{ jellyfin_docker_security_opts_default
+                                   + jellyfin_docker_security_opts_custom }}"
+
+# Restart Policy
+jellyfin_docker_restart_policy: unless-stopped
+
+# State
+jellyfin_docker_state: started
