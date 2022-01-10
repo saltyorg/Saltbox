@@ -68,3 +68,4 @@
     - { role: sstv, tags: ['sstv'] }
     - { role: yyq, tags: ['yyq'] }
     - { role: custom, tags: ['custom'] }
+    - { role: asshama, tags: ['asshama'] }
