@@ -1,0 +1,144 @@
+##########################################################################
+# Title:         Saltbox: Autoscan | Default Variables                   #
+# Author(s):     salty, TABLE                                            #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+autoscan_name: autoscan
+
+################################
+# Paths
+################################
+
+autoscan_paths_folder: "{{ autoscan_name }}"
+autoscan_paths_location: "{{ server_appdata_path }}/{{ autoscan_paths_folder }}"
+autoscan_paths_folders_list:
+  - "{{ autoscan_paths_location }}"
+autoscan_paths_config_location: "{{ autoscan_paths_location }}/config.yml"
+
+################################
+# Web
+################################
+
+autoscan_web_subdomain: "{{ autoscan_name }}"
+autoscan_web_domain: "{{ user.domain }}"
+autoscan_web_port: "3030"
+autoscan_web_url: "{{ 'https://' + autoscan_web_subdomain + '.' + autoscan_web_domain
+                   if (reverse_proxy_is_enabled)
+                   else 'http://localhost:' + autoscan_web_port }}"
+
+################################
+# DNS
+################################
+
+autoscan_dns_record: "{{ autoscan_web_subdomain }}"
+autoscan_dns_zone: "{{ autoscan_web_domain }}"
+
+################################
+# Traefik
+################################
+
+autoscan_traefik_middleware: "{{ traefik_default_middleware }}"
+autoscan_traefik_certresolver: "{{ traefik_default_certresolver }}"
+autoscan_traefik_enabled: true
+
+################################
+# Docker
+################################
+
+# Container
+autoscan_docker_container: "{{ autoscan_name }}"
+
+# Image
+autoscan_docker_image_pull: true
+autoscan_docker_image_tag: "latest"
+autoscan_docker_image: "cloudb0x/autoscan:{{ autoscan_docker_image_tag }}"
+
+# Ports
+autoscan_docker_ports_defaults:
+  - "{{ autoscan_web_port }}"
+autoscan_docker_ports_custom: []
+autoscan_docker_ports: "{{ autoscan_docker_ports_defaults
+                           + autoscan_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + autoscan_docker_ports_custom }}"
+
+# Envs
+autoscan_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+autoscan_docker_envs_custom: {}
+autoscan_docker_envs: "{{ autoscan_docker_envs_default
+                          | combine(autoscan_docker_envs_custom) }}"
+
+# Commands
+autoscan_docker_commands_default: []
+autoscan_docker_commands_custom: []
+autoscan_docker_commands: "{{ autoscan_docker_commands_default
+                              + autoscan_docker_commands_custom }}"
+
+# Volumes
+autoscan_docker_volumes_default:
+  - "{{ autoscan_paths_location }}:/config"
+  - "/mnt:/mnt:ro"
+autoscan_docker_volumes_custom: []
+autoscan_docker_volumes: "{{ autoscan_docker_volumes_default
+                             + autoscan_docker_volumes_custom
+                             + docker_volumes_downloads_common }}"
+
+# Devices
+autoscan_docker_devices_default: []
+autoscan_docker_devices_custom: []
+autoscan_docker_devices: "{{ autoscan_docker_devices_default
+                             + autoscan_docker_devices_custom }}"
+
+# Hosts
+autoscan_docker_hosts_default: []
+autoscan_docker_hosts_custom: []
+autoscan_docker_hosts: "{{ docker_hosts_common
+                           | combine(autoscan_docker_hosts_default)
+                           | combine(autoscan_docker_hosts_custom) }}"
+
+# Labels
+autoscan_docker_labels_default: {}
+autoscan_docker_labels_custom: {}
+autoscan_docker_labels: "{{ docker_labels_common
+                            | combine(autoscan_docker_labels_default)
+                            | combine(autoscan_docker_labels_custom) }}"
+
+# Hostname
+autoscan_docker_hostname: "{{ autoscan_name }}"
+
+# Networks
+autoscan_docker_networks_alias: "{{ autoscan_name }}"
+autoscan_docker_networks_default: []
+autoscan_docker_networks_custom: []
+autoscan_docker_networks: "{{ docker_networks_common
+                              + autoscan_docker_networks_default
+                              + autoscan_docker_networks_custom }}"
+
+# Capabilities
+autoscan_docker_capabilities_default: []
+autoscan_docker_capabilities_custom: []
+autoscan_docker_capabilities: "{{ autoscan_docker_capabilities_default
+                                  + autoscan_docker_capabilities_custom }}"
+
+# Security Opts
+autoscan_docker_security_opts_default: []
+autoscan_docker_security_opts_custom: []
+autoscan_docker_security_opts: "{{ autoscan_docker_security_opts_default
+                                   + autoscan_docker_security_opts_custom }}"
+
+# Restart Policy
+autoscan_docker_restart_policy: unless-stopped
+
+# State
+autoscan_docker_state: started

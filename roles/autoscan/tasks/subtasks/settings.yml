@@ -1,0 +1,51 @@
+#########################################################################
+# Title:            Saltbox: Autoscan                                   #
+# Author(s):        Salty, TABLE                                        #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Import Plex variables
+  include_vars: /srv/git/saltbox/roles/plex/defaults/main.yml
+
+- name: "Settings | Check if '{{ plex_paths_config_location | basename }}' exists"
+  stat:
+    path: "{{ plex_paths_config_location }}"
+  register: preferences_xml
+
+- name: Settings | {{ plex_name }} auth token tasks
+  block:
+
+    - name: Settings | Fetch {{ plex_name }} auth token
+      xml:
+        path: "{{ plex_paths_config_location }}"
+        xpath: /Preferences
+        content: attribute
+      register: preferences_xml_resp
+      ignore_errors: true
+
+    - name: Settings | Register {{ plex_name }} auth token value
+      set_fact:
+        plex_auth_token: "{{ preferences_xml_resp.matches[0].Preferences.PlexOnlineToken }}"
+
+  when: preferences_xml.stat.exists
+
+- name: Settings | Check if `{{ autoscan_paths_config_location | basename }}` exists
+  stat:
+    path: "{{ autoscan_paths_config_location }}"
+  register: autoscan_config
+
+- name: Settings | New `{{ autoscan_paths_config_location | basename }}` tasks
+  block:
+
+    - name: Settings | Import default `{{ autoscan_paths_config_location | basename }}`
+      template:
+        src: config.yml.j2
+        dest: "{{ autoscan_paths_config_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+
+  when: not autoscan_config.stat.exists

@@ -1,0 +1,74 @@
+# <- processor ->
+
+# Override the minimum age before a scan request is sent to the target (Default 10m):
+minimum-age: 10m
+
+# Override the delay between processed scans (Default 5s):
+scan-delay: 5s
+
+# Set anchor files for remote storage. If these are missing no scans will be sent to the target to avoid files being trashed when a mount fails
+anchors:
+  - /mnt/unionfs/mounted.bin
+
+# <- triggers ->
+
+# Optionally, protect your webhooks with authentication
+authentication:
+  username: {{ user.name }}
+  password: {{ user.pass }}
+
+# Port for Autoscan webhooks to listen on
+port: 3030
+
+triggers:
+  # bernard:
+  #   - account: /config/sa.json # Path inside the container where your SA is located
+  #     cron: "*/5 * * * *" # every five minutes (the "" are important)
+  #     priority: 0
+  #     drives:
+  #       - id: drive_id #Friendly title
+        
+  #     # Rewrite gdrive to the local filesystem
+  #     rewrite:
+  #       - from: ^/Media/
+  #         to: /mnt/unionfs/Media/
+
+  #     # Filter with regular expressions
+  #     include:
+  #       - ^/mnt/unionfs/Media/
+  #     exclude:
+  #       - '\.srt$'
+
+  inotify:
+    - priority: 0
+
+      # Filter with regular expressions
+      include:
+        - ^/mnt/unionfs/Media/
+      exclude:
+        - '\.(srt|pdf)$'
+
+      # Local filesystem paths to monitor
+      paths:
+        - path: /mnt/local/Media
+
+  sonarr:
+    - name: sonarr # /triggers/sonarr
+      priority: 2
+
+  radarr:
+    - name: radarr   # /triggers/radarr
+      priority: 2
+
+  lidarr:
+    - name: lidarr   # /triggers/lidarr
+      priority: 1
+
+# <- targets ->
+
+targets:
+{% if plex_auth_token is defined %}
+  plex:
+    - url: {{ plex_web_url }} # URL of your Plex server
+      token: {{ plex_auth_token }} 
+{% endif %}

@@ -69,3 +69,4 @@
     - { role: yyq, tags: ['yyq'] }
     - { role: custom, tags: ['custom'] }
     - { role: asshama, tags: ['asshama'] }
+    - { role: autoscan, tags: ['autoscan'] }
