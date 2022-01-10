@@ -32,7 +32,7 @@
     dest: "{{ lookup('vars', role_name + '_paths_location') }}/99-cont-init-script-runner.sh"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: true
 
 - name: Download 98-themepark
