@@ -1,0 +1,143 @@
+##########################################################################
+# Title:         Saltbox: Petio | Default Variables                      #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+petio_name: petio
+
+################################
+# Paths
+################################
+
+petio_paths_folder: "{{ petio_name }}"
+petio_paths_location: "{{ server_appdata_path }}/{{ petio_paths_folder }}"
+petio_paths_folders_list:
+  - "{{ petio_paths_location }}"
+
+################################
+# Web
+################################
+
+petio_web_subdomain: "{{ petio_name }}"
+petio_web_domain: "{{ user.domain }}"
+petio_web_port: "7777"
+petio_web_url: "{{ 'https://' + petio_web_subdomain + '.' + petio_web_domain
+                if (reverse_proxy_is_enabled)
+                else 'http://localhost:' + petio_web_port }}"
+
+################################
+# DNS
+################################
+
+petio_dns_record: "{{ petio_web_subdomain }}"
+petio_dns_zone: "{{ petio_web_domain }}"
+
+################################
+# Traefik
+################################
+
+petio_traefik_middleware: "{{ traefik_default_middleware }}"
+petio_traefik_certresolver: "{{ traefik_default_certresolver }}"
+petio_traefik_enabled: true
+
+################################
+# Docker
+################################
+
+# Container
+petio_docker_container: "{{ petio_name }}"
+
+# Image
+petio_docker_image_pull: true
+petio_docker_image_tag: "release"
+petio_docker_image: "cr.hotio.dev/hotio/petio:{{ petio_docker_image_tag }}"
+
+# Ports
+petio_docker_ports_defaults:
+  - "{{ petio_web_port }}:{{ petio_web_port }}"
+petio_docker_ports_custom: []
+petio_docker_ports: "{{ petio_docker_ports_defaults
+                        + petio_docker_ports_custom
+                     if (not reverse_proxy_is_enabled)
+                     else [] + petio_docker_ports_custom }}"
+
+# Envs
+petio_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  UMASK: "002"
+  TZ: "{{ tz }}"
+petio_docker_envs_custom: {}
+petio_docker_envs: "{{ petio_docker_envs_default
+                       | combine(petio_docker_envs_custom) }}"
+
+# Commands
+petio_docker_commands_default: []
+petio_docker_commands_custom: []
+petio_docker_commands: "{{ petio_docker_commands_default
+                           + petio_docker_commands_custom }}"
+
+# Volumes
+petio_docker_volumes_default:
+  - "{{ petio_paths_location }}:/config"
+petio_docker_volumes_custom: []
+petio_docker_volumes: "{{ petio_docker_volumes_default
+                          + petio_docker_volumes_custom
+                          + docker_volumes_downloads_common }}"
+
+# Devices
+petio_docker_devices_default: []
+petio_docker_devices_custom: []
+petio_docker_devices: "{{ petio_docker_devices_default
+                          + petio_docker_devices_custom }}"
+
+# Hosts
+petio_docker_hosts_default: []
+petio_docker_hosts_custom: []
+petio_docker_hosts: "{{ docker_hosts_common
+                        | combine(petio_docker_hosts_default)
+                        | combine(petio_docker_hosts_custom) }}"
+
+# Labels
+petio_docker_labels_default: {}
+petio_docker_labels_custom: {}
+petio_docker_labels: "{{ docker_labels_common
+                         | combine(petio_docker_labels_default)
+                         | combine(petio_docker_labels_custom) }}"
+
+# Hostname
+petio_docker_hostname: "{{ petio_name }}"
+
+# Networks
+petio_docker_networks_alias: "{{ petio_name }}"
+petio_docker_networks_default: []
+petio_docker_networks_custom: []
+petio_docker_networks: "{{ docker_networks_common
+                           + petio_docker_networks_default
+                           + petio_docker_networks_custom }}"
+
+# Capabilities
+petio_docker_capabilities_default: []
+petio_docker_capabilities_custom: []
+petio_docker_capabilities: "{{ petio_docker_capabilities_default
+                               + petio_docker_capabilities_custom }}"
+
+# Security Opts
+petio_docker_security_opts_default: []
+petio_docker_security_opts_custom: []
+petio_docker_security_opts: "{{ petio_docker_security_opts_default
+                                + petio_docker_security_opts_custom }}"
+
+# Restart Policy
+petio_docker_restart_policy: unless-stopped
+
+# State
+petio_docker_state: started
