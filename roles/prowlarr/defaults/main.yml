@@ -1,0 +1,167 @@
+##########################################################################
+# Title:         Saltbox: Prowlarr | Default Variables                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+prowlarr_name: prowlarr
+
+################################
+# Paths
+################################
+
+prowlarr_paths_folder: "{{ prowlarr_name }}"
+prowlarr_paths_location: "{{ server_appdata_path }}/{{ prowlarr_paths_folder }}"
+prowlarr_paths_folders_list:
+  - "{{ prowlarr_paths_location }}"
+
+################################
+# Web
+################################
+
+prowlarr_web_subdomain: "{{ prowlarr_name }}"
+prowlarr_web_domain: "{{ user.domain }}"
+prowlarr_web_port: "9696"
+prowlarr_web_url: "{{ 'https://' + prowlarr_web_subdomain + '.' + prowlarr_web_domain
+                   if (reverse_proxy_is_enabled)
+                   else 'http://localhost:' + prowlarr_web_port }}"
+
+################################
+# DNS
+################################
+
+prowlarr_dns_record: "{{ prowlarr_web_subdomain }}"
+prowlarr_dns_zone: "{{ prowlarr_web_domain }}"
+
+################################
+# Traefik
+################################
+
+prowlarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+prowlarr_traefik_middleware: "{{ traefik_default_middleware + ',' + prowlarr_traefik_sso_middleware
+                              if (prowlarr_traefik_sso_middleware | length > 0)
+                              else traefik_default_middleware }}"
+prowlarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
+prowlarr_traefik_enabled: true
+prowlarr_traefik_api_enabled: true
+prowlarr_traefik_api_endpoint: "`/{[0-9]+}/api`"
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+prowlarr_themepark_enabled: false
+prowlarr_themepark_theme: "{{ global_themepark_theme }}"
+prowlarr_themepark_domain: "{{ global_themepark_domain }}"
+
+################################
+# Docker
+################################
+
+# Container
+prowlarr_docker_container: "{{ prowlarr_name }}"
+
+# Image
+prowlarr_docker_image_pull: true
+prowlarr_docker_image_tag: "testing"
+prowlarr_docker_image: "cr.hotio.dev/hotio/prowlarr:{{ prowlarr_docker_image_tag }}"
+
+# Ports
+prowlarr_docker_ports_defaults:
+  - "{{ prowlarr_web_port }}:{{ prowlarr_web_port }}"
+prowlarr_docker_ports_custom: []
+prowlarr_docker_ports: "{{ prowlarr_docker_ports_defaults
+                            + prowlarr_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else [] + prowlarr_docker_ports_custom }}"
+
+# Envs
+prowlarr_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  UMASK: "002"
+  TZ: "{{ tz }}"
+  TP_DOMAIN: "{{ prowlarr_themepark_domain }}"
+  TP_THEME: "{{ prowlarr_themepark_theme }}"
+  TP_HOTIO: "true"
+prowlarr_docker_envs_custom: {}
+prowlarr_docker_envs: "{{ prowlarr_docker_envs_default
+                          | combine(prowlarr_docker_envs_custom) }}"
+
+# Commands
+prowlarr_docker_commands_default: []
+prowlarr_docker_commands_custom: []
+prowlarr_docker_commands: "{{ prowlarr_docker_commands_default
+                              + prowlarr_docker_commands_custom }}"
+
+# Volumes
+prowlarr_docker_volumes_default:
+  - "{{ prowlarr_paths_location }}:/config"
+prowlarr_docker_volumes_custom: []
+prowlarr_docker_volumes_theme:
+  - "{{ prowlarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+prowlarr_docker_volumes: "{{ prowlarr_docker_volumes_default
+                             + prowlarr_docker_volumes_custom
+                             + docker_volumes_downloads_common
+                          if not (prowlarr_themepark_enabled)
+                          else prowlarr_docker_volumes_default
+                             + prowlarr_docker_volumes_custom
+                             + docker_volumes_downloads_common
+                             + prowlarr_docker_volumes_theme }}"
+
+# Devices
+prowlarr_docker_devices_default: []
+prowlarr_docker_devices_custom: []
+prowlarr_docker_devices: "{{ prowlarr_docker_devices_default
+                              + prowlarr_docker_devices_custom }}"
+
+# Hosts
+prowlarr_docker_hosts_default: []
+prowlarr_docker_hosts_custom: []
+prowlarr_docker_hosts: "{{ docker_hosts_common
+                            | combine(prowlarr_docker_hosts_default)
+                            | combine(prowlarr_docker_hosts_custom) }}"
+
+# Labels
+prowlarr_docker_labels_default: {}
+prowlarr_docker_labels_custom: {}
+prowlarr_docker_labels: "{{ docker_labels_common
+                            | combine(prowlarr_docker_labels_default)
+                            | combine(prowlarr_docker_labels_custom) }}"
+
+# Hostname
+prowlarr_docker_hostname: "{{ prowlarr_name }}"
+
+# Networks
+prowlarr_docker_networks_alias: "{{ prowlarr_name }}"
+prowlarr_docker_networks_default: []
+prowlarr_docker_networks_custom: []
+prowlarr_docker_networks: "{{ docker_networks_common
+                              + prowlarr_docker_networks_default
+                              + prowlarr_docker_networks_custom }}"
+
+# Capabilities
+prowlarr_docker_capabilities_default: []
+prowlarr_docker_capabilities_custom: []
+prowlarr_docker_capabilities: "{{ prowlarr_docker_capabilities_default
+                                  + prowlarr_docker_capabilities_custom }}"
+
+# Security Opts
+prowlarr_docker_security_opts_default: []
+prowlarr_docker_security_opts_custom: []
+prowlarr_docker_security_opts: "{{ prowlarr_docker_security_opts_default
+                                    + prowlarr_docker_security_opts_custom }}"
+
+# Restart Policy
+prowlarr_docker_restart_policy: unless-stopped
+
+# State
+prowlarr_docker_state: started

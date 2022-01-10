@@ -74,3 +74,4 @@
     - { role: jellyfin, tags: ['jellyfin'] }
     - { role: mongodb, tags: ['mongodb'] }
     - { role: petio, tags: ['petio'] }
+    - { role: prowlarr, tags: ['prowlarr'] }
