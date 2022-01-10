@@ -72,3 +72,4 @@
     - { role: autoscan, tags: ['autoscan'] }
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
     - { role: jellyfin, tags: ['jellyfin'] }
+    - { role: mongodb, tags: ['mongodb'] }

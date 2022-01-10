@@ -1,0 +1,58 @@
+#########################################################################
+# Title:            Saltbox: MongoDB                                    #
+# Author(s):        Superduper09, desimaniac, salty                     #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Stop and remove any existing container
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+    container_default_behavior: compatibility
+  with_items:
+    - mongodb
+
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0775"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+  with_items:
+    - "/opt/mongodb"
+    - "/opt/mongodb/config"
+
+- name: Change file ownership and group
+  file:
+    path: "/opt/mongodb"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+
+- name: Create and start mongodb container
+  docker_container:
+    name: "mongo"
+    image: "mongo:latest"
+    pull: true
+    user: "{{ uid }}:{{ gid }}"
+    env:
+      MONGO_DATA_DIR: "/data/db"
+      MONGO_LOG_DIR: "/dev/null"
+      MONGO_URL: "mongodb://mongo:27017/"
+    volumes:
+      - "/opt/mongodb:/data/db:rw"
+      - "/opt/mongodb/config:/data/configdb"
+    labels:
+      "com.github.saltbox.saltbox_managed": "true"
+    network_mode: "{{ docker_networks_name_common }}"
+    networks_cli_compatible: true
+    networks:
+      - name: saltbox
+        aliases:
+          - "mongodb"
+    purge_networks: true
+    restart_policy: unless-stopped
+    state: started
+    container_default_behavior: compatibility
