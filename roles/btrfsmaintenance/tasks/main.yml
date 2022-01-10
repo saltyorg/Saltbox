@@ -1,0 +1,83 @@
+#########################################################################
+# Title:         Saltbox: btrfsmaintenance                              #
+# Author(s):     owine                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Determine '/' filesystem type"
+  set_fact:
+    root_fstype: "{{ item.fstype }}"
+  when: (item.mount == '/')
+  with_items:
+    - "{{ ansible_mounts }}"
+
+- name: "Determine '/opt' filesystem type"
+  set_fact:
+    opt_fstype: "{{ item.fstype }}"
+  when: (item.mount == '/opt')
+  with_items:
+    - "{{ ansible_mounts }}"
+
+- name: "Setup btrfsmaintenance scripts"
+  block:
+
+    - name: "Clone btrfsmaintenance repo"
+      git:
+        repo: https://github.com/kdave/btrfsmaintenance.git
+        dest: '/opt/btrfsmaintenance'
+        clone: true
+        version: HEAD
+        force: true
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: "Set btrfsmaintenance directory permissions"
+      file: "path='/opt/btrfsmaintenance' state=directory mode=0775 owner={{ user.name }} group={{ user.name }} recurse=yes"
+
+    - name: "Change mountpoints to 'auto'"
+      lineinfile:
+        path: "/opt/btrfsmaintenance/sysconfig.btrfsmaintenance"
+        regexp: '^BTRFS_TRIM_MOUNTPOINTS\s?='
+        line: 'BTRFS_TRIM_MOUNTPOINTS="auto"'
+        state: present
+
+    - name: "Execute dist-install.sh"
+      become: true
+      become_user: root
+      shell: /opt/btrfsmaintenance/dist-install.sh
+      args:
+        chdir: /opt/btrfsmaintenance/
+
+    - name: "Copy .timer files to systemd"
+      copy:
+        src: "{{ item }}"
+        dest: /etc/systemd/system
+        mode: '0755'
+      with_fileglob:
+        - /opt/btrfsmaintenance/*.timer
+
+    - name: "Copy .service files to systemd"
+      copy:
+        src: "{{ item }}"
+        dest: /etc/systemd/system
+        mode: '0755'
+      with_fileglob:
+        - /opt/btrfsmaintenance/*.service
+
+    - name: "Execute btrfsmaintenance-refresh-cron.sh"
+      become: true
+      become_user: root
+      shell: /opt/btrfsmaintenance/btrfsmaintenance-refresh-cron.sh timer
+      args:
+        chdir: /opt/btrfsmaintenance/
+
+  when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
+
+# Check for no btrfs and exit - not working
+- name: "Exit if no btrfs partitions found"
+  debug:
+    msg: "No btrfs partition found on / or /opt - exiting"
+  when: ((root_fstype is defined) and (root_fstype != 'btrfs')) and ((opt_fstype is defined) and (opt_fstype != 'btrfs'))
