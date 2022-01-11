@@ -40,6 +40,7 @@ overseerr_web_url: "{{ 'https://' + overseerr_web_subdomain + '.' + overseerr_we
 
 overseerr_dns_record: "{{ overseerr_web_subdomain }}"
 overseerr_dns_zone: "{{ overseerr_web_domain }}"
+overseerr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Settings
