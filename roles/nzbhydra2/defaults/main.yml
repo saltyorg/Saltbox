@@ -43,6 +43,7 @@ nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + '.' + nzbhydra2_we
 
 nzbhydra2_dns_record: "{{ nzbhydra2_web_subdomain }}"
 nzbhydra2_dns_zone: "{{ nzbhydra2_web_domain }}"
+nzbhydra2_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
