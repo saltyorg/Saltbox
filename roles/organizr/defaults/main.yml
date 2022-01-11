@@ -39,6 +39,7 @@ organizr_web_url: "{{ 'https://' + organizr_web_subdomain + '.' + organizr_web_d
 
 organizr_dns_record: "{{ organizr_web_subdomain }}"
 organizr_dns_zone: "{{ organizr_web_domain }}"
+organizr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
