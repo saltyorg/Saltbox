@@ -52,6 +52,7 @@ rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_we
 
 rutorrent_dns_record: "{{ rutorrent_web_subdomain }}"
 rutorrent_dns_zone: "{{ rutorrent_web_domain }}"
+rutorrent_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
