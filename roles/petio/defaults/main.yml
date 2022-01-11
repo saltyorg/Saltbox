@@ -39,6 +39,7 @@ petio_web_url: "{{ 'https://' + petio_web_subdomain + '.' + petio_web_domain
 
 petio_dns_record: "{{ petio_web_subdomain }}"
 petio_dns_zone: "{{ petio_web_domain }}"
+petio_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
