@@ -42,6 +42,7 @@ transfer_web_url: "{{ 'https://' + transfer_web_subdomain + '.' + transfer_web_d
 
 transfer_dns_record: "{{ transfer_web_subdomain }}"
 transfer_dns_zone: "{{ transfer_web_domain }}"
+transfer_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
