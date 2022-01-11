@@ -39,6 +39,7 @@ jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain
 
 jaeger_dns_record: "{{ jaeger_web_subdomain }}"
 jaeger_dns_zone: "{{ jaeger_web_domain }}"
+jaeger_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
