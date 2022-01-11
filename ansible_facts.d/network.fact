@@ -2,8 +2,8 @@
 
 # https://github.com/mtecer/terraform/blob/master/bmc/files/ansible/custom.fact
 
-PUBLIC_IP=$(curl -s -4 https://ipv4.icanhazip.com)
-PUBLIC_IPv6=$(curl -s -6 https://ipv6.icanhazip.com)
+PUBLIC_IP=$(curl --connect-timeout 2.37 -s -4 https://ipv4.icanhazip.com)
+PUBLIC_IPv6=$(curl --connect-timeout 2.37 -s -6 https://ipv6.icanhazip.com)
 echo "[ip]"
 echo "public_ip=${PUBLIC_IP}"
 echo "public_ipv6=${PUBLIC_IPv6}"
