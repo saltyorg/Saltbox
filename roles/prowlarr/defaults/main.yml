@@ -39,6 +39,7 @@ prowlarr_web_url: "{{ 'https://' + prowlarr_web_subdomain + '.' + prowlarr_web_d
 
 prowlarr_dns_record: "{{ prowlarr_web_subdomain }}"
 prowlarr_dns_zone: "{{ prowlarr_web_domain }}"
+prowlarr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
