@@ -39,6 +39,7 @@ jackett_web_url: "{{ 'https://' + jackett_web_subdomain + '.' + jackett_web_doma
 
 jackett_dns_record: "{{ jackett_web_subdomain }}"
 jackett_dns_zone: "{{ jackett_web_domain }}"
+jackett_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
