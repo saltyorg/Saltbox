@@ -40,6 +40,7 @@ sstv_web_url: "{{ 'https://' + sstv_web_subdomain + '.' + sstv_web_domain
 
 sstv_dns_record: "{{ sstv_web_subdomain }}"
 sstv_dns_zone: "{{ sstv_web_domain }}"
+sstv_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
