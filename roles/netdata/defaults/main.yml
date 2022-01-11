@@ -42,6 +42,7 @@ netdata_web_url: "{{ 'https://' + netdata_web_subdomain + '.' + netdata_web_doma
 
 netdata_dns_record: "{{ netdata_web_subdomain }}"
 netdata_dns_zone: "{{ netdata_web_domain }}"
+netdata_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
