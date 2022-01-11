@@ -12,6 +12,6 @@
   vars:
     dns_record: "{{ _dns_role_record }}"
     dns_zone: "{{ _dns_role_zone }}"
-    dns_proxy: "{{ _dns_role_proxy | default(false) }}"
+    dns_proxy: "{{ _dns_role_proxy }}"
     dns_action: "{{ _dns_role_action }}"
   when: reverse_proxy_is_enabled
