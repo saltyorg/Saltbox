@@ -39,6 +39,7 @@ portainer_web_url: "{{ 'https://' + portainer_web_subdomain + '.' + portainer_we
 
 portainer_dns_record: "{{ portainer_web_subdomain }}"
 portainer_dns_zone: "{{ portainer_web_domain }}"
+portainer_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
