@@ -48,6 +48,7 @@ jellyfin_web_url: "{{ 'https://' + jellyfin_web_subdomain + '.' + jellyfin_web_d
 
 jellyfin_dns_record: "{{ jellyfin_web_subdomain }}"
 jellyfin_dns_zone: "{{ jellyfin_web_domain }}"
+jellyfin_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
