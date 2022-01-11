@@ -39,6 +39,7 @@ nginx_web_url: "{{ 'https://' + nginx_web_subdomain + '.' + nginx_web_domain
 
 nginx_dns_record: "{{ nginx_web_subdomain }}"
 nginx_dns_zone: "{{ nginx_web_domain }}"
+nginx_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
