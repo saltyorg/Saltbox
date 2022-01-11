@@ -40,6 +40,7 @@ autoscan_web_url: "{{ 'https://' + autoscan_web_subdomain + '.' + autoscan_web_d
 
 autoscan_dns_record: "{{ autoscan_web_subdomain }}"
 autoscan_dns_zone: "{{ autoscan_web_domain }}"
+autoscan_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
