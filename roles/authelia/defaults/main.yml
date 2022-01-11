@@ -39,6 +39,7 @@ authelia_web_url: "{{ 'https://' + authelia_web_subdomain + '.' + authelia_web_d
 
 authelia_dns_record: "{{ authelia_web_subdomain }}"
 authelia_dns_zone: "{{ authelia_web_domain }}"
+authelia_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
