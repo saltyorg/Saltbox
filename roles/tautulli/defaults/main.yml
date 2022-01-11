@@ -41,6 +41,7 @@ tautulli_web_url: "{{ 'https://' + tautulli_web_subdomain + '.' + tautulli_web_d
 
 tautulli_dns_record: "{{ tautulli_web_subdomain }}"
 tautulli_dns_zone: "{{ tautulli_web_domain }}"
+tautulli_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
