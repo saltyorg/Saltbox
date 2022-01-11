@@ -55,7 +55,7 @@
         _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
                             else '@' }}"
         _dns_tasker_action: "{{ dns_action | default('add') }}"
-        _dns_tasker_proxy: "{{ dns_proxy | default(false) }}"
+        _dns_tasker_proxy: "{{ dns_proxy | default(dns.proxied) }}"
 
     - name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role
       include_role:
