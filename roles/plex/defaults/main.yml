@@ -56,8 +56,10 @@ plex_webtools_web_port: "33400"
 
 plex_dns_record: "{{ plex_web_subdomain }}"
 plex_dns_zone: "{{ plex_web_domain }}"
+plex_dns_proxy: "{{ dns.proxied }}"
 plex_webtools_dns_record: "{{ plex_webtools_web_subdomain }}"
 plex_webtools_dns_zone: "{{ plex_webtools_web_domain }}"
+plex_webtools_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
