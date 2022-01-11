@@ -40,6 +40,7 @@ trackarr_web_url: "{{ 'https://' + trackarr_web_subdomain + '.' + trackarr_web_d
 
 trackarr_dns_record: "{{ trackarr_web_subdomain }}"
 trackarr_dns_zone: "{{ trackarr_web_domain }}"
+trackarr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
