@@ -40,7 +40,7 @@
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0664"
+    mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Traefik ZeroSSL Tasks
@@ -71,6 +71,15 @@
     path: "{{ traefik_paths_location }}"
     state: directory
     recurse: yes
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (not continuous_integration)
+
+- name: Chown '{{ traefik_paths_acme_config_location }}'
+  file:
+    path: "{{ traefik_paths_acme_config_location }}"
+    state: file
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0600"
