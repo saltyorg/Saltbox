@@ -47,8 +47,10 @@ traefik_access_buffer: 100
 
 traefik_dns_record: "{{ traefik_web_subdomain }}"
 traefik_dns_zone: "{{ traefik_web_domain }}"
+traefik_dns_proxy: "{{ dns.proxied }}"
 traefik_metrics_dns_record: "{{ traefik_metrics_subdomain }}"
 traefik_metrics_dns_zone: "{{ traefik_metrics_domain }}"
+traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
