@@ -45,6 +45,7 @@ emby_web_url: "{{ 'https://' + emby_web_subdomain + '.' + emby_web_domain
 
 emby_dns_record: "{{ emby_web_subdomain }}"
 emby_dns_zone: "{{ emby_web_domain }}"
+emby_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
