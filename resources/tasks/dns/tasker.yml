@@ -55,6 +55,7 @@
         _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
                             else '@' }}"
         _dns_tasker_action: "{{ dns_action | default('add') }}"
+        _dns_tasker_proxy: "{{ dns_proxy }}"
 
     - name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role
       include_role:
@@ -63,5 +64,6 @@
         _dns_role_record: "{{ _dns_tasker_record }}"
         _dns_role_zone: "{{ _dns_tasker_zone }}"
         _dns_role_action: "{{ _dns_tasker_action }}"
+        _dns_role_proxy: "{{ _dns_tasker_proxy }}"
 
   when: cloudflare_records_enabled

@@ -14,7 +14,7 @@
     zone: "{{ dns_zone }}"
     state: present
     solo: true
-    proxied: "{{ dns.proxied | default('false') }}"
+    proxied: "{{ dns_proxy }}"
     type: A
     value: "{{ ip_address_public }}"
     record: "{{ dns_record }}"
@@ -29,7 +29,7 @@
 
     - name: Cloudflare | Add DNS Record | Display DNS Record creation status
       debug:
-        msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added."
+        msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns_proxy }}"
 
   when: cloudflare_dns_record_creation_status is succeeded
 
@@ -43,7 +43,7 @@
         zone: "{{ dns_zone }}"
         state: present
         solo: true
-        proxied: "{{ dns.proxied | default('false') }}"
+        proxied: "{{ dns_proxy }}"
         type: AAAA
         value: "{{ ipv6_address_public }}"
         record: "{{ dns_record }}"
@@ -58,7 +58,7 @@
 
         - name: Cloudflare | Add DNS Record | Display DNS Record creation status
           debug:
-            msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public }}' was added."
+            msg: "DNS Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns_proxy }}"
 
       when: cloudflare_dns_v6_record_creation_status is succeeded
 
