@@ -46,6 +46,7 @@ sabnzbd_web_url: "{{ 'https://' + sabnzbd_web_subdomain + '.' + sabnzbd_web_doma
 
 sabnzbd_dns_record: "{{ sabnzbd_web_subdomain }}"
 sabnzbd_dns_zone: "{{ sabnzbd_web_domain }}"
+sabnzbd_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
