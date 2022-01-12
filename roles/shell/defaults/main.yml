@@ -42,6 +42,7 @@ shell_bash_bashrc_block_content: |
   . /opt/z/z.sh
   # Aliases
   alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
+
 shell_bash_binary_path: "/bin/bash"
 
 ################################
@@ -59,9 +60,11 @@ shell_zsh_zshrc_template_path: "/home/{{ user.name }}/.oh-my-zsh/templates/zshrc
 
 shell_zsh_zshrc_path: "/home/{{ user.name }}/.zshrc"
 
-shell_zsh_zshrc_block_content: |
+shell_zsh_zshrc_block_content1: |
   # Oh-my-zsh - auto update zsh without prompt
   DISABLE_UPDATE_PROMPT=true
+
+shell_zsh_zshrc_block_content2: |
   # zsh - allows commmands to run with the un-expanded glob
   unsetopt nomatch
   # zsh - set TIMEFMT
@@ -88,6 +91,7 @@ shell_zsh_zshrc_block_content: |
   eval $(register-python-argcomplete ansible-playbook)
   eval $(register-python-argcomplete ansible-pull)
   eval $(register-python-argcomplete ansible-vault)
+
 shell_zsh_binary_previous_path: "/bin/zsh5"
 
 shell_zsh_binary_path: "/bin/zsh"

@@ -41,8 +41,20 @@
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
   blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
-    marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
-    block: "{{ shell_zsh_zshrc_block_content }}"
+    marker: "### SALTBOX MANAGED BLOCK 1 - {mark} ###"
+    block: "{{ shell_zsh_zshrc_block_content1 }}"
+    insertbefore: BOF
+    state: present
+    create: false
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+
+- name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
+  blockinfile:
+    path: "{{ shell_zsh_zshrc_path }}"
+    marker: "### SALTBOX MANAGED BLOCK 2 - {mark} ###"
+    block: "{{ shell_zsh_zshrc_block_content2 }}"
     state: present
     create: false
     owner: "{{ user.name }}"
