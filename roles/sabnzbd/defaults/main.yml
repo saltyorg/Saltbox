@@ -23,10 +23,10 @@ sabnzbd_paths_downloads_location: "{{ downloads.nzbs }}/{{ sabnzbd_paths_folder 
 sabnzbd_paths_folders_list:
   - "{{ sabnzbd_paths_location }}"
   - "{{ sabnzbd_paths_downloads_location }}"
-  - "{{ sabnzbd_paths_downloads_location }}/sabnzbd/complete"
-  - "{{ sabnzbd_paths_downloads_location }}/sabnzbd/incomplete"
-  - "{{ sabnzbd_paths_downloads_location }}/sabnzbd/watch"
-  - "{{ sabnzbd_paths_downloads_location }}/sabnzbd/logs"
+  - "{{ sabnzbd_paths_downloads_location }}/complete"
+  - "{{ sabnzbd_paths_downloads_location }}/incomplete"
+  - "{{ sabnzbd_paths_downloads_location }}/watch"
+  - "{{ sabnzbd_paths_downloads_location }}/logs"
 sabnzbd_paths_config_location: "{{ sabnzbd_paths_location }}/sabnzbd.ini"
 
 ################################
@@ -54,8 +54,8 @@ sabnzbd_dns_proxy: "{{ dns.proxied }}"
 
 sabnzbd_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 sabnzbd_traefik_middleware: "{{ traefik_default_middleware + ',' + sabnzbd_traefik_sso_middleware
-                            if (sabnzbd_traefik_sso_middleware | length > 0)
-                            else traefik_default_middleware }}"
+                             if (sabnzbd_traefik_sso_middleware | length > 0)
+                             else traefik_default_middleware }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
 sabnzbd_traefik_api_enabled: true
@@ -70,10 +70,10 @@ sabnzbd_config_settings_default:
   - { option: "host_whitelist", value: "{{ sabnzbd_web_subdomain }}.{{ sabnzbd_web_domain }}, {{ sabnzbd_name }}" }
   - { option: "url_base", value: "" }
   # Paths
-  - { option: "dirscan_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/watch" }
-  - { option: "download_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/incomplete" }
-  - { option: "complete_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/complete" }
-  - { option: "log_dir", value: "/mnt/unionfs/downloads/nzbs/sabnzbd/logs'" }
+  - { option: "dirscan_dir", value: "{{ sabnzbd_paths_downloads_location }}/watch" }
+  - { option: "download_dir", value: "{{ sabnzbd_paths_downloads_location }}/incomplete" }
+  - { option: "complete_dir", value: "{{ sabnzbd_paths_downloads_location }}/complete" }
+  - { option: "log_dir", value: "{{ sabnzbd_paths_downloads_location }}/logs'" }
 
 sabnzbd_config_settings_custom: []
 
@@ -107,8 +107,8 @@ sabnzbd_docker_ports_defaults:
 sabnzbd_docker_ports_custom: []
 sabnzbd_docker_ports: "{{ sabnzbd_docker_ports_defaults
                           + sabnzbd_docker_ports_custom
-                      if (not reverse_proxy_is_enabled)
-                      else [] + sabnzbd_docker_ports_custom }}"
+                       if (not reverse_proxy_is_enabled)
+                       else [] + sabnzbd_docker_ports_custom }}"
 
 # Envs
 sabnzbd_docker_envs_default:
