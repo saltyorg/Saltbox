@@ -73,7 +73,7 @@ sabnzbd_config_settings_default:
   - { option: "dirscan_dir", value: "{{ sabnzbd_paths_downloads_location }}/watch" }
   - { option: "download_dir", value: "{{ sabnzbd_paths_downloads_location }}/incomplete" }
   - { option: "complete_dir", value: "{{ sabnzbd_paths_downloads_location }}/complete" }
-  - { option: "log_dir", value: "{{ sabnzbd_paths_downloads_location }}/logs'" }
+  - { option: "log_dir", value: "{{ sabnzbd_paths_downloads_location }}/logs" }
 
 sabnzbd_config_settings_custom: []
 
