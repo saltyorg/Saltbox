@@ -62,8 +62,11 @@
     group: "{{ user.name }}"
     mode: a+x
 
-- name: "Create /usr/local/bin symlink"
-  file:
-    src: "/opt/plex_dupefinder/plex_dupefinder.py"
-    dest: "/usr/local/bin/plex_dupefinder"
-    state: link
+- name: Import bash wrapper
+  template:
+    src: plex_dupefinder.j2
+    dest: /usr/local/bin/plex_dupefinder
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
