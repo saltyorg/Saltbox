@@ -109,7 +109,6 @@ tautulli_docker_commands: "{{ tautulli_docker_commands_default
 tautulli_docker_volumes_default:
   - "{{ tautulli_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "{{ plex_paths_log_location }}:/logs:ro"
 tautulli_docker_volumes_custom: []
 tautulli_docker_volumes_theme:
   - "{{ tautulli_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
