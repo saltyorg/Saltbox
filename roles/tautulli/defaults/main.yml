@@ -13,6 +13,8 @@
 
 tautulli_name: tautulli
 
+tautulli_instances: ["tautulli"]
+
 ################################
 # Paths
 ################################
@@ -31,16 +33,17 @@ tautulli_paths_folders_list:
 tautulli_web_subdomain: "{{ tautulli_name }}"
 tautulli_web_domain: "{{ user.domain }}"
 tautulli_web_port: "8181"
-tautulli_web_url: "{{ 'https://' + tautulli_web_subdomain + '.' + tautulli_web_domain
+tautulli_web_url: "{{ 'https://' + lookup('vars', tautulli_name + '_web_subdomain', default=tautulli_web_subdomain)
+                      + '.' + lookup('vars', tautulli_name + '_web_domain', default=tautulli_web_domain)
                    if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + tautulli_web_port }}"
+                   else 'http://localhost:' + lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-tautulli_dns_record: "{{ tautulli_web_subdomain }}"
-tautulli_dns_zone: "{{ tautulli_web_domain }}"
+tautulli_dns_record: "{{ lookup('vars', tautulli_name + '_web_subdomain', default=tautulli_web_subdomain) }}"
+tautulli_dns_zone: "{{ lookup('vars', tautulli_name + '_web_domain', default=tautulli_web_domain) }}"
 tautulli_dns_proxy: "{{ dns.proxied }}"
 
 ################################
@@ -48,8 +51,9 @@ tautulli_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 tautulli_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-tautulli_traefik_middleware: "{{ traefik_default_middleware + ',' + tautulli_traefik_sso_middleware
-                              if (tautulli_traefik_sso_middleware | length > 0)
+tautulli_traefik_middleware: "{{ traefik_default_middleware + ','
+                                 + lookup('vars', tautulli_name + '_traefik_sso_middleware', default=tautulli_traefik_sso_middleware)
+                              if (lookup('vars', tautulli_name + '_traefik_sso_middleware', default=tautulli_traefik_sso_middleware) | length > 0)
                               else traefik_default_middleware }}"
 tautulli_traefik_certresolver: "{{ traefik_default_certresolver }}"
 tautulli_traefik_enabled: true
@@ -74,17 +78,19 @@ tautulli_docker_container: "{{ tautulli_name }}"
 
 # Image
 tautulli_docker_image_pull: true
+tautulli_docker_image_repo: "cr.hotio.dev/hotio/tautulli"
 tautulli_docker_image_tag: "release"
-tautulli_docker_image: "cr.hotio.dev/hotio/tautulli:{{ tautulli_docker_image_tag }}"
+tautulli_docker_image: "{{ lookup('vars', tautulli_name + '_docker_image_repo', default=tautulli_docker_image_repo)
+                           + ':' + lookup('vars', tautulli_name + '_docker_image_tag', default=tautulli_docker_image_tag) }}"
 
 # Ports
 tautulli_docker_ports_defaults:
-  - "{{ tautulli_web_port }}:{{ tautulli_web_port }}"
+  - "{{ lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}:{{ lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}"
 tautulli_docker_ports_custom: []
-tautulli_docker_ports: "{{ tautulli_docker_ports_defaults
-                           + tautulli_docker_ports_custom
+tautulli_docker_ports: "{{ lookup('vars', tautulli_name + '_docker_ports_defaults', default=tautulli_docker_ports_defaults)
+                           + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom)
                         if (not reverse_proxy_is_enabled)
-                        else [] + tautulli_docker_ports_custom }}"
+                        else [] + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom) }}"
 
 # Envs
 tautulli_docker_envs_default:
@@ -92,18 +98,18 @@ tautulli_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ tautulli_themepark_domain }}"
-  TP_THEME: "{{ tautulli_themepark_theme }}"
+  TP_DOMAIN: "{{ lookup('vars', tautulli_name + '_themepark_domain', default=tautulli_themepark_domain) }}"
+  TP_THEME: "{{ lookup('vars', tautulli_name + '_themepark_theme', default=tautulli_themepark_theme) }}"
   TP_HOTIO: "true"
 tautulli_docker_envs_custom: {}
-tautulli_docker_envs: "{{ tautulli_docker_envs_default
-                          | combine(tautulli_docker_envs_custom) }}"
+tautulli_docker_envs: "{{ lookup('vars', tautulli_name + '_docker_envs_default', default=tautulli_docker_envs_default)
+                          | combine(lookup('vars', tautulli_name + '_docker_envs_custom', default=tautulli_docker_envs_custom)) }}"
 
 # Commands
 tautulli_docker_commands_default: []
 tautulli_docker_commands_custom: []
-tautulli_docker_commands: "{{ tautulli_docker_commands_default
-                              + tautulli_docker_commands_custom }}"
+tautulli_docker_commands: "{{ lookup('vars', tautulli_name + '_docker_commands_default', default=tautulli_docker_commands_default)
+                              + lookup('vars', tautulli_name + '_docker_docker_commands_custom', default=tautulli_docker_commands_custom) }}"
 
 # Volumes
 tautulli_docker_volumes_default:
@@ -112,34 +118,34 @@ tautulli_docker_volumes_default:
 tautulli_docker_volumes_custom: []
 tautulli_docker_volumes_theme:
   - "{{ tautulli_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
-tautulli_docker_volumes: "{{ tautulli_docker_volumes_default
-                             + tautulli_docker_volumes_custom
+tautulli_docker_volumes: "{{ lookup('vars', tautulli_name + '_docker_volumes_default', default=tautulli_docker_volumes_default)
+                             + lookup('vars', tautulli_name + '_docker_volumes_custom', default=tautulli_docker_volumes_custom)
                              + docker_volumes_downloads_common
-                          if not (tautulli_themepark_enabled)
-                          else tautulli_docker_volumes_default
-                             + tautulli_docker_volumes_custom
-                             + docker_volumes_downloads_common
-                             + tautulli_docker_volumes_theme}}"
+                          if not (lookup('vars', tautulli_name + '_themepark_enabled', default=tautulli_themepark_enabled))
+                          else lookup('vars', tautulli_name + '_docker_volumes_default', default=tautulli_docker_volumes_default)
+                             + lookup('vars', tautulli_name + '_docker_volumes_custom', default=tautulli_docker_volumes_custom)
+                             + lookup('vars', tautulli_name + '_docker_volumes_theme', default=tautulli_docker_volumes_theme)
+                             + docker_volumes_downloads_common }}"
 
 # Devices
 tautulli_docker_devices_default: []
 tautulli_docker_devices_custom: []
-tautulli_docker_devices: "{{ tautulli_docker_devices_default
-                             + tautulli_docker_devices_custom }}"
+tautulli_docker_devices: "{{ lookup('vars', tautulli_name + '_docker_devices_default', default=tautulli_docker_devices_default)
+                             + lookup('vars', tautulli_name + '_docker_devices_custom', default=tautulli_docker_devices_custom) }}"
 
 # Hosts
 tautulli_docker_hosts_default: []
 tautulli_docker_hosts_custom: []
 tautulli_docker_hosts: "{{ docker_hosts_common
-                           | combine(tautulli_docker_hosts_default)
-                           | combine(tautulli_docker_hosts_custom) }}"
+                           | combine(lookup('vars', tautulli_name + '_docker_hosts_default', default=tautulli_docker_hosts_default))
+                           | combine(lookup('vars', tautulli_name + '_docker_hosts_custom', default=tautulli_docker_hosts_custom)) }}"
 
 # Labels
 tautulli_docker_labels_default: {}
 tautulli_docker_labels_custom: {}
 tautulli_docker_labels: "{{ docker_labels_common
-                            | combine(tautulli_docker_labels_default)
-                            | combine(tautulli_docker_labels_custom) }}"
+                            | combine(lookup('vars', tautulli_name + '_docker_labels_default', default=tautulli_docker_labels_default))
+                            | combine(lookup('vars', tautulli_name + '_docker_labels_custom', default=tautulli_docker_labels_custom)) }}"
 
 # Hostname
 tautulli_docker_hostname: "{{ tautulli_name }}"
@@ -149,20 +155,20 @@ tautulli_docker_networks_alias: "{{ tautulli_name }}"
 tautulli_docker_networks_default: []
 tautulli_docker_networks_custom: []
 tautulli_docker_networks: "{{ docker_networks_common
-                              + tautulli_docker_networks_default
-                              + tautulli_docker_networks_custom }}"
+                              + lookup('vars', tautulli_name + '_docker_networks_default', default=tautulli_docker_networks_default)
+                              + lookup('vars', tautulli_name + '_docker_networks_custom', default=tautulli_docker_networks_custom) }}"
 
 # Capabilities
 tautulli_docker_capabilities_default: []
 tautulli_docker_capabilities_custom: []
-tautulli_docker_capabilities: "{{ tautulli_docker_capabilities_default
-                                  + tautulli_docker_capabilities_custom }}"
+tautulli_docker_capabilities: "{{ lookup('vars', tautulli_name + '_docker_capabilities_default', default=tautulli_docker_capabilities_default)
+                                  + lookup('vars', tautulli_name + '_docker_capabilities_custom', default=tautulli_docker_capabilities_custom) }}"
 
 # Security Opts
 tautulli_docker_security_opts_default: []
 tautulli_docker_security_opts_custom: []
-tautulli_docker_security_opts: "{{ tautulli_docker_security_opts_default
-                                   + tautulli_docker_security_opts_custom }}"
+tautulli_docker_security_opts: "{{ lookup('vars', tautulli_name + '_docker_security_opts_default', default=tautulli_docker_security_opts_default)
+                                   + lookup('vars', tautulli_name + '_docker_security_opts_custom', default=tautulli_docker_security_opts_custom) }}"
 
 # Restart Policy
 tautulli_docker_restart_policy: unless-stopped
