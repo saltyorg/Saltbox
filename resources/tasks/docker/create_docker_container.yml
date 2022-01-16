@@ -24,6 +24,7 @@
     devices: "{{ lookup('vars', _var_prefix + '_docker_devices', default=omit) }}"
     env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
+    healthcheck: "{{ lookup('vars', _var_prefix + '_docker_healthcheck', default=omit) }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit) }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
     labels: "{{ lookup('vars', _var_prefix + '_docker_labels', default=omit) }}"
