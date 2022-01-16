@@ -54,7 +54,7 @@ jobs:
         run: sudo ansible-playbook saltbox.yml --syntax-check
 
       - name: Install Saltbox
-        run: sudo ansible-playbook saltbox.yml --tags "saltbox,asshama,jellyfin,petio,prowlarr,transfer,emby,netdata,sabnzbd" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
+        run: sudo ansible-playbook saltbox.yml --tags "saltbox,asshama,jellyfin,petio,prowlarr,transfer,emby,netdata,sabnzbd,sstv,autoheal" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
 
       - uses: sarisia/actions-status-discord@v1
         if: always()
