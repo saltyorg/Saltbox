@@ -55,7 +55,7 @@ sstv_auth: "/etc/traefik/sstv"
 # Settings
 ################################
 
-sstv_force_proxy: false
+sstv_force_proxy: "false"
 
 ################################
 # Docker
