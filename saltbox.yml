@@ -76,3 +76,4 @@
     - { role: petio, tags: ['petio'] }
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: transfer, tags: ['transfer'] }
+    - { role: autoheal, tags: ['autoheal'] }

@@ -1,0 +1,102 @@
+##########################################################################
+# Title:         Saltbox: Autoheal | Default Variables                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+autoheal_name: autoheal
+
+################################
+# Docker
+################################
+
+# Container
+autoheal_docker_container: "{{ autoheal_name }}"
+
+# Image
+autoheal_docker_image_pull: true
+autoheal_docker_image_tag: "latest"
+autoheal_docker_image: "willfarrell/autoheal:{{ autoheal_docker_image_tag }}"
+
+# Ports
+autoheal_docker_ports_defaults: []
+autoheal_docker_ports_custom: []
+autoheal_docker_ports: "{{ autoheal_docker_ports_defaults
+                           + autoheal_docker_ports_custom }}"
+
+# Envs
+autoheal_docker_envs_default:
+  AUTOHEAL_CONTAINER_LABEL: "all"
+autoheal_docker_envs_custom: {}
+autoheal_docker_envs: "{{ autoheal_docker_envs_default
+                          | combine(autoheal_docker_envs_custom) }}"
+
+# Commands
+autoheal_docker_commands_default: []
+autoheal_docker_commands_custom: []
+autoheal_docker_commands: "{{ autoheal_docker_commands_default
+                              + autoheal_docker_commands_custom }}"
+
+# Volumes
+autoheal_docker_volumes_default:
+  - "/var/run/docker.sock:/var/run/docker.sock"
+  - "/etc/localtime:/etc/localtime:ro"
+autoheal_docker_volumes_custom: []
+autoheal_docker_volumes: "{{ autoheal_docker_volumes_default
+                             + autoheal_docker_volumes_custom }}"
+
+# Devices
+autoheal_docker_devices_default: []
+autoheal_docker_devices_custom: []
+autoheal_docker_devices: "{{ autoheal_docker_devices_default
+                             + autoheal_docker_devices_custom }}"
+
+# Hosts
+autoheal_docker_hosts_default: []
+autoheal_docker_hosts_custom: []
+autoheal_docker_hosts: "{{ docker_hosts_common
+                           | combine(autoheal_docker_hosts_default)
+                           | combine(autoheal_docker_hosts_custom) }}"
+
+# Labels
+autoheal_docker_labels_default: {}
+autoheal_docker_labels_custom: {}
+autoheal_docker_labels: "{{ docker_labels_common
+                            | combine(autoheal_docker_labels_default)
+                            | combine(autoheal_docker_labels_custom) }}"
+
+# Hostname
+autoheal_docker_hostname: "{{ autoheal_name }}"
+
+# Networks
+autoheal_docker_networks_alias: "{{ autoheal_name }}"
+autoheal_docker_networks_default: []
+autoheal_docker_networks_custom: []
+autoheal_docker_networks: "{{ docker_networks_common
+                              + autoheal_docker_networks_default
+                              + autoheal_docker_networks_custom }}"
+
+# Capabilities
+autoheal_docker_capabilities_default: []
+autoheal_docker_capabilities_custom: []
+autoheal_docker_capabilities: "{{ autoheal_docker_capabilities_default
+                                  + autoheal_docker_capabilities_custom }}"
+
+# Security Opts
+autoheal_docker_security_opts_default: []
+autoheal_docker_security_opts_custom: []
+autoheal_docker_security_opts: "{{ autoheal_docker_security_opts_default
+                                   + autoheal_docker_security_opts_custom }}"
+
+# Restart Policy
+autoheal_docker_restart_policy: unless-stopped
+
+# State
+autoheal_docker_state: started
