@@ -27,9 +27,9 @@ traefik_paths_folders_list:
 # Web
 ################################
 
-traefik_web_subdomain: "dash"
+traefik_web_subdomain: "{{ traefik.subdomains.dash }}"
 traefik_web_domain: "{{ user.domain }}"
-traefik_metrics_subdomain: "metrics"
+traefik_metrics_subdomain: "{{ traefik.subdomains.metrics }}"
 traefik_metrics_domain: "{{ user.domain }}"
 
 ################################
