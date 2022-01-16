@@ -50,8 +50,11 @@ jobs:
       - name: Edit accounts.yml
         run: sed -i 's/seed/runner/g' accounts.yml
 
-#      - name: Syntax Check
-#        run: sudo ansible-playbook saltbox.yml --syntax-check
+      - name: Run Tree
+        run: tree -a
+
+      - name: Syntax Check
+        run: sudo ansible-playbook saltbox.yml --syntax-check
 
       - name: Install Saltbox
         run: sudo ansible-playbook saltbox.yml --tags "saltbox,asshama,jellyfin,petio,prowlarr,transfer,emby,netdata,sabnzbd,sstv,autoheal" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
