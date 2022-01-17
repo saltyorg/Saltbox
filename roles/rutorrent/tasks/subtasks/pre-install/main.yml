@@ -25,3 +25,7 @@
     high_bound: 6891
   register: port_lookup_6881
   ignore_errors: true
+
+- name: Pre-Install | Settings | Update settings For Existing Installs
+  import_tasks: "existing_installs.yml"
+  when: rutorrent_paths_rtorrent_rc_location_stat.stat.exists

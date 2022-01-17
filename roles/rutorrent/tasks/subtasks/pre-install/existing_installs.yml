@@ -1,5 +1,5 @@
 ####################################################################################
-# Title:         Saltbox: ruTorrent | Post-Install | Settings | Existing Installs  #
+# Title:         Saltbox: ruTorrent | Pre-Install | Settings | Existing Installs   #
 # Author(s):     desimaniac                                                        #
 # URL:           https://github.com/saltyorg/Saltbox                               #
 # --                                                                               #
@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                                #
 ####################################################################################
 ---
-- name: Post-Install | Settings | Existing Installs | Update 'rtorrent.rc' config settings
+- name: Pre-Install | Settings | Existing Installs | Update 'rtorrent.rc' config settings
   ini_file:
     path: "{{ rutorrent_paths_rtorrent_rc_location }}"
     section: null
@@ -20,7 +20,7 @@
     mode: "0775"
   loop: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_list }}"
 
-- name: Post-Install | Settings | Existing Installs | Import custom 'nginx.conf' with htpasswd support
+- name: Pre-Install | Settings | Existing Installs | Import custom 'nginx.conf' with htpasswd support
   copy:
     src: nginx.conf
     force: true

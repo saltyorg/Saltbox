@@ -9,7 +9,3 @@
 ---
 - name: Post-Install | Settings | Update settings For New Installs
   import_tasks: "new_installs.yml"
-  when: (not rutorrent_paths_rtorrent_rc_location_stat.stat.exists)
-
-- name: Post-Install | Settings | Update settings For Existing Installs
-  import_tasks: "existing_installs.yml"

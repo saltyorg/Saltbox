@@ -49,4 +49,4 @@
 
 - name: Post-Install Tasks
   import_tasks: "subtasks/post-install/main.yml"
-  when: not continuous_integration
+  when: (not continuous_integration) and (not rutorrent_paths_rtorrent_rc_location_stat.stat.exists)
