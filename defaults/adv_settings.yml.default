@@ -11,6 +11,9 @@ traefik:
   metrics: no
   tracing: no
   hsts: no
+  subdomains:
+    dash: dash
+    metrics: metrics
 mounts:
   remote: rclone_vfs
   feeder: no

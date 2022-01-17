@@ -9,7 +9,3 @@ rclone:
 shell: bash
 authelia:
   subdomain: login
-traefik:
-  subdomains:
-    dash: dash
-    metrics: metrics
