@@ -12,7 +12,7 @@ This project was designed for x64 machines running Ubuntu Server 20.04.
 
 ### Documentation
 
-- [Docs](https://docs.saltbox.dev) (WIP)
+- [Docs](https://docs.saltbox.dev)
 
 ### Featured Applications
 
