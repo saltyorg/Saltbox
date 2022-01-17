@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Settings | Migrator                           #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -47,3 +47,11 @@
       include_tasks: "migrator/backup_config_yml/migration_01.yml"
 
   when: (file == "backup_config.yml")
+
+- name: Migrator | Migrations for 'settings.yml'
+  block:
+
+    - name: Migrator | 'settings.yml' | Migration 01
+      include_tasks: "migrator/settings_yml/migration_01.yml"
+
+  when: (file == "settings.yml")

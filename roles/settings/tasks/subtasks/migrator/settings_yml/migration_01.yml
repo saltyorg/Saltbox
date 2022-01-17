@@ -1,0 +1,39 @@
+########################################################################################
+# Title:         Saltbox: Settings | Migrator | 'settings.yml' | Migration 01          #
+# Author(s):     salty                                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                                   #
+# --                                                                                   #
+########################################################################################
+#                            GNU General Public License v3.0                           #
+########################################################################################
+
+---
+- name: "Migrator | 'settings.yml' | Migration 01 | Set variables"
+  set_fact:
+    old_traefik: "{{ true if not(
+        (traefik is undefined)
+        or
+        (traefik is none)
+        or
+        (traefik | trim | length == 0)
+      )
+        else false }}"
+
+- name: Migrator | 'settings.yml' | Migration 01 | Delete 'traefik' dict
+  shell: |
+    yyq e -i 'del(.traefik)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_traefik
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
+  replace:
+    path: "{{ playbook_dir }}/{{ file }}"
+    regexp: '(?<=: )\bnull\s*$'
+    replace: ''
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
+    mode: 0664
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Re-import Variables
+  include_vars: "{{ playbook_dir }}/{{ file }}"
