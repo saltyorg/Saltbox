@@ -14,6 +14,12 @@
 traefik_name: traefik
 
 ################################
+# Config
+################################
+
+traefik_pilot_token: ""
+
+################################
 # Paths
 ################################
 
@@ -138,7 +144,8 @@ traefik_docker_commands_metrics_tmp:
   - "--metrics.prometheus.addentrypointslabels=true"
   - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
-traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp if traefik.metrics
+traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp
+                                  if traefik.metrics
                                   else [] }}"
 traefik_docker_commands_tracing_tmp:
   - "--tracing.serviceName=traefik"
@@ -152,8 +159,14 @@ traefik_docker_commands_tracing_tmp:
   - "--tracing.jaeger.propagation=jaeger"
   - "--tracing.jaeger.traceContextHeaderName=uber-trace-id"
   - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
-traefik_docker_commands_tracing: "{{ traefik_docker_commands_tracing_tmp if traefik.tracing
+traefik_docker_commands_tracing: "{{ traefik_docker_commands_tracing_tmp
+                                  if traefik.tracing
                                   else [] }}"
+traefik_docker_commands_pilot_tmp:
+  - "--pilot.token={{ traefik_pilot_token }}"
+traefik_docker_commands_pilot: "{{ traefik_docker_commands_pilot_tmp
+                                if (traefik_pilot_token | length > 0)
+                                else [] }}"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom

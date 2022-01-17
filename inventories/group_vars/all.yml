@@ -174,9 +174,17 @@ traefik_default_certresolver: "{{ traefik_default_tlsresolver
                                if (not cloudflare_is_enabled) or (traefik.tls)
                                else traefik_default_certprovider }}"
 
-traefik_default_middleware: "{{ 'secureHeaders@file,gzip'
-                             if (not traefik.hsts)
-                             else 'secureHeaders@file,gzip,hsts@file' }}"
+traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip'
+                                     if (not traefik.hsts)
+                                     else 'secureHeaders@file,gzip,hsts@file' }}"
+
+traefik_default_middleware_custom: ""
+
+traefik_default_middleware: "{{ traefik_default_middleware_default + ','
+                                + traefik_default_middleware_custom
+                                if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
+                                else traefik_default_middleware_default
+                                + traefik_default_middleware_custom }}"
 
 traefik_default_sso_middleware: "authelia"
 
