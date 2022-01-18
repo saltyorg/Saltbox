@@ -59,7 +59,7 @@
         network_mode: "host"
         container_default_behavior: compatibility
         tls_hostname: localhost
-        restart_policy: "unless-stopped"
+        restart_policy: "always"
         privileged: yes
       when: dns.ipv6
 
