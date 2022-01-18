@@ -135,7 +135,7 @@ authelia_docker_security_opts: "{{ authelia_docker_security_opts_default
                                    + authelia_docker_security_opts_custom }}"
 
 # Restart Policy
-authelia_docker_restart_policy: unless-stopped
+authelia_docker_restart_policy: always
 
 # State
 authelia_docker_state: started
