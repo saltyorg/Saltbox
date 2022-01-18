@@ -106,7 +106,7 @@ redis_docker_security_opts: "{{ redis_docker_security_opts_default
                                 + redis_docker_security_opts_custom }}"
 
 # Restart Policy
-redis_docker_restart_policy: unless-stopped
+redis_docker_restart_policy: always
 
 # State
 redis_docker_state: started
