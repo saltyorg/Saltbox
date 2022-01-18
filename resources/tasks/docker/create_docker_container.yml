@@ -25,11 +25,13 @@
     env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
     healthcheck: "{{ lookup('vars', _var_prefix + '_docker_healthcheck', default=omit) }}"
-    hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit) }}"
+    hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit)
+               if lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == docker_networks_name_common
+               else omit }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
     labels: "{{ lookup('vars', _var_prefix + '_docker_labels', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
-    network_mode: "{{ docker_networks_name_common }}"
+    network_mode: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) }}"
     networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
     networks_cli_compatible: true
     pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
@@ -47,6 +49,6 @@
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
     volumes: "{{ lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
   register: result
-  retries: 5
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
