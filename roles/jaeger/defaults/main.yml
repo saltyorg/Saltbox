@@ -137,7 +137,7 @@ jaeger_docker_security_opts: "{{ jaeger_docker_security_opts_default
                                  + jaeger_docker_security_opts_custom }}"
 
 # Restart Policy
-jaeger_docker_restart_policy: unless-stopped
+jaeger_docker_restart_policy: always
 
 # State
 jaeger_docker_state: started
