@@ -26,7 +26,7 @@ jaeger_paths_folders_list:
 # Web
 ################################
 
-jaeger_web_subdomain: "{{ jaeger_name }}"
+jaeger_web_subdomain: "{{ traefik.subdomains.jaeger }}"
 jaeger_web_domain: "{{ user.domain }}"
 jaeger_web_port: "16686"
 jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain

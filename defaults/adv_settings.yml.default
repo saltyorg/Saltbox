@@ -14,6 +14,7 @@ traefik:
   subdomains:
     dash: dash
     metrics: metrics
+    jaeger: jaeger
 mounts:
   remote: rclone_vfs
   feeder: no
