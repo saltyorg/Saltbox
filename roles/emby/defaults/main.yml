@@ -83,7 +83,7 @@ emby_docker_container: "{{ emby_name }}"
 # Image
 emby_docker_image_pull: true
 emby_docker_image_tag: "latest"
-emby_docker_image: "emby/embyserver:{{ emby_docker_image_tag }}"
+emby_docker_image: "lscr.io/linuxserver/emby:{{ emby_docker_image_tag }}"
 
 # Ports
 emby_docker_ports_defaults:
@@ -96,9 +96,8 @@ emby_docker_ports: "{{ emby_docker_ports_defaults
 
 # Envs
 emby_docker_envs_default:
-  UID: "{{ uid }}"
-  GID: "{{ gid }}"
-  GIDLIST: "{{ vgid }},{{ rgid }}"
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
   NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
