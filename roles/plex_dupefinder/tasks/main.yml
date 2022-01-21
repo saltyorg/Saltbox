@@ -20,7 +20,7 @@
 
 - name: Clone plex_dupefinder
   git:
-    repo: https://github.com/saltyorg/plex_dupefinder.git
+    repo: https://github.com/l3uddz/plex_dupefinder.git
     dest: /opt/plex_dupefinder
     clone: true
     version: HEAD
