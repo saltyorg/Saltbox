@@ -58,6 +58,20 @@
       (or setup Rclone via 'rclone config') and verify that the 'backup.rclone.destination' in settings is valid.
   when: (rclone_test.rc > 0)
 
+- name: Check if restore_rclone.log exists
+  stat:
+    path: "{{ playbook_dir }}/restore_rclone.log"
+  register: restore_rclone
+
+- name: Check if restore_rclone.log exists
+  file:
+    path: "{{ playbook_dir }}/restore_rclone.log"
+    state: file
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0660"
+  when: restore_rclone.stat.exists
+
 - name: "Fetch backup from '{{ backup.rclone.destination }}'"
   shell: |
     /usr/bin/rclone copy \
