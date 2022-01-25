@@ -30,7 +30,7 @@
   user:
     name: "{{ user.name }}"
     group: "{{ user.name }}"
-    groups: "{{ user.name }},sudo,video,docker"
+    groups: "{{ user.name }},sudo,video,render,docker"
     password: "{{ user.pass | string | password_hash('sha512') }}"
     update_password: on_create
     append: true
@@ -43,11 +43,16 @@
   shell: "getent group video | cut -d: -f3"
   register: vgid_lookup
 
-- name: User Account | Set 'uid', 'gid', and 'vgid'
+- name: User Account | Get render group info
+  shell: "getent group render | cut -d: -f3"
+  register: rgid_lookup
+
+- name: User Account | Set 'uid', 'gid', 'vgid' and 'rgid'
   set_fact:
     uid: "{{ user_info.uid }}"
     gid: "{{ user_info.group }}"
     vgid: "{{ vgid_lookup.stdout }}"
+    rgid: "{{ rgid_lookup.stdout }}"
 
 - name: User Account | Check if '/etc/sudoers' exists
   stat:
