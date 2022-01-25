@@ -114,6 +114,7 @@ traefik_docker_commands_default:
   - "--entrypoints.websecure.address=:443"
   - "--entrypoints.websecure.forwardedheaders.insecure"
   - "--entrypoints.websecure.proxyprotocol.insecure"
+  - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
   - "--api.dashboard=true"
   - "--api=true"
   - "--log={{ traefik_log }}"
@@ -226,6 +227,7 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
+  traefik.http.routers.metrics.tls.options: "securetls@file"
   traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
 
 traefik_docker_labels_custom: {}
