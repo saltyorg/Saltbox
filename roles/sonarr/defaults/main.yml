@@ -11,6 +11,7 @@
 # Basics
 ################################
 
+sonarr_name: sonarr
 sonarr_instances: ["sonarr"]
 
 ################################
