@@ -11,6 +11,7 @@
 # Basics
 ################################
 
+radarr_name: radarr
 radarr_instances: ["radarr"]
 
 ################################
