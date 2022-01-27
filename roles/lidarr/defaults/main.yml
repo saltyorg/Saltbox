@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-lidarr_name: lidarr
+lidarr_instances: ["lidarr"]
 
 ################################
 # Paths
@@ -19,9 +19,9 @@ lidarr_name: lidarr
 
 lidarr_paths_folder: "{{ lidarr_name }}"
 lidarr_paths_location: "{{ server_appdata_path }}/{{ lidarr_paths_folder }}"
-lidarr_paths_config_location: "{{ lidarr_paths_location }}/config.xml"
 lidarr_paths_folders_list:
   - "{{ lidarr_paths_location }}"
+lidarr_paths_config_location: "{{ lidarr_paths_location }}/config.xml"
 
 ################################
 # Web
@@ -30,16 +30,17 @@ lidarr_paths_folders_list:
 lidarr_web_subdomain: "{{ lidarr_name }}"
 lidarr_web_domain: "{{ user.domain }}"
 lidarr_web_port: "8686"
-lidarr_web_url: "{{ 'https://' + lidarr_web_subdomain + '.' + lidarr_web_domain
+lidarr_web_url: "{{ 'https://' + lookup('vars', lidarr_name + '_web_subdomain', default=lidarr_web_subdomain)
+                    + '.' + lookup('vars', lidarr_name + '_web_domain', default=lidarr_web_domain)
                  if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lidarr_web_port }}"
+                 else 'http://localhost:' + lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-lidarr_dns_record: "{{ lidarr_web_subdomain }}"
-lidarr_dns_zone: "{{ lidarr_web_domain }}"
+lidarr_dns_record: "{{ lookup('vars', lidarr_name + '_web_subdomain', default=lidarr_web_subdomain) }}"
+lidarr_dns_zone: "{{ lookup('vars', lidarr_name + '_web_domain', default=lidarr_web_domain) }}"
 lidarr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
@@ -47,9 +48,18 @@ lidarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 lidarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-lidarr_traefik_middleware: "{{ traefik_default_middleware + ',' + lidarr_traefik_sso_middleware
-                            if (lidarr_traefik_sso_middleware | length > 0)
-                            else traefik_default_middleware }}"
+
+lidarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                       + lookup('vars', lidarr_name + '_traefik_sso_middleware', default=lidarr_traefik_sso_middleware)
+                                    if (lookup('vars', lidarr_name + '_traefik_sso_middleware', default=lidarr_traefik_sso_middleware) | length > 0)
+                                    else traefik_default_middleware }}"
+lidarr_traefik_middleware_custom: ""
+lidarr_traefik_middleware: "{{ lidarr_traefik_middleware_default + ','
+                               + lidarr_traefik_middleware_custom
+                            if (not lidarr_traefik_middleware_custom.startswith(',') and lidarr_traefik_middleware_custom | length > 0)
+                            else lidarr_traefik_middleware_default
+                               + lidarr_traefik_middleware_custom }}"
+
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
 lidarr_traefik_api_enabled: true
@@ -80,17 +90,22 @@ lidarr_docker_container: "{{ lidarr_name }}"
 
 # Image
 lidarr_docker_image_pull: true
-lidarr_docker_image_tag: "latest"
-lidarr_docker_image: "cr.hotio.dev/hotio/lidarr:{{ lidarr_docker_image_tag }}"
+lidarr_docker_image_repo: "cr.hotio.dev/hotio/lidarr"
+lidarr_docker_image_tag: "release"
+lidarr_docker_image: "{{ lookup('vars', lidarr_name + '_docker_image_repo', default=lidarr_docker_image_repo)
+                         + ':' + lookup('vars', lidarr_name + '_docker_image_tag', default=lidarr_docker_image_tag) }}"
 
 # Ports
-lidarr_docker_ports_defaults:
-  - "{{ lidarr_web_port }}:{{ lidarr_web_port }}"
+lidarr_docker_ports_defaults: []
+lidarr_docker_ports_ui:
+  - "{{ lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}:{{ lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}"
 lidarr_docker_ports_custom: []
-lidarr_docker_ports: "{{ lidarr_docker_ports_defaults
-                         + lidarr_docker_ports_custom
+lidarr_docker_ports: "{{ lookup('vars', lidarr_name + '_docker_ports_defaults', default=lidarr_docker_ports_defaults)
+                         + lookup('vars', lidarr_name + '_docker_ports_ui', default=lidarr_docker_ports_ui)
+                         + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom)
                       if (not reverse_proxy_is_enabled)
-                      else [] + lidarr_docker_ports_custom }}"
+                      else lookup('vars', lidarr_name + '_docker_ports_ui', default=lidarr_docker_ports_defaults)
+                         + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom) }}"
 
 # Envs
 lidarr_docker_envs_default:
@@ -98,18 +113,18 @@ lidarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ lidarr_themepark_domain }}"
-  TP_THEME: "{{ lidarr_themepark_theme }}"
+  TP_DOMAIN: "{{ lookup('vars', lidarr_name + '_themepark_domain', default=lidarr_themepark_domain) }}"
+  TP_THEME: "{{ lookup('vars', lidarr_name + '_themepark_theme', default=lidarr_themepark_theme) }}"
   TP_HOTIO: "true"
 lidarr_docker_envs_custom: {}
-lidarr_docker_envs: "{{ lidarr_docker_envs_default
-                        | combine(lidarr_docker_envs_custom) }}"
+lidarr_docker_envs: "{{ lookup('vars', lidarr_name + '_docker_envs_default', default=lidarr_docker_envs_default)
+                        | combine(lookup('vars', lidarr_name + '_docker_envs_custom', default=lidarr_docker_envs_custom)) }}"
 
 # Commands
 lidarr_docker_commands_default: []
 lidarr_docker_commands_custom: []
-lidarr_docker_commands: "{{ lidarr_docker_commands_default
-                            + lidarr_docker_commands_custom }}"
+lidarr_docker_commands: "{{ lookup('vars', lidarr_name + '_docker_commands_default', default=lidarr_docker_commands_default)
+                            + lookup('vars', lidarr_name + '_docker_docker_commands_custom', default=lidarr_docker_commands_custom) }}"
 
 # Volumes
 lidarr_docker_volumes_default:
@@ -120,34 +135,34 @@ lidarr_docker_volumes_default:
 lidarr_docker_volumes_custom: []
 lidarr_docker_volumes_theme:
   - "{{ lidarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
-lidarr_docker_volumes: "{{ lidarr_docker_volumes_default
-                           + lidarr_docker_volumes_custom
+lidarr_docker_volumes: "{{ lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
+                           + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
                            + docker_volumes_downloads_common
-                        if not (lidarr_themepark_enabled)
-                        else lidarr_docker_volumes_default
-                           + lidarr_docker_volumes_custom
-                           + docker_volumes_downloads_common
-                           + lidarr_docker_volumes_theme }}"
+                        if not (lookup('vars', lidarr_name + '_themepark_enabled', default=lidarr_themepark_enabled))
+                        else lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
+                           + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
+                           + lookup('vars', lidarr_name + '_docker_volumes_theme', default=lidarr_docker_volumes_theme)
+                           + docker_volumes_downloads_common }}"
 
 # Devices
 lidarr_docker_devices_default: []
 lidarr_docker_devices_custom: []
-lidarr_docker_devices: "{{ lidarr_docker_devices_default
-                           + lidarr_docker_devices_custom }}"
+lidarr_docker_devices: "{{ lookup('vars', lidarr_name + '_docker_devices_default', default=lidarr_docker_devices_default)
+                           + lookup('vars', lidarr_name + '_docker_devices_custom', default=lidarr_docker_devices_custom) }}"
 
 # Hosts
 lidarr_docker_hosts_default: []
 lidarr_docker_hosts_custom: []
 lidarr_docker_hosts: "{{ docker_hosts_common
-                         | combine(lidarr_docker_hosts_default)
-                         | combine(lidarr_docker_hosts_custom) }}"
+                         | combine(lookup('vars', lidarr_name + '_docker_hosts_default', default=lidarr_docker_hosts_default))
+                         | combine(lookup('vars', lidarr_name + '_docker_hosts_custom', default=lidarr_docker_hosts_custom)) }}"
 
 # Labels
 lidarr_docker_labels_default: {}
 lidarr_docker_labels_custom: {}
 lidarr_docker_labels: "{{ docker_labels_common
-                          | combine(lidarr_docker_labels_default)
-                          | combine(lidarr_docker_labels_custom) }}"
+                          | combine(lookup('vars', lidarr_name + '_docker_labels_default', default=lidarr_docker_labels_default))
+                          | combine(lookup('vars', lidarr_name + '_docker_labels_custom', default=lidarr_docker_labels_custom)) }}"
 
 # Hostname
 lidarr_docker_hostname: "{{ lidarr_name }}"
@@ -157,20 +172,20 @@ lidarr_docker_networks_alias: "{{ lidarr_name }}"
 lidarr_docker_networks_default: []
 lidarr_docker_networks_custom: []
 lidarr_docker_networks: "{{ docker_networks_common
-                            + lidarr_docker_networks_default
-                            + lidarr_docker_networks_custom }}"
+                            + lookup('vars', lidarr_name + '_docker_networks_default', default=lidarr_docker_networks_default)
+                            + lookup('vars', lidarr_name + '_docker_networks_custom', default=lidarr_docker_networks_custom) }}"
 
 # Capabilities
 lidarr_docker_capabilities_default: []
 lidarr_docker_capabilities_custom: []
-lidarr_docker_capabilities: "{{ lidarr_docker_capabilities_default
-                                + lidarr_docker_capabilities_custom }}"
+lidarr_docker_capabilities: "{{ lookup('vars', lidarr_name + '_docker_capabilities_default', default=lidarr_docker_capabilities_default)
+                                + lookup('vars', lidarr_name + '_docker_capabilities_custom', default=lidarr_docker_capabilities_custom) }}"
 
 # Security Opts
 lidarr_docker_security_opts_default: []
 lidarr_docker_security_opts_custom: []
-lidarr_docker_security_opts: "{{ lidarr_docker_security_opts_default
-                                 + lidarr_docker_security_opts_custom }}"
+lidarr_docker_security_opts: "{{ lookup('vars', lidarr_name + '_docker_security_opts_default', default=lidarr_docker_security_opts_default)
+                                 + lookup('vars', lidarr_name + '_docker_security_opts_custom', default=lidarr_docker_security_opts_custom) }}"
 
 # Restart Policy
 lidarr_docker_restart_policy: unless-stopped
