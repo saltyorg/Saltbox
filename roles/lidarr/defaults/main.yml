@@ -11,6 +11,7 @@
 # Basics
 ################################
 
+lidarr_name: lidarr
 lidarr_instances: ["lidarr"]
 
 ################################
