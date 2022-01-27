@@ -5,8 +5,8 @@
 
 jwt_secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
 
-# Options are light, dark or grey
-theme: light
+# Options are light, dark, grey or auto
+theme: auto
 
 server:
   host: 0.0.0.0
