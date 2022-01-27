@@ -11,6 +11,7 @@
 # Basics
 ################################
 
+tautulli_name: tautulli
 tautulli_instances: ["tautulli"]
 
 ################################
