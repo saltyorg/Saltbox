@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-radarr_name: radarr
+radarr_instances: ["radarr"]
 
 ################################
 # Paths
@@ -30,16 +30,17 @@ radarr_paths_config_location: "{{ radarr_paths_location }}/config.xml"
 radarr_web_subdomain: "{{ radarr_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
-radarr_web_url: "{{ 'https://' + radarr_web_subdomain + '.' + radarr_web_domain
+radarr_web_url: "{{ 'https://' + lookup('vars', radarr_name + '_web_subdomain', default=radarr_web_subdomain)
+                    + '.' + lookup('vars', radarr_name + '_web_domain', default=radarr_web_domain)
                  if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + radarr_web_port }}"
+                 else 'http://localhost:' + lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-radarr_dns_record: "{{ radarr_web_subdomain }}"
-radarr_dns_zone: "{{ radarr_web_domain }}"
+radarr_dns_record: "{{ lookup('vars', radarr_name + '_web_subdomain', default=radarr_web_subdomain) }}"
+radarr_dns_zone: "{{ lookup('vars', radarr_name + '_web_domain', default=radarr_web_domain) }}"
 radarr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
@@ -47,9 +48,18 @@ radarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 radarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-radarr_traefik_middleware: "{{ traefik_default_middleware + ',' + radarr_traefik_sso_middleware
-                            if (radarr_traefik_sso_middleware | length > 0)
-                            else traefik_default_middleware }}"
+
+radarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                       + lookup('vars', radarr_name + '_traefik_sso_middleware', default=radarr_traefik_sso_middleware)
+                                    if (lookup('vars', radarr_name + '_traefik_sso_middleware', default=radarr_traefik_sso_middleware) | length > 0)
+                                    else traefik_default_middleware }}"
+radarr_traefik_middleware_custom: ""
+radarr_traefik_middleware: "{{ radarr_traefik_middleware_default + ','
+                               + radarr_traefik_middleware_custom
+                            if (not radarr_traefik_middleware_custom.startswith(',') and radarr_traefik_middleware_custom | length > 0)
+                            else radarr_traefik_middleware_default
+                               + radarr_traefik_middleware_custom }}"
+
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_traefik_enabled: true
 radarr_traefik_api_enabled: true
@@ -80,17 +90,22 @@ radarr_docker_container: "{{ radarr_name }}"
 
 # Image
 radarr_docker_image_pull: true
+radarr_docker_image_repo: "cr.hotio.dev/hotio/radarr"
 radarr_docker_image_tag: "release"
-radarr_docker_image: "cr.hotio.dev/hotio/radarr:{{ radarr_docker_image_tag }}"
+radarr_docker_image: "{{ lookup('vars', radarr_name + '_docker_image_repo', default=radarr_docker_image_repo)
+                         + ':' + lookup('vars', radarr_name + '_docker_image_tag', default=radarr_docker_image_tag) }}"
 
 # Ports
-radarr_docker_ports_defaults:
-  - "{{ radarr_web_port }}"
+radarr_docker_ports_defaults: []
+radarr_docker_ports_ui:
+  - "{{ lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}:{{ lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}"
 radarr_docker_ports_custom: []
-radarr_docker_ports: "{{ radarr_docker_ports_defaults
-                         + radarr_docker_ports_custom
+radarr_docker_ports: "{{ lookup('vars', radarr_name + '_docker_ports_defaults', default=radarr_docker_ports_defaults)
+                         + lookup('vars', radarr_name + '_docker_ports_ui', default=radarr_docker_ports_ui)
+                         + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom)
                       if (not reverse_proxy_is_enabled)
-                      else [] + radarr_docker_ports_custom }}"
+                      else lookup('vars', radarr_name + '_docker_ports_ui', default=radarr_docker_ports_defaults)
+                         + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom) }}"
 
 # Envs
 radarr_docker_envs_default:
@@ -98,18 +113,18 @@ radarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ radarr_themepark_domain }}"
-  TP_THEME: "{{ radarr_themepark_theme }}"
+  TP_DOMAIN: "{{ lookup('vars', radarr_name + '_themepark_domain', default=radarr_themepark_domain) }}"
+  TP_THEME: "{{ lookup('vars', radarr_name + '_themepark_theme', default=radarr_themepark_theme) }}"
   TP_HOTIO: "true"
 radarr_docker_envs_custom: {}
-radarr_docker_envs: "{{ radarr_docker_envs_default
-                        | combine(radarr_docker_envs_custom) }}"
+radarr_docker_envs: "{{ lookup('vars', radarr_name + '_docker_envs_default', default=radarr_docker_envs_default)
+                        | combine(lookup('vars', radarr_name + '_docker_envs_custom', default=radarr_docker_envs_custom)) }}"
 
 # Commands
 radarr_docker_commands_default: []
 radarr_docker_commands_custom: []
-radarr_docker_commands: "{{ radarr_docker_commands_default
-                            + radarr_docker_commands_custom }}"
+radarr_docker_commands: "{{ lookup('vars', radarr_name + '_docker_commands_default', default=radarr_docker_commands_default)
+                            + lookup('vars', radarr_name + '_docker_docker_commands_custom', default=radarr_docker_commands_custom) }}"
 
 # Volumes
 radarr_docker_volumes_default:
@@ -120,34 +135,34 @@ radarr_docker_volumes_default:
 radarr_docker_volumes_custom: []
 radarr_docker_volumes_theme:
   - "{{ radarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
-radarr_docker_volumes: "{{ radarr_docker_volumes_default
-                           + radarr_docker_volumes_custom
+radarr_docker_volumes: "{{ lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
+                           + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
                            + docker_volumes_downloads_common
-                        if not (radarr_themepark_enabled)
-                        else radarr_docker_volumes_default
-                           + radarr_docker_volumes_custom
-                           + docker_volumes_downloads_common
-                           + radarr_docker_volumes_theme }}"
+                        if not (lookup('vars', radarr_name + '_themepark_enabled', default=radarr_themepark_enabled))
+                        else lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
+                           + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
+                           + lookup('vars', radarr_name + '_docker_volumes_theme', default=radarr_docker_volumes_theme)
+                           + docker_volumes_downloads_common }}"
 
 # Devices
 radarr_docker_devices_default: []
 radarr_docker_devices_custom: []
-radarr_docker_devices: "{{ radarr_docker_devices_default
-                           + radarr_docker_devices_custom }}"
+radarr_docker_devices: "{{ lookup('vars', radarr_name + '_docker_devices_default', default=radarr_docker_devices_default)
+                           + lookup('vars', radarr_name + '_docker_devices_custom', default=radarr_docker_devices_custom) }}"
 
 # Hosts
 radarr_docker_hosts_default: []
 radarr_docker_hosts_custom: []
 radarr_docker_hosts: "{{ docker_hosts_common
-                         | combine(radarr_docker_hosts_default)
-                         | combine(radarr_docker_hosts_custom) }}"
+                         | combine(lookup('vars', radarr_name + '_docker_hosts_default', default=radarr_docker_hosts_default))
+                         | combine(lookup('vars', radarr_name + '_docker_hosts_custom', default=radarr_docker_hosts_custom)) }}"
 
 # Labels
 radarr_docker_labels_default: {}
 radarr_docker_labels_custom: {}
 radarr_docker_labels: "{{ docker_labels_common
-                          | combine(radarr_docker_labels_default)
-                          | combine(radarr_docker_labels_custom) }}"
+                          | combine(lookup('vars', radarr_name + '_docker_labels_default', default=radarr_docker_labels_default))
+                          | combine(lookup('vars', radarr_name + '_docker_labels_custom', default=radarr_docker_labels_custom)) }}"
 
 # Hostname
 radarr_docker_hostname: "{{ radarr_name }}"
@@ -157,20 +172,20 @@ radarr_docker_networks_alias: "{{ radarr_name }}"
 radarr_docker_networks_default: []
 radarr_docker_networks_custom: []
 radarr_docker_networks: "{{ docker_networks_common
-                            + radarr_docker_networks_default
-                            + radarr_docker_networks_custom }}"
+                            + lookup('vars', radarr_name + '_docker_networks_default', default=radarr_docker_networks_default)
+                            + lookup('vars', radarr_name + '_docker_networks_custom', default=radarr_docker_networks_custom) }}"
 
 # Capabilities
 radarr_docker_capabilities_default: []
 radarr_docker_capabilities_custom: []
-radarr_docker_capabilities: "{{ radarr_docker_capabilities_default
-                                + radarr_docker_capabilities_custom }}"
+radarr_docker_capabilities: "{{ lookup('vars', radarr_name + '_docker_capabilities_default', default=radarr_docker_capabilities_default)
+                                + lookup('vars', radarr_name + '_docker_capabilities_custom', default=radarr_docker_capabilities_custom) }}"
 
 # Security Opts
 radarr_docker_security_opts_default: []
 radarr_docker_security_opts_custom: []
-radarr_docker_security_opts: "{{ radarr_docker_security_opts_default
-                                 + radarr_docker_security_opts_custom }}"
+radarr_docker_security_opts: "{{ lookup('vars', radarr_name + '_docker_security_opts_default', default=radarr_docker_security_opts_default)
+                                 + lookup('vars', radarr_name + '_docker_security_opts_custom', default=radarr_docker_security_opts_custom) }}"
 
 # Restart Policy
 radarr_docker_restart_policy: unless-stopped
