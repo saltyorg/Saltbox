@@ -8,4 +8,5 @@ rclone:
   remote: google
 shell: bash
 authelia:
+  master: yes
   subdomain: login

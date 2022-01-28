@@ -10,6 +10,7 @@
 - name: "Import Authelia Role"
   import_role:
     name: authelia
+  when: authelia_is_master
 
 - name: "Import Jaeger Role"
   import_role:
