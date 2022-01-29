@@ -62,7 +62,7 @@ traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 # DNS Provider
 ################################
 
-traefik_dns_provider: cloudflare
+traefik_dns_provider: "{{ traefik_challenge_provider }}"
 
 traefik_dns_provider_cloudflare:
   CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"

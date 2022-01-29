@@ -11,6 +11,7 @@ traefik:
   metrics: no
   tracing: no
   hsts: no
+  provider: cloudflare
   subdomains:
     dash: dash
     metrics: metrics

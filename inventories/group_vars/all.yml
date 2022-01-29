@@ -170,15 +170,17 @@ authelia_is_master: "{{ authelia.master }}"
 # Traefik
 ################################
 
+traefik_challenge_provider: "{{ traefik.provider }}"
+
 traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
 
 traefik_default_tlsresolver: "tlsresolver"
 
-traefik_default_certresolver: "{{ traefik_default_tlsresolver
-                               if (not cloudflare_is_enabled) or (traefik.tls)
-                               else traefik_default_certprovider }}"
+traefik_default_certresolver: "{{ traefik_default_certprovider
+                               if (traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled or (not traefik.tls)
+                               else traefik_default_tlsresolver }}"
 
 traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip'
                                      if (not traefik.hsts)
