@@ -48,6 +48,7 @@
       - "settings.yml"
       - "adv_settings.yml"
       - "backup_config.yml"
+      - "providers.yml"
 
 - name: Start | Initialize vars with empty lists
   set_fact:

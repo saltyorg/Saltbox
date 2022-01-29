@@ -59,6 +59,33 @@ traefik_metrics_dns_zone: "{{ traefik_metrics_domain }}"
 traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 
 ################################
+# DNS Provider
+################################
+
+traefik_dns_provider: cloudflare
+
+traefik_dns_provider_cloudflare:
+  CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
+  CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
+
+traefik_dns_provider_duck:
+  DUCKDNS_TOKEN: "{{ duck.token }}"
+
+traefik_dns_provider_godaddy:
+  GODADDY_API_KEY: "{{ godaddy.api_key }}"
+  GODADDY_API_SECRET: "{{ godaddy.api_secret }}"
+
+traefik_dns_provider_hetzner:
+  HETZNER_API_KEY: "{{ hetzner.api_key }}"
+
+traefik_dns_provider_linode:
+  LINODE_TOKEN: "{{ linode.token }}"
+
+traefik_dns_provider_namecheap:
+  NAMECHEAP_API_USER: "{{ namecheap.api_user }}"
+  NAMECHEAP_API_KEY: "{{ namecheap.api_key }}"
+
+################################
 # Traefik
 ################################
 
@@ -88,15 +115,12 @@ traefik_docker_ports: "{{ traefik_docker_ports_defaults
 # Envs
 traefik_docker_envs_default:
   TZ: "{{ tz }}"
-traefik_docker_envs_cloudflare:
-  CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
-  CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
 traefik_docker_envs_custom: {}
 traefik_docker_envs: "{{ traefik_docker_envs_default
                          | combine(traefik_docker_envs_custom)
-                      if not (cloudflare_is_enabled)
+                      if (not cloudflare_is_enabled) and (traefik_dns_provider == 'cloudflare')
                       else traefik_docker_envs_default
-                         | combine(traefik_docker_envs_cloudflare)
+                         | combine(lookup('vars', 'traefik_dns_provider_' + traefik_dns_provider))
                          | combine(traefik_docker_envs_custom) }}"
 
 # Commands
@@ -126,11 +150,11 @@ traefik_docker_commands_default:
   - "--accesslog.fields.headers.names.Content-Type=keep"
   - "--accesslog.filepath=/etc/traefik/access.log"
   - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
-  - "--certificatesresolvers.cfdns.acme.dnschallenge.provider=cloudflare"
+  - "--certificatesresolvers.cfdns.acme.dnschallenge.provider={{ traefik_dns_provider }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
-  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider=cloudflare"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_dns_provider }}"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
   - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
@@ -216,7 +240,7 @@ traefik_docker_labels_default:
   traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
   traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
-traefik_docker_labels_cloudflare_validation:
+traefik_docker_labels_dns_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
   traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
   traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
@@ -234,7 +258,7 @@ traefik_docker_labels_metrics:
 
 traefik_docker_labels_custom: {}
 
-traefik_docker_labels_validation: "{{ traefik_docker_labels_cloudflare_validation
+traefik_docker_labels_validation: "{{ traefik_docker_labels_dns_validation
                                    if not (traefik_tls)
                                    else traefik_docker_labels_tls_validation }}"
 
