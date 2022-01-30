@@ -13,4 +13,4 @@ namecheap:
 namedotcom:
   username:
   api_token:
-  server:
+  server: api.name.com
