@@ -10,3 +10,7 @@ linode:
 namecheap:
   api_user:
   api_key:
+namedotcom
+  username:
+  api_token:
+  server:

@@ -83,6 +83,11 @@ traefik_dns_provider_namecheap:
   NAMECHEAP_API_USER: "{{ namecheap.api_user }}"
   NAMECHEAP_API_KEY: "{{ namecheap.api_key }}"
 
+traefik_dns_provider_namedotcom:
+  NAMECOM_USERNAME: "{{ namedotcom.username }}"
+  NAMECOM_API_TOKEN: "{{ namedotcom.api_token }}"
+  NAMECOM_SERVER: "{{ namedotcom.server }}"
+
 ################################
 # Traefik
 ################################
