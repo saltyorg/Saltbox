@@ -145,7 +145,7 @@ traefik_docker_commands_default:
   - "--accesslog.fields.headers.names.Content-Type=keep"
   - "--accesslog.filepath=/etc/traefik/access.log"
   - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
-  - "--certificatesresolvers.cfdns.acme.dnschallenge.provider={{ traefik_dns_provider }}"
+  - "--certificatesresolvers.cfdns.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
@@ -153,7 +153,7 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_zerossl_tmp:
-  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_dns_provider }}"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
   - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
