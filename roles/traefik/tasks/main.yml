@@ -46,7 +46,7 @@
 
 - name: Traefik ZeroSSL Tasks
   import_tasks: "subtasks/zerossl.yml"
-  when: (not continuous_integration)
+  when: (not continuous_integration) and zerossl_is_enabled
 
 - name: Traefik Config Tasks
   import_tasks: "subtasks/config.yml"
