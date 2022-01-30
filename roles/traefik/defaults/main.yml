@@ -62,8 +62,6 @@ traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 # DNS Provider
 ################################
 
-traefik_dns_provider: "{{ traefik_challenge_provider }}"
-
 traefik_dns_provider_cloudflare:
   CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
   CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
@@ -117,10 +115,7 @@ traefik_docker_envs_default:
   TZ: "{{ tz }}"
 traefik_docker_envs_custom: {}
 traefik_docker_envs: "{{ traefik_docker_envs_default
-                         | combine(traefik_docker_envs_custom)
-                      if (not cloudflare_is_enabled) and (traefik_dns_provider == 'cloudflare')
-                      else traefik_docker_envs_default
-                         | combine(lookup('vars', 'traefik_dns_provider_' + traefik_dns_provider))
+                         | combine(lookup('vars', 'traefik_dns_provider_' + traefik_challenge_provider, default={}))
                          | combine(traefik_docker_envs_custom) }}"
 
 # Commands
