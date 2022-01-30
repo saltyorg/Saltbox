@@ -164,13 +164,13 @@ global_themepark_domain: theme-park.dev
 # Authelia
 ################################
 
-authelia_is_master: "{{ authelia.master }}"
+authelia_is_master: "{{ authelia.master | bool }}"
 
 ################################
 # ZeroSSL
 ################################
 
-zerossl_is_enabled: "{{ dns.zerossl }}"
+zerossl_is_enabled: "{{ dns.zerossl | bool }}"
 
 ################################
 # Traefik
