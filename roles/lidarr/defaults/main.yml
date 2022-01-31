@@ -105,7 +105,7 @@ lidarr_docker_ports: "{{ lookup('vars', lidarr_name + '_docker_ports_defaults', 
                          + lookup('vars', lidarr_name + '_docker_ports_ui', default=lidarr_docker_ports_ui)
                          + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom)
                       if (not reverse_proxy_is_enabled)
-                      else lookup('vars', lidarr_name + '_docker_ports_ui', default=lidarr_docker_ports_defaults)
+                      else lookup('vars', lidarr_name + '_docker_ports_defaults', default=lidarr_docker_ports_defaults)
                          + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom) }}"
 
 # Envs
