@@ -105,7 +105,7 @@ sonarr_docker_ports: "{{ lookup('vars', sonarr_name + '_docker_ports_defaults', 
                          + lookup('vars', sonarr_name + '_docker_ports_ui', default=sonarr_docker_ports_ui)
                          + lookup('vars', sonarr_name + '_docker_ports_custom', default=sonarr_docker_ports_custom)
                       if (not reverse_proxy_is_enabled)
-                      else lookup('vars', sonarr_name + '_docker_ports_ui', default=sonarr_docker_ports_defaults)
+                      else lookup('vars', sonarr_name + '_docker_ports_defaults', default=sonarr_docker_ports_defaults)
                          + lookup('vars', sonarr_name + '_docker_ports_custom', default=sonarr_docker_ports_custom) }}"
 
 # Envs
