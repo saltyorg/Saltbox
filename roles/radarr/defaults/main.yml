@@ -105,7 +105,7 @@ radarr_docker_ports: "{{ lookup('vars', radarr_name + '_docker_ports_defaults', 
                          + lookup('vars', radarr_name + '_docker_ports_ui', default=radarr_docker_ports_ui)
                          + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom)
                       if (not reverse_proxy_is_enabled)
-                      else lookup('vars', radarr_name + '_docker_ports_ui', default=radarr_docker_ports_defaults)
+                      else lookup('vars', radarr_name + '_docker_ports_defaults', default=radarr_docker_ports_defaults)
                          + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom) }}"
 
 # Envs
