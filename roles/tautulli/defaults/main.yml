@@ -99,7 +99,7 @@ tautulli_docker_ports: "{{ lookup('vars', tautulli_name + '_docker_ports_default
                            + lookup('vars', tautulli_name + '_docker_ports_ui', default=tautulli_docker_ports_ui)
                            + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom)
                         if (not reverse_proxy_is_enabled)
-                        else lookup('vars', tautulli_name + '_docker_ports_ui', default=tautulli_docker_ports_defaults)
+                        else lookup('vars', tautulli_name + '_docker_ports_defaults', default=tautulli_docker_ports_defaults)
                            + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom) }}"
 
 # Envs
