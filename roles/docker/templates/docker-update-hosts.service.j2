@@ -15,6 +15,9 @@ PartOf=docker.service
 
 [Service]
 ExecStart=/usr/local/bin/docker-update-hosts
+Restart=always
+RestartSec=20s
+StartLimitIntervalSec=0
 
 [Install]
 WantedBy=docker.service
