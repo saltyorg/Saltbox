@@ -17,6 +17,7 @@
 /accounts.yml
 /settings.yml
 /adv_settings.yml
+/providers.yml
 /rclone.conf
 /backup_config.yml
 /backup_excludes_list.txt
