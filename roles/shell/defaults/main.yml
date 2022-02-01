@@ -42,6 +42,8 @@ shell_bash_bashrc_block_content: |
   . /opt/z/z.sh
   # Aliases
   alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
+  # OSC 1337 - Set current directory
+  export PS1="$PS1\[\e]1337;CurrentDir="'$(pwd)\a\]'
 
 shell_bash_binary_path: "/bin/bash"
 
@@ -91,6 +93,8 @@ shell_zsh_zshrc_block_content2: |
   eval $(register-python-argcomplete ansible-playbook)
   eval $(register-python-argcomplete ansible-pull)
   eval $(register-python-argcomplete ansible-vault)
+  # OSC 1337 - Set current directory
+  precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" }
 
 shell_zsh_binary_previous_path: "/bin/zsh5"
 
