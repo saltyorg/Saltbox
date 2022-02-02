@@ -15,3 +15,7 @@ namedotcom:
   username:
   api_token:
   server: api.name.com
+netcup:
+  customer_number:
+  api_key:
+  api_password:

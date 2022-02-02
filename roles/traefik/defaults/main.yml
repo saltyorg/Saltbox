@@ -62,9 +62,13 @@ traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 # DNS Provider
 ################################
 
-traefik_dns_provider_cloudflare:
+traefik_dns_provider_cloudflare_tmp:
   CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
   CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
+
+traefik_dns_provider_cloudflare: "{{ traefik_dns_provider_cloudflare_tmp
+                                  if cloudflare_is_enabled
+                                  else {} }}"
 
 traefik_dns_provider_duck:
   DUCKDNS_TOKEN: "{{ duck.token }}"
@@ -87,6 +91,11 @@ traefik_dns_provider_namedotcom:
   NAMECOM_USERNAME: "{{ namedotcom.username }}"
   NAMECOM_API_TOKEN: "{{ namedotcom.api_token }}"
   NAMECOM_SERVER: "{{ namedotcom.server }}"
+
+traefik_dns_provider_netcup:
+  NETCUP_CUSTOMER_NUMBER: "{{ netcup.customer_number }}"
+  NETCUP_API_KEY: "{{ netcup.api_key }}"
+  NETCUP_API_PASSWORD: "{{ netcup.api_password }}"
 
 ################################
 # Traefik
