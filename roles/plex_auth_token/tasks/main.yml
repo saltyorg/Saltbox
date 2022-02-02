@@ -121,11 +121,11 @@
       uri:
         url: https://plex.tv/users/sign_in.json
         method: POST
-        headers:
+        body:
           X-Plex-Version: "{{ plex_auth_token_version }}"
           X-Plex-Product: "{{ plex_auth_token_product }}"
           X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
-          Content-Type: "application/x-www-form-urlencoded; charset=utf-8"
+        body_format: form-urlencoded
         user: '{{ plex.user }}'
         password: '{{ plex.pass }}'
         status_code: 201
