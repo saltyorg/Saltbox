@@ -160,6 +160,14 @@ plex_docker_volumes: "{{ plex_docker_volumes_default
                          + docker_volumes_downloads_common
                          + plex_docker_volumes_theme }}"
 
+# Mounts
+plex_docker_mounts_default:
+  - target: /tmp
+    type: tmpfs
+plex_docker_mounts_custom: []
+plex_docker_mounts: "{{ plex_docker_mounts_default
+                        + plex_docker_mounts_custom }}"
+
 # Devices
 plex_docker_devices_default: []
 plex_docker_devices_custom: []
