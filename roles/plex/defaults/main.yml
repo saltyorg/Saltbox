@@ -145,7 +145,6 @@ plex_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media:/data"
   - "/mnt:/mnt"
-  - "/tmp:/tmp"
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
 plex_docker_volumes_custom: []
