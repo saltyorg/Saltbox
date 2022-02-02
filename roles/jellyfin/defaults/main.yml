@@ -125,13 +125,20 @@ jellyfin_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media:/data"
   - "/mnt:/mnt"
-  - "/tmp:/tmp"
   - "/dev/shm:/dev/shm"
   - "{{ jellyfin_paths_transcodes_location }}:/transcode"
 jellyfin_docker_volumes_custom: []
 jellyfin_docker_volumes: "{{ jellyfin_docker_volumes_default
                              + jellyfin_docker_volumes_custom
                              + docker_volumes_downloads_common }}"
+
+# Mounts
+jellyfin_docker_mounts_default:
+  - target: /tmp
+    type: tmpfs
+jellyfin_docker_mounts_custom: []
+jellyfin_docker_mounts: "{{ jellyfin_docker_mounts_default
+                            + jellyfin_docker_mounts_custom }}"
 
 # Devices
 jellyfin_docker_devices_default: []
