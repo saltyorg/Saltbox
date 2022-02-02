@@ -59,6 +59,8 @@ emby_traefik_enabled: true
 # Settings
 ################################
 
+emby_config_cache_size: 1024
+
 emby_config_settings_default:
   - { xpath: 'IsBehindProxy', value: 'true' }
   - { xpath: 'WanDdns', value: '{{ emby_web_subdomain }}.{{ emby_web_domain }}' }
@@ -67,7 +69,7 @@ emby_config_settings_default:
   - { xpath: 'EnableHttps', value: 'true' }
   - { xpath: 'RequireHttps', value: 'false' }
   - { xpath: 'EnableUPnP', value: 'false' }
-  - { xpath: 'EnableAnonymousUsageReporting', value: 'false' }
+  - { xpath: 'DatabaseCacheSizeMB', value: '{{ emby_config_cache_size }}' }
 
 emby_config_settings_custom: []
 
