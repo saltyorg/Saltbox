@@ -185,7 +185,7 @@ traefik_default_certprovider: "{{ 'cfdns'
 traefik_default_tlsresolver: "tlsresolver"
 
 traefik_default_certresolver: "{{ traefik_default_certprovider
-                               if (not traefik.tls)
+                               if (not traefik_tls)
                                else traefik_default_tlsresolver }}"
 
 traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip'
@@ -207,7 +207,7 @@ traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default
 traefik_role_api_enabled: "{{ lookup('vars', role_name + '_traefik_api_enabled', default=False) }}"
 
 traefik_tls: "{{ false
-              if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) or (not traefik.tls)
+              if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) and (not traefik.tls)
               else true }}"
 
 traefik_custom_certresolver: "{{ (lookup('vars', role_name + '_traefik_certresolver', default=omit) != traefik_default_certresolver) }}"
