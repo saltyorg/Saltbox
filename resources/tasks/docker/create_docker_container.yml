@@ -30,6 +30,7 @@
                else omit }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
     labels: "{{ lookup('vars', _var_prefix + '_docker_labels', default=omit) }}"
+    mounts: "{{ lookup('vars', _var_prefix + '_docker_mounts', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     network_mode: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) }}"
     networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
