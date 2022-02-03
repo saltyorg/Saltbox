@@ -48,7 +48,7 @@
     - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
     - { role: bpytop, tags: ['saltbox', 'mediabox', 'feederbox', 'bpytop'] }
-    - { role: authelia, tags: ['authelia'], when: ['authelia_is_master'] }
+    - { role: authelia, tags: ['authelia'] }
     - { role: redis, tags: ['redis'] }
     - { role: plex_auth_token, tags: ['plex_auth_token'] }
     - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
