@@ -68,6 +68,10 @@
     option: plugins
     value: "{{ shell_zsh_plugins }}"
     no_extra_spaces: true
+    create: false
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
 
 # alternatives link
 - name: ZSH | Check if '/bin/zsh' exists
