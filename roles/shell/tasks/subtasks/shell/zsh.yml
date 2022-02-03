@@ -61,6 +61,14 @@
     group: "{{ user.name }}"
     mode: "0664"
 
+- name: ZSH | Enable plugins
+  ini_file:
+    path: "{{ shell_zsh_zshrc_path }}"
+    section: null
+    option: plugins
+    value: "{{ shell_zsh_plugins }}"
+    no_extra_spaces: true
+
 # alternatives link
 - name: ZSH | Check if '/bin/zsh' exists
   stat:

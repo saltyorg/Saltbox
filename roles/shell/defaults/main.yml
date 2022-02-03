@@ -83,18 +83,10 @@ shell_zsh_zshrc_block_content2: |
   # Load compinit and bashcompinit
   autoload -U +X compinit && compinit
   autoload -U +X bashcompinit && bashcompinit
-  # Ansible autocomplete
-  eval $(register-python-argcomplete ansible)
-  eval $(register-python-argcomplete ansible-config)
-  eval $(register-python-argcomplete ansible-console)
-  eval $(register-python-argcomplete ansible-doc)
-  eval $(register-python-argcomplete ansible-galaxy)
-  eval $(register-python-argcomplete ansible-inventory)
-  eval $(register-python-argcomplete ansible-playbook)
-  eval $(register-python-argcomplete ansible-pull)
-  eval $(register-python-argcomplete ansible-vault)
   # OSC 1337 - Set current directory
   precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" }
+
+shell_zsh_plugins: "(git docker docker-compose ansible)"
 
 shell_zsh_binary_previous_path: "/bin/zsh5"
 
