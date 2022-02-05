@@ -17,21 +17,16 @@
 - name: Cron Tasks
   include_tasks: "subtasks/02_cron.yml"
 
-# Ubuntu Mainline Kernel Updater Script
-- name: Script Tasks
-  include_tasks: "subtasks/03_script.yml"
-  when: (ansible_distribution == 'Ubuntu')
-
 # Ubuntu 20.04 HWE Update
 - name: Update Tasks
-  include_tasks: "subtasks/04_update.yml"
+  include_tasks: "subtasks/03_update.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
     - (ansible_distribution_version is version('20.04', '=='))
     - (ansible_kernel is version('5.8', '<'))
 
 - name: Restart Tasks
-  include_tasks: "subtasks/05_restart.yml"
+  include_tasks: "subtasks/04_restart.yml"
   when:
     - (reboot_is_necessary)
     - (not continuous_integration)
