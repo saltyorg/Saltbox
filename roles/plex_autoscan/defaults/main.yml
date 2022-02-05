@@ -1,0 +1,30 @@
+##########################################################################
+# Title:         Saltbox: Plex Autoscan | Default Variables              #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Name
+################################
+
+plex_autoscan_name: plex_autoscan
+
+################################
+# Paths
+################################
+
+plex_autoscan_folder: "{{ plex_autoscan_name }}"
+
+plex_autoscan_path: "{{ server_appdata_path }}/{{ plex_autoscan_folder }}"
+
+plex_autoscan_venv_path: "{{ plex_autoscan_path }}/venv"
+
+plex_autoscan_python_path: "{{ plex_autoscan_venv_path }}/bin/python3"
+
+plex_autoscan_script_path: "{{ plex_autoscan_path }}/scan.py"
+
+plex_autoscan_alias_path: "/usr/local/bin/{{ plex_autoscan_name }}"

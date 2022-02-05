@@ -59,6 +59,13 @@
     group: "{{ user.name }}"
     mode: a+x
 
+- name: Create script alias
+  template:
+    src: plex_autoscan.sh.j2
+    dest: "{{ plex_autoscan_alias_path }}"
+    mode: "0755"
+    force: true
+
 - name: Import Settings Task
   import_tasks: "subtasks/settings.yml"
 
