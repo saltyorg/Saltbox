@@ -29,7 +29,8 @@
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik_reset_certs'], when: ['reverse_proxy_is_enabled'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
-    - { role: plex, tags: ['saltbox', 'mediabox', 'plex'] }
+    - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
+    - { role: plex, tags: ['plex'] }
     - { role: plex_extra_tasks, tags: ['saltbox', 'mediabox', 'plex-extra-tasks'] }
     - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
