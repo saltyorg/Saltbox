@@ -1,0 +1,16 @@
+#########################################################################
+# Title:         Saltbox: Readarr Role                                  #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Execute Readarr roles"
+  include_tasks: main2.yml
+  vars:
+    readarr_name: "{{ role }}"
+  with_items: "{{ readarr_instances }}"
+  loop_control:
+    loop_var: role

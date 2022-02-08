@@ -1,0 +1,195 @@
+##########################################################################
+# Title:         Saltbox: Readarr | Default Variables                    #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+readarr_name: readarr
+readarr_instances: ["readarr"]
+
+################################
+# Paths
+################################
+
+readarr_paths_folder: "{{ readarr_name }}"
+readarr_paths_location: "{{ server_appdata_path }}/{{ readarr_paths_folder }}"
+readarr_paths_folders_list:
+  - "{{ readarr_paths_location }}"
+  - "/mnt/local/Media/Books"
+
+################################
+# Web
+################################
+
+readarr_web_subdomain: "{{ readarr_name }}"
+readarr_web_domain: "{{ user.domain }}"
+readarr_web_port: "8787"
+readarr_web_url: "{{ 'https://' + lookup('vars', readarr_name + '_web_subdomain', default=readarr_web_subdomain)
+                     + '.' + lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain)
+                  if (reverse_proxy_is_enabled)
+                  else 'http://localhost:' + lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}"
+
+################################
+# DNS
+################################
+
+readarr_dns_record: "{{ lookup('vars', readarr_name + '_web_subdomain', default=readarr_web_subdomain) }}"
+readarr_dns_zone: "{{ lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain) }}"
+readarr_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+readarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+
+readarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                        + lookup('vars', readarr_name + '_traefik_sso_middleware', default=readarr_traefik_sso_middleware)
+                                     if (lookup('vars', readarr_name + '_traefik_sso_middleware', default=readarr_traefik_sso_middleware) | length > 0)
+                                     else traefik_default_middleware }}"
+readarr_traefik_middleware_custom: ""
+readarr_traefik_middleware: "{{ readarr_traefik_middleware_default + ','
+                                + readarr_traefik_middleware_custom
+                             if (not readarr_traefik_middleware_custom.startswith(',') and readarr_traefik_middleware_custom | length > 0)
+                             else readarr_traefik_middleware_default
+                                + readarr_traefik_middleware_custom }}"
+
+readarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
+readarr_traefik_enabled: true
+readarr_traefik_api_enabled: true
+readarr_traefik_api_endpoint: "`/api`"
+
+################################
+# API
+################################
+
+# default to blank
+readarr_api_key:
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+readarr_themepark_enabled: false
+readarr_themepark_theme: "{{ global_themepark_theme }}"
+readarr_themepark_domain: "{{ global_themepark_domain }}"
+
+################################
+# Docker
+################################
+
+# Container
+readarr_docker_container: "{{ readarr_name }}"
+
+# Image
+readarr_docker_image_pull: true
+readarr_docker_image_repo: "cr.hotio.dev/hotio/readarr"
+readarr_docker_image_tag: "release"
+readarr_docker_image: "{{ lookup('vars', readarr_name + '_docker_image_repo', default=readarr_docker_image_repo)
+                          + ':' + lookup('vars', readarr_name + '_docker_image_tag', default=readarr_docker_image_tag) }}"
+
+# Ports
+readarr_docker_ports_defaults: []
+readarr_docker_ports_ui:
+  - "{{ lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}:{{ lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}"
+readarr_docker_ports_custom: []
+readarr_docker_ports: "{{ lookup('vars', readarr_name + '_docker_ports_defaults', default=readarr_docker_ports_defaults)
+                          + lookup('vars', readarr_name + '_docker_ports_ui', default=readarr_docker_ports_ui)
+                          + lookup('vars', readarr_name + '_docker_ports_custom', default=readarr_docker_ports_custom)
+                       if (not reverse_proxy_is_enabled)
+                       else lookup('vars', readarr_name + '_docker_ports_defaults', default=readarr_docker_ports_defaults)
+                          + lookup('vars', readarr_name + '_docker_ports_custom', default=readarr_docker_ports_custom) }}"
+
+# Envs
+readarr_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  UMASK: "002"
+  TZ: "{{ tz }}"
+  TP_DOMAIN: "{{ lookup('vars', readarr_name + '_themepark_domain', default=readarr_themepark_domain) }}"
+  TP_THEME: "{{ lookup('vars', readarr_name + '_themepark_theme', default=readarr_themepark_theme) }}"
+  TP_HOTIO: "true"
+readarr_docker_envs_custom: {}
+readarr_docker_envs: "{{ lookup('vars', readarr_name + '_docker_envs_default', default=readarr_docker_envs_default)
+                         | combine(lookup('vars', readarr_name + '_docker_envs_custom', default=readarr_docker_envs_custom)) }}"
+
+# Commands
+readarr_docker_commands_default: []
+readarr_docker_commands_custom: []
+readarr_docker_commands: "{{ lookup('vars', readarr_name + '_docker_commands_default', default=readarr_docker_commands_default)
+                             + lookup('vars', readarr_name + '_docker_docker_commands_custom', default=readarr_docker_commands_custom) }}"
+
+# Volumes
+readarr_docker_volumes_default:
+  - "{{ readarr_paths_location }}:/config"
+  - "{{ server_appdata_path }}/scripts:/scripts"
+  - "/mnt/unionfs/Media/TV:/tv"
+  - "/mnt:/mnt"
+readarr_docker_volumes_custom: []
+readarr_docker_volumes_theme:
+  - "{{ readarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+readarr_docker_volumes: "{{ lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
+                            + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
+                            + docker_volumes_downloads_common
+                         if not (lookup('vars', readarr_name + '_themepark_enabled', default=readarr_themepark_enabled))
+                         else lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
+                            + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
+                            + lookup('vars', readarr_name + '_docker_volumes_theme', default=readarr_docker_volumes_theme)
+                            + docker_volumes_downloads_common }}"
+
+# Devices
+readarr_docker_devices_default: []
+readarr_docker_devices_custom: []
+readarr_docker_devices: "{{ lookup('vars', readarr_name + '_docker_devices_default', default=readarr_docker_devices_default)
+                            + lookup('vars', readarr_name + '_docker_devices_custom', default=readarr_docker_devices_custom) }}"
+
+# Hosts
+readarr_docker_hosts_default: []
+readarr_docker_hosts_custom: []
+readarr_docker_hosts: "{{ docker_hosts_common
+                          | combine(lookup('vars', readarr_name + '_docker_hosts_default', default=readarr_docker_hosts_default))
+                          | combine(lookup('vars', readarr_name + '_docker_hosts_custom', default=readarr_docker_hosts_custom)) }}"
+
+# Labels
+readarr_docker_labels_default: {}
+readarr_docker_labels_custom: {}
+readarr_docker_labels: "{{ docker_labels_common
+                           | combine(lookup('vars', readarr_name + '_docker_labels_default', default=readarr_docker_labels_default))
+                           | combine(lookup('vars', readarr_name + '_docker_labels_custom', default=readarr_docker_labels_custom)) }}"
+
+# Hostname
+readarr_docker_hostname: "{{ readarr_name }}"
+
+# Networks
+readarr_docker_networks_alias: "{{ readarr_name }}"
+readarr_docker_networks_default: []
+readarr_docker_networks_custom: []
+readarr_docker_networks: "{{ docker_networks_common
+                             + lookup('vars', readarr_name + '_docker_networks_default', default=readarr_docker_networks_default)
+                             + lookup('vars', readarr_name + '_docker_networks_custom', default=readarr_docker_networks_custom) }}"
+
+# Capabilities
+readarr_docker_capabilities_default: []
+readarr_docker_capabilities_custom: []
+readarr_docker_capabilities: "{{ lookup('vars', readarr_name + '_docker_capabilities_default', default=readarr_docker_capabilities_default)
+                                 + lookup('vars', readarr_name + '_docker_capabilities_custom', default=readarr_docker_capabilities_custom) }}"
+
+# Security Opts
+readarr_docker_security_opts_default: []
+readarr_docker_security_opts_custom: []
+readarr_docker_security_opts: "{{ lookup('vars', readarr_name + '_docker_security_opts_default', default=readarr_docker_security_opts_default)
+                                  + lookup('vars', readarr_name + '_docker_security_opts_custom', default=readarr_docker_security_opts_custom) }}"
+
+# Restart Policy
+readarr_docker_restart_policy: unless-stopped
+
+# State
+readarr_docker_state: started
