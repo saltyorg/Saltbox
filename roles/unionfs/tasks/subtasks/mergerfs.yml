@@ -32,6 +32,9 @@
     mode: "0755"
     force: "{{ 'true' if ('mounts_override' in ansible_run_tags) else 'false' }}"
 
+- name: Mount Path Tasks
+  import_tasks: "mount_path.yml"
+
 - name: "MergerFS | Start 'mergerfs.service'"
   systemd:
     name: mergerfs.service

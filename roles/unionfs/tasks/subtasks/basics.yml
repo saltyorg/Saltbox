@@ -22,12 +22,3 @@
     recurse: true
 
   when: (not mnt_remote.stat.exists)
-
-- name: "Basics | Create '/mnt/unionfs' directory"
-  file:
-    path: "/mnt/unionfs"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    recurse: true

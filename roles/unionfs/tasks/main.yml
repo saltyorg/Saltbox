@@ -26,9 +26,6 @@
     _service_file: "{{ item }}"
   loop: "{{ service_files }}"
 
-- name: Mount Path Tasks
-  import_tasks: "subtasks/mount_path.yml"
-
 # New Setup
 
 - name: Basic Tasks
@@ -37,7 +34,7 @@
 # Mount UnionFS
 
 - name: Mount UnionFS Tasks
-  include_tasks: "subtasks/mounts/{{ mount_type }}.yml"
+  include_tasks: "subtasks/mergerfs.yml"
 
 - name: Docker Daemon Tasks
   import_tasks: "subtasks/docker/daemon.yml"
