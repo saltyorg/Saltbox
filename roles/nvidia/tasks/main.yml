@@ -10,6 +10,11 @@
 - name: Install common pip modules
   raw: pip3 install jmespath
 
+- name: Install pkg-config
+  apt:
+    name: pkg-config
+    state: present
+
 - name: Fetch Nvidia card info
   shell: |
       if [ `lspci | grep -c -E '.*VGA.*NVIDIA'` -eq 1 ]; then
@@ -37,9 +42,14 @@
       block:
 
         - name: Purge Nvidia APT packages
-          shell: "dpkg -P $(dpkg -l | grep nvidia | awk '{print $2}')"
+          shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
           register: dpkg_purge_output
           ignore_errors: yes
+
+        - name: Remove nvtop
+          apt:
+            name: nvtop
+            state: absent
 
         - name: Remove dependencies that are no longer required
           apt:
@@ -112,13 +122,17 @@
       shell: cat /etc/docker/daemon.json
       register: docker_daemon_json
 
+    - name: Check if '/usr/bin/nvidia-container-runtime' exists
+      stat: "/etc/docker/daemon.json"
+      register: docker_runtime_binary
+
     - name: Set 'docker_default_runtime'
       set_fact:
         docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
 
     - name: "Nvidia Docker Task"
       include_tasks: "subtasks/docker.yml"
-      when: (docker_default_runtime != 'nvidia')
+      when: (docker_default_runtime != 'nvidia') or (not docker_runtime_binary.stat.exists)
 
     # Install Nvidia Nvtop Tool
 

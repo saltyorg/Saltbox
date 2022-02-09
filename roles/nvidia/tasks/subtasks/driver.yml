@@ -30,6 +30,11 @@
     validate_certs: false
   register: driver_download
 
+- name: Driver | Uninstall Nvidia drivers
+  shell: "{{ nvidia_driver_uninstall_command }}"
+  register: driver_uninstall
+  ignore_errors: true
+
 - name: Driver | Install Nvidia drivers
   shell: "{{ nvidia_driver_install_command }}"
   register: driver_install

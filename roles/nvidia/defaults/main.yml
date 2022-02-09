@@ -11,11 +11,13 @@
 # Driver
 ################################
 
-nvidia_driver_version: "495.46"
+nvidia_driver_version: "460.91.03"
 
 nvidia_driver_download_url: "https://download.nvidia.com/XFree86/Linux-x86_64/{{ nvidia_driver_version }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_version }}.run"
 
 nvidia_driver_download_dest: "/tmp/NVIDIA-driver.run"
+
+nvidia_driver_uninstall_command: "{{ nvidia_driver_download_dest }} --uninstall --silent"
 
 nvidia_driver_install_command: "{{ nvidia_driver_download_dest }} --dkms --silent"
 
