@@ -24,7 +24,9 @@
 
     - name: Kernel | Success message
       debug:
-        msg: "Disabled nouveau driver. System will now reboot ..."
+        msg:
+          - "Disabled nouveau driver. System will now reboot."
+          - "You will need to re-run your previous tag after the system has rebooted."
 
     - name: Kernel | Reboot command
       shell: reboot

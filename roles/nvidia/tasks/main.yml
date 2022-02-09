@@ -45,6 +45,13 @@
           apt:
             autoremove: yes
 
+        - name: Success message
+          debug:
+            msg:
+              - "Purged Nvidia drivers. System will now reboot."
+              - "You will need to re-run your previous tag after the system has rebooted."
+          when: (dpkg_purge_output.stdout | length > 0)
+
         - name: Reboot
           shell: reboot
           when: (dpkg_purge_output.stdout | length > 0)
@@ -58,21 +65,16 @@
 
     # Configure Nvidia Kernel
 
-    - name: Nvidia Kernel Tasks
-      block:
+    - name: Check if 'blacklist-nouveau.conf' exists
+      stat:
+        path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
+      register: blacklist_nouveau_conf
 
-        - name: Check if 'blacklist-nouveau.conf' exists
-          stat:
-            path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
-          register: blacklist_nouveau_conf
-
-        - name: "Nvidia Kernel Task"
-          include_tasks: "subtasks/kernel.yml"
-          when:
-            - (not blacklist_nouveau_conf.stat.exists)
-            - (nvidia_kernel_blacklist_nouveau)
-
-      when: nvidia_installed_driver_version != nvidia_driver_version
+    - name: "Nvidia Kernel Task"
+      include_tasks: "subtasks/kernel.yml"
+      when:
+        - (not blacklist_nouveau_conf.stat.exists)
+        - (nvidia_kernel_blacklist_nouveau)
 
     # Install Nvidia Driver
 
@@ -83,7 +85,7 @@
           include_tasks: "subtasks/driver.yml"
           when: (nvidia_driver_version | lower != 'ignore')
 
-      when: nvidia_installed_driver_version != nvidia_driver_version
+      when: (nvidia_installed_driver_version != nvidia_driver_version)
 
     # Install Nvidia Driver Patch to remove transcode limit
 
@@ -127,6 +129,6 @@
 
     - name: "Nvidia Nvtop Task"
       include_tasks: "subtasks/nvtop.yml"
-      when: not nvtop_binary.stat.exists
+      when: (not nvtop_binary.stat.exists)
 
   when: (ansible_distribution == 'Ubuntu') and ('NVIDIA' in lspci_resp.stdout)
