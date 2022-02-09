@@ -124,7 +124,7 @@
 
     - name: Check if '/usr/bin/nvidia-container-runtime' exists
       stat:
-        path: "/etc/docker/daemon.json"
+        path: "/usr/bin/nvidia-container-runtime"
       register: docker_runtime_binary
 
     - name: Set 'docker_default_runtime'
