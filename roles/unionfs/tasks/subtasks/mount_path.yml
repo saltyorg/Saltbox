@@ -51,3 +51,13 @@
         recurse: true
 
   when: (mnt_unionfs is failed) or (mnt_unionfs.stat.exists)
+
+- name: "Mount Path | Create '/mnt/unionfs' directory"
+  file:
+    path: "/mnt/unionfs"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+  when: (not mnt_unionfs.stat.exists)
