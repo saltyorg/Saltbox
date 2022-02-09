@@ -22,21 +22,39 @@
 - name: Nvidia Setup block
   block:
 
-    # Install Ubuntu drivers
+    - name: Get nvidia-smi driver version
+      shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
+      register: nvidia_smi_output
+      ignore_errors: yes
 
-    - name: Install Ubuntu drivers
-      apt:
-        name: ubuntu-drivers-common
-        update_cache: true
-        state: present
-
-    - name: Get list of devices
-      shell: ubuntu-drivers devices
-      register: ubuntu_devices
-
-    - name: Set 'manual_install_is_disabled' variable
+    - name: Set 'nvidia_installed_driver_version' variable
       set_fact:
-        manual_install_is_disabled: "{{ 'manual_install: True' not in ubuntu_devices.stdout }}"
+        nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout }}"
+
+    # Purge Old Drivers
+
+    - name: Nvidia Purge Drivers Tasks
+      block:
+
+        - name: Purge Nvidia APT packages
+          shell: "dpkg -P $(dpkg -l | grep nvidia | awk '{print $2}')"
+          register: dpkg_purge_output
+          ignore_errors: yes
+
+        - name: Remove dependencies that are no longer required
+          apt:
+            autoremove: yes
+
+        - name: Reboot
+          shell: reboot
+          when: (dpkg_purge_output.stdout | length > 0)
+
+        - name: Reboot message
+          fail:
+            msg: "Uninstalled Nvidia driver. You will need to restart the server for changes to take effect."
+          when: (dpkg_purge_output.stdout | length > 0)
+
+      when: (nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0)
 
     # Configure Nvidia Kernel
 
@@ -54,7 +72,7 @@
             - (not blacklist_nouveau_conf.stat.exists)
             - (nvidia_kernel_blacklist_nouveau)
 
-      when: manual_install_is_disabled
+      when: nvidia_installed_driver_version != nvidia_driver_version
 
     # Install Nvidia Driver
 
@@ -65,7 +83,7 @@
           include_tasks: "subtasks/driver.yml"
           when: (nvidia_driver_version | lower != 'ignore')
 
-      when: manual_install_is_disabled
+      when: nvidia_installed_driver_version != nvidia_driver_version
 
     # Install Nvidia Driver Patch to remove transcode limit
 
