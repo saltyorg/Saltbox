@@ -30,7 +30,7 @@
         content: |
           /srv/git/saltbox/saltbox.log {
               weekly
-              rotate 0
+              rotate 5
               size {{ saltbox_max_log_size }}
               missingok
               notifempty
