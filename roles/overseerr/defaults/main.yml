@@ -1,18 +1,18 @@
-#########################################################################
-# Title:            Saltbox: Overseerr                                  #
-# Author(s):        JackDallas, salty                                   #
-# URL:              https://github.com/saltyorg/Saltbox                 #
-# Docker Image(s):  sctx/overseerr                                      #
-# --                                                                    #
-#########################################################################
-#                   GNU General Public License v3.0                     #
-#########################################################################
+##########################################################################
+# Title:         Saltbox: Overseerr | Default Variables                  #
+# Author(s):     JackDallas, salty                                       #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
 ---
 ################################
 # Basics
 ################################
 
 overseerr_name: overseerr
+overseerr_instances: ["overseerr"]
 
 ################################
 # Paths
@@ -30,16 +30,17 @@ overseerr_paths_folders_list:
 overseerr_web_subdomain: "{{ overseerr_name }}"
 overseerr_web_domain: "{{ user.domain }}"
 overseerr_web_port: "5055"
-overseerr_web_url: "{{ 'https://' + overseerr_web_subdomain + '.' + overseerr_web_domain
+overseerr_web_url: "{{ 'https://' + lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain)
+                       + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)
                     if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + overseerr_web_port }}"
+                    else 'http://localhost:' + lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-overseerr_dns_record: "{{ overseerr_web_subdomain }}"
-overseerr_dns_zone: "{{ overseerr_web_domain }}"
+overseerr_dns_record: "{{ lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) }}"
+overseerr_dns_zone: "{{ lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain) }}"
 overseerr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
@@ -52,7 +53,14 @@ overseerr_log_level: "INFO"
 # Traefik
 ################################
 
-overseerr_traefik_middleware: "{{ traefik_default_middleware }}"
+overseerr_traefik_middleware_default: "{{ traefik_default_middleware }}"
+overseerr_traefik_middleware_custom: ""
+overseerr_traefik_middleware: "{{ overseerr_traefik_middleware_default + ','
+                                  + overseerr_traefik_middleware_custom
+                               if (not overseerr_traefik_middleware_custom.startswith(',') and overseerr_traefik_middleware_custom | length > 0)
+                               else overseerr_traefik_middleware_default
+                                  + overseerr_traefik_middleware_custom }}"
+
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 overseerr_traefik_enabled: true
 
@@ -65,17 +73,22 @@ overseerr_docker_container: "{{ overseerr_name }}"
 
 # Image
 overseerr_docker_image_pull: true
+overseerr_docker_image_repo: "sctx/overseerr"
 overseerr_docker_image_tag: "latest"
-overseerr_docker_image: "sctx/overseerr:{{ overseerr_docker_image_tag }}"
+overseerr_docker_image: "{{ lookup('vars', overseerr_name + '_docker_image_repo', default=overseerr_docker_image_repo)
+                            + ':' + lookup('vars', overseerr_name + '_docker_image_tag', default=overseerr_docker_image_tag) }}"
 
 # Ports
-overseerr_docker_ports_defaults:
-  - "{{ overseerr_web_port }}:{{ overseerr_web_port }}"
+overseerr_docker_ports_defaults: []
+overseerr_docker_ports_ui:
+  - "{{ lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}:{{ lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}"
 overseerr_docker_ports_custom: []
-overseerr_docker_ports: "{{ overseerr_docker_ports_defaults
-                            + overseerr_docker_ports_custom
+overseerr_docker_ports: "{{ lookup('vars', overseerr_name + '_docker_ports_defaults', default=overseerr_docker_ports_defaults)
+                            + lookup('vars', overseerr_name + '_docker_ports_ui', default=overseerr_docker_ports_ui)
+                            + lookup('vars', overseerr_name + '_docker_ports_custom', default=overseerr_docker_ports_custom)
                          if (not reverse_proxy_is_enabled)
-                         else [] + overseerr_docker_ports_custom }}"
+                         else lookup('vars', overseerr_name + '_docker_ports_defaults', default=overseerr_docker_ports_defaults)
+                            + lookup('vars', overseerr_name + '_docker_ports_custom', default=overseerr_docker_ports_custom) }}"
 
 # Envs
 overseerr_docker_envs_default:
@@ -83,42 +96,42 @@ overseerr_docker_envs_default:
   TZ: "{{ tz }}"
   LOG_LEVEL: "{{ overseerr_log_level }}"
 overseerr_docker_envs_custom: {}
-overseerr_docker_envs: "{{ overseerr_docker_envs_default
-                           | combine(overseerr_docker_envs_custom) }}"
+overseerr_docker_envs: "{{ lookup('vars', overseerr_name + '_docker_envs_default', default=overseerr_docker_envs_default)
+                           | combine(lookup('vars', overseerr_name + '_docker_envs_custom', default=overseerr_docker_envs_custom)) }}"
 
 # Commands
 overseerr_docker_commands_default: []
 overseerr_docker_commands_custom: []
-overseerr_docker_commands: "{{ overseerr_docker_commands_default
-                               + overseerr_docker_commands_custom }}"
+overseerr_docker_commands: "{{ lookup('vars', overseerr_name + '_docker_commands_default', default=overseerr_docker_commands_default)
+                               + lookup('vars', overseerr_name + '_docker_docker_commands_custom', default=overseerr_docker_commands_custom) }}"
 
 # Volumes
 overseerr_docker_volumes_default:
   - "{{ overseerr_paths_location }}:/app/config"
 overseerr_docker_volumes_custom: []
-overseerr_docker_volumes: "{{ overseerr_docker_volumes_default
-                              + overseerr_docker_volumes_custom
+overseerr_docker_volumes: "{{ lookup('vars', overseerr_name + '_docker_volumes_default', default=overseerr_docker_volumes_default)
+                              + lookup('vars', overseerr_name + '_docker_volumes_custom', default=overseerr_docker_volumes_custom)
                               + docker_volumes_downloads_common }}"
 
 # Devices
 overseerr_docker_devices_default: []
 overseerr_docker_devices_custom: []
-overseerr_docker_devices: "{{ overseerr_docker_devices_default
-                              + overseerr_docker_devices_custom }}"
+overseerr_docker_devices: "{{ lookup('vars', overseerr_name + '_docker_devices_default', default=overseerr_docker_devices_default)
+                              + lookup('vars', overseerr_name + '_docker_devices_custom', default=overseerr_docker_devices_custom) }}"
 
 # Hosts
 overseerr_docker_hosts_default: []
 overseerr_docker_hosts_custom: []
 overseerr_docker_hosts: "{{ docker_hosts_common
-                            | combine(overseerr_docker_hosts_default)
-                            | combine(overseerr_docker_hosts_custom) }}"
+                            | combine(lookup('vars', overseerr_name + '_docker_hosts_default', default=overseerr_docker_hosts_default))
+                            | combine(lookup('vars', overseerr_name + '_docker_hosts_custom', default=overseerr_docker_hosts_custom)) }}"
 
 # Labels
 overseerr_docker_labels_default: {}
 overseerr_docker_labels_custom: {}
 overseerr_docker_labels: "{{ docker_labels_common
-                             | combine(overseerr_docker_labels_default)
-                             | combine(overseerr_docker_labels_custom) }}"
+                             | combine(lookup('vars', overseerr_name + '_docker_labels_default', default=overseerr_docker_labels_default))
+                             | combine(lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
 
 # Hostname
 overseerr_docker_hostname: "{{ overseerr_name }}"
@@ -128,20 +141,20 @@ overseerr_docker_networks_alias: "{{ overseerr_name }}"
 overseerr_docker_networks_default: []
 overseerr_docker_networks_custom: []
 overseerr_docker_networks: "{{ docker_networks_common
-                               + overseerr_docker_networks_default
-                               + overseerr_docker_networks_custom }}"
+                               + lookup('vars', overseerr_name + '_docker_networks_default', default=overseerr_docker_networks_default)
+                               + lookup('vars', overseerr_name + '_docker_networks_custom', default=overseerr_docker_networks_custom) }}"
 
 # Capabilities
 overseerr_docker_capabilities_default: []
 overseerr_docker_capabilities_custom: []
-overseerr_docker_capabilities: "{{ overseerr_docker_capabilities_default
-                                   + overseerr_docker_capabilities_custom }}"
+overseerr_docker_capabilities: "{{ lookup('vars', overseerr_name + '_docker_capabilities_default', default=overseerr_docker_capabilities_default)
+                                   + lookup('vars', overseerr_name + '_docker_capabilities_custom', default=overseerr_docker_capabilities_custom) }}"
 
 # Security Opts
 overseerr_docker_security_opts_default: []
 overseerr_docker_security_opts_custom: []
-overseerr_docker_security_opts: "{{ overseerr_docker_security_opts_default
-                                    + overseerr_docker_security_opts_custom }}"
+overseerr_docker_security_opts: "{{ lookup('vars', overseerr_name + '_docker_security_opts_default', default=overseerr_docker_security_opts_default)
+                                    + lookup('vars', overseerr_name + '_docker_security_opts_custom', default=overseerr_docker_security_opts_custom) }}"
 
 # Restart Policy
 overseerr_docker_restart_policy: unless-stopped
