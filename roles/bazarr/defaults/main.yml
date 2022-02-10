@@ -1,0 +1,186 @@
+##########################################################################
+# Title:         Saltbox: Bazarr | Default Variables                     #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+bazarr_name: bazarr
+bazarr_instances: ["bazarr"]
+
+################################
+# Paths
+################################
+
+bazarr_paths_folder: "{{ bazarr_name }}"
+bazarr_paths_location: "{{ server_appdata_path }}/{{ bazarr_paths_folder }}"
+bazarr_paths_folders_list:
+  - "{{ bazarr_paths_location }}"
+
+################################
+# Web
+################################
+
+bazarr_web_subdomain: "{{ bazarr_name }}"
+bazarr_web_domain: "{{ user.domain }}"
+bazarr_web_port: "6767"
+bazarr_web_url: "{{ 'https://' + lookup('vars', bazarr_name + '_web_subdomain', default=bazarr_web_subdomain)
+                    + '.' + lookup('vars', bazarr_name + '_web_domain', default=bazarr_web_domain)
+                 if (reverse_proxy_is_enabled)
+                 else 'http://localhost:' + lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}"
+
+################################
+# DNS
+################################
+
+bazarr_dns_record: "{{ lookup('vars', bazarr_name + '_web_subdomain', default=bazarr_web_subdomain) }}"
+bazarr_dns_zone: "{{ lookup('vars', bazarr_name + '_web_domain', default=bazarr_web_domain) }}"
+bazarr_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+bazarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+
+bazarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                       + lookup('vars', bazarr_name + '_traefik_sso_middleware', default=bazarr_traefik_sso_middleware)
+                                    if (lookup('vars', bazarr_name + '_traefik_sso_middleware', default=bazarr_traefik_sso_middleware) | length > 0)
+                                    else traefik_default_middleware }}"
+bazarr_traefik_middleware_custom: ""
+bazarr_traefik_middleware: "{{ bazarr_traefik_middleware_default + ','
+                               + bazarr_traefik_middleware_custom
+                            if (not bazarr_traefik_middleware_custom.startswith(',') and bazarr_traefik_middleware_custom | length > 0)
+                            else bazarr_traefik_middleware_default
+                               + bazarr_traefik_middleware_custom }}"
+
+bazarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
+bazarr_traefik_enabled: true
+bazarr_traefik_api_enabled: true
+bazarr_traefik_api_endpoint: "`/api`"
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+bazarr_themepark_enabled: false
+bazarr_themepark_theme: "{{ global_themepark_theme }}"
+bazarr_themepark_domain: "{{ global_themepark_domain }}"
+
+################################
+# Docker
+################################
+
+# Container
+bazarr_docker_container: "{{ bazarr_name }}"
+
+# Image
+bazarr_docker_image_pull: true
+bazarr_docker_image_repo: "cr.hotio.dev/hotio/bazarr"
+bazarr_docker_image_tag: "latest"
+bazarr_docker_image: "{{ lookup('vars', bazarr_name + '_docker_image_repo', default=bazarr_docker_image_repo)
+                         + ':' + lookup('vars', bazarr_name + '_docker_image_tag', default=bazarr_docker_image_tag) }}"
+
+# Ports
+bazarr_docker_ports_defaults: []
+bazarr_docker_ports_ui:
+  - "{{ lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}:{{ lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}"
+bazarr_docker_ports_custom: []
+bazarr_docker_ports: "{{ lookup('vars', bazarr_name + '_docker_ports_defaults', default=bazarr_docker_ports_defaults)
+                         + lookup('vars', bazarr_name + '_docker_ports_ui', default=bazarr_docker_ports_ui)
+                         + lookup('vars', bazarr_name + '_docker_ports_custom', default=bazarr_docker_ports_custom)
+                      if (not reverse_proxy_is_enabled)
+                      else lookup('vars', bazarr_name + '_docker_ports_defaults', default=bazarr_docker_ports_defaults)
+                         + lookup('vars', bazarr_name + '_docker_ports_custom', default=bazarr_docker_ports_custom) }}"
+
+# Envs
+bazarr_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  UMASK: "002"
+  TZ: "{{ tz }}"
+  TP_DOMAIN: "{{ lookup('vars', bazarr_name + '_themepark_domain', default=bazarr_themepark_domain) }}"
+  TP_THEME: "{{ lookup('vars', bazarr_name + '_themepark_theme', default=bazarr_themepark_theme) }}"
+  TP_HOTIO: "true"
+bazarr_docker_envs_custom: {}
+bazarr_docker_envs: "{{ lookup('vars', bazarr_name + '_docker_envs_default', default=bazarr_docker_envs_default)
+                        | combine(lookup('vars', bazarr_name + '_docker_envs_custom', default=bazarr_docker_envs_custom)) }}"
+
+# Commands
+bazarr_docker_commands_default: []
+bazarr_docker_commands_custom: []
+bazarr_docker_commands: "{{ lookup('vars', bazarr_name + '_docker_commands_default', default=bazarr_docker_commands_default)
+                            + lookup('vars', bazarr_name + '_docker_docker_commands_custom', default=bazarr_docker_commands_custom) }}"
+
+# Volumes
+bazarr_docker_volumes_default:
+  - "{{ bazarr_paths_location }}:/config"
+  - "/opt/scripts:/scripts"
+  - "/mnt:/mnt"
+bazarr_docker_volumes_custom: []
+bazarr_docker_volumes_theme:
+  - "{{ bazarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+bazarr_docker_volumes: "{{ lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
+                           + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
+                           + docker_volumes_downloads_common
+                        if not (lookup('vars', bazarr_name + '_themepark_enabled', default=bazarr_themepark_enabled))
+                        else lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
+                           + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
+                           + lookup('vars', bazarr_name + '_docker_volumes_theme', default=bazarr_docker_volumes_theme)
+                           + docker_volumes_downloads_common }}"
+
+# Devices
+bazarr_docker_devices_default: []
+bazarr_docker_devices_custom: []
+bazarr_docker_devices: "{{ lookup('vars', bazarr_name + '_docker_devices_default', default=bazarr_docker_devices_default)
+                           + lookup('vars', bazarr_name + '_docker_devices_custom', default=bazarr_docker_devices_custom) }}"
+
+# Hosts
+bazarr_docker_hosts_default: []
+bazarr_docker_hosts_custom: []
+bazarr_docker_hosts: "{{ docker_hosts_common
+                         | combine(lookup('vars', bazarr_name + '_docker_hosts_default', default=bazarr_docker_hosts_default))
+                         | combine(lookup('vars', bazarr_name + '_docker_hosts_custom', default=bazarr_docker_hosts_custom)) }}"
+
+# Labels
+bazarr_docker_labels_default: {}
+bazarr_docker_labels_custom: {}
+bazarr_docker_labels: "{{ docker_labels_common
+                          | combine(lookup('vars', bazarr_name + '_docker_labels_default', default=bazarr_docker_labels_default))
+                          | combine(lookup('vars', bazarr_name + '_docker_labels_custom', default=bazarr_docker_labels_custom)) }}"
+
+# Hostname
+bazarr_docker_hostname: "{{ bazarr_name }}"
+
+# Networks
+bazarr_docker_networks_alias: "{{ bazarr_name }}"
+bazarr_docker_networks_default: []
+bazarr_docker_networks_custom: []
+bazarr_docker_networks: "{{ docker_networks_common
+                            + lookup('vars', bazarr_name + '_docker_networks_default', default=bazarr_docker_networks_default)
+                            + lookup('vars', bazarr_name + '_docker_networks_custom', default=bazarr_docker_networks_custom) }}"
+
+# Capabilities
+bazarr_docker_capabilities_default: []
+bazarr_docker_capabilities_custom: []
+bazarr_docker_capabilities: "{{ lookup('vars', bazarr_name + '_docker_capabilities_default', default=bazarr_docker_capabilities_default)
+                                + lookup('vars', bazarr_name + '_docker_capabilities_custom', default=bazarr_docker_capabilities_custom) }}"
+
+# Security Opts
+bazarr_docker_security_opts_default: []
+bazarr_docker_security_opts_custom: []
+bazarr_docker_security_opts: "{{ lookup('vars', bazarr_name + '_docker_security_opts_default', default=bazarr_docker_security_opts_default)
+                                 + lookup('vars', bazarr_name + '_docker_security_opts_custom', default=bazarr_docker_security_opts_custom) }}"
+
+# Restart Policy
+bazarr_docker_restart_policy: unless-stopped
+
+# State
+bazarr_docker_state: started

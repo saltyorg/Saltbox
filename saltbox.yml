@@ -46,6 +46,7 @@
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
     - { role: readarr, tags: ['readarr'] }
+    - { role: bazarr, tags: ['bazarr'] }
     - { role: iperf3, tags: ['saltbox', 'mediabox', 'feederbox', 'iperf3'] }
     - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
