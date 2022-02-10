@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: UnionFS Role                                  #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -16,7 +16,6 @@
 
 - name: Docker Containers Stop Tasks
   import_tasks: "subtasks/docker/containers_stop.yml"
-  when: (('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags)) and (not use_remote)
 
 # Existing Setup
 
@@ -38,10 +37,8 @@
 
 - name: Docker Daemon Tasks
   import_tasks: "subtasks/docker/daemon.yml"
-  when: ('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags)
 
 # Start Docker Containers
 
 - name: Docker Containers Start Tasks
   import_tasks: "subtasks/docker/containers_start.yml"
-  when: ('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags)
