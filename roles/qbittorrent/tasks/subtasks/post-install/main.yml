@@ -1,0 +1,34 @@
+#########################################################################
+# Title:         Saltbox: qBittorrent | Post-Install Tasks              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Post-Install | Wait for config to be created
+  wait_for:
+    path: "{{ qbittorrent_paths_conf }}"
+    state: present
+
+- name: Post-Install | Wait for 10 seconds
+  wait_for:
+    timeout: 10
+
+- name: Post-Install | Stop container
+  docker_container:
+    name: "{{ qbittorrent_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+    state: stopped
+
+- name: Post-Install | Settings Task
+  import_tasks: "settings/main.yml"
+
+- name: Post-Install | Start container
+  docker_container:
+    name: "{{ qbittorrent_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+    state: "{{ qbittorrent_docker_state }}"

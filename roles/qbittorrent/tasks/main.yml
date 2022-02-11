@@ -1,0 +1,16 @@
+#########################################################################
+# Title:         Saltbox: Deluge Role                                   #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Execute qBittorrent roles"
+  include_tasks: main2.yml
+  vars:
+    qbittorrent_name: "{{ role }}"
+  with_items: "{{ qbittorrent_instances }}"
+  loop_control:
+    loop_var: role
