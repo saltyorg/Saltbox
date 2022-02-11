@@ -1,0 +1,26 @@
+####################################################################################
+# Title:         Saltbox: Deluge | Post-Install | Settings                         #
+# Author(s):     salty                                                             #
+# URL:           https://github.com/saltyorg/Saltbox                               #
+# --                                                                               #
+####################################################################################
+#                   GNU General Public License v3.0                                #
+####################################################################################
+---
+- name: Post-Install | Settings | Update 'core.conf' | Set listen ports
+  replace:
+    path: "{{ deluge_paths_conf }}"
+    regexp: '"listen_ports": (\[[\d|\W]+\]),'
+    replace: '"listen_ports": [{{ deluge_docker_ports_58112 }},{{ deluge_docker_ports_58112 }}],'
+
+- name: Post-Install | Settings | Update 'core.conf' | Set listen random port to null
+  replace:
+    path: "{{ deluge_paths_conf }}"
+    regexp: '"listen_random_port": ([\d|\W]+),'
+    replace: '"listen_random_port": null,'
+
+- name: Post-Install | Settings | Update 'core.conf' | Disable random ports
+  replace:
+    path: "{{ deluge_paths_conf }}"
+    regexp: '"random_port": ([\w]+),'
+    replace: '"random_port": false,'

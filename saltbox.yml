@@ -81,3 +81,4 @@
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: transfer, tags: ['transfer'] }
     - { role: autoheal, tags: ['autoheal'] }
+    - { role: deluge, tags: ['deluge'] }
