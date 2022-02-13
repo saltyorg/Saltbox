@@ -49,6 +49,9 @@ plex_web_url: "{{ 'https://' + plex_web_subdomain + '.' + plex_web_domain
 plex_webtools_web_subdomain: "{{ plex_name }}-webtools"
 plex_webtools_web_domain: "{{ plex_web_domain }}"
 plex_webtools_web_port: "33400"
+plex_web_insecure_subdomain: "{{ plex_name }}-insecure"
+plex_web_insecure_domain: "{{ user.domain }}"
+plex_web_insecure_url: "{{ 'http://' + plex_web_insecure_subdomain + '.' + plex_web_insecure_domain }}"
 
 ################################
 # DNS
@@ -60,6 +63,9 @@ plex_dns_proxy: "{{ dns.proxied }}"
 plex_webtools_dns_record: "{{ plex_webtools_web_subdomain }}"
 plex_webtools_dns_zone: "{{ plex_webtools_web_domain }}"
 plex_webtools_dns_proxy: "{{ dns.proxied }}"
+plex_insecure_dns_record: "{{ plex_web_insecure_subdomain }}"
+plex_insecure_dns_zone: "{{ plex_web_insecure_domain }}"
+plex_insecure_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
@@ -70,6 +76,7 @@ plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
 plex_webtools_traefik_middleware: "{{ traefik_default_middleware }}"
 plex_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
+plex_insecure_traefik_middleware: ""
 
 ################################
 # THEME
@@ -88,6 +95,7 @@ plex_open_main_ports: false
 plex_db_cache_size: default
 plex_plugin_webtools: true
 plex_plugin_sub_zero: true
+plex_insecure: false
 
 ################################
 # Docker
@@ -115,7 +123,10 @@ plex_docker_ports: "{{ plex_docker_ports_defaults
                     if (not reverse_proxy_is_enabled or plex_open_main_ports)
                     else plex_docker_ports_custom }}"
 # Envs
-plex_docker_envs_advertise_ip: "{{ plex_web_url + ':443'
+plex_docker_envs_advertise_ip_url: "{{ plex_web_url + ':443,' + plex_web_insecure_url + ':80'
+                                    if plex_insecure
+                                    else plex_web_url + ':443' }}"
+plex_docker_envs_advertise_ip: "{{ plex_docker_envs_advertise_ip_url
                                 if (reverse_proxy_is_enabled)
                                 else '' }}"
 plex_docker_envs_default:
@@ -184,20 +195,30 @@ plex_docker_hosts: "{{ docker_hosts_common
                        | combine(plex_docker_hosts_custom) }}"
 
 # Labels
-plex_docker_labels_default:
-  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "websecure" }'
+plex_docker_labels_webtools:
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "web,websecure" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.certresolver": "{{ plex_webtools_traefik_certresolver }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.middlewares": "{{ plex_webtools_traefik_middleware }}" }'
   - '{ "traefik.http.services.{{ plex_webtools_web_subdomain }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
+plex_docker_labels_insecure:
+  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.entrypoints": "web" }'
+  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.service": "{{ plex_web_subdomain }}" }'
+  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.rule": "Host(`{{ plex_web_insecure_subdomain + "." + plex_web_insecure_domain }}`)" }'
+  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.middlewares": "{{ plex_insecure_traefik_middleware }}" }'
+plex_docker_labels_default: "{{ plex_docker_labels_insecure
+                             if plex_insecure
+                             else {} }}"
 plex_docker_labels_custom: {}
 plex_docker_labels: "{{ docker_labels_common
                         | combine(plex_docker_labels_default)
+                        | combine(plex_docker_labels_webtools)
                         | combine(plex_docker_labels_custom)
                      if plex_plugin_webtools
                      else docker_labels_common
+                        | combine(plex_docker_labels_default)
                         | combine(plex_docker_labels_custom) }}"
 
 # Hostname
