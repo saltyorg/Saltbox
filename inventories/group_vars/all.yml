@@ -188,9 +188,9 @@ traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not traefik_tls)
                                else traefik_default_tlsresolver }}"
 
-traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip'
+traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip,redirect-to-https'
                                      if (not traefik.hsts)
-                                     else 'secureHeaders@file,gzip,hsts@file' }}"
+                                     else 'secureHeaders@file,gzip,redirect-to-https,hsts@file' }}"
 
 traefik_default_middleware_custom: ""
 
@@ -243,7 +243,7 @@ docker_labels_saltbox:
 
 docker_labels_traefik_main_tmp:
   - traefik.enable: "true"
-  - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "websecure" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "web,websecure" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.rule": "Host(`{{ traefik_host }}`)" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.priority": "{{ lookup("vars", role_name + "_traefik_priority", default="20") }}" }'
@@ -261,7 +261,7 @@ docker_labels_traefik_main: "{{ docker_labels_traefik_main_tmp | combine(docker_
                              else docker_labels_traefik_main_tmp }}"
 
 docker_labels_traefik_api_tmp:
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "websecure" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "web,websecure" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", role_name + "_traefik_api_endpoint", default=omit) }}))" }'  # noqa line-length
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'

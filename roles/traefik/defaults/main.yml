@@ -140,10 +140,8 @@ traefik_docker_commands_default:
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.web.address=:80"
-  - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-  - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-  - "--entrypoints.web.http.redirections.entrypoint.priority=1000"
+  - "--entrypoints.web.forwardedheaders.insecure"
+  - "--entrypoints.web.proxyprotocol.insecure"
   - "--entrypoints.websecure.address=:443"
   - "--entrypoints.websecure.forwardedheaders.insecure"
   - "--entrypoints.websecure.proxyprotocol.insecure"
@@ -239,7 +237,7 @@ traefik_docker_labels_default:
   com.github.saltbox.saltbox_managed: "true"
   traefik.enable: "true"
   traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
-  traefik.http.routers.traefik.entrypoints: "websecure"
+  traefik.http.routers.traefik.entrypoints: "web,websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
   traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
@@ -248,6 +246,8 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
   traefik.http.middlewares.gzip.compress: "true"
+  traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+  traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
   traefik.http.middlewares.authelia.forwardauth.address: "{{ 'http://authelia:9091/api/verify?rd=' + authelia_web_url + '/'
                                                          if authelia_is_master
                                                          else authelia_web_url + '/api/verify?rd=' + authelia_web_url + '/' }}"
@@ -265,7 +265,7 @@ traefik_docker_labels_tls_validation:
 traefik_docker_labels_metrics:
   traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
-  traefik.http.routers.metrics.entrypoints: "websecure"
+  traefik.http.routers.metrics.entrypoints: "web,websecure"
   traefik.http.routers.metrics.tls: "true"
   traefik.http.routers.metrics.tls.options: "securetls@file"
   traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
