@@ -241,7 +241,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik-http.middlewares: "{{ traefik_default_middleware_http + ',' + traefik_default_sso_middleware
                                                   if (traefik_default_sso_middleware | length > 0)
                                                   else traefik_default_middleware_http }}"
-  traefik.http.routers.traefik-http.priority: "1"
+  traefik.http.routers.traefik-http.priority: "10"
   traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
@@ -249,6 +249,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
                                              if (traefik_default_sso_middleware | length > 0)
                                              else traefik_default_middleware }}"
+  traefik.http.routers.traefik.priority: "20"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"
   traefik.http.middlewares.gzip.compress: "true"
@@ -273,13 +274,14 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics-http.service: prometheus@internal
   traefik.http.routers.metrics-http.entrypoints: "web"
   traefik.http.routers.metrics-http.middlewares: "{{ traefik_default_middleware_http }},traefik-auth"
-  traefik.http.routers.metrics-http.priority: "1"
+  traefik.http.routers.metrics-http.priority: "10"
   traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
   traefik.http.routers.metrics.tls.options: "securetls@file"
   traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
+  traefik.http.routers.metrics.priority: "20"
 
 traefik_docker_labels_custom: {}
 
