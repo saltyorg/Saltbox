@@ -255,8 +255,8 @@ traefik_docker_labels_default:
   traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
   traefik.http.middlewares.redirect-to-https.redirectscheme.permanent: "true"
   traefik.http.middlewares.authelia.forwardauth.address: "{{ 'http://authelia:9091/api/verify?rd=' + authelia_web_url + '/'
-                                                         if authelia_is_master
-                                                         else authelia_web_url + '/api/verify?rd=' + authelia_web_url + '/' }}"
+                                                          if authelia_is_master
+                                                          else authelia_web_url + '/api/verify?rd=' + authelia_web_url + '/' }}"
   traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
   traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
