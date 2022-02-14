@@ -236,8 +236,13 @@ traefik_docker_hosts: "{{ docker_hosts_common
 traefik_docker_labels_default:
   com.github.saltbox.saltbox_managed: "true"
   traefik.enable: "true"
+  traefik.http.routers.traefik-http.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
+  traefik.http.routers.traefik-http.entrypoints: "web"
+  traefik.http.routers.traefik-http.middlewares: "{{ traefik_default_middleware_http + ',' + traefik_default_sso_middleware
+                                                  if (traefik_default_sso_middleware | length > 0)
+                                                  else traefik_default_middleware_http }}"
   traefik.http.routers.traefik.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
-  traefik.http.routers.traefik.entrypoints: "web,websecure"
+  traefik.http.routers.traefik.entrypoints: "websecure"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
   traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware + ',' + traefik_default_sso_middleware
@@ -263,9 +268,13 @@ traefik_docker_labels_tls_validation:
   traefik.http.routers.traefik.tls.certresolver: "tlsresolver"
 
 traefik_docker_labels_metrics:
+  traefik.http.routers.metrics-http.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
+  traefik.http.routers.metrics-http.service: prometheus@internal
+  traefik.http.routers.metrics-http.entrypoints: "web"
+  traefik.http.routers.metrics-http.middlewares: "{{ traefik_default_middleware_http }},traefik-auth"
   traefik.http.routers.metrics.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
-  traefik.http.routers.metrics.entrypoints: "web,websecure"
+  traefik.http.routers.metrics.entrypoints: "websecure"
   traefik.http.routers.metrics.tls: "true"
   traefik.http.routers.metrics.tls.options: "securetls@file"
   traefik.http.routers.metrics.middlewares: "{{ traefik_default_middleware }},traefik-auth"
