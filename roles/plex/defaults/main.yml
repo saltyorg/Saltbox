@@ -49,9 +49,7 @@ plex_web_url: "{{ 'https://' + plex_web_subdomain + '.' + plex_web_domain
 plex_webtools_web_subdomain: "{{ plex_name }}-webtools"
 plex_webtools_web_domain: "{{ plex_web_domain }}"
 plex_webtools_web_port: "33400"
-plex_web_insecure_subdomain: "{{ plex_name }}-insecure"
-plex_web_insecure_domain: "{{ user.domain }}"
-plex_web_insecure_url: "{{ 'http://' + plex_web_insecure_subdomain + '.' + plex_web_insecure_domain }}"
+plex_web_insecure_url: "{{ 'http://' + plex_web_subdomain + '.' + plex_web_domain }}"
 
 ################################
 # DNS
@@ -63,20 +61,19 @@ plex_dns_proxy: "{{ dns.proxied }}"
 plex_webtools_dns_record: "{{ plex_webtools_web_subdomain }}"
 plex_webtools_dns_zone: "{{ plex_webtools_web_domain }}"
 plex_webtools_dns_proxy: "{{ dns.proxied }}"
-plex_insecure_dns_record: "{{ plex_web_insecure_subdomain }}"
-plex_insecure_dns_zone: "{{ plex_web_insecure_domain }}"
-plex_insecure_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
+plex_traefik_middleware_http: "{{ 'gzip'
+                               if plex_insecure
+                               else traefik_default_middleware_default_http }}"
 plex_traefik_middleware: "{{ traefik_default_middleware }}"
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
 plex_webtools_traefik_middleware: "{{ traefik_default_middleware }}"
 plex_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
-plex_insecure_traefik_middleware: ""
 
 ################################
 # THEME
@@ -195,30 +192,24 @@ plex_docker_hosts: "{{ docker_hosts_common
                        | combine(plex_docker_hosts_custom) }}"
 
 # Labels
-plex_docker_labels_webtools:
-  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "web,websecure" }'
+plex_docker_labels_default:
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.entrypoints": "web" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.service": "{{ plex_webtools_web_subdomain }}" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.certresolver": "{{ plex_webtools_traefik_certresolver }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.middlewares": "{{ plex_webtools_traefik_middleware }}" }'
   - '{ "traefik.http.services.{{ plex_webtools_web_subdomain }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
-plex_docker_labels_insecure:
-  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.entrypoints": "web" }'
-  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.service": "{{ plex_web_subdomain }}" }'
-  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.rule": "Host(`{{ plex_web_insecure_subdomain + "." + plex_web_insecure_domain }}`)" }'
-  - '{ "traefik.http.routers.{{ plex_web_insecure_subdomain }}.middlewares": "{{ plex_insecure_traefik_middleware }}" }'
-plex_docker_labels_default: "{{ plex_docker_labels_insecure
-                             if plex_insecure
-                             else {} }}"
 plex_docker_labels_custom: {}
 plex_docker_labels: "{{ docker_labels_common
                         | combine(plex_docker_labels_default)
-                        | combine(plex_docker_labels_webtools)
                         | combine(plex_docker_labels_custom)
                      if plex_plugin_webtools
                      else docker_labels_common
-                        | combine(plex_docker_labels_default)
                         | combine(plex_docker_labels_custom) }}"
 
 # Hostname
