@@ -17,6 +17,11 @@
     name: jaeger
   when: traefik.tracing
 
+- name: "Import Error Pages Role"
+  import_role:
+    name: error_pages
+  when: traefik_error_pages_enabled
+
 - name: Add DNS record
   include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:

@@ -1,0 +1,117 @@
+##########################################################################
+# Title:         Saltbox: Error Pages | Default Variables                #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+error_pages_name: error_pages
+
+################################
+# Config
+################################
+
+# Template options listed here https://github.com/tarampampam/error-pages
+error_pages_template: "l7-dark"
+
+################################
+# Docker
+################################
+
+# Container
+error_pages_docker_container: "{{ error_pages_name }}"
+
+# Image
+error_pages_docker_image_pull: true
+error_pages_docker_image_tag: "latest"
+error_pages_docker_image: "tarampampam/error-pages:{{ error_pages_docker_image_tag }}"
+
+# Ports
+error_pages_docker_ports_defaults: []
+error_pages_docker_ports_custom: []
+error_pages_docker_ports: "{{ error_pages_docker_ports_defaults
+                              + error_pages_docker_ports_custom }}"
+
+# Envs
+error_pages_docker_envs_default:
+  TEMPLATE_NAME: "{{ error_pages_template }}"
+error_pages_docker_envs_custom: {}
+error_pages_docker_envs: "{{ error_pages_docker_envs_default
+                             | combine(error_pages_docker_envs_custom) }}"
+
+# Commands
+error_pages_docker_commands_default: []
+error_pages_docker_commands_custom: []
+error_pages_docker_commands: "{{ error_pages_docker_commands_default
+                                 + error_pages_docker_commands_custom }}"
+
+# Volumes
+error_pages_docker_volumes_default:
+  - "/opt/error_pages:/opt/html"
+error_pages_docker_volumes_custom: []
+error_pages_docker_volumes: "{{ error_pages_docker_volumes_default
+                                + error_pages_docker_volumes_custom }}"
+
+# Devices
+error_pages_docker_devices_default: []
+error_pages_docker_devices_custom: []
+error_pages_docker_devices: "{{ error_pages_docker_devices_default
+                                + error_pages_docker_devices_custom }}"
+
+# Hosts
+error_pages_docker_hosts_default: []
+error_pages_docker_hosts_custom: []
+error_pages_docker_hosts: "{{ docker_hosts_common
+                              | combine(error_pages_docker_hosts_default)
+                              | combine(error_pages_docker_hosts_custom) }}"
+
+# Labels
+error_pages_docker_labels_default:
+  traefik.enable: "true"
+  traefik.http.routers.error-pages-router.rule: "HostRegexp(`{host:.+}`)"
+  traefik.http.routers.error-pages-router.priority: "10"
+  traefik.http.routers.error-pages-router.entrypoints: "web,websecure"
+  traefik.http.routers.error-pages-router.middlewares: "error-pages-middleware"
+  traefik.http.middlewares.error-pages-middleware.errors.status: "400-599"
+  traefik.http.middlewares.error-pages-middleware.errors.service: "error-pages-service"
+  traefik.http.middlewares.error-pages-middleware.errors.query: "/{status}.html"
+  traefik.http.services.error-pages-service.loadbalancer.server.port: "8080"
+error_pages_docker_labels_custom: {}
+error_pages_docker_labels: "{{ docker_labels_common
+                               | combine(error_pages_docker_labels_default)
+                               | combine(error_pages_docker_labels_custom) }}"
+
+# Hostname
+error_pages_docker_hostname: "{{ error_pages_name }}"
+
+# Networks
+error_pages_docker_networks_alias: "{{ error_pages_name }}"
+error_pages_docker_networks_default: []
+error_pages_docker_networks_custom: []
+error_pages_docker_networks: "{{ docker_networks_common
+                                 + error_pages_docker_networks_default
+                                 + error_pages_docker_networks_custom }}"
+
+# Capabilities
+error_pages_docker_capabilities_default: []
+error_pages_docker_capabilities_custom: []
+error_pages_docker_capabilities: "{{ error_pages_docker_capabilities_default
+                                     + error_pages_docker_capabilities_custom }}"
+
+# Security Opts
+error_pages_docker_security_opts_default: []
+error_pages_docker_security_opts_custom: []
+error_pages_docker_security_opts: "{{ error_pages_docker_security_opts_default
+                                      + error_pages_docker_security_opts_custom }}"
+
+# Restart Policy
+error_pages_docker_restart_policy: unless-stopped
+
+# State
+error_pages_docker_state: started

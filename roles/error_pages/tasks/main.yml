@@ -1,0 +1,32 @@
+##########################################################################
+# Title:         Saltbox: Error Pages Role                               #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Check if folder already exists
+  stat:
+    path: "/opt/error_pages"
+  register: error_pages_folder
+
+- name: Create directory
+  file:
+    path: "/opt/error_pages"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (not error_pages_folder.stat.exists)
+
+- name: Export error pages from container
+  shell: "docker run --rm -v '/opt/error_pages:/out:rw' -u '{{ uid }}:{{ gid }}' tarampampam/error-pages build --config-file ./error-pages.yml /out"
+  when: (not error_pages_folder.stat.exists)
+
+- name: Remove existing Docker container
+  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+- name: Create Docker container
+  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

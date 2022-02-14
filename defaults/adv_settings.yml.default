@@ -16,6 +16,7 @@ traefik:
     dash: dash
     metrics: metrics
     jaeger: jaeger
+  error_pages: no
 mounts:
   remote: rclone_vfs
   feeder: no
