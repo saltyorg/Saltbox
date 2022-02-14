@@ -197,13 +197,14 @@ plex_docker_labels_default:
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
-  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.priority": "1" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.priority": "20" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.tls.certresolver": "{{ plex_webtools_traefik_certresolver }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.middlewares": "{{ plex_webtools_traefik_middleware }}" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.priority": "20" }'
   - '{ "traefik.http.services.{{ plex_webtools_web_subdomain }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
 plex_docker_labels_custom: {}
 plex_docker_labels: "{{ docker_labels_common
