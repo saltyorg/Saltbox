@@ -197,6 +197,7 @@ plex_docker_labels_default:
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
+  - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}-http.priority": "1" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.service": "{{ plex_webtools_web_subdomain }}" }'
   - '{ "traefik.http.routers.{{ plex_webtools_web_subdomain }}.rule": "Host(`{{ plex_webtools_web_subdomain + "." + plex_webtools_web_domain }}`)" }'
