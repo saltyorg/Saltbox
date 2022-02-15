@@ -13,17 +13,17 @@
   changed_when: false
   when: (not continuous_integration)
         and ('saltbox_mod' not in playbook_dir)
-        and ('community' not in playbook_dir)
+        and ('sandbox' not in playbook_dir)
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
   assert:
     that:
       - '"{{ item }}" in available_ansible_tags.stdout_lines'
     msg: >-
-      You must supply valid tag(s) via '--tags TAG'
-      (get a list of valid tags by running 'ansible-playbook saltbox.yml --list-tags')
+      You must supply valid tag(s)
+      (get a list of valid tags by running 'sb list')
     quiet: true
   with_items: "{{ ansible_run_tags }}"
   when: (not continuous_integration)
-        and ('saltbox_' not in playbook_dir)
-        and ('community' not in playbook_dir)
+        and ('saltbox_mod' not in playbook_dir)
+        and ('sandbox' not in playbook_dir)
