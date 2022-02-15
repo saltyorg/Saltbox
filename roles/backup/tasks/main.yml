@@ -95,6 +95,41 @@
         - "/opt/systemd-backup"
         - "/opt/crontab-backup"
 
+    # Check if there is enough space in the local backup destination
+    - name: Get size of opt folder
+      command: "du -sk /opt --exclude='/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder' --exclude='/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
+      register: estimated_backup_size
+
+    - name: Get amount of free disk space
+      shell: "df {{ backup.local.destination }} --output=avail | tail -1"
+      register: local_backup_destination_free_space
+
+    - name: Set backup_enough_disk_space boolean
+      set_fact:
+        backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (estimated_backup_size.stdout.split()[0] | int) }}"
+
+    - name: "Notify | Saltbox Backup: Started Saltbox backup task"
+      include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Not enough disk space. Aborting."
+      when: (not backup_enough_disk_space)
+
+    - name: "Fail when not enough disk space"
+      fail:
+        msg:
+          - "Not enough disk space left in {{ backup.local.destination }}."
+          - "Estimated Backup size: {{ estimated_backup_size.stdout.split()[0] | int }}"
+          - "Free space: {{ local_backup_destination_free_space.stdout | int }}"
+      when: (not backup_enough_disk_space)
+
+    - name: "There is enough space to run the backup"
+      debug:
+        msg:
+          - "There is enough disk space left in {{ backup.local.destination }}."
+          - "Estimated Backup size: {{ estimated_backup_size.stdout.split()[0] | int }}"
+          - "Free space: {{ local_backup_destination_free_space.stdout | int }}"
+
     # Backup config files
     - name: "Copy files to '{{ backup.local.destination }}'"
       copy:

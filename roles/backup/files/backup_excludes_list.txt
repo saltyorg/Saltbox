@@ -9,8 +9,6 @@
 
 ./bazarr/log/*
 
-./saltbox/backup/modified_files/*
-
 ./cloudplow/cloudplow.log
 ./cloudplow/cloudplow.log.*
 ./cloudplow/locks/*
