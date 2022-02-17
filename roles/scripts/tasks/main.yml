@@ -88,14 +88,6 @@
     mode: "0775"
     force: true
 
-- name: Check if 'restart_containers.sh' exists
-  stat:
-    path: "/opt/scripts/docker/restart_containers.sh"
-    get_attributes: false
-    get_checksum: false
-    get_mime: false
-  register: restart_containers
-
 - name: Import 'restart_containers.sh'
   copy:
     src: "restart_containers.sh"
@@ -104,7 +96,6 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: not restart_containers.stat.exists
 
 - name: Check if 'frontail_custom_preset.json' exists
   stat:
@@ -124,14 +115,6 @@
     force: true
   when: not frontail_preset.stat.exists
 
-- name: Check if 'sync_torrents_to_rclone_remote.sh' exists
-  stat:
-    path: "/opt/scripts/rclone/sync_torrents_to_rclone_remote.sh"
-    get_attributes: false
-    get_checksum: false
-    get_mime: false
-  register: sync_torrents_to_rclone_remote
-
 - name: Import 'sync_torrents_to_rclone_remote.sh'
   template:
     src: "sync_torrents_to_rclone_remote.sh.j2"
@@ -140,15 +123,6 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: not sync_torrents_to_rclone_remote.stat.exists
-
-- name: Check if 'download_torrents_from_rclone_remote.sh' exists
-  stat:
-    path: "/opt/scripts/rclone/download_torrents_from_rclone_remote.sh"
-    get_attributes: false
-    get_checksum: false
-    get_mime: false
-  register: download_torrents_from_rclone_remote
 
 - name: Import 'download_torrents_from_rclone_remote.sh'
   template:
@@ -158,4 +132,3 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: not download_torrents_from_rclone_remote.stat.exists
