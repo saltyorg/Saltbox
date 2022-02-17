@@ -70,15 +70,6 @@
     validate_certs: false
   ignore_errors: true
 
-- name: Import 'plex_token.sh'
-  copy:
-    src: "plex_token.sh"
-    dest: "/opt/scripts/plex/plex_token.sh"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    force: true
-
 - name: Import 'plex_autoscan_url.sh'
   copy:
     src: "plex_autoscan_url.sh"
