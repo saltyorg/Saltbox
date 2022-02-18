@@ -28,6 +28,7 @@ on:
 
 jobs:
   install:
+    name: '${{ matrix.roles }}'
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -113,7 +114,7 @@ jobs:
         run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings,plex-extra-tasks,core" --extra-vars '{"continuous_integration":true}'
 
   webhook:
-    name: '${{ matrix.roles }}'
+    name: 'webhook'
     runs-on: ubuntu-20.04
     needs: install
     if: always()
