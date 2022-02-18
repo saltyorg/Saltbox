@@ -78,6 +78,7 @@ jobs:
           - transfer
           - yyq
       fail-fast: false
+
     steps:
       - uses: actions/checkout@v2
 
@@ -111,7 +112,15 @@ jobs:
       - name: Install Saltbox ${{ matrix.roles }}
         run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings,plex-extra-tasks,core" --extra-vars '{"continuous_integration":true}'
 
+  webhook:
+    name: '${{ matrix.roles }}'
+    runs-on: ubuntu-20.04
+    needs: install
+    if: always()
+    steps:
+      - uses: technote-space/workflow-conclusion-action@v2
       - uses: sarisia/actions-status-discord@v1
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ env.WORKFLOW_CONCLUSION }}
