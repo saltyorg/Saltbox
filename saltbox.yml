@@ -12,6 +12,7 @@
     - { role: pre_tasks, tags: ['pre_tasks'] }
     - { role: backup, tags: ['backup'] }
     - { role: restore, tags: ['restore'] }
+    # Core
     - { role: kernel, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'kernel'] }
     - { role: hetzner, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'hetzner'] }
     - { role: user, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'user'] }
@@ -28,12 +29,10 @@
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik_reset_certs'], when: ['reverse_proxy_is_enabled'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
+    # Apps Start
     - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
-    - { role: plex, tags: ['plex'] }
-    - { role: plex_extra_tasks, tags: ['saltbox', 'mediabox', 'plex-extra-tasks'] }
     - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
-    - { role: plex_autoscan, tags: ['saltbox', 'mediabox', 'plex_autoscan'] }
     - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
     - { role: organizr, tags: ['saltbox', 'feederbox', 'organizr'] }
     - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow'], when: ['use_remote'] }
@@ -44,42 +43,44 @@
     - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
-    - { role: readarr, tags: ['readarr'] }
-    - { role: bazarr, tags: ['bazarr'] }
     - { role: iperf3, tags: ['saltbox', 'mediabox', 'feederbox', 'iperf3'] }
     - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
     - { role: bpytop, tags: ['saltbox', 'mediabox', 'feederbox', 'bpytop'] }
+    - { role: asshama, tags: ['asshama'] }
     - { role: authelia, tags: ['authelia'] }
-    - { role: redis, tags: ['redis'] }
-    - { role: plex_auth_token, tags: ['plex_auth_token'] }
-    - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
-    - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
-    - { role: subliminal, tags: ['subliminal'] }
-    - { role: mariadb, tags: ['mariadb'] }
+    - { role: autoheal, tags: ['autoheal'] }
+    - { role: autoscan, tags: ['autoscan'] }
+    - { role: bazarr, tags: ['bazarr'] }
+    - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
+    - { role: ddclient, tags: ['ddclient'] }
+    - { role: deluge, tags: ['deluge'] }
     - { role: emby, tags: ['emby'] }
-    - { role: traktarr, tags: ['traktarr'] }
-    - { role: plex_dupefinder, tags: ['plex_dupefinder'] }
+    - { role: jellyfin, tags: ['jellyfin'] }
     - { role: netdata, tags: ['netdata'] }
-    - { role: plex_patrol, tags: ['plex_patrol'] }
-    - { role: python_plexlibrary, tags: ['python-plexlibrary'] }
-    - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: nginx, tags: ['nginx'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
-    - { role: ddclient, tags: ['ddclient'] }
-    - { role: trackarr, tags: ['trackarr'] }
-    - { role: sstv, tags: ['sstv'] }
-    - { role: yyq, tags: ['yyq'] }
-    - { role: custom, tags: ['custom'] }
-    - { role: asshama, tags: ['asshama'] }
-    - { role: autoscan, tags: ['autoscan'] }
-    - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
-    - { role: jellyfin, tags: ['jellyfin'] }
-    - { role: mongodb, tags: ['mongodb'] }
     - { role: petio, tags: ['petio'] }
+    - { role: plex, tags: ['plex'] }
+    - { role: plex_autoscan, tags: ['plex_autoscan'] }
     - { role: prowlarr, tags: ['prowlarr'] }
-    - { role: transfer, tags: ['transfer'] }
-    - { role: autoheal, tags: ['autoheal'] }
-    - { role: deluge, tags: ['deluge'] }
-    - { role: hetzner_nfs, tags: ['hetzner_nfs_server', 'hetzner_nfs_server_uninstall', 'hetzner_nfs_client_mount', 'hetzner_nfs_client_unmount'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }
+    - { role: readarr, tags: ['readarr'] }
+    - { role: redis, tags: ['redis'] }
+    - { role: sabnzbd, tags: ['sabnzbd'] }
+    - { role: sstv, tags: ['sstv'] }
+    - { role: subliminal, tags: ['subliminal'] }
+    - { role: trackarr, tags: ['trackarr'] }
+    - { role: traktarr, tags: ['traktarr'] }
+    - { role: transfer, tags: ['transfer'] }
+    - { role: yyq, tags: ['yyq'] }
+    # Apps End
+    - { role: custom, tags: ['custom'] }
+    - { role: hetzner_nfs, tags: ['hetzner_nfs_server', 'hetzner_nfs_server_uninstall', 'hetzner_nfs_client_mount', 'hetzner_nfs_client_unmount'] }
+    - { role: mariadb, tags: ['mariadb'] }
+    - { role: mongodb, tags: ['mongodb'] }
+    - { role: plex_auth_token, tags: ['plex_auth_token'] }
+    - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
+    - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
+    - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
+
