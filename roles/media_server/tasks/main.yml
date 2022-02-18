@@ -13,3 +13,13 @@
   with_items: "{{ media_servers_enabled }}"
   loop_control:
     loop_var: role
+
+- name: "Execute Plex Extra Tasks role"
+  include_role:
+    name: "plex_extra_tasks"
+  when: "'plex' in media_servers_enabled"
+
+- name: "Execute Plex Autoscan role"
+  include_role:
+    name: "plex_autoscan"
+  when: "'plex' in media_servers_enabled"
