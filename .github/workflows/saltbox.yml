@@ -29,6 +29,55 @@ on:
 jobs:
   install:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        roles:
+          - saltbox
+          - feederbox
+          - mediabox
+          - media-server
+          - tautulli
+          - overseerr
+          - portainer
+          - organizr
+          - cloudplow
+          - nzbget
+          - rutorrent
+          - jackett
+          - nzbhydra2
+          - sonarr
+          - radarr
+          - lidarr
+          - iperf3
+          - nethogs
+          - glances
+          - bpytop
+          - asshama
+          - autoheal
+          - autoscan
+          - bazarr
+          - btrfsmaintenance
+          - ddclient
+          - deluge
+          - emby
+          - jellyfin
+          - netdata
+          - nginx
+          - nzbthrottle
+          - petio
+          - plex
+          - plex_autoscan
+          - prowlarr
+          - qbittorrent
+          - readarr
+          - sabnzbd
+          - sstv
+          - subliminal
+          - trackarr
+          - traktarr
+          - transfer
+          - yyq
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
 
@@ -56,8 +105,11 @@ jobs:
       - name: Syntax Check
         run: sudo ansible-playbook saltbox.yml --syntax-check
 
-      - name: Install Saltbox
-        run: sudo ansible-playbook saltbox.yml --tags "saltbox,asshama,jellyfin,petio,prowlarr,transfer,emby,netdata,sabnzbd,sstv,autoheal,readarr,deluge,bazarr,qBittorrent" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
+      - name: Install Saltbox Core
+        run: sudo ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+
+      - name: Install Saltbox ${{ matrix.roles }}
+        run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings,plex-extra-tasks,core" --extra-vars '{"continuous_integration":true}'
 
       - uses: sarisia/actions-status-discord@v1
         if: always()
