@@ -170,3 +170,7 @@
   debug:
     msg: Finished restoring the backup. You are now ready to install Saltbox!
   when: (unarchive is succeeded)
+
+- name: Settings Role
+  include_role:
+    name: settings
