@@ -12,9 +12,9 @@ on:
       - 'roles/nvidia/**'
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
-      - 'roles/feeder/**'
   pull_request:
     paths-ignore:
+      - '.github/**'
       - '*.md'
       - '.gitignore'
       - 'roles/backup/**'
@@ -23,7 +23,6 @@ on:
       - 'roles/nvidia/**'
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
-      - 'roles/feeder/**'
   workflow_dispatch:
 
 jobs:
