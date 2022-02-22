@@ -46,7 +46,7 @@ sstv_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-sstv_traefik_middleware: "{{ traefik_default_middleware }},sstv-auth"
+sstv_traefik_middleware: "sstv-auth,{{ traefik_default_middleware }}"
 sstv_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sstv_traefik_enabled: true
 sstv_auth: "/etc/traefik/sstv"
