@@ -190,13 +190,15 @@ traefik_default_certresolver: "{{ traefik_default_certprovider
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
 
-traefik_error_pages_middleware: "{{ ',error-pages-middleware'
-                                 if traefik_error_pages_enabled
+traefik_error_pages_role_enabled: "{{ lookup('vars', role_name + '_traefik_error_pages_enabled', default=True) }}"
+
+traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
+                                 if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
-traefik_default_middleware_default: "{{ 'secureHeaders@file,gzip' + traefik_error_pages_middleware
+traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'secureHeaders@file,gzip'
                                      if (not traefik.hsts)
-                                     else 'secureHeaders@file,gzip,hsts@file' + traefik_error_pages_middleware }}"
+                                     else traefik_error_pages_middleware + 'secureHeaders@file,gzip,hsts@file' }}"
 
 traefik_default_middleware_custom: ""
 
@@ -206,7 +208,7 @@ traefik_default_middleware: "{{ traefik_default_middleware_default + ','
                                 else traefik_default_middleware_default
                                 + traefik_default_middleware_custom }}"
 
-traefik_default_middleware_default_http: "redirect-to-https,gzip{{ traefik_error_pages_middleware }}"
+traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}redirect-to-https,gzip"
 
 traefik_default_middleware_custom_http: ""
 
@@ -298,8 +300,8 @@ docker_labels_traefik_api_tls:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
 
 docker_labels_traefik_api: "{{ docker_labels_traefik_api_tmp | combine(docker_labels_traefik_api_tls)
-                             if traefik_custom_certresolver
-                             else docker_labels_traefik_api_tmp }}"
+                            if traefik_custom_certresolver
+                            else docker_labels_traefik_api_tmp }}"
 
 docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled
