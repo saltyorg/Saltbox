@@ -78,6 +78,7 @@ netdata_docker_ports: "{{ netdata_docker_ports_defaults
 
 # Envs
 netdata_docker_envs_default:
+  PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   DOCKER_HOST: "docker-socket-proxy:2375"
 netdata_docker_envs_custom: {}
@@ -93,6 +94,8 @@ netdata_docker_commands: "{{ netdata_docker_commands_default
 # Volumes
 netdata_docker_volumes_default:
   - "{{ netdata_paths_location }}/config:/etc/netdata:ro"
+  - "netdatalib:/var/lib/netdata"
+  - "netdatacache:/var/cache/netdata"
   - "/etc/passwd:/host/etc/passwd:ro"
   - "/etc/group:/host/etc/group:ro"
   - "/proc:/host/proc:ro"

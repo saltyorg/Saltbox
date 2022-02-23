@@ -21,8 +21,10 @@
 - name: Remove existing Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Settings Task
-  import_tasks: "subtasks/settings.yml"
+- name: Check if '{{ netdata_paths_config_file_location }}' exists
+  stat:
+    path: "{{ netdata_paths_config_file_location }}"
+  register: netdata_config
 
 - name: Create directories
   file:
@@ -32,6 +34,17 @@
     group: "{{ user.name }}"
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
+
+- name: Settings Task
+  import_tasks: "subtasks/settings.yml"
+  when: (not netdata_config.stat.exists)
+
+- name: Create a volume
+  docker_volume:
+    name: "{{ item }}"
+  with_items:
+    - netdatalib
+    - netdatacache
 
 - name: Create Docker container
   include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
