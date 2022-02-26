@@ -1,0 +1,16 @@
+#########################################################################
+# Title:         Saltbox: Sanity Check | Repository Check               #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Repository | Check Current Hash
+  shell: git rev-parse HEAD
+  register: git_version
+
+- name: Repository | Print Current Hash
+  debug:
+    msg: "Commit: {{ git_version.stdout }}"

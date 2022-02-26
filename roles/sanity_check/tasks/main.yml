@@ -40,6 +40,10 @@
   tags: always
   when: dns.zerossl
 
-- name: Settings Check
+- name: Skipped Tags Check
   import_tasks: "subtasks/09_skipped_tags.yml"
+  tags: always
+
+- name: Repository Check
+  import_tasks: "subtasks/10_repo.yml"
   tags: always
