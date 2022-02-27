@@ -48,6 +48,11 @@ triggers:
       exclude:
         - '\.(srt|pdf)$'
 
+      # rewrite inotify path to unified filesystem
+      rewrite:
+        - from: ^/mnt/local/Media/
+          to: /mnt/unionfs/Media/
+
       # Local filesystem paths to monitor
       paths:
         - path: /mnt/local/Media
