@@ -1,43 +1,16 @@
 #########################################################################
-# Title:            Saltbox: Jellyfin                                   #
-# Author(s):        kowalski, desimaniac, owine                         #
-# URL:              https://github.com/saltyorg/Saltbox                 #
+# Title:         Saltbox: Jellyfin Role                                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+- name: "Execute Jellyfin roles"
+  include_tasks: main2.yml
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
-
-- name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-
-- name: Create directories
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-  with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
-
-- name: Docker Devices Task
-  include_tasks: "{{ resources_tasks_path }}/docker/set_docker_devices_variable.yml"
-  when: (gpu.intel or gpu.nvidia)
-
-- name: Import preinstall task
-  import_tasks: "subtasks/preinstall.yml"
-  when: not continuous_integration
-
-- name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
-
-- name: Import postinstall task
-  import_tasks: "subtasks/postinstall.yml"
-  when:
-    - not continuous_integration
-    - not jellyfin_existing_install.stat.exists
+    jellyfin_name: "{{ role }}"
+  with_items: "{{ jellyfin_instances }}"
+  loop_control:
+    loop_var: role
