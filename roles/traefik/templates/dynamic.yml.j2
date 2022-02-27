@@ -13,16 +13,18 @@ tls:
 
 http:
   middlewares:
-    secureHeaders:
+    globalHeaders:
       headers:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        frameDeny: false
-        contentTypeNosniff: true
-        browserXssFilter: true
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
           server: ""
+        frameDeny: false
+        contentTypeNosniff: true
+        browserXssFilter: true
+    secureHeaders:
+      headers:
         sslProxyHeaders:
           X-Forwarded-Proto: https
     hsts:
