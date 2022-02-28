@@ -39,23 +39,36 @@ jellyfin_paths_xml_loct_old: "{{ jellyfin_paths_location }}/app/config/system.xm
 jellyfin_web_subdomain: "{{ jellyfin_name }}"
 jellyfin_web_domain: "{{ user.domain }}"
 jellyfin_web_port: "8096"
-jellyfin_web_url: "{{ 'https://' + jellyfin_web_subdomain + '.' + jellyfin_web_domain
+jellyfin_web_url: "{{ 'https://' + lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain)
+                      + '.' + lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain)
                    if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + jellyfin_web_port }}"
+                   else 'http://localhost:' + lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-jellyfin_dns_record: "{{ jellyfin_web_subdomain }}"
-jellyfin_dns_zone: "{{ jellyfin_web_domain }}"
+jellyfin_dns_record: "{{ lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain) }}"
+jellyfin_dns_zone: "{{ lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain) }}"
 jellyfin_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-jellyfin_traefik_middleware: "{{ traefik_default_middleware }}"
+jellyfin_traefik_sso_middleware: ""
+
+jellyfin_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                         + lookup('vars', jellyfin_name + '_traefik_sso_middleware', default=jellyfin_traefik_sso_middleware)
+                                      if (lookup('vars', jellyfin_name + '_traefik_sso_middleware', default=jellyfin_traefik_sso_middleware) | length > 0)
+                                      else traefik_default_middleware }}"
+jellyfin_traefik_middleware_custom: ""
+jellyfin_traefik_middleware: "{{ jellyfin_traefik_middleware_default + ','
+                                 + jellyfin_traefik_middleware_custom
+                              if (not jellyfin_traefik_middleware_custom.startswith(',') and jellyfin_traefik_middleware_custom | length > 0)
+                              else jellyfin_traefik_middleware_default
+                                 + jellyfin_traefik_middleware_custom }}"
+
 jellyfin_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jellyfin_traefik_enabled: true
 
@@ -72,15 +85,15 @@ jellyfin_system_settings_default:
   - { xpath: 'EnableRemoteAccess', value: 'true' }
   - { xpath: 'ServerName', value: 'saltbox' }
 jellyfin_system_settings_custom: []
-jellyfin_system_settings_list: "{{ jellyfin_system_settings_default + jellyfin_system_settings_custom }}"
+jellyfin_system_settings_list: "{{ lookup('vars', jellyfin_name + '_system_settings_default', default=jellyfin_system_settings_default) + lookup('vars', jellyfin_name + '_system_settings_custom', default=jellyfin_system_settings_custom) }}"
 
 # Network
 jellyfin_network_settings_default:
   - { xpath: 'PublicPort', value: '80' }
   - { xpath: 'PublicHttpsPort', value: '443' }
-  - { xpath: 'PublishedServerUriBySubnet/string', value: '{{ jellyfin_web_subdomain }}.{{ jellyfin_web_domain }}' }
+  - { xpath: 'PublishedServerUriBySubnet/string', value: '{{ lookup("vars", jellyfin_name + "_web_subdomain", default=jellyfin_web_subdomain) }}.{{ lookup("vars", jellyfin_name + "_web_domain", default=jellyfin_web_domain) }}' }
 jellyfin_network_settings_custom: []
-jellyfin_network_settings_list: "{{ jellyfin_network_settings_default + jellyfin_network_settings_custom }}"
+jellyfin_network_settings_list: "{{ lookup('vars', jellyfin_name + '_network_settings_default', default=jellyfin_network_settings_default) + lookup('vars', jellyfin_name + '_network_settings_custom', default=jellyfin_network_settings_custom) }}"
 
 ################################
 # Docker
@@ -91,17 +104,22 @@ jellyfin_docker_container: "{{ jellyfin_name }}"
 
 # Image
 jellyfin_docker_image_pull: true
+jellyfin_docker_image_repo: "cr.hotio.dev/hotio/jellyfin"
 jellyfin_docker_image_tag: "release"
-jellyfin_docker_image: "cr.hotio.dev/hotio/jellyfin:{{ jellyfin_docker_image_tag }}"
+jellyfin_docker_image: "{{ lookup('vars', jellyfin_name + '_docker_image_repo', default=jellyfin_docker_image_repo)
+                           + ':' + lookup('vars', jellyfin_name + '_docker_image_tag', default=jellyfin_docker_image_tag) }}"
 
 # Ports
-jellyfin_docker_ports_defaults:
-  - "{{ jellyfin_web_port }}:{{ jellyfin_web_port }}"
+jellyfin_docker_ports_defaults: []
+jellyfin_docker_ports_ui:
+  - "{{ lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}:{{ lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}"
 jellyfin_docker_ports_custom: []
-jellyfin_docker_ports: "{{ jellyfin_docker_ports_defaults
-                           + jellyfin_docker_ports_custom
+jellyfin_docker_ports: "{{ lookup('vars', jellyfin_name + '_docker_ports_defaults', default=jellyfin_docker_ports_defaults)
+                           + lookup('vars', jellyfin_name + '_docker_ports_ui', default=jellyfin_docker_ports_ui)
+                           + lookup('vars', jellyfin_name + '_docker_ports_custom', default=jellyfin_docker_ports_custom)
                         if (not reverse_proxy_is_enabled)
-                        else [] + jellyfin_docker_ports_custom }}"
+                        else lookup('vars', jellyfin_name + '_docker_ports_defaults', default=jellyfin_docker_ports_defaults)
+                           + lookup('vars', jellyfin_name + '_docker_ports_custom', default=jellyfin_docker_ports_custom) }}"
 
 # Envs
 jellyfin_docker_envs_default:
@@ -111,14 +129,14 @@ jellyfin_docker_envs_default:
   NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
 jellyfin_docker_envs_custom: {}
-jellyfin_docker_envs: "{{ jellyfin_docker_envs_default
-                          | combine(jellyfin_docker_envs_custom) }}"
+jellyfin_docker_envs: "{{ lookup('vars', jellyfin_name + '_docker_envs_default', default=jellyfin_docker_envs_default)
+                          | combine(lookup('vars', jellyfin_name + '_docker_envs_custom', default=jellyfin_docker_envs_custom)) }}"
 
 # Commands
 jellyfin_docker_commands_default: []
 jellyfin_docker_commands_custom: []
-jellyfin_docker_commands: "{{ jellyfin_docker_commands_default
-                              + jellyfin_docker_commands_custom }}"
+jellyfin_docker_commands: "{{ lookup('vars', jellyfin_name + '_docker_commands_default', default=jellyfin_docker_commands_default)
+                              + lookup('vars', jellyfin_name + '_docker_docker_commands_custom', default=jellyfin_docker_commands_custom) }}"
 
 # Volumes
 jellyfin_docker_volumes_default:
@@ -129,8 +147,8 @@ jellyfin_docker_volumes_default:
   - "/dev/shm:/dev/shm"
   - "{{ jellyfin_paths_transcodes_location }}:/transcode"
 jellyfin_docker_volumes_custom: []
-jellyfin_docker_volumes: "{{ jellyfin_docker_volumes_default
-                             + jellyfin_docker_volumes_custom
+jellyfin_docker_volumes: "{{ lookup('vars', jellyfin_name + '_docker_volumes_default', default=jellyfin_docker_volumes_default)
+                             + lookup('vars', jellyfin_name + '_docker_volumes_custom', default=jellyfin_docker_volumes_custom)
                              + docker_volumes_downloads_common }}"
 
 # Mounts
@@ -138,29 +156,28 @@ jellyfin_docker_mounts_default:
   - target: /tmp
     type: tmpfs
 jellyfin_docker_mounts_custom: []
-jellyfin_docker_mounts: "{{ jellyfin_docker_mounts_default
-                            + jellyfin_docker_mounts_custom }}"
+jellyfin_docker_mounts: "{{ lookup('vars', jellyfin_name + '_docker_mounts_default', default=jellyfin_docker_mounts_default)
+                            + lookup('vars', jellyfin_name + '_docker_mounts_custom', default=jellyfin_docker_mounts_custom) }}"
 
 # Devices
 jellyfin_docker_devices_default: []
 jellyfin_docker_devices_custom: []
-jellyfin_docker_devices: "{{ jellyfin_docker_devices_default
-                             + jellyfin_docker_devices_custom }}"
+jellyfin_docker_devices: "{{ lookup('vars', jellyfin_name + '_docker_devices_default', default=jellyfin_docker_devices_default)
+                             + lookup('vars', jellyfin_name + '_docker_devices_custom', default=jellyfin_docker_devices_custom) }}"
 
 # Hosts
-
 jellyfin_docker_hosts_default: []
 jellyfin_docker_hosts_custom: []
 jellyfin_docker_hosts: "{{ docker_hosts_common
-                           | combine(jellyfin_docker_hosts_default)
-                           | combine(jellyfin_docker_hosts_custom) }}"
+                           | combine(lookup('vars', jellyfin_name + '_docker_hosts_default', default=jellyfin_docker_hosts_default))
+                           | combine(lookup('vars', jellyfin_name + '_docker_hosts_custom', default=jellyfin_docker_hosts_custom)) }}"
 
 # Labels
 jellyfin_docker_labels_default: {}
 jellyfin_docker_labels_custom: {}
 jellyfin_docker_labels: "{{ docker_labels_common
-                            | combine(jellyfin_docker_labels_default)
-                            | combine(jellyfin_docker_labels_custom) }}"
+                            | combine(lookup('vars', jellyfin_name + '_docker_labels_default', default=jellyfin_docker_labels_default))
+                            | combine(lookup('vars', jellyfin_name + '_docker_labels_custom', default=jellyfin_docker_labels_custom)) }}"
 
 # Hostname
 jellyfin_docker_hostname: "{{ jellyfin_name }}"
@@ -170,20 +187,20 @@ jellyfin_docker_networks_alias: "{{ jellyfin_name }}"
 jellyfin_docker_networks_default: []
 jellyfin_docker_networks_custom: []
 jellyfin_docker_networks: "{{ docker_networks_common
-                              + jellyfin_docker_networks_default
-                              + jellyfin_docker_networks_custom }}"
+                              + lookup('vars', jellyfin_name + '_docker_networks_default', default=jellyfin_docker_networks_default)
+                              + lookup('vars', jellyfin_name + '_docker_networks_custom', default=jellyfin_docker_networks_custom) }}"
 
 # Capabilities
 jellyfin_docker_capabilities_default: []
 jellyfin_docker_capabilities_custom: []
-jellyfin_docker_capabilities: "{{ jellyfin_docker_capabilities_default
-                                  + jellyfin_docker_capabilities_custom }}"
+jellyfin_docker_capabilities: "{{ lookup('vars', jellyfin_name + '_docker_capabilities_default', default=jellyfin_docker_capabilities_default)
+                                  + lookup('vars', jellyfin_name + '_docker_capabilities_custom', default=jellyfin_docker_capabilities_custom) }}"
 
 # Security Opts
 jellyfin_docker_security_opts_default: []
 jellyfin_docker_security_opts_custom: []
-jellyfin_docker_security_opts: "{{ jellyfin_docker_security_opts_default
-                                   + jellyfin_docker_security_opts_custom }}"
+jellyfin_docker_security_opts: "{{ lookup('vars', jellyfin_name + '_docker_security_opts_default', default=jellyfin_docker_security_opts_default)
+                                   + lookup('vars', jellyfin_name + '_docker_security_opts_custom', default=jellyfin_docker_security_opts_custom) }}"
 
 # Restart Policy
 jellyfin_docker_restart_policy: unless-stopped
