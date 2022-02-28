@@ -27,7 +27,7 @@ nginx_paths_folders_list:
 # Web
 ################################
 
-nginx_web_subdomain: "web"
+nginx_web_subdomain: "{{ nginx_name }}"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
 nginx_web_url: "{{ 'https://' + lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain)
