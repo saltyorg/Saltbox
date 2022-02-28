@@ -44,6 +44,9 @@ plex_paths_db_location: "{{ plex_paths_plugin_support_location }}/Databases/com.
 plex_web_subdomain: "{{ plex_name }}"
 plex_web_domain: "{{ user.domain }}"
 plex_web_port: "32400"
+plex_web_scheme: "https"
+plex_web_http_port: "32400"
+plex_web_http_scheme: "http"
 plex_web_url: "{{ 'https://' + lookup('vars', plex_name + '_web_subdomain', default=plex_web_subdomain)
                   + '.' + lookup('vars', plex_name + '_web_domain', default=plex_web_domain)
                if (reverse_proxy_is_enabled)
@@ -69,7 +72,7 @@ plex_webtools_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-plex_traefik_middleware_http: "{{ 'gzip'
+plex_traefik_middleware_http: "{{ 'globalHeaders@file,gzip'
                                if plex_insecure
                                else traefik_default_middleware_default_http }}"
 
@@ -103,6 +106,7 @@ plex_webtools_traefik_middleware: "{{ plex_webtools_traefik_middleware_default +
                                       + plex_webtools_traefik_middleware_custom }}"
 
 plex_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
+plex_web_serverstransport: "skipverify@file"
 
 ################################
 # THEME
