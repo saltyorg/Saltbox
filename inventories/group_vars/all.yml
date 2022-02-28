@@ -177,21 +177,16 @@ zerossl_is_enabled: "{{ dns.zerossl | bool }}"
 ################################
 
 traefik_challenge_provider: "{{ traefik.provider }}"
-
 traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
-
 traefik_default_tlsresolver: "tlsresolver"
-
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not traefik_tls)
                                else traefik_default_tlsresolver }}"
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
-
 traefik_error_pages_role_enabled: "{{ lookup('vars', role_name + '_traefik_error_pages_enabled', default=True) }}"
-
 traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
@@ -199,9 +194,7 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file,gzip'
                                      if (not traefik.hsts)
                                      else traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file,gzip,hsts@file' }}"
-
 traefik_default_middleware_custom: ""
-
 traefik_default_middleware: "{{ traefik_default_middleware_default + ','
                                 + traefik_default_middleware_custom
                                 if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
@@ -209,9 +202,7 @@ traefik_default_middleware: "{{ traefik_default_middleware_default + ','
                                 + traefik_default_middleware_custom }}"
 
 traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https,gzip"
-
 traefik_default_middleware_custom_http: ""
-
 traefik_default_middleware_http: "{{ traefik_default_middleware_default_http + ','
                                      + traefik_default_middleware_custom_http
                                   if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
@@ -221,22 +212,20 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http + '
 traefik_default_sso_middleware: "authelia"
 
 traefik_role_enabled: "{{ lookup('vars', role_name + '_traefik_enabled', default=False) }}"
-
 traefik_role_api_enabled: "{{ lookup('vars', role_name + '_traefik_api_enabled', default=False) }}"
 
 traefik_tls: "{{ false
               if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) and (not traefik.tls)
               else true }}"
-
 traefik_custom_certresolver: "{{ (lookup('vars', role_name + '_traefik_certresolver', default=omit) != traefik_default_certresolver) }}"
 
 traefik_subdomain: "{{ lookup('vars', role_name + '_web_subdomain', default=omit) }}"
-
 traefik_domain: "{{ lookup('vars', role_name + '_web_domain', default=omit) }}"
-
 traefik_router: "{{ lookup('vars', role_name + '_name', default=omit) }}"
 
 traefik_loadbalancer_port: "{{ lookup('vars', role_name + '_web_port', default=omit) }}"
+traefik_loadbalancer_scheme: "{{ lookup('vars', role_name + '_web_scheme', default=omit) }}"
+traefik_loadbalancer_servertransport: "{{ lookup('vars', role_name + '_web_serverstransport', default=omit) }}"
 
 traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
@@ -275,11 +264,11 @@ docker_labels_traefik_main_tmp:
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_http_port", default=traefik_loadbalancer_port) }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_http_scheme", default=omit) }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_http_serverstransport", default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_http_scheme", default=traefik_loadbalancer_scheme) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_http_serverstransport", default=traefik_loadbalancer_servertransport) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.port": "{{ traefik_loadbalancer_port }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_scheme", default=omit) }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_serverstransport", default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ traefik_loadbalancer_scheme }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.serverstransport": "{{ traefik_loadbalancer_servertransport }}" }'
 
 docker_labels_traefik_main_tls:
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", role_name + "_traefik_certresolver", default=omit) }}" }'
