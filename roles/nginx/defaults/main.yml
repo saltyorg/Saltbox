@@ -30,23 +30,36 @@ nginx_paths_folders_list:
 nginx_web_subdomain: "web"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
-nginx_web_url: "{{ 'https://' + nginx_web_subdomain + '.' + nginx_web_domain
+nginx_web_url: "{{ 'https://' + lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain)
+                   + '.' + lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain)
                 if (reverse_proxy_is_enabled)
-                else 'http://localhost:' + nginx_web_port }}"
+                else 'http://localhost:' + lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-nginx_dns_record: "{{ nginx_web_subdomain }}"
-nginx_dns_zone: "{{ nginx_web_domain }}"
+nginx_dns_record: "{{ lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain) }}"
+nginx_dns_zone: "{{ lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain) }}"
 nginx_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-nginx_traefik_middleware: "{{ traefik_default_middleware }}"
+nginx_traefik_sso_middleware: ""
+
+nginx_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                      + lookup('vars', nginx_name + '_traefik_sso_middleware', default=nginx_traefik_sso_middleware)
+                                   if (lookup('vars', nginx_name + '_traefik_sso_middleware', default=nginx_traefik_sso_middleware) | length > 0)
+                                   else traefik_default_middleware }}"
+nginx_traefik_middleware_custom: ""
+nginx_traefik_middleware: "{{ nginx_traefik_middleware_default + ','
+                              + nginx_traefik_middleware_custom
+                           if (not nginx_traefik_middleware_custom.startswith(',') and nginx_traefik_middleware_custom | length > 0)
+                           else nginx_traefik_middleware_default
+                              + nginx_traefik_middleware_custom }}"
+
 nginx_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nginx_traefik_enabled: true
 
@@ -59,17 +72,22 @@ nginx_docker_container: "{{ nginx_name }}"
 
 # Image
 nginx_docker_image_pull: true
+nginx_docker_image_repo: "lscr.io/linuxserver/nginx"
 nginx_docker_image_tag: "latest"
-nginx_docker_image: "lscr.io/linuxserver/nginx:{{ nginx_docker_image_tag }}"
+nginx_docker_image: "{{ lookup('vars', nginx_name + '_docker_image_repo', default=nginx_docker_image_repo)
+                        + ':' + lookup('vars', nginx_name + '_docker_image_tag', default=nginx_docker_image_tag) }}"
 
 # Ports
-nginx_docker_ports_defaults:
-  - "{{ nginx_web_port }}"
+nginx_docker_ports_defaults: []
+nginx_docker_ports_ui:
+  - "{{ lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}:{{ lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}"
 nginx_docker_ports_custom: []
-nginx_docker_ports: "{{ nginx_docker_ports_defaults
-                        + nginx_docker_ports_custom
+nginx_docker_ports: "{{ lookup('vars', nginx_name + '_docker_ports_defaults', default=nginx_docker_ports_defaults)
+                        + lookup('vars', nginx_name + '_docker_ports_ui', default=nginx_docker_ports_ui)
+                        + lookup('vars', nginx_name + '_docker_ports_custom', default=nginx_docker_ports_custom)
                      if (not reverse_proxy_is_enabled)
-                     else [] + nginx_docker_ports_custom }}"
+                     else lookup('vars', nginx_name + '_docker_ports_defaults', default=nginx_docker_ports_defaults)
+                        + lookup('vars', nginx_name + '_docker_ports_custom', default=nginx_docker_ports_custom) }}"
 
 # Envs
 nginx_docker_envs_default:
@@ -77,42 +95,42 @@ nginx_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
 nginx_docker_envs_custom: {}
-nginx_docker_envs: "{{ nginx_docker_envs_default
-                       | combine(nginx_docker_envs_custom) }}"
+nginx_docker_envs: "{{ lookup('vars', nginx_name + '_docker_envs_default', default=nginx_docker_envs_default)
+                       | combine(lookup('vars', nginx_name + '_docker_envs_custom', default=nginx_docker_envs_custom)) }}"
 
 # Commands
 nginx_docker_commands_default: []
 nginx_docker_commands_custom: []
-nginx_docker_commands: "{{ nginx_docker_commands_default
-                           + nginx_docker_commands_custom }}"
+nginx_docker_commands: "{{ lookup('vars', nginx_name + '_docker_commands_default', default=nginx_docker_commands_default)
+                           + lookup('vars', nginx_name + '_docker_docker_commands_custom', default=nginx_docker_commands_custom) }}"
 
 # Volumes
 nginx_docker_volumes_default:
   - "{{ nginx_paths_location }}:/config"
 nginx_docker_volumes_custom: []
-nginx_docker_volumes: "{{ nginx_docker_volumes_default
-                          + nginx_docker_volumes_custom
+nginx_docker_volumes: "{{ lookup('vars', nginx_name + '_docker_volumes_default', default=nginx_docker_volumes_default)
+                          + lookup('vars', nginx_name + '_docker_volumes_custom', default=nginx_docker_volumes_custom)
                           + docker_volumes_downloads_common }}"
 
 # Devices
 nginx_docker_devices_default: []
 nginx_docker_devices_custom: []
-nginx_docker_devices: "{{ nginx_docker_devices_default
-                          + nginx_docker_devices_custom }}"
+nginx_docker_devices: "{{ lookup('vars', nginx_name + '_docker_devices_default', default=nginx_docker_devices_default)
+                          + lookup('vars', nginx_name + '_docker_devices_custom', default=nginx_docker_devices_custom) }}"
 
 # Hosts
 nginx_docker_hosts_default: []
 nginx_docker_hosts_custom: []
 nginx_docker_hosts: "{{ docker_hosts_common
-                        | combine(nginx_docker_hosts_default)
-                        | combine(nginx_docker_hosts_custom) }}"
+                        | combine(lookup('vars', nginx_name + '_docker_hosts_default', default=nginx_docker_hosts_default))
+                        | combine(lookup('vars', nginx_name + '_docker_hosts_custom', default=nginx_docker_hosts_custom)) }}"
 
 # Labels
 nginx_docker_labels_default: {}
 nginx_docker_labels_custom: {}
 nginx_docker_labels: "{{ docker_labels_common
-                         | combine(nginx_docker_labels_default)
-                         | combine(nginx_docker_labels_custom) }}"
+                         | combine(lookup('vars', nginx_name + '_docker_labels_default', default=nginx_docker_labels_default))
+                         | combine(lookup('vars', nginx_name + '_docker_labels_custom', default=nginx_docker_labels_custom)) }}"
 
 # Hostname
 nginx_docker_hostname: "{{ nginx_name }}"
@@ -122,20 +140,20 @@ nginx_docker_networks_alias: "{{ nginx_name }}"
 nginx_docker_networks_default: []
 nginx_docker_networks_custom: []
 nginx_docker_networks: "{{ docker_networks_common
-                           + nginx_docker_networks_default
-                           + nginx_docker_networks_custom }}"
+                           + lookup('vars', nginx_name + '_docker_networks_default', default=nginx_docker_networks_default)
+                           + lookup('vars', nginx_name + '_docker_networks_custom', default=nginx_docker_networks_custom) }}"
 
 # Capabilities
 nginx_docker_capabilities_default: []
 nginx_docker_capabilities_custom: []
-nginx_docker_capabilities: "{{ nginx_docker_capabilities_default
-                               + nginx_docker_capabilities_custom }}"
+nginx_docker_capabilities: "{{ lookup('vars', nginx_name + '_docker_capabilities_default', default=nginx_docker_capabilities_default)
+                               + lookup('vars', nginx_name + '_docker_capabilities_custom', default=nginx_docker_capabilities_custom) }}"
 
 # Security Opts
 nginx_docker_security_opts_default: []
 nginx_docker_security_opts_custom: []
-nginx_docker_security_opts: "{{ nginx_docker_security_opts_default
-                                + nginx_docker_security_opts_custom }}"
+nginx_docker_security_opts: "{{ lookup('vars', nginx_name + '_docker_security_opts_default', default=nginx_docker_security_opts_default)
+                                + lookup('vars', nginx_name + '_docker_security_opts_custom', default=nginx_docker_security_opts_custom) }}"
 
 # Restart Policy
 nginx_docker_restart_policy: unless-stopped
