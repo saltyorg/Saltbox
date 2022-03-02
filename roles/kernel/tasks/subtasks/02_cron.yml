@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Cron | Install cron
+  apt:
+    name: cron
+    state: present
+
 - name: Cron | Purge old kernels on reboot
   cron:
     name: "Remove old kernels on reboot"
