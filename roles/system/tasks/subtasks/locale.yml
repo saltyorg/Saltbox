@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Install locales
+  apt:
+    name: locales
+    state: present
+
 - name: Ensure localisation files for '{{ system_locale }}' are available
   locale_gen:
     name: "{{ system_locale }}"
