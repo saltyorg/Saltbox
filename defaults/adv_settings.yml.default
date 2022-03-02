@@ -19,6 +19,7 @@ traefik:
   error_pages: no
 mounts:
   remote: rclone_vfs
+  ipv4_only: no
   feeder: no
 gpu:
   intel: yes

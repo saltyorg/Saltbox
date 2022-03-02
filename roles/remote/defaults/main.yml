@@ -60,7 +60,7 @@ rclone_vfs_mount_start_command: |-
     --drive-pacer-burst=1000 \
     --umask=002 \
     --syslog \
-    -v \
+    {{ '--bind=' + ansible_default_ipv4.address + ' ' if mounts.ipv4_only else '' }}-v \
     {{ rclone.remote }}: /mnt/remote
 
 rclone_vfs_mount_stop_command: /bin/fusermount -uz /mnt/remote
@@ -101,7 +101,7 @@ rclone_vfs_cache_mount_start_command: |-
     --drive-pacer-burst=1000 \
     --umask=002 \
     --syslog \
-    -v \
+    {{ '--bind=' + ansible_default_ipv4.address + ' ' if mounts.ipv4_only else '' }}-v \
     {{ rclone.remote }}: /mnt/remote
 
 rclone_vfs_cache_mount_stop_command: /bin/fusermount -uz /mnt/remote
