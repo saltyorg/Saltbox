@@ -51,7 +51,7 @@ jobs:
           - iperf3
           - nethogs
           - glances
-          - bpytop
+          - btop
           - asshama
           - autoheal
           - autoscan
