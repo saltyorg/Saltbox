@@ -46,7 +46,7 @@
     - { role: iperf3, tags: ['saltbox', 'mediabox', 'feederbox', 'iperf3'] }
     - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
-    - { role: bpytop, tags: ['saltbox', 'mediabox', 'feederbox', 'bpytop'] }
+    - { role: btop, tags: ['saltbox', 'mediabox', 'feederbox', 'btop'] }
     - { role: asshama, tags: ['asshama'] }
     - { role: authelia, tags: ['authelia'] }
     - { role: autoheal, tags: ['autoheal'] }

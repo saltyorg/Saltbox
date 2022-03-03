@@ -1,0 +1,49 @@
+#########################################################################
+# Title:         Saltbox: btop Role                                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "btop | Get URL for latest btop release"
+  shell: "{{ btop_release_lookup_command }}"
+  args:
+    executable: /bin/bash
+    warn: false
+  register: btop_download_url
+  ignore_errors: true
+
+- name: "btop | Create directories"
+  file:
+    path: "/tmp/btop"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: "btop | Download btop"
+  get_url:
+    url: "{{ btop_download_url.stdout }}"
+    dest: "/tmp/btop"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0777'
+
+- name: "btop | Unpack btop"
+  shell: "tar -xjf btop-x86_64-linux-musl.tbz"
+  args:
+    chdir: "/tmp/btop"
+
+- name: "btop | Install btop"
+  shell: "/tmp/btop/install.sh"
+  args:
+    chdir: "/tmp/btop"
+  become: yes
+  become_user: "{{ user.name }}"
+
+- name: "btop | Remove temp folder"
+  file:
+    path: "/tmp/btop"
+    state: absent

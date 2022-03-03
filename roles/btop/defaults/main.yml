@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: bpytop Role                                   #
+# Title:         Saltbox: btop | Default Variables                      #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -7,10 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Install pip 'psutil'
-  shell: pip3 install psutil --upgrade
-  ignore_errors: true
+btop_releases_url: "{{ cvm }}https://api.github.com/repos/aristocratos/btop/releases/latest"
 
-- name: Install pip 'bpytop'
-  shell: pip3 install bpytop --upgrade
-  ignore_errors: true
+btop_releases_download_url: https://github.com/aristocratos/btop/releases/download
+
+btop_release_lookup_command: |
+  curl -s {{ btop_releases_url }} \
+    | jq -r ".assets[] | select(.name | test(\"btop-x86_64-linux-musl.tbz\")) \
+    | .browser_download_url"
