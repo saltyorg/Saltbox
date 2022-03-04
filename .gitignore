@@ -15,15 +15,16 @@
 # Settings
 /ansible.cfg
 /accounts.yml
-/settings.yml
 /adv_settings.yml
-/providers.yml
-/rclone.conf
 /backup_config.yml
 /backup_excludes_list.txt
+/hetzner_nfs.yml
+/providers.yml
+/rclone.conf
+/settings.yml
 
 ### Misc ###
-/changelog.txt
+/.idea
 /*.log
 .vscode/settings.json
-/.idea
+
