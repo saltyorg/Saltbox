@@ -116,7 +116,7 @@ jobs:
     name: 'webhook'
     runs-on: ubuntu-20.04
     needs: install
-    if: github.event_name != 'pull_request'
+    if: always()
     steps:
       - uses: technote-space/workflow-conclusion-action@v2
       - uses: sarisia/actions-status-discord@v1
