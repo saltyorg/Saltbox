@@ -49,6 +49,9 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: Traefik Cloudflare Tasks
+  import_tasks: "subtasks/cloudflare.yml"
+
 - name: Traefik ZeroSSL Tasks
   import_tasks: "subtasks/zerossl.yml"
   when: (not continuous_integration) and zerossl_is_enabled
