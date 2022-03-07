@@ -7,4 +7,5 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-hetzner_nfs_init_overwrite: true
+hetzner_nfs_init_overwrite_client: true
+hetzner_nfs_init_overwrite_server: true

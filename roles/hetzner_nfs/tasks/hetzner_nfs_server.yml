@@ -52,7 +52,7 @@
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
     mode: 0775
-    force: "{{ true if hetzner_nfs_init_overwrite else false }}"
+    force: "{{ true if hetzner_nfs_init_overwrite_server else false }}"
 
 - name: Check 'nfs_vlan.service' exists
   stat:
