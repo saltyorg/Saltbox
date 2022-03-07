@@ -6,53 +6,17 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Stop and remove any existing container
-  docker_container:
-    name: "{{ item }}"
-    state: absent
-    container_default_behavior: compatibility
-  with_items:
-    - mongodb
+- name: Remove existing Docker container
+  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Create required directories
+- name: Create directories
   file:
     path: "{{ item }}"
     state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
     mode: "0775"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-  with_items:
-    - "/opt/mongodb"
-    - "/opt/mongodb/config"
+  with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
-- name: Change file ownership and group
-  file:
-    path: "/opt/mongodb"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-
-- name: Create and start mongodb container
-  docker_container:
-    name: "mongo"
-    image: "mongo:latest"
-    pull: true
-    user: "{{ uid }}:{{ gid }}"
-    env:
-      MONGO_DATA_DIR: "/data/db"
-      MONGO_LOG_DIR: "/dev/null"
-      MONGO_URL: "mongodb://mongo:27017/"
-    volumes:
-      - "/opt/mongodb:/data/db:rw"
-      - "/opt/mongodb/config:/data/configdb"
-    labels:
-      "com.github.saltbox.saltbox_managed": "true"
-    network_mode: "{{ docker_networks_name_common }}"
-    networks_cli_compatible: true
-    networks:
-      - name: saltbox
-        aliases:
-          - "mongodb"
-    purge_networks: true
-    restart_policy: unless-stopped
-    state: started
-    container_default_behavior: compatibility
+- name: Create Docker container
+  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
