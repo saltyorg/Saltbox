@@ -65,13 +65,16 @@ jaeger_docker_image_tag: "latest"
 jaeger_docker_image: "jaegertracing/all-in-one:{{ jaeger_docker_image_tag }}"
 
 # Ports
-jaeger_docker_ports_defaults:
+jaeger_docker_ports_defaults: []
+jaeger_docker_ports_ui:
   - "{{ jaeger_web_port }}:{{ jaeger_web_port }}"
 jaeger_docker_ports_custom: []
 jaeger_docker_ports: "{{ jaeger_docker_ports_defaults
+                         + jaeger_docker_ports_ui
                          + jaeger_docker_ports_custom
                       if (not reverse_proxy_is_enabled)
-                      else [] + jaeger_docker_ports_custom }}"
+                      else jaeger_docker_ports_defaults
+                         + jaeger_docker_ports_custom }}"
 
 # Envs
 jaeger_docker_envs_default:
