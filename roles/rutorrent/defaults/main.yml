@@ -157,10 +157,6 @@ rutorrent_docker_image_tag: "latest"
 rutorrent_docker_image: "horjulf/rutorrent-autodl:{{ rutorrent_docker_image_tag }}"
 
 # Ports
-rutorrent_docker_ports_defaults:
-  - "{{ rutorrent_web_port }}"
-# - Internal and External ports need to match for the next set of ports
-# - Lookup available ports and set docker ports accordingly
 rutorrent_docker_ports_51413: "{{ port_lookup_51413.port
                                if (port_lookup_51413.port is defined)
                                   and (port_lookup_51413.port | trim | length > 0)
@@ -169,15 +165,20 @@ rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
                               if (port_lookup_6881.port is defined)
                                   and (port_lookup_6881.port | trim | length > 0)
                               else '6881' }}"
-rutorrent_docker_ports_torrents:
+
+rutorrent_docker_ports_defaults:
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}"
+  - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}/udp"
   - "{{ rutorrent_docker_ports_6881 }}:{{ rutorrent_docker_ports_6881 }}/udp"
+rutorrent_docker_ports_ui:
+  - "{{ rutorrent_web_port }}:{{ rutorrent_web_port }}"
 rutorrent_docker_ports_custom: []
+
 rutorrent_docker_ports: "{{ rutorrent_docker_ports_defaults
-                            + rutorrent_docker_ports_torrents
+                            + rutorrent_docker_ports_ui
                             + rutorrent_docker_ports_custom
                          if (not reverse_proxy_is_enabled)
-                         else rutorrent_docker_ports_torrents
+                         else rutorrent_docker_ports_defaults
                             + rutorrent_docker_ports_custom }}"
 
 # Envs
