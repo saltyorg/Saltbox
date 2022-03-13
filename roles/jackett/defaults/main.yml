@@ -76,13 +76,16 @@ jackett_docker_image_tag: "release"
 jackett_docker_image: "cr.hotio.dev/hotio/jackett:{{ jackett_docker_image_tag }}"
 
 # Ports
-jackett_docker_ports_defaults:
+jackett_docker_ports_defaults: []
+jackett_docker_ports_ui:
   - "{{ jackett_web_port }}:{{ jackett_web_port }}"
 jackett_docker_ports_custom: []
 jackett_docker_ports: "{{ jackett_docker_ports_defaults
+                          + jackett_docker_ports_ui
                           + jackett_docker_ports_custom
                        if (not reverse_proxy_is_enabled)
-                       else [] + jackett_docker_ports_custom }}"
+                       else jackett_docker_ports_defaults
+                          + jackett_docker_ports_custom }}"
 
 # Envs
 jackett_docker_envs_default:
