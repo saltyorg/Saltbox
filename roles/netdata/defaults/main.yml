@@ -68,13 +68,16 @@ netdata_docker_image_tag: "latest"
 netdata_docker_image: "netdata/netdata:{{ netdata_docker_image_tag }}"
 
 # Ports
-netdata_docker_ports_defaults:
+netdata_docker_ports_defaults: []
+netdata_docker_ports_ui:
   - "{{ netdata_web_port }}:{{ netdata_web_port }}"
 netdata_docker_ports_custom: []
 netdata_docker_ports: "{{ netdata_docker_ports_defaults
+                          + netdata_docker_ports_ui
                           + netdata_docker_ports_custom
                        if (not reverse_proxy_is_enabled)
-                       else [] + netdata_docker_ports_custom }}"
+                       else netdata_docker_ports_defaults
+                          + netdata_docker_ports_custom }}"
 
 # Envs
 netdata_docker_envs_default:
