@@ -63,13 +63,16 @@ autoscan_docker_image_tag: "latest"
 autoscan_docker_image: "cloudb0x/autoscan:{{ autoscan_docker_image_tag }}"
 
 # Ports
-autoscan_docker_ports_defaults:
-  - "{{ autoscan_web_port }}"
+autoscan_docker_ports_defaults: []
+autoscan_docker_ports_ui:
+  - "{{ autoscan_web_port }}:{{ autoscan_web_port }}"
 autoscan_docker_ports_custom: []
 autoscan_docker_ports: "{{ autoscan_docker_ports_defaults
+                           + autoscan_docker_ports_ui
                            + autoscan_docker_ports_custom
                         if (not reverse_proxy_is_enabled)
-                        else [] + autoscan_docker_ports_custom }}"
+                        else autoscan_docker_ports_defaults
+                           + autoscan_docker_ports_custom }}"
 
 # Envs
 autoscan_docker_envs_default:
