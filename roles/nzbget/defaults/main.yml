@@ -190,13 +190,16 @@ nzbget_docker_image_tag: "release"
 nzbget_docker_image: "cr.hotio.dev/hotio/nzbget:{{ nzbget_docker_image_tag }}"
 
 # Ports
-nzbget_docker_ports_defaults:
+nzbget_docker_ports_defaults: []
+nzbget_docker_ports_ui:
   - "{{ nzbget_web_port }}:{{ nzbget_web_port }}"
 nzbget_docker_ports_custom: []
 nzbget_docker_ports: "{{ nzbget_docker_ports_defaults
+                         + nzbget_docker_ports_ui
                          + nzbget_docker_ports_custom
                       if (not reverse_proxy_is_enabled)
-                      else [] + nzbget_docker_ports_custom }}"
+                      else nzbget_docker_ports_defaults
+                         + nzbget_docker_ports_custom }}"
 
 # Envs
 nzbget_docker_envs_default:
