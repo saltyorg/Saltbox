@@ -68,13 +68,16 @@ portainer_docker_image_tag: "latest"
 portainer_docker_image: "portainer/portainer-ce:{{ portainer_docker_image_tag }}"
 
 # Ports
-portainer_docker_ports_defaults:
+portainer_docker_ports_defaults: []
+portainer_docker_ports_ui:
   - "{{ portainer_web_port }}:{{ portainer_web_port }}"
 portainer_docker_ports_custom: []
 portainer_docker_ports: "{{ portainer_docker_ports_defaults
+                            + portainer_docker_ports_ui
                             + portainer_docker_ports_custom
                          if (not reverse_proxy_is_enabled)
-                         else [] + portainer_docker_ports_custom }}"
+                         else portainer_docker_ports_defaults
+                            + portainer_docker_ports_custom }}"
 
 # Envs
 portainer_docker_envs_default:
