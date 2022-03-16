@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' subdomain from '{{ fld.stdout }}'"
+- name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' A record from '{{ fld.stdout }}'"
   cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
@@ -15,3 +15,14 @@
     state: absent
     type: A
     record: "saltbox"
+  when: dns.ipv4
+
+- name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' AAAA record from '{{ fld.stdout }}'"
+  cloudflare_dns:
+    account_api_token: "{{ cloudflare.api }}"
+    account_email: "{{ cloudflare.email }}"
+    zone: "{{ fld.stdout }}"
+    state: absent
+    type: AAAA
+    record: "saltbox"
+  when: dns.ipv6
