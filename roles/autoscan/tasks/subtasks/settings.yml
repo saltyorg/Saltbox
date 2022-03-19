@@ -1,33 +1,21 @@
 #########################################################################
 # Title:            Saltbox: Autoscan                                   #
-# Author(s):        Salty, TABLE                                        #
+# Author(s):        salty, TABLE                                        #
 # URL:              https://github.com/saltyorg/Saltbox                 #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Settings | Check if '{{ plex_paths_config_location | basename }}' exists"
-  stat:
-    path: "{{ plex_paths_config_location }}"
-  register: preferences_xml
+- name: Initialize an empty list for our strings
+  set_fact:
+    plex_tokens: []
 
-- name: Settings | {{ plex_name }} auth token tasks
-  block:
-
-    - name: Settings | Fetch {{ plex_name }} auth token
-      xml:
-        path: "{{ plex_paths_config_location }}"
-        xpath: /Preferences
-        content: attribute
-      register: preferences_xml_resp
-      ignore_errors: true
-
-    - name: Settings | Register {{ plex_name }} auth token value
-      set_fact:
-        plex_auth_token: "{{ preferences_xml_resp.matches[0].Preferences.PlexOnlineToken }}"
-
-  when: preferences_xml.stat.exists
+- name: Token tasks
+  include_tasks: token.yml
+  loop: "{{ plex_instances }}"
+  loop_control:
+    loop_var: plex_instance
 
 - name: Settings | Check if `{{ autoscan_paths_config_location | basename }}` exists
   stat:

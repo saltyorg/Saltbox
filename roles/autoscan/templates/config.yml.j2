@@ -62,18 +62,20 @@ triggers:
       priority: 2
 
   radarr:
-    - name: radarr   # /triggers/radarr
+    - name: radarr # /triggers/radarr
       priority: 2
 
   lidarr:
-    - name: lidarr   # /triggers/lidarr
+    - name: lidarr # /triggers/lidarr
       priority: 1
 
 # <- targets ->
 
 targets:
-{% if plex_auth_token is defined %}
+{% if plex_tokens is defined and (plex_tokens | length > 0) %}
   plex:
-    - url: {{ plex_web_url }} # URL of your Plex server
-      token: {{ plex_auth_token }} 
 {% endif %}
+{% for key, value in _plex_instances.items() if plex_tokens is defined and (plex_tokens | length > 0) %}
+    - url: {{ value }} # {{ key }}
+      token: {{ plex_tokens[loop.index0] }} 
+{% endfor %}
