@@ -9,17 +9,22 @@
 ---
 - name: "Execute Media Server roles"
   include_role:
-    name: "{{ role }}"
+    name: "{{ media_server_role }}"
   with_items: "{{ media_servers_enabled }}"
   loop_control:
-    loop_var: role
+    loop_var: media_server_role
 
 - name: "Execute Plex Extra Tasks role"
   include_role:
     name: "plex_extra_tasks"
+  with_items: "{{ plex_instances }}"
+  loop_control:
+    loop_var: plex_instance
+  vars:
+    plex_name: "{{ plex_instance }}"
   when: "'plex' in media_servers_enabled"
 
-- name: "Execute Plex Autoscan role"
+- name: "Execute Autoscan role"
   include_role:
-    name: "plex_autoscan"
+    name: "autoscan"
   when: "'plex' in media_servers_enabled"
