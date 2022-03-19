@@ -1,0 +1,87 @@
+#########################################################################
+# Title:         Saltbox: HTTP Anidb Metadata Agent (HAMA) &            #
+#                           Absolute Series Scanner (ASS)               #
+# Author(s):     maximuskowalski, salty                                 #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Stop {{ plex_name }} container"
+  docker_container:
+    name: "{{ plex_name }}"
+    state: stopped
+    container_default_behavior: compatibility
+    timeout: "180"
+    stop_timeout: "180"
+    tls_hostname: localhost
+  when: (plex_name in docker_running_containers)
+
+- name: Create ASS and HAMA directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+  with_items:
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/AniDB'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/Plex'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/OMDB'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TMDB'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/blank'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/_cache/fanart/original'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/episodes'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/original'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/vignette'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/graphical'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/posters'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasons'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasonswide'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/text'
+    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/FanartTV'
+
+- name: Get latest Absolute Series Scanner.py
+  get_url:
+    url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
+    dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py'
+    mode: '0775'
+
+- name: Set ASS directory permissions
+  file:
+    path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
+    state: directory
+    mode: 0775
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+
+- name: Clone Hama Bundle
+  git:
+    repo: https://github.com/ZeroQI/Hama.bundle.git
+    dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+    clone: true
+    version: HEAD
+    force: true
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Set HAMA directory permissions
+  file:
+    path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+    state: directory
+    mode: 0775
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+
+- name: "Start {{ plex_name }} container"
+  docker_container:
+    name: "{{ plex_name }}"
+    state: started
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+  when: (plex_name in docker_running_containers)
