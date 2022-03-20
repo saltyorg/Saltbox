@@ -1,2 +1,2 @@
 #!/bin/bash
-{{ plex_autoscan_python_path }} {{ plex_autoscan_script_path }} "$@"
+(cd {{ plex_autoscan_path }} && {{ plex_autoscan_python_path }} {{ plex_autoscan_script_path }} "$@")
