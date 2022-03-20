@@ -34,6 +34,10 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: false
+      vars:
+        sonarr_name: "{{ sonarr_instances[0] }}"
+        radarr_name: "{{ radarr_instances[0] }}"
+        lidarr_name: "{{ lidarr_instances[0] }}"
 
     - name: Pre-Install | Set 'trackarr_docker_state' variable
       set_fact:
