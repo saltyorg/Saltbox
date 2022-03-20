@@ -10,7 +10,6 @@
 # Basics
 ################################
 
-qbittorrent_name: qbittorrent
 qbittorrent_instances: ["qbittorrent"]
 
 ################################
