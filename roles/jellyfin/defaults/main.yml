@@ -11,7 +11,6 @@
 # Basics
 ################################
 
-jellyfin_name: jellyfin
 jellyfin_instances: ["jellyfin"]
 
 ################################
