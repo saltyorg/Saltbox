@@ -28,5 +28,7 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: true
+      vars:
+        plex_name: "{{ plex_instances[0] }}"
 
   when: not nzbthrottle_paths_config_location_stat.stat.exists
