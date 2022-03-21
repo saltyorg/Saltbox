@@ -181,6 +181,18 @@ traefik_docker_commands_zerossl_tmp:
   - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
   - "--certificatesresolvers.zerossl.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded | default('') }}"
   - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/acme.json"
+  - "--certificatesresolvers.zerossltls.acme.tlschallenge=true"
+  - "--certificatesresolvers.zerossltls.acme.email={{ user.email }}"
+  - "--certificatesresolvers.zerossltls.acme.caserver=https://acme.zerossl.com/v2/DV90"
+  - "--certificatesresolvers.zerossltls.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
+  - "--certificatesresolvers.zerossltls.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded | default('') }}"
+  - "--certificatesresolvers.zerossltls.acme.storage=/etc/traefik/acme.json"
+  - "--certificatesresolvers.zerosslhttp.acme.httpchallenge.entrypoint=web"
+  - "--certificatesresolvers.zerosslhttp.acme.email={{ user.email }}"
+  - "--certificatesresolvers.zerosslhttp.acme.caserver=https://acme.zerossl.com/v2/DV90"
+  - "--certificatesresolvers.zerosslhttp.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
+  - "--certificatesresolvers.zerosslhttp.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded | default('') }}"
+  - "--certificatesresolvers.zerosslhttp.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_zerossl: "{{ traefik_docker_commands_zerossl_tmp
                                   if zerossl_is_enabled
                                   else [] }}"
@@ -276,7 +288,7 @@ traefik_docker_labels_dns_validation:
   traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
 
 traefik_docker_labels_tls_validation:
-  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_tlsresolver }}"
+  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
 
 traefik_docker_labels_metrics:
   traefik.http.routers.metrics-http.rule: "Host(`{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}`) && Path(`/prometheus`)"
