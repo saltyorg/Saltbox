@@ -35,15 +35,10 @@
   import_tasks: "subtasks/07_tmp.yml"
   tags: always
 
-- name: Settings Check
-  import_tasks: "subtasks/08_settings.yml"
-  tags: always
-  when: dns.zerossl
-
 - name: Skipped Tags Check
-  import_tasks: "subtasks/09_skipped_tags.yml"
+  import_tasks: "subtasks/08_skipped_tags.yml"
   tags: always
 
 - name: Repository Check
-  import_tasks: "subtasks/10_repo.yml"
+  import_tasks: "subtasks/09_repo.yml"
   tags: always
