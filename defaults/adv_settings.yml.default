@@ -9,6 +9,7 @@ dns:
   zerossl: no
 traefik:
   tls: no
+  http: no
   metrics: no
   tracing: no
   hsts: no
