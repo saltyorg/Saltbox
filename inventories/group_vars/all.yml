@@ -180,10 +180,11 @@ traefik_challenge_provider: "{{ traefik.provider }}"
 traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
-traefik_default_tlsresolver: "{{ 'httpresolver' if (traefik.http or not traefik.tls) else 'tlsresolver' }}"
+traefik_default_zerossl_resolver: "{{ 'zerosslhttp' if (traefik.http or not traefik.tls) else 'zerossltls' }}"
+traefik_default_resolver: "{{ 'httpresolver' if (traefik.http or not traefik.tls) else 'tlsresolver' }}"
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not traefik_tls)
-                               else traefik_default_tlsresolver }}"
+                               else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
 traefik_error_pages_role_enabled: "{{ lookup('vars', role_name + '_traefik_error_pages_enabled', default=True) }}"
