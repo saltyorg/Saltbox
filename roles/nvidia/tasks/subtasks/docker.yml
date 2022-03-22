@@ -28,7 +28,7 @@
     state: present
 
 - name: Docker | Populate Service Facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Docker | Get Docker service state
   ansible.builtin.set_fact:

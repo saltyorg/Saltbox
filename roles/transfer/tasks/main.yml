@@ -47,7 +47,7 @@
       ignore_errors: true
 
     - name: Install transfer
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ transfer_download_url.stdout | default('https://github.com/l3uddz/transfer/releases/download/v1.0.0/transfer_v1.0.0_linux_amd64',true) }}"
         dest: /usr/local/bin/transfer
         mode: 0775

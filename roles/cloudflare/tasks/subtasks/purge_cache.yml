@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Purge Cache | Purge Cloudflare Cache for '{{ fld.stdout }}'
-  uri:
+  ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/purge_cache'
     method: 'POST'
     headers:

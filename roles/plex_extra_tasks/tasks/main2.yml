@@ -21,7 +21,7 @@
     plex_is_running_outer_state: "{{ plex_docker_container in docker_running_containers_list }}"
 
 - name: Plex Post-Install Checks
-  import_tasks: "subtasks/post_install_checks.yml"
+  ansible.builtin.import_tasks: "subtasks/post_install_checks.yml"
 
 - name: Stop Docker Container
   docker_container:
@@ -36,7 +36,7 @@
     - plex-db-cache-size
 
 - name: "DB Cache Size Settings"
-  import_tasks: "subtasks/settings/db_cache_size.yml"
+  ansible.builtin.import_tasks: "subtasks/settings/db_cache_size.yml"
   tags:
     - plex-db-cache-size
 

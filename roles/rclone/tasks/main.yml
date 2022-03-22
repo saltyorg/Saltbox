@@ -8,13 +8,13 @@
 #########################################################################
 ---
 - name: Build URL Tasks
-  import_tasks: "subtasks/01_build_url.yml"
+  ansible.builtin.import_tasks: "subtasks/01_build_url.yml"
 
 - name: Install Binary Tasks
-  import_tasks: "subtasks/02_install_binary.yml"
+  ansible.builtin.import_tasks: "subtasks/02_install_binary.yml"
 
 - name: Import Existing Config Tasks
-  import_tasks: "subtasks/03_import_config.yml"
+  ansible.builtin.import_tasks: "subtasks/03_import_config.yml"
 
 - name: Preinstall Tasks
   ansible.builtin.include_tasks: "subtasks/99_preinstall.yml"

@@ -10,17 +10,17 @@
 - name: Backup
   block:
     - name: Sanity Check
-      import_tasks: "sanity_check.yml"
+      ansible.builtin.import_tasks: "sanity_check.yml"
 
     - name: Variables
-      import_tasks: "variables.yml"
+      ansible.builtin.import_tasks: "variables.yml"
       tags:
         - set-backup
         - restore-service
         - saltbox-restore-service
 
     - name: Cron
-      import_tasks: "cron.yml"
+      ansible.builtin.import_tasks: "cron.yml"
       when: ('set-backup' in ansible_run_tags) and not ('backup' in ansible_run_tags)
       tags: set-backup
 
@@ -33,7 +33,7 @@
         start_time: "{{ start_time_lookup.stdout }}"
 
     - name: Snapshot
-      import_tasks: "snapshot.yml"
+      ansible.builtin.import_tasks: "snapshot.yml"
 
     - name: "Notify | Saltbox Backup: Started Saltbox backup task"
       ansible.builtin.include_role:
@@ -190,7 +190,7 @@
           else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
 
     - name: saltbox Restore Service
-      import_tasks: "restore_service.yml"
+      ansible.builtin.import_tasks: "restore_service.yml"
       when: restore_service_enabled
       tags:
         - restore-service
@@ -271,7 +271,7 @@
     # Services
 
     - name: Populate Service Facts
-      service_facts:
+      ansible.builtin.service_facts:
 
       # Stop Cloudplow
 

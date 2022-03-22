@@ -32,7 +32,7 @@
         plex_autoscan_server_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
 
     - name: Settings | Import default 'config.json'
-      template:
+      ansible.builtin.template:
         src: config.json.j2
         dest: /opt/plex_autoscan/config/config.json
         owner: "{{ user.name }}"

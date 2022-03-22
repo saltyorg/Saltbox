@@ -24,7 +24,7 @@
   block:
 
     - name: Resources | Tasks | systemd | Stop Service | populate service facts
-      service_facts:
+      ansible.builtin.service_facts:
 
     - name: Resources | Tasks | systemd | Stop Service | get '{{ _service_file }}' state
       ansible.builtin.set_fact:

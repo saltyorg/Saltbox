@@ -17,4 +17,4 @@
     recurse: true
 
 - name: Post-Install | Update ports in '{{ plex_paths_config_location | basename }}'
-  import_tasks: update_ports.yml
+  ansible.builtin.import_tasks: update_ports.yml

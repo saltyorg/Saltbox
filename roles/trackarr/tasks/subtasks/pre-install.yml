@@ -27,7 +27,7 @@
         trackarr_server_apikey: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=22') }}"
 
     - name: Pre-Install | Import default Trackarr config
-      template:
+      ansible.builtin.template:
         src: "config.yaml.j2"
         dest: "{{ trackarr_paths_config_location }}"
         owner: "{{ user.name }}"

@@ -24,7 +24,7 @@
     mode: "0775"
 
 - name: "btop | Download btop"
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ btop_download_url.stdout }}"
     dest: "/tmp/btop"
     owner: "{{ user.name }}"

@@ -40,17 +40,17 @@
     mode: a+x
 
 - name: Create script alias
-  template:
+  ansible.builtin.template:
     src: cloudplow.sh.j2
     dest: "{{ cloudplow_alias_path }}"
     mode: "0755"
     force: true
 
 - name: Import Settings Task
-  import_tasks: "subtasks/settings.yml"
+  ansible.builtin.import_tasks: "subtasks/settings.yml"
 
 - name: Import '{{ cloudplow_service_name }}.service'
-  template:
+  ansible.builtin.template:
     src: cloudplow.service.j2
     dest: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
     mode: "0755"

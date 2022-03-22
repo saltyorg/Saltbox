@@ -15,7 +15,7 @@
   ignore_errors: true
 
 - name: Install ctop
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ ctop_download_url_lookup.stdout | default(ctop_download_url_backup,true) }}"
     dest: "{{ ctop_binary_path }}"
     mode: 0775

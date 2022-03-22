@@ -10,12 +10,12 @@
 # Variables
 
 - name: Variables Task
-  import_tasks: "subtasks/variables.yml"
+  ansible.builtin.import_tasks: "subtasks/variables.yml"
 
 # Stop Containers
 
 - name: Container Tasks
-  import_tasks: "subtasks/containers.yml"
+  ansible.builtin.import_tasks: "subtasks/containers.yml"
   when: ('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags)
 
 # Existing Setup
@@ -35,7 +35,7 @@
 # New Setup
 
 - name: Basic Tasks
-  import_tasks: "subtasks/basics.yml"
+  ansible.builtin.import_tasks: "subtasks/basics.yml"
 
 # Mount
 

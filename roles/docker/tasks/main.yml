@@ -18,7 +18,7 @@
   register: docker_binary
 
 - name: Populate Service Facts
-  service_facts:
+  ansible.builtin.service_facts:
   when: docker_binary.stat.exists
 
 - name: Get Docker service state
@@ -59,7 +59,7 @@
   when: (docker_binary.stat.exists) and (docker_service_running)
 
 - name: "Import Daemon Tasks"
-  import_tasks: "subtasks/daemon.yml"
+  ansible.builtin.import_tasks: "subtasks/daemon.yml"
 
 - name: "Import Docker Binary tasks"
   ansible.builtin.include_tasks: "subtasks/binary/binary.yml"
@@ -84,10 +84,10 @@
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
 
 - name: "Import Docker Network tasks"
-  import_tasks: "subtasks/network.yml"
+  ansible.builtin.import_tasks: "subtasks/network.yml"
 
 - name: "Import Docker Housekeeping tasks"
-  import_tasks: "subtasks/housekeeping.yml"
+  ansible.builtin.import_tasks: "subtasks/housekeeping.yml"
   tags: docker-housekeeping
 
 - name: "Re-start all previously running Docker containers"
@@ -96,11 +96,11 @@
   ignore_errors: true
 
 - name: "Import Docker Hub tasks"
-  import_tasks: "subtasks/dockerhub.yml"
+  ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
   when: dockerhub_is_enabled
 
 - name: "Import DNS tasks"
-  import_tasks: "subtasks/dns.yml"
+  ansible.builtin.import_tasks: "subtasks/dns.yml"
 
 - name: "Install ctop"
   ansible.builtin.import_role:

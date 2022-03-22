@@ -23,10 +23,10 @@
     container_default_behavior: compatibility
 
 - name: Post-Install | Scripts Task
-  import_tasks: "scripts/main.yml"
+  ansible.builtin.import_tasks: "scripts/main.yml"
 
 - name: Post-Install | Settings Task
-  import_tasks: "settings/main.yml"
+  ansible.builtin.import_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
   docker_container:

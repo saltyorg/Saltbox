@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Patch | Download Nvidia patch
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ nvidia_patch_download_url }}"
     dest: "{{ nvidia_patch_download_dest }}"
     mode: 0775

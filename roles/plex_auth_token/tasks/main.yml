@@ -40,7 +40,7 @@
     plex_no_token: "{{ (not plex_ini.stat.exists) | ternary(true, false)  }}"
 
 - name: "Auth Token | Check if Token is valid"
-  uri:
+  ansible.builtin.uri:
     url: "https://plex.tv/api/v2/user"
     method: GET
     return_content: yes
@@ -62,7 +62,7 @@
       block:
 
         - name: "Auth Token | Generate PIN"
-          uri:
+          ansible.builtin.uri:
             url: "https://plex.tv/api/v2/pins"
             method: POST
             return_content: yes
@@ -82,7 +82,7 @@
             prompt: "Please open https://app.plex.tv/auth#?clientID={{ plex_pin.json.clientIdentifier }}&code={{ plex_pin.json.code }}&context%5Bdevice%5D%5Bproduct%5D={{ plex_pin.json.product }} and login. Hit enter after having logged in"  # noqa 204 line-length
 
         - name: "Auth Token | Check PIN"
-          uri:
+          ansible.builtin.uri:
             url: "https://plex.tv/api/v2/pins/{{ plex_pin.json.id }}"
             method: GET
             return_content: yes
@@ -118,7 +118,7 @@
 - name: "Auth Token | 2FA Disabled"
   block:
     - name: "Auth Token | Get X-Plex-Token"
-      uri:
+      ansible.builtin.uri:
         url: https://plex.tv/users/sign_in.json
         method: POST
         body:

@@ -27,7 +27,7 @@
 # https://github.com/advertine/ansible-cloudflare-purge
 
 - name: Variables | Fetch Cloudflare Zones
-  uri:
+  ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones?name={{ fld.stdout }}'
     method: 'GET'
     headers:

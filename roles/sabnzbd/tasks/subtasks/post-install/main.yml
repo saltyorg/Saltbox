@@ -8,5 +8,5 @@
 #########################################################################
 ---
 - name: Post-Install | Settings Task
-  import_tasks: "settings.yml"
+  ansible.builtin.import_tasks: "settings.yml"
   when: not sabnzbd_conf_stat.stat.exists

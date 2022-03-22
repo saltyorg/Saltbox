@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Page Rules | Add Page Rule | Add Cloudflare Page Rule for Lets Encrypt
-  uri:
+  ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/pagerules'
     method: POST
     headers:

@@ -21,7 +21,7 @@
 - name: Bash | Set Bash as default shell
   ansible.builtin.user:
     name: "{{ user.name }}"
-    ansible.builtin.shell: "{{ shell_bash_binary_path }}"
+    shell: "{{ shell_bash_binary_path }}"
   register: shell_update_task
 
 - name: Bash | Set Bash as default shell

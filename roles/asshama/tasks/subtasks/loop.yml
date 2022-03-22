@@ -45,7 +45,7 @@
     - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/FanartTV'
 
 - name: Get latest Absolute Series Scanner.py
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
     dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py'
     mode: '0775'

@@ -27,10 +27,10 @@
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Pre-Install Tasks
-  import_tasks: "subtasks/pre-install/main.yml"
+  ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Post-Install Tasks
-  import_tasks: "subtasks/post-install/main.yml"
+  ansible.builtin.import_tasks: "subtasks/post-install/main.yml"

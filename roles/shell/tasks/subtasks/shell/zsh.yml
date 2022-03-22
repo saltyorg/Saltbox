@@ -90,7 +90,7 @@
 - name: ZSH | Set ZSH as default shell
   ansible.builtin.user:
     name: "{{ user.name }}"
-    ansible.builtin.shell: "{{ shell_zsh_binary_path }}"
+    shell: "{{ shell_zsh_binary_path }}"
   register: shell_update_task
 
 - name: ZSH | Set ZSH as default shell

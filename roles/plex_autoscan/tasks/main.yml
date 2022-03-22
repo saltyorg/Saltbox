@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Import Services Task
-  import_tasks: "subtasks/services.yml"
+  ansible.builtin.import_tasks: "subtasks/services.yml"
 
 - name: Create plex_autoscan directories
   ansible.builtin.file:
@@ -60,14 +60,14 @@
     mode: a+x
 
 - name: Create script alias
-  template:
+  ansible.builtin.template:
     src: plex_autoscan.sh.j2
     dest: "{{ plex_autoscan_alias_path }}"
     mode: "0755"
     force: true
 
 - name: Import Settings Task
-  import_tasks: "subtasks/settings.yml"
+  ansible.builtin.import_tasks: "subtasks/settings.yml"
 
 - name: Start 'plex_autoscan.service'
   ansible.builtin.systemd:

@@ -8,18 +8,18 @@
 #########################################################################
 ---
 - name: Variables Task
-  import_tasks: "subtasks/variables.yml"
+  ansible.builtin.import_tasks: "subtasks/variables.yml"
   ignore_errors: true
 
 - name: saltbox Subdomains Task
-  import_tasks: "subtasks/subdomains.yml"
+  ansible.builtin.import_tasks: "subtasks/subdomains.yml"
   when: (saltbox_type | length > 0) and dns.enabled
   ignore_errors: true
 
 - name: Purge Cache Task
-  import_tasks: "subtasks/purge_cache.yml"
+  ansible.builtin.import_tasks: "subtasks/purge_cache.yml"
   ignore_errors: true
 
 - name: Page Rules Task
-  import_tasks: "subtasks/page_rules.yml"
+  ansible.builtin.import_tasks: "subtasks/page_rules.yml"
   ignore_errors: true

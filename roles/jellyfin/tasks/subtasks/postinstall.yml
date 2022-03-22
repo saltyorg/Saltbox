@@ -27,5 +27,5 @@
     recurse: true
 
 - name: Post-Install | Settings Tasks
-  import_tasks: "settings.yml"
+  ansible.builtin.import_tasks: "settings.yml"
   when: not jellyfin_existing_install.stat.exists

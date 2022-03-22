@@ -41,7 +41,7 @@
       - lidarr
 
 - name: Import 'ddclient.conf'
-  template:
+  ansible.builtin.template:
     src: "ddclient.conf.j2"
     dest: "/opt/ddclient/ddclient.conf"
     owner: "{{ user.name }}"

@@ -13,4 +13,4 @@
     state: present
 
 - name: Post-Install | Update ports in '{{ sonarr_paths_config_location | basename }}'
-  import_tasks: update_ports.yml
+  ansible.builtin.import_tasks: update_ports.yml

@@ -23,7 +23,7 @@
   block:
 
     - name: Time Zone | Get Time Zone from 'http://ip-api.com'
-      uri:
+      ansible.builtin.uri:
         url: http://ip-api.com/line?fields=timezone
         return_content: true
       register: ip_api_timezone_response

@@ -18,7 +18,7 @@
     - /etc/docker
 
 - name: "Daemon | Import 'daemon.json'"
-  template:
+  ansible.builtin.template:
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
     mode: 0775
@@ -31,7 +31,7 @@
     mode: 0644
 
 - name: "Daemon | Import override file"
-  template:
+  ansible.builtin.template:
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
     mode: 0644

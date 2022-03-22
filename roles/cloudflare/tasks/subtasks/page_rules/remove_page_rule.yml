@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Page Rules | Remove Page Rule | Remove Previous Cloudflare Page Rules for Lets Encrypt
-  uri:
+  ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/pagerules/{{ item }}'
     method: DELETE
     headers:

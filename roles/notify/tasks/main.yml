@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Import Variables Task
-  import_tasks: "subtasks/variables.yml"
+  ansible.builtin.import_tasks: "subtasks/variables.yml"
 
 - name: Sent Notification
   ansible.builtin.include_tasks: "subtasks/{{ item }}.yml"

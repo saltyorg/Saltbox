@@ -37,7 +37,7 @@
     force: true
 
 - name: Download 98-themepark
-  get_url:
+  ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/nzbget/root/etc/cont-init.d/98-themepark"
     dest: "{{ nzbget_paths_location }}/98-themepark.sh"
     owner: "{{ user.name }}"
@@ -54,5 +54,5 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Post-Install Tasks
-  import_tasks: "subtasks/post-install/main.yml"
+  ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
   when: not continuous_integration

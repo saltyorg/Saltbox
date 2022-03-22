@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Get new credentials
-  uri:
+  ansible.builtin.uri:
     url: https://api.cloudflare.com/client/v4/ips
     method: GET
     return_content: yes

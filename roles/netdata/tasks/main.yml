@@ -36,7 +36,7 @@
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Settings Task
-  import_tasks: "subtasks/settings.yml"
+  ansible.builtin.import_tasks: "subtasks/settings.yml"
   when: (not netdata_config.stat.exists)
 
 - name: Create a volume

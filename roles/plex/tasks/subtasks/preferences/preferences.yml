@@ -57,6 +57,6 @@
     - (preferences_xml.stat.exists)
 
 - name: Preferences | Claim {{ plex_name | title }} Server
-  import_tasks: "claim_server.yml"
+  ansible.builtin.import_tasks: "claim_server.yml"
   when:
     - (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and not plex_server_claimed)

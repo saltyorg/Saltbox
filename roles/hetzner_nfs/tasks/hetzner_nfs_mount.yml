@@ -19,7 +19,7 @@
     - /mnt/feeder
 
 - name: Import 'hosts.deny' file
-  template:
+  ansible.builtin.template:
     src: client/hosts.deny.j2
     dest: /etc/hosts.deny
     owner: '{{ user.name }}'
@@ -28,7 +28,7 @@
     force: true
 
 - name: Import 'hosts.allow' file
-  template:
+  ansible.builtin.template:
     src: client/hosts.allow.j2
     dest: /etc/hosts.allow
     owner: '{{ user.name }}'
@@ -44,7 +44,7 @@
       - nfs-common
 
 - name: Import 'init_vlan.sh' file
-  template:
+  ansible.builtin.template:
     src: client/init_vlan.sh.j2
     dest: /opt/hetzner_nfs/init_vlan.sh
     owner: '{{ user.name }}'
@@ -58,7 +58,7 @@
   register: nfs_vlan_service
 
 - name: Import 'nfs_vlan.service' file
-  template:
+  ansible.builtin.template:
     src: client/nfs_vlan.service.j2
     dest: /etc/systemd/system/nfs_vlan.service
     owner: '{{ user.name }}'

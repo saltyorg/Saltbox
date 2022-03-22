@@ -8,37 +8,37 @@
 #########################################################################
 ---
 - name: System Check
-  import_tasks: "subtasks/01_system.yml"
+  ansible.builtin.import_tasks: "subtasks/01_system.yml"
   tags: always
 
 - name: Ansible Version Check
-  import_tasks: "subtasks/02_ansible_version.yml"
+  ansible.builtin.import_tasks: "subtasks/02_ansible_version.yml"
   tags: always
 
 - name: Python Version Check
-  import_tasks: "subtasks/03_python_version.yml"
+  ansible.builtin.import_tasks: "subtasks/03_python_version.yml"
   tags: always
 
 - name: Tags Check
-  import_tasks: "subtasks/04_ansible_tags.yml"
+  ansible.builtin.import_tasks: "subtasks/04_ansible_tags.yml"
   tags: always
 
 - name: Backup Lock Check
-  import_tasks: "subtasks/05_backup.yml"
+  ansible.builtin.import_tasks: "subtasks/05_backup.yml"
   tags: always
 
 - name: Touch Logs
-  import_tasks: "subtasks/06_logs.yml"
+  ansible.builtin.import_tasks: "subtasks/06_logs.yml"
   tags: always
 
 - name: Create Temp Folder
-  import_tasks: "subtasks/07_tmp.yml"
+  ansible.builtin.import_tasks: "subtasks/07_tmp.yml"
   tags: always
 
 - name: Skipped Tags Check
-  import_tasks: "subtasks/08_skipped_tags.yml"
+  ansible.builtin.import_tasks: "subtasks/08_skipped_tags.yml"
   tags: always
 
 - name: Repository Check
-  import_tasks: "subtasks/09_repo.yml"
+  ansible.builtin.import_tasks: "subtasks/09_repo.yml"
   tags: always

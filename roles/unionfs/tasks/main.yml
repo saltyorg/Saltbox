@@ -10,12 +10,12 @@
 # Variables
 
 - name: Variables Task
-  import_tasks: "subtasks/variables.yml"
+  ansible.builtin.import_tasks: "subtasks/variables.yml"
 
 # Stop Docker Containers
 
 - name: Docker Containers Stop Tasks
-  import_tasks: "subtasks/docker/containers_stop.yml"
+  ansible.builtin.import_tasks: "subtasks/docker/containers_stop.yml"
 
 # Existing Setup
 
@@ -28,7 +28,7 @@
 # New Setup
 
 - name: Basic Tasks
-  import_tasks: "subtasks/basics.yml"
+  ansible.builtin.import_tasks: "subtasks/basics.yml"
 
 # Mount UnionFS
 
@@ -36,9 +36,9 @@
   ansible.builtin.include_tasks: "subtasks/mergerfs.yml"
 
 - name: Docker Daemon Tasks
-  import_tasks: "subtasks/docker/daemon.yml"
+  ansible.builtin.import_tasks: "subtasks/docker/daemon.yml"
 
 # Start Docker Containers
 
 - name: Docker Containers Start Tasks
-  import_tasks: "subtasks/docker/containers_start.yml"
+  ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"

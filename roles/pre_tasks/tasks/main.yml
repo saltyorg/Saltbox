@@ -8,5 +8,5 @@
 #########################################################################
 ---
 - name: APT Tasks
-  import_tasks: "subtasks/apt.yml"
+  ansible.builtin.import_tasks: "subtasks/apt.yml"
   tags: always

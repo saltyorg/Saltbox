@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Hetzner Tasks"
-  import_tasks: "subtasks/hetzner.yml"
+  ansible.builtin.import_tasks: "subtasks/hetzner.yml"
 
 - name: "Restart Tasks"
   ansible.builtin.include_tasks: "subtasks/restart.yml"

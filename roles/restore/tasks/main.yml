@@ -23,7 +23,7 @@
   when: (user_check.rc == 1)
 
 - name: Variables
-  import_tasks: "variables.yml"
+  ansible.builtin.import_tasks: "variables.yml"
 
 - name: "Check if 'localhost.yml' exists in '{{ playbook_dir }}'"
   ansible.builtin.stat:
@@ -117,7 +117,7 @@
 
 # Restore from remote backup when local backup does not exist
 - name: Restore Remote
-  import_tasks: "restore_remote.yml"
+  ansible.builtin.import_tasks: "restore_remote.yml"
   when: (dir_files.matched|int == 0)
 
 - name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
@@ -155,7 +155,7 @@
   register: unarchive
 
 - name: "Set '/opt' ownership and permissions"
-  import_tasks: "permissions.yml"
+  ansible.builtin.import_tasks: "permissions.yml"
   tags: opt-permissions-reset
 
 - name: Cleanup backup location

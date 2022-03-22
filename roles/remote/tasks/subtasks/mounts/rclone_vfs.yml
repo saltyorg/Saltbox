@@ -16,7 +16,7 @@
     mode: 0775
 
 - name: Rclone VFS | Import 'rclone_vfs.service'
-  template:
+  ansible.builtin.template:
     src: rclone_vfs.service.j2
     dest: /etc/systemd/system/rclone_vfs.service
     mode: 0755
@@ -30,7 +30,7 @@
     daemon_reload: true
 
 - name: Rclone VFS | Import 'rclone_refresh.timer'
-  template:
+  ansible.builtin.template:
     src: rclone_refresh.timer.j2
     dest: /etc/systemd/system/rclone_refresh.timer
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
@@ -44,7 +44,7 @@
     daemon_reload: yes
 
 - name: Rclone VFS | Import 'rclone_refresh.service'
-  template:
+  ansible.builtin.template:
     src: rclone_refresh.service.j2
     dest: /etc/systemd/system/rclone_refresh.service
     force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"

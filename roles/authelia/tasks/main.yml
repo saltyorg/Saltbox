@@ -51,7 +51,7 @@
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: Import default 'configuration.yml'
-  template:
+  ansible.builtin.template:
     src: configuration.yml.j2
     dest: "{{ authelia_paths_location }}/configuration.yml"
     owner: "{{ user.name }}"
@@ -60,7 +60,7 @@
   when: (not authelia_config_stat.stat.exists)
 
 - name: Import default 'users_database.yml'
-  template:
+  ansible.builtin.template:
     src: users_database.yml.j2
     dest: "{{ authelia_paths_location }}/users_database.yml"
     owner: "{{ user.name }}"
@@ -69,7 +69,7 @@
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: Settings Task
-  import_tasks: "subtasks/settings.yml"
+  ansible.builtin.import_tasks: "subtasks/settings.yml"
   when: (authelia_config_stat.stat.exists)
 
 - name: Create Docker container

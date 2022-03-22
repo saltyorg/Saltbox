@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Import 'dynamic.yml'"
-  template:
+  ansible.builtin.template:
     src: dynamic.yml.j2
     dest: "{{ traefik_paths_location }}/dynamic.yml"
     force: true

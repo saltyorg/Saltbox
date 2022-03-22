@@ -24,7 +24,7 @@
     state: stopped
 
 - name: Post-Install | Settings Task
-  import_tasks: "settings/main.yml"
+  ansible.builtin.import_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
   docker_container:

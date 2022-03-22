@@ -93,7 +93,7 @@
   when: (not traktarr_config.stat.exists) and (radarr_config.stat.exists)
 
 - name: Import default config
-  template:
+  ansible.builtin.template:
     src: config.json.j2
     dest: /opt/traktarr/config.json
     owner: "{{ user.name }}"
@@ -125,7 +125,7 @@
     state: link
 
 - name: Import traktarr service
-  template:
+  ansible.builtin.template:
     src: traktarr.service.j2
     dest: /etc/systemd/system/traktarr.service
     mode: "0664"

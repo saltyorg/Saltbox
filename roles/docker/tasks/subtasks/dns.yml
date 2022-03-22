@@ -24,7 +24,7 @@
     mode: a+x
 
 - name: DNS | Import 'docker-update-hosts.service'
-  template:
+  ansible.builtin.template:
     src: docker-update-hosts.service.j2
     dest: /etc/systemd/system/docker-update-hosts.service
     mode: "0755"

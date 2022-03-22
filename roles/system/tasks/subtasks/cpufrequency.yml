@@ -63,7 +63,7 @@
   ignore_errors: true
 
 - name: Populate Service Facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Remove ondemand | Stop and disable 'ondemand.service'
   ansible.builtin.systemd:

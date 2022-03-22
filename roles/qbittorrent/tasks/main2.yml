@@ -30,12 +30,12 @@
   register: qbittorrent_paths_conf_stat
 
 - name: Pre-Install Tasks
-  import_tasks: "subtasks/pre-install/main.yml"
+  ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
   when: not continuous_integration
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Post-Install Tasks
-  import_tasks: "subtasks/post-install/main.yml"
+  ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
   when: (not continuous_integration) and (not qbittorrent_paths_conf_stat.stat.exists)

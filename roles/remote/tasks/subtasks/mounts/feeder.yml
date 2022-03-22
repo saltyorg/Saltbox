@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Feeder | Import 'feeder.service'
-  template:
+  ansible.builtin.template:
     src: feeder.service.j2
     dest: /etc/systemd/system/feeder.service
     mode: '0755'

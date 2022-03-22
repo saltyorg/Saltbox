@@ -21,7 +21,7 @@
       when: (plex_account_is_enabled)
 
     - name: Pre-Install | Import default config
-      template:
+      ansible.builtin.template:
         src: 'config.json.j2'
         dest: "{{ nzbthrottle_paths_config_location }}"
         owner: "{{ user.name }}"

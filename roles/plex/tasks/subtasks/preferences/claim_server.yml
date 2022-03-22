@@ -15,7 +15,7 @@
 - name: Claim Server | Get {{ plex_name | title }} claim code via API
   block:
     - name: "Get {{ plex_name | title }} claim code"
-      uri:
+      ansible.builtin.uri:
         url: https://plex.tv/api/claim/token.json
         method: GET
         return_content: yes

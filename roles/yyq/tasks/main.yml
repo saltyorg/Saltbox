@@ -15,7 +15,7 @@
       - jq
 
 - name: Install yyq
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/mikefarah/yq/releases/download/v{{ yyq_install_version }}/yq_linux_amd64"
     dest: /usr/local/bin/yyq
     mode: "0775"

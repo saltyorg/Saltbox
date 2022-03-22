@@ -8,5 +8,5 @@
 ##########################################################################
 ---
 - name: Post-Install | Settings Tweaks
-  import_tasks: "settings.yml"
+  ansible.builtin.import_tasks: "settings.yml"
   when: not nzbhydra2_yml_stat.stat.exists

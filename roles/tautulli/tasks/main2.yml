@@ -27,7 +27,7 @@
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Download 98-themepark
-  get_url:
+  ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/tautulli/root/etc/cont-init.d/98-themepark"
     dest: "{{ tautulli_paths_location }}/98-themepark.sh"
     owner: "{{ user.name }}"

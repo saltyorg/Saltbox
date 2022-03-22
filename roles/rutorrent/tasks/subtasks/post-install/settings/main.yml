@@ -8,4 +8,4 @@
 #########################################################################
 ---
 - name: Post-Install | Settings | Update settings For New Installs
-  import_tasks: "new_installs.yml"
+  ansible.builtin.import_tasks: "new_installs.yml"

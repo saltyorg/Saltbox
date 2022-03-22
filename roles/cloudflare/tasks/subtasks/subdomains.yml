@@ -9,9 +9,9 @@
 ---
 ## Add 'saltbox_type' subdomain
 - name: "Cloudflare | Subdomains | Add '{{ saltbox_type }}' subdomain to '{{ fld.stdout }}'"
-  import_tasks: "subdomains/add_subdomain.yml"
+  ansible.builtin.import_tasks: "subdomains/add_subdomain.yml"
 
 ## Remove 'saltbox' subdomain for Mediabox/Feederbox setups.
 - name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ fld.stdout }}'"
-  import_tasks: "subdomains/remove_subdomain.yml"
+  ansible.builtin.import_tasks: "subdomains/remove_subdomain.yml"
   when: saltbox_type is regex('mediabox|feederbox')

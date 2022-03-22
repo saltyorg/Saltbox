@@ -13,7 +13,7 @@
   register: docker_binary
 
 - name: Populate Service Facts
-  service_facts:
+  ansible.builtin.service_facts:
   when: docker_binary.stat.exists
 
 - name: Get 'docker.service' state
@@ -48,7 +48,7 @@
   register: mergerfs_service
 
 - name: Populate Service Facts
-  service_facts:
+  ansible.builtin.service_facts:
   when: (unionfs_service.stat.exists) or (mergerfs_service.stat.exists)
 
  # Stop unionfs
