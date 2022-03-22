@@ -37,7 +37,7 @@
   when: rclone_version_is_specified
 
 - name: "Install Binary | Download and unarchive rclone"
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ rclone_download_url }}"
     dest: /tmp
     copy: false

@@ -14,10 +14,10 @@
                   else role_name }}"
 
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container
-  docker_container:
+  community.docker.docker_container:
     cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
-    ansible.builtin.command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
+    command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
     command_handling: compatibility
     container_default_behavior: compatibility
     default_host_ip: ""
