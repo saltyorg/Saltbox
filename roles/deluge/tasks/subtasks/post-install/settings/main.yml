@@ -11,16 +11,16 @@
   ansible.builtin.replace:
     path: "{{ deluge_paths_conf }}"
     regexp: '"listen_ports": (\[[\d|\W]+\]),'
-    ansible.builtin.replace: '"listen_ports": [{{ deluge_docker_ports_58112 }},{{ deluge_docker_ports_58112 }}],'
+    replace: '"listen_ports": [{{ deluge_docker_ports_58112 }},{{ deluge_docker_ports_58112 }}],'
 
 - name: Post-Install | Settings | Update 'core.conf' | Set listen random port to null
   ansible.builtin.replace:
     path: "{{ deluge_paths_conf }}"
     regexp: '"listen_random_port": ([\d|\W]+),'
-    ansible.builtin.replace: '"listen_random_port": null,'
+    replace: '"listen_random_port": null,'
 
 - name: Post-Install | Settings | Update 'core.conf' | Disable random ports
   ansible.builtin.replace:
     path: "{{ deluge_paths_conf }}"
     regexp: '"random_port": ([\w]+),'
-    ansible.builtin.replace: '"random_port": false,'
+    replace: '"random_port": false,'
