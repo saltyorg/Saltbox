@@ -10,6 +10,7 @@
 - name: Claim Server | Import plex_auth_token
   import_role:
     name: plex_auth_token
+  when: (plex_account_is_enabled)
 
 - name: Claim Server | Get {{ plex_name | title }} claim code via API
   block:
