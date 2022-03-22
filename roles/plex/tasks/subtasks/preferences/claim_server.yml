@@ -40,7 +40,7 @@
   block:
 
     - name: "Claim Server | Ask user for {{ plex_name | title }} claim code"
-      pause:
+      ansible.builtin.pause:
         prompt: "Please visit 'https://plex.tv/claim', login with your Plex account,
           copy the 'Claim Code', paste it below, and press ENTER."
       register: plex_claim_code_prompt

@@ -8,7 +8,7 @@
 ####################################################################################
 ---
 - name: Post-Install | Settings | Update 'qBittorrent.conf' config settings
-  ini_file:
+  community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: BitTorrent
     option: Session\Port

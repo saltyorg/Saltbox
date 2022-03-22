@@ -51,7 +51,7 @@
   register: motd_news
 
 - name: Disable MOTD news service
-  ini_file:
+  community.general.ini_file:
     path: "/etc/default/motd-news"
     section: null
     option: "ENABLED"

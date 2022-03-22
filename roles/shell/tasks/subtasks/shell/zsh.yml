@@ -62,7 +62,7 @@
     mode: "0664"
 
 - name: ZSH | Enable plugins
-  ini_file:
+  community.general.ini_file:
     path: "{{ shell_zsh_zshrc_path }}"
     section: null
     option: plugins

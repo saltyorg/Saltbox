@@ -105,7 +105,7 @@
       unarchive:
         src: "{{ plex_plugin_webtools_download_url }}"
         dest: "{{ plex_paths_plugins_location }}"
-        ansible.builtin.copy: false
+        copy: false
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"

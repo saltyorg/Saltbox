@@ -22,7 +22,7 @@
   register: import_override
 
 - name: "Docker | Daemon | Edit override file"
-  ini_file:
+  community.general.ini_file:
     path: /etc/systemd/system/docker.service.d/override.conf
     section: Unit
     option: "After"

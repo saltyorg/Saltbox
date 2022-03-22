@@ -24,7 +24,7 @@
     timeout: 10
 
 - name: Post-Install | Settings | Update config settings
-  ini_file:
+  community.general.ini_file:
     path: "{{ sabnzbd_paths_config_location }}"
     section: misc
     option: "{{ item.option }}"

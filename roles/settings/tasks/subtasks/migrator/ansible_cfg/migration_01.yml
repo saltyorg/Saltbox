@@ -8,7 +8,7 @@
 ########################################################################################
 ---
 - name: "Migrator | 'ansible.cfg' | Add default entries to 'ansible.cfg'"
-  ini_file:
+  community.general.ini_file:
     path: "{{ playbook_dir }}/{{ file }}"
     section: "{{ item.section }}"
     option: "{{ item.option }}"

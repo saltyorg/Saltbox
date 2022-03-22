@@ -8,7 +8,8 @@
 #########################################################################
 ---
 - name: Install common pip modules
-  raw: pip3 install jmespath
+  ansible.builtin.pip:
+    name: jmespath
 
 - name: Install pkg-config
   ansible.builtin.apt:

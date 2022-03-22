@@ -8,7 +8,7 @@
 ####################################################################################
 ---
 - name: Post-Install | Settings | New Installs | Update 'rtorrent.rc' config settings
-  ini_file:
+  community.general.ini_file:
     path: "{{ rutorrent_paths_rtorrent_rc_location }}"
     section: null
     option: "{{ item.option }}"
@@ -21,7 +21,7 @@
   loop: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_list }}"
 
 - name: Post-Install | Settings | New Installs | Update 'php-local.ini' config settings
-  ini_file:
+  community.general.ini_file:
     path: "{{ rutorrent_paths_php_local_ini_location }}"
     section: null
     option: "{{ item.option }}"

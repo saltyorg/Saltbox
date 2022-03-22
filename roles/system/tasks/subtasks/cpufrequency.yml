@@ -27,7 +27,7 @@
   ignore_errors: true
 
 - name: CPU Frequency | Ensure 'cpufrequtils' is enabled
-  ini_file:
+  community.general.ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
     option: 'ENABLE'
@@ -38,7 +38,7 @@
     no_extra_spaces: true
 
 - name: CPU Frequency | Set 'GOVERNOR' used on boot to performance
-  ini_file:
+  community.general.ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
     option: 'GOVERNOR'
@@ -49,7 +49,7 @@
     no_extra_spaces: true
 
 - name: CPU Frequency | Remove mispelled 'GOVENOR' entry
-  ini_file:
+  community.general.ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
     option: 'GOVENOR'

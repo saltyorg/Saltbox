@@ -49,7 +49,9 @@
             done
 
         - name: BTRFS | Cleanup | Remove '/var/lib/docker' path
-          ansible.builtin.shell: rm -rf /var/lib/docker
+          ansible.builtin.file:
+            path: "/var/lib/docker"
+            state: absent
 
       when: ('btrfs' in var_lib_docker_file_system.stdout)
 

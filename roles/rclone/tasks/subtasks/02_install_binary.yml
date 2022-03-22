@@ -40,7 +40,7 @@
   unarchive:
     src: "{{ rclone_download_url }}"
     dest: /tmp
-    ansible.builtin.copy: false
+    copy: false
     validate_certs: false
 
 - name: Install Binary | Find rclone tmp dir

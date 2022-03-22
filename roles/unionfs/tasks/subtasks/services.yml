@@ -23,7 +23,7 @@
       ignore_errors: true
 
     - name: "Services | Update credentials in existing '{{ _service_file }}'"
-      ini_file:
+      community.general.ini_file:
         path: "/etc/systemd/system/{{ _service_file }}"
         section: Service
         option: "{{ inner_item.option }}"
