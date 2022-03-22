@@ -9,4 +9,4 @@
 ---
 custom_apt: []
 
-custom_ansible.builtin.pip: []
+custom_pip: []

@@ -38,5 +38,5 @@
           - "You will need to re-run your previous tag."
 
     - name: "Upgrade Ansible | Exit"
-      meta: end_play
+      ansible.builtin.meta: end_play
   when: ansible_update

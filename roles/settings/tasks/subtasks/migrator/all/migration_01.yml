@@ -8,10 +8,10 @@
 ########################################################################################
 ---
 - name: Migrator | All | '{{ file }}' | Migration 01 | Add single space after colon (if needed)
-  replace:
+  ansible.builtin.replace:
     path: "{{ playbook_dir }}/{{ file }}"
     regexp: '(:)[ \t]*(.*)'
-    replace: '\1 \2'
+    ansible.builtin.replace: '\1 \2'
     owner: "{{ saltbox_yml.stat.uid }}"
     group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664

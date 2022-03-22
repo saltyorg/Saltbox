@@ -24,15 +24,15 @@
     grub_final_kernel_parameters: '{{ grub_default_kernel_parameters | difference(grub_item_to_remove) }}'
 
 - name: GRUB Edits | Update 'GRUB_CMDLINE_LINUX_DEFAULT'
-  replace:
+  ansible.builtin.replace:
     path: "{{ outer_item.item }}"
     regexp: '(^GRUB_CMDLINE_LINUX_DEFAULT\s?=.*)'
-    replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
+    ansible.builtin.replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
   register: x
   notify: ['Reload GRUB']
 
 - name: GRUB Edits | Execute Handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: GRUB Edits | Set 'reboot_is_necessary' variable
   ansible.builtin.set_fact:

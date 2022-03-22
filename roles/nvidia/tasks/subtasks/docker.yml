@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Docker | Add 'nvidia-container-runtime' APT Repo Key
-  apt_key:
+  ansible.builtin.apt_key:
     url: "{{ nvidia_docker_runtime_apt_key_url }}"
     state: present
 

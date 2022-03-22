@@ -50,10 +50,10 @@
   when: unionfs_service.stat.exists
 
 - name: Replace '/mnt/feeder' with '/mnt/local' in 'unionfs.service'
-  replace:
+  ansible.builtin.replace:
     path: /etc/systemd/system/unionfs.service
     regexp: "\\/mnt\\/feeder"
-    replace: '/mnt/local'
+    ansible.builtin.replace: '/mnt/local'
   when: unionfs_service.stat.exists
 
   # mergerfs edits
@@ -68,8 +68,8 @@
   when: mergerfs_service.stat.exists
 
 - name: Replace '/mnt/feeder' with '/mnt/local' in 'mergerfs.service'
-  replace:
+  ansible.builtin.replace:
     path: /etc/systemd/system/mergerfs.service
     regexp: "\\/mnt\\/feeder"
-    replace: '/mnt/local'
+    ansible.builtin.replace: '/mnt/local'
   when: mergerfs_service.stat.exists

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Binary | Release '{{ vars[item ~ '_dpkg'] }}' from hold
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: "{{ vars[item ~ '_dpkg'] }}"
     selection: install
 
@@ -19,7 +19,7 @@
     update_cache: true
 
 - name: Binary | Put '{{ vars[item ~ '_dpkg'] }}' into hold
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     name: "{{ vars[item ~ '_dpkg'] }}"
     selection: hold
   when: put_docker_dpkg_into_hold

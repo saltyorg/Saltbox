@@ -41,4 +41,4 @@
   tags: set-locale
 
 - name: flush_handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

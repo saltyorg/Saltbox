@@ -25,10 +25,10 @@
   block:
 
     - name: Hetzner | Comment out 'i915' blacklists in 'blacklist-hetzner.conf'
-      replace:
+      ansible.builtin.replace:
         path: "/etc/modprobe.d/blacklist-hetzner.conf"
         regexp: '(^blacklist\si915.*)'
-        replace: '#\1'
+        ansible.builtin.replace: '#\1'
 
     - name: Hetzner | Hetzner GRUB files
       ansible.builtin.set_fact:

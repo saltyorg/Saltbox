@@ -41,7 +41,7 @@
         msg: "Saltbox Installer will now exit."
 
     - name: "Finish | Exit"
-      meta: end_play
+      ansible.builtin.meta: end_play
 
   when: exit_is_necessary
 
