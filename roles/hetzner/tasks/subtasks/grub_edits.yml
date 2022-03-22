@@ -27,7 +27,7 @@
   ansible.builtin.replace:
     path: "{{ outer_item.item }}"
     regexp: '(^GRUB_CMDLINE_LINUX_DEFAULT\s?=.*)'
-    ansible.builtin.replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
+    replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
   register: x
   notify: ['Reload GRUB']
 

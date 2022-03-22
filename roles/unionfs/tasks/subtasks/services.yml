@@ -41,7 +41,7 @@
       ansible.builtin.replace:
         path: "/etc/systemd/system/{{ _service_file }}"
         regexp: "\\/mnt\\/local"
-        ansible.builtin.replace: '/mnt/feeder'
+        replace: '/mnt/feeder'
       when:
         - feeder_mount_is_enabled
         - (feeder_remote_is_active is defined and feeder_remote_is_active)
@@ -50,7 +50,7 @@
       ansible.builtin.replace:
         path: "/etc/systemd/system/{{ _service_file }}"
         regexp: "\\/mnt\\/feeder"
-        ansible.builtin.replace: '/mnt/local'
+        replace: '/mnt/local'
       when: not feeder_mount_is_enabled or not (feeder_remote_is_active is defined and feeder_remote_is_active)
 
     - name: "Services | Systemd daemon-reload"

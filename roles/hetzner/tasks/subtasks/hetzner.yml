@@ -28,7 +28,7 @@
       ansible.builtin.replace:
         path: "/etc/modprobe.d/blacklist-hetzner.conf"
         regexp: '(^blacklist\si915.*)'
-        ansible.builtin.replace: '#\1'
+        replace: '#\1'
 
     - name: Hetzner | Hetzner GRUB files
       ansible.builtin.set_fact:
