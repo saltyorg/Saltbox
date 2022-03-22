@@ -175,7 +175,7 @@
   when: yyq_binary.stat.exists
 
 - name: "Set yyq version"
-  set_fact:
+  ansible.builtin.set_fact:
     yyq_current_version: "{{ yyq_version_settings_check.stdout
                           if yyq_version_settings_check.stdout is defined
                           else '0.0.0' }}"

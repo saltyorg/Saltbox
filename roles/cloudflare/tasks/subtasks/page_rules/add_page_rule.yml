@@ -30,6 +30,6 @@
   register: cf_page_rule_creation
 
 - name: Page Rules | Add Page Rule | Print result of Cloudflare Page Rule Creation
-  debug:
+  ansible.builtin.debug:
     msg: "Successfully created Let's Encrypt Cloudflare page rule for '{{ fld.stdout }}'"
   when: (cf_page_rule_creation.json.success is defined) and (cf_page_rule_creation.json.success)

@@ -19,7 +19,7 @@
       service_facts:
 
     - name: Services | Get 'plex_autoscan.service' state
-      set_fact:
+      ansible.builtin.set_fact:
         plex_autoscan_service_running: "{{ (services['plex_autoscan.service'] is defined) and (services['plex_autoscan.service']['state'] == 'running') }}"
 
     - name: Services | Stop 'plex_autoscan.service'

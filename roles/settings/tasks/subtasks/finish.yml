@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Finish | Check 'settings-updater.py' for new settings"
-  debug:
+  ansible.builtin.debug:
     msg:
       - "The 'settings_updater.py' script updated the following
           file{{ files_updated_successfully | pluralize }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
@@ -22,7 +22,7 @@
   block:
 
     - name: "Finish | Check 'settings-updater.py' run status for errors"
-      debug:
+      ansible.builtin.debug:
         msg:
           - "The 'settings_updater.py' script exited with an error when updating the following
               file{{ files_updated_unsuccessfully | pluralize }}: '{{ files_updated_unsuccessfully | join(', ') | trim }}'"
@@ -30,14 +30,14 @@
       when: files_updated_unsuccessfully | length > 0
 
     - name: "Finish | 'ansible.cfg' was updated."
-      debug:
+      ansible.builtin.debug:
         msg:
           - "Settings Role updated 'ansible.cfg'"
           - "You will need to re-run your previous tag."
       when: ('ansible.cfg' in files_updated_successfully)
 
     - name: "Finish | Exit so that user can check updated config files"
-      debug:
+      ansible.builtin.debug:
         msg: "Saltbox Installer will now exit."
 
     - name: "Finish | Exit"

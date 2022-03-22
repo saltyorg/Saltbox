@@ -31,7 +31,7 @@
       register: plex_claim
 
     - name: "Claim Server | Set 'plex_claim_code' variable"
-      set_fact:
+      ansible.builtin.set_fact:
         plex_claim_code: "{{ plex_claim.json.token }}"
 
   when: (plex_account_is_enabled)
@@ -46,7 +46,7 @@
       register: plex_claim_code_prompt
 
     - name: "Claim Server | Set 'plex_claim_code' variable"
-      set_fact:
+      ansible.builtin.set_fact:
         plex_claim_code: "{{ plex_claim_code_prompt.user_input }}"
 
   when: (not plex_account_is_enabled)
@@ -60,5 +60,5 @@
     quiet: true
 
 - name: "Claim Server | Display {{ plex_name | title }} claim code"
-  debug:
+  ansible.builtin.debug:
     msg: "Using Plex Claim Code{{ ':' }} {{ plex_claim_code }}"

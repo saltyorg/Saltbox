@@ -15,7 +15,7 @@
       - jq
 
 - name: Build URL | Check if rclone version was specified
-  set_fact:
+  ansible.builtin.set_fact:
     rclone_version_is_specified: "{{ true if not (
         (rclone is undefined)
         or
@@ -32,18 +32,18 @@
       else false }}"
 
 - name: Build URL | Display rclone version specified
-  debug:
+  ansible.builtin.debug:
     msg: "Rclone version specified: {{ rclone.version }}"
   when: rclone_version_is_specified
 
 - name: Build URL | Set vars for current version
-  set_fact:
+  ansible.builtin.set_fact:
     rclone_version_specified: "latest"
     rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
   when: (not rclone_version_is_specified) or (rclone.version == 'latest') or (rclone.version == 'current')
 
 - name: Build URL | Set vars for beta version
-  set_fact:
+  ansible.builtin.set_fact:
     rclone_version_specified: "{{ rclone.version }}"
     rclone_download_url: "https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip"
   when: (rclone_version_is_specified) and (rclone.version == 'beta')
@@ -52,7 +52,7 @@
   block:
 
     - name: Build URL | Set temp 'rclone_version_specified0' var for specified version
-      set_fact:
+      ansible.builtin.set_fact:
         rclone_version_specified0: >-
           {{ ('%.2f'|format(rclone.version|float))
           if ((rclone.version | type_debug == 'float') or (rclone.version | type_debug == 'int'))
@@ -67,18 +67,18 @@
       failed_when: (rclone_version_specified0_check.rc > 1)
 
     - name: Build URL | Set vars for specified version if available
-      set_fact:
+      ansible.builtin.set_fact:
         rclone_version_specified: "{{ rclone_version_specified0 }}"
         rclone_download_url: 'https://downloads.rclone.org/v{{ rclone_version_specified0 }}/rclone-v{{ rclone_version_specified0 }}-linux-amd64.zip'
       when: (rclone_version_specified0_check.stdout | trim | length > 0)
 
     - name: Build URL | Display message if specified version is not available
-      debug:
+      ansible.builtin.debug:
         msg: "Rclone version {{ rclone_version_specified0 }} is not available. Installing the latest available version instead..."
       when: (rclone_version_specified0_check.stdout | trim | length == 0)
 
     - name: Build URL | Set vars for specified version if not available
-      set_fact:
+      ansible.builtin.set_fact:
         rclone_version_specified: "latest"
         rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
       when: (rclone_version_specified0_check.stdout | trim | length == 0)

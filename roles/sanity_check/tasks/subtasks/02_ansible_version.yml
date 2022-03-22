@@ -12,13 +12,13 @@
   register: registered_ansible_version
 
 - name: Print Ansible version
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Installed Ansible version: {{ registered_ansible_version.stdout }}."
       - "Installed Ansible Core version: {{ ansible_version.full }}."
 
 - name: Check if Ansible needs upgrading
-  set_fact:
+  ansible.builtin.set_fact:
     ansible_update: true
   when: registered_ansible_version.stdout is version(sanity_check_ansible_version_min, 'lt', version_type='semver')
 
@@ -32,7 +32,7 @@
 - name: "Upgrade Ansible | Check if Ansible was upgraded"
   block:
     - name: "Upgrade Ansible | Print Instructions"
-      debug:
+      ansible.builtin.debug:
         msg:
           - "Ansible was upgraded"
           - "You will need to re-run your previous tag."

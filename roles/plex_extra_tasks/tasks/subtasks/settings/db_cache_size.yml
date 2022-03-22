@@ -23,11 +23,11 @@
   changed_when: false
 
 - name: Settings | DB Cache Size | Set 'default_db_cache_size' variable
-  set_fact:
+  ansible.builtin.set_fact:
     default_db_cache_size: '2000'
 
 - name: Settings | DB Cache Size | Check if 'plex_db_cache_size' was specified
-  set_fact:
+  ansible.builtin.set_fact:
     db_cache_size_is_specified: "{{ true if not (
         (plex_db_cache_size is undefined)
         or
@@ -38,7 +38,7 @@
       else false }}"
 
 - name: Settings | DB Cache Size | Get Desired Plex DB Cache Size
-  set_fact:
+  ansible.builtin.set_fact:
     desired_db_cache_size: "{{ default_db_cache_size
       if ( (not db_cache_size_is_specified) or (plex_db_cache_size == 'default') )
       else ( (plex_db_cache_size) | regex_replace(',', '') | int ) }}"
@@ -53,7 +53,7 @@
       when: ('plex_db_cache_size' in ansible_run_tags)
 
     - name: Settings | DB Cache Size | Display Desired Plex DB Cache Size
-      debug:
+      ansible.builtin.debug:
         msg: "Desired Plex DB Cache Size is '{{ desired_db_cache_size }}'"
 
     - name: "Settings | DB Cache Size | Set Plex DB Cache Size"
@@ -74,7 +74,7 @@
       register: new_db_cache_size
 
     - name: Settings | DB Cache Size | Display New Plex DB Cache Size
-      debug:
+      ansible.builtin.debug:
         msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
 
     - name: Settings | DB Cache Size | Start Plex Container

@@ -29,7 +29,7 @@
       register: ip_api_timezone_response
 
     - name: Time Zone | Set 'timezone' variable from 'http://ip-api.com'
-      set_fact:
+      ansible.builtin.set_fact:
         timezone: "{{ ip_api_timezone_response.content | trim }}"
       when:
         - (ip_api_timezone_response is succeeded)

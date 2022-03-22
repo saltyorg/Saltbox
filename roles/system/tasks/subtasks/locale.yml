@@ -28,11 +28,11 @@
   changed_when: false
 
 - name: Parse 'LANG' from current locale and language configuration
-  set_fact:
+  ansible.builtin.set_fact:
     locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
 
 - name: Parse 'LANGUAGE' from current locale and language configuration
-  set_fact:
+  ansible.builtin.set_fact:
     locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
 
 - name: Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'

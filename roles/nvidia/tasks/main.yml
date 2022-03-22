@@ -33,7 +33,7 @@
       ignore_errors: yes
 
     - name: Set 'nvidia_installed_driver_version' variable
-      set_fact:
+      ansible.builtin.set_fact:
         nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout }}"
 
     # Purge Old Drivers
@@ -56,7 +56,7 @@
             autoremove: yes
 
         - name: Success message
-          debug:
+          ansible.builtin.debug:
             msg:
               - "Purged Nvidia drivers. System will now reboot."
               - "You will need to re-run your previous tag after the system has rebooted."
@@ -128,7 +128,7 @@
       register: docker_runtime_binary
 
     - name: Set 'docker_default_runtime'
-      set_fact:
+      ansible.builtin.set_fact:
         docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
 
     - name: "Nvidia Docker Task"

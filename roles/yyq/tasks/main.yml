@@ -33,6 +33,6 @@
   when: x is success
 
 - name: "Display yyq version"
-  debug:
+  ansible.builtin.debug:
     msg: "yyq {{ yyq_version.stdout }} installed."
   when: x is success

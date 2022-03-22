@@ -9,7 +9,7 @@
 
 ---
 - name: "Migrator | 'backup_config.yml' | Migration 01 | Set variables"
-  set_fact:
+  ansible.builtin.set_fact:
     new_settings: "{{ true if not(
         (backup is undefined)
         or

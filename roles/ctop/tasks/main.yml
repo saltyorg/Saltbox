@@ -35,7 +35,7 @@
       ignore_errors: true
 
     - name: Display ctop binary version
-      debug:
+      ansible.builtin.debug:
         msg: "ctop {{ ctop_binary_version.stdout }} installed."
 
   when: ctop_download_status is succeeded

@@ -8,20 +8,20 @@
 #########################################################################
 ---
 - name: Snapshot | Set default variables
-  set_fact:
+  ansible.builtin.set_fact:
     snapshot_type: ""
     backup_opt_path: "/opt/"
     use_snapshot: false
 
 - name: "Snapshot | Determine '/' filesystem type"
-  set_fact:
+  ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
   when: (backup.misc.snapshot) and (item.mount == '/')
   with_items:
     - "{{ ansible_mounts }}"
 
 - name: "Snapshot | Determine '/opt' filesystem type"
-  set_fact:
+  ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
   when: (backup.misc.snapshot) and (item.mount == '/opt')
   with_items:
@@ -33,19 +33,19 @@
   block:
 
     - name: "Snapshot | Set general BTRFS variables"
-      set_fact:
+      ansible.builtin.set_fact:
         snapshot_type: "btrfs"
         use_snapshot: true
 
     - name: "Snapshot | Set '/' BTRFS variables"
-      set_fact:
+      ansible.builtin.set_fact:
         backup_snapshot_source_path: "/"
         backup_snapshot_destination_path: "/btrfs/snapshots/root"
         backup_opt_path: "/btrfs/snapshots/root/opt/"
       when: (root_fstype is defined) and (root_fstype == 'btrfs')
 
     - name: "Snapshot | Set '/opt' BTRFS variables"
-      set_fact:
+      ansible.builtin.set_fact:
         backup_snapshot_source_path: "/opt"
         backup_snapshot_destination_path: "/opt/snapshots/opt"
         backup_opt_path: "/opt/snapshots/opt/"

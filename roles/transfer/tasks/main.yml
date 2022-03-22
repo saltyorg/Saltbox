@@ -65,12 +65,12 @@
       when: x is success
 
     - name: "Display transfer version"
-      debug:
+      ansible.builtin.debug:
         msg: "transfer {{ transfer_version.stdout }} installed."
       when: x is success
 
     - name: "transfer install failed"
-      debug:
+      ansible.builtin.debug:
         msg: "transfer install failed."
       when: x is not success
 

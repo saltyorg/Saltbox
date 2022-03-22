@@ -13,7 +13,7 @@
     state: present
 
 - name: Restore Service | Set variables
-  set_fact:
+  ansible.builtin.set_fact:
     restore_service_username: "{{ backup.restore_service.user | hash('sha1') }}"
     restore_service_password: "{{ backup.restore_service.pass }}"
   no_log: true
@@ -83,7 +83,7 @@
     - "/tmp/restore_service/*"
 
 - name: Restore Service | Set variables
-  set_fact:
+  ansible.builtin.set_fact:
     unencrypted_files_list: >
       {{ encryption_check.results | selectattr('rc', 'equalto', 1) | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$','')
       | list | sort(case_sensitive=False) | join(', ') }}
@@ -92,7 +92,7 @@
       | list | sort(case_sensitive=False) | join(', ') }}
 
 - name: Restore Service | Print error message when config file(s) were not encrypted successfully
-  debug:
+  ansible.builtin.debug:
     msg:
       - "The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'"
       - "Saltbox Restore Service will now be skipped."
@@ -108,7 +108,7 @@
   when: (unencrypted_files_list | trim | length > 0)
 
 - name: Restore Service | Print error message when config file(s) were encrypted successfully
-  debug:
+  ansible.builtin.debug:
     msg: "The following config file(s) were encrypted successfully: '{{ encrypted_files_list | trim }}'"
   when: (encrypted_files_list | trim | length > 0)
 
@@ -124,13 +124,13 @@
       register: files_upload
 
     - name: Restore Service | Set 'files_too_large_to_upload_list' variable
-      set_fact:
+      ansible.builtin.set_fact:
         files_too_large_to_upload_list: >
           {{ files_upload.results | selectattr('stdout', 'search', 'too large') | map(attribute='item')
           | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }}
 
     - name: Restore Service | Print error mesage when config file(s) were too large to upload
-      debug:
+      ansible.builtin.debug:
         msg: "The following encrypted config file(s) were too large to upload to the Saltbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
       when: (files_too_large_to_upload_list | trim | length > 0)
 
@@ -144,13 +144,13 @@
       when: (files_too_large_to_upload_list | trim | length > 0)
 
     - name: Restore Service | Set 'files_uploaded_list' variable
-      set_fact:
+      ansible.builtin.set_fact:
         files_uploaded_list: >
           {{ files_upload.results | selectattr('stdout', 'search', 'Successfull') | map(attribute='item')
           | map('regex_replace', '^/tmp/restore_service/|.enc$','') | list | sort(case_sensitive=False) | join(', ') }}
 
     - name: Restore Service | Print success message when config file(s) were successfully uploaded
-      debug:
+      ansible.builtin.debug:
         msg: "The following encrypted config file(s) were successfully uploaded to the Saltbox Restore Service: '{{ files_uploaded_list | trim }}'"
       when: (files_uploaded_list | trim | length > 0)
 

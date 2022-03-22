@@ -15,7 +15,7 @@
   register: cloudflare_ips
 
 - name: Create Cloudflare IPv4 and IPv6 variables
-  set_fact:
+  ansible.builtin.set_fact:
     traefik_cloudflare_ipv4: "{{ cloudflare_ips.json.result.ipv4_cidrs }}"
     traefik_cloudflare_ipv6: "{{ cloudflare_ips.json.result.ipv6_cidrs }}"
   when: (cloudflare_ips.status == 200) and cloudflare_ips.json.success

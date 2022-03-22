@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: "Determine '/' filesystem type"
-  set_fact:
+  ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
   when: (item.mount == '/')
   with_items:
     - "{{ ansible_mounts }}"
 
 - name: "Determine '/opt' filesystem type"
-  set_fact:
+  ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
   when: (item.mount == '/opt')
   with_items:
@@ -78,6 +78,6 @@
 
 # Check for no btrfs and exit - not working
 - name: "Exit if no btrfs partitions found"
-  debug:
+  ansible.builtin.debug:
     msg: "No btrfs partition found on / or /opt - exiting"
   when: ((root_fstype is defined) and (root_fstype != 'btrfs')) and ((opt_fstype is defined) and (opt_fstype != 'btrfs'))

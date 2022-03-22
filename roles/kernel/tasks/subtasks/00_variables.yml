@@ -8,5 +8,5 @@
 #########################################################################
 ---
 - name: Variables | Set default 'reboot_is_necessary' variable
-  set_fact:
+  ansible.builtin.set_fact:
     reboot_is_necessary: false

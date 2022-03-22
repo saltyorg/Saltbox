@@ -14,7 +14,7 @@
 
 # This is needed to not conflict with the other role
 - name: "Containers | Set 'containers_list' variable"
-  set_fact:
+  ansible.builtin.set_fact:
     containers_list: "{{ saltbox_managed_containers.stdout }}"
 
 - name: "Containers | Stop all running Docker containers"

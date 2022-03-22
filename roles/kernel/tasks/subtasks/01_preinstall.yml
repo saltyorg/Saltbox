@@ -8,10 +8,10 @@
 #########################################################################
 ---
 - name: "Preinstall | Saltbox pre-install has started!"
-  debug:
+  ansible.builtin.debug:
     msg: "Saltbox pre-install has started!"
 
 - name: Preinstall | Set default preinstall variables
-  set_fact:
+  ansible.builtin.set_fact:
     preinstall_kernel_restart: false
     preinstall_user_relogin: false

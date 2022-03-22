@@ -23,7 +23,7 @@
       register: xmlresp
 
     - name: Resources | Tasks | ARR | Get API Keys | Set 'sonarr_api_key' variable
-      set_fact:
+      ansible.builtin.set_fact:
         sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (sonarr_paths_config_location_stat.stat.exists)
@@ -44,7 +44,7 @@
       register: xmlresp
 
     - name: Resources | Tasks | ARR | Get API Keys | Set 'radarr_api_key' variable
-      set_fact:
+      ansible.builtin.set_fact:
         radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (radarr_paths_config_location_stat.stat.exists)
@@ -65,7 +65,7 @@
       register: xmlresp
 
     - name: Resources | Tasks | ARR | Get API Keys | Set 'lidarr_api_key' variable
-      set_fact:
+      ansible.builtin.set_fact:
         lidarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (lidarr_paths_config_location_stat.stat.exists)

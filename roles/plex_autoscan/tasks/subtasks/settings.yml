@@ -28,7 +28,7 @@
   block:
 
     - name: Settings | Generate 32 character 'SERVER_PASS'
-      set_fact:
+      ansible.builtin.set_fact:
         plex_autoscan_server_pass: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
 
     - name: Settings | Import default 'config.json'

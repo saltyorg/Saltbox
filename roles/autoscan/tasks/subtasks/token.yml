@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Override Plex name variable
-  set_fact:
+  ansible.builtin.set_fact:
     plex_name: "{{ plex_instance }}"
 
 - name: "Token | Check if '{{ plex_paths_config_location | basename }}' exists"
@@ -28,7 +28,7 @@
       ignore_errors: true
 
     - name: Token | Register {{ plex_instance }} auth token value
-      set_fact:
+      ansible.builtin.set_fact:
         plex_tokens: "{{ plex_tokens + [ preferences_xml_resp.matches[0].Preferences.PlexOnlineToken ] }}"
 
   when: preferences_xml.stat.exists

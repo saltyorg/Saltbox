@@ -22,7 +22,7 @@
       changed_when: false
 
     - name: Post-Install | Update Ports | Set port variable
-      set_fact:
+      ansible.builtin.set_fact:
         sonarr_docker_port_lookup: >-
           {{ (sonarr_docker_port_lookup_cmd.stdout | trim)
               if (sonarr_docker_port_lookup_cmd.stdout | trim | length > 0)

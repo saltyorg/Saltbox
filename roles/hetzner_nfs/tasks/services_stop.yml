@@ -17,7 +17,7 @@
   when: docker_binary.stat.exists
 
 - name: Get 'docker.service' state
-  set_fact:
+  ansible.builtin.set_fact:
     docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
   when: docker_binary.stat.exists
 
@@ -54,7 +54,7 @@
  # Stop unionfs
 
 - name: Get 'unionfs.service' state
-  set_fact:
+  ansible.builtin.set_fact:
     unionfs_service_running: "{{ (services['unionfs.service'] is defined) and (services['unionfs.service']['state'] == 'running') }}"
   when: unionfs_service.stat.exists
 
@@ -67,7 +67,7 @@
  # stop mergerfs
 
 - name: Get 'mergerfs.service' state
-  set_fact:
+  ansible.builtin.set_fact:
     mergerfs_service_running: "{{ (services['mergerfs.service'] is defined) and (services['mergerfs.service']['state'] == 'running') }}"
   when: mergerfs_service.stat.exists
 

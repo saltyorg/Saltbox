@@ -15,7 +15,7 @@
   failed_when: encryption_check.rc > 1
 
 - name: "Decrypt | Set 'file_is_encrypted' variable"
-  set_fact:
+  ansible.builtin.set_fact:
     file_is_encrypted: "{{ ((encryption_check.rc == 0) | default(false,true)) }}"
 
 - name: "Decrypt | Decrypt '{{ file }}' when encrypted"

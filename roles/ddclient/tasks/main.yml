@@ -25,7 +25,7 @@
     - /opt/ddclient
 
 - name: Set subdomains fact
-  set_fact:
+  ansible.builtin.set_fact:
     subdomains:
       - plex
       - tautulli

@@ -31,6 +31,6 @@
   changed_when: false
 
 - name: Binary | Display '{{ vars[item ~ '_name'] }}' version
-  debug:
+  ansible.builtin.debug:
     msg: "{{ vars[item ~ '_name'] }} version {{ binary_version.stdout }} installed."
   when: binary_version is defined

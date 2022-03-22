@@ -12,11 +12,11 @@
 ################################
 
 - name: Variables | Create empty 'notification_services' list
-  set_fact:
+  ansible.builtin.set_fact:
     notification_services: []
 
 - name: Variables | Build 'notification_services' list
-  set_fact:
+  ansible.builtin.set_fact:
     notification_services: "{{ notification_services + [ item.service ] }}"
   when: item.enabled
   loop:

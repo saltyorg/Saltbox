@@ -23,7 +23,7 @@
         lidarr_name: "{{ lidarr_instances[0] }}"
 
     - name: Pre-Install | Set 'trackarr_server_apikey' variable
-      set_fact:
+      ansible.builtin.set_fact:
         trackarr_server_apikey: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=22') }}"
 
     - name: Pre-Install | Import default Trackarr config
@@ -40,7 +40,7 @@
         lidarr_name: "{{ lidarr_instances[0] }}"
 
     - name: Pre-Install | Set 'trackarr_docker_state' variable
-      set_fact:
+      ansible.builtin.set_fact:
         trackarr_docker_state: "stopped"
 
   when: not trackarr_paths_config_location_stat.stat.exists

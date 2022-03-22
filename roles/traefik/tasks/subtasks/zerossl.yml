@@ -18,7 +18,7 @@
   register: zerossl
 
 - name: "Set ZeroSSL variables"
-  set_fact:
+  ansible.builtin.set_fact:
     traefik_zerossl_kid: "{{ zerossl.json.eab_kid }}"
     traefik_zerossl_hmacencoded: "{{ zerossl.json.eab_hmac_key }}"
   when: (zerossl.status == 200) and zerossl.json.success

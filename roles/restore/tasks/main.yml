@@ -167,7 +167,7 @@
   when: not (backup.local.enable)
 
 - name: Finished restoring the backup
-  debug:
+  ansible.builtin.debug:
     msg: Finished restoring the backup. You are now ready to install Saltbox!
   when: (unarchive is succeeded)
 

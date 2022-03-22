@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Mounts | Display system mounts
-  debug:
+  ansible.builtin.debug:
     msg: "{{ ansible_mounts }}"
     verbosity: 1
 

@@ -21,22 +21,22 @@
   register: plex_ini
 
 - name: "Auth Token | Set plex_auth_client_identifier"
-  set_fact:
+  ansible.builtin.set_fact:
     plex_auth_client_identifier: "Saltbox{{ lookup('ini', 'client_identifier section=plex file=/opt/saltbox/plex.ini') }}"
   when: plex_ini.stat.exists
 
 - name: "Auth Token | Set plex_auth_client_identifier"
-  set_fact:
+  ansible.builtin.set_fact:
     plex_auth_client_identifier: "Saltbox{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
   when: not plex_ini.stat.exists
 
 - name: "Auth Token | Set plex_auth_token variable if previously saved"
-  set_fact:
+  ansible.builtin.set_fact:
     plex_auth_token: "{{ lookup('ini', 'token section=plex file=/opt/saltbox/plex.ini') | regex_replace('\n', '') }}"
   when: plex_ini.stat.exists
 
 - name: "Auth Token | Set plex_no_token status"
-  set_fact:
+  ansible.builtin.set_fact:
     plex_no_token: "{{ (not plex_ini.stat.exists) | ternary(true, false)  }}"
 
 - name: "Auth Token | Check if Token is valid"
@@ -109,7 +109,7 @@
             value: "{{ plex_token_new.json.authToken }}"
 
         - name: "Auth Token | Set plex_auth_token variable"
-          set_fact:
+          ansible.builtin.set_fact:
             plex_auth_token: "{{ plex_token_new.json.authToken | regex_replace('\n', '') }}"
 
       when: (plex_no_token) or (plex_token.status == 401)
@@ -132,13 +132,13 @@
       register: plex_token_raw
 
     - name: "Auth Token | Set plex_auth_token variable"
-      set_fact:
+      ansible.builtin.set_fact:
         plex_auth_token: "{{ plex_token_raw.json.user.authToken | regex_replace('\n', '') }}"
 
   when: not plex.tfa
 
 - name: "Auth Token | Display Plex Auth Token"
-  debug:
+  ansible.builtin.debug:
     msg: "Plex Auth Token: {{ plex_auth_token }}"
 
 - name: Change permissions

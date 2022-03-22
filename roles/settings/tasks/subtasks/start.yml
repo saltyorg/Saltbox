@@ -24,7 +24,7 @@
   when: yyq_binary.stat.exists
 
 - name: "Start | Set yyq version"
-  set_fact:
+  ansible.builtin.set_fact:
     yyq_current_version: "{{ yyq_version_settings_check.stdout
                           if yyq_version_settings_check.stdout is defined
                           else '0.0.0' }}"
@@ -41,7 +41,7 @@
   register: saltbox_yml
 
 - name: "Start | Create list of config files"
-  set_fact:
+  ansible.builtin.set_fact:
     config_files:
       - "ansible.cfg"
       - "accounts.yml"
@@ -52,7 +52,7 @@
       - "hetzner_nfs.yml"
 
 - name: Start | Initialize vars with empty lists
-  set_fact:
+  ansible.builtin.set_fact:
     files_updated_successfully: []
     files_updated_unsuccessfully: []
     exit_is_necessary: false

@@ -135,6 +135,6 @@
   when: dns.ipv6
 
 - name: Unset variables
-  set_fact:
+  ansible.builtin.set_fact:
     docker_networks_list:
     docker_containers:

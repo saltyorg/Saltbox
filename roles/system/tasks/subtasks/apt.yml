@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: APT | Set env variables
-  set_fact:
+  ansible.builtin.set_fact:
     env_vars:
       DEBIAN_FRONTEND: noninteractive
       DEBIAN_PRIORITY: critical

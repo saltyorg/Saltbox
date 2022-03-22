@@ -29,7 +29,7 @@
       register: start_time_lookup
 
     - name: "Set 'start_time' variable"
-      set_fact:
+      ansible.builtin.set_fact:
         start_time: "{{ start_time_lookup.stdout }}"
 
     - name: Snapshot
@@ -105,7 +105,7 @@
       register: local_backup_destination_free_space
 
     - name: Set backup_enough_disk_space boolean
-      set_fact:
+      ansible.builtin.set_fact:
         backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (estimated_backup_size.stdout.split()[0] | int) }}"
 
     - name: "Notify | Saltbox Backup: Started Saltbox backup task"
@@ -124,7 +124,7 @@
       when: (not backup_enough_disk_space)
 
     - name: "There is enough space to run the backup"
-      debug:
+      ansible.builtin.debug:
         msg:
           - "There is enough disk space left in {{ backup.local.destination }}."
           - "Estimated Backup size: {{ estimated_backup_size.stdout.split()[0] | int }}"
@@ -183,7 +183,7 @@
       when: (backup_excludes_list.stat.exists)
 
     - name: Set 'backup_excludes_list_path' variable
-      set_fact:
+      ansible.builtin.set_fact:
         backup_excludes_list_path: "{{
           (playbook_dir + '/backup_excludes_list.txt')
           if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
@@ -238,22 +238,22 @@
       ignore_errors: true
 
     - name: Set 'docker_containers' variable
-      set_fact:
+      ansible.builtin.set_fact:
         docker_containers: "{{ docker_containers.stdout if (docker_containers is success) else '' }}"
 
     - name: Docker container tasks
       block:
 
         - name: Convert Docker containers string into a list
-          set_fact:
+          ansible.builtin.set_fact:
             docker_containers: "{{ (docker_containers).split() | sort }}"
 
         - name: Filter out ignored apps from Docker containers list
-          set_fact:
+          ansible.builtin.set_fact:
             docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
 
         - name: Convert Docker containers list back to string
-          set_fact:
+          ansible.builtin.set_fact:
             docker_containers: "{{ docker_containers | join(' ') }}"
 
         - name: "Stop all running Docker containers"
@@ -284,7 +284,7 @@
       block:
 
         - name: Get 'cloudplow' service state
-          set_fact:
+          ansible.builtin.set_fact:
             cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
 
         - name: Stop 'cloudplow' service
@@ -305,7 +305,7 @@
             timeout: 5
 
         - name: Snapshot | Display snapshot source and destination
-          debug:
+          ansible.builtin.debug:
             msg: "Creating snapshot of '{{ backup_snapshot_source_path }}' at '{{ backup_snapshot_destination_path }}' ..."
 
         - name: Snapshot | Create BTRFS snapshot
@@ -313,7 +313,7 @@
           when: (snapshot_type == 'btrfs')
 
         - name: Snapshot | Display new backup source location in snapshot
-          debug:
+          ansible.builtin.debug:
             msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
 
       when: (use_snapshot)
@@ -349,11 +349,11 @@
       register: opt_folders_temp
 
     - name: Create 'opt_folders' variable
-      set_fact:
+      ansible.builtin.set_fact:
         opt_folders: []
 
     - name: Add folder list to 'opt_folders' variable
-      set_fact:
+      ansible.builtin.set_fact:
         opt_folders: "{{ opt_folders }} + [ '{{ item.path }}' ]"
       with_items: "{{ opt_folders_temp.files }}"
       loop_control:
@@ -429,7 +429,7 @@
       register: backup_new
 
     - name: "Set backup_size"
-      set_fact:
+      ansible.builtin.set_fact:
         backup_size: "{{ (backup_new.stdout|int) | filesizeformat }}"
 
     - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
@@ -568,11 +568,11 @@
       register: end_time_lookup
 
     - name: "Set 'end_time' variable"
-      set_fact:
+      ansible.builtin.set_fact:
         end_time: "{{ end_time_lookup.stdout }}"
 
     - name: "Calculate Total Time"
-      set_fact:
+      ansible.builtin.set_fact:
         total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
 
     - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
@@ -594,7 +594,7 @@
       when: (dir_files2.matched|int != 0) and (not backup.local.enable)
 
     - name: Backup Status - Success
-      debug:
+      ansible.builtin.debug:
         msg: "Backup Completed Successfully."
 
   rescue:
@@ -651,7 +651,7 @@
       when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
 
     - name: Backup Status - Failure
-      debug:
+      ansible.builtin.debug:
         msg: 'Backup terminated due to an error'
 
     - name: "Notify | Saltbox Backup: Backup terminated due to an error"

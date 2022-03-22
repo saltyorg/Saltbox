@@ -12,5 +12,5 @@
   register: git_version
 
 - name: Repository | Print Current Hash
-  debug:
+  ansible.builtin.debug:
     msg: "Commit: {{ git_version.stdout }}"

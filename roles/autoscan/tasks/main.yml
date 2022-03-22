@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Set Plex Variables
-  set_fact:
+  ansible.builtin.set_fact:
     _plex_instances: "{{ _plex_instances | default({}) | combine( { plex_name: plex_web_url } ) }}"
   with_items: "{{ plex_instances }}"
   vars:

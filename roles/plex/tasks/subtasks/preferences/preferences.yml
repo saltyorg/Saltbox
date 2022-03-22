@@ -30,7 +30,7 @@
       when: (preferences_xml_resp is failed)
 
     - name: Preferences | Set 'transcoder_path_fix' variable
-      set_fact:
+      ansible.builtin.set_fact:
         transcoder_path_fix: "{{ (preferences_xml_resp is succeeded) and
           (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory is defined) and
           (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory | trim == '/transcodes') }}"
@@ -48,7 +48,7 @@
       when: (transcoder_path_fix)
 
     - name: Preferences | Set 'plex_server_claimed' variable
-      set_fact:
+      ansible.builtin.set_fact:
         plex_server_claimed: "{{ (preferences_xml_resp is succeeded) and
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken is defined) and
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"

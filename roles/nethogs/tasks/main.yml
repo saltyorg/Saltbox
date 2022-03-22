@@ -41,7 +41,7 @@
       register: nethogs_binary_version
 
     - name: Display nethogs binary version
-      debug:
+      ansible.builtin.debug:
         msg: "NetHogs {{ nethogs_binary_version.stdout }} installed."
 
   when: nethogs_clone_status is succeeded

@@ -64,11 +64,11 @@
   register: rclone_config_remotes
 
 - name: Rclone VFS | Set 'rclone_config_remotes' variable
-  set_fact:
+  ansible.builtin.set_fact:
     rclone_config_remotes: "{{ (rclone_config_remotes.stdout).split() }}"
 
 - name: Rclone VFS | Set 'rclone_remote_is_configured' variable
-  set_fact:
+  ansible.builtin.set_fact:
     rclone_remote_is_configured: "{{ (rclone.remote + ':') in rclone_config_remotes }}"
 
 - name: Rclone VFS | Tasks when Rclone remote is configured
@@ -84,7 +84,7 @@
       failed_when: (rclone_test.rc|int > 5)
 
     - name: Rclone VFS | Set 'rclone_remote_is_working' variable
-      set_fact:
+      ansible.builtin.set_fact:
         rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
 
     - name: Rclone VFS | Tasks when Rclone remote is working properly

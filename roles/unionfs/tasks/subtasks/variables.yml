@@ -12,7 +12,7 @@
 ################################
 
 - name: Variables | Set 'mount_type_is_defined' variable
-  set_fact:
+  ansible.builtin.set_fact:
     mount_type_is_defined: "{{ (mount_type is defined) and
                                (mount_type is not none) and
                                (mount_type | trim | length > 0) }}"
@@ -27,7 +27,7 @@
 ################################
 
 - name: Variables | Set '_service_file' variable
-  set_fact:
+  ansible.builtin.set_fact:
     _service_file: "{{ mount_type }}.service"
 
 - name: Variables | Set 'service_files_stat' variable
@@ -36,14 +36,14 @@
   register: service_file_stat
 
 - name: Variables | Create empty 'service_files_temp' list
-  set_fact:
+  ansible.builtin.set_fact:
     service_files_temp: []
 
 - name: Variables | Build 'service_files' list
-  set_fact:
+  ansible.builtin.set_fact:
     service_files_temp: "{{ service_files_temp + [ _service_file ] }}"
   when: service_file_stat.stat.exists
 
 - name: Variables | Set new 'service_files' variable
-  set_fact:
+  ansible.builtin.set_fact:
     service_files: "{{ service_files_temp }}"

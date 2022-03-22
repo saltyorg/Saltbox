@@ -65,7 +65,7 @@
       register: xmlresp
 
     - name: Set sonarr api Key
-      set_fact:
+      ansible.builtin.set_fact:
         sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (not traktarr_config.stat.exists) and (sonarr_config.stat.exists)
@@ -87,7 +87,7 @@
       register: xmlresp
 
     - name: Set radarr api Key
-      set_fact:
+      ansible.builtin.set_fact:
         radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
   when: (not traktarr_config.stat.exists) and (radarr_config.stat.exists)

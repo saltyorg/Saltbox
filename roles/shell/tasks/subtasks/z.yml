@@ -29,6 +29,6 @@
   ignore_errors: true
 
 - name: z | 'z' Installed
-  debug:
+  ansible.builtin.debug:
     msg: "'z (jump around)' Installed"
   when: shell_z_git_clone_status is succeeded

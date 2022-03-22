@@ -22,7 +22,7 @@
       changed_when: false
 
     - name: Post-Install | Update Ports | Set port variable
-      set_fact:
+      ansible.builtin.set_fact:
         plex_docker_port_lookup: >-
           {{ (plex_docker_port_lookup_cmd.stdout | trim)
           if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)

@@ -25,7 +25,7 @@
         force: false
 
     - name: Pre-Install | Set 'sstv_docker_state' variable
-      set_fact:
+      ansible.builtin.set_fact:
         sstv_docker_state: "stopped"
 
   when: not sstv_paths_config_location_stat.stat.exists

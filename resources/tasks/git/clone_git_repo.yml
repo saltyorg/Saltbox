@@ -8,13 +8,13 @@
 #########################################################################
 ---
 - name: Resources | Tasks | Git | Clone Git Repo | Set '_var_prefix' variable
-  set_fact:
+  ansible.builtin.set_fact:
     _var_prefix: "{{ var_prefix
                       if (var_prefix is defined)
                       else role_name }}"
 
 - name: Resources | Tasks | Git | Clone Git Repo | Set '_git_repo_*' variables
-  set_fact:
+  ansible.builtin.set_fact:
     _git_repo_url: "{{ lookup('vars', _var_prefix + '_git_repo_url') }}"
     _git_repo_dest: "{{ lookup('vars', _var_prefix + '_git_repo_dest') }}"
     _git_repo_branch_primary: "{{ lookup('vars', _var_prefix + '_git_repo_branch_primary') }}"
@@ -35,7 +35,7 @@
       register: _git_repo_dest_current_branch
 
     - name: Resources | Tasks | Git | Clone Git Repo | Update target branch
-      set_fact:
+      ansible.builtin.set_fact:
         _git_repo_branch_primary: "{{ _git_repo_branch_secondary }}"
       when: _git_repo_branch_secondary == _git_repo_dest_current_branch | trim
 

@@ -20,5 +20,5 @@
   ignore_errors: true
 
 - name: "Display Subliminal version"
-  debug:
+  ansible.builtin.debug:
     msg: "Subliminal {{ subliminal_version.stdout }} installed."

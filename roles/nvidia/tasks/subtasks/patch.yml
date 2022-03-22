@@ -26,7 +26,7 @@
   ignore_errors: true
 
 - name: Patch | Nvidia patch installed
-  debug:
+  ansible.builtin.debug:
     msg: "Nvidia patch installed!"
   when: (patch_install is succeeded) and ('Patched!' in patch_install.stdout)
 

@@ -24,7 +24,7 @@
     - {line: "include /etc/logrotate.d", state: "present"}
 
 - name: Logrotate | Create 'logrotate_d_items' variable
-  set_fact:
+  ansible.builtin.set_fact:
     logrotate_d_items:
       - path: "saltbox"
         content: |

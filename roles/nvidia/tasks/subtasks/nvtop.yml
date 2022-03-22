@@ -35,7 +35,7 @@
       ignore_errors: true
 
     - name: nvtop | Display nvtop binary version
-      debug:
+      ansible.builtin.debug:
         msg: "nvtop {{ nvtop_binary_version.stdout }} installed."
 
   when: nvtop_repo_clone_status is succeeded

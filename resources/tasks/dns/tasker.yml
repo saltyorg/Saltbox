@@ -23,7 +23,7 @@
     - name: Get subdomain
       block:
         - name: Get subdomain var
-          set_fact:
+          ansible.builtin.set_fact:
             subdomain_block: 1
 
         - name: Get subdomain
@@ -35,7 +35,7 @@
     - name: Get subdomain
       block:
         - name: Get subdomain var
-          set_fact:
+          ansible.builtin.set_fact:
             subdomain_block: 0
 
         - name: Get subdomain
@@ -45,12 +45,12 @@
       when: dns_record | length == 0
 
     - name: Get subdomain var
-      set_fact:
+      ansible.builtin.set_fact:
         subdomain: "{{ subdomain_notempty.stdout if (subdomain_block)
                     else subdomain_empty.stdout }}"
 
     - name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
-      set_fact:
+      ansible.builtin.set_fact:
         _dns_tasker_zone: "{{ fld.stdout }}"
         _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
                             else '@' }}"

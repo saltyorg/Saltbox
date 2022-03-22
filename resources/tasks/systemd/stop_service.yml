@@ -8,11 +8,11 @@
 #########################################################################
 ---
 - name: Resources | Tasks | systemd | Stop Service | set '_service_file' variable
-  set_fact:
+  ansible.builtin.set_fact:
     _service_file: "{{ _service_name }}.service"
 
 - name: Resources | Tasks | systemd | Stop Service | set '_service_path' variable
-  set_fact:
+  ansible.builtin.set_fact:
     _service_path: "/etc/systemd/system/{{ _service_file }}"
 
 - name: Resources | Tasks | systemd | Stop Service | check if '{{ _service_file }}' exists
@@ -27,7 +27,7 @@
       service_facts:
 
     - name: Resources | Tasks | systemd | Stop Service | get '{{ _service_file }}' state
-      set_fact:
+      ansible.builtin.set_fact:
         service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
     - name: Resources | Tasks | systemd | Stop Service | stop '{{ _service_file }}'

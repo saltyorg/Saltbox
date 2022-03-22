@@ -22,7 +22,7 @@
       changed_when: false
 
     - name: Post-Install | Update Ports | Set port variable
-      set_fact:
+      ansible.builtin.set_fact:
         radarr_docker_port_lookup: >-
           {{ (radarr_docker_port_lookup_cmd.stdout | trim)
               if (radarr_docker_port_lookup_cmd.stdout | trim | length > 0)

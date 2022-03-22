@@ -31,7 +31,7 @@
         replace: '#\1'
 
     - name: Hetzner | Hetzner GRUB files
-      set_fact:
+      ansible.builtin.set_fact:
         hetzner_grub_files:
           - "/etc/default/grub.d/hetzner.cfg"
           - "/etc/default/grub"

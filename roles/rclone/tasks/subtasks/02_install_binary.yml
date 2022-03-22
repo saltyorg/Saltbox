@@ -32,7 +32,7 @@
     warn: false
 
 - name: Install Binary | Display rclone version being installed
-  debug:
+  ansible.builtin.debug:
     msg: "Installing Rclone version: {{ rclone_version_specified }}"
   when: rclone_version_is_specified
 
@@ -82,5 +82,5 @@
   ignore_errors: true
 
 - name: "Install Binary | Display rclone version"
-  debug:
+  ansible.builtin.debug:
     msg: "Rclone version {{ rclone_version.stdout }} installed."

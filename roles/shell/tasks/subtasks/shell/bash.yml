@@ -25,13 +25,13 @@
   register: shell_update_task
 
 - name: Bash | Set Bash as default shell
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Set Bash as default shell"
   when: (shell_update_task is changed)
 
 - name: Bash | Default shell set to Bash
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Changes will apply on session restart."
   when: (shell_update_task is changed) and ('shell' in ansible_run_tags)

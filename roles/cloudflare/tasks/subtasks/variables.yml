@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Variables | Set 'saltbox_type' variable
-  set_fact:
+  ansible.builtin.set_fact:
     saltbox_type: "{{ 'saltbox' if ('saltbox' in ansible_run_tags)
       else 'mediabox' if ('mediabox' in ansible_run_tags)
       else 'feederbox' if ('feederbox' in ansible_run_tags)
@@ -38,7 +38,7 @@
   register: cf_zones
 
 - name: Variables | Set 'cloudflare_zone' Variable
-  set_fact:
+  ansible.builtin.set_fact:
     cloudflare_zone: "{{ cf_zones.json.result[0].id }}"
 
 - name: Variables | Fetch Cloudflare Page Rules
@@ -53,5 +53,5 @@
   register: cf_page_rules
 
 - name: Variables | Set 'cloudflare_page_rules' Variable
-  set_fact:
+  ansible.builtin.set_fact:
     cloudflare_page_rules: "{{ cf_page_rules.stdout_lines }}"

@@ -8,5 +8,5 @@
 #########################################################################
 ---
 - name: Skipped Tags | Print Skipped Tags
-  debug:
+  ansible.builtin.debug:
     msg: "{{ ansible_skip_tags }}"

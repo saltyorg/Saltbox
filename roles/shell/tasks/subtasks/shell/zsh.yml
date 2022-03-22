@@ -94,13 +94,13 @@
   register: shell_update_task
 
 - name: ZSH | Set ZSH as default shell
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Set ZSH as default shell"
   when: (shell_update_task is changed)
 
 - name: ZSH | Default shell set to ZSH
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Changes will apply on session restart."
   when: (shell_update_task is changed) and ('shell' in ansible_run_tags)

@@ -48,7 +48,7 @@
   register: rgid_lookup
 
 - name: User Account | Set 'uid', 'gid', 'vgid' and 'rgid'
-  set_fact:
+  ansible.builtin.set_fact:
     uid: "{{ user_info.uid }}"
     gid: "{{ user_info.group }}"
     vgid: "{{ vgid_lookup.stdout }}"

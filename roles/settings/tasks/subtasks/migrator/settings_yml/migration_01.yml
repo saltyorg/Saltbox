@@ -9,7 +9,7 @@
 
 ---
 - name: "Migrator | 'settings.yml' | Migration 01 | Set variables"
-  set_fact:
+  ansible.builtin.set_fact:
     old_traefik: "{{ true if not(
         (traefik is undefined)
         or

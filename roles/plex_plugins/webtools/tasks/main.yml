@@ -16,7 +16,7 @@
   block:
 
     - name: Set default value for 'plex_plugin_webtools_is_outdated' variable
-      set_fact:
+      ansible.builtin.set_fact:
         plex_plugin_webtools_is_outdated: false
 
     - name: Check version of previously installed WebTools Plugin
@@ -25,7 +25,7 @@
       changed_when: false
 
     - name: Set 'plex_plugin_webtools_previously_installed_version' variable
-      set_fact:
+      ansible.builtin.set_fact:
         plex_plugin_webtools_previously_installed_version: "{{ plex_plugin_webtools_previously_installed_version.stdout }}"
 
     - name: Check latest available version for WebTools
@@ -37,7 +37,7 @@
       changed_when: false
 
     - name: Compare installed WebTools Plugin version with latest one
-      set_fact:
+      ansible.builtin.set_fact:
         plex_plugin_webtools_is_outdated: "{{
             (plex_plugin_webtools_latest_version is failed) or
               ((plex_plugin_webtools_latest_version is success) and
@@ -57,7 +57,7 @@
           changed_when: false
 
         - name: Set 'docker_running_containers_list' variable
-          set_fact:
+          ansible.builtin.set_fact:
             docker_running_containers_list: "{{ (docker_running_containers_list.stdout).split() }}"
 
         - name: Stop {{ plex_name | title }} container
@@ -87,7 +87,7 @@
       changed_when: false
 
     - name: Set 'plex_plugin_webtools_download_url' variable
-      set_fact:
+      ansible.builtin.set_fact:
         plex_plugin_webtools_download_url: "{{ plex_plugin_webtools_download_url.stdout | default(plex_plugin_webtools_download_url_backup,true)  }}"
 
     - name: "Create {{ plex_name | title }} 'plug-ins' directory"
@@ -130,11 +130,11 @@
               changed_when: false
 
             - name: Set 'plex_plugin_webtools_previously_installed_version' variable
-              set_fact:
+              ansible.builtin.set_fact:
                 plex_plugin_webtools_newly_installed_version: "{{ plex_plugin_webtools_newly_installed_version.stdout }}"
 
             - name: Display WebTools Plugin version
-              debug:
+              ansible.builtin.debug:
                 msg: "WebTools Plugin version {{ plex_plugin_webtools_newly_installed_version }} installed."
 
           when: (plex_plugin_webtools_version_status.stat.exists)
@@ -142,7 +142,7 @@
       when: (plex_plugin_webtools_download_status is success)
 
     - name: WebTools Plugin install failed
-      debug:
+      ansible.builtin.debug:
         msg: "WebTools Plugin install failed."
       when: (plex_plugin_webtools_download_status is failed) or
             ((plex_plugin_webtools_download_status is success) and (not plex_plugin_webtools_version_status.stat.exists))
@@ -160,7 +160,7 @@
         ('plex-plugin-webtools-reinstall' in ansible_run_tags)
 
 - name: WebTools Plugin was not updated
-  debug:
+  ansible.builtin.debug:
     msg: "WebTools is already the latest version."
   when:
     - (plex_plugin_webtools_bundle_status.stat.exists)

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Initialize an empty list for our strings
-  set_fact:
+  ansible.builtin.set_fact:
     plex_tokens: []
 
 - name: Token tasks

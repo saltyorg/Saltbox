@@ -18,7 +18,7 @@
   ignore_errors: true
 
 - name: "BTRFS | Psuedo-File-System | Determine if '/var/lib/docker' is mounted"
-  set_fact:
+  ansible.builtin.set_fact:
     var_lib_docker_mount_exists: "{{ true if ( ansible_mounts | json_query('[?mount == `/var/lib/docker`]') ) else false }}"
 
 - name: BTRFS | Psuedo-File-System | Tasks when '/var/lib/docker' is not mounted

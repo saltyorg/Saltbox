@@ -9,7 +9,7 @@
 
 ---
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  set_fact:
+  ansible.builtin.set_fact:
     traefik_tls_settings: "{{ true if not(
         (traefik is undefined)
         or
@@ -33,7 +33,7 @@
   when: not traefik_tls_settings
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  set_fact:
+  ansible.builtin.set_fact:
     traefik_metrics_settings: "{{ true if not(
         (traefik is undefined)
         or
@@ -57,7 +57,7 @@
   when: not traefik_metrics_settings
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  set_fact:
+  ansible.builtin.set_fact:
     old_dockerhub: "{{ true if not(
         (dockerhub is undefined)
         or
