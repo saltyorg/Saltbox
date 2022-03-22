@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: CPU Frequency | Install 'cpufrequtils'
-  apt:
+  ansible.builtin.apt:
     name: cpufrequtils
     state: present
 
 - name: CPU Frequency | Install 'linux-tools' for Ubuntu
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - linux-tools-common
@@ -21,7 +21,7 @@
   when: ansible_distribution == 'Ubuntu'
 
 - name: "CPU Frequency | Install 'linux-tools-{{ ansible_kernel }}'"
-  shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
+  ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
   args:
     warn: false
   ignore_errors: true
@@ -57,7 +57,7 @@
     state: absent
 
 - name: CPU Frequency | Set 'GOVERNOR' used currently to performance
-  shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
+  ansible.builtin.shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
   args:
     warn: false
   ignore_errors: true
@@ -66,7 +66,7 @@
   service_facts:
 
 - name: Remove ondemand | Stop and disable 'ondemand.service'
-  systemd:
+  ansible.builtin.systemd:
     name: ondemand
     state: stopped
     enabled: false

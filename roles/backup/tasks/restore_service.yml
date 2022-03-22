@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Restore Service | Install 'curl'
-  apt:
+  ansible.builtin.apt:
     name: curl
     state: present
 
@@ -19,12 +19,12 @@
   no_log: true
 
 - name: Restore Service | Cleanup '/tmp/restore_service' path
-  file:
+  ansible.builtin.file:
     path: "/tmp/restore_service"
     state: absent
 
 - name: Restore Service | Create '/tmp/restore_service' path
-  file:
+  ansible.builtin.file:
     path: "/tmp/restore_service"
     state: directory
     owner: "{{ user.name }}"
@@ -32,12 +32,12 @@
     mode: "0775"
 
 - name: Restore Service | Cleanup '/tmp/restore_service_temp' path
-  file:
+  ansible.builtin.file:
     path: "/tmp/restore_service_temp"
     state: absent
 
 - name: Restore Service | Create '/tmp/restore_service_temp' path
-  file:
+  ansible.builtin.file:
     path: "/tmp/restore_service_temp"
     state: directory
     owner: "{{ user.name }}"
@@ -45,7 +45,7 @@
     mode: "0775"
 
 - name: Restore Service | Copy Files to '/tmp/restore_service_temp' path
-  shell: cp '{{ item }}' '/tmp/restore_service_temp/'
+  ansible.builtin.shell: cp '{{ item }}' '/tmp/restore_service_temp/'
   args:
     warn: false
   become: true
@@ -63,7 +63,7 @@
     - "/home/{{ user.name }}/.config/rclone/rclone.conf"
 
 - name: Restore Service | Encrypt config file(s)
-  shell: >
+  ansible.builtin.shell: >
     openssl enc -aes-256-cbc -salt -md md5 -in '{{ item }}' -out '/tmp/restore_service/{{ (item | basename)
     | regex_replace('^\\.', '') }}.enc' -k '{{ restore_service_password }}'
   args:
@@ -75,7 +75,7 @@
     - "/tmp/restore_service_temp/*"
 
 - name: "Restore Service | Validate config file(s) for encryption."
-  shell: "head -c 10 {{ item }} | grep -q Salted"
+  ansible.builtin.shell: "head -c 10 {{ item }} | grep -q Salted"
   register: encryption_check
   ignore_errors: true
   failed_when: encryption_check.rc > 1
@@ -99,7 +99,7 @@
   when: (unencrypted_files_list | trim | length > 0)
 
 - name: "Restore Service | Notify | Saltbox Backup: Config files were not encrypted successfully encrypted"
-  include_role:
+  ansible.builtin.include_role:
     name: notify
   vars:
     message: >
@@ -116,7 +116,7 @@
   block:
 
     - name: Restore Service | Upload encrypted config file(s)
-      shell: "curl -F 'file=@{{ item }}' 'https://crs.saltbox.dev/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
+      ansible.builtin.shell: "curl -F 'file=@{{ item }}' 'https://crs.saltbox.dev/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
       args:
         warn: false
       with_fileglob:
@@ -135,7 +135,7 @@
       when: (files_too_large_to_upload_list | trim | length > 0)
 
     - name: "Restore Service | Notify | Saltbox Backup: Config files were too large to upload to the Saltbox Restore Service"
-      include_role:
+      ansible.builtin.include_role:
         name: notify
       vars:
         message: >
@@ -155,7 +155,7 @@
       when: (files_uploaded_list | trim | length > 0)
 
     - name: "Restore Service | Notify | Saltbox Backup: Config files were successfully encrypted and uploaded to the Saltbox Restore Service"
-      include_role:
+      ansible.builtin.include_role:
         name: notify
       vars:
         message: "Saltbox Backup: Config files uploaded to the Saltbox Restore Service."

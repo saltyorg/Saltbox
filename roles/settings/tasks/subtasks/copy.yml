@@ -9,12 +9,12 @@
 ---
 # Check for config files and import they are missing
 - name: "Copy | Check if '{{ file }}' exists"
-  stat:
+  ansible.builtin.stat:
     path: "{{ playbook_dir }}/{{ file }}"
   register: file0
 
 - name: "Copy | Copy '{{ file }}.default' to '{{ file }}'"
-  copy:
+  ansible.builtin.copy:
     src: "{{ playbook_dir }}/defaults/{{ file }}.default"
     dest: "{{ playbook_dir }}/{{ file }}"
     owner: "{{ saltbox_yml.stat.uid }}"

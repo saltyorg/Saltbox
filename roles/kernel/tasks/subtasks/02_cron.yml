@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Cron | Install cron
-  apt:
+  ansible.builtin.apt:
     name: cron
     state: present
 
 - name: Cron | Purge old kernels on reboot
-  cron:
+  ansible.builtin.cron:
     name: "Remove old kernels on reboot"
     special_time: reboot
     job: "{{ kernel_cron_task }}"

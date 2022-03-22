@@ -28,7 +28,7 @@
         else false }}"
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'backup.cron' dict
-  shell: |
+  ansible.builtin.shell: |
     yyq e -i 'del(.backup.cron.cron_state)' {{ playbook_dir }}/{{ file }}
     yyq e -i '.backup.cron.enable = "{{
               'yes'
@@ -48,4 +48,4 @@
     mode: "0664"
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Re-import Variables
-  include_vars: "{{ playbook_dir }}/{{ file }}"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/{{ file }}"

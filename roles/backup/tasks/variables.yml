@@ -20,7 +20,7 @@
       local: "{{ backup.local | combine(local_tmp) }}"
       rclone: "{{ backup.rclone | combine(rclone_tmp) }}"
       rsync: "{{ backup.rsync | combine(rsync_tmp) }}"
-      cron:
+      ansible.builtin.cron:
         cron_time: "{{ backup.cron.cron_time }}"
         enable: "{{ backup.cron.enable }}"
       restore_service:

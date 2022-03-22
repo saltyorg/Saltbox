@@ -7,12 +7,12 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for 'system.xml' file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ jellyfin_paths_sys_xml_location }}"
     state: present
 
 - name: Post-Install | Wait for 'network.xml' file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ jellyfin_paths_net_xml_location }}"
     state: present
 
@@ -23,7 +23,7 @@
     container_default_behavior: compatibility
 
 - name: Settings | Update 'system.xml' file
-  xml:
+  community.general.xml:
     path: "{{ jellyfin_paths_sys_xml_location }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
@@ -32,7 +32,7 @@
   loop: "{{ jellyfin_system_settings_list }}"
 
 - name: Settings | Update 'network.xml' file
-  xml:
+  community.general.xml:
     path: "{{ jellyfin_paths_net_xml_location }}"
     xpath: "/NetworkConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"

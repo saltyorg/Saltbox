@@ -10,7 +10,7 @@
 # NZBHydra v1 Migration
 
 - name: Variables | Check if '{{ nzbhydra_paths_db_location }}' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ nzbhydra_paths_db_location }}"
   register: nzbhydra_paths_db_location_stat
 

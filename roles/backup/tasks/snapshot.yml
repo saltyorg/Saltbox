@@ -52,7 +52,7 @@
       when: (opt_fstype is defined) and (opt_fstype == 'btrfs')
 
     - name: Snapshot | Check if BTRFS snapshot is mounted
-      stat:
+      ansible.builtin.stat:
         path: "{{ backup_snapshot_destination_path }}"
       register: btrfs_snapshot_mounted
 
@@ -60,12 +60,12 @@
       block:
 
         - name: Snapshot | Delete existing BTRFS snapshot (1/2)
-          command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
+          ansible.builtin.command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
           register: snapshot_deletion
           ignore_errors: true
 
         - name: Snapshot | Delete existing BTRFS snapshot (2/2)
-          file:
+          ansible.builtin.file:
             path: "{{ backup_snapshot_destination_path }}"
             state: absent
           ignore_errors: true
@@ -74,7 +74,7 @@
       when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
 
     - name: Snapshot | Create BTRFS snapshot directory
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         owner: "{{ user.name }}"

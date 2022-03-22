@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Gather list of running Docker containers
-  shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
+  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
   register: docker_running_containers_list
   changed_when: false
 
@@ -41,13 +41,13 @@
     - plex-db-cache-size
 
 - name: "Install Sub-Zero Plugin"
-  import_role:
+  ansible.builtin.import_role:
     name: plex_plugins/sub_zero
 
   when: plex_plugin_sub_zero
 
 - name: "Install WebTools Plugin"
-  import_role:
+  ansible.builtin.import_role:
     name: plex_plugins/webtools
 
   when: plex_plugin_webtools

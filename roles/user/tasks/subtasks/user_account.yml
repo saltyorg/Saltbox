@@ -16,7 +16,7 @@
     - "{{ user.name }}"
 
 - name: User Account | Copy skeleton files to '/etc/skel'
-  copy:
+  ansible.builtin.copy:
     src: "etc/skel/{{ item }}"
     dest: "/etc/skel/"
     mode: "0664"
@@ -27,7 +27,7 @@
     - ".profile"
 
 - name: User Account | Create user '{{ user.name }}'
-  user:
+  ansible.builtin.user:
     name: "{{ user.name }}"
     group: "{{ user.name }}"
     groups: "{{ user.name }},sudo,video,render,docker"
@@ -40,11 +40,11 @@
   no_log: true
 
 - name: User Account | Get video group info
-  shell: "getent group video | cut -d: -f3"
+  ansible.builtin.shell: "getent group video | cut -d: -f3"
   register: vgid_lookup
 
 - name: User Account | Get render group info
-  shell: "getent group render | cut -d: -f3"
+  ansible.builtin.shell: "getent group render | cut -d: -f3"
   register: rgid_lookup
 
 - name: User Account | Set 'uid', 'gid', 'vgid' and 'rgid'
@@ -55,12 +55,12 @@
     rgid: "{{ rgid_lookup.stdout }}"
 
 - name: User Account | Check if '/etc/sudoers' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/sudoers"
   register: etc_sudoers
 
 - name: User Account | Set sudo group to 'NOPASSWD'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/sudoers"
     regexp: '^%sudo\s'
     line: '%sudo   ALL=(ALL) NOPASSWD:ALL'
@@ -68,7 +68,7 @@
   when: etc_sudoers.stat.exists
 
 - name: User Account | Reset ownership of '{{ user_paths_home_location }}/' path
-  file:  # noqa 208
+  ansible.builtin.file:  # noqa 208
     path: "{{ user_paths_home_location }}"
     state: directory
     owner: "{{ user.name }}"
@@ -79,7 +79,7 @@
     - (not continuous_integration)
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
-  file:  # noqa 208
+  ansible.builtin.file:  # noqa 208
     path: "{{ srv_folder }}"
     state: directory
     owner: "{{ user.name }}"
@@ -88,7 +88,7 @@
     follow: false
 
 - name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
-  file:  # noqa 208
+  ansible.builtin.file:  # noqa 208
     path: "{{ server_appdata_path }}"
     state: directory
     owner: "{{ user.name }}"

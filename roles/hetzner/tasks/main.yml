@@ -11,6 +11,6 @@
   import_tasks: "subtasks/hetzner.yml"
 
 - name: "Restart Tasks"
-  include_tasks: "subtasks/restart.yml"
+  ansible.builtin.include_tasks: "subtasks/restart.yml"
   when: (reboot_is_necessary) and
         (not continuous_integration)

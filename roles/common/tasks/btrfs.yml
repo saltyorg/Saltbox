@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: BTRFS | Check if '{{ outer_item }}' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ outer_item }}"
   register: outer_item_stat
 
@@ -16,7 +16,7 @@
   block:
 
     - name: BTRFS | Create '{{ outer_item }}' path
-      file:
+      ansible.builtin.file:
         path: "{{ outer_item }}"
         state: directory
         owner: "{{ user.name }}"
@@ -24,11 +24,11 @@
         mode: 0775
 
     - name: BTRFS | Check file system on '{{ outer_item }}'
-      shell: stat -f -c %T "{{ outer_item }}"
+      ansible.builtin.shell: stat -f -c %T "{{ outer_item }}"
       register: outer_item_file_system
 
     - name: BTRFS | Set NOCOW on '{{ outer_item }} if BTRFS'
-      shell: "chattr +C {{ outer_item }}"
+      ansible.builtin.shell: "chattr +C {{ outer_item }}"
       when: ('btrfs' in outer_item_file_system.stdout)
 
   when: (not outer_item_stat.stat.exists)

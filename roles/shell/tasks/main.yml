@@ -8,10 +8,10 @@
 #########################################################################
 ---
 - name: Import 'misc' subtask
-  include_tasks: "subtasks/misc.yml"
+  ansible.builtin.include_tasks: "subtasks/misc.yml"
 
 - name: Import 'z' subtask
-  include_tasks: "subtasks/z.yml"
+  ansible.builtin.include_tasks: "subtasks/z.yml"
 
 - name: Import '{{ shell_type }}' subtask
-  include_tasks: "subtasks/shell/{{ shell_type }}.yml"
+  ansible.builtin.include_tasks: "subtasks/shell/{{ shell_type }}.yml"

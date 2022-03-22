@@ -8,7 +8,7 @@
 ##########################################################################
 ---
 - name: Post-Install | Update Ports | Wait for '{{ plex_paths_config_location | basename }}' to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ plex_paths_config_location }}"
     state: present
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Post-Install | Update Ports | Lookup host port mapped to '{{ plex_docker_container }}' docker port '{{ plex_web_port }}'
-      shell:
+      ansible.builtin.shell:
         docker port {{ plex_docker_container }} {{ plex_web_port }} 2> /dev/null | sed 's/[0-9.]*://'
       register: plex_docker_port_lookup_cmd
       changed_when: false
@@ -31,7 +31,7 @@
   when: plex_open_main_ports or not reverse_proxy_is_enabled
 
 - name: Post-Install | Update Ports | Update port in '{{ plex_paths_config_location | basename }}'
-  xml:
+  community.general.xml:
     path: "{{ plex_paths_config_location }}"
     xpath: /Preferences
     attribute: ManualPortMappingPort
@@ -43,7 +43,7 @@
   register: plex_port_update
 
 - name: Post-Install | Update Ports | Reset permissions of '{{ plex_paths_config_location | basename }}'
-  file:
+  ansible.builtin.file:
     path: "{{ plex_paths_config_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

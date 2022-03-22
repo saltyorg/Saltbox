@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Create Sandbox directory
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -19,7 +19,7 @@
     - /opt/sandbox
 
 - name: Clone Sandbox repo 'HEAD'
-  git:
+  ansible.builtin.git:
     repo: https://github.com/saltyorg/sandbox.git
     dest: /opt/sandbox
     clone: true
@@ -31,7 +31,7 @@
   register: sandbox_clone_status
 
 - name: Clone Sandbox repo 'master'
-  git:
+  ansible.builtin.git:
     repo: https://github.com/saltyorg/sandbox.git
     dest: /opt/sandbox
     clone: true
@@ -42,7 +42,7 @@
   when: sandbox_clone_status is failed
 
 - name: Import default files when missing
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "/opt/sandbox/{{ (item | basename | splitext)[0] }}"
     owner: "{{ user.name }}"
@@ -53,7 +53,7 @@
     - /opt/sandbox/defaults/*.*
 
 - name: Force overwrite Sandbox ansible.cfg
-  copy:
+  ansible.builtin.copy:
     src: "/opt/sandbox/defaults/ansible.cfg.default"
     dest: "/opt/sandbox/ansible.cfg"
     owner: "{{ user.name }}"
@@ -62,6 +62,6 @@
     force: true
 
 - name: Activate Git Hooks
-  shell: bash /opt/sandbox/bin/git/init-hooks
+  ansible.builtin.shell: bash /opt/sandbox/bin/git/init-hooks
   args:
     chdir: "/opt/sandbox"

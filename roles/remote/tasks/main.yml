@@ -21,13 +21,13 @@
 # Existing Setup
 
 - name: Service Tasks
-  include_tasks: "subtasks/services.yml"
+  ansible.builtin.include_tasks: "subtasks/services.yml"
   vars:
     _service_file: "{{ item }}"
   loop: "{{ service_files }}"
 
 - name: Mount Path Tasks
-  include_tasks: "subtasks/mount_path.yml"
+  ansible.builtin.include_tasks: "subtasks/mount_path.yml"
   vars:
     mount_path: "{{ item }}"
   loop: "{{ mount_paths }}"
@@ -40,5 +40,5 @@
 # Mount
 
 - name: Mount Tasks
-  include_tasks: "subtasks/mounts/{{ item }}.yml"
+  ansible.builtin.include_tasks: "subtasks/mounts/{{ item }}.yml"
   loop: "{{ desired_mount_types }}"

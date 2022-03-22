@@ -10,7 +10,7 @@
 # https://gist.github.com/hopeseekr/cd2058e71d01deca5bae9f4e5a555440
 
 - name: BTRFS | Psuedo-File-System | Install jmespath pip module
-  pip:
+  ansible.builtin.pip:
     state: present
     name:
       - jmespath
@@ -25,13 +25,13 @@
   block:
 
     - name: BTRFS | Psuedo-File-System | Create blank '/media/docker-volume.img'
-      shell: touch /media/docker-volume.img
+      ansible.builtin.shell: touch /media/docker-volume.img
 
     - name: BTRFS | Psuedo-File-System | Set NOCOW on '/media/docker-volume.img'
-      shell: chattr +C /media/docker-volume.img
+      ansible.builtin.shell: chattr +C /media/docker-volume.img
 
     - name: BTRFS | Psuedo-File-System | Set size on '/media/docker-volume.img'
-      shell: fallocate -l 20G /media/docker-volume.img
+      ansible.builtin.shell: fallocate -l 20G /media/docker-volume.img
 
     - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
       filesystem:
@@ -39,16 +39,16 @@
         dev: /media/docker-volume.img
 
     - name: BTRFS | Psuedo-File-System | Stop docker service
-      systemd:
+      ansible.builtin.systemd:
         name: docker
         state: stopped
 
     - name: BTRFS | Psuedo-File-System | Wait for 30 seconds before commencing
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 30
 
     - name: BTRFS | Psuedo-File-System | Remove '/var/lib/docker' if it exists
-      file:
+      ansible.builtin.file:
         path: /var/lib/docker
         state: absent
 

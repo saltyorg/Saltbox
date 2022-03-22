@@ -18,7 +18,7 @@
     validate_certs: false
 
 - name: Patch | Install Nvidia patch
-  shell: "{{ nvidia_patch_download_dest }}"
+  ansible.builtin.shell: "{{ nvidia_patch_download_dest }}"
   args:
     executable: /bin/bash
     warn: false
@@ -31,7 +31,7 @@
   when: (patch_install is succeeded) and ('Patched!' in patch_install.stdout)
 
 - name: Patch | Nvidia patch did not install
-  fail:
+  ansible.builtin.fail:
     msg:
       - "Nvidia patch did not install!"
       - "{{ patch_install.stdout }}"

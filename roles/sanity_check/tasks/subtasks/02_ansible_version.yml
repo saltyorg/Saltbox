@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Find Ansible version
-  shell: python3 -c 'from ansible_collections.ansible_release import ansible_version; print(ansible_version)'
+  ansible.builtin.shell: python3 -c 'from ansible_collections.ansible_release import ansible_version; print(ansible_version)'
   register: registered_ansible_version
 
 - name: Print Ansible version

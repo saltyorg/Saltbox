@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - curl
@@ -27,7 +27,7 @@
   register: x
 
 - name: "Get yyq version"
-  shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+  ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
   register: yyq_version
   ignore_errors: true
   when: x is success

@@ -11,7 +11,7 @@
   import_tasks: "subtasks/services.yml"
 
 - name: Create plex_autoscan directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -22,7 +22,7 @@
     - /opt/plex_autoscan
 
 - name: Clone plex_autoscan repo 'HEAD'
-  git:
+  ansible.builtin.git:
     repo: https://github.com/l3uddz/plex_autoscan.git
     dest: /opt/plex_autoscan
     clone: true
@@ -34,7 +34,7 @@
   register: plex_autoscan_clone_status
 
 - name: Clone plex_autoscan repo 'master'
-  git:
+  ansible.builtin.git:
     repo: https://github.com/saltyorg/l3uddz/plex_autoscan.git
     dest: /opt/plex_autoscan
     clone: true
@@ -45,7 +45,7 @@
   when: plex_autoscan_clone_status is failed
 
 - name: Install pip requirements
-  pip:
+  ansible.builtin.pip:
     requirements: /opt/plex_autoscan/requirements.txt
     virtualenv_python: python3
     virtualenv: "/opt/plex_autoscan/venv"
@@ -53,7 +53,7 @@
   become_user: "{{ user.name }}"
 
 - name: Set 'scan.py' as executable
-  file:
+  ansible.builtin.file:
     path: /opt/plex_autoscan/scan.py
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -70,7 +70,7 @@
   import_tasks: "subtasks/settings.yml"
 
 - name: Start 'plex_autoscan.service'
-  systemd:
+  ansible.builtin.systemd:
     name: plex_autoscan
     state: started
     enabled: true

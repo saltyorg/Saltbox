@@ -19,4 +19,4 @@
     - { limit_type: 'hard', limit_item: 'memlock', value: unlimited }
 
 - name: Reload sysctl settings.
-  shell: sysctl --system
+  ansible.builtin.shell: sysctl --system

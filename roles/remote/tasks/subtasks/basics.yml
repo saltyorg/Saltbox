@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Basics | Create mount directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"

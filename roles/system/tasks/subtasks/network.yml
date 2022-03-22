@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Network | Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - vnstat
@@ -18,12 +18,12 @@
   block:
 
     - name: Network | Check for '/etc/vnstat.conf'
-      stat:
+      ansible.builtin.stat:
         path: "/etc/vnstat.conf"
       register: vnstat_conf
 
     - name: Network | Set vnstat to proper default interface
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "/etc/vnstat.conf"
         regexp: '(Interface)\s?.*'
         line: '\1 "{{ ansible_default_ipv4.interface }}"'
@@ -32,7 +32,7 @@
       when: (vnstat_conf.stat.exists)
 
     - name: Network | Import 'rc.local' if missing
-      copy:
+      ansible.builtin.copy:
         src: "etc/rc.local"
         dest: "/etc/rc.local"
         owner: "root"
@@ -41,11 +41,11 @@
         force: false
 
     - name: Network | Get NIC Info
-      shell: lspci
+      ansible.builtin.shell: lspci
       register: nic
 
     - name: Network | Disable TSO / TX
-      blockinfile:
+      ansible.builtin.blockinfile:
         path: "/etc/rc.local"
         state: present
         create: false

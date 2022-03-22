@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Create nfs server directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0775
@@ -27,7 +27,7 @@
     force: true
 
 - name: Install nfs server
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - rpcbind
@@ -43,7 +43,7 @@
     force: true
 
 - name: Reload exports
-  shell: 'exportfs -ra'
+  ansible.builtin.shell: 'exportfs -ra'
 
 - name: Import 'init_vlan.sh' file
   template:
@@ -55,7 +55,7 @@
     force: "{{ true if hetzner_nfs_init_overwrite_server else false }}"
 
 - name: Check 'nfs_vlan.service' exists
-  stat:
+  ansible.builtin.stat:
     path: '/etc/systemd/system/nfs_vlan.service'
   register: nfs_vlan_service
 
@@ -70,7 +70,7 @@
   when: not nfs_vlan_service.stat.exists
 
 - name: Start 'nfs_vlan.service'
-  systemd:
+  ansible.builtin.systemd:
     state: started
     name: nfs_vlan
     daemon_reload: true

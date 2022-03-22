@@ -26,7 +26,7 @@
         else false }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
-  shell: |
+  ansible.builtin.shell: |
     yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
@@ -50,7 +50,7 @@
         else false }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
-  shell: |
+  ansible.builtin.shell: |
     yyq e -i '.traefik.metrics = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
@@ -68,7 +68,7 @@
         else false }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
-  shell: |
+  ansible.builtin.shell: |
     yyq e -i 'del(.dockerhub)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
@@ -84,4 +84,4 @@
     mode: 0664
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Re-import Variables
-  include_vars: "{{ playbook_dir }}/{{ file }}"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/{{ file }}"

@@ -25,7 +25,7 @@
   block:
 
     - name: "Clone btrfsmaintenance repo"
-      git:
+      ansible.builtin.git:
         repo: https://github.com/kdave/btrfsmaintenance.git
         dest: '/opt/btrfsmaintenance'
         clone: true
@@ -35,10 +35,10 @@
       become_user: "{{ user.name }}"
 
     - name: "Set btrfsmaintenance directory permissions"
-      file: "path='/opt/btrfsmaintenance' state=directory mode=0775 owner={{ user.name }} group={{ user.name }} recurse=yes"
+      ansible.builtin.file: "path='/opt/btrfsmaintenance' state=directory mode=0775 owner={{ user.name }} group={{ user.name }} recurse=yes"
 
     - name: "Change mountpoints to 'auto'"
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: "/opt/btrfsmaintenance/sysconfig.btrfsmaintenance"
         regexp: '^BTRFS_TRIM_MOUNTPOINTS\s?='
         line: 'BTRFS_TRIM_MOUNTPOINTS="auto"'
@@ -47,12 +47,12 @@
     - name: "Execute dist-install.sh"
       become: true
       become_user: root
-      shell: /opt/btrfsmaintenance/dist-install.sh
+      ansible.builtin.shell: /opt/btrfsmaintenance/dist-install.sh
       args:
         chdir: /opt/btrfsmaintenance/
 
     - name: "Copy .timer files to systemd"
-      copy:
+      ansible.builtin.copy:
         src: "{{ item }}"
         dest: /etc/systemd/system
         mode: '0755'
@@ -60,7 +60,7 @@
         - /opt/btrfsmaintenance/*.timer
 
     - name: "Copy .service files to systemd"
-      copy:
+      ansible.builtin.copy:
         src: "{{ item }}"
         dest: /etc/systemd/system
         mode: '0755'
@@ -70,7 +70,7 @@
     - name: "Execute btrfsmaintenance-refresh-cron.sh"
       become: true
       become_user: root
-      shell: /opt/btrfsmaintenance/btrfsmaintenance-refresh-cron.sh timer
+      ansible.builtin.shell: /opt/btrfsmaintenance/btrfsmaintenance-refresh-cron.sh timer
       args:
         chdir: /opt/btrfsmaintenance/
 

@@ -8,16 +8,16 @@
 #########################################################################
 ---
 - name: Hetzner | Install 'pciutils'
-  apt:
+  ansible.builtin.apt:
     name: pciutils
     state: present
 
 - name: Hetzner | Fetch PCI info
-  shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
+  ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
   register: lscpi_resp
 
 - name: Hetzner | Check if 'blacklist-hetzner.conf' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/modprobe.d/blacklist-hetzner.conf"
   register: blacklist_hetzner_conf
 
@@ -37,13 +37,13 @@
           - "/etc/default/grub"
 
     - name: Hetzner | Check status of GRUB files
-      stat:
+      ansible.builtin.stat:
         path: "{{ item }}"
       loop: "{{ hetzner_grub_files }}"
       register: hetzner_grub_files_status
 
     - name: Hetzner | Hetzner GRUB edits
-      include_tasks: "grub_edits.yml"
+      ansible.builtin.include_tasks: "grub_edits.yml"
       when: outer_item.stat.exists
       loop: "{{ hetzner_grub_files_status.results }}"
       loop_control:

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: z | Create 'z' directories
-  file:
+  ansible.builtin.file:
     path: "{{ shell_z_git_repo_dest }}"
     state: directory
     owner: "{{ user.name }}"
@@ -17,7 +17,7 @@
     recurse: true
 
 - name: z | Clone 'z' repo
-  git:
+  ansible.builtin.git:
     repo: "{{ shell_z_git_repo_url }}"
     dest: "{{ shell_z_git_repo_dest }}"
     clone: true

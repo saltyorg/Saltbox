@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Check for previously installed Sub-Zero Plugin
-  stat:
+  ansible.builtin.stat:
     path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
   register: plex_plugin_subzero_bundle_status
 
@@ -21,7 +21,7 @@
 
     # https://stackoverflow.com/a/51109708/10975859
     - name: Check version of previously installed Sub-Zero
-      xml:
+      community.general.xml:
         path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
         xpath: /plist/dict/key[.='CFBundleVersion']/following-sibling::*[1]
         content: 'text'
@@ -32,7 +32,7 @@
         plex_plugin_subzero_previously_installed_version: "{{ plex_plugin_subzero_info_plist_xmlresp_1.matches[0].string }}"
 
     - name: Check latest available version for Sub-Zero
-      shell: curl -s {{ plex_plugin_subzero_release_url }} | jq -r .tag_name
+      ansible.builtin.shell: curl -s {{ plex_plugin_subzero_release_url }} | jq -r .tag_name
       args:
         warn: false
       register: plex_plugin_subzero_latest_version
@@ -55,7 +55,7 @@
       block:
 
         - name: Gather list of running Docker containers
-          shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
+          ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
           register: docker_running_containers_list
 
         - name: Set 'docker_running_containers_list' variable
@@ -75,12 +75,12 @@
       when: ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
 
     - name: Remove outdated Sub-Zero Plugin
-      file:
+      ansible.builtin.file:
         path: "{{ plex_plugin_subzero_paths_location }}"
         state: absent
 
     - name: Get latest Sub-Zero Plugin URL
-      shell: |
+      ansible.builtin.shell: |
         curl -s {{ plex_plugin_subzero_release_url }} \
           | jq -r ".assets[] | select(.name | test(\"Sub-Zero.bundle\")) | .browser_download_url"
       args:
@@ -94,7 +94,7 @@
         plex_plugin_subzero_download_url: "{{ plex_plugin_subzero_download_url.stdout | default(plex_plugin_subzero_download_url_backup,true)  }}"
 
     - name: "Create {{ plex_name | title }} 'plug-ins' directory"
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         owner: "{{ user.name }}"
@@ -108,7 +108,7 @@
       unarchive:
         src: "{{ plex_plugin_subzero_download_url }}"
         dest: "{{ plex_paths_plugins_location }}"
-        copy: false
+        ansible.builtin.copy: false
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
@@ -120,7 +120,7 @@
       block:
 
         - name: Check for newly installed Sub-Zero Plugin
-          stat:
+          ansible.builtin.stat:
             path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
           register: plex_plugin_subzero_info_plist_status
 
@@ -128,7 +128,7 @@
           block:
 
             - name: Check version of newly installed Sub-Zero Plugin
-              xml:
+              community.general.xml:
                 path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
                 xpath: /plist/dict/key[.='CFBundleVersion']/following-sibling::*[1]
                 content: 'text'

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Settings | Wait for config file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ sabnzbd_paths_config_location }}"
     state: present
 
@@ -20,7 +20,7 @@
     state: stopped
 
 - name: Post-Install | Settings | Wait for 10 seconds
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
 
 - name: Post-Install | Settings | Update config settings

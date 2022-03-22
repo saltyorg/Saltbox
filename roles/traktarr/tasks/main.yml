@@ -8,18 +8,18 @@
 #########################################################################
 ---
 - name: Check if traktarr service exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/traktarr.service"
   register: traktarr_service
 
 - name: Stop existing traktarr service
-  systemd:
+  ansible.builtin.systemd:
     state: stopped
     name: traktarr
   when: traktarr_service.stat.exists
 
 - name: Create traktarr directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -30,7 +30,7 @@
     - /opt/traktarr
 
 - name: Clone traktarr
-  git:
+  ansible.builtin.git:
     repo: https://github.com/l3uddz/traktarr.git
     dest: /opt/traktarr
     version: HEAD
@@ -39,17 +39,17 @@
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
-  pip:
+  ansible.builtin.pip:
     requirements: /opt/traktarr/requirements.txt
     executable: pip3
 
 - name: Check if traktarr config exists
-  stat:
+  ansible.builtin.stat:
     path: "/opt/traktarr/config.json"
   register: traktarr_config
 
 - name: "Check if sonarr exists"
-  stat:
+  ansible.builtin.stat:
     path: "/opt/sonarr/config.xml"
   register: sonarr_config
   when: not traktarr_config.stat.exists
@@ -58,7 +58,7 @@
   block:
 
     - name: Pull sonarr api key
-      xml:
+      community.general.xml:
         path: "/opt/sonarr/config.xml"
         xpath: /Config/ApiKey
         content: text
@@ -71,7 +71,7 @@
   when: (not traktarr_config.stat.exists) and (sonarr_config.stat.exists)
 
 - name: "Check if radarr exists"
-  stat:
+  ansible.builtin.stat:
     path: "/opt/radarr/config.xml"
   register: radarr_config
   when: not traktarr_config.stat.exists
@@ -80,7 +80,7 @@
   block:
 
     - name: Pull radarr api key
-      xml:
+      community.general.xml:
         path: "/opt/radarr/config.xml"
         xpath: /Config/ApiKey
         content: text
@@ -103,14 +103,14 @@
   when: not traktarr_config.stat.exists
 
 - name: Set traktarr.py as executable
-  file:
+  ansible.builtin.file:
     path: /opt/traktarr/traktarr.py
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: a+x
 
 - name: Set directory permissions
-  file:
+  ansible.builtin.file:
     path: "/opt/traktarr"
     state: directory
     owner: "{{ user.name }}"
@@ -119,7 +119,7 @@
     mode: "0775"
 
 - name: "Create /usr/local/bin symlink"
-  file:
+  ansible.builtin.file:
     src: "/opt/traktarr/traktarr.py"
     dest: "/usr/local/bin/traktarr"
     state: link
@@ -133,7 +133,7 @@
   when: not traktarr_service.stat.exists
 
 - name: Load traktarr service
-  systemd:
+  ansible.builtin.systemd:
     name: traktarr
     state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
     enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"

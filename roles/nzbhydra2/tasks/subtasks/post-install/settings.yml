@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Settings | Wait for config file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ nzbhydra2_paths_config_location }}"
     state: present
     timeout: 15
@@ -21,7 +21,7 @@
     state: stopped
 
 - name: Post-Install | Settings | Update settings
-  shell: |
+  ansible.builtin.shell: |
     yyq e -i '{{ item }}' {{ nzbhydra2_paths_config_location }}
   become: true
   become_user: "{{ user.name }}"

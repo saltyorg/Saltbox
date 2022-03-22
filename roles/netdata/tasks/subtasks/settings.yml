@@ -8,13 +8,13 @@
 ##########################################################################
 ---
 - name: Settings | Copy Default Config if it doesn't exist
-  shell: |
+  ansible.builtin.shell: |
     docker run -d --name netdata_tmp "{{ netdata_docker_image }}"
     docker cp netdata_tmp:/etc/netdata/. "{{ netdata_paths_config_location }}"
     docker rm -f netdata_tmp
 
 - name: Chown directories
-  file:
+  ansible.builtin.file:
     path: "{{ netdata_paths_location }}"
     state: directory
     owner: "{{ user.name }}"

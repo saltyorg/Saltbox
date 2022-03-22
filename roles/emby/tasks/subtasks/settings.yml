@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for config file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ emby_paths_config_location }}"
     state: present
 
@@ -19,7 +19,7 @@
     container_default_behavior: compatibility
 
 - name: Settings | Update config file
-  xml:
+  community.general.xml:
     path: "{{ emby_paths_config_location }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"

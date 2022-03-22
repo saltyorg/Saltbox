@@ -10,7 +10,7 @@
 # https://gist.github.com/hopeseekr/cd2058e71d01deca5bae9f4e5a555440
 
 - name: BTRFS | Cleanup | Check to see if '/var/lib/docker/' exists
-  stat:
+  ansible.builtin.stat:
     path: "/var/lib/docker/"
   register: var_lib_docker
 
@@ -18,14 +18,14 @@
   block:
 
     - name: BTRFS | Cleanup | Check filesystem of '/var/lib/docker' path
-      shell: stat -f -c %T /var/lib/docker
+      ansible.builtin.shell: stat -f -c %T /var/lib/docker
       register: var_lib_docker_file_system
 
     - name: BTRFS | Cleanup | Tasks when '/var/lib/docker' is btrfs
       block:
 
         - name: BTRFS | Cleanup | Remove all docker containers, images, and volumes
-          shell: |
+          ansible.builtin.shell: |
             docker container stop $(docker ps -aq) &> /dev/null || true
             docker container rm $(docker ps -aq) &> /dev/null || true
             docker image rm -f $(docker images -q) &> /dev/null || true
@@ -34,22 +34,22 @@
             docker volume prune -f &> /dev/null || true
 
         - name: BTRFS | Cleanup | Stop docker service
-          systemd:
+          ansible.builtin.systemd:
             name: docker
             state: stopped
 
         - name: BTRFS | Cleanup | Wait for 30 seconds before commencing
-          wait_for:
+          ansible.builtin.wait_for:
             timeout: 30
 
         - name: BTRFS | Cleanup | Remove '/var/lib/docker' btrfs subvolumes
-          shell: |
+          ansible.builtin.shell: |
             for subvolume in /var/lib/docker/btrfs/subvolumes/*; do
                 btrfs subvolume delete $subvolume &> /dev/null || true
             done
 
         - name: BTRFS | Cleanup | Remove '/var/lib/docker' path
-          shell: rm -rf /var/lib/docker
+          ansible.builtin.shell: rm -rf /var/lib/docker
 
       when: ('btrfs' in var_lib_docker_file_system.stdout)
 

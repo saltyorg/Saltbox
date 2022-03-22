@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Check to see if docker is installed
-  stat:
+  ansible.builtin.stat:
     path: "/usr/bin/docker"
   register: docker_binary
 
@@ -22,28 +22,28 @@
   when: docker_binary.stat.exists
 
 - name: Gather list of running Docker containers
-  shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
+  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
   register: docker_running_containers
   ignore_errors: true
   when: (docker_binary.stat.exists) and (docker_service_running)
 
 - name: Stop all running Docker containers
-  shell: "docker stop {{ docker_running_containers.stdout }}"
+  ansible.builtin.shell: "docker stop {{ docker_running_containers.stdout }}"
   ignore_errors: true
   when: (docker_binary.stat.exists) and (docker_service_running) and not (docker_running_containers.stdout | trim | length == 0)
 
 - name: Wait for 10 seconds before commencing
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
   when: (docker_binary.stat.exists) and (docker_service_running) and not (docker_running_containers.stdout | trim | length == 0)
 
 - name: Check if 'unionfs.service' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/unionfs.service"
   register: unionfs_service
 
 - name: Check if 'mergerfs.service' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/mergerfs.service"
   register: mergerfs_service
 
@@ -59,7 +59,7 @@
   when: unionfs_service.stat.exists
 
 - name: Stop existing 'unionfs.service'
-  systemd:
+  ansible.builtin.systemd:
     state: stopped
     name: unionfs
   when: unionfs_service.stat.exists and unionfs_service_running
@@ -72,7 +72,7 @@
   when: mergerfs_service.stat.exists
 
 - name: Stop existing 'mergerfs.service'
-  systemd:
+  ansible.builtin.systemd:
     state: stopped
     name: mergerfs
   when: mergerfs_service.stat.exists and mergerfs_service_running
@@ -80,7 +80,7 @@
  # force unmount remotes
 
 - name: 'Force unmount remotes'
-  shell: '/bin/umount -f {{ item }} 2>/dev/null || :'
+  ansible.builtin.shell: '/bin/umount -f {{ item }} 2>/dev/null || :'
   with_items:
     - "/mnt/unionfs"
     - "/mnt/feeder"

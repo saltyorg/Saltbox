@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Bazarr roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     bazarr_name: "{{ role }}"
   with_items: "{{ bazarr_instances }}"

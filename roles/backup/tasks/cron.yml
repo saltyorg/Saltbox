@@ -8,16 +8,16 @@
 #########################################################################
 ---
 - name: "Get ansible-playbook binary path."
-  shell: "which ansible-playbook"
+  ansible.builtin.shell: "which ansible-playbook"
   register: playbook_binary
 
 - name: "Remove legacy cron backup task."
-  cron:
+  ansible.builtin.cron:
     name: "Backup Saltbox"
     state: absent
 
 - name: "Schedule cron backup."
-  cron:
+  ansible.builtin.cron:
     name: "Saltbox Backup"
     special_time: "{{ backup.cron.cron_time }}"
     job: >

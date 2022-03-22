@@ -8,29 +8,29 @@
 #########################################################################
 ---
 - name: "Import Authelia Role"
-  import_role:
+  ansible.builtin.import_role:
     name: authelia
   when: authelia_is_master
 
 - name: "Import Jaeger Role"
-  import_role:
+  ansible.builtin.import_role:
     name: jaeger
   when: traefik.tracing
 
 - name: "Import Error Pages Role"
-  import_role:
+  ansible.builtin.import_role:
     name: error_pages
   when: traefik_error_pages_enabled
 
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_metrics_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_metrics_dns_zone') }}"
@@ -38,10 +38,10 @@
   when: traefik.metrics
 
 - name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -61,22 +61,22 @@
   when: (not continuous_integration)
 
 - name: Remove Certificates
-  file:
+  ansible.builtin.file:
     path: "{{ traefik_paths_location }}/acme.json"
     state: absent
   when: ('traefik_reset_certs' in ansible_run_tags)
 
 - name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Wait for 'acme.json' to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ traefik_paths_acme_config_location }}"
     state: present
   when: (not continuous_integration)
 
 - name: Chown '{{ traefik_paths_location }}'
-  file:
+  ansible.builtin.file:
     path: "{{ traefik_paths_location }}"
     state: directory
     recurse: yes
@@ -86,7 +86,7 @@
   when: (not continuous_integration)
 
 - name: Chown '{{ traefik_paths_acme_config_location }}'
-  file:
+  ansible.builtin.file:
     path: "{{ traefik_paths_acme_config_location }}"
     state: file
     owner: "{{ user.name }}"

@@ -12,7 +12,7 @@
     plex_name: "{{ plex_instance }}"
 
 - name: "Token | Check if '{{ plex_paths_config_location | basename }}' exists"
-  stat:
+  ansible.builtin.stat:
     path: "{{ plex_paths_config_location }}"
   register: preferences_xml
 
@@ -20,7 +20,7 @@
   block:
 
     - name: Token | Fetch {{ plex_instance }} auth token
-      xml:
+      community.general.xml:
         path: "{{ plex_paths_config_location }}"
         xpath: /Preferences
         content: attribute

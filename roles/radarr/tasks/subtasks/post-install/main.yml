@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for config file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ radarr_paths_config_location }}"
     state: present
 

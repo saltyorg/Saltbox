@@ -8,17 +8,17 @@
 #########################################################################
 ---
 - name: "Check if user '{{ user.name }}' exists"
-  shell: "id -un {{ user.name }} >/dev/null 2>&1;"
+  ansible.builtin.shell: "id -un {{ user.name }} >/dev/null 2>&1;"
   register: user_check
   failed_when: (user_check.rc > 1)
 
 - name: User Role
-  include_role:
+  ansible.builtin.include_role:
     name: user
   when: (user_check.rc == 1)
 
 - name: Set shell
-  include_role:
+  ansible.builtin.include_role:
     name: shell
   when: (user_check.rc == 1)
 
@@ -26,7 +26,7 @@
   import_tasks: "variables.yml"
 
 - name: "Check if 'localhost.yml' exists in '{{ playbook_dir }}'"
-  stat:
+  ansible.builtin.stat:
     path: "{{ playbook_dir }}/localhost.yml"
   register: localhost_yml_playbook_dir
 
@@ -34,12 +34,12 @@
   block:
 
     - name: "Check if a previous 'localhost.yml' exists"
-      stat:
+      ansible.builtin.stat:
         path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
       register: localhost_yml_default_path
 
     - name: "Backup previous 'localhost.yml' (if it exists)"
-      copy:
+      ansible.builtin.copy:
         src: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
         dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml.bak"
         owner: "{{ user.name }}"
@@ -49,13 +49,13 @@
       when: (localhost_yml_default_path.stat.exists)
 
     - name: "Remove previous 'localhost.yml' (if it exists)"
-      file:
+      ansible.builtin.file:
         path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
         state: absent
       when: (localhost_yml_default_path.stat.exists)
 
     - name: "Import 'localhost.yml' from '{{ playbook_dir }}'"
-      copy:
+      ansible.builtin.copy:
         src: "{{ playbook_dir }}/localhost.yml"
         dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
         owner: "{{ user.name }}"
@@ -64,14 +64,14 @@
         force: true
 
     - name: "Remove imported 'localhost.yml' from '{{ playbook_dir }}'"
-      file:
+      ansible.builtin.file:
         path: "{{ playbook_dir }}/localhost.yml"
         state: absent
 
   when: (localhost_yml_playbook_dir.stat.exists)
 
 - name: BTRFS Tasks
-  include_tasks: "btrfs.yml"
+  ansible.builtin.include_tasks: "btrfs.yml"
   loop:
     - /opt
     - /mnt/local
@@ -79,7 +79,7 @@
     loop_var: outer_item
 
 - name: Create common directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -90,7 +90,7 @@
     - /mnt/local
 
 - name: "Create backup location '{{ backup.local.destination }}'"
-  file:
+  ansible.builtin.file:
     path: "{{ backup.local.destination }}"
     state: directory
     owner: "{{ user.name }}"
@@ -99,7 +99,7 @@
     recurse: true
 
 - name: "Create backup location '{{ backup.local.destination }}/opt'"
-  file:
+  ansible.builtin.file:
     path: "{{ backup.local.destination }}/opt"
     state: directory
     owner: "{{ user.name }}"
@@ -108,7 +108,7 @@
     recurse: true
 
 - name: Check if previous backup exists locally
-  find:
+  ansible.builtin.find:
     paths:
       - "{{ backup.local.destination }}/opt"
     file_type: file
@@ -121,12 +121,12 @@
   when: (dir_files.matched|int == 0)
 
 - name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
-  stat:
+  ansible.builtin.stat:
     path: "{{ backup.local.destination }}/backup_excludes_list.txt"
   register: backup_excludes_list
 
 - name: "Copy 'backup_excludes_list.txt' from '{{ backup.local.destination }}'."
-  copy:
+  ansible.builtin.copy:
     src: "{{ backup.local.destination }}/backup_excludes_list.txt"
     dest: "{{ playbook_dir }}"
     owner: "{{ user.name }}"
@@ -136,7 +136,7 @@
   when: (backup_excludes_list.stat.exists)
 
 - name: "Backup existing folders in '/opt' to prevent overwriting them"
-  shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
+  ansible.builtin.shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
   args:
     warn: false
   with_fileglob:
@@ -145,7 +145,7 @@
     label: "'/opt/{{ (item | basename | splitext)[0] }}' --> '/opt/{{ (item | basename | splitext)[0] }}_bak'"
 
 - name: "Unarchive backup tarballs into '/opt'"
-  shell: tar -xf '{{ item }}' -C '/opt/'
+  ansible.builtin.shell: tar -xf '{{ item }}' -C '/opt/'
   args:
     warn: false
   with_fileglob:
@@ -159,7 +159,7 @@
   tags: opt-permissions-reset
 
 - name: Cleanup backup location
-  file:
+  ansible.builtin.file:
     path: "{{ backup.local.destination }}"
     state: absent
   become: true
@@ -172,5 +172,5 @@
   when: (unarchive is succeeded)
 
 - name: Settings Role
-  include_role:
+  ansible.builtin.include_role:
     name: settings

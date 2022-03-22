@@ -8,25 +8,25 @@
 #########################################################################
 ---
 - name: Variables Task
-  include_tasks: "subtasks/00_variables.yml"
+  ansible.builtin.include_tasks: "subtasks/00_variables.yml"
 
 - name: Preinstall Task
-  include_tasks: "subtasks/01_preinstall.yml"
+  ansible.builtin.include_tasks: "subtasks/01_preinstall.yml"
   when: ('preinstall' in ansible_run_tags)
 
 - name: Cron Tasks
-  include_tasks: "subtasks/02_cron.yml"
+  ansible.builtin.include_tasks: "subtasks/02_cron.yml"
 
 # Ubuntu 20.04 HWE Update
 - name: Update Tasks
-  include_tasks: "subtasks/03_update.yml"
+  ansible.builtin.include_tasks: "subtasks/03_update.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
     - (ansible_distribution_version is version('20.04', '=='))
     - (ansible_kernel is version('5.8', '<'))
 
 - name: Restart Tasks
-  include_tasks: "subtasks/04_restart.yml"
+  ansible.builtin.include_tasks: "subtasks/04_restart.yml"
   when:
     - (reboot_is_necessary)
     - (not continuous_integration)

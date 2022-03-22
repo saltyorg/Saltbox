@@ -12,7 +12,7 @@
 ################################
 
 - name: Preinstall MIGRATE | Check if `{{ jellyfin_paths_xml_loct_old | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ jellyfin_paths_xml_loct_old }}"
   register: jellyfin_xml_old
 
@@ -20,7 +20,7 @@
   block:
 
     - name: Preinstall MIGRATE | Import `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists
-      copy:
+      ansible.builtin.copy:
         src: "{{ jellyfin_paths_xml_loct_old }}"
         dest: "{{ jellyfin_paths_sys_xml_location }}"
         owner: "{{ user.name }}"
@@ -29,7 +29,7 @@
         force: false
 
     - name: Preinstall MIGRATE | Remove old `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists"
-      file:
+      ansible.builtin.file:
         path: "{{ jellyfin_paths_xml_loct_old }}"
         state: absent
 
@@ -44,22 +44,22 @@
 ################################
 
 - name: Preinstall STAT | Check if `{{ jellyfin_paths_sys_xml_location | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ jellyfin_paths_sys_xml_location }}"
   register: jellyfin_sys_xml
 
 - name: Preinstall STAT | Check also if `{{ jellyfin_paths_sys_xml_location | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ jellyfin_paths_sys_xml_location }}"
   register: jellyfin_existing_install
 
 - name: Preinstall STAT | Check if `{{ jellyfin_paths_net_xml_location | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ jellyfin_paths_net_xml_location }}"
   register: network_xml
 
 - name: Preinstall STAT | Check if `{{ jellyfin_paths_dlna_location | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ jellyfin_paths_dlna_location }}"
   register: jellyfin_dlna
 
@@ -71,7 +71,7 @@
   block:
 
     - name: Import 'dlna.xml' config
-      copy:
+      ansible.builtin.copy:
         src: "dlna.xml"
         dest: "{{ jellyfin_paths_dlna_location }}"
         owner: "{{ user.name }}"

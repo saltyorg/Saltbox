@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Auth Token | Create directories"
-  file:
+  ansible.builtin.file:
     path: "/opt/saltbox"
     state: directory
     owner: "{{ user.name }}"
@@ -16,7 +16,7 @@
     mode: "0775"
 
 - name: "Auth Token | Check if PIN exists"
-  stat:
+  ansible.builtin.stat:
     path: "/opt/saltbox/plex.ini"
   register: plex_ini
 
@@ -142,7 +142,7 @@
     msg: "Plex Auth Token: {{ plex_auth_token }}"
 
 - name: Change permissions
-  file:
+  ansible.builtin.file:
     path: /opt/saltbox
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

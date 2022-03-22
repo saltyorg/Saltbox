@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Create docker directory
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0775
@@ -25,7 +25,7 @@
     force: true
 
 - name: "Daemon | Create override directory"
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
     mode: 0644

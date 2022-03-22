@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Docker | Containers Stop | Gather list of running Docker containers"
-  shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
+  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
   register: saltbox_managed_containers
   ignore_errors: true
 
@@ -18,6 +18,6 @@
     containers_list: "{{ saltbox_managed_containers.stdout }}"
 
 - name: "Docker | Containers Stop | Stop all running Docker containers"
-  shell: "docker stop {{ containers_list }}"
+  ansible.builtin.shell: "docker stop {{ containers_list }}"
   ignore_errors: true
   when: (containers_list | trim | length > 0)

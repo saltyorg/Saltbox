@@ -15,12 +15,12 @@
       else '' }}"
 
 - name: Install tld python package
-  pip:
+  ansible.builtin.pip:
     name: tld
     executable: pip3
 
 - name: Get FLD
-  shell: |
+  ansible.builtin.shell: |
     python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
   register: fld
 
@@ -42,7 +42,7 @@
     cloudflare_zone: "{{ cf_zones.json.result[0].id }}"
 
 - name: Variables | Fetch Cloudflare Page Rules
-  shell: |
+  ansible.builtin.shell: |
     curl -X GET "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/pagerules?status=active&order=status&direction=desc&match=all" \
     -H "X-Auth-Email: {{ cloudflare.email }}" \
     -H "X-Auth-Key: {{ cloudflare.api  }}" \

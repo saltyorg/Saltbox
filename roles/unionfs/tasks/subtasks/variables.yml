@@ -18,7 +18,7 @@
                                (mount_type | trim | length > 0) }}"
 
 - name: Variables | Fail when no valid remote mount type is specified.
-  fail:
+  ansible.builtin.fail:
     msg: "'{{ mounts.unionfs }}' is not a valid unionfs mount type."
   when: not mount_type_is_defined
 
@@ -31,7 +31,7 @@
     _service_file: "{{ mount_type }}.service"
 
 - name: Variables | Set 'service_files_stat' variable
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/{{ _service_file }}"
   register: service_file_stat
 

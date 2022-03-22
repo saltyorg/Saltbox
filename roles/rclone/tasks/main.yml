@@ -17,5 +17,5 @@
   import_tasks: "subtasks/03_import_config.yml"
 
 - name: Preinstall Tasks
-  include_tasks: "subtasks/99_preinstall.yml"
+  ansible.builtin.include_tasks: "subtasks/99_preinstall.yml"
   when: ('preinstall' in ansible_run_tags)

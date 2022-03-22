@@ -21,7 +21,7 @@
     _git_repo_branch_secondary: "{{ lookup('vars', _var_prefix + '_git_repo_branch_secondary', default='master') }}"
 
 - name: Resources | Tasks | Git | Clone Git Repo | Check for existing git folder
-  stat:
+  ansible.builtin.stat:
     path: "{{ _git_repo_dest }}"
   register: _git_repo_dest_stat
 
@@ -29,7 +29,7 @@
   block:
 
     - name: Resources | Tasks | Git | Clone Git Repo | Get current git branch
-      shell: |
+      ansible.builtin.shell: |
         cd {{ _git_repo_dest }}
         git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""
       register: _git_repo_dest_current_branch
@@ -42,7 +42,7 @@
   when: _git_repo_dest_stat.stat.exists
 
 - name: Resources | Tasks | Git | Clone Git Repo | git clone repo '{{ _git_repo_branch_primary }}'
-  git:
+  ansible.builtin.git:
     repo: "{{ _git_repo_url }}"
     dest: "{{ _git_repo_dest }}"
     clone: true
@@ -57,7 +57,7 @@
   block:
 
     - name: Resources | Tasks | Git | Clone Git Repo | git clone repo 'master' if above fails
-      git:
+      ansible.builtin.git:
         repo: "{{ _git_repo_url }}"
         dest: "{{ _git_repo_dest }}"
         clone: true
@@ -69,7 +69,7 @@
       register: _git_clone_master_status
 
     - name: Resources | Tasks | Git | Clone Git Repo | Repair git folder if cloning '"{{ _git_repo_branch_primary }}"' fails
-      shell: |
+      ansible.builtin.shell: |
         cd "{{ _git_repo_dest }}"
         rm -fr .git
         git init

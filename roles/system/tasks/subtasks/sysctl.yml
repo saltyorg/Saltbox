@@ -74,7 +74,7 @@
     - { name: net.core.netdev_budget, value: 50000 }
 
 - name: sysctl | Check to see if '/proc/sys/net/core/netdev_budget_usecs' exists
-  stat:
+  ansible.builtin.stat:
     path: "/proc/sys/net/core/netdev_budget_usecs"
   register: netdev_budget_usecs
 

@@ -8,14 +8,14 @@
 ##########################################################################
 ---
 - name: Install custom apt packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name: "{{ item }}"
   ignore_errors: true
   loop: "{{ custom_apt }}"
 
 - name: Install custom pip modules
-  pip:
+  ansible.builtin.pip:
     state: present
     name: "{{ item }}"
     executable: pip3

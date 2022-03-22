@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: "Basics | Check to see if '/mnt/remote' exists"
-  stat:
+  ansible.builtin.stat:
     path: "/mnt/remote"
   register: mnt_remote
 
 - name: "Basics | Create '/mnt/remote' directory"
-  file:
+  ansible.builtin.file:
     path: "/mnt/remote"
     state: directory
     owner: "{{ user.name }}"

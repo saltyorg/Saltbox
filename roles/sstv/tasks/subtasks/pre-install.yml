@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Pre-Install | Check if SSTV config exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ sstv_paths_config_location }}"
   register: sstv_paths_config_location_stat
 

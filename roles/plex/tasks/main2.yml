@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_webtools_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_webtools_dns_zone') }}"
@@ -23,10 +23,10 @@
   when: plex_plugin_webtools
 
 - name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -52,11 +52,11 @@
   when: (not continuous_integration)
 
 - name: Docker Devices Task
-  include_tasks: "{{ resources_tasks_path }}/docker/set_docker_devices_variable.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/set_docker_devices_variable.yml"
   when: (gpu.intel or gpu.nvidia)
 
 - name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Post-Install Tasks
   import_tasks: "subtasks/post-install/main.yml"

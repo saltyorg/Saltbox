@@ -8,13 +8,13 @@
 #########################################################################
 ---
 - name: Apprise | Install 'apprise' pip module
-  pip:
+  ansible.builtin.pip:
     name: apprise
     state: present
     executable: pip3
 
 - name: Apprise | Send Notification
-  shell: apprise -b '{{ message }}' '{{ apprise }}'
+  ansible.builtin.shell: apprise -b '{{ message }}' '{{ apprise }}'
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true

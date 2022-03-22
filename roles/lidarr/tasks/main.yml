@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Lidarr roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     lidarr_name: "{{ role }}"
   with_items: "{{ lidarr_instances }}"

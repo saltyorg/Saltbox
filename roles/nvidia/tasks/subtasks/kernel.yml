@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Kernel | Copy 'blacklist-nouveau.conf'
-  copy:
+  ansible.builtin.copy:
     content: "{{ nvidia_kernel_blacklist_nouveau_conf_content }}"
     dest: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
     owner: "root"
@@ -20,7 +20,7 @@
   block:
 
     - name: Kernel | Update initramfs
-      command: update-initramfs -u
+      ansible.builtin.command: update-initramfs -u
 
     - name: Kernel | Success message
       ansible.builtin.debug:
@@ -29,10 +29,10 @@
           - "You will need to re-run your previous tag after the system has rebooted."
 
     - name: Kernel | Reboot command
-      shell: reboot
+      ansible.builtin.shell: reboot
 
     - name: Kernel | Reboot message
-      fail:
+      ansible.builtin.fail:
         msg: "Disabled nouveau driver. You will need to restart the server for changes to take effect."
 
   when: (r.changed)

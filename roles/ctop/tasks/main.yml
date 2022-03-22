@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Get latest ctop URL
-  shell: "{{ ctop_download_url_lookup_command }}"
+  ansible.builtin.shell: "{{ ctop_download_url_lookup_command }}"
   args:
     executable: /bin/bash
   register: ctop_download_url_lookup
@@ -30,7 +30,7 @@
   block:
 
     - name: Get ctop binary version
-      shell: "{{ ctop_binary_version_lookup_command }}"
+      ansible.builtin.shell: "{{ ctop_binary_version_lookup_command }}"
       register: ctop_binary_version
       ignore_errors: true
 

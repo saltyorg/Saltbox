@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Remove CPU Power | Check if 'cpupower.service' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/cpupower.service"
   register: cpupower_service
 
 - name: Remove CPU Power | Stop and disable 'cpupower.service'
-  systemd:
+  ansible.builtin.systemd:
     name: cpupower
     state: stopped
     enabled: false
@@ -22,7 +22,7 @@
   when: cpupower_service.stat.exists
 
 - name: Remove CPU Power | Delete 'cpupower.service'
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/cpupower.service
     state: absent
   when: cpupower_service.stat.exists

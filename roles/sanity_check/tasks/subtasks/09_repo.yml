@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Repository | Check Current Hash
-  shell: git rev-parse HEAD
+  ansible.builtin.shell: git rev-parse HEAD
   register: git_version
 
 - name: Repository | Print Current Hash

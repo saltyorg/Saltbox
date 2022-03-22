@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: System | Ensure Ansible is running on Ubuntu 20.04
-  assert:
+  ansible.builtin.assert:
     that:
       - ((ansible_distribution == 'Ubuntu') and (ansible_facts['distribution_version'] is version('20.04', '>=')))
     fail_msg: >-

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Nginx roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     nginx_name: "{{ role }}"
   with_items: "{{ nginx_instances }}"

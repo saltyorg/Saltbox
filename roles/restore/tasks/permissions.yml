@@ -8,11 +8,11 @@
 #########################################################################
 ---
 - name: Set '/opt' ownership recursively
-  shell: "chown -R {{ user.name }}:{{ user.name }} /opt"
+  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /opt"
   args:
     warn: false
 
 - name: Set '/opt' permissions recursively
-  shell: "chmod -R ugo+X /opt"
+  ansible.builtin.shell: "chmod -R ugo+X /opt"
   args:
     warn: false

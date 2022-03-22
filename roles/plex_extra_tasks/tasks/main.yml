@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Gather list of installed Docker containers
-  shell: "docker ps -a --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
+  ansible.builtin.shell: "docker ps -a --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
   register: docker_installed_containers_list
   changed_when: false
 

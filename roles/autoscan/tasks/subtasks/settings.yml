@@ -12,13 +12,13 @@
     plex_tokens: []
 
 - name: Token tasks
-  include_tasks: token.yml
+  ansible.builtin.include_tasks: token.yml
   loop: "{{ plex_instances }}"
   loop_control:
     loop_var: plex_instance
 
 - name: Settings | Check if `{{ autoscan_paths_config_location | basename }}` exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ autoscan_paths_config_location }}"
   register: autoscan_config
 

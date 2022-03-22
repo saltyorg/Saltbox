@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Readarr roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     readarr_name: "{{ role }}"
   with_items: "{{ readarr_instances }}"

@@ -17,4 +17,4 @@
     mode: 0664
 
 - name: Migrator | 'accounts.yml' | Migration 01 | Re-import Variables
-  include_vars: "{{ playbook_dir }}/{{ file }}"
+  ansible.builtin.include_vars: "{{ playbook_dir }}/{{ file }}"

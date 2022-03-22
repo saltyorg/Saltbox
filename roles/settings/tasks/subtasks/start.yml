@@ -8,17 +8,17 @@
 #########################################################################
 ---
 - name: "Start | Install ruamel.yaml"
-  pip:
+  ansible.builtin.pip:
     name: ruamel.yaml
     executable: pip3
 
 - name: "Start | Check to see if yyq is installed"
-  stat:
+  ansible.builtin.stat:
     path: "/usr/local/bin/yyq"
   register: yyq_binary
 
 - name: "Start | Get yyq version"
-  shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+  ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
   register: yyq_version_settings_check
   ignore_errors: true
   when: yyq_binary.stat.exists
@@ -30,13 +30,13 @@
                           else '0.0.0' }}"
 
 - name: "Start | Install yyq"
-  import_role:
+  ansible.builtin.import_role:
     name: yyq
   when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver'))
         or (not yyq_binary.stat.exists)
 
 - name: "Start | Get 'saltbox.yml' info"
-  stat:
+  ansible.builtin.stat:
     path: "{{ playbook_dir }}/saltbox.yml"
   register: saltbox_yml
 
@@ -58,12 +58,12 @@
     exit_is_necessary: false
 
 - name: "Start | Check if 'settings-updater.log' exists"
-  stat:
+  ansible.builtin.stat:
     path: "{{ playbook_dir }}/settings-updater.log"
   register: settings_updater_log
 
 - name: "Start | Reset ownership of 'settings-updater.log'"
-  file:
+  ansible.builtin.file:
     path: "{{ playbook_dir }}/settings-updater.log"
     state: file
     owner: "{{ saltbox_yml.stat.uid }}"

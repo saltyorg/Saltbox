@@ -19,7 +19,7 @@
   when: (plex_name in docker_running_containers)
 
 - name: Create ASS and HAMA directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0775
@@ -51,7 +51,7 @@
     mode: '0775'
 
 - name: Set ASS directory permissions
-  file:
+  ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
     state: directory
     mode: 0775
@@ -60,7 +60,7 @@
     recurse: true
 
 - name: Clone Hama Bundle
-  git:
+  ansible.builtin.git:
     repo: https://github.com/ZeroQI/Hama.bundle.git
     dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     clone: true
@@ -70,7 +70,7 @@
   become_user: "{{ user.name }}"
 
 - name: Set HAMA directory permissions
-  file:
+  ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     state: directory
     mode: 0775

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Ansible Tags | Get all available Ansible tags
-  shell: "{{ sanity_check_ansible_tags_lookup_command }}"
+  ansible.builtin.shell: "{{ sanity_check_ansible_tags_lookup_command }}"
   register: available_ansible_tags
   changed_when: false
   when: (not continuous_integration)
@@ -16,7 +16,7 @@
         and ('sandbox' not in playbook_dir)
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
-  assert:
+  ansible.builtin.assert:
     that:
       - '"{{ item }}" in available_ansible_tags.stdout_lines'
     msg: >-

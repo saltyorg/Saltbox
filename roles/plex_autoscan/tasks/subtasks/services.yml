@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Services | Check if 'plex_autoscan.service' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/plex_autoscan.service"
   register: plex_autoscan_service
 
@@ -23,7 +23,7 @@
         plex_autoscan_service_running: "{{ (services['plex_autoscan.service'] is defined) and (services['plex_autoscan.service']['state'] == 'running') }}"
 
     - name: Services | Stop 'plex_autoscan.service'
-      systemd:
+      ansible.builtin.systemd:
         name: plex_autoscan
         state: stopped
       when: plex_autoscan_service_running

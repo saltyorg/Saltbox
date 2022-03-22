@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: Install Binary | Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - unzip
       - man-db
 
 - name: Install Binary | Create rclone directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -27,7 +27,7 @@
     - "/home/{{ user.name }}/.config/rclone"
 
 - name: Install Binary | Cleanup rclone tmp path
-  shell: rm -rf /tmp/rclone-*-linux-amd64
+  ansible.builtin.shell: rm -rf /tmp/rclone-*-linux-amd64
   args:
     warn: false
 
@@ -40,15 +40,15 @@
   unarchive:
     src: "{{ rclone_download_url }}"
     dest: /tmp
-    copy: false
+    ansible.builtin.copy: false
     validate_certs: false
 
 - name: Install Binary | Find rclone tmp dir
-  shell: ls -d /tmp/rclone-*-linux-amd64
+  ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
   register: rclone_tmp_dir
 
 - name: Install Binary | Copy binary to /usr/bin/rclone
-  copy:
+  ansible.builtin.copy:
     src: "{{ rclone_tmp_dir.stdout }}/rclone"
     dest: "/usr/bin/rclone"
     mode: "0775"
@@ -57,7 +57,7 @@
     force: true
 
 - name: Install Binary | Make dir for local manpages
-  file:
+  ansible.builtin.file:
     path: '/usr/local/share/man/man1'
     state: directory
     mode: "0775"
@@ -65,7 +65,7 @@
     group: root
 
 - name: Install Binary | Copy manpage
-  copy:
+  ansible.builtin.copy:
     src: "{{ rclone_tmp_dir.stdout }}/rclone.1"
     dest: /usr/local/share/man/man1/rclone.1
     mode: "0664"
@@ -73,11 +73,11 @@
     group: root
 
 - name: Install Binary | Install manpage
-  shell: mandb
+  ansible.builtin.shell: mandb
   changed_when: false
 
 - name: Install Binary | Get rclone version
-  shell: rclone --version | head -n 1 | awk '{ print substr($2, 2) }'
+  ansible.builtin.shell: rclone --version | head -n 1 | awk '{ print substr($2, 2) }'
   register: rclone_version
   ignore_errors: true
 

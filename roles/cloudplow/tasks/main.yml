@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Stop Service
-  include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
   vars:
     _service_name: "{{ cloudplow_service_name }}"
 
 - name: Create directory
-  file:
+  ansible.builtin.file:
     path: "{{ cloudplow_path }}"
     state: directory
     owner: "{{ user.name }}"
@@ -22,10 +22,10 @@
     recurse: true
 
 - name: Clone project git repo
-  include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
 
 - name: Install pip requirements
-  pip:
+  ansible.builtin.pip:
     requirements: "{{ cloudplow_requirements_path }}"
     virtualenv_python: python3
     virtualenv: "{{ cloudplow_venv_path }}"
@@ -33,7 +33,7 @@
   become_user: "{{ user.name }}"
 
 - name: Set script as executable
-  file:
+  ansible.builtin.file:
     path: "{{ cloudplow_script_path }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -57,7 +57,7 @@
     force: true
 
 - name: Start service
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ cloudplow_service_name }}"
     state: started
     enabled: true

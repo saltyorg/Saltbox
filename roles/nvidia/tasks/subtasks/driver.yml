@@ -8,13 +8,13 @@
 #########################################################################
 ---
 - name: Driver | Install 'build-essential'
-  apt:
+  ansible.builtin.apt:
     name: build-essential
     update_cache: true
     state: present
 
 - name: Install 'dkms'
-  apt:
+  ansible.builtin.apt:
     name: dkms
     update_cache: true
     state: present
@@ -31,17 +31,17 @@
   register: driver_download
 
 - name: Driver | Uninstall Nvidia drivers
-  shell: "{{ nvidia_driver_uninstall_command }}"
+  ansible.builtin.shell: "{{ nvidia_driver_uninstall_command }}"
   register: driver_uninstall
   ignore_errors: true
 
 - name: Driver | Install Nvidia drivers
-  shell: "{{ nvidia_driver_install_command }}"
+  ansible.builtin.shell: "{{ nvidia_driver_install_command }}"
   register: driver_install
   ignore_errors: true
 
 - name: Driver | Nvidia driver did not install
-  fail:
+  ansible.builtin.fail:
     msg:
       - "{{ driver_install.stdout }}"
       - "Nvidia driver did not install"

@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Network | Get list of docker networks
-  shell: docker network ls --format '{{ '{{' }} .Name{{ '}}' }}'
+  ansible.builtin.shell: docker network ls --format '{{ '{{' }} .Name{{ '}}' }}'
   register: docker_networks_list
   changed_when: false
 
 - name: Network | Get saltbox docker network gateway
-  shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
+  ansible.builtin.shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
   register: docker_ipv6
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
@@ -47,12 +47,12 @@
   block:
 
     - name: Network | Get list of containers on saltbox network
-      shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
+      ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
       changed_when: false
 
     - name: Network | Disconnect containers from bridge network
-      shell: docker network disconnect -f bridge {{ item }}
+      ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
       register: r
       failed_when: r.rc > 1
@@ -68,7 +68,7 @@
           - subnet: fd00:dead:beef::/48
 
     - name: Network | Connect containers to saltbox network
-      shell: docker network connect saltbox {{ item }} --alias {{ item }}
+      ansible.builtin.shell: docker network connect saltbox {{ item }} --alias {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
       register: q
       failed_when: q.rc > 1
@@ -80,12 +80,12 @@
   block:
 
     - name: Network | Get list of containers on saltbox network
-      shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
+      ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
       changed_when: false
 
     - name: Network | Disconnect containers from bridge network
-      shell: docker network disconnect -f bridge {{ item }}
+      ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
       register: r
       failed_when: r.rc > 1
@@ -99,7 +99,7 @@
           - subnet: 172.19.0.0/16
 
     - name: Network | Connect containers to saltbox network
-      shell: docker network connect saltbox {{ item }} --alias {{ item }}
+      ansible.builtin.shell: docker network connect saltbox {{ item }} --alias {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
       register: q
       failed_when: q.rc > 1

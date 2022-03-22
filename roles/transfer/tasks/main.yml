@@ -8,17 +8,17 @@
 #########################################################################
 ---
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -27,10 +27,10 @@
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Check if 'transfer' exists
-  stat:
+  ansible.builtin.stat:
     path: "/usr/local/bin/transfer"
   register: transfer_binary
 
@@ -38,7 +38,7 @@
   block:
 
     - name: Get latest transfer URL
-      shell: >-
+      ansible.builtin.shell: >-
           curl -s {{ cvm }}https://api.github.com/repos/l3uddz/transfer/releases/latest |
           jq -r ".assets[] | select(.name | test(\"transfer_v[0-9].[0-9].[0-9]_linux_amd64\")) | .browser_download_url"
       args:
@@ -59,7 +59,7 @@
       register: x
 
     - name: "Get transfer version"
-      shell: "/usr/local/bin/transfer --version | head -n 1 | awk '{ print $1 }'"
+      ansible.builtin.shell: "/usr/local/bin/transfer --version | head -n 1 | awk '{ print $1 }'"
       register: transfer_version
       ignore_errors: true
       when: x is success

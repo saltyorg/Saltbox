@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: Update | Update linux kernel
-  apt:
+  ansible.builtin.apt:
     name: "{{ kernel_update_apt_package }}"
     update_cache: true
     state: latest
   register: r
 
 - name: Update | Fix broken APT install
-  shell: "{{ kernel_update_apt_fix }}"
+  ansible.builtin.shell: "{{ kernel_update_apt_fix }}"
   when: (r.changed)
 
 - name: Update | Set 'reboot_is_necessary' variable

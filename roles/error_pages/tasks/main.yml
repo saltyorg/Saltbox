@@ -8,12 +8,12 @@
 ##########################################################################
 ---
 - name: Check if folder already exists
-  stat:
+  ansible.builtin.stat:
     path: "/opt/error_pages"
   register: error_pages_folder
 
 - name: Create directory
-  file:
+  ansible.builtin.file:
     path: "/opt/error_pages"
     state: directory
     owner: "{{ user.name }}"
@@ -22,11 +22,11 @@
   when: (not error_pages_folder.stat.exists)
 
 - name: Export error pages from container
-  shell: "docker run --rm -v '/opt/error_pages:/out:rw' -u '{{ uid }}:{{ gid }}' tarampampam/error-pages build --config-file ./error-pages.yml /out"
+  ansible.builtin.shell: "docker run --rm -v '/opt/error_pages:/out:rw' -u '{{ uid }}:{{ gid }}' tarampampam/error-pages build --config-file ./error-pages.yml /out"
   when: (not error_pages_folder.stat.exists)
 
 - name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Preferences | Check if '{{ plex_paths_config_location | basename }}' exists"
-  stat:
+  ansible.builtin.stat:
     path: "{{ plex_paths_config_location }}"
   register: preferences_xml
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
-      xml:
+      community.general.xml:
         path: "{{ plex_paths_config_location }}"
         xpath: /Preferences
         content: attribute
@@ -24,7 +24,7 @@
       ignore_errors: true
 
     - name: "Preferences | Remove '{{ plex_paths_config_location | basename }}' if malformed"
-      file:
+      ansible.builtin.file:
         path: "{{ plex_paths_config_location }}"
         state: absent
       when: (preferences_xml_resp is failed)
@@ -36,7 +36,7 @@
           (preferences_xml_resp.matches[0].Preferences.TranscoderTempDirectory | trim == '/transcodes') }}"
 
     - name: "Preferences | Fix 'TranscoderTempDirectory'"
-      xml:
+      community.general.xml:
         path: "{{ plex_paths_config_location }}"
         xpath: /Preferences
         attribute: TranscoderTempDirectory

@@ -8,26 +8,26 @@
 #########################################################################
 ---
 - name: "Import Redis Role"
-  import_role:
+  ansible.builtin.import_role:
     name: redis
 
 - name: Install argon2_cffi python package
-  pip:
+  ansible.builtin.pip:
     name: argon2_cffi
     executable: pip3
 
 - name: Add DNS record
-  include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
     dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Remove existing Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -36,17 +36,17 @@
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
 - name: Check if 'configuration.yml' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ authelia_paths_location }}/configuration.yml"
   register: authelia_config_stat
 
 - name: Check if 'users_database.yml' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ authelia_paths_location }}/users_database.yml"
   register: authelia_user_config_stat
 
 - name: "Generate Password Hash"
-  shell: "docker run --rm authelia/authelia:latest authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+  ansible.builtin.shell: "docker run --rm authelia/authelia:latest authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
@@ -73,4 +73,4 @@
   when: (authelia_config_stat.stat.exists)
 
 - name: Create Docker container
-  include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

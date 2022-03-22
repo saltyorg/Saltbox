@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Radarr roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     radarr_name: "{{ role }}"
   with_items: "{{ radarr_instances }}"

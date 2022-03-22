@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: ZSH | Install 'zsh'
-  apt:
+  ansible.builtin.apt:
     name: "{{ shell_zsh_apt_packages_list }}"
     state: present
 
 - name: ZSH | Clone 'oh-my-zsh' repo
-  git:
+  ansible.builtin.git:
     repo: "{{ shell_zsh_omzsh_git_repo_url }}"
     dest: "{{ shell_zsh_omzsh_git_repo_dest }}"
     clone: true
@@ -25,12 +25,12 @@
   ignore_errors: true
 
 - name: ZSH | Check if an existing '.zshrc' file is present
-  stat:
+  ansible.builtin.stat:
     path: "{{ shell_zsh_zshrc_path }}"
   register: existing_zshrc
 
 - name: ZSH | Create '{{ shell_zsh_zshrc_path }}' file
-  copy:
+  ansible.builtin.copy:
     src: "{{ shell_zsh_zshrc_template_path }}"
     dest: "{{ shell_zsh_zshrc_path }}"
     group: "{{ user.name }}"
@@ -39,7 +39,7 @@
   when: (cloning is success) and (not existing_zshrc.stat.exists)
 
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
     marker: "### SALTBOX MANAGED BLOCK 1 - {mark} ###"
     block: "{{ shell_zsh_zshrc_block_content1 }}"
@@ -51,7 +51,7 @@
     mode: "0664"
 
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
     marker: "### SALTBOX MANAGED BLOCK 2 - {mark} ###"
     block: "{{ shell_zsh_zshrc_block_content2 }}"
@@ -75,7 +75,7 @@
 
 # alternatives link
 - name: ZSH | Check if '/bin/zsh' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ shell_zsh_binary_path }}"
   register: shell_zsh_binary_path_stat
 
@@ -88,9 +88,9 @@
 
 # set as default shell
 - name: ZSH | Set ZSH as default shell
-  user:
+  ansible.builtin.user:
     name: "{{ user.name }}"
-    shell: "{{ shell_zsh_binary_path }}"
+    ansible.builtin.shell: "{{ shell_zsh_binary_path }}"
   register: shell_update_task
 
 - name: ZSH | Set ZSH as default shell

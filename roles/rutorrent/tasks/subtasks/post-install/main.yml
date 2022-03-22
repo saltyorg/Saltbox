@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for config files to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ item }}"
     state: present
   loop:
@@ -18,7 +18,7 @@
     - "{{ rutorrent_paths_plugins_ini_location }}"
 
 - name: Post-Install | Wait for 10 seconds
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
 
 - name: Post-Install | Stop container

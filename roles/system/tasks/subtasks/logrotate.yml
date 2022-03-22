@@ -10,13 +10,13 @@
 # https://github.com/vbotka/ansible-linux-postinstall
 
 - name: Logrotate | Install required packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - logrotate
 
 - name: Logrotate | Configure '/etc/logrotate.conf'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/logrotate.conf"
     line: "{{ item.line }}"
     state: "{{ item.state }}"
@@ -50,7 +50,7 @@
           }
 
 - name: Logrotate | Add items to '/etc/logrotate.d'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/etc/logrotate.d/{{ item.path }}"
     marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
     block: "{{ item.content }}"

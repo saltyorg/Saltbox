@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "MergerFS | Get URL for latest mergerfs release"
-  shell: "{{ mergerfs_release_lookup_command }}"
+  ansible.builtin.shell: "{{ mergerfs_release_lookup_command }}"
   args:
     executable: /bin/bash
     warn: false
@@ -16,12 +16,12 @@
   ignore_errors: true
 
 - name: "MergerFS | Uninstall mergerfs"
-  apt:
+  ansible.builtin.apt:
     name: mergerfs
     state: absent
 
 - name: "MergerFS | Install mergerfs"
-  apt:
+  ansible.builtin.apt:
     deb: "{{ mergerfs_download_url.stdout | default(mergerfs_download_backup_url, true) }}"
     state: present
 
@@ -36,7 +36,7 @@
   import_tasks: "mount_path.yml"
 
 - name: "MergerFS | Start 'mergerfs.service'"
-  systemd:
+  ansible.builtin.systemd:
     name: mergerfs.service
     state: started
     enabled: true

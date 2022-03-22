@@ -12,7 +12,7 @@
     grub_item_to_remove: "nomodeset"
 
 - name: GRUB Edits | Get default kernel parameters
-  shell: grep "^GRUB_CMDLINE_LINUX_DEFAULT" {{ outer_item.item }} | awk -F"GRUB_CMDLINE_LINUX_DEFAULT=" '{print $2}' | sed 's/"//g'
+  ansible.builtin.shell: grep "^GRUB_CMDLINE_LINUX_DEFAULT" {{ outer_item.item }} | awk -F"GRUB_CMDLINE_LINUX_DEFAULT=" '{print $2}' | sed 's/"//g'
   register: grub_cmdline_linux_default
 
 - name: GRUB Edits | Set default kernel parameters

@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Logs | Get '{{ sanity_check_logs_playbook_path | basename }}' info
-  stat:
+  ansible.builtin.stat:
     path: "{{ sanity_check_logs_playbook_path }}"
   register: saltbox_yml
 
 - name: Logs | Touch '{{ sanity_check_logs_logfile_path | basename }}'
-  file:
+  ansible.builtin.file:
     path: "{{ sanity_check_logs_logfile_path }}"
     state: touch
     owner: "{{ saltbox_yml.stat.uid }}"

@@ -41,7 +41,7 @@ totp:
 #
 
 authentication_backend:
-  file:
+  ansible.builtin.file:
     path: /config/users_database.yml
     password:
       algorithm: argon2id

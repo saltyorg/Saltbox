@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Build URL | Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - curl
@@ -59,7 +59,7 @@
           else (rclone.version | regex_replace('(^v\\.|^v)', '')) }}
 
     - name: Build URL | Check if version '{{ rclone_version_specified0 }}' is available
-      shell: |
+      ansible.builtin.shell: |
         curl -sL {{ cvm }}https://api.github.com/repos/ncw/rclone/git/refs/tags \
         | jq -r  '.[] | .ref' | sed 's/\/\?refs\/tags\/v//g' \
         | grep '{{ rclone_version_specified0 }}'

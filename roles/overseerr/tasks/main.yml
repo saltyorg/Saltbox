@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Overseerr roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     overseerr_name: "{{ role }}"
   with_items: "{{ overseerr_instances }}"

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Scripts | Create directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -19,7 +19,7 @@
 # Add Scripts
 
 - name: Post-Install | Scripts | Download scripts repos
-  git:
+  ansible.builtin.git:
     repo: "{{ item }}"
     dest: "{{ nzbget_scripts_paths_location }}/{{ (item | basename | splitext)[0] }}"
     clone: true
@@ -43,7 +43,7 @@
   ignore_errors: true
 
 - name: Post-Install | Scripts | Import local scripts
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ nzbget_scripts_paths_location }}/{{ item }}"
     owner: "{{ user.name }}"
@@ -55,12 +55,12 @@
 # Customize Scripts
 
 - name: Post-Install | Scripts | Check if 'nzbgetpp/rarfile/rarfile.py' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ nzbget_scripts_paths_rarfile_py_location }}"
   register: nzbget_scripts_rarfile_py_stat
 
 - name: Post-Install | Scripts | Add unrar path to 'nzbgetpp/rarfile/rarfile.py'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ nzbget_scripts_paths_rarfile_py_location }}"
     regexp: '^UNRAR_TOOL\s?=.*'
     line: 'UNRAR_TOOL = "/app/unrar"'

@@ -8,13 +8,13 @@
 #########################################################################
 ---
 - name: "Settings | Start"
-  include_tasks: "subtasks/start.yml"
+  ansible.builtin.include_tasks: "subtasks/start.yml"
 
 - name: "Settings | Main 2"
-  include_tasks: "main2.yml"
+  ansible.builtin.include_tasks: "main2.yml"
   loop: "{{ config_files }}"
   loop_control:
     loop_var: outer_item
 
 - name: "Settings | Finish"
-  include_tasks: "subtasks/finish.yml"
+  ansible.builtin.include_tasks: "subtasks/finish.yml"

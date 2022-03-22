@@ -13,7 +13,7 @@
     selection: install
 
 - name: Binary | Install '{{ lookup('vars', item + '_package') }}'
-  apt:
+  ansible.builtin.apt:
     name: "{{ lookup('vars', item + '_package') }}"
     state: "{{ docker_package_state }}"
     update_cache: true
@@ -25,7 +25,7 @@
   when: put_docker_dpkg_into_hold
 
 - name: Binary | Get '{{ vars[item ~ '_name'] }}' version
-  shell: "{{ vars[item ~ '_filepath'] }} --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
+  ansible.builtin.shell: "{{ vars[item ~ '_filepath'] }} --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
   register: binary_version
   ignore_errors: true
   changed_when: false

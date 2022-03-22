@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: nvtop | Install nvtop dependencies
-  apt:
+  ansible.builtin.apt:
     state: present
     update_cache: true
     name:
@@ -17,7 +17,7 @@
       - libncursesw5-dev
 
 - name: nvtop | Pull nvtop repo from github
-  git:
+  ansible.builtin.git:
     clone: true
     repo: "{{ nvidia_nvtop_git_repo_url }}"
     dest: "/tmp/nvtop/"
@@ -27,10 +27,10 @@
   block:
 
     - name: nvtop | Build and install nvtop
-      shell: "{{ nvidia_nvtop_binary_build_command }}"
+      ansible.builtin.shell: "{{ nvidia_nvtop_binary_build_command }}"
 
     - name: nvtop | Get nvtop binary version
-      shell: "{{ nvidia_nvtop_binary_version_lookup_command }}"
+      ansible.builtin.shell: "{{ nvidia_nvtop_binary_version_lookup_command }}"
       register: nvtop_binary_version
       ignore_errors: true
 

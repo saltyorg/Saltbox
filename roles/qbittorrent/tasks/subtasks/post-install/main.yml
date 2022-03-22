@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for config to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ qbittorrent_paths_conf }}"
     state: present
 
 - name: Post-Install | Wait for 10 seconds
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
 
 - name: Post-Install | Stop container

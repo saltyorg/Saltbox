@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Resources | Tasks | ARR | Get API Keys | Check if Sonarr exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ sonarr_paths_config_location }}"
   register: sonarr_paths_config_location_stat
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Resources | Tasks | ARR | Get API Keys | Fetch Sonarr API Key
-      xml:
+      community.general.xml:
         path: "{{ sonarr_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text
@@ -29,7 +29,7 @@
   when: (sonarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | ARR | Get API Keys | Check if Radarr exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ radarr_paths_config_location }}"
   register: radarr_paths_config_location_stat
 
@@ -37,7 +37,7 @@
   block:
 
     - name: Resources | Tasks | ARR | Get API Keys | Fetch Radarr API Key
-      xml:
+      community.general.xml:
         path: "{{ radarr_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text
@@ -50,7 +50,7 @@
   when: (radarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | ARR | Get API Keys | Check if Lidarr exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ lidarr_paths_config_location }}"
   register: lidarr_paths_config_location_stat
 
@@ -58,7 +58,7 @@
   block:
 
     - name: Resources | Tasks | ARR | Get API Keys | Fetch Lidarr API Key
-      xml:
+      community.general.xml:
         path: "{{ lidarr_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text

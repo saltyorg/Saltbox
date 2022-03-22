@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Re-encrypt | Re-encrypt '{{ file }}' if previously encrypted"
-  shell: "ansible-vault encrypt {{ playbook_dir }}/{{ file }}"
+  ansible.builtin.shell: "ansible-vault encrypt {{ playbook_dir }}/{{ file }}"
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: file_is_encrypted

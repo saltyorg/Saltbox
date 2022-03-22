@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Create nfs server directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0775
@@ -37,7 +37,7 @@
     force: true
 
 - name: Install nfs requirements
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - rpcbind
@@ -53,7 +53,7 @@
     force: "{{ true if hetzner_nfs_init_overwrite_client else false }}"
 
 - name: Check 'nfs_vlan.service' exists
-  stat:
+  ansible.builtin.stat:
     path: '/etc/systemd/system/nfs_vlan.service'
   register: nfs_vlan_service
 
@@ -68,7 +68,7 @@
   when: not nfs_vlan_service.stat.exists
 
 - name: Start 'nfs_vlan.service'
-  systemd:
+  ansible.builtin.systemd:
     state: started
     name: nfs_vlan
     daemon_reload: true
@@ -77,7 +77,7 @@
  # unionfs edits
 
 - name: Add 'After=init_vlan.service' to 'unionfs.service'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/system/unionfs.service
     regexp: '(^After\=network-online\.target).*'
     line: '\1 init_vlan.service'
@@ -95,7 +95,7 @@
   # mergerfs edits
 
 - name: Add 'After=init_vlan.service' to 'mergerfs.service'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/system/mergerfs.service
     regexp: '(^After\=network-online\.target).*'
     line: '\1 init_vlan.service'

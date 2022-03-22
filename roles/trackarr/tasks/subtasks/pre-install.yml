@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Pre-Install | Check if Trackarr config exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ trackarr_paths_config_location }}"
   register: trackarr_paths_config_location_stat
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Pre-Install | Get ARR API keys
-      include_tasks: "{{ resources_tasks_path }}/arr/get_api_keys.yml"
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/arr/get_api_keys.yml"
       vars:
         sonarr_name: "{{ sonarr_instances[0] }}"
         radarr_name: "{{ radarr_instances[0] }}"

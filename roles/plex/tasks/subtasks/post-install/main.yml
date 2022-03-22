@@ -9,7 +9,7 @@
 ---
 # Sometimes docker will set transcodes folder to root after a restore.
 - name: Post-Install | Ensure transcodes folder has the correct permissions
-  file:
+  ansible.builtin.file:
     path: "{{ plex_paths_transcodes_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

@@ -8,7 +8,7 @@
 ######################################################################################
 ---
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Check if '/dev/dri' exists
-  stat:
+  ansible.builtin.stat:
     path: "/dev/dri"
   register: dev_dri
 

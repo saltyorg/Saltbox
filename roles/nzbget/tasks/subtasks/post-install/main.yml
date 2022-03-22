@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Post-Install | Wait for config file to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ nzbget_paths_config_location }}"
     state: present
 
 - name: Post-Install | Wait for 10 seconds
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
 
 - name: Post-Install | Stop container

@@ -14,35 +14,35 @@
       DEBIAN_PRIORITY: critical
 
 - name: APT | Fix any potential dpkg issues
-  shell: dpkg --configure --pending
+  ansible.builtin.shell: dpkg --configure --pending
 
 - name: APT | Kill existing apt and apt-get
-  shell: "killall apt apt-get >/dev/null 2>&1 || :"
+  ansible.builtin.shell: "killall apt apt-get >/dev/null 2>&1 || :"
   ignore_errors: true
 
 - name: APT | Fix any potential apt issues
-  shell: apt-get install --fix-broken --quiet --yes
+  ansible.builtin.shell: apt-get install --fix-broken --quiet --yes
   args:
     warn: false
   environment: "{{ env_vars }}"
   ignore_errors: true
 
 - name: APT | Install required packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - apt-utils
       - byobu
 
 - name: APT | APT update
-  apt:
+  ansible.builtin.apt:
     update_cache: true
   ignore_errors: true
 
 # https://serverfault.com/a/839563
 # https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
 - name: APT | APT full-upgrade
-  shell: apt-get full-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+  ansible.builtin.shell: apt-get full-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
   environment: "{{ env_vars }}"
   args:
     warn: false
@@ -50,11 +50,11 @@
   ignore_errors: true
 
 - name: APT | Remove useless packages from the cache
-  apt:
+  ansible.builtin.apt:
     autoclean: true
   ignore_errors: true
 
 - name: APT | Remove dependencies that are no longer required
-  apt:
+  ansible.builtin.apt:
     autoremove: true
   ignore_errors: true

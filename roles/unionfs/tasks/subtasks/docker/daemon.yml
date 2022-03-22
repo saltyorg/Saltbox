@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Docker | Daemon | Create override directory"
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
     mode: "0775"
@@ -36,18 +36,18 @@
   block:
 
     - name: "Docker | Daemon | Systemd daemon-reload"
-      systemd:
+      ansible.builtin.systemd:
         name: docker
         state: reloaded
         daemon_reload: true
 
     - name: "Docker | Daemon | Restart docker service"
-      systemd:
+      ansible.builtin.systemd:
         name: docker
         state: restarted
 
     - name: "Docker | Daemon | Wait for 30 seconds before commencing"
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 30
 
   when: import_override.changed or edit_override.changed

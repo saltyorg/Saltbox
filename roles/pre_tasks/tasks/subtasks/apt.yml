@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: APT | Remove APT locks
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:

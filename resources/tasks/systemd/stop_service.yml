@@ -16,7 +16,7 @@
     _service_path: "/etc/systemd/system/{{ _service_file }}"
 
 - name: Resources | Tasks | systemd | Stop Service | check if '{{ _service_file }}' exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ _service_path }}"
   register: service_status
 
@@ -31,7 +31,7 @@
         service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
     - name: Resources | Tasks | systemd | Stop Service | stop '{{ _service_file }}'
-      systemd:
+      ansible.builtin.systemd:
         name: "{{ _service_name }}"
         state: stopped
       when: service_running

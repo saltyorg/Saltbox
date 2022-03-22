@@ -17,7 +17,7 @@
   until: result is succeeded
 
 - name: Binary | Add official repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ docker_apt_repo_url }}"
     filename: "{{ docker_apt_repo_filename }}"
     update_cache: true
@@ -27,7 +27,7 @@
   until: result is succeeded
 
 - name: Binary | Install Docker binaries
-  include_tasks: "binary2.yml"
+  ansible.builtin.include_tasks: "binary2.yml"
   loop:
     - 'containerd_io'
     - 'docker_ce'

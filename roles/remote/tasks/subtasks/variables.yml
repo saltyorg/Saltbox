@@ -28,7 +28,7 @@
                                 (desired_mount_types | trim | length > 0) }}"
 
 - name: Variables | Fail when no valid remote mount type is specified.
-  fail:
+  ansible.builtin.fail:
     msg: "'{{ mounts.remote }}' is not a valid remote mount type."
   when: not mount_types_is_defined and not feeder_mount_is_enabled
 
@@ -66,7 +66,7 @@
       - 'feeder.service'
 
 - name: Variables | Set 'service_files_stat' variable
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/{{ item }}"
   register: service_files_stat
   loop: "{{ service_files }}"

@@ -11,25 +11,25 @@
   import_tasks: "subtasks/logrotate.yml"
 
 - name: APT tasks
-  include_tasks: "subtasks/apt.yml"
+  ansible.builtin.include_tasks: "subtasks/apt.yml"
 
 - name: Network tasks
   import_tasks: "subtasks/network.yml"
 
 - name: sysctl tasks
-  include_tasks: "subtasks/sysctl.yml"
+  ansible.builtin.include_tasks: "subtasks/sysctl.yml"
 
 - name: pam_limits tasks
-  include_tasks: "subtasks/pam_limits.yml"
+  ansible.builtin.include_tasks: "subtasks/pam_limits.yml"
 
 - name: Mounts tasks
   import_tasks: "subtasks/mounts.yml"
 
 - name: CPU Frequency tasks
-  include_tasks: "subtasks/cpufrequency.yml"
+  ansible.builtin.include_tasks: "subtasks/cpufrequency.yml"
 
 - name: Remove CPU Power task
-  include_tasks: "subtasks/remove_cpupower.yml"
+  ansible.builtin.include_tasks: "subtasks/remove_cpupower.yml"
 
 - name: Set Time Zone task
   import_tasks: "subtasks/timezone.yml"

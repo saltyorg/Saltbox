@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - jq
@@ -18,7 +18,7 @@
       - dnsutils
 
 - name: Create script directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -71,7 +71,7 @@
   ignore_errors: true
 
 - name: Import 'plex_autoscan_url.sh'
-  copy:
+  ansible.builtin.copy:
     src: "plex_autoscan_url.sh"
     dest: "/opt/scripts/plex_autoscan/plex_autoscan_url.sh"
     owner: "{{ user.name }}"
@@ -80,7 +80,7 @@
     force: true
 
 - name: Import 'restart_containers.sh'
-  copy:
+  ansible.builtin.copy:
     src: "restart_containers.sh"
     dest: "/opt/scripts/docker/restart_containers.sh"
     owner: "{{ user.name }}"
@@ -89,7 +89,7 @@
     force: true
 
 - name: Check if 'frontail_custom_preset.json' exists
-  stat:
+  ansible.builtin.stat:
     path: "/opt/scripts/frontail/frontail_custom_preset.json"
     get_attributes: false
     get_checksum: false
@@ -97,7 +97,7 @@
   register: frontail_preset
 
 - name: Import 'frontail_custom_preset.json'
-  copy:
+  ansible.builtin.copy:
     src: "frontail_custom_preset.json"
     dest: "/opt/scripts/frontail/frontail_custom_preset.json"
     owner: "{{ user.name }}"

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Post-Install | Settings | Update settings For New Installs
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ nzbget_paths_config_location }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"
@@ -20,7 +20,7 @@
   when: (not nzbget_paths_config_location_stat.stat.exists)
 
 - name: Post-Install | Settings | Set settings For Existing Installs
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ nzbget_paths_config_location }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"

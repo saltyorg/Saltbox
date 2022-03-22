@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Install required packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - lsb-release
@@ -18,7 +18,7 @@
       - boxes
 
 - name: Install required packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - update-motd
@@ -26,7 +26,7 @@
   when: (ansible_distribution|lower == 'ubuntu')
 
 - name: Remove existing motd
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items:
@@ -35,7 +35,7 @@
     - /etc/motd.dynamic
 
 - name: Create motd directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -46,7 +46,7 @@
     - /opt/motd
 
 - name: Check if MOTD news service
-  stat:
+  ansible.builtin.stat:
     path: "/etc/default/motd-news"
   register: motd_news
 
@@ -62,25 +62,25 @@
   when: (motd_news.stat.exists)
 
 - name: Disable MOTD news service
-  systemd:
+  ansible.builtin.systemd:
     name: motd-news.service
     state: stopped
     enabled: no
 
 - name: Disable MOTD news timer
-  systemd:
+  ansible.builtin.systemd:
     name: motd-news.timer
     state: stopped
     enabled: no
 
 - name: Create dynamic motd directory
-  file:
+  ansible.builtin.file:
     path: /etc/update-motd.d
     state: directory
     mode: 0775
 
 - name: Clone Saltbox MOTD
-  git:
+  ansible.builtin.git:
     repo: https://github.com/saltyorg/motd.git
     dest: /opt/motd
     clone: true
@@ -90,12 +90,12 @@
   become_user: "{{ user.name }}"
 
 - name: Install pip requirements
-  pip:
+  ansible.builtin.pip:
     requirements: /opt/motd/requirements.txt
     executable: pip3
 
 - name: Check if 'config.json' exists
-  stat:
+  ansible.builtin.stat:
     path: "/opt/motd/config.json"
   register: motd_config
 
@@ -113,11 +113,11 @@
   block:
 
     - name: Check value of motd banner
-      shell: "jq '.motd.banner_title' /opt/motd/config.json"
+      ansible.builtin.shell: "jq '.motd.banner_title' /opt/motd/config.json"
       register: motd_banner
 
     - name: Migrate value of motd banner
-      shell: |
+      ansible.builtin.shell: |
         jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
       when: motd_banner.stdout == '"Cloudbox"'
 
@@ -127,18 +127,18 @@
   block:
 
     - name: Check value of motd banner
-      shell: "jq '.disk.path' /opt/motd/config.json"
+      ansible.builtin.shell: "jq '.disk.path' /opt/motd/config.json"
       register: disk_path
 
     - name: Migrate value of motd banner  # noqa var-spacing
-      shell: |
+      ansible.builtin.shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
       when: disk_path.stdout == 'null'
 
   when: motd_config.stat.exists
 
 - name: Touch '/opt/motd/activity.log' file
-  file:
+  ansible.builtin.file:
     path: /opt/motd/activity.log
     state: touch
     owner: "{{ user.name }}"
@@ -146,38 +146,38 @@
     mode: 0775
 
 - name: Set 'saltbox-motd.py' as executable
-  file:
+  ansible.builtin.file:
     path: /opt/motd/saltbox-motd.py
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: a+x
 
 - name: Import dynamic motd files
-  copy:
+  ansible.builtin.copy:
     src: /opt/motd/motd/
     dest: /etc/update-motd.d/
     force: true
     mode: 0775
 
 - name: Check if '/etc/ssh/sshd_config' exists
-  stat:
+  ansible.builtin.stat:
     path: "/etc/ssh/sshd_config"
   register: sshd_config
 
 - name: Install 'openssh-server'
-  apt:
+  ansible.builtin.apt:
     name: openssh-server
     state: present
   when: (not sshd_config.stat.exists)
 
 - name: Wait for '/etc/ssh/sshd_config' to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "/etc/ssh/sshd_config"
     state: present
   when: (not sshd_config.stat.exists)
 
 - name: Set 'PrintLastLog no' to '/etc/ssh/sshd_config'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/ssh/sshd_config"
     regexp: '^PrintLastLog\s?'
     line: 'PrintLastLog no'

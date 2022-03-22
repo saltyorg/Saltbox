@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Emby roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     emby_name: "{{ role }}"
   with_items: "{{ emby_instances }}"

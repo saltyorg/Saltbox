@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Make sure iperf3 package is not installed
-  apt:
+  ansible.builtin.apt:
     name: iperf3
     state: absent
 
 - name: Clone iperf3 repo
-  git:
+  ansible.builtin.git:
     repo: "{{ iperf3_git_repo_url }}"
     dest: "{{ iperf3_git_repo_dest }}"
     clone: true
@@ -25,10 +25,10 @@
   block:
 
     - name: Build and install iperf3
-      shell: "{{ iperf3_binary_build_command }}"
+      ansible.builtin.shell: "{{ iperf3_binary_build_command }}"
 
     - name: Get iperf3 binary version
-      shell: "{{ iperf3_binary_version_lookup_command }}"
+      ansible.builtin.shell: "{{ iperf3_binary_version_lookup_command }}"
       register: iperf3_binary_version
 
     - name: Display iperf3 binary version

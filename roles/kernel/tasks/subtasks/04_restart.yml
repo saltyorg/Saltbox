@@ -24,7 +24,7 @@
           - "Restarting the server to apply changes..."
 
     - name: Restart | Reboot
-      shell: reboot
+      ansible.builtin.shell: reboot
 
     - name: Restart | Reboot message
       ansible.builtin.debug:

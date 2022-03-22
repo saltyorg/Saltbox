@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Services | Check if '{{ _service_file }}' exists"
-  stat:
+  ansible.builtin.stat:
     path: "/etc/systemd/system/{{ _service_file }}"
   register: _service_file_status
 
@@ -16,7 +16,7 @@
   block:
 
     - name: "Services | Stop and disable existing '{{ _service_file }}'"
-      systemd:
+      ansible.builtin.systemd:
         name: "{{ _service_file }}"
         state: stopped
         enabled: false
@@ -54,7 +54,7 @@
       when: not feeder_mount_is_enabled or not (feeder_remote_is_active is defined and feeder_remote_is_active)
 
     - name: "Services | Systemd daemon-reload"
-      systemd:
+      ansible.builtin.systemd:
         daemon_reload: true
 
   when: _service_file_status.stat.exists

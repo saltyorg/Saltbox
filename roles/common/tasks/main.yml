@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: BTRFS Tasks
-  include_tasks: "btrfs.yml"
+  ansible.builtin.include_tasks: "btrfs.yml"
   loop:
     - /opt
     - /mnt/local
@@ -16,7 +16,7 @@
     loop_var: outer_item
 
 - name: Create common directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -35,12 +35,12 @@
     - /mnt/local/Media/TV
 
 - name: Check if 'localhost.yml' exists
-  stat:
+  ansible.builtin.stat:
     path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
   register: localhost_yml
 
 - name: "Import 'localhost.yml'"
-  copy:
+  ansible.builtin.copy:
     src: "localhost.yml"
     dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
     owner: "{{ user.name }}"
@@ -49,7 +49,7 @@
   when: (not localhost_yml.stat.exists)
 
 - name: Install required packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - apt-transport-https
@@ -57,7 +57,7 @@
       - software-properties-common
 
 - name: Add Ubuntu repositories
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "{{ item }}"
     state: present
     update_cache: true
@@ -69,7 +69,7 @@
   when: (ansible_distribution == 'Ubuntu') and (not continuous_integration)
 
 - name: Install common packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - "nano"
@@ -105,20 +105,20 @@
   ignore_errors: true
 
 - name: Install extra packages
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - "run-one"
   ignore_errors: true
 
 - name: Fetch PCI Info
-  shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
+  ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
   register: lscpi_resp
   when:
     - (gpu.intel)
 
 - name: Install 'intel-gpu-tools'
-  apt:
+  ansible.builtin.apt:
     state: present
     name:
       - "intel-gpu-tools"
@@ -127,19 +127,19 @@
     - ('i915' in lscpi_resp.stdout)
 
 - name: Check to see if 'unrar' installed
-  stat:
+  ansible.builtin.stat:
     path: "/usr/bin/unrar"
   register: unrar_binary
 
 - name: Install 'unrar-free' if 'unrar' was not installed
-  apt:
+  ansible.builtin.apt:
     name: unrar-free
     state: present
   ignore_errors: true
   when: (not unrar_binary.stat.exists)
 
 - name: "Import 'pip.conf'"
-  copy:
+  ansible.builtin.copy:
     src: "pip.conf"
     dest: "/home/{{ user.name }}/.config/pip/pip.conf"
     owner: "{{ user.name }}"
@@ -148,7 +148,7 @@
     force: true
 
 - name: Install common pip modules
-  pip:
+  ansible.builtin.pip:
     state: present
     name:
       - certbot
@@ -164,12 +164,12 @@
   ignore_errors: true
 
 - name: "Check to see if yyq is installed"
-  stat:
+  ansible.builtin.stat:
     path: "/usr/local/bin/yyq"
   register: yyq_binary
 
 - name: "Get yyq version"
-  shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+  ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
   register: yyq_version_settings_check
   ignore_errors: true
   when: yyq_binary.stat.exists
@@ -181,13 +181,13 @@
                           else '0.0.0' }}"
 
 - name: "Install yyq"
-  import_role:
+  ansible.builtin.import_role:
     name: yyq
   when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver'))
         or (not yyq_binary.stat.exists)
 
 - name: "Install Nano Syntax Highlighting"
-  shell: "curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh"
+  ansible.builtin.shell: "curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh"
   become: true
   become_user: "{{ user.name }}"
   when: nano_syntax_highlighting_enabled

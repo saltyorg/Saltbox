@@ -11,12 +11,12 @@
   raw: pip3 install jmespath
 
 - name: Install pkg-config
-  apt:
+  ansible.builtin.apt:
     name: pkg-config
     state: present
 
 - name: Fetch Nvidia card info
-  shell: |
+  ansible.builtin.shell: |
       if [ `lspci | grep -c -E '.*VGA.*NVIDIA'` -eq 1 ]; then
         lspci -s $(lspci | grep -E '.*VGA.*NVIDIA' | cut -d' ' -f 1)
       else
@@ -28,7 +28,7 @@
   block:
 
     - name: Get nvidia-smi driver version
-      shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
+      ansible.builtin.shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
       register: nvidia_smi_output
       ignore_errors: yes
 
@@ -42,17 +42,17 @@
       block:
 
         - name: Purge Nvidia APT packages
-          shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
+          ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
           register: dpkg_purge_output
           ignore_errors: yes
 
         - name: Remove nvtop
-          apt:
+          ansible.builtin.apt:
             name: nvtop
             state: absent
 
         - name: Remove dependencies that are no longer required
-          apt:
+          ansible.builtin.apt:
             autoremove: yes
 
         - name: Success message
@@ -63,11 +63,11 @@
           when: (dpkg_purge_output.stdout | length > 0)
 
         - name: Reboot
-          shell: reboot
+          ansible.builtin.shell: reboot
           when: (dpkg_purge_output.stdout | length > 0)
 
         - name: Reboot message
-          fail:
+          ansible.builtin.fail:
             msg: "Uninstalled Nvidia driver. You will need to restart the server for changes to take effect."
           when: (dpkg_purge_output.stdout | length > 0)
 
@@ -76,12 +76,12 @@
     # Configure Nvidia Kernel
 
     - name: Check if 'blacklist-nouveau.conf' exists
-      stat:
+      ansible.builtin.stat:
         path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
       register: blacklist_nouveau_conf
 
     - name: "Nvidia Kernel Task"
-      include_tasks: "subtasks/kernel.yml"
+      ansible.builtin.include_tasks: "subtasks/kernel.yml"
       when:
         - (not blacklist_nouveau_conf.stat.exists)
         - (nvidia_kernel_blacklist_nouveau)
@@ -92,7 +92,7 @@
       block:
 
         - name: "Nvidia Driver Task"
-          include_tasks: "subtasks/driver.yml"
+          ansible.builtin.include_tasks: "subtasks/driver.yml"
           when: (nvidia_driver_version | lower != 'ignore')
 
       when: (nvidia_installed_driver_version != nvidia_driver_version)
@@ -103,7 +103,7 @@
       block:
 
         - name: Check to see if patch backup files exist
-          find:
+          ansible.builtin.find:
             paths: "{{ nvidia_patch_backup_file_location }}"
             file_type: file
             recurse: true
@@ -111,7 +111,7 @@
           register: nvidia_patch_backup_files
 
         - name: "Nvidia Driver Patch Task"
-          include_tasks: "subtasks/patch.yml"
+          ansible.builtin.include_tasks: "subtasks/patch.yml"
           when: (nvidia_patch_backup_files.matched|int == 0)
 
       when: ('GeForce' in lspci_resp.stdout)
@@ -119,11 +119,11 @@
     # Install Nvidia Runtime Container
 
     - name: Get contents of 'daemon.json'
-      shell: cat /etc/docker/daemon.json
+      ansible.builtin.shell: cat /etc/docker/daemon.json
       register: docker_daemon_json
 
     - name: Check if '/usr/bin/nvidia-container-runtime' exists
-      stat:
+      ansible.builtin.stat:
         path: "/usr/bin/nvidia-container-runtime"
       register: docker_runtime_binary
 
@@ -132,18 +132,18 @@
         docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
 
     - name: "Nvidia Docker Task"
-      include_tasks: "subtasks/docker.yml"
+      ansible.builtin.include_tasks: "subtasks/docker.yml"
       when: (docker_default_runtime != 'nvidia') or (not docker_runtime_binary.stat.exists)
 
     # Install Nvidia Nvtop Tool
 
     - name: Check if 'nvtop' exists
-      stat:
+      ansible.builtin.stat:
         path: "{{ nvidia_nvtop_binary_path }}"
       register: nvtop_binary
 
     - name: "Nvidia Nvtop Task"
-      include_tasks: "subtasks/nvtop.yml"
+      ansible.builtin.include_tasks: "subtasks/nvtop.yml"
       when: (not nvtop_binary.stat.exists)
 
   when: (ansible_distribution == 'Ubuntu') and ('NVIDIA' in lspci_resp.stdout)

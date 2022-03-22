@@ -8,7 +8,7 @@
 ##########################################################################
 ---
 - name: Post-Install | Update Ports | Wait for '{{ radarr_paths_config_location | basename }}' to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: "{{ radarr_paths_config_location }}"
     state: present
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Post-Install | Update Ports | Lookup host port mapped to '{{ radarr_docker_container }}' docker port '{{ radarr_web_port }}'
-      shell:
+      ansible.builtin.shell:
         docker port {{ radarr_docker_container }} {{ radarr_web_port }} 2> /dev/null | sed 's/[0-9.]*://'
       register: radarr_docker_port_lookup_cmd
       changed_when: false
@@ -31,7 +31,7 @@
   when: not reverse_proxy_is_enabled
 
 - name: Post-Install | Update Ports | Update 'Port' in '{{ radarr_paths_config_location | basename }}'
-  xml:
+  community.general.xml:
     path: "{{ radarr_paths_config_location }}"
     xpath: /Config/Port
     value: "{{ radarr_docker_port_lookup | default(radarr_web_port) }}"
@@ -42,7 +42,7 @@
   register: radarr_port_update
 
 - name: Post-Install | Update Ports | Reset permissions of '{{ radarr_paths_config_location | basename }}'
-  file:
+  ansible.builtin.file:
     path: "{{ radarr_paths_config_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: DNS | Import 'docker-update-hosts'
-  copy:
+  ansible.builtin.copy:
     src: docker-update-hosts
     force: true
     dest: "/usr/local/bin/docker-update-hosts"
@@ -17,7 +17,7 @@
     mode: "0755"
 
 - name: DNS | Set 'docker-update-hosts' as executable
-  file:
+  ansible.builtin.file:
     path: /usr/local/bin/docker-update-hosts
     owner: "root"
     group: "root"
@@ -31,7 +31,7 @@
     force: true
 
 - name: DNS | Start 'docker-update-hosts.service'
-  systemd:
+  ansible.builtin.systemd:
     name: docker-update-hosts
     state: started
     enabled: true

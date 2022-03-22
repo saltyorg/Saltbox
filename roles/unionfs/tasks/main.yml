@@ -20,7 +20,7 @@
 # Existing Setup
 
 - name: Service Tasks
-  include_tasks: "subtasks/services.yml"
+  ansible.builtin.include_tasks: "subtasks/services.yml"
   vars:
     _service_file: "{{ item }}"
   loop: "{{ service_files }}"
@@ -33,7 +33,7 @@
 # Mount UnionFS
 
 - name: Mount UnionFS Tasks
-  include_tasks: "subtasks/mergerfs.yml"
+  ansible.builtin.include_tasks: "subtasks/mergerfs.yml"
 
 - name: Docker Daemon Tasks
   import_tasks: "subtasks/docker/daemon.yml"

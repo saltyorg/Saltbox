@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: "Execute Media Server roles"
-  include_role:
+  ansible.builtin.include_role:
     name: "{{ media_server_role }}"
   with_items: "{{ media_servers_enabled }}"
   loop_control:
     loop_var: media_server_role
 
 - name: "Execute Plex Extra Tasks role"
-  include_role:
+  ansible.builtin.include_role:
     name: "plex_extra_tasks"
   with_items: "{{ plex_instances }}"
   loop_control:
@@ -25,6 +25,6 @@
   when: "'plex' in media_servers_enabled"
 
 - name: "Execute Autoscan role"
-  include_role:
+  ansible.builtin.include_role:
     name: "autoscan"
   when: "'plex' in media_servers_enabled"

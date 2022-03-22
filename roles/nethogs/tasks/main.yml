@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Make sure NetHogs package is not installed
-  apt:
+  ansible.builtin.apt:
     name: nethogs
     state: absent
 
 - name: Install NetHogs dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - build-essential
       - libncurses5-dev
@@ -22,7 +22,7 @@
     update_cache: true
 
 - name: Pull NetHogs repo from github
-  git:
+  ansible.builtin.git:
     repo: "{{ nethogs_git_repo_url }}"
     dest: "{{ nethogs_git_repo_dest }}"
     clone: true
@@ -34,10 +34,10 @@
   block:
 
     - name: Build and install NetHogs
-      shell: "{{ nethogs_binary_build_command }}"
+      ansible.builtin.shell: "{{ nethogs_binary_build_command }}"
 
     - name: Get NetHogs binary version
-      shell: "{{ nethogs_binary_version_lookup_command }}"
+      ansible.builtin.shell: "{{ nethogs_binary_version_lookup_command }}"
       register: nethogs_binary_version
 
     - name: Display nethogs binary version

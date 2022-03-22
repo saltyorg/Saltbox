@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Tmp | Create Ansible Temp directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: 0777

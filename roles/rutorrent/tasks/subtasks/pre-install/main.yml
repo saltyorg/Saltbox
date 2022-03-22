@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Pre-Install | Remove existing 'config.php'
-  file:
+  ansible.builtin.file:
     path: "{{ rutorrent_paths_config_php_location }}"
     state: absent
 

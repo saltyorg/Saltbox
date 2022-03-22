@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Install locales
-  apt:
+  ansible.builtin.apt:
     name: locales
     state: present
 
@@ -23,7 +23,7 @@
     state: present
 
 - name: Get current locale and language configuration
-  command: localectl status
+  ansible.builtin.command: localectl status
   register: locale_status
   changed_when: false
 
@@ -36,5 +36,5 @@
     locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
 
 - name: Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'
-  command: localectl set-locale LANG={{ system_locale }} LANGUAGE={{ system_language }}
+  ansible.builtin.command: localectl set-locale LANG={{ system_locale }} LANGUAGE={{ system_language }}
   changed_when: locale_lang != system_locale or locale_language != system_language

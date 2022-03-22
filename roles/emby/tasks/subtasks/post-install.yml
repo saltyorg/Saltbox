@@ -8,11 +8,11 @@
 ##########################################################################
 ---
 - name: Post-Install | Wait 10 seconds before continuing
-  wait_for:
+  ansible.builtin.wait_for:
     timeout: 10
 
 - name: Post-Install | Ensure transcodes folder has the correct permissions
-  file:
+  ansible.builtin.file:
     path: "{{ emby_paths_transcodes_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -20,7 +20,7 @@
     recurse: true
 
 - name: Post-Install | Import 'dlna.xml'
-  copy:
+  ansible.builtin.copy:
     src: "dlna.xml"
     dest: "{{ emby_paths_dlna_xml_location }}"
     owner: "{{ user.name }}"

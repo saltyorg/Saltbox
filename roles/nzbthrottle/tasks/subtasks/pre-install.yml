@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Pre-Install | Check if config exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ nzbthrottle_paths_config_location }}"
   register: nzbthrottle_paths_config_location_stat
 
@@ -16,7 +16,7 @@
   block:
 
     - name: Pre-Install | Import Plex Auth Token role
-      import_role:
+      ansible.builtin.import_role:
         name: plex_auth_token
       when: (plex_account_is_enabled)
 

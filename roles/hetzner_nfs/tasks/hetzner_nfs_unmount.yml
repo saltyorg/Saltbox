@@ -8,12 +8,12 @@
 #########################################################################
 ---
 - name: Check 'nfs_vlan.service' exists
-  stat:
+  ansible.builtin.stat:
     path: '/etc/systemd/system/nfs_vlan.service'
   register: nfs_vlan_service
 
 - name: Stop 'nfs_vlan.service'
-  systemd:
+  ansible.builtin.systemd:
     state: stopped
     name: nfs_vlan
     daemon_reload: true
@@ -21,14 +21,14 @@
   when: nfs_vlan_service.stat.exists
 
 - name: Uninstall nfs requirements
-  apt:
+  ansible.builtin.apt:
     state: absent
     name:
       - rpcbind
       - nfs-common
 
 - name: Remove files
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items:
@@ -41,7 +41,7 @@
  # unionfs edits
 
 - name: Remove 'After=init_vlan.service' in 'unionfs.service'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/system/unionfs.service
     regexp: '(^After\=.*)\sinit_vlan\.service\s(.*)'
     line: '\1 \2'
@@ -59,7 +59,7 @@
   # mergerfs edits
 
 - name: Remove 'After=init_vlan.service' in 'mergerfs.service'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/system/mergerfs.service
     regexp: '(^After\=.*)\sinit_vlan\.service\s(.*)'
     line: '\1 \2'

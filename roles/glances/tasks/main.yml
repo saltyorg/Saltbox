@@ -8,19 +8,19 @@
 #########################################################################
 ---
 - name: Uninstall apt 'glances'
-  apt:
+  ansible.builtin.apt:
     name: glances
     state: absent
   ignore_errors: true
   tags: glances
 
 - name: Install pip 'glances'
-  shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
+  ansible.builtin.shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
   ignore_errors: true
   tags: glances
 
 - name: Create glances directory
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: root
@@ -30,7 +30,7 @@
     - /etc/glances
 
 - name: Copy glances.conf if it doesn't exist
-  copy:
+  ansible.builtin.copy:
     src: /usr/local/share/doc/glances/glances.conf
     dest: /etc/glances/glances.conf
     owner: root
