@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Updater | Run 'settings-updater.py' for '{{ file }}'"
-  script: "'roles/settings/files/settings-updater.py' '{{ playbook_dir }}' 'defaults/{{ file }}.default' '{{ file }}'"
+  ansible.builtin.script: "'roles/settings/files/settings-updater.py' '{{ playbook_dir }}' 'defaults/{{ file }}.default' '{{ file }}'"
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   register: settings_updater

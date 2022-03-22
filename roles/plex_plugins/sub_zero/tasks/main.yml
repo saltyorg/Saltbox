@@ -105,7 +105,7 @@
         - "{{ plex_paths_plugins_location }}"
 
     - name: Install Sub-Zero Plugin
-      unarchive:
+      ansible.builtin.unarchive:
         src: "{{ plex_plugin_subzero_download_url }}"
         dest: "{{ plex_paths_plugins_location }}"
         copy: false

@@ -10,27 +10,27 @@
 - name: "Settings | Copy"
   ansible.builtin.include_tasks: "subtasks/copy.yml"
   vars:
-    ansible.builtin.file: "{{ outer_item }}"
+    file: "{{ outer_item }}"
 
 - name: "Settings | Decrypt"
   ansible.builtin.include_tasks: "subtasks/decrypt.yml"
   vars:
-    ansible.builtin.file: "{{ outer_item }}"
+    file: "{{ outer_item }}"
   when: (outer_item != "ansible.cfg")
 
 - name: "Settings | Migrator"
   ansible.builtin.include_tasks: "subtasks/migrator.yml"
   vars:
-    ansible.builtin.file: "{{ outer_item }}"
+    file: "{{ outer_item }}"
 
 - name: "Settings | Updater"
   ansible.builtin.include_tasks: "subtasks/updater.yml"
   vars:
-    ansible.builtin.file: "{{ outer_item }}"
+    file: "{{ outer_item }}"
   when: (outer_item != "ansible.cfg")
 
 - name: "Settings | Re-encrypt"
   ansible.builtin.include_tasks: "subtasks/reencrypt.yml"
   vars:
-    ansible.builtin.file: "{{ outer_item }}"
+    file: "{{ outer_item }}"
   when: (outer_item != "ansible.cfg")
