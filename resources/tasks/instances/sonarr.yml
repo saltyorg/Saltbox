@@ -24,6 +24,6 @@
 
     - name: Resources | Tasks | Instances | Get Info | Set 'sonarr_info' variable
       ansible.builtin.set_fact:
-        sonarr_info: "{{ sonarr_info | combine({role: {'url': sonarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
+        sonarr_info: "{{ sonarr_info | combine( { role: {'url': sonarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
 
   when: (sonarr_paths_config_location_stat.stat.exists)

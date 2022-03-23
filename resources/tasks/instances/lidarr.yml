@@ -24,6 +24,6 @@
 
     - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
       ansible.builtin.set_fact:
-        lidarr_info: "{{ lidarr_info | combine({role: {'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
+        lidarr_info: "{{ lidarr_info | combine( { role: {'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
 
   when: (lidarr_paths_config_location_stat.stat.exists)
