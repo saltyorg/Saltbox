@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Get new credentials
+- name: Get IPs from Cloudflare
   ansible.builtin.uri:
     url: https://api.cloudflare.com/client/v4/ips
     method: GET
