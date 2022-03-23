@@ -546,7 +546,7 @@
       when: (backup.rclone.enable)
 
     - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
-      synchronize:
+      ansible.posix.synchronize:
         src: "{{ backup.local.destination }}/"
         dest: "{{ backup.rsync.destination }}/"
         set_remote_user: true
