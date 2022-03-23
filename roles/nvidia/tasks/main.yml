@@ -10,6 +10,7 @@
 - name: Install common pip modules
   ansible.builtin.pip:
     name: jmespath
+    executable: pip3
 
 - name: Install pkg-config
   ansible.builtin.apt:
