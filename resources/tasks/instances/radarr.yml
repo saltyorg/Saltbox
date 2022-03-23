@@ -27,3 +27,8 @@
         radarr_info: "{{ radarr_info | combine( { role: {'url': radarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
 
   when: (radarr_paths_config_location_stat.stat.exists)
+
+- name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
+  ansible.builtin.set_fact:
+    radarr_info: "{{ radarr_info | combine( { role: {'url': radarr_web_url, 'api_key': 'not installed' } } ) }}"
+  when: not (radarr_paths_config_location_stat.stat.exists)
