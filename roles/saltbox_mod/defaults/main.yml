@@ -7,24 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Create saltbox_mod directory
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: 0775
-    recurse: yes
-  with_items:
-    - /opt/saltbox_mod
-
-- name: Clone saltbox_mod repo
-  ansible.builtin.git:
-    repo: "{{ saltbox_mod_repo }}"
-    dest: /opt/saltbox_mod
-    clone: true
-    version: "{{ saltbox_mod_branch }}"
-    force: "{{ saltbox_mod_force_overwrite }}"
-  become: true
-  become_user: "{{ user.name }}"
-  ignore_errors: true
+saltbox_mod_repo: "https://github.com/saltyorg/saltbox_mod.git"
+saltbox_mod_branch: "master"
+saltbox_mod_force_overwrite: false
