@@ -1,0 +1,38 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get Info      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Initialize variables
+  ansible.builtin.set_fact:
+    sonarr_info: {}
+    radarr_info: {}
+    lidarr_info: {}
+
+- name: Resources | Tasks | Instances | Get Info | Run Sonarr Tasks
+  ansible.builtin.include_tasks: sonarr.yml
+  vars:
+    sonarr_name: "{{ role }}"
+  with_items: "{{ sonarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: Resources | Tasks | Instances | Get Info | Run Radarr Tasks
+  ansible.builtin.include_tasks: radarr.yml
+  vars:
+    radarr_name: "{{ role }}"
+  with_items: "{{ radarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: Resources | Tasks | Instances | Get Info | Run Lidarr Tasks
+  ansible.builtin.include_tasks: lidarr.yml
+  vars:
+    lidarr_name: "{{ role }}"
+  with_items: "{{ lidarr_instances }}"
+  loop_control:
+    loop_var: role

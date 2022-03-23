@@ -1,0 +1,29 @@
+###########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get Lidarr Info #
+# Author(s):     salty                                                    #
+# URL:           https://github.com/saltyorg/Saltbox                      #
+# --                                                                      #
+###########################################################################
+#                   GNU General Public License v3.0                       #
+###########################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Check if Lidarr exists
+  ansible.builtin.stat:
+    path: "{{ lidarr_paths_config_location }}"
+  register: lidarr_paths_config_location_stat
+
+- name: Resources | Tasks | Instances | Get Info | Lidarr API Key tasks
+  block:
+
+    - name: Resources | Tasks | Instances | Get Info | Fetch Lidarr API Key
+      community.general.xml:
+        path: "{{ lidarr_paths_config_location }}"
+        xpath: /Config/ApiKey
+        content: text
+      register: xmlresp
+
+    - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
+      ansible.builtin.set_fact:
+        lidarr_info: "{{ lidarr_info | combine({role: {'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
+
+  when: (lidarr_paths_config_location_stat.stat.exists)
