@@ -15,12 +15,8 @@
 - name: Pre-Install | New Trackarr config tasks
   block:
 
-    - name: Pre-Install | Get ARR API keys
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/arr/get_api_keys.yml"
-      vars:
-        sonarr_name: "{{ sonarr_instances[0] }}"
-        radarr_name: "{{ radarr_instances[0] }}"
-        lidarr_name: "{{ lidarr_instances[0] }}"
+    - name: Pre-Install | Get Instance Info
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
 
     - name: Pre-Install | Set 'trackarr_server_apikey' variable
       ansible.builtin.set_fact:
@@ -34,10 +30,6 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: false
-      vars:
-        sonarr_name: "{{ sonarr_instances[0] }}"
-        radarr_name: "{{ radarr_instances[0] }}"
-        lidarr_name: "{{ lidarr_instances[0] }}"
 
     - name: Pre-Install | Set 'trackarr_docker_state' variable
       ansible.builtin.set_fact:
