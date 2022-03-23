@@ -1,0 +1,30 @@
+#########################################################################
+# Title:         Saltbox: Saltbox_mod Role                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Create saltbox_mod directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    recurse: yes
+  with_items:
+    - /opt/saltbox_mod
+
+- name: Clone saltbox_mod repo 'HEAD'
+  ansible.builtin.git:
+    repo: https://github.com/saltyorg/saltbox_mod.git
+    dest: /opt/saltbox_mod
+    clone: true
+    version: master
+    force: false
+  become: true
+  become_user: "{{ user.name }}"
+  ignore_errors: true
