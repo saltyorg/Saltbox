@@ -2,7 +2,7 @@
 database:
   maxagehours: 72
 pvr:
-{% for instance in sonarr_instances %}
+{% for instance in sonarr_instances if sonarr_info[sonarr_instances[0]]['api_key'] != "not installed" %}
   - name: "{{ instance }}"
     url: "{{ sonarr_info[instance]['url'] }}"
     apikey: "{{ sonarr_info[instance]['api_key'] }}"
@@ -18,7 +18,7 @@ pvr:
       delays:
         - 'not (TorrentName contains "1080") ? 15 : 0'
 {% endfor %}
-{% for instance in radarr_instances %}
+{% for instance in radarr_instances if radarr_info[radarr_instances[0]]['api_key'] != "not installed" %}
   - name: "{{ instance }}"
     url: "{{ radarr_info[instance]['url'] }}"
     apikey: "{{ radarr_info[instance]['api_key'] }}"

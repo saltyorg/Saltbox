@@ -7,16 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Import Sonarr Role"
-  ansible.builtin.import_role:
-    name: sonarr
-  when: continuous_integration
-
-- name: "Import Radarr Role"
-  ansible.builtin.import_role:
-    name: radarr
-  when: continuous_integration
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
