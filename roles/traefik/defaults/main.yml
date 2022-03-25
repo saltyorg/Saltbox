@@ -173,7 +173,6 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.httpresolver.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.httpresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.httpresolver.acme.storage=/etc/traefik/acme.json"
-traefik_docker_commands_zerossl_tmp:
   - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
@@ -193,9 +192,6 @@ traefik_docker_commands_zerossl_tmp:
   - "--certificatesresolvers.zerosslhttp.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
   - "--certificatesresolvers.zerosslhttp.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded | default('') }}"
   - "--certificatesresolvers.zerosslhttp.acme.storage=/etc/traefik/acme.json"
-traefik_docker_commands_zerossl: "{{ traefik_docker_commands_zerossl_tmp
-                                  if zerossl_is_enabled
-                                  else [] }}"
 traefik_docker_commands_metrics_tmp:
   - "--metrics.prometheus=true"
   - "--metrics.prometheus.addentrypointslabels=true"
@@ -227,7 +223,6 @@ traefik_docker_commands_pilot: "{{ traefik_docker_commands_pilot_tmp
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
-                             + traefik_docker_commands_zerossl
                              + traefik_docker_commands_metrics
                              + traefik_docker_commands_tracing
                              + traefik_docker_commands_pilot }}"

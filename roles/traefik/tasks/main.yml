@@ -54,7 +54,7 @@
 
 - name: Traefik ZeroSSL Tasks
   ansible.builtin.import_tasks: "subtasks/zerossl.yml"
-  when: (not continuous_integration) and zerossl_is_enabled
+  when: (not continuous_integration)
 
 - name: Traefik Config Tasks
   ansible.builtin.import_tasks: "subtasks/config.yml"
