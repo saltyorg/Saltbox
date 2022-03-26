@@ -74,6 +74,7 @@ rclone_vfs_mount_start_post_command: |-
 
 rclone_vfs_cache_max_size: 50G
 rclone_vfs_cache_max_age: 504h
+rclone_vfs_cache_dir: ""
 
 rclone_vfs_cache_mount_start_command: |-
   /usr/bin/rclone mount \
@@ -100,7 +101,7 @@ rclone_vfs_cache_mount_start_command: |-
     --drive-pacer-min-sleep=10ms \
     --drive-pacer-burst=1000 \
     --umask=002 \
-    --syslog \
+    {{ '--cache-dir=' + rclone_vfs_cache_dir + ' ' if (rclone_vfs_cache_dir | length > 0) else '' }}--syslog \
     {{ '--bind=' + ansible_default_ipv4.address + ' ' if mounts.ipv4_only else '' }}-v \
     {{ rclone.remote }}: /mnt/remote
 
