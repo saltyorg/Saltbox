@@ -19,7 +19,7 @@ nzbhydra2_name: nzbhydra2
 
 nzbhydra2_paths_folder: "{{ nzbhydra2_name }}"
 nzbhydra2_paths_location: "{{ server_appdata_path }}/{{ nzbhydra2_paths_folder }}"
-nzbhydra2_paths_downloads_location: "{{ downloads.nzbs }}/{{ nzbhydra2_paths_folder }}"
+nzbhydra2_paths_downloads_location: "{{ downloads_usenet_path }}/{{ nzbhydra2_paths_folder }}"
 nzbhydra2_paths_folders_list:
   - "{{ nzbhydra2_paths_location }}"
 nzbhydra2_paths_config_location: "{{ nzbhydra2_paths_location }}/nzbhydra.yml"
