@@ -30,6 +30,8 @@
   ansible.builtin.set_fact:
     old_download: "{{ true if not(
         (downloads.nzbs is undefined)
+        or
+        (downloads.torrents is undefined)
       )
         else false }}"
 
