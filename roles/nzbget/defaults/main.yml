@@ -229,7 +229,7 @@ nzbget_docker_volumes_default:
   - "/mnt:/mnt"
 nzbget_docker_volumes_custom: []
 nzbget_docker_volumes_theme:
-  - "{{ nzbget_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ nzbget_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 nzbget_docker_volumes: "{{ nzbget_docker_volumes_default
                            + nzbget_docker_volumes_custom
                            + docker_volumes_downloads_common
