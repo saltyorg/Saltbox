@@ -205,7 +205,7 @@ rutorrent_docker_volumes_default:
   - "/mnt:/mnt"
 rutorrent_docker_volumes_custom: []
 rutorrent_docker_volumes_theme:
-  - "{{ rutorrent_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ rutorrent_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
                               + rutorrent_docker_volumes_custom
                               + docker_volumes_downloads_common
