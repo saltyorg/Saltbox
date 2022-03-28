@@ -112,7 +112,7 @@ jackett_docker_volumes_default:
   - "/mnt:/mnt"
 jackett_docker_volumes_custom: []
 jackett_docker_volumes_theme:
-  - "{{ jackett_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ jackett_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
                             + jackett_docker_volumes_custom
                             + docker_volumes_downloads_common
