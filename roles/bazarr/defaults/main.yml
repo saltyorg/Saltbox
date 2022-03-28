@@ -125,7 +125,7 @@ bazarr_docker_volumes_default:
   - "/mnt:/mnt"
 bazarr_docker_volumes_custom: []
 bazarr_docker_volumes_theme:
-  - "{{ bazarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ bazarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 bazarr_docker_volumes: "{{ lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
                            + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
                            + docker_volumes_downloads_common
