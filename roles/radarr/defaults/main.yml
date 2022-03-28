@@ -135,7 +135,7 @@ radarr_docker_volumes_default:
   - "/mnt:/mnt"
 radarr_docker_volumes_custom: []
 radarr_docker_volumes_theme:
-  - "{{ radarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ radarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 radarr_docker_volumes: "{{ lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
                            + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
                            + docker_volumes_downloads_common
