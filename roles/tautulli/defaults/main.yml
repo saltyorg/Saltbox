@@ -126,7 +126,7 @@ tautulli_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
 tautulli_docker_volumes_custom: []
 tautulli_docker_volumes_theme:
-  - "{{ tautulli_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ tautulli_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 tautulli_docker_volumes: "{{ lookup('vars', tautulli_name + '_docker_volumes_default', default=tautulli_docker_volumes_default)
                              + lookup('vars', tautulli_name + '_docker_volumes_custom', default=tautulli_docker_volumes_custom)
                              + docker_volumes_downloads_common
