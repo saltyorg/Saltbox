@@ -52,18 +52,18 @@ plex_account_is_enabled: "{{ (plex is defined) and
 nzbs_downloads_path_is_defined: "{{ (downloads is defined) and
                                     (downloads is not none) and
                                     (downloads | trim | length > 0) and
-                                    (downloads.nzbs is defined) and
-                                    (downloads.nzbs is not none) and
-                                    (downloads.nzbs | trim | length > 0) }}"
+                                    (downloads_usenet_path is defined) and
+                                    (downloads_usenet_path is not none) and
+                                    (downloads_usenet_path | trim | length > 0) }}"
 
 use_nzbs: "{{ nzbs_downloads_path_is_defined }}"
 
 torrents_downloads_path_is_defined: "{{ (downloads is defined) and
                                         (downloads is not none) and
                                         (downloads | trim | length > 0) and
-                                        (downloads.torrents is defined) and
-                                        (downloads.torrents is not none) and
-                                        (downloads.torrents | trim | length > 0) }}"
+                                        (downloads_torrents_path is defined) and
+                                        (downloads_torrents_path is not none) and
+                                        (downloads_torrents_path | trim | length > 0) }}"
 
 use_torrents: "{{ torrents_downloads_path_is_defined }}"
 
@@ -102,9 +102,9 @@ transcodes_path: "{{ transcodes }}"
 
 downloads_root_path: "{{ downloads }}"
 
-downloads_torrents_path: "{{ downloads }} + '/torrents'"
+downloads_torrents_path: "{{ downloads }}/torrents"
 
-downloads_usenet_path: "{{ downloads }} + '/nzbs'"
+downloads_usenet_path: "{{ downloads }}/nzbs"
 
 ################################
 # User
@@ -241,11 +241,11 @@ traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
 # Docker
 ################################
 
-docker_volumes_downloads_nzbs: "{{ [downloads.nzbs + ':/downloads/nzbs']
+docker_volumes_downloads_nzbs: "{{ [downloads_usenet_path + ':/downloads/nzbs']
                                 if nzbs_downloads_path_is_defined
                                 else [] }}"
 
-docker_volumes_downloads_torrents: "{{ [downloads.torrents + ':/downloads/torrents']
+docker_volumes_downloads_torrents: "{{ [downloads_torrents_path + ':/downloads/torrents']
                                     if torrents_downloads_path_is_defined
                                     else [] }}"
 
