@@ -19,7 +19,7 @@ nzbget_name: nzbget
 
 nzbget_paths_folder: "{{ nzbget_name }}"
 nzbget_paths_location: "{{ server_appdata_path }}/{{ nzbget_paths_folder }}"
-nzbget_paths_downloads_location: "{{ downloads.nzbs }}/{{ nzbget_paths_folder }}"
+nzbget_paths_downloads_location: "{{ downloads_usenet_path }}/{{ nzbget_paths_folder }}"
 nzbget_paths_folders_list:
   - "{{ nzbget_paths_location }}"
   - "{{ nzbget_paths_downloads_location }}"
