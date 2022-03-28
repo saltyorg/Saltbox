@@ -134,7 +134,7 @@ lidarr_docker_volumes_default:
   - "/mnt:/mnt"
 lidarr_docker_volumes_custom: []
 lidarr_docker_volumes_theme:
-  - "{{ lidarr_paths_location }}/98-themepark.sh:/etc/cont-init.d/98-themepark"
+  - "{{ lidarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 lidarr_docker_volumes: "{{ lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
                            + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
                            + docker_volumes_downloads_common
