@@ -18,7 +18,7 @@ qbittorrent_instances: ["qbittorrent"]
 
 qbittorrent_paths_folder: "{{ qbittorrent_name }}"
 qbittorrent_paths_location: "{{ server_appdata_path }}/{{ qbittorrent_paths_folder }}"
-qbittorrent_paths_downloads_location: "{{ downloads.torrents }}/{{ qbittorrent_paths_folder }}"
+qbittorrent_paths_downloads_location: "{{ downloads_torrents_path }}/{{ qbittorrent_paths_folder }}"
 qbittorrent_paths_conf: "{{ qbittorrent_paths_location }}/qBittorrent/qBittorrent.conf"
 qbittorrent_paths_folders_list:
   - "{{ qbittorrent_paths_location }}"
