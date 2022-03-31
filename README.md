@@ -88,10 +88,10 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/jonfinley>
-            <img src=https://avatars.githubusercontent.com/u/23283167?v=4 width="100;"  alt=jonfinley/>
+        <a href=https://github.com/jonathanfinley>
+            <img src=https://avatars.githubusercontent.com/u/23283167?v=4 width="100;"  alt=jonathanfinley/>
             <br />
-            <sub style="font-size:14px"><b>jonfinley</b></sub>
+            <sub style="font-size:14px"><b>jonathanfinley</b></sub>
         </a>
     </td>
 </tr>
