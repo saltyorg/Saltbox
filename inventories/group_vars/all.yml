@@ -253,8 +253,15 @@ docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volu
 
 docker_hosts_common: []
 
-docker_labels_saltbox:
+docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
+
+docker_labels_diun_tmp:
+  - diun.enable: "true"
+
+docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | combine(docker_labels_diun_tmp)
+                        if lookup('vars', role_name + '_diun_enabled', default=true)
+                        else docker_labels_saltbox_tmp }}"
 
 docker_labels_traefik_main:
   - traefik.enable: "true"

@@ -1,0 +1,116 @@
+##########################################################################
+# Title:         Saltbox: Diun | Default Variables                       #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+diun_name: diun
+
+################################
+# Paths
+################################
+
+diun_paths_folder: "{{ diun_name }}"
+diun_paths_location: "{{ server_appdata_path }}/{{ diun_paths_folder }}"
+diun_paths_folders_list:
+  - "{{ diun_paths_location }}"
+  - "{{ diun_paths_location }}/data"
+
+################################
+# Docker
+################################
+
+# Container
+diun_docker_container: "{{ diun_name }}"
+
+# Image
+diun_docker_image_pull: true
+diun_docker_image_tag: "latest"
+diun_docker_image: "crazymax/diun:{{ diun_docker_image_tag }}"
+
+# Ports
+diun_docker_ports_defaults: []
+diun_docker_ports_custom: []
+diun_docker_ports: "{{ diun_docker_ports_defaults
+                       + diun_docker_ports_custom }}"
+
+# Envs
+diun_docker_envs_default:
+  TZ: "{{ tz }}"
+  LOG_LEVEL: "info"
+  LOG_JSON: "false"
+diun_docker_envs_custom: {}
+diun_docker_envs: "{{ diun_docker_envs_default
+                      | combine(diun_docker_envs_custom) }}"
+
+# Commands
+diun_docker_commands_default: []
+diun_docker_commands_custom: []
+diun_docker_commands: "{{ diun_docker_commands_default
+                          + diun_docker_commands_custom }}"
+
+# Volumes
+diun_docker_volumes_default:
+  - "{{ diun_paths_location }}/data:/data"
+  - "{{ diun_paths_location }}/diun.yml:/diun.yml:ro"
+  - "/var/run/docker.sock:/var/run/docker.sock"
+diun_docker_volumes_custom: []
+diun_docker_volumes: "{{ diun_docker_volumes_default
+                         + diun_docker_volumes_custom }}"
+
+# Devices
+diun_docker_devices_default: []
+diun_docker_devices_custom: []
+diun_docker_devices: "{{ diun_docker_devices_default
+                         + diun_docker_devices_custom }}"
+
+# Hosts
+diun_docker_hosts_default: []
+diun_docker_hosts_custom: []
+diun_docker_hosts: "{{ docker_hosts_common
+                       | combine(diun_docker_hosts_default)
+                       | combine(diun_docker_hosts_custom) }}"
+
+# Labels
+diun_docker_labels_default:
+  diun.enable: "true"
+diun_docker_labels_custom: {}
+diun_docker_labels: "{{ docker_labels_common
+                        | combine(diun_docker_labels_default)
+                        | combine(diun_docker_labels_custom) }}"
+
+# Hostname
+diun_docker_hostname: "{{ diun_name }}"
+
+# Networks
+diun_docker_networks_alias: "{{ diun_name }}"
+diun_docker_networks_default: []
+diun_docker_networks_custom: []
+diun_docker_networks: "{{ docker_networks_common
+                          + diun_docker_networks_default
+                          + diun_docker_networks_custom }}"
+
+# Capabilities
+diun_docker_capabilities_default: []
+diun_docker_capabilities_custom: []
+diun_docker_capabilities: "{{ diun_docker_capabilities_default
+                              + diun_docker_capabilities_custom }}"
+
+# Security Opts
+diun_docker_security_opts_default: []
+diun_docker_security_opts_custom: []
+diun_docker_security_opts: "{{ diun_docker_security_opts_default
+                               + diun_docker_security_opts_custom }}"
+
+# Restart Policy
+diun_docker_restart_policy: unless-stopped
+
+# State
+diun_docker_state: started

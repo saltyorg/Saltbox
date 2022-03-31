@@ -55,6 +55,7 @@
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
     - { role: ddclient, tags: ['ddclient'] }
     - { role: deluge, tags: ['deluge'] }
+    - { role: diun, tags: ['diun'] }
     - { role: emby, tags: ['emby'] }
     - { role: jellyfin, tags: ['jellyfin'] }
     - { role: netdata, tags: ['netdata'] }

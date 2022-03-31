@@ -1,0 +1,40 @@
+# https://crazymax.dev/diun/ for reference
+
+db:
+  path: diun.db
+
+watch:
+  workers: 20
+  schedule: "0 */6 * * *"
+  firstCheckNotif: false
+  compareDigest: true
+#  healthchecks:
+#    baseURL: https://hc-ping.com/
+#    uuid: 5bf66975-d4c7-4bf5-bcc8-b8d8a82ea278
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    watchByDefault: false
+    watchStopped: false
+
+# regopts:
+#   - name: "docker.io"
+#     selector: image
+#     username: foo
+#     password: bar
+
+# notif:
+#   discord:
+#     webhookURL: https://discordapp.com/api/webhooks/1234567890/Abcd-eFgh-iJklmNo_pqr
+#     mentions:
+#       - "@here"
+#       - "@everyone"
+#       - "<@124>"
+#       - "<@125>"
+#       - "<@&200>"
+#     renderFields: true
+#     timeout: 10s
+#     templateBody: |
+#       Docker tag {{ .Entry.Image }} which you subscribed to through {{ .Entry.Provider }} provider has been released.
+
