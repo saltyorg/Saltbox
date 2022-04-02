@@ -114,11 +114,9 @@ prowlarr_docker_volumes_theme:
   - "{{ prowlarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 prowlarr_docker_volumes: "{{ prowlarr_docker_volumes_default
                              + prowlarr_docker_volumes_custom
-                             + docker_volumes_downloads_common
                           if not (prowlarr_themepark_enabled)
                           else prowlarr_docker_volumes_default
                              + prowlarr_docker_volumes_custom
-                             + docker_volumes_downloads_common
                              + prowlarr_docker_volumes_theme }}"
 
 # Devices
