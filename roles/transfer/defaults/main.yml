@@ -100,8 +100,7 @@ transfer_docker_volumes_default:
   - "{{ transfer_uploads_location }}:{{ transfer_uploads_location }}"
 transfer_docker_volumes_custom: []
 transfer_docker_volumes: "{{ transfer_docker_volumes_default
-                              + transfer_docker_volumes_custom
-                              + docker_volumes_downloads_common }}"
+                              + transfer_docker_volumes_custom }}"
 
 # Devices
 transfer_docker_devices_default: []
