@@ -59,7 +59,6 @@ nzbthrottle_docker_commands: "{{ nzbthrottle_docker_commands_default
 # Volumes
 nzbthrottle_docker_volumes_default:
   - "{{ nzbthrottle_paths_config_location }}:/nzbthrottle/config.json:ro"
-  - "/mnt:/mnt"
 nzbthrottle_docker_volumes_custom: []
 nzbthrottle_docker_volumes: "{{ nzbthrottle_docker_volumes_default
                                 + nzbthrottle_docker_volumes_custom }}"
