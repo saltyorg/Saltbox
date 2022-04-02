@@ -109,8 +109,7 @@ overseerr_docker_volumes_default:
   - "{{ overseerr_paths_location }}:/app/config"
 overseerr_docker_volumes_custom: []
 overseerr_docker_volumes: "{{ lookup('vars', overseerr_name + '_docker_volumes_default', default=overseerr_docker_volumes_default)
-                              + lookup('vars', overseerr_name + '_docker_volumes_custom', default=overseerr_docker_volumes_custom)
-                              + docker_volumes_downloads_common }}"
+                              + lookup('vars', overseerr_name + '_docker_volumes_custom', default=overseerr_docker_volumes_custom) }}"
 
 # Devices
 overseerr_docker_devices_default: []
