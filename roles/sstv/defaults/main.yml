@@ -103,11 +103,9 @@ sstv_docker_commands: "{{ sstv_docker_commands_default
 # Volumes
 sstv_docker_volumes_default:
   - "{{ sstv_paths_location }}:/config"
-  - "/mnt:/mnt"
 sstv_docker_volumes_custom: []
 sstv_docker_volumes: "{{ sstv_docker_volumes_default
-                         + sstv_docker_volumes_custom
-                         + docker_volumes_downloads_common }}"
+                         + sstv_docker_volumes_custom }}"
 
 # Devices
 sstv_docker_devices_default: []
