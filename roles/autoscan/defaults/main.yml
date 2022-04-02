@@ -92,11 +92,9 @@ autoscan_docker_commands: "{{ autoscan_docker_commands_default
 # Volumes
 autoscan_docker_volumes_default:
   - "{{ autoscan_paths_location }}:/config"
-  - "/mnt:/mnt:ro"
 autoscan_docker_volumes_custom: []
 autoscan_docker_volumes: "{{ autoscan_docker_volumes_default
-                             + autoscan_docker_volumes_custom
-                             + docker_volumes_downloads_common }}"
+                             + autoscan_docker_volumes_custom }}"
 
 # Devices
 autoscan_docker_devices_default: []
