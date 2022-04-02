@@ -48,7 +48,9 @@
     sysctls: "{{ lookup('vars', _var_prefix + '_docker_sysctls', default=omit) }}"
     tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"
-    volumes: "{{ docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
+    volumes: "{{ (docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit))
+              if lookup('vars', _var_prefix + '_docker_volumes_global', default=true)
+              else lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
