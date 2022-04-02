@@ -62,8 +62,7 @@ mongodb_docker_volumes_default:
   - "{{ mongodb_paths_location }}/config:/data/configdb"
 mongodb_docker_volumes_custom: []
 mongodb_docker_volumes: "{{ mongodb_docker_volumes_default
-                            + mongodb_docker_volumes_custom
-                            + docker_volumes_downloads_common }}"
+                            + mongodb_docker_volumes_custom }}"
 
 # Devices
 mongodb_docker_devices_default: []
