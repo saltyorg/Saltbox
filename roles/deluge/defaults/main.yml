@@ -133,11 +133,9 @@ deluge_docker_commands: "{{ lookup('vars', deluge_name + '_docker_commands_defau
 deluge_docker_volumes_default:
   - "{{ deluge_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt:/mnt"
 deluge_docker_volumes_custom: []
 deluge_docker_volumes: "{{ lookup('vars', deluge_name + '_docker_volumes_default', default=deluge_docker_volumes_default)
-                           + lookup('vars', deluge_name + '_docker_volumes_custom', default=deluge_docker_volumes_custom)
-                           + docker_volumes_downloads_common }}"
+                           + lookup('vars', deluge_name + '_docker_volumes_custom', default=deluge_docker_volumes_custom) }}"
 
 # Devices
 deluge_docker_devices_default: []
