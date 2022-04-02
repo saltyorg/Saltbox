@@ -32,38 +32,6 @@ jobs:
 
     - name: Lint Ansible Playbook
       uses: ansible/ansible-lint-action@main
-      with:
-        # [optional]
-        # Arguments to be passed to the ansible-lint
-
-        # Options:
-        #   -q                    quieter, although not silent output
-        #   -p                    parseable output in the format of pep8
-        #   --parseable-severity  parseable output including severity of rule
-        #   -r RULESDIR           specify one or more rules directories using one or
-        #                         more -r arguments. Any -r flags override the default
-        #                         rules in ansiblelint/rules, unless -R is also used.
-        #   -R                    Use default rules in ansiblelint/rules in addition to
-        #                         any extra
-        #                         rules directories specified with -r. There is no need
-        #                         to specify this if no -r flags are used
-        #   -t TAGS               only check rules whose id/tags match these values
-        #   -x SKIP_LIST          only check rules whose id/tags do not match these
-        #                         values
-        #   --nocolor             disable colored output
-        #   --exclude=EXCLUDE_PATHS
-        #                         path to directories or files to skip. This option is
-        #                         repeatable.
-        #   -c C                  Specify configuration file to use. Defaults to ".ansible-lint"
-        # [204] Lines should be no longer than 160 chars
-        # [301] Commands should not change things if nothing needs doing
-        # [303] curl used in place of get_url or uri module
-        # [305] Use shell only when shell functionality is required
-        # [306] Shells that use pipes should set the pipefail option
-        # [401] Git checkouts must contain explicit version
-        # [403] Package installs should not use latest
-        # [503] Tasks that run when changed should likely be handlers
-        args: "-x 204 -x 301 -x 303 -x 305 -x 306 -x 401 -x 403 -x 503"
 
     - uses: sarisia/actions-status-discord@v1
       if: always()
