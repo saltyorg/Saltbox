@@ -108,8 +108,7 @@ nginx_docker_volumes_default:
   - "{{ nginx_paths_location }}:/config"
 nginx_docker_volumes_custom: []
 nginx_docker_volumes: "{{ lookup('vars', nginx_name + '_docker_volumes_default', default=nginx_docker_volumes_default)
-                          + lookup('vars', nginx_name + '_docker_volumes_custom', default=nginx_docker_volumes_custom)
-                          + docker_volumes_downloads_common }}"
+                          + lookup('vars', nginx_name + '_docker_volumes_custom', default=nginx_docker_volumes_custom) }}"
 
 # Devices
 nginx_docker_devices_default: []
