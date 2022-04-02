@@ -131,18 +131,15 @@ lidarr_docker_volumes_default:
   - "{{ lidarr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media/Music:/music"
-  - "/mnt:/mnt"
 lidarr_docker_volumes_custom: []
 lidarr_docker_volumes_theme:
   - "{{ lidarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 lidarr_docker_volumes: "{{ lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
                            + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
-                           + docker_volumes_downloads_common
                         if not (lookup('vars', lidarr_name + '_themepark_enabled', default=lidarr_themepark_enabled))
                         else lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
                            + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
-                           + lookup('vars', lidarr_name + '_docker_volumes_theme', default=lidarr_docker_volumes_theme)
-                           + docker_volumes_downloads_common }}"
+                           + lookup('vars', lidarr_name + '_docker_volumes_theme', default=lidarr_docker_volumes_theme) }}"
 
 # Devices
 lidarr_docker_devices_default: []
