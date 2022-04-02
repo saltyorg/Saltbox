@@ -94,8 +94,7 @@ petio_docker_volumes_default:
   - "{{ petio_paths_location }}:/config"
 petio_docker_volumes_custom: []
 petio_docker_volumes: "{{ petio_docker_volumes_default
-                          + petio_docker_volumes_custom
-                          + docker_volumes_downloads_common }}"
+                          + petio_docker_volumes_custom }}"
 
 # Devices
 petio_docker_devices_default: []
