@@ -190,7 +190,6 @@ plex_docker_volumes_default:
   - "{{ plex_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media:/data"
-  - "/mnt:/mnt"
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
 plex_docker_volumes_custom: []
@@ -198,12 +197,10 @@ plex_docker_volumes_theme:
   - "{{ plex_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 plex_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
-                         + docker_volumes_downloads_common
                       if not (lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled))
                       else lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
-                         + lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme)
-                         + docker_volumes_downloads_common }}"
+                         + lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme) }}"
 
 # Mounts
 plex_docker_mounts_default:
