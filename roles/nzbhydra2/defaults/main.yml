@@ -134,11 +134,9 @@ nzbhydra2_docker_volumes_nzbhydra1_migration:
   - "{{ nzbhydra_paths_db_location }}:/nzbhydra1:ro"
 nzbhydra2_docker_volumes_default:
   - "{{ nzbhydra2_paths_location }}:/config"
-  - "/mnt:/mnt"
 nzbhydra2_docker_volumes_custom: []
 nzbhydra2_docker_volumes: "{{ nzbhydra2_docker_volumes_default
-                              + nzbhydra2_docker_volumes_custom
-                              + docker_volumes_downloads_common }}"
+                              + nzbhydra2_docker_volumes_custom }}"
 
 # Devices
 nzbhydra2_docker_devices_default: []
