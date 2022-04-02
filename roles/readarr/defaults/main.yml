@@ -130,18 +130,15 @@ readarr_docker_commands: "{{ lookup('vars', readarr_name + '_docker_commands_def
 readarr_docker_volumes_default:
   - "{{ readarr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt:/mnt"
 readarr_docker_volumes_custom: []
 readarr_docker_volumes_theme:
   - "{{ readarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 readarr_docker_volumes: "{{ lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
                             + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
-                            + docker_volumes_downloads_common
                          if not (lookup('vars', readarr_name + '_themepark_enabled', default=readarr_themepark_enabled))
                          else lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
                             + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
-                            + lookup('vars', readarr_name + '_docker_volumes_theme', default=readarr_docker_volumes_theme)
-                            + docker_volumes_downloads_common }}"
+                            + lookup('vars', readarr_name + '_docker_volumes_theme', default=readarr_docker_volumes_theme) }}"
 
 # Devices
 readarr_docker_devices_default: []
