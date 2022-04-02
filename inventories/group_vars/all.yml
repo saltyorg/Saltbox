@@ -251,6 +251,11 @@ docker_volumes_downloads_torrents: "{{ [downloads_torrents_path + ':/downloads/t
 
 docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volumes_downloads_torrents }}"
 
+docker_volumes_common_folders:
+  - "/mnt:/mnt"
+
+docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downloads_common }}"
+
 docker_hosts_common: []
 
 docker_labels_saltbox_tmp:
