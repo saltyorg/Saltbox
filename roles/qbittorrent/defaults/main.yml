@@ -120,11 +120,9 @@ qbittorrent_docker_commands: "{{ lookup('vars', qbittorrent_name + '_docker_comm
 qbittorrent_docker_volumes_default:
   - "{{ qbittorrent_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt:/mnt"
 qbittorrent_docker_volumes_custom: []
 qbittorrent_docker_volumes: "{{ lookup('vars', qbittorrent_name + '_docker_volumes_default', default=qbittorrent_docker_volumes_default)
-                                + lookup('vars', qbittorrent_name + '_docker_volumes_custom', default=qbittorrent_docker_volumes_custom)
-                                + docker_volumes_downloads_common }}"
+                                + lookup('vars', qbittorrent_name + '_docker_volumes_custom', default=qbittorrent_docker_volumes_custom) }}"
 
 # Devices
 qbittorrent_docker_devices_default: []
