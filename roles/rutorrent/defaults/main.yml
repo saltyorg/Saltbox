@@ -202,17 +202,14 @@ rutorrent_docker_commands: "{{ rutorrent_docker_commands_default
 rutorrent_docker_volumes_default:
   - "{{ rutorrent_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt:/mnt"
 rutorrent_docker_volumes_custom: []
 rutorrent_docker_volumes_theme:
   - "{{ rutorrent_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
                               + rutorrent_docker_volumes_custom
-                              + docker_volumes_downloads_common
                            if not (rutorrent_themepark_enabled)
                            else rutorrent_docker_volumes_default
                               + rutorrent_docker_volumes_custom
-                              + docker_volumes_downloads_common
                               + rutorrent_docker_volumes_theme }}"
 
 # Devices
