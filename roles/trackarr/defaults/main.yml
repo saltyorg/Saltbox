@@ -101,11 +101,9 @@ trackarr_docker_commands: "{{ trackarr_docker_commands_default
 # Volumes
 trackarr_docker_volumes_default:
   - "{{ trackarr_paths_location }}:/config"
-  - "/mnt:/mnt"
 trackarr_docker_volumes_custom: []
 trackarr_docker_volumes: "{{ trackarr_docker_volumes_default
-                             + trackarr_docker_volumes_custom
-                             + docker_volumes_downloads_common }}"
+                             + trackarr_docker_volumes_custom }}"
 
 # Devices
 trackarr_docker_devices_default: []
