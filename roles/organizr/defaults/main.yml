@@ -95,8 +95,7 @@ organizr_docker_volumes_default:
   - "{{ organizr_paths_location }}:/config"
 organizr_docker_volumes_custom: []
 organizr_docker_volumes: "{{ organizr_docker_volumes_default
-                             + organizr_docker_volumes_custom
-                             + docker_volumes_downloads_common }}"
+                             + organizr_docker_volumes_custom }}"
 
 # Devices
 organizr_docker_devices_default: []
