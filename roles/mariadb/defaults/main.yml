@@ -62,8 +62,7 @@ mariadb_docker_volumes_default:
   - "{{ mariadb_paths_location }}:/config"
 mariadb_docker_volumes_custom: []
 mariadb_docker_volumes: "{{ mariadb_docker_volumes_default
-                            + mariadb_docker_volumes_custom
-                            + docker_volumes_downloads_common }}"
+                            + mariadb_docker_volumes_custom }}"
 
 # Devices
 mariadb_docker_devices_default: []
