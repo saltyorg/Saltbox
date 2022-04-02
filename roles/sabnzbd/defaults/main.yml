@@ -136,17 +136,14 @@ sabnzbd_docker_commands: "{{ sabnzbd_docker_commands_default
 sabnzbd_docker_volumes_default:
   - "{{ sabnzbd_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt:/mnt"
 sabnzbd_docker_volumes_custom: []
 sabnzbd_docker_volumes_theme:
   - "{{ sabnzbd_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
-                            + docker_volumes_downloads_common
                          if not (sabnzbd_themepark_enabled)
                          else sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
-                            + docker_volumes_downloads_common
                             + sabnzbd_docker_volumes_theme}}"
 
 # Devices
