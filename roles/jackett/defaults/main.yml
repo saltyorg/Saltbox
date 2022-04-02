@@ -109,17 +109,14 @@ jackett_docker_commands: "{{ jackett_docker_commands_default
 # Volumes
 jackett_docker_volumes_default:
   - "{{ jackett_paths_location }}:/config"
-  - "/mnt:/mnt"
 jackett_docker_volumes_custom: []
 jackett_docker_volumes_theme:
   - "{{ jackett_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
                             + jackett_docker_volumes_custom
-                            + docker_volumes_downloads_common
                          if not (jackett_themepark_enabled)
                          else jackett_docker_volumes_default
                             + jackett_docker_volumes_custom
-                            + docker_volumes_downloads_common
                             + jackett_docker_volumes_theme }}"
 
 # Devices
