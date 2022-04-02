@@ -129,12 +129,10 @@ tautulli_docker_volumes_theme:
   - "{{ tautulli_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 tautulli_docker_volumes: "{{ lookup('vars', tautulli_name + '_docker_volumes_default', default=tautulli_docker_volumes_default)
                              + lookup('vars', tautulli_name + '_docker_volumes_custom', default=tautulli_docker_volumes_custom)
-                             + docker_volumes_downloads_common
                           if not (lookup('vars', tautulli_name + '_themepark_enabled', default=tautulli_themepark_enabled))
                           else lookup('vars', tautulli_name + '_docker_volumes_default', default=tautulli_docker_volumes_default)
                              + lookup('vars', tautulli_name + '_docker_volumes_custom', default=tautulli_docker_volumes_custom)
-                             + lookup('vars', tautulli_name + '_docker_volumes_theme', default=tautulli_docker_volumes_theme)
-                             + docker_volumes_downloads_common }}"
+                             + lookup('vars', tautulli_name + '_docker_volumes_theme', default=tautulli_docker_volumes_theme) }}"
 
 # Devices
 tautulli_docker_devices_default: []
