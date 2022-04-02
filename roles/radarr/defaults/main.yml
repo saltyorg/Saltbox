@@ -132,18 +132,15 @@ radarr_docker_volumes_default:
   - "{{ radarr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media/Movies:/movies"
-  - "/mnt:/mnt"
 radarr_docker_volumes_custom: []
 radarr_docker_volumes_theme:
   - "{{ radarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 radarr_docker_volumes: "{{ lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
                            + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
-                           + docker_volumes_downloads_common
                         if not (lookup('vars', radarr_name + '_themepark_enabled', default=radarr_themepark_enabled))
                         else lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
                            + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
-                           + lookup('vars', radarr_name + '_docker_volumes_theme', default=radarr_docker_volumes_theme)
-                           + docker_volumes_downloads_common }}"
+                           + lookup('vars', radarr_name + '_docker_volumes_theme', default=radarr_docker_volumes_theme) }}"
 
 # Devices
 radarr_docker_devices_default: []
