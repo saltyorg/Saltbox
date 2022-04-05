@@ -1,0 +1,69 @@
+#########################################################################
+# Title:         Saltbox: Docker | Compose Tasks                        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Create directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "0775"
+  with_items: "{{ compose_paths_folders_list }}"
+
+- name: "Get URL for latest Compose release"
+  ansible.builtin.shell: "{{ compose_release_lookup_command }}"
+  args:
+    executable: /bin/bash
+    warn: false
+  register: compose_download_url
+  ignore_errors: true
+
+- name: Download Compose
+  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout }} -o /usr/local/lib/docker/cli-plugins/docker-compose
+
+- name: Make docker-compose executable
+  ansible.builtin.file:
+    dest: "/usr/local/lib/docker/cli-plugins/docker-compose"
+    mode: a+x
+
+- name: Install Compose Switch
+  block:
+
+    - name: "Get URL for latest Compose release"
+      ansible.builtin.shell: "{{ compose_switch_release_lookup_command }}"
+      args:
+        executable: /bin/bash
+        warn: false
+      register: compose_switch_download_url
+      ignore_errors: true
+
+    - name: Download Compose Switch
+      ansible.builtin.shell: curl -SL {{ compose_switch_download_url.stdout }} -o /usr/local/bin/compose-switch
+
+    - name: Make docker-compose executable
+      ansible.builtin.file:
+        dest: "/usr/local/bin/compose-switch"
+        mode: a+x
+
+    - name: Check if Docker Compose V1 is installed
+      stat:
+        path: "/usr/local/bin/docker-compose"
+      register: docker_compose_v1
+
+    - name: Rename Docker Compose V1 binary
+      command: mv /usr/local/bin/docker-compose /usr/local/bin/docker-compose-v1
+      when: docker_compose_v1.stat.exists
+
+    - name: Define alternatives group for docker-compose command - Entry 1
+      ansible.builtin.shell: update-alternatives --install /usr/local/bin/docker-compose docker-compose /usr/local/bin/docker-compose-v1 1
+
+    - name: Define alternatives group for docker-compose command - Entry 2
+      ansible.builtin.shell: update-alternatives --install /usr/local/bin/docker-compose docker-compose /usr/local/bin/compose-switch 99
+
+  when: compose_install_switch

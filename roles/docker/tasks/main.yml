@@ -102,6 +102,9 @@
 - name: "Import DNS tasks"
   ansible.builtin.import_tasks: "subtasks/dns.yml"
 
+- name: "Import Compose tasks"
+  ansible.builtin.import_tasks: "subtasks/compose.yml"
+
 - name: "Install ctop"
   ansible.builtin.import_role:
     name: ctop
