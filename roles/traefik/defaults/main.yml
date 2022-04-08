@@ -18,6 +18,7 @@ traefik_name: traefik
 ################################
 
 traefik_pilot_token: ""
+traefik_trusted_ips: ""
 
 ################################
 # Paths
@@ -62,7 +63,7 @@ traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 # Cloudflare IPs
 ################################
 
-traefik_cloudflare_ips_string: "{{ (traefik_cloudflare_ipv4 + traefik_cloudflare_ipv6) | join('\n') | replace('\n', ',') }}"
+traefik_cloudflare_ips_string: "{{ (traefik_cloudflare_ipv4 + traefik_cloudflare_ipv6) | join('\n') | replace('\n', ',') }}{{ ',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '' }}"
 
 ################################
 # DNS Provider
