@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                                #
 ####################################################################################
 ---
-- name: Post-Install | Settings | Update 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update Port in 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: BitTorrent
@@ -18,3 +18,28 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+
+- name: Post-Install | Settings | Update HostHeaderValidation 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\HostHeaderValidation
+    value: "false"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Update CSRFProtection 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\CSRFProtection
+    value: "false"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
