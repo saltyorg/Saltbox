@@ -27,11 +27,9 @@ mergerfs_releases_url: "{{ cvm }}https://api.github.com/repos/trapexit/mergerfs/
 
 mergerfs_releases_download_url: https://github.com/trapexit/mergerfs/releases/download
 
-mergerfs_distribution: "{{ ansible_distribution_release if (ansible_distribution_release|lower != 'jammy') else 'focal' }}"
-
 mergerfs_release_lookup_command: |
   curl -s {{ mergerfs_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution|lower }}-{{ mergerfs_distribution|lower }}_amd64\")) \
+    | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }}_amd64\")) \
     | .browser_download_url"
 
 mergerfs_download_backup_version: 2.32.6
