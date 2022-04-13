@@ -61,6 +61,9 @@
     mode: 0664
     force: true
 
+- name: Git | Set Saltbox & Sandbox as safe directories
+  ansible.builtin.shell: git config --global --add safe.directory /opt/sandbox
+
 - name: Activate Git Hooks
   ansible.builtin.shell: bash /opt/sandbox/bin/git/init-hooks
   args:
