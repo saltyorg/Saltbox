@@ -1,16 +1,14 @@
 #########################################################################
-# Title:         Saltbox: Pre-Tasks                                     #
-# Author(s):     desimaniac                                             #
+# Title:         Pre-Tasks: Git Task                                    #
+# Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: APT Tasks
-  ansible.builtin.import_tasks: "subtasks/apt.yml"
-  tags: always
-
-- name: Git Tasks
-  ansible.builtin.import_tasks: "subtasks/git.yml"
-  tags: always
+- name: Git | Set Saltbox & Sandbox as safe directories
+  ansible.builtin.shell: git config --global --add safe.directory "{{ item }}"
+  loop:
+    - "/srv/git/saltbox"
+    - "/srv/git/sb"
