@@ -60,3 +60,7 @@
 
 - name: Post-Install Tasks
   ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
+
+- name: "Execute Plex Extra Tasks role"
+  ansible.builtin.include_role:
+    name: "plex_extra_tasks"

@@ -14,16 +14,6 @@
   loop_control:
     loop_var: media_server_role
 
-- name: "Execute Plex Extra Tasks role"
-  ansible.builtin.include_role:
-    name: "plex_extra_tasks"
-  with_items: "{{ plex_instances }}"
-  loop_control:
-    loop_var: plex_instance
-  vars:
-    plex_name: "{{ plex_instance }}"
-  when: "'plex' in media_servers_enabled"
-
 - name: "Execute Autoscan role"
   ansible.builtin.include_role:
     name: "autoscan"
