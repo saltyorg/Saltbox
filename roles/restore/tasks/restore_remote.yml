@@ -56,6 +56,8 @@
     msg: >
       The rclone remote is misconfigured - You must place a valid 'rclone.conf' file in '{{ playbook_dir }}'
       (or setup Rclone via 'rclone config') and verify that the 'backup.rclone.destination' in settings is valid.
+      One way to validate is to run 'rclone lsd {{ backup.rclone.destination }}'.
+      If you are using a service account to authenticate the '{{ backup.rclone.destination }}' rclone remote, you will need to put that file in place manually.
   when: (rclone_test.rc > 0)
 
 - name: Check if restore_rclone.log exists
