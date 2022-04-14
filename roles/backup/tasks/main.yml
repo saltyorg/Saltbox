@@ -89,7 +89,6 @@
         recurse: true
       with_items:
         - "/home/{{ user.name }}/logs"
-        - "/home/{{ user.name }}/logs/backup"
         - "{{ backup.local.destination }}"
         - "{{ backup.local.destination }}/opt"
         - "/opt/systemd-backup"
