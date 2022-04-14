@@ -90,7 +90,6 @@
       with_items:
         - "/home/{{ user.name }}/logs"
         - "{{ backup.local.destination }}"
-        - "{{ backup.local.destination }}/opt"
         - "/opt/systemd-backup"
         - "/opt/crontab-backup"
 
@@ -349,7 +348,7 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: (backup.rclone.enable) and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stdout)
+      when: (backup.rclone.enable) and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
       with_items:
         - "opt"
         - "ansible.cfg"
@@ -363,6 +362,13 @@
         - "hetzner_nfs.yml"
         - "backup_excludes.txt"
         - "backup_excludes_list.txt"
+
+    - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
+      ansible.builtin.shell: |
+        /usr/bin/rclone mkdir '{{ backup.rclone.destination }}/opt'
+      become: true
+      become_user: "{{ user.name }}"
+      when: (backup.rclone.enable)
 
     - name: "Wait for 5 seconds before uploading"
       ansible.builtin.wait_for:
@@ -382,7 +388,7 @@
       become_user: "{{ user.name }}"
       when: (backup.rclone.enable)
 
-    - name: Run items asynchronously in batch of two items
+    - name: "Run items asynchronously in batch of {{ backup2_async_batch_size }} items"
       include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
