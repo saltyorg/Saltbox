@@ -8,8 +8,8 @@
     - ['providers.yml', 'defaults/providers.yml.default']
   roles:
     - { role: settings, tags: ['settings'] }
-    - { role: sanity_check, tags: ['sanity_check'] }
     - { role: pre_tasks, tags: ['pre_tasks'] }
+    - { role: sanity_check, tags: ['sanity_check'] }
     - { role: backup, tags: ['backup'] }
     - { role: restore, tags: ['restore'] }
     # Core
