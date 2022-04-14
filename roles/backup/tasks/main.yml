@@ -505,7 +505,7 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: (backup.rclone.enable)
+      when: (backup.rclone.enable) and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stdout)
       with_items:
         - "opt"
         - "ansible.cfg"
