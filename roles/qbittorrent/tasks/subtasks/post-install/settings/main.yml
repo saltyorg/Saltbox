@@ -42,4 +42,3 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-
