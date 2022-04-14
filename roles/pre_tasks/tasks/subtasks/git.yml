@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Use role in loop
+- name: Git | Lookup git safe directories
   shell: git config --global -l
   register: git_config
   ignore_errors: true
