@@ -1,0 +1,27 @@
+#########################################################################
+# Title:         Saltbox: Backup | Cron Tasks                           #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Get ansible-playbook binary path."
+  ansible.builtin.shell: "which ansible-playbook"
+  register: playbook_binary
+
+- name: "Remove legacy cron backup task."
+  ansible.builtin.cron:
+    name: "Backup Saltbox"
+    state: absent
+
+- name: "Schedule cron backup."
+  ansible.builtin.cron:
+    name: "Saltbox Backup"
+    special_time: "{{ backup.cron.cron_time }}"
+    job: >
+      sudo PATH='/usr/bin:/bin:/usr/local/bin' env ANSIBLE_CONFIG='{{ playbook_dir }}/ansible.cfg' '{{ playbook_binary.stdout }}'
+      '{{ playbook_dir }}/backup2.yml' >> '{{ playbook_dir }}/saltbox_backup2.log' 2>&1
+    state: "{{ backup.cron.enable | ternary('present', 'absent') }}"
+    user: "{{ user.name }}"

@@ -1,0 +1,41 @@
+#########################################################################
+# Title:         Saltbox: Backup Excludes List                          #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+./bazarr/log/*
+
+./cloudplow/cloudplow.log
+./cloudplow/cloudplow.log.*
+./cloudplow/locks/*
+
+./drive_strm/*.log*
+
+./lidarr/logs/*
+
+./nvidia/*
+
+./plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/*
+./plex/Library/Application Support/Plex Media Server/Cache/Transcode/*
+
+./plex_autoscan/plex_autoscan.log
+./plex_autoscan/plex_autoscan.log.*
+
+./plex_dupefinder/activity.log
+./plex_dupefinder/decisions.log
+
+./python-plexlibrary/plexlibrary.log
+
+./tautulli/logs/*
+
+./radarr/logs/*
+
+./radarr4k/logs/*
+
+./sonarr/logs/*
+
+./sonarr4k/logs/*

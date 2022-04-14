@@ -1,0 +1,54 @@
+#########################################################################
+# Title:         Saltbox: Backup | Variables                            #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+# Remove trailing forward slashes from backup paths
+- name: Remove trailing forward slashes from backup paths
+  ansible.builtin.set_fact:
+    local_tmp: { destination: "{{ (backup.local.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    rclone_tmp: { destination: "{{ (backup.rclone.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    rsync_tmp: { destination: "{{ (backup.rsync.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+
+- name: Merge changes back
+  ansible.builtin.set_fact:
+    backup:
+      local: "{{ backup.local | combine(local_tmp) }}"
+      rclone: "{{ backup.rclone | combine(rclone_tmp) }}"
+      rsync: "{{ backup.rsync | combine(rsync_tmp) }}"
+      cron:
+        cron_time: "{{ backup.cron.cron_time }}"
+        enable: "{{ backup.cron.enable }}"
+      restore_service:
+        user: "{{ backup.restore_service.user }}"
+        pass: "{{ backup.restore_service.pass }}"
+      misc:
+        snapshot: "{{ backup.misc.snapshot }}"
+
+# Restore service
+- name: "Set 'restore_service_enabled' variable"
+  ansible.builtin.set_fact:
+    restore_service_enabled: "{{ true if not(
+        (backup.restore_service is undefined)
+        or
+        (backup.restore_service is none)
+        or
+        (backup.restore_service | trim | length == 0)
+        or
+        (backup.restore_service.user is undefined)
+        or
+        (backup.restore_service.user is none)
+        or
+        (backup.restore_service.user | trim | length == 0)
+        or
+        (backup.restore_service.pass is undefined)
+        or
+        (backup.restore_service.pass is none)
+        or
+        (backup.restore_service.pass | trim | length == 0)
+      )
+      else false }}"
