@@ -516,6 +516,7 @@
         - "providers.yml"
         - "rclone.conf"
         - "localhost.yml"
+        - "hetzner_nfs.yml"
         - "backup_excludes.txt"
         - "backup_excludes_list.txt"
 
