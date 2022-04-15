@@ -1,4 +1,4 @@
-- name: Async sleeping for batched_items
+- name: Async tar and upload
   ansible.builtin.shell: |
     tar \
       --ignore-failed-read \
@@ -25,10 +25,6 @@
   loop_control:
     loop_var: "async_item"
   register: async_results
-
-- name: Debug
-  debug:
-    var: async_results
 
 - name: Check sync status
   async_status:
