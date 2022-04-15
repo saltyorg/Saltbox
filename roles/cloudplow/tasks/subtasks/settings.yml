@@ -60,12 +60,15 @@
         jq '.plex.url = "{{ plex_web_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
+      vars:
+        plex_name: "{{ plex_instances[0] }}"
 
     - name: Settings | Update Plex Token in 'config.json'
       ansible.builtin.shell: |
         jq '.plex.token = "{{ plex_auth_token | default('') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
+
 
   when: cloudplow_config.stat.exists
 
