@@ -39,8 +39,6 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: true
-      vars:
-        plex_name: "{{ plex_instances[0] }}"
 
   when: not plex_autoscan_config.stat.exists
 

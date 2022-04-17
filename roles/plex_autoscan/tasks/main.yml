@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if Plex instance is defined
+  ansible.builtin.set_fact:
+    plex_name: "{{ plex_name | default(plex_instances[0]) }}"
+
 - name: Import Services Task
   ansible.builtin.import_tasks: "subtasks/services.yml"
 
