@@ -143,7 +143,7 @@ transfer_docker_capabilities: "{{ transfer_docker_capabilities_default
 transfer_docker_security_opts_default: []
 transfer_docker_security_opts_custom: []
 transfer_docker_security_opts: "{{ transfer_docker_security_opts_default
-                                    + transfer_docker_security_opts_custom }}"
+                                   + transfer_docker_security_opts_custom }}"
 
 # Restart Policy
 transfer_docker_restart_policy: unless-stopped
