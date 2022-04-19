@@ -329,6 +329,9 @@ dockerhub_is_enabled: "{{ (dockerhub is defined) and
                           (dockerhub.token is not none) and
                           (dockerhub.token | trim | length > 0) }}"
 
+docker_log_driver: default
+docker_log_options: default
+
 ################################
 # Cloudbox Version Manager
 ################################
