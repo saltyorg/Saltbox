@@ -31,6 +31,8 @@
                else omit }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
     labels: "{{ lookup('vars', _var_prefix + '_docker_labels', default=omit) }}"
+    log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('vars', _var_prefix + '_docker_log_driver', default=omit)) }}"
+    log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('vars', _var_prefix + '_docker_log_options', default=omit)) }}"
     mounts: "{{ lookup('vars', _var_prefix + '_docker_mounts', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     network_mode: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) }}"

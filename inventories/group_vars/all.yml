@@ -289,7 +289,6 @@ docker_labels_traefik_main:
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ traefik_loadbalancer_scheme }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.serverstransport": "{{ traefik_loadbalancer_servertransport }}" }'
 
-
 docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.entrypoints": "web" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}" }'
@@ -328,6 +327,19 @@ dockerhub_is_enabled: "{{ (dockerhub is defined) and
                           (dockerhub.token is defined) and
                           (dockerhub.token is not none) and
                           (dockerhub.token | trim | length > 0) }}"
+
+docker_log_driver_json: "json-file"
+
+docker_log_driver: "{{ docker_log_driver_json
+                    if docker.json_driver
+                    else 'default' }}"
+
+docker_log_options_json:
+  tag: "{% raw %}'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}"
+
+docker_log_options: "{{ docker_log_options_json
+                     if docker.json_driver
+                     else 'default' }}"
 
 ################################
 # Cloudbox Version Manager
