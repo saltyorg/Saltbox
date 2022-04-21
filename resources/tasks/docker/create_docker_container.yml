@@ -47,7 +47,7 @@
     restart_retries: "{{ lookup('vars', _var_prefix + '_docker_restart_retries', default=omit) }}"
     security_opts: "{{ lookup('vars', _var_prefix + '_docker_security_opts', default=omit) }}"
     state: started
-    stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='10') }}"
     sysctls: "{{ lookup('vars', _var_prefix + '_docker_sysctls', default=omit) }}"
     tls_hostname: localhost
     user: "{{ lookup('vars', _var_prefix + '_docker_user', default=omit) }}"

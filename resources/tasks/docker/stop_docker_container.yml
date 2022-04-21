@@ -20,5 +20,4 @@
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: stopped
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
-    timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
