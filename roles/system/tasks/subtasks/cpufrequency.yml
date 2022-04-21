@@ -72,4 +72,4 @@
     enabled: false
     daemon_reload: true
   ignore_errors: true
-  when: "services['ondemand.service']['status'] == 'enabled'"
+  when: "'ondemand.service' in services and services['ondemand.service']['status'] == 'enabled'"
