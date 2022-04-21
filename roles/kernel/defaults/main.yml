@@ -20,3 +20,5 @@ kernel_cron_task: "PATH='/usr/sbin:/usr/bin:/sbin:/bin' purge-old-kernels -qy"
 kernel_update_apt_package: linux-generic-hwe-20.04
 
 kernel_update_apt_fix: apt-get --fix-broken --yes install
+
+kernel_update_apt_package_22: linux-generic-hwe-22.04

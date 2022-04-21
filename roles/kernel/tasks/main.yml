@@ -19,14 +19,22 @@
 
 # Ubuntu 20.04 HWE Update
 - name: Update Tasks
-  ansible.builtin.include_tasks: "subtasks/03_update.yml"
+  ansible.builtin.include_tasks: "subtasks/03_update_focal.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
     - (ansible_distribution_version is version('20.04', '=='))
     - (ansible_kernel is version('5.8', '<'))
 
+# Ubuntu 22.04 HWE Update (needs updating when HWE actually runs a newer kernel)
+- name: Update Tasks
+  ansible.builtin.include_tasks: "subtasks/04_update_jammy.yml"
+  when:
+    - (ansible_distribution == 'Ubuntu')
+    - (ansible_distribution_version is version('22.04', '=='))
+    - (ansible_kernel is version('5.15', '<'))
+
 - name: Restart Tasks
-  ansible.builtin.include_tasks: "subtasks/04_restart.yml"
+  ansible.builtin.include_tasks: "subtasks/05_restart.yml"
   when:
     - (reboot_is_necessary)
     - (not continuous_integration)

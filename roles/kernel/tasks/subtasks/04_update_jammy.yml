@@ -1,0 +1,34 @@
+#########################################################################
+# Title:         Saltbox: Kernel | Update Tasks                         #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Update | Update linux kernel
+  ansible.builtin.apt:
+    name: "{{ kernel_update_apt_package_22 }}"
+    update_cache: true
+    state: latest
+  register: r
+
+- name: Update | Fix broken APT install
+  ansible.builtin.shell: "{{ kernel_update_apt_fix }}"
+  when: (r.changed)
+
+- name: Update | Set 'reboot_is_necessary' variable
+  ansible.builtin.set_fact:
+    reboot_is_necessary: true
+  when: (r.changed)
+
+- name: Update | Kernel was updated
+  ansible.builtin.debug:
+    msg: "Kernel was updated."
+  when: (r.changed)
+
+- name: Update | Kernel was not updated
+  ansible.builtin.debug:
+    msg: "Kernel was not updated."
+  when: (not r.changed)
