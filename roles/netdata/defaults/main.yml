@@ -170,6 +170,3 @@ netdata_docker_restart_policy: unless-stopped
 
 # State
 netdata_docker_state: started
-
-# Stop Timeout
-netdata_docker_stop_timeout: 10
