@@ -29,7 +29,7 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
 
 - name: Install pip requirements
-  ansible.builtin.pip:
+  pip_venvfix:
     requirements: "{{ cloudplow_requirements_path }}"
     virtualenv_python: python3
     virtualenv: "{{ cloudplow_venv_path }}"

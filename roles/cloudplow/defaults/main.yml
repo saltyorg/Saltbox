@@ -23,7 +23,7 @@ cloudplow_path: "{{ server_appdata_path }}/{{ cloudplow_folder }}"
 
 cloudplow_venv_path: "{{ cloudplow_path }}/venv"
 
-cloudplow_python_path: "{{ cloudplow_venv_path }}/bin/python3"
+cloudplow_python_path: "{{ cloudplow_venv_path }}/{{ venv_bin_folder }}/python3"
 
 cloudplow_script_path: "{{ cloudplow_path }}/cloudplow.py"
 
