@@ -49,7 +49,7 @@
   when: plex_autoscan_clone_status is failed
 
 - name: Install pip requirements
-  ansible.builtin.pip:
+  pip_venvfix:
     requirements: /opt/plex_autoscan/requirements.txt
     virtualenv_python: python3
     virtualenv: "/opt/plex_autoscan/venv"
