@@ -204,8 +204,8 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'global
 traefik_default_middleware_custom: ""
 traefik_default_middleware: "{{ traefik_default_middleware_default + ','
                                 + traefik_default_middleware_custom
-                                if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
-                                else traefik_default_middleware_default
+                             if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
+                             else traefik_default_middleware_default
                                 + traefik_default_middleware_custom }}"
 
 traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https,gzip"
@@ -340,6 +340,14 @@ docker_log_options_json:
 docker_log_options: "{{ docker_log_options_json
                      if docker.json_driver
                      else 'default' }}"
+
+################################
+# Python venv paths
+################################
+
+venv_bin_folder: "{{ '/bin'
+                  if (ansible_distribution_version is version('20.04', '=='))
+                  else 'local/bin' }}"
 
 ################################
 # Cloudbox Version Manager
