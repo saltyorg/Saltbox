@@ -193,7 +193,7 @@ traefik_default_certresolver: "{{ traefik_default_certprovider
                                else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
-traefik_error_pages_role_enabled: "{{ lookup('vars', role_name + '_traefik_error_pages_enabled', default=True) }}"
+traefik_error_pages_role_enabled: "{{ lookup('vars', role_name + '_traefik_error_pages_enabled', default=False) }}"
 traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
