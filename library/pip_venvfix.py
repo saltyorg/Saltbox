@@ -430,6 +430,7 @@ def _get_pip(module, env=None, executable=None):
                 module.fail_json(msg='Unable to find any of %s to use.  pip'
                                      ' needs to be installed.' % ', '.join(candidate_pip_basenames))
         else:
+            pip_found = 0
             # If we're using a virtualenv we must use the pip from the
             # virtualenv
             venv_dir = os.path.join(env, 'bin')
@@ -438,14 +439,16 @@ def _get_pip(module, env=None, executable=None):
                 candidate = os.path.join(venv_dir, basename)
                 if os.path.exists(candidate) and is_executable(candidate):
                     pip = candidate
+                    pip_found = 1
                     break
-            venv_dir = os.path.join(env, 'local', 'bin')
-            candidate_pip_basenames = (candidate_pip_basenames[0], 'pip')
-            for basename in candidate_pip_basenames:
-                candidate = os.path.join(venv_dir, basename)
-                if os.path.exists(candidate) and is_executable(candidate):
-                    pip = candidate
-                    break
+            if not pip_found:
+                venv_dir = os.path.join(env, 'local', 'bin')
+                candidate_pip_basenames = (candidate_pip_basenames[0], 'pip')
+                for basename in candidate_pip_basenames:
+                    candidate = os.path.join(venv_dir, basename)
+                    if os.path.exists(candidate) and is_executable(candidate):
+                        pip = candidate
+                        break
             else:
                 # For-else: Means that we did not break out of the loop
                 # (therefore, that pip was not found)
