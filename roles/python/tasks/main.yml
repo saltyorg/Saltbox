@@ -1,4 +1,9 @@
 ---
+- name: Fail if not running 22.04
+  fail:
+    msg: "This role is only for 22.04"
+  when: ansible_distribution_version is version('22.04', '!=')
+
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:
     repo: ppa:deadsnakes/ppa
@@ -23,11 +28,18 @@
     name: python3.8-venv
     state: present
 
+- name: Check if pip is installed
+  command: python3.8 -m pip --version
+  register: pip_version
+  ignore_errors: true
+
 - name: Download 'get-pip.py'
   get_url:
     url: https://bootstrap.pypa.io/get-pip.py
     dest: /tmp/get-pip.py
     mode: '0664'
+  when: pip_version.failed
 
 - name: Install pip for Python 3.8
   command: python3.8 /tmp/get-pip.py
+  when: pip_version.failed
