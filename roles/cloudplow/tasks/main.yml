@@ -30,7 +30,7 @@
 
 - name: Set Python version
   ansible.builtin.set_fact:
-    cloudplow_python: "{{ python3
+    cloudplow_python: "{{ 'python3'
                        if ansible_distribution_version is version('20.04', '==')
                        else 'python3.8' }}"
 
