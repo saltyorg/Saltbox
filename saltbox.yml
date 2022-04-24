@@ -85,4 +85,5 @@
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
+    - { role: python, tags: ['python'] }
     - { role: saltbox_mod, tags: ['saltbox_mod'] }
