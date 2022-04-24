@@ -48,13 +48,35 @@
   become_user: "{{ user.name }}"
   when: plex_autoscan_clone_status is failed
 
+- name: Set Python version
+  ansible.builtin.set_fact:
+    plex_autoscan_python: "{{ python3
+                           if ansible_distribution_version is version('20.04', '==')
+                           else 'python3.8' }}"
+
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  when: ansible_distribution_version is version('22.04', '==')
+
 - name: Install pip requirements
   pip_venvfix:
     requirements: /opt/plex_autoscan/requirements.txt
-    virtualenv_python: python3
+    virtualenv_python: "{{ plex_autoscan_python }}"
     virtualenv: "/opt/plex_autoscan/venv"
   become: true
   become_user: "{{ user.name }}"
+
+- name: Find pip3 path
+  ansible.builtin.find:
+    paths: /opt/plex_autoscan/venv
+    recurse: yes
+    patterns: 'pip3'
+  register: files
+
+- name: Path
+  ansible.builtin.set_fact:
+    plex_autoscan_bin_folder: "{{ files.files[0].path | dirname }}"
 
 - name: Set 'scan.py' as executable
   ansible.builtin.file:
@@ -67,6 +89,13 @@
   ansible.builtin.template:
     src: plex_autoscan.sh.j2
     dest: "{{ plex_autoscan_alias_path }}"
+    mode: "0755"
+    force: true
+
+- name: Import 'plex_autoscan.service'
+  ansible.builtin.template:
+    src: plex_autoscan.service.j2
+    dest: /etc/systemd/system/plex_autoscan.service
     mode: "0755"
     force: true
 
