@@ -7,10 +7,18 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Binary | Add official gpg signing key
+- name: Binary | Remove old official repository entry
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repo_url_old }}"
+    filename: "{{ docker_apt_repo_filename }}"
+    update_cache: true
+    state: absent
+
+- name: Binary | Add official gpg signing key to keyring
   ansible.builtin.apt_key:
     id: "{{ docker_apt_key_id }}"
     url: "{{ docker_apt_key_url }}"
+    keyring: /usr/share/keyrings/docker.gpg
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
