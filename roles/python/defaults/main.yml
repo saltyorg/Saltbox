@@ -1,0 +1,12 @@
+##########################################################################
+# Title:         Saltbox: Python | Default Variables                     #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+python_get_pip_url: "https://bootstrap.pypa.io/get-pip.py"
+python_version: "3.8"
+python_valid_distro: "22.04"

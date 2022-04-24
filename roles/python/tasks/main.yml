@@ -1,45 +1,53 @@
+#########################################################################
+# Title:         Saltbox: Python                                        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
 ---
-- name: Fail if not running 22.04
+- name: "Fail if not running {{ python_valid_distro }}"
   fail:
-    msg: "This role is only for 22.04"
-  when: ansible_distribution_version is version('22.04', '!=')
+    msg: "This role is only for {{ python_valid_distro }}"
+  when: ansible_distribution_version is version(python_valid_distro, '!=')
 
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:
     repo: ppa:deadsnakes/ppa
 
-- name: Install Python 3.8
+- name: "Install Python {{ python_version }}"
   ansible.builtin.apt:
-    name: python3.8
+    name: "python{{ python_version }}"
     state: present
 
-- name: Install Python 3.8 dev
+- name: "Install Python {{ python_version }} dev"
   ansible.builtin.apt:
-    name: python3.8-dev
+    name: "python{{ python_version }}-dev"
     state: present
 
-- name: Install Python 3.8 distutils
+- name: "Install Python {{ python_version }} distutils"
   ansible.builtin.apt:
-    name: python3.8-distutils
+    name: "python{{ python_version }}-distutils"
     state: present
 
-- name: Install Python 3.8 venv
+- name: "Install Python {{ python_version }} venv"
   ansible.builtin.apt:
-    name: python3.8-venv
+    name: "python{{ python_version }}-venv"
     state: present
 
 - name: Check if pip is installed
-  command: python3.8 -m pip --version
+  command: "python{{ python_version }} -m pip --version"
   register: pip_version
   ignore_errors: true
 
 - name: Download 'get-pip.py'
   get_url:
-    url: https://bootstrap.pypa.io/get-pip.py
+    url: "{{ python_get_pip_url }}"
     dest: /tmp/get-pip.py
     mode: '0664'
   when: pip_version.failed
 
-- name: Install pip for Python 3.8
-  command: python3.8 /tmp/get-pip.py
+- name: "Install pip for Python {{ python_version }}"
+  command: "python{{ python_version }} /tmp/get-pip.py"
   when: pip_version.failed
