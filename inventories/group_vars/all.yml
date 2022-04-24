@@ -342,14 +342,6 @@ docker_log_options: "{{ docker_log_options_json
                      else 'default' }}"
 
 ################################
-# Python venv paths
-################################
-
-venv_bin_folder: "{{ '/bin'
-                  if (ansible_distribution_version is version('20.04', '=='))
-                  else 'local/bin' }}"
-
-################################
 # Cloudbox Version Manager
 ################################
 

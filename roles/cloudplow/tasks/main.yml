@@ -28,6 +28,17 @@
 - name: Clone project git repo
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
 
+- name: Set Python version
+  ansible.builtin.set_fact:
+    cloudplow_python: "{{ python3
+                       if ansible_distribution_version is version('20.04', '==')
+                       else 'python3.8' }}"
+
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  when: ansible_distribution_version is version('22.04', '==')
+
 - name: Install pip requirements
   pip_venvfix:
     requirements: "{{ cloudplow_requirements_path }}"
@@ -35,6 +46,17 @@
     virtualenv: "{{ cloudplow_venv_path }}"
   become: true
   become_user: "{{ user.name }}"
+
+- name: Find pip3 path
+  ansible.builtin.find:
+    paths: "{{ cloudplow_path }}/venv"
+    recurse: yes
+    patterns: 'pip3'
+  register: files
+
+- name: Path
+  ansible.builtin.set_fact:
+    cloudplow_bin_folder: "{{ files.files[0].path | dirname }}"
 
 - name: Set script as executable
   ansible.builtin.file:
