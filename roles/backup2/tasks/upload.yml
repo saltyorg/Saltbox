@@ -27,7 +27,7 @@
   register: async_results
 
 - name: Check sync status
-  async_status:
+  ansible.builtin.async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
   loop: "{{ async_results.results }}"
   loop_control:
