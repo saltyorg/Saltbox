@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Git | Lookup git safe directories
-  shell: git config --global -l
+  ansible.builtin.shell: git config --global -l
   register: git_config
   ignore_errors: true
   when: not ('preinstall' in ansible_run_tags)
