@@ -37,4 +37,3 @@ providers:
 #     timeout: 10s
 #     templateBody: |
 #       Docker tag {{ .Entry.Image }} which you subscribed to through {{ .Entry.Provider }} provider has been released.
-
