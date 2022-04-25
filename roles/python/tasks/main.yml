@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Fail if not running {{ python_valid_distro }}"
-  fail:
+  ansible.builtin.fail:
     msg: "This role is only for {{ python_valid_distro }}"
   when: ansible_distribution_version is version(python_valid_distro, '!=')
 
@@ -37,17 +37,17 @@
     state: present
 
 - name: Check if pip is installed
-  command: "python{{ python_version }} -m pip --version"
+  ansible.builtin.command: "python{{ python_version }} -m pip --version"
   register: pip_version
   ignore_errors: true
 
 - name: Download 'get-pip.py'
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ python_get_pip_url }}"
     dest: /tmp/get-pip.py
     mode: '0664'
   when: pip_version.failed
 
 - name: "Install pip for Python {{ python_version }}"
-  command: "python{{ python_version }} /tmp/get-pip.py"
+  ansible.builtin.command: "python{{ python_version }} /tmp/get-pip.py"
   when: pip_version.failed
