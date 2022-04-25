@@ -52,12 +52,12 @@
         mode: a+x
 
     - name: Check if Docker Compose V1 is installed
-      stat:
+      ansible.builtin.stat:
         path: "/usr/local/bin/docker-compose"
       register: docker_compose_v1
 
     - name: Rename Docker Compose V1 binary
-      command: mv /usr/local/bin/docker-compose /usr/local/bin/docker-compose-v1
+      ansible.builtin.command: mv /usr/local/bin/docker-compose /usr/local/bin/docker-compose-v1
       when: docker_compose_v1.stat.exists
 
     - name: Define alternatives group for docker-compose command - Entry 1
