@@ -1,0 +1,43 @@
+#########################################################################
+# Title:         Saltbox: SABnzbd | Post-Install | Web Task             #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Post-Install | Web | Wait for config file to be created
+  ansible.builtin.wait_for:
+    path: "{{ sabnzbd_paths_config_location }}"
+    state: present
+
+- name: Post-Install | Web | Stop container
+  docker_container:
+    name: "{{ sabnzbd_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+    state: stopped
+
+- name: Post-Install | Web | Wait for 10 seconds
+  ansible.builtin.wait_for:
+    timeout: 10
+
+- name: Post-Install | Web | Update config settings
+  community.general.ini_file:
+    path: "{{ sabnzbd_paths_config_location }}"
+    section: misc
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  loop: "{{ sabnzbd_config_settings_web }}"
+
+- name: Post-Install | Web | Start container
+  docker_container:
+    name: "{{ sabnzbd_docker_container }}"
+    container_default_behavior: compatibility
+    tls_hostname: localhost
+    state: "{{ sabnzbd_docker_state }}"

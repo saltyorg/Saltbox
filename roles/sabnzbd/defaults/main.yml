@@ -65,6 +65,11 @@ sabnzbd_traefik_api_endpoint: "`/api`"
 # Config
 ################################
 
+sabnzbd_config_settings_web:
+  # Web
+  - { option: "host_whitelist", value: "{{ sabnzbd_web_subdomain }}.{{ sabnzbd_web_domain }}, {{ sabnzbd_name }}" }
+  - { option: "url_base", value: "" }
+
 sabnzbd_config_settings_default:
   # Web
   - { option: "host_whitelist", value: "{{ sabnzbd_web_subdomain }}.{{ sabnzbd_web_domain }}, {{ sabnzbd_name }}" }
