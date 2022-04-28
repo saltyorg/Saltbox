@@ -37,6 +37,8 @@
 - name: "Execute Python role"
   ansible.builtin.include_role:
     name: "python"
+  vars:
+    python_version: "3.8"
   when: ansible_distribution_version is version('22.04', '==')
 
 - name: Install pip requirements
