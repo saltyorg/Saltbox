@@ -44,7 +44,7 @@
 - name: Install pip requirements
   pip_venvfix:
     requirements: "{{ cloudplow_requirements_path }}"
-    virtualenv_python: python3
+    virtualenv_python: "{{ cloudplow_python }}"
     virtualenv: "{{ cloudplow_venv_path }}"
   become: true
   become_user: "{{ user.name }}"
