@@ -73,7 +73,7 @@
   when: plex_autoscan_venv_folder.stat.exists
 
 - name: Install pip requirements
-  pip_venvfix:
+  ansible.builtin.pip:
     requirements: /opt/plex_autoscan/requirements.txt
     virtualenv_python: "{{ plex_autoscan_python }}"
     virtualenv: "/opt/plex_autoscan/venv"

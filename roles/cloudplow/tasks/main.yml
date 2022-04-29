@@ -53,7 +53,7 @@
   when: cloudplow_venv_folder.stat.exists
 
 - name: Install pip requirements
-  pip_venvfix:
+  ansible.builtin.pip:
     requirements: "{{ cloudplow_requirements_path }}"
     virtualenv_python: "{{ cloudplow_python }}"
     virtualenv: "{{ cloudplow_venv_path }}"
