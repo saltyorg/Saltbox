@@ -61,6 +61,17 @@
     python_version: "3.8"
   when: ansible_distribution_version is version('22.04', '==')
 
+- name: Check if venv folder exists
+  ansible.builtin.stat:
+    path: "/opt/plex_autoscan/venv"
+  register: plex_autoscan_venv_folder
+
+- name: Delete venv folder
+  ansible.builtin.file:
+    path: "/opt/plex_autoscan/venv"
+    state: absent
+  when: plex_autoscan_venv_folder.stat.exists
+
 - name: Install pip requirements
   pip_venvfix:
     requirements: /opt/plex_autoscan/requirements.txt
