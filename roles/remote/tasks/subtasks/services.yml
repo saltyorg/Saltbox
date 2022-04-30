@@ -29,7 +29,7 @@
         option: "{{ inner_item.option }}"
         value: "{{ inner_item.value }}"
         state: present
-        mode: "0755"
+        mode: "0644"
         no_extra_spaces: true
       loop:
         - { option: 'User', value: "{{ user.name }}" }
