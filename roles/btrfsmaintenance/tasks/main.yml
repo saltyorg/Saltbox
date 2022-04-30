@@ -27,7 +27,7 @@
     - name: "Clone btrfsmaintenance repo"
       ansible.builtin.git:
         repo: https://github.com/kdave/btrfsmaintenance.git
-        dest: '/opt/btrfsmaintenance'
+        dest: "/opt/btrfsmaintenance"
         clone: true
         version: HEAD
         force: true
@@ -35,7 +35,13 @@
       become_user: "{{ user.name }}"
 
     - name: "Set btrfsmaintenance directory permissions"
-      ansible.builtin.file: "path='/opt/btrfsmaintenance' state=directory mode=0775 owner={{ user.name }} group={{ user.name }} recurse=yes"
+      ansible.builtin.file:
+        path: "/opt/btrfsmaintenance"
+        state: directory
+        mode: 0775
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        recurse: yes
 
     - name: "Change mountpoints to 'auto'"
       ansible.builtin.lineinfile:
@@ -55,7 +61,7 @@
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: /etc/systemd/system
-        mode: '0755'
+        mode: '0644'
       with_fileglob:
         - /opt/btrfsmaintenance/*.timer
 
@@ -63,7 +69,7 @@
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: /etc/systemd/system
-        mode: '0755'
+        mode: '0644'
       with_fileglob:
         - /opt/btrfsmaintenance/*.service
 
