@@ -186,7 +186,7 @@ traefik_challenge_provider: "{{ traefik.provider }}"
 traefik_default_certprovider: "{{ 'cfdns'
                                if (not dns.zerossl)
                                else 'zerossl' }}"
-traefik_default_zerossl_resolver: "{{ 'zerosslhttp' if (traefik.http or not traefik.tls) else 'zerossltls' }}"
+traefik_default_zerossl_resolver: "{{ 'zerosslhttp' }}"
 traefik_default_resolver: "{{ 'httpresolver' if (traefik.http or not traefik.tls) else 'tlsresolver' }}"
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not traefik_tls)
