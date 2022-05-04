@@ -118,6 +118,8 @@ vgid: "{{ ansible_local.group.video.gid }}"
 
 rgid: "{{ ansible_local.group.render.gid }}"
 
+dockergid: "{{ ansible_local.group.docker.gid }}"
+
 ################################
 # Timezone
 ################################
