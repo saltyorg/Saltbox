@@ -30,8 +30,8 @@
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/tautulli/root/etc/cont-init.d/98-themepark"
     dest: "{{ tautulli_paths_location }}"
-    owner: "root"
-    group: "root"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
     mode: "0770"
     force: true
 
