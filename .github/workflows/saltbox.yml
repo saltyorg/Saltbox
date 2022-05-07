@@ -27,7 +27,7 @@ on:
 
 jobs:
   install:
-    name: '${{ matrix.roles }}'
+    name: '${{ matrix.roles }}-${{ matrix.release }}'
     runs-on: ${{ matrix.release }}
     strategy:
       matrix:
