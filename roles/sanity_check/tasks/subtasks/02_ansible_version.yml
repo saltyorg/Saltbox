@@ -22,7 +22,7 @@
     ansible_update: true
   when: registered_ansible_version.stdout is version(sanity_check_ansible_version_min, 'lt', version_type='semver')
 
-- name: Upgrade Ansible
+- name: "Upgrade Ansible -- DO NOT CANCEL"
   ansible.builtin.script:
     cmd: /srv/git/saltbox/scripts/update.sh
   become: true
