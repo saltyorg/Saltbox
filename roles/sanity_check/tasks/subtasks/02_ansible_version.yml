@@ -31,6 +31,14 @@
 
 - name: "Upgrade Ansible | Check if Ansible was upgraded"
   block:
+
+    - name: "Upgrade Ansible | Chown update log file"
+      ansible.builtin.file:
+        path: "/srv/git/saltbox/ansible-update.log"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: '0664'
+
     - name: "Upgrade Ansible | Print Instructions"
       ansible.builtin.debug:
         msg:
