@@ -12,7 +12,7 @@
     msg: "This role is only for {{ python_valid_distro }}"
   when: ansible_distribution_version is version(python_valid_distro, '!=')
 
-- name: Binary | Add official gpg signing key to keyring
+- name: Add official gpg signing key to keyring
   ansible.builtin.apt_key:
     keyserver: "{{ python_apt_keyserver }}"
     id: "{{ python_apt_key_id }}"
