@@ -12,9 +12,23 @@
     msg: "This role is only for {{ python_valid_distro }}"
   when: ansible_distribution_version is version(python_valid_distro, '!=')
 
+- name: Binary | Add official gpg signing key to keyring
+  ansible.builtin.apt_key:
+    keyserver: "{{ python_apt_keyserver }}"
+    id: "{{ python_apt_key_id }}"
+    keyring: /usr/share/keyrings/deadsnakes.gpg
+  register: result
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  delay: 10
+  until: result is succeeded
+
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:
-    repo: ppa:deadsnakes/ppa
+    repo: "{{ python_apt_repo_url }}"
+  register: result
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  delay: 10
+  until: result is succeeded
 
 - name: "Install Python {{ python_version }}"
   ansible.builtin.apt:
