@@ -42,6 +42,12 @@ organizr_dns_zone: "{{ organizr_web_domain }}"
 organizr_dns_proxy: "{{ dns.proxied }}"
 
 ################################
+# Settings
+################################
+
+organizr_branch: "v2-master"
+
+################################
 # Traefik
 ################################
 
@@ -79,7 +85,7 @@ organizr_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   fpm: "yes"
-  branch: "v2-master"
+  branch: "{{ organizr_branch }}"
 organizr_docker_envs_custom: {}
 organizr_docker_envs: "{{ organizr_docker_envs_default
                           | combine(organizr_docker_envs_custom) }}"
