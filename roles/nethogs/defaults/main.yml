@@ -11,7 +11,7 @@ nethogs_git_repo_url: "https://github.com/raboof/nethogs.git"
 
 nethogs_git_repo_dest: "/var/tmp/nethogs"
 
-nethogs_binary_path: "/usr/local/bin/nethogs"
+nethogs_binary_path: "/usr/local/sbin/nethogs"
 
 nethogs_binary_build_command: |
   cd {{ nethogs_git_repo_dest }}
