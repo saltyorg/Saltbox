@@ -19,6 +19,7 @@ traefik_name: traefik
 
 traefik_pilot_token: ""
 traefik_trusted_ips: ""
+traefik_file_watch: "true"
 
 ################################
 # Paths
@@ -143,7 +144,7 @@ traefik_docker_envs: "{{ traefik_docker_envs_default
 traefik_docker_commands_default:
   - "--global.sendanonymoususage=false"
   - "--providers.file.directory=/etc/traefik"
-  - "--providers.file.watch=true"
+  - "--providers.file.watch={{ traefik_file_watch }}"
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.web.address=:80"
