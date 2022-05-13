@@ -12,8 +12,8 @@ server:
   host: 0.0.0.0
   port: 9091
   path: ""
-  read_buffer_size: 65536
-  write_buffer_size: 65536
+  read_buffer_size: 10485760
+  write_buffer_size: 10485760
   enable_pprof: false
   enable_expvars: false
   disable_healthcheck: false
@@ -78,7 +78,6 @@ session:
   remember_me_duration: 1M
   same_site: lax
   domain: {{ user.domain }}
-
   redis:
     host: redis
     port: 6379
