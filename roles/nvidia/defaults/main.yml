@@ -46,7 +46,7 @@ nvidia_docker_runtime_apt_repo_url_list_old:
   - 'deb https://nvidia.github.io/libnvidia-container/{{ ansible_distribution|lower }}{{ ansible_distribution_version }}/$(ARCH) /'
   - 'deb https://nvidia.github.io/nvidia-container-runtime/{{ ansible_distribution|lower }}{{ ansible_distribution_version }}/$(ARCH) /'
 
-nvidia_docker_runtime_apt_repo_file: nvidia-container-runtime.list
+nvidia_docker_runtime_apt_repo_file: nvidia-container-runtime
 
 nvidia_docker_runtime_apt_package: nvidia-container-runtime
 
