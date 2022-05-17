@@ -25,6 +25,7 @@
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:
     repo: "{{ python_apt_repo_url }}"
+    filename: "deadsnakes"
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
