@@ -48,15 +48,15 @@ prowlarr_dns_proxy: "{{ dns.proxied }}"
 prowlarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 
 prowlarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                       + lookup('vars', prowlarr_name + '_traefik_sso_middleware', default=prowlarr_traefik_sso_middleware)
-                                    if (lookup('vars', prowlarr_name + '_traefik_sso_middleware', default=prowlarr_traefik_sso_middleware) | length > 0)
-                                    else traefik_default_middleware }}"
+                                         + lookup('vars', prowlarr_name + '_traefik_sso_middleware', default=prowlarr_traefik_sso_middleware)
+                                      if (lookup('vars', prowlarr_name + '_traefik_sso_middleware', default=prowlarr_traefik_sso_middleware) | length > 0)
+                                      else traefik_default_middleware }}"
 prowlarr_traefik_middleware_custom: ""
 prowlarr_traefik_middleware: "{{ prowlarr_traefik_middleware_default + ','
-                               + prowlarr_traefik_middleware_custom
-                            if (not prowlarr_traefik_middleware_custom.startswith(',') and prowlarr_traefik_middleware_custom | length > 0)
-                            else prowlarr_traefik_middleware_default
-                               + prowlarr_traefik_middleware_custom }}"
+                                 + prowlarr_traefik_middleware_custom
+                              if (not prowlarr_traefik_middleware_custom.startswith(',') and prowlarr_traefik_middleware_custom | length > 0)
+                              else prowlarr_traefik_middleware_default
+                                 + prowlarr_traefik_middleware_custom }}"
 prowlarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prowlarr_traefik_enabled: true
 prowlarr_traefik_api_enabled: true
@@ -131,14 +131,14 @@ prowlarr_docker_volumes: "{{ prowlarr_docker_volumes_default
 prowlarr_docker_devices_default: []
 prowlarr_docker_devices_custom: []
 prowlarr_docker_devices: "{{ prowlarr_docker_devices_default
-                              + prowlarr_docker_devices_custom }}"
+                             + prowlarr_docker_devices_custom }}"
 
 # Hosts
 prowlarr_docker_hosts_default: []
 prowlarr_docker_hosts_custom: []
 prowlarr_docker_hosts: "{{ docker_hosts_common
-                            | combine(prowlarr_docker_hosts_default)
-                            | combine(prowlarr_docker_hosts_custom) }}"
+                           | combine(prowlarr_docker_hosts_default)
+                           | combine(prowlarr_docker_hosts_custom) }}"
 
 # Labels
 prowlarr_docker_labels_default: {}
@@ -168,7 +168,7 @@ prowlarr_docker_capabilities: "{{ prowlarr_docker_capabilities_default
 prowlarr_docker_security_opts_default: []
 prowlarr_docker_security_opts_custom: []
 prowlarr_docker_security_opts: "{{ prowlarr_docker_security_opts_default
-                                    + prowlarr_docker_security_opts_custom }}"
+                                   + prowlarr_docker_security_opts_custom }}"
 
 # Restart Policy
 prowlarr_docker_restart_policy: unless-stopped
