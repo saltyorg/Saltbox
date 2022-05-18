@@ -4,7 +4,7 @@ name: Contrib
 
 jobs:
   add-contributors:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
     - uses: BobAnkh/add-contributors@master
