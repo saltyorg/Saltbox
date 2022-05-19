@@ -144,7 +144,11 @@ ip_address_localhost: "127.0.0.1"
 
 ip_address_public: "{{ ansible_local.network.ip.public_ip | default(ansible_default_ipv4.address) }}"
 
+ip_address_public_is_valid: "{{ ip_address_public | ansible.utils.ipv4 }}"
+
 ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 | default(ansible_default_ipv6.address) }}"
+
+ipv6_address_public_is_valid: "{{ ipv6_address_public | ansible.utils.ipv6 }}"
 
 ################################
 # Reverse Proxy

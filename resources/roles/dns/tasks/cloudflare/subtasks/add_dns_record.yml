@@ -9,6 +9,12 @@
 ---
 - name: Cloudflare | IPv4 Block
   block:
+
+    - name: Cloudflare | Validate IP variable
+      ansible.builtin.fail:
+        msg: "ip_address_public contains: '{{ ip_address_public }}' which is not a valid IP"
+      when: not ip_address_public_is_valid
+
     - name: Cloudflare | Add DNS Record | Add DNS Record
       community.general.cloudflare_dns:
         account_api_token: "{{ cloudflare.api }}"
@@ -39,6 +45,11 @@
 
 - name: Cloudflare | IPv6 Block
   block:
+
+    - name: Cloudflare | Validate IPv6 variable
+      ansible.builtin.fail:
+        msg: "ipv6_address_public contains: '{{ ipv6_address_public }}' which is not a valid IP"
+      when: not ipv6_address_public_is_valid
 
     - name: Cloudflare | Add DNS Record | Add DNS Record
       community.general.cloudflare_dns:
