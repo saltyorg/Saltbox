@@ -17,6 +17,8 @@ server:
   enable_pprof: false
   enable_expvars: false
   disable_healthcheck: false
+  headers:
+    csp_template: "frame-ancestors 'self' *.{{ user.domain }} {{ user.domain }}; default-src 'self'; object-src 'none'; style-src 'self' 'nonce-${NONCE}'"
 
 log:
   level: info
