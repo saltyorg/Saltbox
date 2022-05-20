@@ -45,7 +45,13 @@ petio_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-petio_traefik_middleware: "{{ traefik_default_middleware }}"
+petio_traefik_middleware_default: "{{ traefik_default_middleware }}"
+petio_traefik_middleware_custom: ""
+petio_traefik_middleware: "{{ petio_traefik_middleware_default + ','
+                              + petio_traefik_middleware_custom
+                           if (not petio_traefik_middleware_custom.startswith(',') and petio_traefik_middleware_custom | length > 0)
+                           else petio_traefik_middleware_default
+                              + petio_traefik_middleware_custom }}"
 petio_traefik_certresolver: "{{ traefik_default_certresolver }}"
 petio_traefik_enabled: true
 

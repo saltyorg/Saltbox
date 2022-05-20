@@ -48,7 +48,13 @@ transfer_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-transfer_traefik_middleware: "{{ traefik_default_middleware }}"
+transfer_traefik_middleware_default: "{{ traefik_default_middleware }}"
+transfer_traefik_middleware_custom: ""
+transfer_traefik_middleware: "{{ transfer_traefik_middleware_default + ','
+                                 + transfer_traefik_middleware_custom
+                              if (not transfer_traefik_middleware_custom.startswith(',') and transfer_traefik_middleware_custom | length > 0)
+                              else transfer_traefik_middleware_default
+                                 + transfer_traefik_middleware_custom }}"
 transfer_traefik_certresolver: "{{ traefik_default_certresolver }}"
 transfer_traefik_enabled: true
 

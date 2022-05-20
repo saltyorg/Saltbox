@@ -46,9 +46,17 @@ portainer_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 portainer_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-portainer_traefik_middleware: "{{ traefik_default_middleware + ',' + portainer_traefik_sso_middleware
-                               if (portainer_traefik_sso_middleware | length > 0)
-                               else traefik_default_middleware }}"
+
+portainer_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                          + lookup('vars', portainer_name + '_traefik_sso_middleware', default=portainer_traefik_sso_middleware)
+                                       if (lookup('vars', portainer_name + '_traefik_sso_middleware', default=portainer_traefik_sso_middleware) | length > 0)
+                                       else traefik_default_middleware }}"
+portainer_traefik_middleware_custom: ""
+portainer_traefik_middleware: "{{ portainer_traefik_middleware_default + ','
+                                  + portainer_traefik_middleware_custom
+                               if (not portainer_traefik_middleware_custom.startswith(',') and portainer_traefik_middleware_custom | length > 0)
+                               else portainer_traefik_middleware_default
+                                  + portainer_traefik_middleware_custom }}"
 portainer_traefik_middleware_api: "{{ traefik_global_middleware }}"
 portainer_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_traefik_enabled: true

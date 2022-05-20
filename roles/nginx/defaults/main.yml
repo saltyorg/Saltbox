@@ -46,12 +46,7 @@ nginx_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-nginx_traefik_sso_middleware: ""
-
-nginx_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                      + lookup('vars', nginx_name + '_traefik_sso_middleware', default=nginx_traefik_sso_middleware)
-                                   if (lookup('vars', nginx_name + '_traefik_sso_middleware', default=nginx_traefik_sso_middleware) | length > 0)
-                                   else traefik_default_middleware }}"
+nginx_traefik_middleware_default: "{{ traefik_default_middleware }}"
 nginx_traefik_middleware_custom: ""
 nginx_traefik_middleware: "{{ nginx_traefik_middleware_default + ','
                               + nginx_traefik_middleware_custom

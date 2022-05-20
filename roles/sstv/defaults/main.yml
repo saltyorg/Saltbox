@@ -46,7 +46,13 @@ sstv_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-sstv_traefik_middleware: "sstv-auth,{{ traefik_default_middleware }}"
+sstv_traefik_middleware_default: "sstv-auth,{{ traefik_default_middleware }}"
+sstv_traefik_middleware_custom: ""
+sstv_traefik_middleware: "{{ sstv_traefik_middleware_default + ','
+                             + sstv_traefik_middleware_custom
+                          if (not sstv_traefik_middleware_custom.startswith(',') and sstv_traefik_middleware_custom | length > 0)
+                          else sstv_traefik_middleware_default
+                             + sstv_traefik_middleware_custom }}"
 sstv_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sstv_traefik_enabled: true
 sstv_auth: "/etc/traefik/sstv"

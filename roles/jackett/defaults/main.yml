@@ -46,9 +46,17 @@ jackett_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-jackett_traefik_middleware: "{{ traefik_default_middleware + ',' + jackett_traefik_sso_middleware
-                             if (jackett_traefik_sso_middleware | length > 0)
-                             else traefik_default_middleware }}"
+
+jackett_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                        + lookup('vars', jackett_name + '_traefik_sso_middleware', default=jackett_traefik_sso_middleware)
+                                     if (lookup('vars', jackett_name + '_traefik_sso_middleware', default=jackett_traefik_sso_middleware) | length > 0)
+                                     else traefik_default_middleware }}"
+jackett_traefik_middleware_custom: ""
+jackett_traefik_middleware: "{{ jackett_traefik_middleware_default + ','
+                                + jackett_traefik_middleware_custom
+                             if (not jackett_traefik_middleware_custom.startswith(',') and jackett_traefik_middleware_custom | length > 0)
+                             else jackett_traefik_middleware_default
+                                + jackett_traefik_middleware_custom }}"
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
 jackett_traefik_api_enabled: true
