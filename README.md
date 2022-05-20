@@ -2,7 +2,6 @@
 [![Discord](https://img.shields.io/discord/853755447970758686)](https://discord.gg/ugfKXpFND8)
 [![Docs:](https://img.shields.io/badge/docs-docs.saltbox.dev-blue)](https://docs.saltbox.dev)
 [![CI](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/saltbox.yml)
-[![Ansible Lint](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/saltyorg/Saltbox/actions/workflows/ansible-lint.yml)
 [![License:](https://img.shields.io/github/license/saltyorg/Saltbox)](LICENSE.md)
 
 
