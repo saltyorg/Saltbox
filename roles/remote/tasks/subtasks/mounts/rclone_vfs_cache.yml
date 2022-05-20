@@ -15,6 +15,15 @@
     group: "{{ user.name }}"
     mode: 0775
 
+- name: Create cache directory
+  ansible.builtin.file:
+    path: "{{ rclone_vfs_cache_dir }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (rclone_vfs_cache_dir | length > 0)
+
 - name: Rclone VFS | Import 'rclone_vfs.service'
   ansible.builtin.template:
     src: rclone_vfs_cache.service.j2
