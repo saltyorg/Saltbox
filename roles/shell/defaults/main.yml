@@ -45,6 +45,8 @@ shell_bash_bashrc_block_content: |
   # OSC 1337 - Set current directory
   export PS1="$PS1\[\e]1337;CurrentDir="'$(pwd)\a\]'
 
+shell_bash_bashrc_block_custom: ""
+
 shell_bash_binary_path: "/bin/bash"
 
 ################################
@@ -85,6 +87,8 @@ shell_zsh_zshrc_block_content2: |
   autoload -U +X bashcompinit && bashcompinit
   # OSC 1337 - Set current directory
   precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" }
+
+shell_zsh_zshrc_block_custom: ""
 
 shell_zsh_plugins: "(git docker docker-compose ansible)"
 

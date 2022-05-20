@@ -61,6 +61,18 @@
     group: "{{ user.name }}"
     mode: "0664"
 
+- name: ZSH | Add custom items to '{{ shell_zsh_zshrc_path }}'
+  ansible.builtin.blockinfile:
+    path: "{{ shell_zsh_zshrc_path }}"
+    marker: "### SALTBOX MANAGED BLOCK CUSTOM - {mark} ###"
+    block: "{{ shell_zsh_zshrc_block_custom }}"
+    state: present
+    create: false
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+  when: (shell_zsh_zshrc_block_custom | length > 0)
+
 - name: ZSH | Enable plugins
   community.general.ini_file:
     path: "{{ shell_zsh_zshrc_path }}"

@@ -18,6 +18,18 @@
     group: "{{ user.name }}"
     mode: "0664"
 
+- name: Bash | Add custom items to '{{ shell_bash_bashrc_path }}'
+  ansible.builtin.blockinfile:
+    path: "{{ shell_bash_bashrc_path }}"
+    marker: "### SALTBOX MANAGED BLOCK CUSTOM - {mark} ###"
+    block: "{{ shell_bash_bashrc_block_custom }}"
+    state: present
+    create: false
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+  when: (shell_bash_bashrc_block_custom | length > 0)
+
 - name: Bash | Set Bash as default shell
   ansible.builtin.user:
     name: "{{ user.name }}"
