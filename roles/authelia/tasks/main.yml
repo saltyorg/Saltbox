@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Fail if not master"
+  ansible.builtin.fail:
+    msg: "This server is not set as Authelia master server."
+  when: not authelia_is_master
+
 - name: "Import Redis Role"
   ansible.builtin.import_role:
     name: redis
