@@ -121,7 +121,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "v2.6"
+traefik_docker_image_tag: "2.7"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
@@ -208,6 +208,7 @@ traefik_docker_commands_google_acme: "{{ traefik_docker_commands_google_acme_tmp
 traefik_docker_commands_metrics_tmp:
   - "--metrics.prometheus=true"
   - "--metrics.prometheus.addentrypointslabels=true"
+  - "--metrics.prometheus.addrouterslabels=true"
   - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
 traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp
