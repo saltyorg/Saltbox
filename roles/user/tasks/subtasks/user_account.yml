@@ -37,7 +37,6 @@
     create_home: true
     skeleton: /etc/skel
   register: user_info
-  no_log: true
 
 - name: User Account | Get video group info
   ansible.builtin.shell: "getent group video | cut -d: -f3"

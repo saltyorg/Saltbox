@@ -17,7 +17,6 @@
   ansible.builtin.command: timedatectl list-timezones --no-pager
   register: timezone_list
   changed_when: false
-  no_log: true
 
 - name: Time Zone | Fetch Time Zone if set to 'auto'
   block:

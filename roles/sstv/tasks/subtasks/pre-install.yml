@@ -38,4 +38,3 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
-  no_log: true

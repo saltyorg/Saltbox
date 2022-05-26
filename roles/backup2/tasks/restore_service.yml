@@ -16,7 +16,6 @@
   ansible.builtin.set_fact:
     restore_service_username: "{{ backup.restore_service.user | hash('sha1') }}"
     restore_service_password: "{{ backup.restore_service.pass }}"
-  no_log: true
 
 - name: Restore Service | Cleanup '/tmp/restore_service' path
   ansible.builtin.file:
