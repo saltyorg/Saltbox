@@ -21,7 +21,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0775
-    recurse: yes
+    recurse: true
   with_items:
     - /opt/plex_autoscan
 
@@ -83,7 +83,7 @@
 - name: Find pip3 path
   ansible.builtin.find:
     paths: /opt/plex_autoscan/venv
-    recurse: yes
+    recurse: true
     patterns: 'pip3'
   register: files
 

@@ -29,7 +29,7 @@
     src: rclone_vfs_cache.service.j2
     dest: /etc/systemd/system/rclone_vfs.service
     mode: '0755'
-    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    force: "{{ true if ('mounts_override' in ansible_run_tags) else false }}"
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_vfs.service'
   ansible.builtin.systemd:
@@ -42,29 +42,29 @@
   ansible.builtin.template:
     src: rclone_refresh.timer.j2
     dest: /etc/systemd/system/rclone_refresh.timer
-    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    force: "{{ true if ('mounts_override' in ansible_run_tags) else false }}"
     mode: '0755'
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.timer'
   ansible.builtin.systemd:
     name: rclone_refresh.timer
     state: stopped
-    enabled: no
-    daemon_reload: yes
+    enabled: false
+    daemon_reload: true
 
 - name: Rclone VFS | Import 'rclone_refresh.service'
   ansible.builtin.template:
     src: rclone_refresh.service.j2
     dest: /etc/systemd/system/rclone_refresh.service
-    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    force: "{{ true if ('mounts_override' in ansible_run_tags) else false }}"
     mode: '0755'
 
 - name: Rclone VFS | Systemd daemon-reload 'rclone_refresh.service'
   ansible.builtin.systemd:
     name: rclone_refresh.service
     state: stopped
-    enabled: no
-    daemon_reload: yes
+    enabled: false
+    daemon_reload: true
 
 - name: Rclone VFS | Get list of Rclone remotes in config
   ansible.builtin.shell: rclone listremotes
@@ -103,7 +103,7 @@
           ansible.builtin.systemd:
             name: rclone_vfs.service
             state: started
-            enabled: yes
+            enabled: true
 
         - name: Rclone VFS | "Wait for 5 seconds"
           ansible.builtin.wait_for:
@@ -113,13 +113,13 @@
           ansible.builtin.systemd:
             name: rclone_refresh.timer
             state: started
-            enabled: yes
+            enabled: true
 
         - name: Rclone VFS | Start 'rclone_refresh.service'
           ansible.builtin.systemd:
             name: rclone_refresh.service
             state: started
-            enabled: yes
+            enabled: true
           async: 900
           poll: 0
 

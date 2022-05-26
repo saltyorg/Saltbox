@@ -101,7 +101,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-        recurse: yes
+        recurse: true
       with_items:
         - "{{ plex_paths_plugins_location }}"
 

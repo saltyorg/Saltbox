@@ -41,7 +41,7 @@
         mode: 0775
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        recurse: yes
+        recurse: true
 
     - name: "Change mountpoints to 'auto'"
       ansible.builtin.lineinfile:

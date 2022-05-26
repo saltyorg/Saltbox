@@ -79,7 +79,7 @@
   ansible.builtin.file:
     path: "{{ traefik_paths_location }}"
     state: directory
-    recurse: yes
+    recurse: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"

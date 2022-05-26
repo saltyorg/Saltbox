@@ -157,7 +157,7 @@ sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
                          if not (sabnzbd_themepark_enabled)
                          else sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
-                            + sabnzbd_docker_volumes_theme}}"
+                            + sabnzbd_docker_volumes_theme }}"
 
 # Devices
 sabnzbd_docker_devices_default: []

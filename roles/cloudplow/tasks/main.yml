@@ -63,7 +63,7 @@
 - name: Find pip3 path
   ansible.builtin.find:
     paths: "{{ cloudplow_path }}/venv"
-    recurse: yes
+    recurse: true
     patterns: 'pip3'
   register: files
 

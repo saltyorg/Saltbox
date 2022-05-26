@@ -11,7 +11,7 @@
   ansible.builtin.uri:
     url: https://api.cloudflare.com/client/v4/ips
     method: GET
-    return_content: yes
+    return_content: true
   register: cloudflare_ips
 
 - name: Create Cloudflare IPv4 and IPv6 variables

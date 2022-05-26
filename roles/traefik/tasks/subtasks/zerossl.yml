@@ -14,7 +14,7 @@
     body:
       email: "{{ user.email }}"
     body_format: form-urlencoded
-    return_content: yes
+    return_content: true
   register: zerossl
 
 - name: "Set ZeroSSL variables"

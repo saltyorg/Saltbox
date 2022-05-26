@@ -1,3 +1,14 @@
+exclude_paths:
+  - .github/
+  - .idea/
+  - .vscode/
+  - ansible_facts.d/
+  - bin/
+  - defaults/
+  - filter_plugins/
+  - library/
+  - scripts/
+
 skip_list:
   - braces
   - git-latest
@@ -8,5 +19,6 @@ skip_list:
   - no-handler
   - command-instead-of-module
   - command-instead-of-shell
-  - truthy
-  - line-length
+  - yaml[line-length]
+  - yaml[truthy]
+  - schema[tasks]

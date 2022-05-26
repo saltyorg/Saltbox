@@ -341,7 +341,7 @@ docker_log_driver: "{{ docker_log_driver_json
                     else 'default' }}"
 
 docker_log_options_json:
-  tag: "{% raw %}'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}"
+  tag: "{% raw %}'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}" # noqa var-spacing
 
 docker_log_options: "{{ docker_log_options_json
                      if docker.json_driver

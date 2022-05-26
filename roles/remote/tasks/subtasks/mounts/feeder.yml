@@ -12,14 +12,14 @@
     src: feeder.service.j2
     dest: /etc/systemd/system/feeder.service
     mode: '0755'
-    force: "{{ 'yes' if ('mounts_override' in ansible_run_tags) else 'no' }}"
+    force: "{{ true if ('mounts_override' in ansible_run_tags) else false }}"
 
 - name: Feeder | Systemd daemon-reload 'feeder.service'
   ansible.builtin.systemd:
     name: feeder.service
     state: stopped
-    enabled: no
-    daemon_reload: yes
+    enabled: false
+    daemon_reload: true
 
 - name: Feeder | Get list of Rclone remotes in config
   ansible.builtin.shell: rclone listremotes
@@ -55,7 +55,7 @@
       ansible.builtin.systemd:
         name: feeder.service
         state: started
-        enabled: yes
+        enabled: true
       when: feeder_remote_is_working
 
     - name: "Feeder | Display error message when Rclone remote is not working properly"
