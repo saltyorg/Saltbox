@@ -104,6 +104,7 @@
 
 - name: "Import Compose tasks"
   ansible.builtin.import_tasks: "subtasks/compose.yml"
+  tags: docker-compose
 
 - name: "Install ctop"
   ansible.builtin.import_role:
