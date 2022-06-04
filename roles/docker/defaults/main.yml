@@ -98,6 +98,8 @@ compose_release_lookup_command: |
     | jq -r ".assets[] | select(.name | test(\"docker-compose-linux-x86_64\") and (contains(\"sha256\") | not)) \
     | .browser_download_url"
 
+compose_download_backup_url: "https://github.com/docker/compose/releases/download/v2.6.0/docker-compose-linux-x86_64"
+
 compose_install_switch: true
 
 compose_switch_github_endpoint: "latest"
@@ -110,3 +112,5 @@ compose_switch_release_lookup_command: |
   curl -s {{ compose_switch_releases_url }} \
     | jq -r ".assets[] | select(.name | test(\"docker-compose-linux-amd64\")) \
     | .browser_download_url"
+
+compose_switch_download_backup_url: "https://github.com/docker/compose-switch/releases/download/v1.0.4/docker-compose-linux-amd64"

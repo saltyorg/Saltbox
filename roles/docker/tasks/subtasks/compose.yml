@@ -25,7 +25,7 @@
   ignore_errors: true
 
 - name: Download Compose
-  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout }} -o /usr/local/lib/docker/cli-plugins/docker-compose
+  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout | default(compose_download_backup_url, true)  }} -o /usr/local/lib/docker/cli-plugins/docker-compose
 
 - name: Make docker-compose executable
   ansible.builtin.file:
@@ -44,7 +44,7 @@
       ignore_errors: true
 
     - name: Download Compose Switch
-      ansible.builtin.shell: curl -SL {{ compose_switch_download_url.stdout }} -o /usr/local/bin/compose-switch
+      ansible.builtin.shell: curl -SL {{ compose_switch_download_url.stdout | default(compose_switch_download_backup_url, true) }} -o /usr/local/bin/compose-switch
 
     - name: Make docker-compose executable
       ansible.builtin.file:
