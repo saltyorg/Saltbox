@@ -132,6 +132,7 @@ plex_db_cache_size: default
 plex_plugin_webtools: true
 plex_plugin_sub_zero: true
 plex_insecure: false
+plex_modify_binary: false
 
 ################################
 # Docker
@@ -199,14 +200,22 @@ plex_docker_volumes_default:
   - "/mnt/unionfs/Media:/data"
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
+
 plex_docker_volumes_custom: []
+plex_docker_volumes_modify_tmp:
+  - "{{ plex_paths_location }}/99-modify-binary:/etc/cont-init.d/99-modify-binary"
+plex_docker_volumes_modify: "{{ plex_docker_volumes_modify_tmp
+                             if plex_modify_binary
+                             else [] }}"
 plex_docker_volumes_theme:
   - "{{ plex_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 plex_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
+                         + lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
                       if not (lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled))
                       else lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
+                         + lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
                          + lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme) }}"
 
 # Mounts

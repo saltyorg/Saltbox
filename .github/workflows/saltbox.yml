@@ -139,8 +139,8 @@ jobs:
         run: sudo ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox')) }}
 
-      - name: Install Saltbox ${{ matrix.roles }}
-        run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings,plex-extra-tasks" --extra-vars '{"continuous_integration":true}'
+      - name: Install ${{ matrix.roles }}
+        run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
 
   webhook:
     name: 'webhook'

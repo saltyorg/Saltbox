@@ -64,3 +64,4 @@
 - name: "Execute Plex Extra Tasks role"
   ansible.builtin.include_role:
     name: "plex_extra_tasks"
+  when: (not continuous_integration)
