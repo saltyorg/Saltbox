@@ -54,9 +54,7 @@ plex_web_scheme: "https"
 plex_web_http_port: "32400"
 plex_web_http_scheme: "http"
 plex_web_url: "{{ 'https://' + lookup('vars', plex_name + '_web_subdomain', default=plex_web_subdomain)
-                  + '.' + lookup('vars', plex_name + '_web_domain', default=plex_web_domain)
-               if (reverse_proxy_is_enabled)
-               else 'http://localhost:' + lookup('vars', plex_name + '_web_port', default=plex_web_port) }}"
+                  + '.' + lookup('vars', plex_name + '_web_domain', default=plex_web_domain) }}"
 plex_webtools_web_subdomain: "{{ plex_name }}-webtools"
 plex_webtools_web_domain: "{{ plex_web_domain }}"
 plex_webtools_web_port: "33400"
@@ -84,15 +82,15 @@ plex_traefik_middleware_http: "{{ 'globalHeaders@file,gzip'
 
 plex_traefik_sso_middleware: ""
 
-plex_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                     + lookup('vars', plex_name + '_traefik_sso_middleware', default=plex_traefik_sso_middleware)
-                                  if (lookup('vars', plex_name + '_traefik_sso_middleware', default=plex_traefik_sso_middleware) | length > 0)
-                                  else traefik_default_middleware }}"
+plex_traefik_middleware_default: "{{ traefik_default_middleware
+                                     + (',' + lookup('vars', plex_name + '_traefik_sso_middleware', default=plex_traefik_sso_middleware)
+                                       if (lookup('vars', plex_name + '_traefik_sso_middleware', default=plex_traefik_sso_middleware) | length > 0)
+                                       else '') }}"
 plex_traefik_middleware_custom: ""
-plex_traefik_middleware: "{{ plex_traefik_middleware_default + ','
-                             + plex_traefik_middleware_custom
-                          if (not plex_traefik_middleware_custom.startswith(',') and plex_traefik_middleware_custom | length > 0)
-                          else plex_traefik_middleware_default
+plex_traefik_middleware: "{{ plex_traefik_middleware_default
+                             + (','
+                               if (not plex_traefik_middleware_custom.startswith(',') and plex_traefik_middleware_custom | length > 0)
+                               else '')
                              + plex_traefik_middleware_custom }}"
 
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
@@ -100,16 +98,15 @@ plex_traefik_enabled: true
 plex_traefik_error_pages_enabled: false
 
 plex_webtools_traefik_sso_middleware: ""
-plex_webtools_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                              + lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_webtools_traefik_sso_middleware)
-                                           if (lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_webtools_traefik_sso_middleware) | length > 0)
-                                           else traefik_default_middleware }}"
+plex_webtools_traefik_middleware_default: "{{ traefik_default_middleware
+                                              + (',' + lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_webtools_traefik_sso_middleware)
+                                                if (lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_webtools_traefik_sso_middleware) | length > 0)
+                                                else '') }}"
 plex_webtools_traefik_middleware_custom: ""
-plex_webtools_traefik_middleware: "{{ plex_webtools_traefik_middleware_default + ','
-                                      + plex_webtools_traefik_middleware_custom
-                                   if (not plex_webtools_traefik_middleware_custom.startswith(',') and plex_webtools_traefik_middleware_custom | length > 0)
-                                   else plex_webtools_traefik_middleware_default
-                                      + plex_webtools_traefik_middleware_custom }}"
+plex_webtools_traefik_middleware: "{{ plex_webtools_traefik_middleware_default
+                                      + (',' + plex_webtools_traefik_middleware_custom
+                                        if (not plex_webtools_traefik_middleware_custom.startswith(',') and plex_webtools_traefik_middleware_custom | length > 0)
+                                        else plex_webtools_traefik_middleware_custom) }}"
 
 plex_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_web_serverstransport: "skipverify@file"
@@ -150,8 +147,7 @@ plex_docker_image: "{{ lookup('vars', plex_name + '_docker_image_repo', default=
 
 # Ports
 plex_docker_ports_32400: "{{ port_lookup_32400.port
-                          if (port_lookup_32400.port is defined)
-                             and (port_lookup_32400.port | trim | length > 0)
+                          if (port_lookup_32400.port is defined) and (port_lookup_32400.port | trim | length > 0)
                           else '32400' }}"
 
 plex_docker_ports_defaults: []
@@ -159,11 +155,10 @@ plex_docker_ports_ui:
   - "{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}:{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}"
 plex_docker_ports_custom: []
 plex_docker_ports: "{{ lookup('vars', plex_name + '_docker_ports_defaults', default=plex_docker_ports_defaults)
-                       + lookup('vars', plex_name + '_docker_ports_ui', default=plex_docker_ports_ui)
                        + lookup('vars', plex_name + '_docker_ports_custom', default=plex_docker_ports_custom)
-                    if (not reverse_proxy_is_enabled or plex_open_main_ports)
-                    else lookup('vars', plex_name + '_docker_ports_defaults', default=plex_docker_ports_defaults)
-                       + lookup('vars', plex_name + '_docker_ports_custom', default=plex_docker_ports_custom) }}"
+                       + (lookup('vars', plex_name + '_docker_ports_ui', default=plex_docker_ports_ui)
+                         if (not reverse_proxy_is_enabled or plex_open_main_ports)
+                         else []) }}"
 
 # Envs
 plex_docker_envs_advertise_ip_url: "{{ lookup('vars', plex_name + '_web_url', default=plex_web_url) + ':443,' + lookup('vars', plex_name + '_web_insecure_url', default=plex_web_insecure_url) + ':80'
@@ -200,23 +195,19 @@ plex_docker_volumes_default:
   - "/mnt/unionfs/Media:/data"
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
-
 plex_docker_volumes_custom: []
-plex_docker_volumes_modify_tmp:
+plex_docker_volumes_modify:
   - "{{ plex_paths_location }}/99-modify-binary:/etc/cont-init.d/99-modify-binary"
-plex_docker_volumes_modify: "{{ plex_docker_volumes_modify_tmp
-                             if plex_modify_binary
-                             else [] }}"
 plex_docker_volumes_theme:
   - "{{ plex_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 plex_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
-                         + lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
-                      if not (lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled))
-                      else lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
-                         + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
-                         + lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
-                         + lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme) }}"
+                         + (lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme)
+                           if (lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled))
+                           else [])
+                         + (lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
+                           if (lookup('vars', plex_name + '_modify_binary', default=plex_modify_binary))
+                           else []) }}"
 
 # Mounts
 plex_docker_mounts_default:
@@ -259,11 +250,10 @@ plex_docker_labels_default:
   - '{ "traefik.http.services.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
 plex_docker_labels_custom: {}
 plex_docker_labels: "{{ docker_labels_common
-                        | combine(lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default))
-                        | combine(lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom))
-                     if plex_plugin_webtools
-                     else docker_labels_common
-                        | combine(lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom)) }}"
+                        | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default)
+                                  if plex_plugin_webtools
+                                  else {}),
+                                  lookup('vars', plex_name + '_docker_labels_custom',default=plex_docker_labels_custom)) }}"
 
 # Hostname
 plex_docker_hostname: "{{ plex_name }}"
