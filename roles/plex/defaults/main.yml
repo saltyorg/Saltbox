@@ -203,10 +203,10 @@ plex_docker_volumes_theme:
 plex_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
                          + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
                          + (lookup('vars', plex_name + '_docker_volumes_theme', default=plex_docker_volumes_theme)
-                           if (lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled))
+                           if lookup('vars', plex_name + '_themepark_enabled', default=plex_themepark_enabled)
                            else [])
                          + (lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
-                           if (lookup('vars', plex_name + '_modify_binary', default=plex_modify_binary))
+                           if lookup('vars', plex_name + '_modify_binary', default=plex_modify_binary)
                            else []) }}"
 
 # Mounts
