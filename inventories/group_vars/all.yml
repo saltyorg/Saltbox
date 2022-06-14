@@ -132,7 +132,7 @@ tz: "{{ system.timezone
         if ansible_local is defined and
             ansible_local.timezone is defined and
             ansible_local.timezone | trim | length > 0
-     else 'Etc/UTC' }}"
+        else 'Etc/UTC' }}"
 
 ################################
 # Network
@@ -208,19 +208,17 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'global
                                      if (not traefik.hsts)
                                      else traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file,gzip,hsts@file' }}"
 traefik_default_middleware_custom: ""
-traefik_default_middleware: "{{ traefik_default_middleware_default + ','
-                                + traefik_default_middleware_custom
-                             if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
-                             else traefik_default_middleware_default
-                                + traefik_default_middleware_custom }}"
+traefik_default_middleware: "{{ traefik_default_middleware_default
+                                + (',' + traefik_default_middleware_custom
+                                  if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
+                                  else traefik_default_middleware_custom) }}"
 
 traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https,gzip"
 traefik_default_middleware_custom_http: ""
-traefik_default_middleware_http: "{{ traefik_default_middleware_default_http + ','
-                                     + traefik_default_middleware_custom_http
-                                  if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
-                                  else traefik_default_middleware_default_http
-                                     + traefik_default_middleware_custom_http }}"
+traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
+                                     + (',' + traefik_default_middleware_custom_http
+                                       if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
+                                       else traefik_default_middleware_custom_http) }}"
 
 traefik_default_sso_middleware: "authelia"
 
