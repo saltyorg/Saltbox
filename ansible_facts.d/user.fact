@@ -5,18 +5,19 @@ import json
 
 file = open("/etc/passwd", "r+")
 
-list = {}
+user_list = {}
 while True:
-  line = file.readline()
-  if not line:
-    break
-  tokens = line.rstrip().split(":")
-  user = {}
-  user["uid"] = tokens[2]
-  user["gid"] = tokens[3]
-  user["comment"] = tokens[4]
-  user["home"] = tokens[5]
-  user["shell"] = tokens[6]
-  list[tokens[0]] = user
+    line = file.readline()
+    if not line:
+        break
+    tokens = line.rstrip().split(":")
+    user = {
+        "uid": tokens[2],
+        "gid": tokens[3],
+        "comment": tokens[4],
+        "home": tokens[5],
+        "shell": tokens[6]
+    }
+    user_list[tokens[0]] = user
 
-print(json.dumps(list))
+print(json.dumps(user_list))

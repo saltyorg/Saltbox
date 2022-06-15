@@ -5,20 +5,18 @@ import json
 
 file = open("/etc/group", "r+")
 
-list = {}
+list_groups = {}
 while True:
     line = file.readline()
     if not line:
         break
     tokens = line.rstrip().split(":")
-    group = {}
-    group["gid"] = tokens[2]
-    group["group-list"] = []
+    group = {"gid": tokens[2], "group-list": []}
     if len(tokens) == 4:
         for token in tokens[3].split(","):
             if token == "":
                 break
             group["group-list"].append(token)
-    list[tokens[0]] = group
+    list_groups[tokens[0]] = group
 
-print(json.dumps(list))
+print(json.dumps(list_groups))
