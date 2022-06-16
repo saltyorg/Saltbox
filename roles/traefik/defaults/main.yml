@@ -193,14 +193,14 @@ traefik_docker_commands_google_acme_tmp:
   - "--certificatesresolvers.google.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
   - "--certificatesresolvers.google.acme.email={{ user.email }}"
   - "--certificatesresolvers.google.acme.caserver=https://dv.acme-v02.api.pki.goog/directory"
-  - "--certificatesresolvers.google.acme.eab.kid={{ traefik_google_kid }}"
-  - "--certificatesresolvers.google.acme.eab.hmacencoded={{ traefik_google_hmacencoded }}"
+  - "--certificatesresolvers.google.acme.eab.kid={{ traefik_google_kid | default('') }}"
+  - "--certificatesresolvers.google.acme.eab.hmacencoded={{ traefik_google_hmacencoded | default('') }}"
   - "--certificatesresolvers.google.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.googlehttp.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.googlehttp.acme.email={{ user.email }}"
   - "--certificatesresolvers.googlehttp.acme.caserver=https://dv.acme-v02.api.pki.goog/directory"
-  - "--certificatesresolvers.googlehttp.acme.eab.kid={{ traefik_google_kid }}"
-  - "--certificatesresolvers.googlehttp.acme.eab.hmacencoded={{ traefik_google_hmacencoded }}"
+  - "--certificatesresolvers.googlehttp.acme.eab.kid={{ traefik_google_kid | default('') }}"
+  - "--certificatesresolvers.googlehttp.acme.eab.hmacencoded={{ traefik_google_hmacencoded | default('') }}"
   - "--certificatesresolvers.googlehttp.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_google_acme: "{{ traefik_docker_commands_google_acme_tmp
                                       if (traefik_google_kid is defined) and (traefik_google_hmacencoded is defined)
