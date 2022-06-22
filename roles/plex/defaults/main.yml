@@ -141,7 +141,7 @@ plex_docker_container: "{{ plex_name }}"
 # Image
 plex_docker_image_pull: true
 plex_docker_image_repo: "plexinc/pms-docker"
-plex_docker_image_tag: "public"
+plex_docker_image_tag: "latest"
 plex_docker_image: "{{ lookup('vars', plex_name + '_docker_image_repo', default=plex_docker_image_repo)
                        + ':' + lookup('vars', plex_name + '_docker_image_tag', default=plex_docker_image_tag) }}"
 
