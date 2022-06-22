@@ -37,11 +37,23 @@
   when: rclone_version_is_specified
 
 - name: "Install Binary | Download and unarchive rclone"
-  ansible.builtin.unarchive:
-    src: "{{ rclone_download_url }}"
-    dest: /tmp
-    copy: false
-    validate_certs: false
+  block:
+
+    - name: "Install Binary | Download and unarchive rclone"
+      ansible.builtin.unarchive:
+        src: "{{ rclone_download_url }}"
+        dest: /tmp
+        copy: false
+        validate_certs: false
+
+  rescue:
+
+    - name: "Install Binary | Download and unarchive rclone from Github"
+      ansible.builtin.unarchive:
+        src: "{{ rclone_latest_download_url.stdout }}"
+        dest: /tmp
+        copy: false
+        validate_certs: false
 
 - name: Install Binary | Find rclone tmp dir
   ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
