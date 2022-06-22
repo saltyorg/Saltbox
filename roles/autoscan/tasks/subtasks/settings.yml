@@ -16,6 +16,7 @@
   loop: "{{ plex_instances }}"
   loop_control:
     loop_var: plex_instance
+  when: plex_account_is_enabled
 
 - name: Settings | Check if `{{ autoscan_paths_config_location | basename }}` exists
   ansible.builtin.stat:
