@@ -38,10 +38,50 @@
   become: true
   become_user: "{{ user.name }}"
 
+- name: Set Python version
+  ansible.builtin.set_fact:
+    traktarr_python: "{{ 'python3'
+                             if ansible_distribution_version is version('20.04', '==')
+                             else 'python3.8' }}"
+
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "3.8"
+  when: ansible_distribution_version is version('22.04', '==')
+
+- name: Check if venv folder exists
+  ansible.builtin.stat:
+    path: "/opt/traktarr/venv"
+  register: traktarr_venv_folder
+
+- name: Delete venv folder
+  ansible.builtin.file:
+    path: "/opt/traktarr/venv"
+    state: absent
+  when: traktarr_venv_folder.stat.exists
+
 - name: Install pip requirements
   ansible.builtin.pip:
     requirements: /opt/traktarr/requirements.txt
-    executable: pip3
+    virtualenv_python: "{{ traktarr_python }}"
+    virtualenv: "/opt/traktarr/venv"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Find pip3 path
+  ansible.builtin.find:
+    paths: /opt/traktarr/venv
+    recurse: yes
+    patterns: 'pip3'
+  register: files
+
+- name: Path
+  ansible.builtin.set_fact:
+    traktarr_bin_folder: "{{ files.files[0].path | dirname }}"
+
+asd
 
 - name: Check if traktarr config exists
   ansible.builtin.stat:
@@ -118,11 +158,14 @@
     recurse: true
     mode: "0775"
 
-- name: "Create /usr/local/bin symlink"
-  ansible.builtin.file:
-    src: "/opt/traktarr/traktarr.py"
-    dest: "/usr/local/bin/traktarr"
-    state: link
+- name: Import bash wrapper
+  ansible.builtin.template:
+    src: traktarr.j2
+    dest: /usr/local/bin/traktarr
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
 
 - name: Import traktarr service
   ansible.builtin.template:
@@ -138,3 +181,4 @@
     state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
     enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"
     daemon_reload: true
+

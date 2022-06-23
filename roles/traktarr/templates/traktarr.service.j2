@@ -12,7 +12,7 @@ Environment=LC_ALL=C.UTF-8
 Environment=LANG=C.UTF-8
 WorkingDirectory=/opt/traktarr/
 TimeoutStartSec=900
-ExecStart=/usr/bin/python3 /opt/traktarr/traktarr.py run
+ExecStart={{ traktarr_bin_folder }}/python3 /opt/traktarr/traktarr.py run
 Restart=always
 RestartSec=10
 
