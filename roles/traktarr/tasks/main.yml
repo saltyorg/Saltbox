@@ -81,8 +81,6 @@
   ansible.builtin.set_fact:
     traktarr_bin_folder: "{{ files.files[0].path | dirname }}"
 
-asd
-
 - name: Check if traktarr config exists
   ansible.builtin.stat:
     path: "/opt/traktarr/config.json"
