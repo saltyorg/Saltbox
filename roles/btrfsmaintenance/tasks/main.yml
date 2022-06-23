@@ -46,9 +46,13 @@
     - name: "Change mountpoints to 'auto'"
       ansible.builtin.lineinfile:
         path: "/opt/btrfsmaintenance/sysconfig.btrfsmaintenance"
-        regexp: '^BTRFS_TRIM_MOUNTPOINTS\s?='
-        line: 'BTRFS_TRIM_MOUNTPOINTS="auto"'
+        regexp: '^{{ item }}\s?='
+        line: '{{ item }}="auto"'
         state: present
+      loop:
+        - BTRFS_TRIM_MOUNTPOINTS
+        - BTRFS_BALANCE_MOUNTPOINTS
+        - BTRFS_SCRUB_MOUNTPOINTS
 
     - name: "Execute dist-install.sh"
       become: true
