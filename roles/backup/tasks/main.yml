@@ -353,7 +353,7 @@
 
     - name: Add folder list to 'opt_folders' variable
       ansible.builtin.set_fact:
-        opt_folders: "{{ opt_folders }} + [ '{{ item.path }}' ]"
+        opt_folders: "{{ opt_folders + [item.path] }}"
       with_items: "{{ opt_folders_temp.files }}"
       loop_control:
         label: "{{ item.path }}"
