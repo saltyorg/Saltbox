@@ -41,8 +41,8 @@
 - name: Set Python version
   ansible.builtin.set_fact:
     traktarr_python: "{{ 'python3'
-                             if ansible_distribution_version is version('20.04', '==')
-                             else 'python3.8' }}"
+                      if ansible_distribution_version is version('20.04', '==')
+                      else 'python3.8' }}"
 
 - name: "Execute Python role"
   ansible.builtin.include_role:
@@ -179,4 +179,3 @@
     state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
     enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"
     daemon_reload: true
-
