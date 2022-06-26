@@ -27,6 +27,7 @@
     - { section: 'defaults', option: 'callbacks_enabled', value: 'profile_tasks' }
     - { section: 'defaults', option: 'interpreter_python', value: '/usr/bin/python3' }
     - { section: 'defaults', option: 'remote_tmp', value: '/tmp/ansible' }
+    - { section: 'defaults', option: 'force_color', value: 'True' }
 
 - name: "Migrator | 'ansible.cfg' | Build 'files_updated_successfully' list"
   ansible.builtin.set_fact:
