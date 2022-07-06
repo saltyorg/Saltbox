@@ -1,4 +1,8 @@
 ---
+cloudns:
+  client_id:
+  email:
+  password:
 duck:
   token:
 goddady:

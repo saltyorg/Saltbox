@@ -78,6 +78,11 @@ traefik_dns_provider_cloudflare: "{{ traefik_dns_provider_cloudflare_tmp
                                   if cloudflare_is_enabled
                                   else {} }}"
 
+traefik_dns_provider_cloudns:
+  CLOUDDNS_CLIENT_ID: "{{ cloudns.client_id }}"
+  CLOUDDNS_EMAIL: "{{ cloudns.email }}"
+  CLOUDDNS_PASSWORD: "{{ cloudns.password }}"
+
 traefik_dns_provider_duck:
   DUCKDNS_TOKEN: "{{ duck.token }}"
 
