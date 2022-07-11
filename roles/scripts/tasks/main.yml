@@ -79,6 +79,15 @@
     mode: "0775"
     force: true
 
+- name: Import 'plexsql.sh'
+  ansible.builtin.copy:
+    src: "plexsql.sh"
+    dest: "/opt/scripts/plex/plexsql.sh"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+
 - name: Import 'restart_containers.sh'
   ansible.builtin.copy:
     src: "restart_containers.sh"
