@@ -41,7 +41,7 @@
     networks_cli_compatible: true
     pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
     privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
-    published_ports: "{{ lookup('vars', _var_prefix + '_docker_ports', default=omit) | unique }}"
+    published_ports: "{{ lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique }}"
     pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
     purge_networks: true
     restart_policy: "{{ lookup('vars', _var_prefix + '_docker_restart_policy', default='unless-stopped') }}"
