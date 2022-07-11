@@ -5,7 +5,7 @@
 mkdir -p /opt/plexsql
 sqlplex="/opt/plexsql/Plex\ Media\ Server --sqlite"
 docker stop plex
-docker cp plex:/usr/lib/plexmediaserver/ /opt/plexsql
+docker cp plex:/usr/lib/plexmediaserver/. /opt/plexsql
 cd "/opt/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
 cp com.plexapp.plugins.library.db com.plexapp.plugins.library.db.original
 "$sqlplex" com.plexapp.plugins.library.db "$1"
