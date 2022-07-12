@@ -46,3 +46,6 @@
     state: present
     mode: '0644'
     no_extra_spaces: true
+
+- name: "Daemon | Remove old init entry from '/etc/docker/daemon.json'"
+  ansible.builtin.shell: jq 'del(."init")' /etc/docker/daemon.json  | sudo sponge /etc/docker/daemon.json
