@@ -58,6 +58,8 @@ plex_web_url: "{{ 'https://' + lookup('vars', plex_name + '_web_subdomain', defa
 plex_webtools_web_subdomain: "{{ plex_name }}-webtools"
 plex_webtools_web_domain: "{{ plex_web_domain }}"
 plex_webtools_web_port: "33400"
+plex_webtools_host: "{{ lookup('vars', plex_name + '_webtools_web_subdomain', default=plex_webtools_web_subdomain)
+                        + '.' + lookup('vars', plex_name + '_webtools_web_domain', default=plex_webtools_web_domain) }}"
 plex_web_insecure_url: "{{ 'http://' + lookup('vars', plex_name + '_web_subdomain', default=plex_web_subdomain)
                            + '.' + lookup('vars', plex_name + '_web_domain', default=plex_web_domain) }}"
 
@@ -237,12 +239,12 @@ plex_docker_hosts: "{{ docker_hosts_common
 plex_docker_labels_default:
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.entrypoints": "web" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.service": "{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}" }'
-  - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.rule": "Host(`{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) + "." + lookup("vars", plex_name + "_webtools_web_domain", default=plex_webtools_web_domain) }}`)" }'
+  - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.rule": "Host(`{{ plex_webtools_host }}`)" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}-http.priority": "20" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.service": "{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}" }'
-  - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.rule": "Host(`{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) + "." + lookup("vars", plex_name + "_webtools_web_domain", default=plex_webtools_web_domain) }}`)" }'
+  - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.rule": "Host(`{{ plex_webtools_host }}`)" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.tls.certresolver": "{{ plex_webtools_traefik_certresolver }}" }'
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.middlewares": "{{ plex_webtools_traefik_middleware }}" }'
