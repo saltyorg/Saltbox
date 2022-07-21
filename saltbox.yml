@@ -71,7 +71,6 @@
     - { role: readarr, tags: ['readarr'] }
     - { role: redis, tags: ['redis'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
-    - { role: sstv, tags: ['sstv'] }
     - { role: subliminal, tags: ['subliminal'] }
     - { role: trackarr, tags: ['trackarr'] }
     - { role: traktarr, tags: ['traktarr'] }
