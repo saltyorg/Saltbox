@@ -59,6 +59,7 @@
     - { role: diun, tags: ['diun'] }
     - { role: emby, tags: ['emby'] }
     - { role: jellyfin, tags: ['jellyfin'] }
+    - { role: mainline, tags: ['mainline'] }
     - { role: netdata, tags: ['netdata'] }
     - { role: nginx, tags: ['nginx'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }

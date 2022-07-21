@@ -87,6 +87,7 @@ jobs:
           - deluge
           - emby
           - jellyfin
+          - mainline
           - netdata
           - nginx
           - nzbthrottle

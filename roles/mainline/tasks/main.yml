@@ -1,0 +1,19 @@
+#########################################################################
+# Title:         Saltbox: Mainline Role                                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Add cappelikan/ppa repository
+  ansible.builtin.apt_repository:
+    repo: ppa:cappelikan/ppa
+    state: present
+    update_cache: true
+
+- name: Install mainline
+  ansible.builtin.apt:
+    name: mainline
+    state: present
