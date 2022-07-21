@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Add launchpadcontent.net apt key
+  ansible.builtin.apt_key:
+    keyserver: ppa.launchpadcontent.net
+    id: 4096R/3AE27527713D2479DCAFFD58A89D7C1B2F76304D
+
 - name: Add cappelikan/ppa repository
   ansible.builtin.apt_repository:
     repo: ppa:cappelikan/ppa
