@@ -97,7 +97,6 @@ jobs:
           - qbittorrent
           - readarr
           - sabnzbd
-          - sstv
           - subliminal
           - trackarr
           - traktarr
