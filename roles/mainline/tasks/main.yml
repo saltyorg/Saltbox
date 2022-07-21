@@ -10,7 +10,8 @@
 - name: Add launchpadcontent.net apt key
   ansible.builtin.apt_key:
     keyserver: ppa.launchpadcontent.net
-    id: 4096R/3AE27527713D2479DCAFFD58A89D7C1B2F76304D
+    id: 3AE27527713D2479DCAFFD58A89D7C1B2F76304D
+    keyring: /usr/share/keyrings/launchpadcontent.gpg
 
 - name: Add cappelikan/ppa repository
   ansible.builtin.apt_repository:
