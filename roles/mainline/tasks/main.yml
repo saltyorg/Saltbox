@@ -11,15 +11,16 @@
   ansible.builtin.apt:
     name: dirmngr
 
-- name: Add launchpadcontent.net apt key
+- name: Add cappelikan apt key
   ansible.builtin.apt_key:
     keyserver: keyserver.ubuntu.com
     id: 3AE27527713D2479DCAFFD58A89D7C1B2F76304D
-    keyring: /usr/share/keyrings/launchpad.gpg
+    keyring: /usr/share/keyrings/cappelikan.gpg
 
 - name: Add cappelikan/ppa repository
   ansible.builtin.apt_repository:
-    repo: ppa:cappelikan/ppa
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/cappelikan.gpg] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    filename: "cappelikan"
     state: present
     update_cache: true
 
