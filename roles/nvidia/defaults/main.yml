@@ -11,7 +11,7 @@
 # Driver
 ################################
 
-nvidia_driver_version: "460.91.03"
+nvidia_driver_version: "515.57"
 
 nvidia_driver_download_url: "https://download.nvidia.com/XFree86/Linux-x86_64/{{ nvidia_driver_version }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_version }}.run"
 
