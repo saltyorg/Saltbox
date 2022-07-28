@@ -127,6 +127,7 @@ plex_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 plex_open_main_ports: false
+plex_open_local_ports: false
 plex_db_cache_size: default
 plex_plugin_webtools: true
 plex_plugin_sub_zero: true
@@ -153,11 +154,22 @@ plex_docker_ports_32400: "{{ port_lookup_32400.port
                           else '32400' }}"
 
 plex_docker_ports_defaults: []
+plex_docker_ports_local:
+  - "1900:1900/udp"
+  - "5353:5353/udp"
+  - "8324:8324"
+  - "32410:32410/udp"
+  - "32412:32412/udp"
+  - "32414:32414/udp"
+  - "32469:32469"
 plex_docker_ports_ui:
   - "{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}:{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}"
 plex_docker_ports_custom: []
 plex_docker_ports: "{{ lookup('vars', plex_name + '_docker_ports_defaults', default=plex_docker_ports_defaults)
                        + lookup('vars', plex_name + '_docker_ports_custom', default=plex_docker_ports_custom)
+                       + (plex_docker_ports_local
+                         if (lookup('vars', plex_name + '_open_local_ports', default=false))
+                         else [])
                        + (lookup('vars', plex_name + '_docker_ports_ui', default=plex_docker_ports_ui)
                          if (not reverse_proxy_is_enabled or plex_open_main_ports)
                          else []) }}"
