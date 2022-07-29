@@ -78,7 +78,7 @@ plex_webtools_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-plex_traefik_middleware_http: "{{ 'globalHeaders@file,gzip'
+plex_traefik_middleware_http: "{{ 'globalHeaders@file'
                                if plex_insecure
                                else traefik_default_middleware_default_http }}"
 
@@ -98,6 +98,7 @@ plex_traefik_middleware: "{{ plex_traefik_middleware_default
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
 plex_traefik_error_pages_enabled: false
+plex_traefik_gzip_enabled: false
 
 plex_webtools_traefik_sso_middleware: ""
 plex_webtools_traefik_middleware_default: "{{ traefik_default_middleware
