@@ -235,7 +235,6 @@ traefik_router: "{{ lookup('vars', role_name + '_name', default=omit) }}"
 
 traefik_loadbalancer_port: "{{ lookup('vars', role_name + '_web_port', default=omit) }}"
 traefik_loadbalancer_scheme: "{{ lookup('vars', role_name + '_web_scheme', default=omit) }}"
-traefik_loadbalancer_servertransport: "{{ lookup('vars', role_name + '_web_serverstransport', default=omit) }}"
 
 traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
@@ -288,10 +287,10 @@ docker_labels_traefik_main:
   - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ lookup("vars", role_name + "_traefik_middleware", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.port": "{{ lookup("vars", role_name + "_web_http_port", default=traefik_loadbalancer_port) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.scheme": "{{ lookup("vars", role_name + "_web_http_scheme", default=traefik_loadbalancer_scheme) }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_http_serverstransport", default=traefik_loadbalancer_servertransport) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_http_serverstransport", default=omit) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.port": "{{ traefik_loadbalancer_port }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.server.scheme": "{{ traefik_loadbalancer_scheme }}" }'
-  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.serverstransport": "{{ traefik_loadbalancer_servertransport }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}.loadbalancer.serverstransport": "{{ lookup("vars", role_name + "_web_serverstransport", default=omit) }}" }'
 
 docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.entrypoints": "web" }'
