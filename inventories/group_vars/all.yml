@@ -204,21 +204,28 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
-traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file,gzip'
-                                     if (not traefik.hsts)
-                                     else traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file,gzip,hsts@file' }}"
+traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file'
+                                        + (',gzip'
+                                          if (lookup('vars', role_name + '_traefik_gzip_enabled', default=true))
+                                          else '')
+                                        + (',hsts@file'
+                                          if (traefik.hsts)
+                                          else '') }}"
 traefik_default_middleware_custom: ""
 traefik_default_middleware: "{{ traefik_default_middleware_default
                                 + (',' + traefik_default_middleware_custom
                                   if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
                                   else traefik_default_middleware_custom) }}"
 
-traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https,gzip"
+traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https"
 traefik_default_middleware_custom_http: ""
 traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                      + (',' + traefik_default_middleware_custom_http
                                        if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
-                                       else traefik_default_middleware_custom_http) }}"
+                                       else traefik_default_middleware_custom_http)
+                                     + (',gzip'
+                                       if (lookup('vars', role_name + '_traefik_gzip_enabled', default=true))
+                                       else '') }}"
 
 traefik_default_sso_middleware: "authelia"
 
