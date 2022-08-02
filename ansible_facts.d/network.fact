@@ -5,7 +5,7 @@
 RES=$(curl -s -w "%{http_code}" --connect-timeout 2.37 -4 https://ipify.saltbox.dev)
 BODY=${RES::-3}
 STATUS=$(printf "%s" "$RES" | tail -c 3)
-if [[ "$STATUS" == 200 ]]; then
+if [[ "$STATUS" == 200 ]] && [ -n "${BODY-unset}" ]; then
     # Server returned 200 response
     PUBLIC_IP=$BODY
 else
@@ -16,7 +16,7 @@ fi
 RES6=$(curl -s -w "%{http_code}" --connect-timeout 2.37 -6 https://ipify6.saltbox.dev)
 BODY6=${RES6::-3}
 STATUS6=$(printf "%s" "$RES6" | tail -c 3)
-if [[ "$STATUS" == 200 ]]; then
+if [[ "$STATUS6" == 200 ]] && [ -n "${BODY6-unset}" ]; then
     # Server returned 200 response
     PUBLIC_IPv6=$BODY6
 else
