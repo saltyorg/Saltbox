@@ -44,7 +44,7 @@
         state: absent
         type: AAAA
         record: "{{ dns_record }}"
-      register: cloudflare_dns_record_removal_status
+      register: cloudflare_dns_v6_record_removal_status
 
     - name: Cloudflare | Remove DNS Record | Tasks on success
       block:
@@ -57,6 +57,6 @@
           ansible.builtin.debug:
             msg: "DNS Record for '{{ dns_record_print }}' was removed."
 
-      when: cloudflare_dns_record_removal_status is succeeded
+      when: cloudflare_dns_v6_record_removal_status is succeeded
 
   when: dns.ipv6

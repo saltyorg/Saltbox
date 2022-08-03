@@ -7,7 +7,30 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | IPv4 Block
+- name: Cloudflare | Add DNS Record | Remove DNS CNAME Record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare.api }}"
+    account_email: "{{ cloudflare.email }}"
+    zone: "{{ dns_zone }}"
+    state: absent
+    type: CNAME
+    record: "{{ dns_record }}"
+  register: cloudflare_dns_record_removal_status
+
+- name: Cloudflare | Add DNS Record | Tasks on success
+  block:
+
+    - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
+      ansible.builtin.set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+
+    - name: Cloudflare | Add DNS Record | Display DNS CNAME Record removal status
+      ansible.builtin.debug:
+        msg: "DNS CNAME Record for '{{ dns_record_print }}' was removed."
+
+  when: cloudflare_dns_record_removal_status is succeeded and cloudflare_dns_record_removal_status.changed
+
+- name: Cloudflare | Add DNS Record | IPv4 Block
   block:
 
     - name: Cloudflare | Validate IP variable
@@ -43,7 +66,7 @@
 
   when: dns.ipv4
 
-- name: Cloudflare | IPv6 Block
+- name: Cloudflare | Add DNS Record | IPv6 Block
   block:
 
     - name: Cloudflare | Validate IPv6 variable
