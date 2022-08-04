@@ -196,7 +196,6 @@ traefik_default_zerossl_resolver: "{{ 'zerosslhttp' }}"
 traefik_default_resolver: "{{ 'httpresolver' if (traefik.http or not traefik.tls) else 'tlsresolver' }}"
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not traefik_tls) and ((cloudflare_is_enabled and traefik_challenge_provider == 'cloudflare') or traefik_challenge_provider != 'cloudflare')
-                               else 'zerosslresolver' }}"
                                else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
