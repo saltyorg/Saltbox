@@ -7,56 +7,49 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | IPv4 Block
+- name: Cloudflare | IPv4 | Remove DNS Record | Remove DNS Record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare.api }}"
+    account_email: "{{ cloudflare.email }}"
+    zone: "{{ dns_zone }}"
+    state: absent
+    type: A
+    record: "{{ dns_record }}"
+  register: cloudflare_dns_record_removal_status
+
+- name: Cloudflare | IPv4 | Remove DNS Record | Tasks on success
   block:
-    - name: Cloudflare | Remove DNS Record | Remove DNS Record
-      community.general.cloudflare_dns:
-        account_api_token: "{{ cloudflare.api }}"
-        account_email: "{{ cloudflare.email }}"
-        zone: "{{ dns_zone }}"
-        state: absent
-        type: A
-        record: "{{ dns_record }}"
-      register: cloudflare_dns_record_removal_status
 
-    - name: Cloudflare | Remove DNS Record | Tasks on success
-      block:
+    - name: Cloudflare | IPv4 | Remove DNS Record | Set 'dns_record_print' variable
+      ansible.builtin.set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
 
-        - name: Cloudflare | Remove DNS Record | Set 'dns_record_print' variable
-          ansible.builtin.set_fact:
-            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+    - name: Cloudflare | IPv4 | Remove DNS Record | Display DNS Record removal status
+      ansible.builtin.debug:
+        msg: "DNS A Record for '{{ dns_record_print }}' was removed."
 
-        - name: Cloudflare | Remove DNS Record | Display DNS Record removal status
-          ansible.builtin.debug:
-            msg: "DNS Record for '{{ dns_record_print }}' was removed."
+  when: cloudflare_dns_record_removal_status is succeeded
 
-      when: cloudflare_dns_record_removal_status is succeeded
 
-  when: dns.ipv4
+- name: Cloudflare | IPv6 | Remove DNS Record | Remove DNS Record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare.api }}"
+    account_email: "{{ cloudflare.email }}"
+    zone: "{{ dns_zone }}"
+    state: absent
+    type: AAAA
+    record: "{{ dns_record }}"
+  register: cloudflare_dns_v6_record_removal_status
 
-- name: Cloudflare | IPv6 Block
+- name: Cloudflare | IPv6 | Remove DNS Record | Tasks on success
   block:
-    - name: Cloudflare | Remove DNS Record | Remove DNS Record
-      community.general.cloudflare_dns:
-        account_api_token: "{{ cloudflare.api }}"
-        account_email: "{{ cloudflare.email }}"
-        zone: "{{ dns_zone }}"
-        state: absent
-        type: AAAA
-        record: "{{ dns_record }}"
-      register: cloudflare_dns_v6_record_removal_status
 
-    - name: Cloudflare | Remove DNS Record | Tasks on success
-      block:
+    - name: Cloudflare | IPv6 | Remove DNS Record | Set 'dns_record_print' variable
+      ansible.builtin.set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
 
-        - name: Cloudflare | Remove DNS Record | Set 'dns_record_print' variable
-          ansible.builtin.set_fact:
-            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+    - name: Cloudflare | IPv6 | Remove DNS Record | Display DNS Record removal status
+      ansible.builtin.debug:
+        msg: "DNS AAAA Record for '{{ dns_record_print }}' was removed."
 
-        - name: Cloudflare | Remove DNS Record | Display DNS Record removal status
-          ansible.builtin.debug:
-            msg: "DNS Record for '{{ dns_record_print }}' was removed."
-
-      when: cloudflare_dns_v6_record_removal_status is succeeded
-
-  when: dns.ipv6
+  when: cloudflare_dns_v6_record_removal_status is succeeded
