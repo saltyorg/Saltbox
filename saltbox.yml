@@ -65,7 +65,6 @@
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
     - { role: plex, tags: ['plex'] }
-    - { role: plex_autoscan, tags: ['plex_autoscan'] }
     - { role: postgres, tags: ['postgres'] }
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }
