@@ -93,7 +93,6 @@ jobs:
           - nzbthrottle
           - petio
           - plex
-          - plex_autoscan
           - prowlarr
           - qbittorrent
           - readarr
