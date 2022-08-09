@@ -60,14 +60,23 @@ triggers:
   sonarr:
     - name: sonarr # /triggers/sonarr
       priority: 2
+      rewrite:
+        - from: /tv/
+          to: /data/TV/
 
   radarr:
     - name: radarr # /triggers/radarr
       priority: 2
+      rewrite:
+        - from: /movies/
+          to: /data/Movies/
 
   lidarr:
     - name: lidarr # /triggers/lidarr
       priority: 1
+      rewrite:
+        - from: /music/
+          to: /data/Music/
 
 # <- targets ->
 
