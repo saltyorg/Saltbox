@@ -7,6 +7,8 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+cpu_performance_mode: true
+
 system_inotify: "524288"
 pam_limit_nofile: "100000"
 fs_file_max: "100000"
