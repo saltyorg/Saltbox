@@ -22,3 +22,6 @@ skip_list:
   - yaml[line-length]
   - yaml[truthy]
   - schema[tasks]
+
+warn_list:
+  - var-spacing
