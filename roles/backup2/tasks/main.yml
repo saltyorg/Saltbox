@@ -76,7 +76,7 @@
           ansible.builtin.shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
           become: true
           become_user: "{{ user.name }}"
-          when: dir_files.matched|int != 0
+          when: dir_files.matched | int != 0
       when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
     - name: "Create backup folders."
@@ -462,7 +462,7 @@
 
     - name: "Calculate Total Time"
       ansible.builtin.set_fact:
-        total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
+        total_time: "{{ (((end_time | int) - (start_time | int)) / 60) | int | abs }}"
 
     - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
       ansible.builtin.include_role:

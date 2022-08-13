@@ -90,7 +90,7 @@
       become: true
       become_user: "{{ user.name }}"
       register: rclone_test
-      failed_when: (rclone_test.rc|int > 5)
+      failed_when: (rclone_test.rc | int > 5)
 
     - name: Rclone VFS | Set 'rclone_remote_is_working' variable
       ansible.builtin.set_fact:

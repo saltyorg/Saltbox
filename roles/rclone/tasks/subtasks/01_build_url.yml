@@ -63,7 +63,7 @@
     - name: Build URL | Set temp 'rclone_version_specified0' var for specified version
       ansible.builtin.set_fact:
         rclone_version_specified0: >-
-          {{ ('%.2f'|format(rclone.version|float))
+          {{ ('%.2f' | format(rclone.version | float))
           if ((rclone.version | type_debug == 'float') or (rclone.version | type_debug == 'int'))
           else (rclone.version | regex_replace('(^v\\.|^v)', '')) }}
 

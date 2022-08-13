@@ -76,7 +76,7 @@
           ansible.builtin.shell: "mv '{{ backup.local.destination }}' '{{ backup.local.destination }}.old'"
           become: true
           become_user: "{{ user.name }}"
-          when: dir_files.matched|int != 0
+          when: dir_files.matched | int != 0
       when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
     - name: "Create backup folders."
@@ -413,7 +413,7 @@
     - name: Abort backup when the creation of tarball files fails
       ansible.builtin.fail:
         msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ local.destination }}/opt/'"
-      when: (dir_files2.matched|int == 0)
+      when: (dir_files2.matched | int == 0)
 
     - name: "Remove '{{ backup.local.destination }}.old'"
       ansible.builtin.file:
@@ -421,7 +421,7 @@
         state: absent
       become: true
       become_user: "{{ user.name }}"
-      when: (dir_files2.matched|int != 0)
+      when: (dir_files2.matched | int != 0)
 
     - name: "Get size of '{{ backup.local.destination }}'"
       ansible.builtin.shell: du -s -B1 --apparent-size {{ backup.local.destination }} | awk '{print $1}'
@@ -429,7 +429,7 @@
 
     - name: "Set backup_size"
       ansible.builtin.set_fact:
-        backup_size: "{{ (backup_new.stdout|int) | filesizeformat }}"
+        backup_size: "{{ (backup_new.stdout | int) | filesizeformat }}"
 
     - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
       ansible.builtin.include_role:
@@ -573,7 +573,7 @@
 
     - name: "Calculate Total Time"
       ansible.builtin.set_fact:
-        total_time: "{{ (((end_time|int) - (start_time|int)) / 60) | int | abs }}"
+        total_time: "{{ (((end_time | int) - (start_time | int)) / 60) | int | abs }}"
 
     - name: "Notify | Saltbox Backup: Finished Saltbox backup task in {{ total_time }} minutes"
       ansible.builtin.include_role:
@@ -591,7 +591,7 @@
       ansible.builtin.file:
         path: "{{ backup.local.destination }}"
         state: absent
-      when: (dir_files2.matched|int != 0) and (not backup.local.enable)
+      when: (dir_files2.matched | int != 0) and (not backup.local.enable)
 
     - name: Backup Status - Success
       ansible.builtin.debug:

@@ -32,9 +32,9 @@
       register: mnt_unionfs_files
 
     - name: "Mount Path | Backup non-empty '/mnt/unionfs' path"
-      ansible.builtin.shell: "mv /mnt/unionfs /mnt/unionfs_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch']|int) }}"
+      ansible.builtin.shell: "mv /mnt/unionfs /mnt/unionfs_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
       ignore_errors: true
-      when: (mnt_unionfs_files.matched|int > 0)
+      when: (mnt_unionfs_files.matched | int > 0)
 
     - name: "Mount Path | Remove '/mnt/unionfs'"
       ansible.builtin.file:

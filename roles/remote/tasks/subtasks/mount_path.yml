@@ -33,9 +33,9 @@
       ignore_errors: true
 
     - name: "Mount Path | Backup non-empty '{{ mount_path }}' path"
-      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch']|int) }}"
+      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
       ignore_errors: true
-      when: (mount_path_stat_files.matched|int > 0)
+      when: (mount_path_stat_files.matched | int > 0)
 
     - name: "Mount Path | Remove '{{ mount_path }}'"
       ansible.builtin.file:

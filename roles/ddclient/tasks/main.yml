@@ -29,7 +29,7 @@
     subdomains:
       - plex
       - tautulli
-      - "{{ ombi.subdomain|default('ombi',true) }}"
+      - "{{ ombi.subdomain | default('ombi',true) }}"
       - portainer
       - organizr
       - nzbget

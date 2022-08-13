@@ -114,7 +114,7 @@
 
         - name: "Nvidia Driver Patch Task"
           ansible.builtin.include_tasks: "subtasks/patch.yml"
-          when: (nvidia_patch_backup_files.matched|int == 0)
+          when: (nvidia_patch_backup_files.matched | int == 0)
 
       when: ('GeForce' in lspci_resp.stdout)
 

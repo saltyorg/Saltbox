@@ -101,4 +101,4 @@
 - name: "Fail if tar files are missing"
   ansible.builtin.fail:
     msg: "There must have been an issue retrieving the tar files as they are missing in '{{ backup.local.destination }}/opt/'"
-  when: (dir_files2.matched|int == 0)
+  when: (dir_files2.matched | int  == 0)

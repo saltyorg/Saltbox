@@ -118,7 +118,7 @@
 # Restore from remote backup when local backup does not exist
 - name: Restore Remote
   ansible.builtin.import_tasks: "restore_remote.yml"
-  when: (dir_files.matched|int == 0)
+  when: (dir_files.matched | int == 0)
 
 - name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
   ansible.builtin.stat:
