@@ -46,7 +46,7 @@ overseerr_dns_proxy: "{{ dns.proxied }}"
 # Settings
 ################################
 
-overseerr_log_level: "INFO"
+overseerr_log_level: "info"
 
 ################################
 # Traefik
