@@ -20,6 +20,7 @@ traefik_name: traefik
 traefik_pilot_token: ""
 traefik_trusted_ips: ""
 traefik_file_watch: "true"
+traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
 
 ################################
 # Paths

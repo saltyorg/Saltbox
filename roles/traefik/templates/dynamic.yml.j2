@@ -18,7 +18,7 @@ http:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
         customResponseHeaders:
-          X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex"
+          X-Robots-Tag: "{{ traefik_x_robots }}"
           server: ""
         frameDeny: false
         contentTypeNosniff: true
