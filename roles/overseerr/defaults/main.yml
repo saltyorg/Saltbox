@@ -54,7 +54,7 @@ overseerr_log_level: "info"
 # Traefik
 ################################
 
-overseerr_traefik_themepark_middleware: "{{ 'themepark-overseerr@file' if (overseerr_themepark_enabled) (global_themepark_plugin_enabled)| '' }}"
+overseerr_traefik_themepark_middleware: "{{ 'themepark-overseerr@file' if (overseerr_themepark_enabled and global_themepark_plugin_enabled) else '' }}"
 
 overseerr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 overseerr_traefik_middleware_custom: ""
