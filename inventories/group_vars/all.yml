@@ -358,6 +358,12 @@ docker_log_options: "{{ docker_log_options_json
 cvm: https://cvm.saltbox.dev/version?url=
 
 ################################
+# Global Variables
+################################
+
+reboot_is_necessary: false
+
+################################
 # Backup
 ################################
 
