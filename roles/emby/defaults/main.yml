@@ -65,7 +65,7 @@ emby_traefik_middleware: "{{ emby_traefik_middleware_default + ','
                              + emby_traefik_themepark_middleware
                           if (not emby_traefik_middleware_custom.startswith(',') and emby_traefik_middleware_custom | length > 0)
                           else emby_traefik_middleware_default
-                             + emby_traefik_middleware_custom 
+                             + emby_traefik_middleware_custom
                              + emby_traefik_themepark_middleware }}"
 
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
