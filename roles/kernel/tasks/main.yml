@@ -7,9 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Variables Task
-  ansible.builtin.include_tasks: "subtasks/00_variables.yml"
-
 - name: Preinstall Task
   ansible.builtin.include_tasks: "subtasks/01_preinstall.yml"
   when: ('preinstall' in ansible_run_tags)
