@@ -53,6 +53,7 @@ emby_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 emby_traefik_sso_middleware: ""
+emby_traefik_themepark_middleware: "{{ 'themepark-emby@file' if (emby_themepark_enabled) (global_themepark_plugin_enabled)| '' }}"
 
 emby_traefik_middleware_default: "{{ traefik_default_middleware + ','
                                      + lookup('vars', emby_name + '_traefik_sso_middleware', default=emby_traefik_sso_middleware)
@@ -61,13 +62,23 @@ emby_traefik_middleware_default: "{{ traefik_default_middleware + ','
 emby_traefik_middleware_custom: ""
 emby_traefik_middleware: "{{ emby_traefik_middleware_default + ','
                              + emby_traefik_middleware_custom
+                             + emby_traefik_themepark_middleware
                           if (not emby_traefik_middleware_custom.startswith(',') and emby_traefik_middleware_custom | length > 0)
                           else emby_traefik_middleware_default
-                             + emby_traefik_middleware_custom }}"
+                             + emby_traefik_middleware_custom 
+                             + emby_traefik_themepark_middleware }}"
 
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
 emby_traefik_enabled: true
 emby_traefik_gzip_enabled: false
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+emby_themepark_enabled: false
+emby_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
 # Settings
