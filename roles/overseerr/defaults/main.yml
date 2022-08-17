@@ -63,7 +63,7 @@ overseerr_traefik_middleware: "{{ overseerr_traefik_middleware_default + ','
                                   + overseerr_themepark_middleware
                                if (not overseerr_traefik_middleware_custom.startswith(',') and overseerr_traefik_middleware_custom | length > 0)
                                else overseerr_traefik_middleware_default
-                                  + overseerr_traefik_middleware_custom 
+                                  + overseerr_traefik_middleware_custom
                                   + overseerr_themepark_middleware }}"
 
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
