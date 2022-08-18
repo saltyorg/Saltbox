@@ -19,6 +19,13 @@ plex_instances: ["plex"]
 
 plex_username: "{{ plex.user }}"
 plex_password: "{{ plex.pass }}"
+plex_open_main_ports: false
+plex_open_local_ports: false
+plex_db_cache_size: default
+plex_plugin_webtools: true
+plex_plugin_sub_zero: true
+plex_insecure: false
+plex_modify_binary: false
 
 ################################
 # Paths
@@ -122,18 +129,6 @@ plex_web_serverstransport: "skipverify@file"
 plex_themepark_enabled: false
 plex_themepark_theme: "{{ global_themepark_theme }}"
 plex_themepark_domain: "{{ global_themepark_domain }}"
-
-################################
-# Settings
-################################
-
-plex_open_main_ports: false
-plex_open_local_ports: false
-plex_db_cache_size: default
-plex_plugin_webtools: true
-plex_plugin_sub_zero: true
-plex_insecure: false
-plex_modify_binary: false
 
 ################################
 # Docker
