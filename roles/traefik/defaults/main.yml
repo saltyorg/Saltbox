@@ -223,8 +223,8 @@ traefik_docker_commands_themepark_plugin_tmp:
   - "--experimental.plugins.traefik-themepark.modulename=github.com/packruler/traefik-themepark"
   - "--experimental.plugins.traefik-themepark.version=v1.1.0"
 traefik_docker_commands_themepark_plugin: "{{ traefik_docker_commands_themepark_plugin_tmp
-                                          if (global_themepark_plugin_enabled
-                                          else [] }}"
+                                           if (global_themepark_plugin_enabled
+                                           else [] }}"
 traefik_docker_commands_tracing_tmp:
   - "--tracing.serviceName=traefik"
   - "--tracing.spanNameLimit=250"
