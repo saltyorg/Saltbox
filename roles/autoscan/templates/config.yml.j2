@@ -66,7 +66,6 @@ triggers:
           to: /data/TV/
 
 {% endfor %}
-
   radarr:
 {% for instance in radarr_instances %}
     - name: {{ instance }} # /triggers/{{ instance }}
@@ -76,7 +75,6 @@ triggers:
           to: /data/Movies/
 
 {% endfor %}
-
   lidarr:
 {% for instance in lidarr_instances %}
     - name: {{ instance }} # /triggers/{{ instance }}
