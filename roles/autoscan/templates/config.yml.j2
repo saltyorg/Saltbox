@@ -58,26 +58,34 @@ triggers:
         - path: /mnt/local/Media
 
   sonarr:
-    - name: sonarr # /triggers/sonarr
+{% for instance in sonarr_instances %}
+    - name: {{ instance }} # /triggers/{{ instance }}
       priority: 2
       rewrite:
         - from: /tv/
           to: /data/TV/
 
+{% endfor %}
+
   radarr:
-    - name: radarr # /triggers/radarr
+{% for instance in radarr_instances %}
+    - name: {{ instance }} # /triggers/{{ instance }}
       priority: 2
       rewrite:
         - from: /movies/
           to: /data/Movies/
 
+{% endfor %}
+
   lidarr:
-    - name: lidarr # /triggers/lidarr
+{% for instance in lidarr_instances %}
+    - name: {{ instance }} # /triggers/{{ instance }}
       priority: 1
       rewrite:
         - from: /music/
           to: /data/Music/
 
+{% endfor %}
 # <- targets ->
 
 targets:
