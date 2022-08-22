@@ -21,23 +21,11 @@ authentication:
 port: 3030
 
 triggers:
-  # bernard:
-  #   - account: /config/sa.json # Path inside the container where your SA is located
-  #     cron: "*/5 * * * *" # every five minutes (the "" are important)
-  #     priority: 0
-  #     drives:
-  #       - id: drive_id #Friendly title
-        
-  #     # Rewrite gdrive to the local filesystem
-  #     rewrite:
-  #       - from: ^/Media/
-  #         to: /mnt/unionfs/Media/
-
-  #     # Filter with regular expressions
-  #     include:
-  #       - ^/mnt/unionfs/Media/
-  #     exclude:
-  #       - '\.srt$'
+  a-train:
+    priority: 5
+    rewrite: # Global rewrites
+      - from: ^/Media/
+        to: /mnt/unionfs/Media/
 
   inotify:
     - priority: 0
