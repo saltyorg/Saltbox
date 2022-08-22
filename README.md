@@ -141,6 +141,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/TABLE272>
+            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
+            <br />
+            <sub style="font-size:14px"><b>TABLE272</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/horjulf>
             <img src=https://avatars.githubusercontent.com/u/6215635?v=4 width="100;"  alt=Filipe/>
             <br />
@@ -168,20 +175,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>Merlin Jehli</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/bandwith>
             <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
             <br />
             <sub style="font-size:14px"><b>bandwith</b></sub>
-        </a>
-    </td>
-</tr>
-<tr>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/TABLE272>
-            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
-            <br />
-            <sub style="font-size:14px"><b>TABLE272</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
