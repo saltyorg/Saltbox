@@ -7,6 +7,9 @@
 #                   GNU General Public License v3.0                       #
 ###########################################################################
 ---
+- name: Import Default Radarr variables
+  ansible.builtin.include_vars: /srv/git/saltbox/roles/radarr/defaults/main.yml
+
 - name: Resources | Tasks | Instances | Get Info | Check if Radarr exists
   ansible.builtin.stat:
     path: "{{ radarr_paths_config_location }}"
@@ -24,11 +27,11 @@
 
     - name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
       ansible.builtin.set_fact:
-        radarr_info: "{{ radarr_info | combine( { role: {'url': radarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
+        radarr_info: "{{ radarr_info | default({}) | combine( { role: {'name': role, 'url': radarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
 
   when: (radarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
   ansible.builtin.set_fact:
-    radarr_info: "{{ radarr_info | combine( { role: {'url': radarr_web_url, 'api_key': 'not installed' } } ) }}"
+    radarr_info: "{{ radarr_info | default({}) | combine( { role: {'name': role, 'url': radarr_web_url, 'api_key': 'not installed' } } ) }}"
   when: not (radarr_paths_config_location_stat.stat.exists)

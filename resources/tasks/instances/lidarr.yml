@@ -7,6 +7,9 @@
 #                   GNU General Public License v3.0                       #
 ###########################################################################
 ---
+- name: Import Default Lidarr variables
+  ansible.builtin.include_vars: /srv/git/saltbox/roles/lidarr/defaults/main.yml
+
 - name: Resources | Tasks | Instances | Get Info | Check if Lidarr exists
   ansible.builtin.stat:
     path: "{{ lidarr_paths_config_location }}"
@@ -24,11 +27,11 @@
 
     - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
       ansible.builtin.set_fact:
-        lidarr_info: "{{ lidarr_info | combine( { role: {'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
+        lidarr_info: "{{ lidarr_info | default({}) | combine( { role: {'name': role, 'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
 
   when: (lidarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
   ansible.builtin.set_fact:
-    lidarr_info: "{{ lidarr_info | combine( { role: {'url': lidarr_web_url, 'api_key': 'not installed' } } ) }}"
+    lidarr_info: "{{ lidarr_info | default({}) | combine( { role: {'name': role, 'url': lidarr_web_url, 'api_key': 'not installed' } } ) }}"
   when: not (lidarr_paths_config_location_stat.stat.exists)

@@ -22,6 +22,7 @@ readarr_paths_location: "{{ server_appdata_path }}/{{ readarr_paths_folder }}"
 readarr_paths_folders_list:
   - "{{ readarr_paths_location }}"
   - "/mnt/local/Media/Books"
+readarr_paths_config_location: "{{ readarr_paths_location }}/config.xml"
 
 ################################
 # Web
