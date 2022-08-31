@@ -213,7 +213,7 @@
 
         - name: Filter out ignored apps from Docker containers list
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps) }}"
+            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps+backup2_ignore_containers) }}"
 
         - name: Convert Docker containers list back to string
           ansible.builtin.set_fact:
