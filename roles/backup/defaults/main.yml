@@ -7,4 +7,5 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+backup_ignore_containers: []
 backup_user_defined_files: []
