@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-autoscan_name: autoscan
+autoscan_instances: ["autoscan"]
 
 ################################
 # Paths
@@ -30,28 +30,36 @@ autoscan_paths_config_location: "{{ autoscan_paths_location }}/config.yml"
 autoscan_web_subdomain: "{{ autoscan_name }}"
 autoscan_web_domain: "{{ user.domain }}"
 autoscan_web_port: "3030"
-autoscan_web_url: "{{ 'https://' + autoscan_web_subdomain + '.' + autoscan_web_domain
+autoscan_web_url: "{{ 'https://' + lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain)
+                      + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)
                    if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + autoscan_web_port }}"
+                   else 'http://localhost:' + lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}"
 
 ################################
 # DNS
 ################################
 
-autoscan_dns_record: "{{ autoscan_web_subdomain }}"
-autoscan_dns_zone: "{{ autoscan_web_domain }}"
+autoscan_dns_record: "{{ lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) }}"
+autoscan_dns_zone: "{{ lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain) }}"
 autoscan_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-autoscan_traefik_middleware_default: "{{ traefik_default_middleware }}"
+autoscan_traefik_sso_middleware: ""
+
+autoscan_traefik_middleware_default: "{{ traefik_default_middleware + ','
+                                         + lookup('vars', autoscan_name + '_traefik_sso_middleware', default=autoscan_traefik_sso_middleware)
+                                      if (lookup('vars', autoscan_name + '_traefik_sso_middleware', default=autoscan_traefik_sso_middleware) | length > 0)
+                                      else traefik_default_middleware }}"
 autoscan_traefik_middleware_custom: ""
-autoscan_traefik_middleware: "{{ autoscan_traefik_middleware_default
-                                 + (',' + autoscan_traefik_middleware_custom
-                                   if (not autoscan_traefik_middleware_custom.startswith(',') and autoscan_traefik_middleware_custom | length > 0)
-                                   else autoscan_traefik_middleware_custom) }}"
+autoscan_traefik_middleware: "{{ autoscan_traefik_middleware_default + ','
+                                 + autoscan_traefik_middleware_custom
+                              if (not autoscan_traefik_middleware_custom.startswith(',') and autoscan_traefik_middleware_custom | length > 0)
+                              else autoscan_traefik_middleware_default
+                                 + autoscan_traefik_middleware_custom }}"
+
 autoscan_traefik_certresolver: "{{ traefik_default_certresolver }}"
 autoscan_traefik_enabled: true
 
@@ -65,18 +73,19 @@ autoscan_docker_container: "{{ autoscan_name }}"
 # Image
 autoscan_docker_image_pull: true
 autoscan_docker_image_tag: "latest"
-autoscan_docker_image: "cloudb0x/autoscan:{{ autoscan_docker_image_tag }}"
+autoscan_docker_image: "cloudb0x/autoscan:{{ lookup('vars', autoscan_name + '_docker_image_tag', default=autoscan_docker_image_tag) }}"
 
 # Ports
 autoscan_docker_ports_defaults: []
 autoscan_docker_ports_ui:
-  - "{{ autoscan_web_port }}:{{ autoscan_web_port }}"
+  - "{{ lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}:{{ lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}"
 autoscan_docker_ports_custom: []
-autoscan_docker_ports: "{{ autoscan_docker_ports_defaults
-                           + autoscan_docker_ports_custom
-                           + (autoscan_docker_ports_ui
-                             if (not reverse_proxy_is_enabled)
-                             else []) }}"
+autoscan_docker_ports: "{{ lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
+                           + lookup('vars', autoscan_name + '_docker_ports_ui', default=autoscan_docker_ports_ui)
+                           + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom)
+                        if (not reverse_proxy_is_enabled)
+                        else lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
+                           + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom) }}"
 
 # Envs
 autoscan_docker_envs_default:
@@ -84,41 +93,41 @@ autoscan_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
 autoscan_docker_envs_custom: {}
-autoscan_docker_envs: "{{ autoscan_docker_envs_default
-                          | combine(autoscan_docker_envs_custom) }}"
+autoscan_docker_envs: "{{ lookup('vars', autoscan_name + '_docker_envs_default', default=autoscan_docker_envs_default)
+                          | combine(lookup('vars', autoscan_name + '_docker_envs_custom', default=autoscan_docker_envs_custom)) }}"
 
 # Commands
 autoscan_docker_commands_default: []
 autoscan_docker_commands_custom: []
-autoscan_docker_commands: "{{ autoscan_docker_commands_default
-                              + autoscan_docker_commands_custom }}"
+autoscan_docker_commands: "{{ lookup('vars', autoscan_name + '_docker_commands_default', default=autoscan_docker_commands_default)
+                              + lookup('vars', autoscan_name + '_docker_docker_commands_custom', default=autoscan_docker_commands_custom) }}"
 
 # Volumes
 autoscan_docker_volumes_default:
   - "{{ autoscan_paths_location }}:/config"
 autoscan_docker_volumes_custom: []
-autoscan_docker_volumes: "{{ autoscan_docker_volumes_default
-                             + autoscan_docker_volumes_custom }}"
+autoscan_docker_volumes: "{{ lookup('vars', autoscan_name + '_docker_volumes_default', default=autoscan_docker_volumes_default)
+                             + lookup('vars', autoscan_name + '_docker_volumes_custom', default=autoscan_docker_volumes_custom) }}"
 
 # Devices
 autoscan_docker_devices_default: []
 autoscan_docker_devices_custom: []
-autoscan_docker_devices: "{{ autoscan_docker_devices_default
-                             + autoscan_docker_devices_custom }}"
+autoscan_docker_devices: "{{ lookup('vars', autoscan_name + '_docker_devices_default', default=autoscan_docker_devices_default)
+                             + lookup('vars', autoscan_name + '_docker_devices_custom', default=autoscan_docker_devices_custom) }}"
 
 # Hosts
 autoscan_docker_hosts_default: []
 autoscan_docker_hosts_custom: []
 autoscan_docker_hosts: "{{ docker_hosts_common
-                           | combine(autoscan_docker_hosts_default)
-                           | combine(autoscan_docker_hosts_custom) }}"
+                           | combine(lookup('vars', autoscan_name + '_docker_hosts_default', default=autoscan_docker_hosts_default))
+                           | combine(lookup('vars', autoscan_name + '_docker_hosts_custom', default=autoscan_docker_hosts_custom)) }}"
 
 # Labels
 autoscan_docker_labels_default: {}
 autoscan_docker_labels_custom: {}
 autoscan_docker_labels: "{{ docker_labels_common
-                            | combine(autoscan_docker_labels_default)
-                            | combine(autoscan_docker_labels_custom) }}"
+                            | combine(lookup('vars', autoscan_name + '_docker_labels_default', default=autoscan_docker_labels_default))
+                            | combine(lookup('vars', autoscan_name + '_docker_labels_custom', default=autoscan_docker_labels_custom)) }}"
 
 # Hostname
 autoscan_docker_hostname: "{{ autoscan_name }}"
@@ -128,20 +137,20 @@ autoscan_docker_networks_alias: "{{ autoscan_name }}"
 autoscan_docker_networks_default: []
 autoscan_docker_networks_custom: []
 autoscan_docker_networks: "{{ docker_networks_common
-                              + autoscan_docker_networks_default
-                              + autoscan_docker_networks_custom }}"
+                              + lookup('vars', autoscan_name + '_docker_networks_default', default=autoscan_docker_networks_default)
+                              + lookup('vars', autoscan_name + '_docker_networks_custom', default=autoscan_docker_networks_custom) }}"
 
 # Capabilities
 autoscan_docker_capabilities_default: []
 autoscan_docker_capabilities_custom: []
-autoscan_docker_capabilities: "{{ autoscan_docker_capabilities_default
-                                  + autoscan_docker_capabilities_custom }}"
+autoscan_docker_capabilities: "{{ lookup('vars', autoscan_name + '_docker_capabilities_default', default=autoscan_docker_capabilities_default)
+                                  + lookup('vars', autoscan_name + '_docker_capabilities_custom', default=autoscan_docker_capabilities_custom) }}"
 
 # Security Opts
 autoscan_docker_security_opts_default: []
 autoscan_docker_security_opts_custom: []
-autoscan_docker_security_opts: "{{ autoscan_docker_security_opts_default
-                                   + autoscan_docker_security_opts_custom }}"
+autoscan_docker_security_opts: "{{ lookup('vars', autoscan_name + '_docker_security_opts_default', default=autoscan_docker_security_opts_default)
+                                   + lookup('vars', autoscan_name + '_docker_security_opts_custom', default=autoscan_docker_security_opts_custom) }}"
 
 # Restart Policy
 autoscan_docker_restart_policy: unless-stopped
