@@ -79,6 +79,11 @@ targets:
   plex:
 {% for key, value in _plex_instances.items() if plex_tokens is defined and (plex_tokens | length > 0) %}
     - url: {{ value }} # {{ key }}
-      token: {{ plex_tokens[loop.index0] }} 
+      token: {{ plex_tokens[loop.index0] }}
+      # Uncomment the below three (3) lines if backwards compatibility with
+      # Cloudbox default paths is needed
+      #rewrite:
+        #from: /mnt/unionfs/Media/
+        #to: /data/
 {% endfor %}
 {% endif %}
