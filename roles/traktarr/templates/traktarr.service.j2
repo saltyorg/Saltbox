@@ -1,7 +1,7 @@
-# /etc/systemd/system/traktarr.service
+# /etc/systemd/system/{{ traktarr_name }}.service
 
 [Unit]
-Description=traktarr
+Description={{ traktarr_name }}
 After=network-online.target docker.service
 
 [Service]
@@ -10,9 +10,9 @@ Group={{ user.name }}
 Type=simple
 Environment=LC_ALL=C.UTF-8
 Environment=LANG=C.UTF-8
-WorkingDirectory=/opt/traktarr/
+WorkingDirectory=/opt/{{ traktarr_name }}/
 TimeoutStartSec=900
-ExecStart={{ traktarr_bin_folder }}/python3 /opt/traktarr/traktarr.py run
+ExecStart={{ traktarr_bin_folder }}/python3 /opt/{{ traktarr_name }}/traktarr.py run
 Restart=always
 RestartSec=10
 

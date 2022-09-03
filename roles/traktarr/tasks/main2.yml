@@ -1,0 +1,181 @@
+#########################################################################
+# Title:         Saltbox: Traktarr Role                                 #
+# Author(s):     l3uddz, desimaniac                                     #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Check if {{ traktarr_name }} service exists"
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ traktarr_name }}.service"
+  register: traktarr_service
+
+- name: "Stop existing {{ traktarr_name }} service"
+  ansible.builtin.systemd:
+    state: stopped
+    name: traktarr
+  when: traktarr_service.stat.exists
+
+- name: Create traktarr directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    recurse: true
+  with_items:
+    - "/opt/{{ traktarr_name }}"
+
+- name: Clone traktarr
+  ansible.builtin.git:
+    repo: https://github.com/l3uddz/traktarr.git
+    dest: "/opt/{{ traktarr_name }}"
+    version: HEAD
+    force: true
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Set Python version
+  ansible.builtin.set_fact:
+    traktarr_python: "{{ 'python3'
+                      if ansible_distribution_version is version('20.04', '==')
+                      else 'python3.8' }}"
+
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "3.8"
+  when: ansible_distribution_version is version('22.04', '==')
+
+- name: Check if venv folder exists
+  ansible.builtin.stat:
+    path: "/opt/{{ traktarr_name }}/venv"
+  register: traktarr_venv_folder
+
+- name: Delete venv folder
+  ansible.builtin.file:
+    path: "/opt/{{ traktarr_name }}/venv"
+    state: absent
+  when: traktarr_venv_folder.stat.exists
+
+- name: Install pip requirements
+  ansible.builtin.pip:
+    requirements: /opt/{{ traktarr_name }}/requirements.txt
+    virtualenv_python: "{{ traktarr_python }}"
+    virtualenv: "/opt/{{ traktarr_name }}/venv"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Find pip3 path
+  ansible.builtin.find:
+    paths: "/opt/{{ traktarr_name }}/venv"
+    recurse: yes
+    patterns: 'pip3'
+  register: files
+
+- name: Path
+  ansible.builtin.set_fact:
+    traktarr_bin_folder: "{{ files.files[0].path | dirname }}"
+
+- name: Check if traktarr config exists
+  ansible.builtin.stat:
+    path: "/opt/{{ traktarr_name }}/config.json"
+  register: traktarr_config
+
+- name: "Check if sonarr exists"
+  ansible.builtin.stat:
+    path: "/opt/sonarr/config.xml"
+  register: sonarr_config
+  when: not traktarr_config.stat.exists
+
+- name: "When sonarr exists, add api key to traktar config"
+  block:
+
+    - name: Pull sonarr api key
+      community.general.xml:
+        path: "/opt/sonarr/config.xml"
+        xpath: /Config/ApiKey
+        content: text
+      register: xmlresp
+
+    - name: Set sonarr api Key
+      ansible.builtin.set_fact:
+        sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
+
+  when: (not traktarr_config.stat.exists) and (sonarr_config.stat.exists)
+
+- name: "Check if radarr exists"
+  ansible.builtin.stat:
+    path: "/opt/radarr/config.xml"
+  register: radarr_config
+  when: not traktarr_config.stat.exists
+
+- name: "When radarr exists, add api key to traktar config"
+  block:
+
+    - name: Pull radarr api key
+      community.general.xml:
+        path: "/opt/radarr/config.xml"
+        xpath: /Config/ApiKey
+        content: text
+      register: xmlresp
+
+    - name: Set radarr api Key
+      ansible.builtin.set_fact:
+        radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
+
+  when: (not traktarr_config.stat.exists) and (radarr_config.stat.exists)
+
+- name: Import default config
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "/opt/{{ traktarr_name }}/config.json"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+  when: not traktarr_config.stat.exists
+
+- name: Set traktarr.py as executable
+  ansible.builtin.file:
+    path: "/opt/{{ traktarr_name }}/traktarr.py"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: a+x
+
+- name: Set directory permissions
+  ansible.builtin.file:
+    path: "/opt/{{ traktarr_name }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+    mode: "0775"
+
+- name: Import bash wrapper
+  ansible.builtin.template:
+    src: traktarr.j2
+    dest: "/usr/local/bin/{{ traktarr_name }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+
+- name: Import traktarr service
+  ansible.builtin.template:
+    src: traktarr.service.j2
+    dest: "/etc/systemd/system/{{ traktarr_name }}.service"
+    mode: "0664"
+    force: true
+  when: not traktarr_service.stat.exists
+
+- name: Load traktarr service
+  ansible.builtin.systemd:
+    name: "{{ traktarr_name }}"
+    state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
+    enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"
+    daemon_reload: true
