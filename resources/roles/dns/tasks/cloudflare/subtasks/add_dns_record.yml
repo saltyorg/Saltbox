@@ -22,7 +22,7 @@
 
     - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
     - name: Cloudflare | Add DNS Record | Display DNS CNAME Record removal status
       ansible.builtin.debug:
@@ -56,7 +56,7 @@
 
         - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
-            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
         - name: Cloudflare | Add DNS Record | Display DNS Record creation status
           ansible.builtin.debug:
@@ -92,7 +92,7 @@
 
         - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
-            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
         - name: Cloudflare | Add DNS Record | Display DNS Record creation status
           ansible.builtin.debug:
@@ -121,7 +121,7 @@
 
         - name: Cloudflare | IPv6 | Add DNS Record | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
-            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone,dns_record + '.' + dns_zone) }}"
+            dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
         - name: Cloudflare | IPv6 | Add DNS Record | Display DNS Record removal status
           ansible.builtin.debug:

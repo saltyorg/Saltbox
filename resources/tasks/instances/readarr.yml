@@ -27,11 +27,11 @@
 
     - name: Resources | Tasks | Instances | Get Info | Set 'readarr_info' variable
       ansible.builtin.set_fact:
-        readarr_info: "{{ readarr_info | default({}) | combine( { role: {'name': role, 'url': readarr_web_url, 'api_key': xmlresp.matches[0].ApiKey } } ) }}"
+        readarr_info: "{{ readarr_info | default({}) | combine({ role: {'name': role, 'url': readarr_web_url, 'api_key': xmlresp.matches[0].ApiKey }}) }}"
 
   when: (readarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | Instances | Get Info | Set 'readarr_info' variable
   ansible.builtin.set_fact:
-    readarr_info: "{{ readarr_info | default({}) | combine( { role: {'name': role, 'url': readarr_web_url, 'api_key': 'not installed' } } ) }}"
+    readarr_info: "{{ readarr_info | default({}) | combine({ role: {'name': role, 'url': readarr_web_url, 'api_key': 'not installed' }}) }}"
   when: not (readarr_paths_config_location_stat.stat.exists)
