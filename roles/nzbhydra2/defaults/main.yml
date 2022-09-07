@@ -71,8 +71,8 @@ nzbhydra2_traefik_api_endpoint: "`/api`,`/getnzb`,`/gettorrent`,`/rss`,`/torznab
 ################################
 
 nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
-                                            | round(0,'ceil') | int >= 8 )
-                                            | ternary('512','256') }}"
+                                            | round(0, 'ceil') | int >= 8)
+                                            | ternary('512', '256') }}"
 
 nzbhydra2_config_settings_default:
   # NZBGet

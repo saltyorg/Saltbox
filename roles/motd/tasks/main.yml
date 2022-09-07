@@ -23,7 +23,7 @@
     name:
       - update-motd
       - update-notifier-common
-  when: (ansible_distribution|lower == 'ubuntu')
+  when: (ansible_distribution | lower == 'ubuntu')
 
 - name: Remove existing motd
   ansible.builtin.file:
@@ -130,7 +130,7 @@
       ansible.builtin.shell: "jq '.disk.path' /opt/motd/config.json"
       register: disk_path
 
-    - name: Migrate value of motd banner  # noqa var-spacing
+    - name: Migrate value of motd banner  # noqa jinja[spacing]
       ansible.builtin.shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
       when: disk_path.stdout == 'null'

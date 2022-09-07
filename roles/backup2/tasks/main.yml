@@ -39,7 +39,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task."
+        message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task."
 
     - name: "Create 'backup.lock'."
       ansible.builtin.file:
@@ -213,7 +213,7 @@
 
         - name: Filter out ignored apps from Docker containers list
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps+torrent_apps+backup2_ignore_containers) }}"
+            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps + torrent_apps + backup2_ignore_containers) }}"
 
         - name: Convert Docker containers list back to string
           ansible.builtin.set_fact:
@@ -468,7 +468,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ','') }}backup task in {{ total_time }} minutes."
+        message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task in {{ total_time }} minutes."
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd:

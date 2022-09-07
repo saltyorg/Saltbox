@@ -29,6 +29,6 @@
 
     - name: Token | Register {{ plex_instance }} auth token value
       ansible.builtin.set_fact:
-        plex_tokens: "{{ plex_tokens + [ preferences_xml_resp.matches[0].Preferences.PlexOnlineToken ] }}"
+        plex_tokens: "{{ plex_tokens + [preferences_xml_resp.matches[0].Preferences.PlexOnlineToken] }}"
 
   when: preferences_xml.stat.exists

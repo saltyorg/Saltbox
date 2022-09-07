@@ -17,7 +17,7 @@
 
 - name: Variables | Build 'notification_services' list
   ansible.builtin.set_fact:
-    notification_services: "{{ notification_services + [ item.service ] }}"
+    notification_services: "{{ notification_services + [item.service] }}"
   when: item.enabled
   loop:
     - { service: 'apprise', enabled: '{{ apprise_account_is_enabled }}' }

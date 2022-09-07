@@ -16,8 +16,8 @@
 
 - name: Build URL | Check if rclone version was specified
   ansible.builtin.set_fact:
-    rclone_version_is_specified: "{{ true if not (
-        (rclone is undefined)
+    rclone_version_is_specified: "{{ true if not
+       ((rclone is undefined)
         or
         (rclone is none)
         or
@@ -27,8 +27,7 @@
         or
         (rclone.version is none)
         or
-        (rclone.version | trim | length == 0)
-      )
+        (rclone.version | trim | length == 0))
       else false }}"
 
 - name: Build URL | Display rclone version specified

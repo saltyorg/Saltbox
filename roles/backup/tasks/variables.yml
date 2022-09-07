@@ -10,9 +10,9 @@
 # Remove trailing forward slashes from backup paths
 - name: Remove trailing forward slashes from backup paths
   ansible.builtin.set_fact:
-    local_tmp: { destination: "{{ (backup.local.destination | default('',true)) | regex_replace('\\/$', '') }}" }
-    rclone_tmp: { destination: "{{ (backup.rclone.destination | default('',true)) | regex_replace('\\/$', '') }}" }
-    rsync_tmp: { destination: "{{ (backup.rsync.destination | default('',true)) | regex_replace('\\/$', '') }}" }
+    local_tmp: { destination: "{{ (backup.local.destination | default('', true)) | regex_replace('\\/$', '') }}" }
+    rclone_tmp: { destination: "{{ (backup.rclone.destination | default('', true)) | regex_replace('\\/$', '') }}" }
+    rsync_tmp: { destination: "{{ (backup.rsync.destination | default('', true)) | regex_replace('\\/$', '') }}" }
 
 - name: Merge changes back
   ansible.builtin.set_fact:
@@ -32,8 +32,8 @@
 # Restore service
 - name: "Set 'restore_service_enabled' variable"
   ansible.builtin.set_fact:
-    restore_service_enabled: "{{ true if not(
-        (backup.restore_service is undefined)
+    restore_service_enabled: "{{ true if not
+        ((backup.restore_service is undefined)
         or
         (backup.restore_service is none)
         or
@@ -49,6 +49,5 @@
         or
         (backup.restore_service.pass is none)
         or
-        (backup.restore_service.pass | trim | length == 0)
-      )
+        (backup.restore_service.pass | trim | length == 0))
       else false }}"

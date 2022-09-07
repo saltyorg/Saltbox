@@ -176,6 +176,6 @@
 - name: Load traktarr service
   ansible.builtin.systemd:
     name: "{{ traktarr_name }}"
-    state: "{{ traktarr_config.stat.exists | ternary('started','stopped') }}"
-    enabled: "{{ traktarr_config.stat.exists | ternary('yes','no') }}"
+    state: "{{ traktarr_config.stat.exists | ternary('started', 'stopped') }}"
+    enabled: "{{ traktarr_config.stat.exists | ternary('yes', 'no') }}"
     daemon_reload: true

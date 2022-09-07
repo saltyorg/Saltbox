@@ -45,7 +45,7 @@
   ansible.builtin.shell: |
     curl -X GET "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/pagerules?status=active&order=status&direction=desc&match=all" \
     -H "X-Auth-Email: {{ cloudflare.email }}" \
-    -H "X-Auth-Key: {{ cloudflare.api  }}" \
+    -H "X-Auth-Key: {{ cloudflare.api }}" \
     -H "Content-Type: application/json" \
     | jq -r '.result[] | select(.targets[].constraint.value | contains("{{ fld.stdout }}/.well-known")) | .id'
   args:

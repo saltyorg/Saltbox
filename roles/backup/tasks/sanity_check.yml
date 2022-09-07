@@ -15,7 +15,7 @@
 # Age in hours
 - name: "Get age of 'backup.lock' file"
   ansible.builtin.set_fact:
-    backup_lock_age: "{{ ((ansible_date_time.epoch | float - backup_lock.stat.mtime ) / 3600) | int  }}"
+    backup_lock_age: "{{ ((ansible_date_time.epoch | float - backup_lock.stat.mtime) / 3600) | int }}"
   when: (backup_lock.stat.exists)
 
 # Delete if older than 2 hours.

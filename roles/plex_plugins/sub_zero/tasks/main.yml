@@ -95,7 +95,7 @@
 
     - name: Set 'plex_plugin_subzero_download_url' variable
       ansible.builtin.set_fact:
-        plex_plugin_subzero_download_url: "{{ plex_plugin_subzero_download_url.stdout | default(plex_plugin_subzero_download_url_backup,true)  }}"
+        plex_plugin_subzero_download_url: "{{ plex_plugin_subzero_download_url.stdout | default(plex_plugin_subzero_download_url_backup, true) }}"
 
     - name: "Create {{ plex_name | title }} 'plug-ins' directory"
       ansible.builtin.file:

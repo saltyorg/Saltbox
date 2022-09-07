@@ -77,7 +77,7 @@
 
 - name: Variables | Build 'service_files_temp' variable
   ansible.builtin.set_fact:
-    service_files_temp: "{{ service_files_temp + [ item.item ] }}"
+    service_files_temp: "{{ service_files_temp + [item.item] }}"
   when: item.stat.exists
   loop: "{{ service_files_stat.results }}"
 

@@ -28,20 +28,19 @@
 
 - name: Settings | DB Cache Size | Check if 'plex_db_cache_size' was specified
   ansible.builtin.set_fact:
-    db_cache_size_is_specified: "{{ true if not (
-        (plex_db_cache_size is undefined)
+    db_cache_size_is_specified: "{{ true if not
+        ((plex_db_cache_size is undefined)
         or
         (plex_db_cache_size is none)
         or
-        (plex_db_cache_size | trim | length == 0)
-      )
+        (plex_db_cache_size | trim | length == 0))
       else false }}"
 
 - name: Settings | DB Cache Size | Get Desired Plex DB Cache Size
   ansible.builtin.set_fact:
     desired_db_cache_size: "{{ default_db_cache_size
-      if ( (not db_cache_size_is_specified) or (plex_db_cache_size == 'default') )
-      else ( (plex_db_cache_size) | regex_replace(',', '') | int ) }}"
+      if ((not db_cache_size_is_specified) or (plex_db_cache_size == 'default'))
+      else ((plex_db_cache_size) | regex_replace(',', '') | int) }}"
 
 - name: Settings | DB Cache Size | Make Plex DB Edits
   block:
@@ -83,4 +82,4 @@
         state: started
       when: ('plex_db_cache_size' in ansible_run_tags)
 
-  when: ( current_db_cache_size.stdout | int ) != ( desired_db_cache_size | regex_replace(',', '') | int )
+  when: (current_db_cache_size.stdout | int) != (desired_db_cache_size | regex_replace(',', '') | int)

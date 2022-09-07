@@ -51,7 +51,7 @@
 
 - name: "Auth Token | Set plex_no_token status"
   ansible.builtin.set_fact:
-    plex_no_token: "{{ (not plex_ini.stat.exists) or plex_auth_client_identifier_missing | ternary(true, false)  }}"
+    plex_no_token: "{{ (not plex_ini.stat.exists) or plex_auth_client_identifier_missing | ternary(true, false) }}"
 
 - name: "Auth Token | Check if Token is valid"
   ansible.builtin.uri:

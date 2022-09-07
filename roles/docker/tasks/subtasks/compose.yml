@@ -25,7 +25,7 @@
   ignore_errors: true
 
 - name: Download Compose
-  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout | default(compose_download_backup_url, true)  }} -o /usr/local/lib/docker/cli-plugins/docker-compose
+  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout | default(compose_download_backup_url, true) }} -o /usr/local/lib/docker/cli-plugins/docker-compose
   args:
     warn: false
 

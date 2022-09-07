@@ -12,7 +12,7 @@
     msg:
       - "The 'settings_updater.py' script updated the following
           file{{ files_updated_successfully | pluralize }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
-      - "Please check {{ files_updated_successfully | pluralize('this file','these files') }} for the newly added settings"
+      - "Please check {{ files_updated_successfully | pluralize('this file', 'these files') }} for the newly added settings"
       - "You can also review the log file: 'settings-updater.log'"
   when:
     - files_updated_successfully | difference(['ansible.cfg']) | length > 0

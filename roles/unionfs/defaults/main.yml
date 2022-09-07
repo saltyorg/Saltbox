@@ -38,8 +38,8 @@ mergerfs_download_backup_url: "
   {{ mergerfs_releases_download_url }}/\
   {{ mergerfs_download_backup_version }}/\
   mergerfs_{{ mergerfs_download_backup_version }}.\
-  {{ ansible_distribution|lower }}-\
-  {{ ansible_distribution_release|lower }}_amd64.deb"
+  {{ ansible_distribution | lower }}-\
+  {{ ansible_distribution_release | lower }}_amd64.deb"
 
 mergerfs_mount_branches: "{{ local_mount_branch }}=RW:/mnt/remote=NC"
 

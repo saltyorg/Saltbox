@@ -136,9 +136,9 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_default:
   - { option: "network.port_range.set", value: "{{ rutorrent_docker_ports_51413 }}-{{ rutorrent_docker_ports_51413 }}" }
   - { option: "dht.port.set", value: "{{ rutorrent_docker_ports_6881 }}" }
   # Enable / Disable Public Trackers
-  - { option: "dht.mode.set", value: "{{ rutorrent_config_public_trackers | ternary('on','disable') }}" }
-  - { option: "trackers.use_udp.set", value: "{{ rutorrent_config_public_trackers | ternary('yes','no') }}" }
-  - { option: "protocol.pex.set", value: "{{ rutorrent_config_public_trackers | ternary('yes','no') }}" }
+  - { option: "dht.mode.set", value: "{{ rutorrent_config_public_trackers | ternary('on', 'disable') }}" }
+  - { option: "trackers.use_udp.set", value: "{{ rutorrent_config_public_trackers | ternary('yes', 'no') }}" }
+  - { option: "protocol.pex.set", value: "{{ rutorrent_config_public_trackers | ternary('yes', 'no') }}" }
 rutorrent_config_existing_installs_rutorrent_rc_settings_custom: []
 rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_default
                                                                    + rutorrent_config_existing_installs_rutorrent_rc_settings_custom }}"

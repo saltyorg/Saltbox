@@ -67,7 +67,7 @@
   when: etc_sudoers.stat.exists
 
 - name: User Account | Reset ownership of '{{ user_paths_home_location }}/' path
-  ansible.builtin.file:  # noqa 208
+  ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ user_paths_home_location }}"
     state: directory
     owner: "{{ user.name }}"
@@ -78,7 +78,7 @@
     - (not continuous_integration)
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
-  ansible.builtin.file:  # noqa 208
+  ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ srv_folder }}"
     state: directory
     owner: "{{ user.name }}"
@@ -87,7 +87,7 @@
     follow: false
 
 - name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
-  ansible.builtin.file:  # noqa 208
+  ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ server_appdata_path }}"
     state: directory
     owner: "{{ user.name }}"

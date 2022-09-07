@@ -10,8 +10,8 @@
 ---
 - name: "Migrator | 'backup_config.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    new_settings: "{{ true if not(
-        (backup is undefined)
+    new_settings: "{{ true if not
+        ((backup is undefined)
         or
         (backup is none)
         or
@@ -23,8 +23,7 @@
         or
         (backup.cron | trim | length == 0)
         or
-        (backup.cron.cron_state is defined)
-      )
+        (backup.cron.cron_state is defined))
         else false }}"
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'backup.cron' dict
