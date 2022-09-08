@@ -106,6 +106,10 @@ downloads_torrents_path: "{{ downloads }}/torrents"
 
 downloads_usenet_path: "{{ downloads }}/nzbs"
 
+downloads_custom_path: "{{ false
+                        if downloads_torrents_path.startswith(downloads_root_path) and downloads_usenet_path.startswith(downloads_root_path)
+                        else true }}"
+
 ################################
 # User
 ################################
@@ -261,7 +265,9 @@ docker_volumes_downloads_torrents: "{{ [downloads_torrents_path + ':/downloads/t
                                     if torrents_downloads_path_is_defined
                                     else [] }}"
 
-docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volumes_downloads_torrents }}"
+docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volumes_downloads_torrents
+                                  if downloads_custom_path
+                                  else [downloads_root_path + ':/downloads'] }}"
 
 docker_volumes_common_folders:
   - "/mnt:/mnt"
