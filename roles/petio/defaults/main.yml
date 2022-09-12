@@ -144,7 +144,7 @@ petio_docker_security_opts: "{{ petio_docker_security_opts_default
 petio_docker_restart_policy: unless-stopped
 
 # State
-petio_docker_state: started\
+petio_docker_state: started
 
 # User
 petio_docker_user: "{{ uid }}:{{ gid }}"
