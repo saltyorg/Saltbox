@@ -27,15 +27,6 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
-- name: Import '99-cont-init-script-runner.sh' script
-  ansible.builtin.copy:
-    src: "{{ resources_tasks_path }}/hotio/cont-init.d/files/99-cont-init-script-runner.sh"
-    dest: "{{ lookup('vars', role_name + '_paths_location') }}/99-cont-init-script-runner.sh"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    force: true
-
 - name: Download 98-themepark
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/nzbget/root/etc/cont-init.d/98-themepark"
