@@ -52,51 +52,6 @@ jobs:
         COMMIT_MESSAGE: 'docs(README): update contributors'
         AVATAR_SHAPE: 'square'
 
-  ansible-update:
-    runs-on: ${{ matrix.release }}
-    needs: ansible-lint
-    strategy:
-      matrix:
-        release:
-          - ubuntu-20.04
-          - ubuntu-22.04
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install Dependencies
-        run: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v
-        
-      - name: Create /srv/git
-        run: sudo mkdir /srv/git
-
-      - name: Symlink cloned repository to /srv/git/saltbox
-        run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
-
-      - name: Chown /srv/git
-        run: sudo chown -R runner:runner /srv/git
-
-      - name: Import default configuration
-        run: for i in defaults/*; do cp -n $i "$(basename "${i%.*}")"; done
-
-      - name: Edit accounts.yml
-        run: sed -i 's/seed/runner/g' accounts.yml
-
-      - name: Run Tree
-        run: tree -a
-
-      - name: Syntax Check
-        run: sudo ansible-playbook saltbox.yml --syntax-check
-
-      - name: Run Ansible Update Script
-        run: sudo bash /srv/git/saltbox/scripts/update.sh
-
-      - name: Print Ansible Version
-        run: sudo ansible --version
-
-      - name: Print Ansible Collections
-        run: sudo ansible-galaxy collection list
-
   install:
     name: '${{ matrix.roles }}-${{ matrix.release }}'
     runs-on: ${{ matrix.release }}
