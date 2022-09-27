@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Kernel | Copy 'blacklist-nouveau.conf'
+- name: Kernel | Copy 'blacklist-nouveau.conf' # noqa template-instead-of-copy
   ansible.builtin.copy:
     content: "{{ nvidia_kernel_blacklist_nouveau_conf_content }}"
     dest: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
