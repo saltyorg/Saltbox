@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Finish | Check 'settings-updater.py' for new settings"
-  ansible.builtin.debug:
+  ansible.builtin.debug: # noqa jinja[invalid]
     msg:
       - "The 'settings_updater.py' script updated the following
           file{{ files_updated_successfully | pluralize }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
