@@ -24,8 +24,6 @@ nzbhydra2_paths_folders_list:
   - "{{ nzbhydra2_paths_location }}"
 nzbhydra2_paths_config_location: "{{ nzbhydra2_paths_location }}/nzbhydra.yml"
 
-nzbhydra_paths_db_location: "{{ server_appdata_path }}/nzbhydra/hydra/nzbhydra.db"
-
 ################################
 # Web
 ################################
@@ -138,8 +136,6 @@ nzbhydra2_docker_commands: "{{ nzbhydra2_docker_commands_default
                                + nzbhydra2_docker_commands_custom }}"
 
 # Volumes
-nzbhydra2_docker_volumes_nzbhydra1_migration:
-  - "{{ nzbhydra_paths_db_location }}:/nzbhydra1:ro"
 nzbhydra2_docker_volumes_default:
   - "{{ nzbhydra2_paths_location }}:/config"
 nzbhydra2_docker_volumes_custom: []
