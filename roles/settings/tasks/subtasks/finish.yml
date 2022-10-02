@@ -11,8 +11,8 @@
   ansible.builtin.debug: # noqa jinja[invalid]
     msg:
       - "The 'settings_updater.py' script updated the following
-          file{{ 's' if files_updated_unsuccessfully > 1 }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
-      - "Please check {{ 'these files' if files_updated_unsuccessfully > 1 else 'this file' }} for the newly added settings"
+          file{{ 's' if (files_updated_successfully | length > 1) else '' }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
+      - "Please check {{ 'these files' if (files_updated_successfully | length > 1) else 'this file' }} for the newly added settings"
       - "You can also review the log file: 'settings-updater.log'"
   when:
     - files_updated_successfully | difference(['ansible.cfg']) | length > 0
@@ -25,7 +25,7 @@
       ansible.builtin.debug:
         msg:
           - "The 'settings_updater.py' script exited with an error when updating the following
-              file{{ 's' if files_updated_unsuccessfully > 1 }}: '{{ files_updated_unsuccessfully | join(', ') | trim }}'"
+              file{{ 's' if (files_updated_unsuccessfully | length > 1) else '' }}: '{{ files_updated_unsuccessfully | join(', ') | trim }}'"
           - "Please check 'settings-updater.log' for details"
       when: files_updated_unsuccessfully | length > 0
 
