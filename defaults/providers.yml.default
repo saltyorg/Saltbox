@@ -3,7 +3,7 @@ cloudns:
   client_id:
   email:
   password:
-duck:
+duckdns:
   token:
 goddady:
   api_key:

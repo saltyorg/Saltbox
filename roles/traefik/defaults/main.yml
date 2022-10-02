@@ -84,8 +84,8 @@ traefik_dns_provider_cloudns:
   CLOUDDNS_EMAIL: "{{ cloudns.email }}"
   CLOUDDNS_PASSWORD: "{{ cloudns.password }}"
 
-traefik_dns_provider_duck:
-  DUCKDNS_TOKEN: "{{ duck.token }}"
+traefik_dns_provider_duckdns:
+  DUCKDNS_TOKEN: "{{ duckdns.token }}"
 
 traefik_dns_provider_godaddy:
   GODADDY_API_KEY: "{{ godaddy.api_key }}"
