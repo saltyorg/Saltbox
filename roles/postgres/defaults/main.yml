@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-postgres_name: postgres
+postgres_instances: ["postgres"]
 
 ################################
 # Paths
@@ -40,59 +40,59 @@ postgres_docker_container: "{{ postgres_name }}"
 # Image
 postgres_docker_image_pull: true
 postgres_docker_image_tag: "12-alpine"
-postgres_docker_image: "postgres:{{ postgres_docker_image_tag }}"
+postgres_docker_image: "postgres:{{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
 
 # Ports
 postgres_docker_ports_defaults: []
 postgres_docker_ports_custom: []
-postgres_docker_ports: "{{ postgres_docker_ports_defaults
-                           + postgres_docker_ports_custom
+postgres_docker_ports: "{{ lookup('vars', postgres_name + '_docker_ports_default', default=postgres_docker_ports_defaults)
+                           + lookup('vars', postgres_name + '_docker_ports_custom', default=postgres_docker_ports_custom)
                         if (not reverse_proxy_is_enabled)
-                        else postgres_docker_ports_custom }}"
+                        else lookup('vars', postgres_name + '_docker_ports_custom', default=postgres_docker_ports_custom) }}"
 
 # Envs
 postgres_docker_envs_default:
   TZ: "{{ tz }}"
-  POSTGRES_PASSWORD: "{{ postgres_docker_env_password }}"
-  POSTGRES_USER: "{{ postgres_docker_env_user }}"
-  POSTGRES_DB: "{{ postgres_docker_env_db }}"
+  POSTGRES_PASSWORD: "{{ lookup('vars', postgres_name + '_docker_env_password', default=postgres_docker_env_password) }}"
+  POSTGRES_USER: "{{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_docker_env_user) }}"
+  POSTGRES_DB: "{{ lookup('vars', postgres_name + '_docker_env_db', default=postgres_docker_env_db) }}"
 postgres_docker_envs_custom: {}
-postgres_docker_envs: "{{ postgres_docker_envs_default
-                          | combine(postgres_docker_envs_custom) }}"
+postgres_docker_envs: "{{ lookup('vars', postgres_name + '_docker_envs_default', default=postgres_docker_envs_default)
+                          | combine(lookup('vars', postgres_name + '_dockerenvs_custom', default=postgres_docker_envs_custom)) }}"
 
 # Commands
 postgres_docker_commands_default: []
 postgres_docker_commands_custom: []
-postgres_docker_commands: "{{ postgres_docker_commands_default
-                              + postgres_docker_commands_custom }}"
+postgres_docker_commands: "{{ lookup('vars', postgres_name + '_docker_commands_default', default=postgres_docker_commands_default)
+                              + lookup('vars', postgres_name + '_docker_commands_custom', default=postgres_docker_commands_custom) }}"
 
 # Volumes
 postgres_docker_volumes_default:
   - "{{ postgres_paths_location }}:/var/lib/postgresql/data"
   - "/etc/passwd:/etc/passwd:ro"
 postgres_docker_volumes_custom: []
-postgres_docker_volumes: "{{ postgres_docker_volumes_default
-                             + postgres_docker_volumes_custom }}"
+postgres_docker_volumes: "{{ lookup('vars', postgres_name + '_docker_volumes_default', default=postgres_docker_volumes_default)
+                             + lookup('vars', postgres_name + '_dockervolumes_custom', default=postgres_docker_volumes_custom) }}"
 
 # Devices
 postgres_docker_devices_default: []
 postgres_docker_devices_custom: []
-postgres_docker_devices: "{{ postgres_docker_devices_default
-                             + postgres_docker_devices_custom }}"
+postgres_docker_devices: "{{ lookup('vars', postgres_name + '_docker_devices_default', default=postgres_docker_devices_default)
+                             + lookup('vars', postgres_name + '_docker_devices_custom', default=postgres_docker_devices_custom) }}"
 
 # Hosts
 postgres_docker_hosts_default: []
 postgres_docker_hosts_custom: []
 postgres_docker_hosts: "{{ docker_hosts_common
-                           | combine(postgres_docker_hosts_default)
-                           | combine(postgres_docker_hosts_custom) }}"
+                           | combine(lookup('vars', postgres_name + '_docker_hosts_default', default=postgres_docker_hosts_default))
+                           | combine(lookup('vars', postgres_name + '_docker_hosts_custom', default=postgres_docker_hosts_custom)) }}"
 
 # Labels
 postgres_docker_labels_default: {}
 postgres_docker_labels_custom: {}
 postgres_docker_labels: "{{ docker_labels_common
-                            | combine(postgres_docker_labels_default)
-                            | combine(postgres_docker_labels_custom) }}"
+                            | combine(lookup('vars', postgres_name + '_docker_labels_default', default=postgres_docker_labels_default))
+                            | combine(lookup('vars', postgres_name + '_docker_labels_custom', default=postgres_docker_labels_custom)) }}"
 
 # Hostname
 postgres_docker_hostname: "{{ postgres_name }}"
@@ -102,20 +102,20 @@ postgres_docker_networks_alias: "{{ postgres_name }}"
 postgres_docker_networks_default: []
 postgres_docker_networks_custom: []
 postgres_docker_networks: "{{ docker_networks_common
-                              + postgres_docker_networks_default
-                              + postgres_docker_networks_custom }}"
+                              + lookup('vars', postgres_name + '_docker_networks_default', default=postgres_docker_networks_default)
+                              + lookup('vars', postgres_name + '_docker_networks_dcustom', default=postgres_docker_networks_custom) }}"
 
 # Capabilities
 postgres_docker_capabilities_default: []
 postgres_docker_capabilities_custom: []
-postgres_docker_capabilities: "{{ postgres_docker_capabilities_default
-                                  + postgres_docker_capabilities_custom }}"
+postgres_docker_capabilities: "{{ lookup('vars', postgres_name + '_docker_capabilities_default', default=postgres_docker_capabilities_default)
+                                  + lookup('vars', postgres_name + '_docker_capabilities_custom', default=postgres_docker_capabilities_custom) }}"
 
 # Security Opts
 postgres_docker_security_opts_default: []
 postgres_docker_security_opts_custom: []
-postgres_docker_security_opts: "{{ postgres_docker_security_opts_default
-                                   + postgres_docker_security_opts_custom }}"
+postgres_docker_security_opts: "{{ lookup('vars', postgres_name + '_docker_security_opts_default', default=postgres_docker_security_opts_default)
+                                   + lookup('vars', postgres_name + '_docker_security_opts_custom', default=postgres_docker_security_opts_custom) }}"
 
 # Restart Policy
 postgres_docker_restart_policy: unless-stopped
