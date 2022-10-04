@@ -23,6 +23,14 @@ mariadb_paths_folders_list:
   - "{{ mariadb_paths_location }}"
 
 ################################
+# Settings
+################################
+
+mariadb_docker_env_password: "password4321"
+mariadb_docker_env_user: "{{ user.name }}"
+mariadb_docker_env_db: "saltbox"
+
+################################
 # Docker
 ################################
 
@@ -31,8 +39,8 @@ mariadb_docker_container: "{{ mariadb_name }}"
 
 # Image
 mariadb_docker_image_pull: true
-mariadb_docker_image_tag: "latest"
-mariadb_docker_image: "lscr.io/linuxserver/mariadb:{{ mariadb_docker_image_tag }}"
+mariadb_docker_image_tag: "10"
+mariadb_docker_image: "mariadb:{{ mariadb_docker_image_tag }}"
 
 # Ports
 mariadb_docker_ports_defaults: []
@@ -41,12 +49,11 @@ mariadb_docker_ports: "{{ mariadb_docker_ports_defaults
                           + mariadb_docker_ports_custom }}"
 
 # Envs
-mariadb_docker_envs_mysql_root_password: password321
 mariadb_docker_envs_default:
-  PUID: "{{ uid }}"
-  PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  MYSQL_ROOT_PASSWORD: "{{ mariadb_docker_envs_mysql_root_password }}"
+  MARIADB_ROOT_PASSWORD: "{{ mariadb_docker_env_password }}"
+  MARIADB_USER: "{{ mariadb_docker_env_user }}"
+  MARIADB_DATABASE: "{{ mariadb_docker_env_db }}"
 mariadb_docker_envs_custom: {}
 mariadb_docker_envs: "{{ mariadb_docker_envs_default
                          | combine(mariadb_docker_envs_custom) }}"
@@ -59,7 +66,7 @@ mariadb_docker_commands: "{{ mariadb_docker_commands_default
 
 # Volumes
 mariadb_docker_volumes_default:
-  - "{{ mariadb_paths_location }}:/config"
+  - "{{ mariadb_paths_location }}:/var/lib/mysql"
 mariadb_docker_volumes_custom: []
 mariadb_docker_volumes: "{{ mariadb_docker_volumes_default
                             + mariadb_docker_volumes_custom }}"
@@ -112,3 +119,6 @@ mariadb_docker_restart_policy: unless-stopped
 
 # State
 mariadb_docker_state: started
+
+# User
+mariadb_docker_user: "{{ uid }}:{{ gid }}"
