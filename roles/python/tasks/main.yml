@@ -51,18 +51,9 @@
     name: "python{{ python_version }}-venv"
     state: present
 
-- name: Check if pip is installed
-  ansible.builtin.command: "python{{ python_version }} -m pip --version"
-  register: pip_version
-  ignore_errors: true
-
-- name: Download 'get-pip.py'
-  ansible.builtin.get_url:
-    url: "{{ python_get_pip_url }}"
-    dest: /tmp/get-pip.py
-    mode: '0664'
-  when: pip_version.failed
-
 - name: "Install pip for Python {{ python_version }}"
-  ansible.builtin.command: "python{{ python_version }} /tmp/get-pip.py"
-  when: pip_version.failed
+  ansible.builtin.command: "python{{ python_version }} -m ensurepip"
+
+- name: Fix System pip
+  ansible.builtin.import_tasks: "subtasks/pip.yml"
+  when: not continuous_integration
