@@ -12,16 +12,16 @@
   register: system_pip
 
 - name: "Fix System pip"
-  block: 
+  block:
     - name: Check if pip is installed
       ansible.builtin.command: "python3 -m pip --version"
-    
+
     - name: Download 'get-pip.py'
       ansible.builtin.get_url:
         url: "{{ python_get_pip_url }}"
         dest: /tmp/get-pip.py
         mode: '0664'
-    
+
     - name: "Install pip for Python3"
       ansible.builtin.command: "python3 /tmp/get-pip.py"
   when: system_pip.stdout_lines[0] == "#!/usr/bin/python3.8"
