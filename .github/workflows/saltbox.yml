@@ -89,10 +89,12 @@ jobs:
           - emby
           - jellyfin
           - mainline
+          - mariadb
           - netdata
           - nginx
           - nzbthrottle
           - petio
+          - postgres
           - plex
           - prowlarr
           - qbittorrent
