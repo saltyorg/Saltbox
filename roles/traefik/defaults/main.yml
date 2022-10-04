@@ -17,7 +17,6 @@ traefik_name: traefik
 # Config
 ################################
 
-traefik_pilot_token: ""
 traefik_trusted_ips: ""
 traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
@@ -127,7 +126,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "2.8"
+traefik_docker_image_tag: "2.9"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
@@ -235,17 +234,11 @@ traefik_docker_commands_tracing_tmp:
 traefik_docker_commands_tracing: "{{ traefik_docker_commands_tracing_tmp
                                   if traefik.tracing
                                   else [] }}"
-traefik_docker_commands_pilot_tmp:
-  - "--pilot.token={{ traefik_pilot_token }}"
-traefik_docker_commands_pilot: "{{ traefik_docker_commands_pilot_tmp
-                                if (traefik_pilot_token | length > 0)
-                                else [] }}"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
                              + traefik_docker_commands_metrics
                              + traefik_docker_commands_tracing
-                             + traefik_docker_commands_pilot
                              + traefik_docker_commands_google_acme }}"
 
 # Volumes
