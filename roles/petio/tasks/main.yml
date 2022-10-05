@@ -10,6 +10,15 @@
 - name: MongoDB Role
   ansible.builtin.include_role:
     name: mongodb
+  vars:
+    mongodb_name: "{{ petio_name }}_mongo"
+    mongodb_docker_env_db: "{{ petio_name }}"
+    mongodb_docker_image_tag: "4.4"
+    mongodb_paths_folder: "{{ petio_name }}"
+    mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_paths_folder }}/mongodb"
+
+- name: Import Default MongoDB variables
+  ansible.builtin.include_vars: /srv/git/saltbox/roles/mongodb/defaults/main.yml
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
