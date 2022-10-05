@@ -90,6 +90,7 @@ jobs:
           - jellyfin
           - mainline
           - mariadb
+          - mongodb
           - netdata
           - nginx
           - nzbthrottle
