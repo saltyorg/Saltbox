@@ -86,6 +86,7 @@ jobs:
           - btrfsmaintenance
           - ddclient
           - deluge
+          - diun
           - emby
           - jellyfin
           - mainline
@@ -95,9 +96,10 @@ jobs:
           - nginx
           - nzbthrottle
           - petio
-          - postgres
           - plex
+          - postgres
           - prowlarr
+          - python
           - qbittorrent
           - readarr
           - sabnzbd
