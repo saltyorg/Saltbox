@@ -32,7 +32,7 @@ mongodb_docker_container: "{{ mongodb_name }}"
 
 # Image
 mongodb_docker_image_pull: true
-mongodb_docker_image_tag: "4.4"
+mongodb_docker_image_tag: "6"
 mongodb_docker_image: "mongo:{{ lookup('vars', mongodb_name + '_docker_image_tag', default=mongodb_docker_image_tag) }}"
 
 # Ports
