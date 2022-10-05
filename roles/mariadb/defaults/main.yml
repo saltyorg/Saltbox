@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-mariadb_name: mariadb
+mariadb_instances: ["mariadb"]
 
 ################################
 # Paths
@@ -40,56 +40,56 @@ mariadb_docker_container: "{{ mariadb_name }}"
 # Image
 mariadb_docker_image_pull: true
 mariadb_docker_image_tag: "10"
-mariadb_docker_image: "mariadb:{{ mariadb_docker_image_tag }}"
+mariadb_docker_image: "mariadb:{{ lookup('vars', mariadb_name + '_docker_image_tag', default=mariadb_docker_image_tag) }}"
 
 # Ports
 mariadb_docker_ports_defaults: []
 mariadb_docker_ports_custom: []
-mariadb_docker_ports: "{{ mariadb_docker_ports_defaults
-                          + mariadb_docker_ports_custom }}"
+mariadb_docker_ports: "{{ lookup('vars', mariadb_name + '_docker_ports_default', default=mariadb_docker_ports_defaults)
+                          + lookup('vars', mariadb_name + '_docker_ports_custom', default=mariadb_docker_ports_custom) }}"
 
 # Envs
 mariadb_docker_envs_default:
   TZ: "{{ tz }}"
-  MARIADB_ROOT_PASSWORD: "{{ mariadb_docker_env_password }}"
-  MARIADB_USER: "{{ mariadb_docker_env_user }}"
-  MARIADB_DATABASE: "{{ mariadb_docker_env_db }}"
+  MARIADB_ROOT_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
+  MARIADB_USER: "{{ lookup('vars', mariadb_name + '_docker_env_user', default=mariadb_docker_env_user) }}"
+  MARIADB_DATABASE: "{{ lookup('vars', mariadb_name + '_docker_env_db', default=mariadb_docker_env_db) }}"
 mariadb_docker_envs_custom: {}
-mariadb_docker_envs: "{{ mariadb_docker_envs_default
-                         | combine(mariadb_docker_envs_custom) }}"
+mariadb_docker_envs: "{{ lookup('vars', mariadb_name + '_docker_envs_default', default=mariadb_docker_envs_default)
+                         | combine(lookup('vars', mariadb_name + '_docker_envs_custom', default=mariadb_docker_envs_custom)) }}"
 
 # Commands
 mariadb_docker_commands_default: []
 mariadb_docker_commands_custom: []
-mariadb_docker_commands: "{{ mariadb_docker_commands_default
-                             + mariadb_docker_commands_custom }}"
+mariadb_docker_commands: "{{ lookup('vars', mariadb_name + '_docker_commands_default', default=mariadb_docker_commands_default)
+                             + lookup('vars', mariadb_name + '_docker_commands_custom', default=mariadb_docker_commands_custom) }}"
 
 # Volumes
 mariadb_docker_volumes_default:
   - "{{ mariadb_paths_location }}:/var/lib/mysql"
 mariadb_docker_volumes_custom: []
-mariadb_docker_volumes: "{{ mariadb_docker_volumes_default
-                            + mariadb_docker_volumes_custom }}"
+mariadb_docker_volumes: "{{ lookup('vars', mariadb_name + '_docker_volumes_default', default=mariadb_docker_volumes_default)
+                            + lookup('vars', mariadb_name + '_docker_volumes_custom', default=mariadb_docker_volumes_custom) }}"
 
 # Devices
 mariadb_docker_devices_default: []
 mariadb_docker_devices_custom: []
-mariadb_docker_devices: "{{ mariadb_docker_devices_default
-                            + mariadb_docker_devices_custom }}"
+mariadb_docker_devices: "{{ lookup('vars', mariadb_name + '_docker_devices_default', default=mariadb_docker_devices_default)
+                            + lookup('vars', mariadb_name + '_docker_devices_custom', default=mariadb_docker_devices_custom) }}"
 
 # Hosts
 mariadb_docker_hosts_default: []
 mariadb_docker_hosts_custom: []
 mariadb_docker_hosts: "{{ docker_hosts_common
-                          | combine(mariadb_docker_hosts_default)
-                          | combine(mariadb_docker_hosts_custom) }}"
+                           | combine(lookup('vars', mariadb_name + '_docker_hosts_default', default=mariadb_docker_hosts_default))
+                           | combine(lookup('vars', mariadb_name + '_docker_hosts_custom', default=mariadb_docker_hosts_custom)) }}"
 
 # Labels
 mariadb_docker_labels_default: {}
 mariadb_docker_labels_custom: {}
 mariadb_docker_labels: "{{ docker_labels_common
-                           | combine(mariadb_docker_labels_default)
-                           | combine(mariadb_docker_labels_custom) }}"
+                            | combine(lookup('vars', mariadb_name + '_docker_labels_default', default=mariadb_docker_labels_default))
+                            | combine(lookup('vars', mariadb_name + '_docker_labels_custom', default=mariadb_docker_labels_custom)) }}"
 
 # Hostname
 mariadb_docker_hostname: "{{ mariadb_name }}"
@@ -99,20 +99,20 @@ mariadb_docker_networks_alias: "{{ mariadb_name }}"
 mariadb_docker_networks_default: []
 mariadb_docker_networks_custom: []
 mariadb_docker_networks: "{{ docker_networks_common
-                             + mariadb_docker_networks_default
-                             + mariadb_docker_networks_custom }}"
+                              + lookup('vars', mariadb_name + '_docker_networks_default', default=mariadb_docker_networks_default)
+                              + lookup('vars', mariadb_name + '_docker_networks_dcustom', default=mariadb_docker_networks_custom) }}"
 
 # Capabilities
 mariadb_docker_capabilities_default: []
 mariadb_docker_capabilities_custom: []
-mariadb_docker_capabilities: "{{ mariadb_docker_capabilities_default
-                                 + mariadb_docker_capabilities_custom }}"
+mariadb_docker_capabilities: "{{ lookup('vars', mariadb_name + '_docker_capabilities_default', default=mariadb_docker_capabilities_default)
+                                  + lookup('vars', mariadb_name + '_docker_capabilities_custom', default=mariadb_docker_capabilities_custom) }}"
 
 # Security Opts
 mariadb_docker_security_opts_default: []
 mariadb_docker_security_opts_custom: []
-mariadb_docker_security_opts: "{{ mariadb_docker_security_opts_default
-                                  + mariadb_docker_security_opts_custom }}"
+mariadb_docker_security_opts: "{{ lookup('vars', mariadb_name + '_docker_security_opts_default', default=mariadb_docker_security_opts_default)
+                                   + lookup('vars', mariadb_name + '_docker_security_opts_custom', default=mariadb_docker_security_opts_custom) }}"
 
 # Restart Policy
 mariadb_docker_restart_policy: unless-stopped
