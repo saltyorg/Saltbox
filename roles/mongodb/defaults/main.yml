@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-mongodb_name: mongo
+mongodb_instances: ["mongo"]
 
 ################################
 # Paths
@@ -33,56 +33,57 @@ mongodb_docker_container: "{{ mongodb_name }}"
 # Image
 mongodb_docker_image_pull: true
 mongodb_docker_image_tag: "4.4"
-mongodb_docker_image: "mongo:{{ mongodb_docker_image_tag }}"
+mongodb_docker_image: "mongo:{{ lookup('vars', mongodb_name + '_docker_image_tag', default=mongodb_docker_image_tag) }}"
 
 # Ports
 mongodb_docker_ports_defaults: []
 mongodb_docker_ports_custom: []
-mongodb_docker_ports: "{{ mongodb_docker_ports_defaults
-                          + mongodb_docker_ports_custom }}"
+mongodb_docker_ports: "{{ lookup('vars', mongodb_name + '_docker_ports_default', default=mongodb_docker_ports_defaults)
+                          + lookup('vars', mongodb_name + '_docker_ports_custom', default=mongodb_docker_ports_custom) }}"
 
 # Envs
 mongodb_docker_envs_default:
   MONGO_DATA_DIR: "/data/db"
   MONGO_LOG_DIR: "/dev/null"
-  MONGO_URL: "mongodb://mongo:27017/"
+  MONGO_URL: "mongodb://{{ mongodb_name }}:27017/"
 mongodb_docker_envs_custom: {}
-mongodb_docker_envs: "{{ mongodb_docker_envs_default
-                         | combine(mongodb_docker_envs_custom) }}"
+mongodb_docker_envs: "{{ lookup('vars', mongodb_name + '_docker_envs_default', default=mongodb_docker_envs_default)
+                         | combine(lookup('vars', mongodb_name + '_docker_envs_custom', default=mongodb_docker_envs_custom)) }}"
 
 # Commands
 mongodb_docker_commands_default: []
 mongodb_docker_commands_custom: []
-mongodb_docker_commands: "{{ mongodb_docker_commands_default
-                             + mongodb_docker_commands_custom }}"
+mongodb_docker_commands: "{{ lookup('vars', mongodb_name + '_docker_commands_default', default=mongodb_docker_commands_default)
+                             + lookup('vars', mongodb_name + '_docker_commands_custom', default=mongodb_docker_commands_custom) }}"
 
 # Volumes
 mongodb_docker_volumes_default:
   - "{{ mongodb_paths_location }}:/data/db:rw"
   - "{{ mongodb_paths_location }}/config:/data/configdb"
 mongodb_docker_volumes_custom: []
-mongodb_docker_volumes: "{{ mongodb_docker_volumes_default
-                            + mongodb_docker_volumes_custom }}"
+mongodb_docker_volumes: "{{ lookup('vars', mongodb_name + '_docker_volumes_default', default=mongodb_docker_volumes_default)
+                            + lookup('vars', mongodb_name + '_docker_volumes_custom', default=mongodb_docker_volumes_custom) }}"
+
 
 # Devices
 mongodb_docker_devices_default: []
 mongodb_docker_devices_custom: []
-mongodb_docker_devices: "{{ mongodb_docker_devices_default
-                            + mongodb_docker_devices_custom }}"
+mongodb_docker_devices: "{{ lookup('vars', mongodb_name + '_docker_devices_default', default=mongodb_docker_devices_default)
+                            + lookup('vars', mongodb_name + '_docker_devices_custom', default=mongodb_docker_devices_custom) }}"
 
 # Hosts
 mongodb_docker_hosts_default: []
 mongodb_docker_hosts_custom: []
 mongodb_docker_hosts: "{{ docker_hosts_common
-                          | combine(mongodb_docker_hosts_default)
-                          | combine(mongodb_docker_hosts_custom) }}"
+                           | combine(lookup('vars', mongodb_name + '_docker_hosts_default', default=mongodb_docker_hosts_default))
+                           | combine(lookup('vars', mongodb_name + '_docker_hosts_custom', default=mongodb_docker_hosts_custom)) }}"
 
 # Labels
 mongodb_docker_labels_default: {}
 mongodb_docker_labels_custom: {}
 mongodb_docker_labels: "{{ docker_labels_common
-                           | combine(mongodb_docker_labels_default)
-                           | combine(mongodb_docker_labels_custom) }}"
+                            | combine(lookup('vars', mongodb_name + '_docker_labels_default', default=mongodb_docker_labels_default))
+                            | combine(lookup('vars', mongodb_name + '_docker_labels_custom', default=mongodb_docker_labels_custom)) }}"
 
 # Hostname
 mongodb_docker_hostname: "{{ mongodb_name }}"
@@ -92,20 +93,21 @@ mongodb_docker_networks_alias: "{{ mongodb_name }}"
 mongodb_docker_networks_default: []
 mongodb_docker_networks_custom: []
 mongodb_docker_networks: "{{ docker_networks_common
-                             + mongodb_docker_networks_default
-                             + mongodb_docker_networks_custom }}"
+                              + lookup('vars', mongodb_name + '_docker_networks_default', default=mongodb_docker_networks_default)
+                              + lookup('vars', mongodb_name + '_docker_networks_dcustom', default=mongodb_docker_networks_custom) }}"
 
 # Capabilities
 mongodb_docker_capabilities_default: []
 mongodb_docker_capabilities_custom: []
-mongodb_docker_capabilities: "{{ mongodb_docker_capabilities_default
-                                 + mongodb_docker_capabilities_custom }}"
+mongodb_docker_capabilities: "{{ lookup('vars', mongodb_name + '_docker_capabilities_default', default=mongodb_docker_capabilities_default)
+                                  + lookup('vars', mongodb_name + '_docker_capabilities_custom', default=mongodb_docker_capabilities_custom) }}"
 
 # Security Opts
 mongodb_docker_security_opts_default: []
 mongodb_docker_security_opts_custom: []
-mongodb_docker_security_opts: "{{ mongodb_docker_security_opts_default
-                                  + mongodb_docker_security_opts_custom }}"
+mongodb_docker_security_opts: "{{ lookup('vars', mongodb_name + '_docker_security_opts_default', default=mongodb_docker_security_opts_default)
+                                   + lookup('vars', mongodb_name + '_docker_security_opts_custom', default=mongodb_docker_security_opts_custom) }}"
+
 
 # Restart Policy
 mongodb_docker_restart_policy: unless-stopped
