@@ -67,6 +67,7 @@ emby_traefik_middleware: "{{ emby_traefik_middleware_default + ','
 
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
 emby_traefik_enabled: true
+emby_traefik_gzip_enabled: false
 
 ################################
 # Settings

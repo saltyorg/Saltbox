@@ -70,6 +70,7 @@ jellyfin_traefik_middleware: "{{ jellyfin_traefik_middleware_default + ','
 
 jellyfin_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jellyfin_traefik_enabled: true
+jellyfin_traefik_gzip_enabled: false
 
 ################################
 # Settings
