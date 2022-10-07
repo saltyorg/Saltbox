@@ -52,62 +52,23 @@ jobs:
         COMMIT_MESSAGE: 'docs(README): update contributors'
         AVATAR_SHAPE: 'square'
 
-  install:
-    name: '${{ matrix.roles }}-${{ matrix.release }}'
-    runs-on: ${{ matrix.release }}
+  find-roles:
+    runs-on: ubuntu-latest
     needs: ansible-lint
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: OUTPUT=$(awk '/# Apps Start/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') && echo "::set-output name=matrix::{\"roles\":[$OUTPUT]}"
+
+  install:
+    name: '${{ matrix.roles.roles }}-${{ matrix.release }}'
+    runs-on: ${{ matrix.release }}
+    needs: [ansible-lint, find-roles]
     strategy:
       matrix:
-        roles:
-          - saltbox
-          - feederbox
-          - mediabox
-          - media-server
-          - tautulli
-          - overseerr
-          - portainer
-          - organizr
-          - cloudplow
-          - nzbget
-          - rutorrent
-          - jackett
-          - nzbhydra2
-          - sonarr
-          - radarr
-          - lidarr
-          - iperf3
-          - nethogs
-          - glances
-          - btop
-          - asshama
-          - autoheal
-          - autoscan
-          - bazarr
-          - btrfsmaintenance
-          - ddclient
-          - deluge
-          - diun
-          - emby
-          - jellyfin
-          - mainline
-          - mariadb
-          - mongodb
-          - netdata
-          - nginx
-          - nzbthrottle
-          - petio
-          - plex
-          - postgres
-          - prowlarr
-          - python
-          - qbittorrent
-          - readarr
-          - sabnzbd
-          - subliminal
-          - trackarr
-          - traktarr
-          - transfer
-          - yyq
+        roles: ${{fromJson(needs.find-roles.outputs.matrix)}}
         release:
           - ubuntu-20.04
           - ubuntu-22.04
@@ -142,10 +103,10 @@ jobs:
 
       - name: Install Saltbox Core
         run: sudo ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
-        if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox')) }}
+        if: ${{ !(contains(matrix.roles.roles, 'saltbox') || contains(matrix.roles.roles, 'feederbox') || contains(matrix.roles.roles, 'mediabox')) }}
 
-      - name: Install ${{ matrix.roles }}
-        run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+      - name: Install ${{ matrix.roles.roles }}
+        run: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
 
   webhook:
     name: 'webhook'
