@@ -60,6 +60,8 @@
     - { role: emby, tags: ['emby'] }
     - { role: jellyfin, tags: ['jellyfin'] }
     - { role: mainline, tags: ['mainline'] }
+    - { role: mariadb, tags: ['mariadb'] }
+    - { role: mongodb, tags: ['mongodb'] }
     - { role: netdata, tags: ['netdata'] }
     - { role: nginx, tags: ['nginx'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
@@ -67,6 +69,7 @@
     - { role: plex, tags: ['plex'] }
     - { role: postgres, tags: ['postgres'] }
     - { role: prowlarr, tags: ['prowlarr'] }
+    - { role: python, tags: ['python'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }
     - { role: readarr, tags: ['readarr'] }
     - { role: redis, tags: ['redis'] }
@@ -79,11 +82,8 @@
     # Apps End
     - { role: custom, tags: ['custom'] }
     - { role: hetzner_nfs, tags: ['hetzner_nfs_server', 'hetzner_nfs_server_uninstall', 'hetzner_nfs_client_mount', 'hetzner_nfs_client_unmount'] }
-    - { role: mariadb, tags: ['mariadb'] }
-    - { role: mongodb, tags: ['mongodb'] }
     - { role: plex_auth_token, tags: ['plex_auth_token'] }
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: plex_plugins/sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: plex_plugins/webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
-    - { role: python, tags: ['python'] }
     - { role: saltbox_mod, tags: ['saltbox_mod'] }
