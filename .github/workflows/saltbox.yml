@@ -60,18 +60,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
-        run: OUTPUT=$(awk '/# Apps Start/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/') && echo "::set-output name=matrix::{\"roles\":[$OUTPUT]}"
+        run: OUTPUT=$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|mounts_override\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik_reset_certs\|user\).,//g") && echo "::set-output name=matrix::{\"roles\":[$OUTPUT]}"
 
   install:
     name: '${{ matrix.roles.roles }}-${{ matrix.release }}'
-    runs-on: ${{ matrix.release }}
+    runs-on: ubuntu-22.04
     needs: [ansible-lint, find-roles]
     strategy:
-      matrix:
-        roles: ${{fromJson(needs.find-roles.outputs.matrix)}}
-        release:
-          - ubuntu-20.04
-          - ubuntu-22.04
+      matrix: ${{fromJson(needs.find-roles.outputs.matrix)}}
       fail-fast: false
 
     steps:
