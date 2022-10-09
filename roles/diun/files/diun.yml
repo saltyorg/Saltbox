@@ -24,16 +24,16 @@ providers:
 #     username: foo
 #     password: bar
 
-# notif:
-#   discord:
-#     webhookURL: https://discordapp.com/api/webhooks/1234567890/Abcd-eFgh-iJklmNo_pqr
-#     mentions:
-#       - "@here"
-#       - "@everyone"
-#       - "<@124>"
-#       - "<@125>"
-#       - "<@&200>"
-#     renderFields: true
-#     timeout: 10s
-#     templateBody: |
-#       Docker tag {{ .Entry.Image }} which you subscribed to through {{ .Entry.Provider }} provider has been released.
+#notif:
+#  discord:
+#    webhookURL: https://discordapp.com/api/webhooks/1234567890/Abcd-eFgh-iJklmNo_pqr
+#    mentions:
+#      - "@here"
+#      - "@everyone"
+#      - "<@124>"
+#      - "<@125>"
+#      - "<@&200>"
+#    renderFields: true
+#    timeout: 10s
+#    templateBody: |
+#      Docker tag {{ .Entry.Image }} which you subscribed to through {{ .Entry.Provider }} provider has been released.
