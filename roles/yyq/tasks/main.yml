@@ -25,6 +25,9 @@
     validate_certs: false
   ignore_errors: true
   register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
 
 - name: "Get yyq version"
   ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"

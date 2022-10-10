@@ -16,6 +16,10 @@
     group: root
     force: true
     validate_certs: false
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
 
 - name: Patch | Install Nvidia patch
   ansible.builtin.shell: "{{ nvidia_patch_download_dest }}"

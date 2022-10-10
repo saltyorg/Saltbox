@@ -25,6 +25,9 @@
     validate_certs: false
   ignore_errors: true
   register: ctop_download_status
+  until: "ctop_download_status is not failed"
+  retries: 5
+  delay: 10
 
 - name: Tasks to do when ctop download is successful
   block:

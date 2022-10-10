@@ -42,6 +42,10 @@
     group: "{{ user.name }}"
     mode: "0770"
     force: true
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
 
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"

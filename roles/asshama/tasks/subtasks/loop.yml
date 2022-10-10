@@ -49,6 +49,10 @@
     url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
     dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py'
     mode: '0775'
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
 
 - name: Set ASS directory permissions
   ansible.builtin.file:

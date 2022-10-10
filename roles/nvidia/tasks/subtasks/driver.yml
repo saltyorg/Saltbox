@@ -29,6 +29,9 @@
     force: true
     validate_certs: false
   register: driver_download
+  until: "driver_download is not failed"
+  retries: 5
+  delay: 10
 
 - name: Driver | Uninstall Nvidia drivers
   ansible.builtin.shell: "{{ nvidia_driver_uninstall_command }}"

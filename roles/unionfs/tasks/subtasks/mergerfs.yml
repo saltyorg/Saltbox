@@ -24,6 +24,10 @@
   ansible.builtin.apt:
     deb: "{{ mergerfs_download_url.stdout | default(mergerfs_download_backup_url, true) }}"
     state: present
+  register: mergerfs_install_result
+  until: "mergerfs_install_result is not failed"
+  retries: 5
+  delay: 10
 
 - name: "MergerFS | Import 'mergerfs.service'"
   ansible.builtin.template:

@@ -57,6 +57,9 @@
         validate_certs: false
       ignore_errors: true
       register: x
+      until: "x is not failed"
+      retries: 5
+      delay: 10
 
     - name: "Get transfer version"
       ansible.builtin.shell: "/usr/local/bin/transfer --version | head -n 1 | awk '{ print $1 }'"

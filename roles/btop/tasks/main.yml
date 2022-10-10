@@ -30,6 +30,10 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: '0777'
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
 
 - name: "btop | Unpack btop"
   ansible.builtin.shell: "tar -xjf btop-x86_64-linux-musl.tbz"
