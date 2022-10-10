@@ -45,6 +45,10 @@
         dest: /tmp
         copy: false
         validate_certs: false
+      register: x
+      until: "x is not failed"
+      retries: 5
+      delay: 10
 
   rescue:
 
@@ -54,6 +58,10 @@
         dest: /tmp
         copy: false
         validate_certs: false
+      register: x
+      until: "x is not failed"
+      retries: 5
+      delay: 10
 
 - name: Install Binary | Find rclone tmp dir
   ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
