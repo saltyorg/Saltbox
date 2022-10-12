@@ -24,7 +24,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    when: global_themepark_plugin_enabled
+  when: global_themepark_plugin_enabled
 
 - name: Create auth file
   community.general.htpasswd:
