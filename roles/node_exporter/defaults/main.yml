@@ -1,0 +1,17 @@
+##########################################################################
+# Title:         Saltbox: Node Exporter | Default Variables              #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+node_exporter_path: "/opt/node_exporter"
+
+node_exporter_latest_releases_url: "{{ cvm }}https://api.github.com/repos/prometheus/node_exporter/releases/latest"
+
+node_exporter_latest_release_lookup_command: |
+  curl -s {{ node_exporter_latest_releases_url }} \
+    | jq -r ".assets[] |select(.name | test(\"linux-amd64.tar.gz\")) \
+    | .browser_download_url"

@@ -54,20 +54,24 @@
     - { role: autoscan, tags: ['autoscan'] }
     - { role: bazarr, tags: ['bazarr'] }
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
+    - { role: cadvisor, tags: ['cadvisor'] }
     - { role: ddclient, tags: ['ddclient'] }
     - { role: deluge, tags: ['deluge'] }
     - { role: diun, tags: ['diun'] }
     - { role: emby, tags: ['emby'] }
+    - { role: grafana, tags: ['grafana'] }
     - { role: jellyfin, tags: ['jellyfin'] }
     - { role: mainline, tags: ['mainline'] }
     - { role: mariadb, tags: ['mariadb'] }
     - { role: mongodb, tags: ['mongodb'] }
     - { role: netdata, tags: ['netdata'] }
     - { role: nginx, tags: ['nginx'] }
+    - { role: node_exporter, tags: ['node_exporter'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
     - { role: plex, tags: ['plex'] }
     - { role: postgres, tags: ['postgres'] }
+    - { role: prometheus, tags: ['prometheus'] }
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: python, tags: ['python'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }

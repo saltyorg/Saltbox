@@ -1,0 +1,154 @@
+#########################################################################
+# Title:            Saltbox: Grafana Role | Default Variables           #
+# Author(s):        desimaniac, salty                                   #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Basics
+################################
+
+grafana_name: grafana
+
+################################
+# Paths
+################################
+
+grafana_paths_folder: "{{ grafana_name }}"
+grafana_paths_location: "{{ server_appdata_path }}/{{ grafana_paths_folder }}"
+grafana_paths_folders_list:
+  - "{{ grafana_paths_location }}"
+
+################################
+# Web
+################################
+
+grafana_web_subdomain: "{{ grafana_name }}"
+grafana_web_domain: "{{ user.domain }}"
+grafana_web_port: "3000"
+grafana_web_url: "{{ 'https://' + grafana_web_subdomain + '.' + grafana_web_domain
+                  if (reverse_proxy_is_enabled)
+                  else 'http://localhost:' + grafana_web_port }}"
+
+################################
+# DNS
+################################
+
+grafana_dns_record: "{{ grafana_web_subdomain }}"
+grafana_dns_zone: "{{ grafana_web_domain }}"
+grafana_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+grafana_traefik_middleware: "{{ traefik_default_middleware }}"
+grafana_traefik_certresolver: "{{ traefik_default_certresolver }}"
+grafana_traefik_enabled: true
+
+################################
+# Plugins
+################################
+
+grafana_plugins: "grafana-piechart-panel,grafana-worldmap-panel"
+
+################################
+# Docker
+################################
+
+# Container
+grafana_docker_container: "{{ grafana_name }}"
+
+# Image
+grafana_docker_image_pull: true
+grafana_docker_image_tag: "latest"
+grafana_docker_image: "grafana/grafana:{{ grafana_docker_image_tag }}"
+
+# Ports
+grafana_docker_ports_defaults:
+  - "{{ grafana_web_port }}"
+grafana_docker_ports_custom: []
+grafana_docker_ports: "{{ grafana_docker_ports_defaults
+                          + grafana_docker_ports_custom
+                        if (not reverse_proxy_is_enabled)
+                        else grafana_docker_ports_custom }}"
+
+# Envs
+grafana_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  GF_SERVER_ROOT_URL: "https://grafana.{{ user.domain }}"
+  GF_SECURITY_ADMIN_USER: "{{ user.name }}"
+  GF_SECURITY_ADMIN_PASSWORD: "{{ user.pass }}"
+  GF_INSTALL_PLUGINS: "{{ grafana_plugins }}"
+grafana_docker_envs_custom: {}
+grafana_docker_envs: "{{ grafana_docker_envs_default
+                          | combine(grafana_docker_envs_custom) }}"
+
+# Commands
+grafana_docker_commands_default: []
+grafana_docker_commands_custom: []
+grafana_docker_commands: "{{ grafana_docker_commands_default
+                              + grafana_docker_commands_custom }}"
+
+# Volumes
+grafana_docker_volumes_default:
+  - "{{ grafana_paths_location }}:/var/lib/grafana"
+grafana_docker_volumes_custom: []
+grafana_docker_volumes: "{{ grafana_docker_volumes_default
+                            + grafana_docker_volumes_custom }}"
+
+# Devices
+grafana_docker_devices_default: []
+grafana_docker_devices_custom: []
+grafana_docker_devices: "{{ grafana_docker_devices_default
+                            + grafana_docker_devices_custom }}"
+
+# Hosts
+grafana_docker_hosts_default: []
+grafana_docker_hosts_custom: []
+grafana_docker_hosts: "{{ docker_hosts_common
+                          | combine(grafana_docker_hosts_default)
+                          | combine(grafana_docker_hosts_custom) }}"
+
+# Labels
+grafana_docker_labels_default: {}
+grafana_docker_labels_custom: {}
+grafana_docker_labels: "{{ docker_labels_common
+                            | combine(grafana_docker_labels_default)
+                            | combine(grafana_docker_labels_custom) }}"
+
+# Hostname
+grafana_docker_hostname: "{{ grafana_name }}"
+
+# Networks
+grafana_docker_networks_alias: "{{ grafana_name }}"
+grafana_docker_networks_default: []
+grafana_docker_networks_custom: []
+grafana_docker_networks: "{{ docker_networks_common
+                              + grafana_docker_networks_default
+                              + grafana_docker_networks_custom }}"
+
+# Capabilities
+grafana_docker_capabilities_default: []
+grafana_docker_capabilities_custom: []
+grafana_docker_capabilities: "{{ grafana_docker_capabilities_default
+                                  + grafana_docker_capabilities_custom }}"
+
+# Security Opts
+grafana_docker_security_opts_default: []
+grafana_docker_security_opts_custom: []
+grafana_docker_security_opts: "{{ grafana_docker_security_opts_default
+                                  + grafana_docker_security_opts_custom }}"
+
+# Restart Policy
+grafana_docker_restart_policy: unless-stopped
+
+# State
+grafana_docker_state: started
+
+# User
+grafana_docker_user: "{{ uid }}:{{ gid }}"

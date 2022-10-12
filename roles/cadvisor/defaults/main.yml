@@ -1,0 +1,114 @@
+#########################################################################
+# Title:            Saltbox: cAdvisor Role | Default Variables          #
+# Author(s):        salty                                               #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Basics
+################################
+
+cadvisor_name: cadvisor
+
+################################
+# Web
+################################
+
+cadvisor_web_port: "8080"
+
+################################
+# Docker
+################################
+
+# Container
+cadvisor_docker_container: "{{ cadvisor_name }}"
+
+# Image
+cadvisor_docker_image_pull: true
+cadvisor_docker_image_tag: "latest"
+cadvisor_docker_image: "gcr.io/cadvisor/cadvisor:{{ cadvisor_docker_image_tag }}"
+
+# Ports
+cadvisor_docker_ports_defaults: []
+cadvisor_docker_ports_custom: []
+cadvisor_docker_ports: "{{ cadvisor_docker_ports_defaults
+                          + cadvisor_docker_ports_custom }}"
+
+# Envs
+cadvisor_docker_envs_default:
+  TZ: "{{ tz }}"
+cadvisor_docker_envs_custom: {}
+cadvisor_docker_envs: "{{ cadvisor_docker_envs_default
+                          | combine(cadvisor_docker_envs_custom) }}"
+
+# Commands
+cadvisor_docker_commands_default: []
+cadvisor_docker_commands_custom: []
+cadvisor_docker_commands: "{{ cadvisor_docker_commands_default
+                              + cadvisor_docker_commands_custom }}"
+
+# Volumes
+cadvisor_docker_volumes_default:
+  - "/:/rootfs:ro"
+  - "/var/run:/var/run:ro"
+  - "/sys:/sys:ro"
+  - "/var/lib/docker/:/var/lib/docker:ro"
+  - "/dev/disk/:/dev/disk:ro"
+cadvisor_docker_volumes_custom: []
+cadvisor_docker_volumes: "{{ cadvisor_docker_volumes_default
+                            + cadvisor_docker_volumes_custom }}"
+
+# Devices
+cadvisor_docker_devices_default:
+  - /dev/kmsg
+cadvisor_docker_devices_custom: []
+cadvisor_docker_devices: "{{ cadvisor_docker_devices_default
+                            + cadvisor_docker_devices_custom }}"
+
+# Hosts
+cadvisor_docker_hosts_default: []
+cadvisor_docker_hosts_custom: []
+cadvisor_docker_hosts: "{{ docker_hosts_common
+                          | combine(cadvisor_docker_hosts_default)
+                          | combine(cadvisor_docker_hosts_custom) }}"
+
+# Labels
+cadvisor_docker_labels_default: {}
+cadvisor_docker_labels_custom: {}
+cadvisor_docker_labels: "{{ docker_labels_common
+                            | combine(cadvisor_docker_labels_default)
+                            | combine(cadvisor_docker_labels_custom) }}"
+
+# Hostname
+cadvisor_docker_hostname: "{{ cadvisor_name }}"
+
+# Networks
+cadvisor_docker_networks_alias: "{{ cadvisor_name }}"
+cadvisor_docker_networks_default: []
+cadvisor_docker_networks_custom: []
+cadvisor_docker_networks: "{{ docker_networks_common
+                              + cadvisor_docker_networks_default
+                              + cadvisor_docker_networks_custom }}"
+
+# Capabilities
+cadvisor_docker_capabilities_default: []
+cadvisor_docker_capabilities_custom: []
+cadvisor_docker_capabilities: "{{ cadvisor_docker_capabilities_default
+                                  + cadvisor_docker_capabilities_custom }}"
+
+# Security Opts
+cadvisor_docker_security_opts_default: []
+cadvisor_docker_security_opts_custom: []
+cadvisor_docker_security_opts: "{{ cadvisor_docker_security_opts_default
+                                  + cadvisor_docker_security_opts_custom }}"
+
+# Restart Policy
+cadvisor_docker_restart_policy: unless-stopped
+
+# State
+cadvisor_docker_state: started
+
+# Privileged
+cadvisor_docker_privileged: "yes"

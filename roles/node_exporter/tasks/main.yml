@@ -1,0 +1,70 @@
+#########################################################################
+# Title:         Saltbox: Node Exporter                                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Get URL for latest Node Exporter release"
+  ansible.builtin.shell: "{{ node_exporter_latest_release_lookup_command }}"
+  args:
+    executable: /bin/bash
+    warn: false
+  register: node_exporter_latest_download_url
+  ignore_errors: true
+
+- name: "Download and unarchive Node Exporter from Github"
+  ansible.builtin.unarchive:
+    src: "{{ node_exporter_latest_download_url.stdout }}"
+    dest: /tmp
+    copy: false
+    validate_certs: false
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
+
+- name: Create directories
+  ansible.builtin.file:
+    path: "{{ node_exporter_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Find Node Exporter tmp dir
+  ansible.builtin.shell: ls -d /tmp/node_exporter-*.linux-amd64
+  register: node_exporter_tmp_dir
+
+- name: "Copy binary to {{ node_exporter_path }}/node_exporter"
+  ansible.builtin.copy:
+    src: "{{ node_exporter_tmp_dir.stdout }}/node_exporter"
+    dest: "{{ node_exporter_path }}/node_exporter"
+    mode: "0775"
+    owner: salty
+    group: salty
+    force: true
+
+- name: "Import 'node_exporter.service'"
+  ansible.builtin.template:
+    src: node_exporter.service.j2
+    dest: "/etc/systemd/system/node_exporter.service"
+    force: true
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Systemd daemon-reload 'node_exporter.service'
+  ansible.builtin.systemd:
+    name: node_exporter.service
+    state: stopped
+    enabled: false
+    daemon_reload: true
+
+- name: Systemd start 'node_exporter.service'
+  ansible.builtin.systemd:
+    name: node_exporter.service
+    state: started
+    enabled: true
