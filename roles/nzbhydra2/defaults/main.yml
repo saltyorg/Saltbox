@@ -56,11 +56,11 @@ nzbhydra2_traefik_middleware_default: "{{ traefik_default_middleware + ','
                                        else traefik_default_middleware }}"
 nzbhydra2_traefik_middleware_custom: ""
 nzbhydra2_traefik_middleware: "{{ nzbhydra2_traefik_middleware_default + ','
-                                  + nzbhydra2_traefik_middleware_custom
+                                  + nzbhydra2_traefik_middleware_custom + ','
                                   + nzbhydra2_traefik_themepark_middleware
                                if (not nzbhydra2_traefik_middleware_custom.startswith(',') and nzbhydra2_traefik_middleware_custom | length > 0)
                                else nzbhydra2_traefik_middleware_default
-                                  + nzbhydra2_traefik_middleware_custom
+                                  + nzbhydra2_traefik_middleware_custom + ','
                                   + nzbhydra2_traefik_themepark_middleware }}"
 nzbhydra2_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbhydra2_traefik_enabled: true

@@ -101,7 +101,7 @@ plex_traefik_middleware: "{{ plex_traefik_middleware_default
                              + (','
                                if (not plex_traefik_middleware_custom.startswith(',') and plex_traefik_middleware_custom | length > 0)
                                else '')
-                             + plex_traefik_middleware_custom
+                             + plex_traefik_middleware_custom + ','
                              + plex_traefik_themepark_middleware }}"
 
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
