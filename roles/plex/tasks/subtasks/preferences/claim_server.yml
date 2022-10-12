@@ -8,7 +8,7 @@
 ##########################################################################
 ---
 - name: Claim Server | Import plex_auth_token
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: plex_auth_token
   when: (plex_account_is_enabled)
 

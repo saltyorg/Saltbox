@@ -107,6 +107,6 @@
   tags: docker-compose
 
 - name: "Install ctop"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: ctop
   tags: ctop

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Settings | Import Plex Auth Token role
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: plex_auth_token
   when: plex_account_is_enabled
 

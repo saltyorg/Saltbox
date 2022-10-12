@@ -80,16 +80,16 @@
   when: (not continuous_integration)
 
 - name: "Import Authelia Role"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: authelia
   when: authelia_is_master
 
 - name: "Import Jaeger Role"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: jaeger
   when: traefik.tracing
 
 - name: "Import Error Pages Role"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: error_pages
   when: traefik_error_pages_enabled

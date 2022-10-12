@@ -41,13 +41,13 @@
     - plex-db-cache-size
 
 - name: "Install Sub-Zero Plugin"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: plex_plugins/sub_zero
 
   when: plex_plugin_sub_zero
 
 - name: "Install WebTools Plugin"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: plex_plugins/webtools
 
   when: plex_plugin_webtools

@@ -30,7 +30,7 @@
                           else '0.0.0' }}"
 
 - name: "Start | Install yyq"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: yyq
   when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver'))
         or (not yyq_binary.stat.exists)

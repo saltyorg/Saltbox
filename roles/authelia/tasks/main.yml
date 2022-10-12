@@ -13,7 +13,7 @@
   when: not authelia_is_master
 
 - name: "Import Redis Role"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: redis
 
 - name: Install argon2_cffi python package
