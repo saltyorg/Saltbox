@@ -244,7 +244,7 @@ traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
                              + traefik_docker_commands_metrics
-                             + traefik_docker_commands_theme
+                             + traefik_docker_commands_themepark_plugin
                              + traefik_docker_commands_tracing
                              + traefik_docker_commands_google_acme }}"
 
