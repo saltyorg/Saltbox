@@ -220,8 +220,8 @@ traefik_docker_commands_metrics: "{{ traefik_docker_commands_metrics_tmp
                                   if traefik.metrics
                                   else [] }}"
 traefik_docker_commands_themepark_plugin_tmp:
-  - "--experimental.plugins.traefik-themepark.modulename=github.com/packruler/traefik-themepark"
-  - "--experimental.plugins.traefik-themepark.version=v1.2.2"
+  - "--experimental.plugins.themepark.modulename=github.com/packruler/traefik-themepark"
+  - "--experimental.plugins.themepark.version=v1.2.2"
 traefik_docker_commands_themepark_plugin: "{{ traefik_docker_commands_themepark_plugin_tmp
                                            if global_themepark_plugin_enabled
                                            else [] }}"
