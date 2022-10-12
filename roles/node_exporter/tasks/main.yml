@@ -43,8 +43,8 @@
     src: "{{ node_exporter_tmp_dir.stdout }}/node_exporter"
     dest: "{{ node_exporter_path }}/node_exporter"
     mode: "0775"
-    owner: salty
-    group: salty
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
     force: true
 
 - name: "Import 'node_exporter.service'"
