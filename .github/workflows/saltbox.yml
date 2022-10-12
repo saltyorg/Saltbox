@@ -110,7 +110,7 @@ jobs:
     needs: install
     if: always()
     steps:
-      - uses: technote-space/workflow-conclusion-action@v2
+      - uses: technote-space/workflow-conclusion-action@v3
       - uses: sarisia/actions-status-discord@v1
         if: always()
         with:
