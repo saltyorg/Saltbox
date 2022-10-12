@@ -60,17 +60,17 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/l3uddz>
-            <img src=https://avatars.githubusercontent.com/u/7897162?v=4 width="100;"  alt=l3uddz/>
-            <br />
-            <sub style="font-size:14px"><b>l3uddz</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/owine>
             <img src=https://avatars.githubusercontent.com/u/4283702?v=4 width="100;"  alt=owine/>
             <br />
             <sub style="font-size:14px"><b>owine</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/l3uddz>
+            <img src=https://avatars.githubusercontent.com/u/7897162?v=4 width="100;"  alt=l3uddz/>
+            <br />
+            <sub style="font-size:14px"><b>l3uddz</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
