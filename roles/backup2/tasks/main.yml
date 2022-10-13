@@ -389,7 +389,7 @@
       when: (backup.rclone.enable)
 
     - name: "Run items asynchronously in batch of {{ backup2_async_batch_size }} items"
-      include_tasks: upload.yml
+      ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
       loop: "{{ opt_folders | batch(backup2_async_batch_size) | list }}"

@@ -17,7 +17,7 @@
     timeout: 10
 
 - name: Post-Install | Stop container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ nzbget_docker_container }}"
     state: stopped
     container_default_behavior: compatibility
@@ -29,7 +29,7 @@
   ansible.builtin.import_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ nzbget_docker_container }}"
     state: "{{ nzbget_docker_state }}"
     container_default_behavior: compatibility

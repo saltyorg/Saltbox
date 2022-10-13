@@ -34,7 +34,7 @@
       ansible.builtin.shell: fallocate -l 20G /media/docker-volume.img
 
     - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
-      filesystem:
+      community.general.filesystem:
         fstype: ext4
         dev: /media/docker-volume.img
 
@@ -53,7 +53,7 @@
         state: absent
 
     - name: BTRFS | Psuedo-File-System | Mount pseudo-file-system
-      mount:
+      ansible.posix.mount:
         name: /var/lib/docker
         src: /media/docker-volume.img
         fstype: ext4

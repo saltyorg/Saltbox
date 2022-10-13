@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Execute Autoscan roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     autoscan_name: "{{ role }}"
   with_items: "{{ autoscan_instances }}"

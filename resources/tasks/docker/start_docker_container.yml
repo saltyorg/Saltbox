@@ -14,7 +14,7 @@
                   else role_name }}"
 
 - name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
-  docker_container:
+  community.docker.docker_container:
     container_default_behavior: compatibility
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: started

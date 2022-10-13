@@ -92,7 +92,7 @@
   register: shell_zsh_binary_path_stat
 
 - name: ZSH | Create an 'alternatives link' to '{{ shell_zsh_binary_path }}'
-  alternatives:
+  community.general.alternatives:
     name: zsh
     link: "{{ shell_zsh_binary_path }}"
     path: "{{ shell_zsh_binary_previous_path }}"

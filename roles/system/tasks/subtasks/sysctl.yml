@@ -9,7 +9,7 @@
 ---
 - name: sysctl | Tuning
   ignore_errors: true
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     state: present
@@ -80,7 +80,7 @@
 
 - name: "sysctl | Tuning - 'netdev_budget_usecs'"
   ignore_errors: true
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     state: present

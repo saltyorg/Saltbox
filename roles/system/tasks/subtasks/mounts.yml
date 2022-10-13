@@ -13,7 +13,7 @@
     verbosity: 1
 
 - name: Mounts | Set opts for '/' ext4 mount
-  mount:
+  ansible.posix.mount:
     path: /
     opts: defaults,noatime,nobarrier
     state: present

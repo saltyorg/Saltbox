@@ -13,7 +13,7 @@
     state: present
 
 - name: Post-Install | Settings | Stop container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ sabnzbd_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost
@@ -36,7 +36,7 @@
   loop: "{{ sabnzbd_config_settings_list }}"
 
 - name: Post-Install | Settings | Start container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ sabnzbd_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost

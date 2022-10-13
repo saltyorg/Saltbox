@@ -40,7 +40,7 @@
   when: (not netdata_config.stat.exists)
 
 - name: Create a volume
-  docker_volume:
+  community.docker.docker_volume:
     name: "{{ item }}"
   with_items:
     - netdatalib

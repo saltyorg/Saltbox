@@ -22,7 +22,7 @@
     timeout: 10
 
 - name: Post-Install | Stop container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ rutorrent_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost
@@ -32,7 +32,7 @@
   ansible.builtin.import_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ rutorrent_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost

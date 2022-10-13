@@ -14,7 +14,7 @@
     timeout: 15
 
 - name: Post-Install | Settings | Stop container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ nzbhydra2_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost
@@ -28,7 +28,7 @@
   loop: "{{ nzbhydra2_config_settings_list }}"
 
 - name: Post-Install | Settings | Start container
-  docker_container:
+  community.docker.docker_container:
     name: "{{ nzbhydra2_docker_container }}"
     container_default_behavior: compatibility
     tls_hostname: localhost

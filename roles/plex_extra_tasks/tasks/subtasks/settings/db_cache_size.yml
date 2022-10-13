@@ -46,7 +46,7 @@
   block:
 
     - name: Settings | DB Cache Size | Stop Plex Container
-      docker_container:
+      community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: stopped
       when: ('plex_db_cache_size' in ansible_run_tags)
@@ -77,7 +77,7 @@
         msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
 
     - name: Settings | DB Cache Size | Start Plex Container
-      docker_container:
+      community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: started
       when: ('plex_db_cache_size' in ansible_run_tags)

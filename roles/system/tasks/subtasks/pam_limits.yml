@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Set PAM limits for all users.
-  pam_limits:
+  community.general.pam_limits:
     domain: "*"
     limit_type: "{{ item.limit_type }}"
     limit_item: "{{ item.limit_item }}"

@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Pre-Install | Get next available port within the range of '32400-32410'
+- name: Pre-Install | Get next available port within the range of '32400-32410' # noqa fqcn[action]
   find_next_open_port:
     low_bound: 32400
     high_bound: 32410

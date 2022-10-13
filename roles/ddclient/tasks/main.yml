@@ -9,7 +9,7 @@
 #########################################################################
 ---
 - name: Stop and remove any existing container
-  docker_container:
+  community.docker.docker_container:
     name: ddclient
     state: absent
     container_default_behavior: compatibility
@@ -51,7 +51,7 @@
   when: cloudflare_is_enabled
 
 - name: Create and start container
-  docker_container:
+  community.docker.docker_container:
     name: ddclient
     image: "lscr.io/linuxserver/ddclient:latest"
     pull: true

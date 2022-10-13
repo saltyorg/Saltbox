@@ -49,6 +49,7 @@
         force: true
 
     - name: Resources | Tasks | systemd | Delete Service | systemd daemon-reload
-      ansible.builtin.systemd: daemon_reload=yes
+      ansible.builtin.systemd:
+        daemon_reload: yes
 
   when: service_status.stat.exists

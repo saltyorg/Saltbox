@@ -9,7 +9,7 @@
 #########################################################################
 ---
 - name: "Stop {{ plex_name }} container"
-  docker_container:
+  community.docker.docker_container:
     name: "{{ plex_name }}"
     state: stopped
     container_default_behavior: compatibility
@@ -83,7 +83,7 @@
     recurse: true
 
 - name: "Start {{ plex_name }} container"
-  docker_container:
+  community.docker.docker_container:
     name: "{{ plex_name }}"
     state: started
     container_default_behavior: compatibility

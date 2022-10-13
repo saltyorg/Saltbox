@@ -31,7 +31,8 @@
   block:
 
     - name: Fail when invalid hetzner_nfs.mount_client is specified
-      ansible.builtin.fail: msg="You must use a value larger than 2 and lower than 251 for the Hetzner NFS mount_client advanced setting."
+      ansible.builtin.fail:
+        msg: "You must use a value larger than 2 and lower than 251 for the Hetzner NFS mount_client advanced setting."
       when: hetzner_nfs.mount_client < 3 or hetzner_nfs.mount_client > 250
 
     - name: "Services Stop Tasks"

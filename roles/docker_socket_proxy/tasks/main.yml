@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: Remove existing Docker container
-  docker_container:
+  community.docker.docker_container:
     name: "docker-socket-proxy"
     state: absent
     container_default_behavior: compatibility
     tls_hostname: localhost
 
 - name: Create and start container
-  docker_container:
+  community.docker.docker_container:
     name: docker-socket-proxy
     image: "tecnativa/docker-socket-proxy"
     pull: true

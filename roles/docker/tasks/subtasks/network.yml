@@ -21,7 +21,7 @@
   block:
 
     - name: Create saltbox network
-      docker_network:
+      community.docker.docker_network:
         name: saltbox
         state: present
         enable_ipv6: true
@@ -35,7 +35,7 @@
   block:
 
     - name: Create saltbox network
-      docker_network:
+      community.docker.docker_network:
         name: saltbox
         state: present
         ipam_config:
@@ -59,7 +59,7 @@
       ignore_errors: true
 
     - name: Network | Rebuild saltbox network
-      docker_network:
+      community.docker.docker_network:
         name: saltbox
         state: present
         enable_ipv6: true
@@ -92,7 +92,7 @@
       ignore_errors: true
 
     - name: Network | Rebuild saltbox network
-      docker_network:
+      community.docker.docker_network:
         name: saltbox
         state: present
         ipam_config:

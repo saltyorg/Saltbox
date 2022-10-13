@@ -65,7 +65,7 @@
             docker_running_containers_list: "{{ (docker_running_containers_list.stdout).split() }}"
 
         - name: Stop {{ plex_name | title }} container
-          docker_container:
+          community.docker.docker_container:
             name: "{{ plex_docker_container }}"
             container_default_behavior: compatibility
             tls_hostname: localhost
@@ -152,7 +152,7 @@
             ((plex_plugin_webtools_download_status is success) and (not plex_plugin_webtools_version_status.stat.exists))
 
     - name: Start {{ plex_name | title }} container
-      docker_container:
+      community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: "{{ plex_docker_state }}"
       when:

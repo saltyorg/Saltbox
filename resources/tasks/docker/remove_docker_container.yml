@@ -14,7 +14,7 @@
                   else role_name }}"
 
 - name: Resources | Tasks | Docker | Remove Docker Container | Remove Docker Container
-  docker_container:
+  community.docker.docker_container:
     container_default_behavior: compatibility
     force_kill: "{{ lookup('vars', _var_prefix + '_docker_force_kill', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
