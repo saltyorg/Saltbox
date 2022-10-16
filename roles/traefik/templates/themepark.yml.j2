@@ -1,10 +1,5 @@
 http:
   middlewares:
-    themepark-emby:
-      plugin:
-        themepark:
-          app: emby
-          theme: {{ emby_themepark_theme | default (global_themepark_theme) }}
     themepark-overseerr:
       plugin:
         themepark:
