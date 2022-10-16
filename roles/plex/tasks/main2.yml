@@ -34,6 +34,11 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
+- name: Remove '98-themepark'
+  ansible.builtin.file:
+    path: "{{ plex_paths_location }}/98-themepark"
+    state: absent
+
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
   when: not continuous_integration
