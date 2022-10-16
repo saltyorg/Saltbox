@@ -26,6 +26,12 @@
     mode: "0775"
   when: global_themepark_plugin_enabled
 
+- name: Remove 'themepark.yml'
+  ansible.builtin.file:
+    path: "{{ traefik_paths_location }}/themepark.yml"
+    state: absent
+  when: not global_themepark_plugin_enabled
+
 - name: Create auth file
   community.general.htpasswd:
     path: /opt/traefik/auth
