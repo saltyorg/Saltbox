@@ -90,7 +90,9 @@ plex_traefik_middleware_http: "{{ 'globalHeaders@file'
                                else traefik_default_middleware_default_http }}"
 
 plex_traefik_sso_middleware: ""
-plex_traefik_themepark_middleware: "{{ 'themepark-plex@file' if (plex_themepark_enabled and global_themepark_plugin_enabled) else '' }}"
+plex_traefik_themepark_middleware: "{{ 'themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
+                                    if (plex_themepark_enabled and global_themepark_plugin_enabled)
+                                    else '' }}"
 
 plex_traefik_middleware_default: "{{ traefik_default_middleware
                                      + (',' + lookup('vars', plex_name + '_traefik_sso_middleware', default=plex_traefik_sso_middleware)
@@ -254,9 +256,15 @@ plex_docker_labels_default:
   - '{ "traefik.http.routers.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.priority": "20" }'
   - '{ "traefik.http.services.{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_webtools_web_subdomain) }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
 plex_docker_labels_custom: {}
+plex_docker_labels_themepark:
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", plex_name + "_name", default=plex_name) }}.plugin.themepark.app": "plex" }'
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", plex_name + "_name", default=plex_name) }}.plugin.themepark.theme": "{{ lookup("vars", plex_name + "_themepark_theme", default=plex_themepark_theme) }}" }'
 plex_docker_labels: "{{ docker_labels_common
                         | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default)
                                   if plex_plugin_webtools
+                                  else {}),
+                                  (lookup('vars', plex_name + '_docker_labels_themepark', default=plex_docker_labels_themepark)
+                                  if (plex_themepark_enabled and global_themepark_plugin_enabled)
                                   else {}),
                                   lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom)) }}"
 
