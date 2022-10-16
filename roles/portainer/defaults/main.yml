@@ -56,7 +56,7 @@ portainer_traefik_middleware_default: "{{ traefik_default_middleware + ','
                                        else traefik_default_middleware }}"
 portainer_traefik_middleware_custom: ""
 portainer_traefik_middleware: "{{ portainer_traefik_middleware_default + ','
-                                  + portainer_traefik_middleware_custom + ','
+                                  + portainer_traefik_middleware_custom
                                   + portainer_traefik_themepark_middleware
                                if (not portainer_traefik_middleware_custom.startswith(',') and portainer_traefik_middleware_custom | length > 0)
                                else portainer_traefik_middleware_default
