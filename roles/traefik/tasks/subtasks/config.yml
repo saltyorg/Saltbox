@@ -16,6 +16,11 @@
     group: "{{ user.name }}"
     mode: "0775"
 
+- name: Remove 'themepark.yml'
+  ansible.builtin.file:
+    path: "{{ traefik_paths_location }}/themepark.yml"
+    state: absent
+
 - name: Create auth file
   community.general.htpasswd:
     path: /opt/traefik/auth
