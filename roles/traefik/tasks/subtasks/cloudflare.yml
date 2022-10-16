@@ -13,6 +13,9 @@
     method: GET
     return_content: true
   register: cloudflare_ips
+  retries: "5"
+  delay: 10
+  until: cloudflare_ips.status == 200
 
 - name: Create Cloudflare IPv4 and IPv6 variables
   ansible.builtin.set_fact:
