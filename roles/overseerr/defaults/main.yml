@@ -54,7 +54,9 @@ overseerr_log_level: "info"
 # Traefik
 ################################
 
-overseerr_traefik_themepark_middleware: "{{ 'themepark-overseerr@file' if (overseerr_themepark_enabled and global_themepark_plugin_enabled) else '' }}"
+overseerr_traefik_themepark_middleware: "{{ 'themepark-' + lookup('vars', overseerr_name + '_name', default=overseerr_name)
+                                    if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
+                                    else '' }}"
 
 overseerr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 overseerr_traefik_middleware_custom: ""
@@ -142,9 +144,15 @@ overseerr_docker_hosts: "{{ docker_hosts_common
 # Labels
 overseerr_docker_labels_default: {}
 overseerr_docker_labels_custom: {}
+overseerr_docker_labels_themepark:
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", overseerr_name + "_name", default=overseerr_name) }}.plugin.themepark.app": "overseerr" }'
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", overseerr_name + "_name", default=overseerr_name) }}.plugin.themepark.theme": "{{ lookup("vars", overseerr_name + "_themepark_theme", default=overseerr_themepark_theme) }}" }'
 overseerr_docker_labels: "{{ docker_labels_common
                              | combine(lookup('vars', overseerr_name + '_docker_labels_default', default=overseerr_docker_labels_default))
-                             | combine(lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
+                             | combine((lookup('vars', overseerr_name + '_docker_labels_themepark', default=overseerr_docker_labels_themepark)
+                          if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
+                          else {}),
+                          lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
 
 # Hostname
 overseerr_docker_hostname: "{{ overseerr_name }}"
