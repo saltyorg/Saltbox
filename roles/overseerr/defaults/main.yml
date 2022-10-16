@@ -54,7 +54,7 @@ overseerr_log_level: "info"
 # Traefik
 ################################
 
-overseerr_traefik_themepark_middleware: "{{ 'themepark-' + lookup('vars', overseerr_name + '_name', default=overseerr_name)
+overseerr_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', overseerr_name + '_name', default=overseerr_name)
                                     if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
                                     else '' }}"
 
@@ -65,7 +65,7 @@ overseerr_traefik_middleware: "{{ overseerr_traefik_middleware_default + ','
                                   + overseerr_traefik_themepark_middleware
                                if (not overseerr_traefik_middleware_custom.startswith(',') and overseerr_traefik_middleware_custom | length > 0)
                                else overseerr_traefik_middleware_default
-                                  + overseerr_traefik_middleware_custom + ','
+                                  + overseerr_traefik_middleware_custom
                                   + overseerr_traefik_themepark_middleware }}"
 
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"

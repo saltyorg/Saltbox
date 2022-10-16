@@ -46,7 +46,7 @@ portainer_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 portainer_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-portainer_traefik_themepark_middleware: "{{ 'themepark-' + lookup('vars', portainer_name + '_name', default=portainer_name)
+portainer_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', portainer_name + '_name', default=portainer_name)
                                     if (portainer_themepark_enabled and global_themepark_plugin_enabled)
                                     else '' }}"
 
@@ -60,7 +60,7 @@ portainer_traefik_middleware: "{{ portainer_traefik_middleware_default + ','
                                   + portainer_traefik_themepark_middleware
                                if (not portainer_traefik_middleware_custom.startswith(',') and portainer_traefik_middleware_custom | length > 0)
                                else portainer_traefik_middleware_default
-                                  + portainer_traefik_middleware_custom + ','
+                                  + portainer_traefik_middleware_custom
                                   + portainer_traefik_themepark_middleware }}"
 portainer_traefik_middleware_api: "{{ traefik_global_middleware }}"
 portainer_traefik_certresolver: "{{ traefik_default_certresolver }}"
