@@ -34,19 +34,6 @@
     mode: "0775"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list') }}"
 
-- name: Download 98-themepark
-  ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/plex/root/etc/cont-init.d/98-themepark"
-    dest: "{{ plex_paths_location }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0770"
-    force: true
-  register: x
-  until: "x is not failed"
-  retries: 5
-  delay: 10
-
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
   when: not continuous_integration

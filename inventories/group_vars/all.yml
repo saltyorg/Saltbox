@@ -175,6 +175,7 @@ reverse_proxy_is_enabled: "{{ (user is defined) and
 # Options can be found at https://github.com/gilbN/theme.park
 global_themepark_theme: organizr
 global_themepark_domain: theme-park.dev
+global_themepark_plugin_enabled: false
 
 ################################
 # Authelia

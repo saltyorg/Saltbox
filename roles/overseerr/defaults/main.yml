@@ -54,16 +54,28 @@ overseerr_log_level: "info"
 # Traefik
 ################################
 
+overseerr_traefik_themepark_middleware: "{{ 'themepark-overseerr@file' if (overseerr_themepark_enabled and global_themepark_plugin_enabled) else '' }}"
+
 overseerr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 overseerr_traefik_middleware_custom: ""
 overseerr_traefik_middleware: "{{ overseerr_traefik_middleware_default + ','
-                                  + overseerr_traefik_middleware_custom
+                                  + overseerr_traefik_middleware_custom + ','
+                                  + overseerr_traefik_themepark_middleware
                                if (not overseerr_traefik_middleware_custom.startswith(',') and overseerr_traefik_middleware_custom | length > 0)
                                else overseerr_traefik_middleware_default
-                                  + overseerr_traefik_middleware_custom }}"
+                                  + overseerr_traefik_middleware_custom + ','
+                                  + overseerr_traefik_themepark_middleware }}"
 
 overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 overseerr_traefik_enabled: true
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+overseerr_themepark_enabled: false
+overseerr_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
 # Docker
