@@ -1,0 +1,33 @@
+#########################################################################
+# Title:         Saltbox: System | sshd Tasks                           #
+# Author(s):     owine                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: sshd | Set 'Port'
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^Port"
+    line: "Port {{ sshd.port }}"
+    state: present
+  notify: "Restart sshd"
+
+- name: sshd | Set 'PasswordAuthenticatio'
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication {{ sshd.password_authentication }}"
+    state: present
+  notify: "Restart sshd"
+  when: user.ssh_key
+
+- name: sshd | Set 'PermitRootLogin'
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin {{ sshd.root_login }}"
+    state: present
+  notify: "Restart sshd"

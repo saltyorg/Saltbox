@@ -1,6 +1,10 @@
 ---
 system:
   timezone: auto
+sshd:
+  port: 22
+  password_authentication: true
+  root_login: true
 docker:
   json_driver: no
 dns:
