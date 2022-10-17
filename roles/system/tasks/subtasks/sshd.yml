@@ -13,7 +13,6 @@
     regexp: "^Port"
     line: "Port {{ sshd.port }}"
     state: present
-  notify: "Restart sshd"
 
 - name: sshd | Set 'PasswordAuthenticatio'
   ansible.builtin.lineinfile:
@@ -21,7 +20,6 @@
     regexp: "^PasswordAuthentication"
     line: "PasswordAuthentication {{ sshd.password_authentication }}"
     state: present
-  notify: "Restart sshd"
   when: user.ssh_key
 
 - name: sshd | Set 'PermitRootLogin'
@@ -30,4 +28,3 @@
     regexp: "^PermitRootLogin"
     line: "PermitRootLogin {{ sshd.root_login }}"
     state: present
-  notify: "Restart sshd"
