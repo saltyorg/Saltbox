@@ -94,3 +94,10 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
+
+- name: User Account | Set authorized keys
+  ansible.posix.authorized_key:
+    user: "{{ user.name }}"
+    state: present
+    key: "{{ user.ssh_key }}"
+  when: user.ssh_key
