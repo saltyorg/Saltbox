@@ -25,6 +25,9 @@
 - name: Mounts tasks
   ansible.builtin.import_tasks: "subtasks/mounts.yml"
 
+- name: sshd tasks
+  ansible.builtin.include_tasks: "subtasks/sshd.yml"
+
 - name: CPU Frequency tasks
   ansible.builtin.include_tasks: "subtasks/cpufrequency.yml"
   when: cpu_performance_mode
