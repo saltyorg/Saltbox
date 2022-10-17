@@ -44,7 +44,7 @@
         recurse: true
 
     - name: "Change mountpoints to 'auto'"
-      ansible.builtin.lineinfile:
+      ansiblelineinfile.builtin:
         path: "/opt/btrfsmaintenance/sysconfig.btrfsmaintenance"
         regexp: '^{{ item }}\s?='
         line: '{{ item }}="auto"'
