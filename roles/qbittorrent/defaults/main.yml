@@ -53,19 +53,33 @@ qbittorrent_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 qbittorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+qbittorrent_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', qbittorrent_name + '_name', default=qbittorrent_name)
+                                    if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
+                                    else '' }}"
+
 qbittorrent_traefik_middleware_default: "{{ traefik_default_middleware + ',' + qbittorrent_traefik_sso_middleware
                                          if (qbittorrent_traefik_sso_middleware | length > 0)
                                          else traefik_default_middleware }}"
 qbittorrent_traefik_middleware_custom: ""
 qbittorrent_traefik_middleware: "{{ qbittorrent_traefik_middleware_default + ','
                                     + qbittorrent_traefik_middleware_custom
+                                    + qbittorrent_traefik_themepark_middleware
                                  if (not qbittorrent_traefik_middleware_custom.startswith(',') and qbittorrent_traefik_middleware_custom | length > 0)
                                  else qbittorrent_traefik_middleware_default
-                                    + qbittorrent_traefik_middleware_custom }}"
+                                    + qbittorrent_traefik_middleware_custom
+                                    + qbittorrent_traefik_themepark_middleware }}"
 qbittorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 qbittorrent_traefik_enabled: true
 qbittorrent_traefik_api_enabled: true
 qbittorrent_traefik_api_endpoint: "`/api`,`/command`,`/query`,`/login`,`/sync`"
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/gilbN/theme.park
+qbittorrent_themepark_enabled: false
+qbittorrent_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
 # Docker
@@ -141,9 +155,15 @@ qbittorrent_docker_hosts: "{{ docker_hosts_common
 # Labels
 qbittorrent_docker_labels_default: {}
 qbittorrent_docker_labels_custom: {}
+qbittorrent_docker_labels_themepark:
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}.plugin.themepark.app": "qbittorrent" }'
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}.plugin.themepark.theme": "{{ lookup("vars", qbittorrent_name + "_themepark_theme", default=qbittorrent_themepark_theme) }}" }'
 qbittorrent_docker_labels: "{{ docker_labels_common
                                | combine(lookup('vars', qbittorrent_name + '_docker_labels_default', default=qbittorrent_docker_labels_default))
-                               | combine(lookup('vars', qbittorrent_name + '_docker_labels_custom', default=qbittorrent_docker_labels_custom)) }}"
+                               | combine((lookup('vars', qbittorrent_name + '_docker_labels_themepark', default=qbittorrent_docker_labels_themepark)
+                            if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
+                            else {}),
+                            lookup('vars', qbittorrent_name + '_docker_labels_custom', default=qbittorrent_docker_labels_custom)) }}"
 
 # Hostname
 qbittorrent_docker_hostname: "{{ qbittorrent_name }}"
