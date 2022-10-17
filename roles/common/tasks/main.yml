@@ -88,7 +88,6 @@
       - "htop"
       - "iotop"
       - "nload"
-      - "fail2ban"
       - "ufw"
       - "ncdu"
       - "mc"
