@@ -23,6 +23,7 @@
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     env:
       CONTAINERS: "1"
+      IMAGES: "1"
     networks:
       - name: saltbox
         aliases:
