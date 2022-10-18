@@ -100,4 +100,4 @@
     user: "{{ user.name }}"
     state: present
     key: "{{ user.ssh_key }}"
-  when: user.ssh_key
+  when: user.ssh_key is defined and user.ssh_key | length > 0
