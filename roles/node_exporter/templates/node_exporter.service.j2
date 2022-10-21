@@ -16,7 +16,7 @@ After=network-online.target
 User={{ user.name }}
 Group={{ user.name }}
 Type=simple
-ExecStart={{ node_exporter_path }}/node_exporter --web.listen-address="172.19.0.1:9100"
+ExecStart={{ node_exporter_path }}/node_exporter --collector.systemd --collector.processes --web.listen-address="172.19.0.1:9100"
 Restart=always
 RestartSec=10
 
