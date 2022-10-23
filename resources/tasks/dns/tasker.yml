@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Resources | Tasks | DNS | Tasker              #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -46,14 +46,15 @@
 
     - name: Get subdomain var
       ansible.builtin.set_fact:
-        subdomain: "{{ subdomain_notempty.stdout if (subdomain_block)
+        subdomain: "{{ subdomain_notempty.stdout
+                    if (subdomain_block)
                     else subdomain_empty.stdout }}"
 
     - name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
       ansible.builtin.set_fact:
         _dns_tasker_zone: "{{ fld.stdout }}"
         _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
-                            else '@' }}"
+                             else '@' }}"
         _dns_tasker_action: "{{ dns_action | default('add') }}"
         _dns_tasker_proxy: "{{ dns_proxy | default(dns.proxied) }}"
 
