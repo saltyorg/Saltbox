@@ -59,8 +59,10 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
+      - id: Generate output
+        run: OUTPUT=$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|mounts_override\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik_reset_certs\|user\|cloudflare\).,//g")
       - id: set-matrix
-        run: OUTPUT=$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|mounts_override\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik_reset_certs\|user\|cloudflare\).,//g") && echo "::set-output name=matrix::{\"roles\":[$OUTPUT]}"
+        run: echo "matrix::{\"roles\":[$OUTPUT]}" >> $GITHUB_OUTPUT
 
   install:
     name: '${{ matrix.roles }}'
