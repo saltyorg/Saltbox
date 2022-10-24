@@ -51,7 +51,7 @@
   register: authelia_user_config_stat
 
 - name: "Generate Password Hash"
-  ansible.builtin.shell: "docker run --rm authelia/authelia:latest authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+  ansible.builtin.shell: "docker run --rm -v '{{ authelia_paths_location }}:/config' {{ authelia_docker_image }} authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
