@@ -7,6 +7,7 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+run_sysctl_tasks: true
 cpu_performance_mode: true
 
 system_inotify: "524288"

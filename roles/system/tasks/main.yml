@@ -18,6 +18,7 @@
 
 - name: sysctl tasks
   ansible.builtin.include_tasks: "subtasks/sysctl.yml"
+  when: run_sysctl_tasks
 
 - name: pam_limits tasks
   ansible.builtin.include_tasks: "subtasks/pam_limits.yml"
