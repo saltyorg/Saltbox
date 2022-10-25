@@ -1,0 +1,42 @@
+#########################################################################
+# Title:         Saltbox: Cloudflare | Zone Task                        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Get FLD
+  ansible.builtin.shell: |
+    python3 -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
+  register: fld
+
+- name: Get zones
+  ansible.builtin.uri:
+    url: https://api.cloudflare.com/client/v4/zones
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+  register: get_zones_result
+
+- name: Get zone ID
+  ansible.builtin.set_fact:
+    zone_id: "{{ get_zones_result.json.result | selectattr('name', 'equalto', fld.stdout) | map(attribute='id') | first }}"
+
+- name: Get zone records
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ zone_id }}/dns_records?per_page=10000"
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+  register: get_zone_records_result
+
+- name: Parse zone records
+  ansible.builtin.set_fact:
+    cloudflare_zone_records: "{{ cloudflare_zone_records | default({}) | combine({item.type: {item.name: item.content}}, recursive=true) }}"
+  with_items:
+    - "{{ get_zone_records_result.json.result | json_query('[*]') }}"
+  loop_control:
+    label: "{{ item.type + ': ' + item.name }}"
+  when: item.name is defined and user.domain in item.name and item.type in ["A", "AAAA"]
