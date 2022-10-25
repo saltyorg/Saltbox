@@ -13,6 +13,7 @@
     name:
       - vnstat
       - pciutils
+      - ethtool
 
 - name: Network | Network Tasks Block
   block:
