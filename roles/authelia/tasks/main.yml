@@ -50,11 +50,6 @@
     path: "{{ authelia_paths_location }}/users_database.yml"
   register: authelia_user_config_stat
 
-- name: "Generate Password Hash"
-  ansible.builtin.shell: "docker run --rm -v '{{ authelia_paths_location }}:/config' {{ authelia_docker_image }} authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
-  register: authelia_password
-  when: (not authelia_user_config_stat.stat.exists)
-
 - name: Import default 'configuration.yml'
   ansible.builtin.template:
     src: configuration.yml.j2
@@ -63,6 +58,11 @@
     group: "{{ user.name }}"
     mode: "0775"
   when: (not authelia_config_stat.stat.exists)
+
+- name: "Generate Password Hash"
+  ansible.builtin.shell: "docker run --rm -v '{{ authelia_paths_location }}:/config' {{ authelia_docker_image }} authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+  register: authelia_password
+  when: (not authelia_user_config_stat.stat.exists)
 
 - name: Import default 'users_database.yml'
   ansible.builtin.template:
