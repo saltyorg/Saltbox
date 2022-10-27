@@ -1,0 +1,19 @@
+#########################################################################
+# Title:         Pre-Tasks: Variables Tasks                             #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Find Saltbox roles
+  ansible.builtin.shell: "find /srv/git/saltbox/roles -type d -name 'defaults'"
+  register: saltbox_roles
+
+- name: Include Saltbox role default vars
+  ansible.builtin.include_vars: "{{ item }}/main.yml"
+  with_items: "{{ saltbox_roles.stdout_lines }}"
+
+- name: Import Inventory variables
+  ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"

@@ -14,3 +14,8 @@
 - name: Git Tasks
   ansible.builtin.import_tasks: "subtasks/git.yml"
   tags: always
+
+- name: Variables Tasks
+  ansible.builtin.import_tasks: "subtasks/variables.yml"
+  tags: always
+  when: playbook_dir != "/srv/git/saltbox"
