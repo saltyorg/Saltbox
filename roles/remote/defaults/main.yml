@@ -72,9 +72,9 @@ rclone_vfs_mount_start_post_command: |-
 # Rclone VFS Cache
 ################################
 
-rclone_vfs_cache_max_size: 50G
-rclone_vfs_cache_max_age: 504h
-rclone_vfs_cache_dir: ""
+rclone_vfs_cache_max_size: "{{ mounts.rclone_vfs_cache_max_size or '50G' }}"
+rclone_vfs_cache_max_age: "{{ mounts.rclone_vfs_cache_max_age or '504h' }}"
+rclone_vfs_cache_dir: "{{ mounts.rclone_vfs_cache_dir or '' }}"
 
 rclone_vfs_cache_mount_start_command: |-
   /usr/bin/rclone mount \

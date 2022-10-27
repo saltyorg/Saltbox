@@ -77,7 +77,7 @@ put_docker_dpkg_into_hold: true
 
 docker_service_after: "{{ mount_type }}.service"
 
-docker_service_sleep: 120
+docker_service_sleep: 30
 
 ################################
 # Docker Compose
