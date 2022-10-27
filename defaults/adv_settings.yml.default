@@ -22,9 +22,12 @@ traefik:
     jaeger: jaeger
   error_pages: no
 mounts:
-  remote: rclone_vfs
+  remote: rclone_vfs # or rclone_vfs_cache
   ipv4_only: no
   feeder: no
+  #rclone_vfs_cache_dir: "/mnt/cache/rclone/vfs"
+  #rclone_vfs_cache_max_size: "200G"
+  #rclone_vfs_cache_max_age: "2160h"
 gpu:
   intel: yes
   nvidia: no

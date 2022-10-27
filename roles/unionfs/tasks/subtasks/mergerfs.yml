@@ -15,6 +15,15 @@
   register: mergerfs_download_url
   ignore_errors: true
 
+- name: "MergerFS | Get Fallback URL for latest mergerfs release"
+  ansible.builtin.shell: "{{ mergerfs_release_lookup_command_fallback }}"
+  args:
+    executable: /bin/bash
+    warn: false
+  register: mergerfs_download_url
+  ignore_errors: true
+  when: mergerfs_download_url.stdout == ""
+
 - name: "MergerFS | Uninstall mergerfs"
   ansible.builtin.apt:
     name: mergerfs

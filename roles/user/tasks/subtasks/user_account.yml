@@ -85,6 +85,7 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
+  ignore_errors: true
 
 - name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
   ansible.builtin.file:  # noqa risky-file-permissions

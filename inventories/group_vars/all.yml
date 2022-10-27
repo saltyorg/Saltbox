@@ -90,6 +90,8 @@ use_nvidia: "{{ gpu.nvidia }}"
 # System
 ################################
 
+ansible_distribution_release_fallback: "jammy"
+
 server_root_path: "/"
 
 server_appdata_path: "{{ server_root_path | regex_replace('\\/$', '') + '/opt' }}"
