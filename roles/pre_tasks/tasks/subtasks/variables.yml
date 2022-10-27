@@ -15,6 +15,11 @@
   ansible.builtin.include_vars: "{{ item }}/main.yml"
   with_items: "{{ saltbox_roles.stdout_lines }}"
 
+- name: Get stats of a file
+  ansible.builtin.stat:
+    path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  register: localhost_inventory_file
+
 - name: Import Inventory variables
   ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
-  when: not continuous_integration
+  when: localhost_inventory_file.exists
