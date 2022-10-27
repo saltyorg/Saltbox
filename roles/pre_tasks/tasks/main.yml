@@ -18,4 +18,4 @@
 - name: Variables Tasks
   ansible.builtin.import_tasks: "subtasks/variables.yml"
   tags: always
-  when: playbook_dir != "/srv/git/saltbox"
+  when: (playbook_dir != "/srv/git/saltbox" and not continuous_integration) or (playbook_dir != "/home/runner/work/saltyorg/saltbox" and continuous_integration)

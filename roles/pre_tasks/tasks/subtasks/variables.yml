@@ -17,3 +17,4 @@
 
 - name: Import Inventory variables
   ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  when: not continuous_integration
