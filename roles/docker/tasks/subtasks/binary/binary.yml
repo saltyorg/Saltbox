@@ -7,6 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+
+- name: Binary | Remove old sources
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
+  when: ansible_distribution == "Ubuntu"
+
 - name: Binary | Remove old official repository entry
   ansible.builtin.apt_repository:
     repo: "{{ docker_apt_repo_url_old }}"

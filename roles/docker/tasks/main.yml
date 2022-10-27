@@ -75,9 +75,9 @@
     enabled: true
     daemon_reload: true
 
-- name: Wait for 60 seconds before commencing
+- name: Wait for 40 seconds before commencing
   ansible.builtin.wait_for:
-    timeout: 60
+    timeout: 40
   when: not continuous_integration
 
 - name: "Stop all Docker containers"

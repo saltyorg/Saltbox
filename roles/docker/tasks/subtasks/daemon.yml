@@ -17,6 +17,30 @@
   with_items:
     - /etc/docker
 
+- name: Docker | Check if in a lxc container
+  ansible.builtin.shell: systemd-detect-virt
+  register: isLXC
+
+- name: Docker | Check if in a lxc container
+  ansible.builtin.set_fact:
+    is_lxc: "{{ isLXC.rc == 0 and isLXC.stdout == 'lxc' }}"
+
+- name: Docker | Check if in a lxc container
+  ansible.builtin.set_fact:
+    storage_driver: "{{ (is_lxc) | ternary('fuse-overlayfs',('zfs' in var_lib_file_system.stdout) | ternary('zfs','overlay2')) }}"
+
+- name: Docker | Install fuse-overlayfs
+  ansible.builtin.apt:
+    name: fuse-overlayfs
+    state: present
+  when: is_lxc
+  
+- name: Docker | Install fuse-overlayfs
+  ansible.builtin.apt:
+    name: fuse-overlayfs
+    state: present
+  when: is_lxc
+
 - name: "Daemon | Import 'daemon.json'"
   ansible.builtin.template:
     src: daemon.json.j2
