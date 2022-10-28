@@ -1,0 +1,30 @@
+##################################################################################
+# Title:         Saltbox: Resources | Tasks | Docker | Restart Docker Container  #
+# Author(s):     salty                                                           #
+# URL:           https://github.com/saltyorg/Saltbox                             #
+# --                                                                             #
+##################################################################################
+#                   GNU General Public License v3.0                              #
+##################################################################################
+---
+- name: Resources | Tasks | Docker | Restart Docker Container | Set '_var_prefix' variable
+  ansible.builtin.set_fact:
+    _var_prefix: "{{ var_prefix
+                  if (var_prefix is defined)
+                  else role_name }}"
+
+- name: Resources | Tasks | Docker | Restart Docker Container | Stop Docker Container
+  community.docker.docker_container:
+    container_default_behavior: compatibility
+    force_kill: "{{ lookup('vars', _var_prefix + '_docker_force_kill', default=omit) }}"
+    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    state: stopped
+    stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
+    tls_hostname: localhost
+
+- name: Resources | Tasks | Docker | Restart Docker Container | Start Docker Container
+  community.docker.docker_container:
+    container_default_behavior: compatibility
+    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    state: started
+    tls_hostname: localhost
