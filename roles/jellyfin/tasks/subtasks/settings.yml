@@ -6,6 +6,9 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Restart Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
+
 - name: Post-Install | Wait for 'system.xml' file to be created
   ansible.builtin.wait_for:
     path: "{{ jellyfin_paths_sys_xml_location }}"
@@ -16,11 +19,8 @@
     path: "{{ jellyfin_paths_net_xml_location }}"
     state: present
 
-- name: Settings | Stop Docker container
-  community.docker.docker_container:
-    name: "{{ jellyfin_docker_container }}"
-    state: stopped
-    container_default_behavior: compatibility
+- name: Stop Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
 
 - name: Settings | Update 'system.xml' file
   community.general.xml:
@@ -40,8 +40,5 @@
   become_user: "{{ user.name }}"
   loop: "{{ jellyfin_network_settings_list }}"
 
-- name: Settings | Start Docker container
-  community.docker.docker_container:
-    name: "{{ jellyfin_docker_container }}"
-    state: "{{ jellyfin_docker_state }}"
-    container_default_behavior: compatibility
+- name: Start Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
