@@ -12,6 +12,11 @@
     name: plex_auth_token
   when: plex_account_is_enabled
 
+- name: CI 'plex_auth_token' override
+  ansible.builtin.set_fact:
+    plex_auth_token: "CI"
+  when: continuous_integration
+
 - name: Set Plex Variables
   ansible.builtin.set_fact:
     plex_info: "{{ plex_info | default({}) | combine({plex_name: {'name': plex_name, 'url': plex_web_url, 'token': plex_auth_token}}) }}"
