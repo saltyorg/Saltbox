@@ -7,17 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Initialize an empty list for our strings
-  ansible.builtin.set_fact:
-    plex_tokens: []
-
-- name: Token tasks
-  ansible.builtin.include_tasks: token.yml
-  loop: "{{ plex_instances }}"
-  loop_control:
-    loop_var: plex_instance
-  when: plex_account_is_enabled
-
 - name: Settings | Check if `{{ autoscan_paths_config_location | basename }}` exists
   ansible.builtin.stat:
     path: "{{ autoscan_paths_config_location }}"

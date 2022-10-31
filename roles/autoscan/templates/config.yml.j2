@@ -75,11 +75,11 @@ triggers:
 # <- targets ->
 
 targets:
-{% if plex_tokens is defined and (plex_tokens | length > 0) and plex_account_is_enabled %}
+{% if plex_account_is_enabled %}
   plex:
-{% for key, value in _plex_instances.items() if plex_tokens is defined and (plex_tokens | length > 0) %}
-    - url: {{ value }} # {{ key }}
-      token: {{ plex_tokens[loop.index0] }}
+{% for key,instance in plex_info.items() %}
+    - url: {{ instance.url }} # {{ instance.name }}
+      token: {{ instance.token }}
       # Uncomment the below three (3) lines if backwards compatibility with
       # Cloudbox default paths is needed
       #rewrite:
