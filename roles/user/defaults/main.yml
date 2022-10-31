@@ -11,6 +11,11 @@
 user_paths_home_location: "/home/{{ user.name }}"
 user_paths_home_saltbox_location: "/srv/git/saltbox"
 
+# Overrides
+# user_docker_group_id: <int>
+# user_group_id: <int>
+# user_id: <int>
+
 # srv
 srv_folder: "/srv"
 

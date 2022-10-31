@@ -7,13 +7,16 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: User Account | Set 'user_group_dict'
+  ansible.builtin.set_fact:
+    user_group_dict: "{{ {'docker': user_docker_group_id | default(false), user.name: user_group_id | default(false)} }}"
+
 - name: User Account | Create common groups
   ansible.builtin.group:
-    name: "{{ item }}"
+    name: "{{ item.key }}"
+    gid: "{{ item.value if item.value else omit }}"
     state: present
-  with_items:
-    - docker
-    - "{{ user.name }}"
+  with_dict: "{{ user_group_dict }}"
 
 - name: User Account | Copy skeleton files to '/etc/skel'
   ansible.builtin.copy:
@@ -36,6 +39,7 @@
     append: true
     create_home: true
     skeleton: /etc/skel
+    uid: "{{ user_id | default(omit) }}"
   register: user_info
 
 - name: User Account | Get video group info
