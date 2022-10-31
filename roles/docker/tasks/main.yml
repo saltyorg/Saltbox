@@ -77,7 +77,7 @@
 
 - name: Wait for 60 seconds before commencing
   ansible.builtin.wait_for:
-    timeout: 60
+    timeout: "{{ docker_containers_startup_delay }}"
   when: not continuous_integration
 
 - name: "Stop all Docker containers"
