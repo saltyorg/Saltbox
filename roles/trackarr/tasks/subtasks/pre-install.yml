@@ -17,6 +17,10 @@
 
     - name: Pre-Install | Get Instance Info
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
+      vars:
+        get_info_list:
+          - sonarr
+          - radarr
 
     - name: Pre-Install | Set 'trackarr_server_apikey' variable
       ansible.builtin.set_fact:
