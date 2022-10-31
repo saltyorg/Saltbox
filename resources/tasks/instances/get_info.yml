@@ -7,50 +7,37 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Import Default Radarr variables
-  ansible.builtin.include_vars: /srv/git/saltbox/roles/radarr/defaults/main.yml
-  when: radarr_instances is undefined
-
-- name: Import Default Sonarr variables
-  ansible.builtin.include_vars: /srv/git/saltbox/roles/sonarr/defaults/main.yml
-  when: sonarr_instances is undefined
-
-- name: Import Default Lidarr variables
-  ansible.builtin.include_vars: /srv/git/saltbox/roles/lidarr/defaults/main.yml
-  when: lidarr_instances is undefined
-
-- name: Import Default Readarr variables
-  ansible.builtin.include_vars: /srv/git/saltbox/roles/readarr/defaults/main.yml
-  when: readarr_instances is undefined
-
 - name: Resources | Tasks | Instances | Get Info | Run Sonarr Tasks
   ansible.builtin.include_tasks: sonarr.yml
   vars:
-    sonarr_name: "{{ role }}"
+    sonarr_name: "{{ item }}"
   with_items: "{{ sonarr_instances }}"
-  loop_control:
-    loop_var: role
+  when: "'sonarr' in get_info_list"
 
 - name: Resources | Tasks | Instances | Get Info | Run Radarr Tasks
   ansible.builtin.include_tasks: radarr.yml
   vars:
-    radarr_name: "{{ role }}"
+    radarr_name: "{{ item }}"
   with_items: "{{ radarr_instances }}"
-  loop_control:
-    loop_var: role
+  when: "'radarr' in get_info_list"
 
 - name: Resources | Tasks | Instances | Get Info | Run Lidarr Tasks
   ansible.builtin.include_tasks: lidarr.yml
   vars:
-    lidarr_name: "{{ role }}"
+    lidarr_name: "{{ item }}"
   with_items: "{{ lidarr_instances }}"
-  loop_control:
-    loop_var: role
+  when: "'lidarr' in get_info_list"
 
 - name: Resources | Tasks | Instances | Get Info | Run Readarr Tasks
   ansible.builtin.include_tasks: readarr.yml
   vars:
-    readarr_name: "{{ role }}"
+    readarr_name: "{{ item }}"
   with_items: "{{ readarr_instances }}"
-  loop_control:
-    loop_var: role
+  when: "'readarr' in get_info_list"
+
+- name: Resources | Tasks | Instances | Get Info | Run Plex Tasks
+  ansible.builtin.include_tasks: plex.yml
+  vars:
+    plex_name: "{{ item }}"
+  with_items: "{{ plex_instances }}"
+  when: "'plex' in get_info_list"

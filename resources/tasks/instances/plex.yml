@@ -1,0 +1,17 @@
+###########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get Plex Info   #
+# Author(s):     salty                                                    #
+# URL:           https://github.com/saltyorg/Saltbox                      #
+# --                                                                      #
+###########################################################################
+#                   GNU General Public License v3.0                       #
+###########################################################################
+---
+- name: Settings | Import Plex Auth Token role
+  ansible.builtin.include_role:
+    name: plex_auth_token
+  when: plex_account_is_enabled
+
+- name: Set Plex Variables
+  ansible.builtin.set_fact:
+    plex_info: "{{ plex_info | default({}) | combine({plex_name: {'name': plex_name, 'url': plex_web_url, 'token': plex_auth_token}}) }}"
