@@ -45,6 +45,8 @@ mergerfs_download_backup_url: "
 
 mergerfs_mount_branches: "{{ local_mount_branch }}=RW:/mnt/remote=NC"
 
+mergerfs_mount_service_after: "network-online.target"
+
 mergerfs_mount_start_command: |-
   /usr/bin/mergerfs \
     -o category.create=ff,async_read=true,cache.files=partial \

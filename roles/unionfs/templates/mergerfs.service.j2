@@ -10,7 +10,7 @@
 
 [Unit]
 Description=MergerFS Mount
-After=network-online.target
+After={{ mergerfs_mount_service_after }}
 
 [Service]
 Type=forking
