@@ -19,7 +19,7 @@ tautulli_instances: ["tautulli"]
 
 tautulli_paths_folder: "{{ tautulli_name }}"
 tautulli_paths_location: "{{ server_appdata_path }}/{{ tautulli_paths_folder }}"
-tautulli_paths_scripts_location: "{{ server_appdata_path }}/scripts/{{ tautulli_paths_folder }}"
+tautulli_paths_scripts_location: "{{ server_appdata_path }}/scripts/tautulli"
 tautulli_paths_folders_list:
   - "{{ tautulli_paths_location }}"
   - "{{ tautulli_paths_scripts_location }}"
