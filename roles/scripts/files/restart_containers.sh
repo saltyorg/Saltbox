@@ -30,3 +30,8 @@ $NORMAL
 containers=$(docker ps -q)
 echo Stopping $containers
 docker=$(docker stop $containers)
+
+sleep 3
+
+echo Starting $containers
+docker=$(docker start $containers)
