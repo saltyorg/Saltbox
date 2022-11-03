@@ -33,6 +33,6 @@
 - name: DNS | Start 'docker-update-hosts.service'
   ansible.builtin.systemd:
     name: docker-update-hosts
-    state: started
+    state: restarted
     enabled: true
     daemon_reload: true
