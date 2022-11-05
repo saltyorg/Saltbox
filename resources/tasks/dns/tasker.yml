@@ -67,4 +67,4 @@
         _dns_role_action: "{{ _dns_tasker_action }}"
         _dns_role_proxy: "{{ _dns_tasker_proxy }}"
 
-  when: cloudflare_records_enabled and not skip_dns
+  when: cloudflare_records_enabled and role_dns_enabled and not skip_dns
