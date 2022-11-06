@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                              #
 ##################################################################################
 ---
-- name: Create directories
+- name: Resources | Tasks | Directories | Create directories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
