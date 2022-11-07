@@ -25,7 +25,7 @@
 
 - name: "btop | Download btop"
   ansible.builtin.get_url:
-    url: "{{ btop_download_url.stdout }}"
+    url: "{{ btop_version_lock_url if btop_version_lock else btop_download_url.stdout }}"
     dest: "/tmp/btop"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

@@ -15,3 +15,6 @@ btop_release_lookup_command: |
   curl -s {{ btop_releases_url }} \
     | jq -r ".assets[] | select(.name | test(\"btop-x86_64-linux-musl.tbz\")) \
     | .browser_download_url"
+
+btop_version_lock: true
+btop_version_lock_url: https://github.com/aristocratos/btop/releases/download/v1.2.12/btop-x86_64-linux-musl.tbz
