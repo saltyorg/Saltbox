@@ -7,44 +7,44 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: DNS Task Block
+- name: Resources | Tasks | DNS | Tasker | DNS Task Block
   block:
 
-    - name: Install tld python package
+    - name: Resources | Tasks | DNS | Tasker | Install tld python package
       ansible.builtin.pip:
         name: tld
         executable: pip3
 
-    - name: Get FLD
+    - name: Resources | Tasks | DNS | Tasker | Get FLD
       ansible.builtin.shell: |
         python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
       register: fld
 
-    - name: Get subdomain
+    - name: Resources | Tasks | DNS | Tasker | Get subdomain
       block:
         - name: Get subdomain var
           ansible.builtin.set_fact:
             subdomain_block: 1
 
-        - name: Get subdomain
+        - name: Resources | Tasks | DNS | Tasker | Get subdomain
           ansible.builtin.shell: |
             python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_record }}.{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
           register: subdomain_notempty
       when: dns_record | length > 0
 
-    - name: Get subdomain
+    - name: Resources | Tasks | DNS | Tasker | Get subdomain
       block:
-        - name: Get subdomain var
+        - name: Resources | Tasks | DNS | Tasker | Get subdomain var
           ansible.builtin.set_fact:
             subdomain_block: 0
 
-        - name: Get subdomain
+        - name: Resources | Tasks | DNS | Tasker | Get subdomain
           ansible.builtin.shell: |
             python3 -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
           register: subdomain_empty
       when: dns_record | length == 0
 
-    - name: Get subdomain var
+    - name: Resources | Tasks | DNS | Tasker | Get subdomain var
       ansible.builtin.set_fact:
         subdomain: "{{ subdomain_notempty.stdout
                     if (subdomain_block)
