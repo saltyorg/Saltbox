@@ -56,6 +56,8 @@
     volumes: "{{ (docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit))
               if lookup('vars', _var_prefix + '_docker_volumes_global', default=true)
               else lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
+    cpus:  "{{ (lookup('vars', _var_prefix + '_docker_cpu', default=docker_cpu_default) | default(omit, true)) }}"
+    memory:  "{{ (lookup('vars', _var_prefix + '_docker_mem', default=docker_mem_default) | default(omit, true)) }}"
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10

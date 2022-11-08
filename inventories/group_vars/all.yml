@@ -94,6 +94,10 @@ server_root_path: "/"
 
 server_appdata_path: "{{ server_root_path | regex_replace('\\/$', '') + '/opt' }}"
 
+docker_cpu_default: ""
+
+docker_mem_default: ""
+
 ################################
 # Paths
 ################################
