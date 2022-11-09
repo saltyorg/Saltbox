@@ -11,7 +11,7 @@
 # Ansible Version
 ################################
 
-sanity_check_ansible_version_min: 6.5.0
+sanity_check_ansible_version_min: 6.6.0
 ansible_update: false
 
 ################################
