@@ -41,9 +41,9 @@
     chdir: "/tmp/btop"
 
 - name: "btop | Install btop"
-  ansible.builtin.shell: "/tmp/btop/install.sh"
+  ansible.builtin.shell: "/tmp/btop/btop/install.sh"
   args:
-    chdir: "/tmp/btop"
+    chdir: "/tmp/btop/btop"
   become: yes
   become_user: "{{ user.name }}"
 
