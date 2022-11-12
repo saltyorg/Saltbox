@@ -120,8 +120,7 @@
             name: rclone_refresh.service
             state: started
             enabled: true
-          async: 900
-          poll: 0
+            no_block: true
 
       when: rclone_remote_is_working
 
