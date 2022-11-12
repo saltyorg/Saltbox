@@ -263,7 +263,8 @@ traefik_docker_devices: "{{ traefik_docker_devices_default
                             + traefik_docker_devices_custom }}"
 
 # Hosts
-traefik_docker_hosts_default: []
+traefik_docker_hosts_default:
+  host.docker.internal: "172.19.0.1"
 traefik_docker_hosts_custom: []
 traefik_docker_hosts: "{{ docker_hosts_common
                           | combine(traefik_docker_hosts_default)
