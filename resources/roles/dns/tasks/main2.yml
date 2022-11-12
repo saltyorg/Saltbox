@@ -1,12 +1,12 @@
 #########################################################################
 # Title:         Saltbox: DNS Role                                      #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare DNS Tasks
+- name: Cloudflare | DNS Tasks
   ansible.builtin.include_tasks: "cloudflare/main.yml"
   when: cloudflare_is_enabled and dns.enabled
