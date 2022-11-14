@@ -24,7 +24,6 @@ feeder_mount_start_command: |-
     --user-agent='{{ user_agent }}' \
     --config={{ rclone_config_path }} \
     --allow-other \
-    --allow-non-empty \
     --copy-links \
     --dir-cache-time=1m \
     --max-read-ahead=200M \
@@ -44,7 +43,6 @@ rclone_vfs_mount_start_command: |-
     --user-agent='{{ user_agent }}' \
     --config={{ rclone_config_path }} \
     --allow-other \
-    --allow-non-empty \
     --rc \
     --rc-no-auth \
     --rc-addr=localhost:5572 \
