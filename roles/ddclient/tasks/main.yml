@@ -27,9 +27,12 @@
 - name: Set subdomains fact
   ansible.builtin.set_fact:
     subdomains:
+      - login
+      - dash
       - plex
+      - autoscan
       - tautulli
-      - "{{ ombi.subdomain | default('ombi', true) }}"
+      - overseerr
       - portainer
       - organizr
       - nzbget
