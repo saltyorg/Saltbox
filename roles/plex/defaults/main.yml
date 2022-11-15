@@ -49,6 +49,7 @@ plex_paths_log_location: "{{ plex_paths_application_support_location }}/Logs"
 plex_paths_plugins_location: "{{ plex_paths_application_support_location }}/Plug-ins"
 plex_paths_plugin_support_location: "{{ plex_paths_application_support_location }}/Plug-in Support"
 plex_paths_db_location: "{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.db"
+plex_paths_db_blobs_location: "{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.blobs.db"
 
 ################################
 # Web

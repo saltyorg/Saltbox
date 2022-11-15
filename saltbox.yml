@@ -70,6 +70,7 @@
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
     - { role: plex, tags: ['plex'] }
+    - { role: plex_db, tags: ['plex-db'] }
     - { role: postgres, tags: ['postgres'] }
     - { role: prometheus, tags: ['prometheus'] }
     - { role: prowlarr, tags: ['prowlarr'] }

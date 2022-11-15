@@ -1,0 +1,27 @@
+##########################################################################
+# Title:         Saltbox: Plex DB Role                                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Copy Plex Binaries out
+  ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ /opt/plexsql"
+
+- name: Set '/opt/plexsql' ownership recursively
+  ansible.builtin.file:
+    path: "/opt/plexsql"
+    state: directory
+    recurse: yes
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+
+- name: "Execute Plex DB tasks"
+  ansible.builtin.include_tasks: main2.yml
+  vars:
+    plex_name: "{{ role }}"
+  with_items: "{{ plex_instances }}"
+  loop_control:
+    loop_var: role
