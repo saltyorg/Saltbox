@@ -46,22 +46,22 @@
       ansible.builtin.shell: "cp '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}' /tmp/{{ plex_name }}_backup/"
       loop: "{{ plex_db_files }}"
 
-    - name: Vacuum databases
+    - name: "Vacuum '{{ plex_paths_db_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'VACUUM;'"
       register: plex_db_vacuum
       failed_when: plex_db_vacuum.rc != 0
 
-    - name: Vacuum databases
+    - name: "Vacuum '{{ plex_paths_db_blobs_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'VACUUM;'"
       register: plex_db_blobs_vacuum
       failed_when: plex_db_blobs_vacuum.rc != 0
 
-    - name: Reindex databases
+    - name: "Reindex '{{ plex_paths_db_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'REINDEX;'"
       register: plex_db_reindex
       failed_when: plex_db_reindex.rc != 0
 
-    - name: Reindex databases
+    - name: "Reindex '{{ plex_paths_db_blobs_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'REINDEX;'"
       register: plex_db_blobs_reindex
       failed_when: plex_db_blobs_reindex.rc != 0
