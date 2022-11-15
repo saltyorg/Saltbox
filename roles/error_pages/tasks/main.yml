@@ -22,7 +22,18 @@
   when: (not error_pages_folder.stat.exists)
 
 - name: Export error pages from container
-  ansible.builtin.shell: "docker run --rm -v '/opt/error_pages:/out:rw' -u '{{ uid }}:{{ gid }}' tarampampam/error-pages build --config-file ./error-pages.yml /out"
+  community.docker.docker_container:
+    name: error_pages-build
+    image: "tarampampam/error-pages"
+    user: "{{ uid }}:{{ gid }}"
+    command: "build --config-file ./error-pages.yml /out"
+    volumes:
+      - "/opt/error_pages:/out:rw"
+    networks:
+      - name: saltbox
+    purge_networks: yes
+    auto_remove: yes
+    state: started
   when: (not error_pages_folder.stat.exists)
 
 - name: Remove existing Docker container
