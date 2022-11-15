@@ -70,7 +70,7 @@
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: "Sanitize Password Hash"
-  ansible.builtin.command: "sed -n 's/^Password hash: //p' {{ authelia_password.stdout }}"
+  ansible.builtin.shell: "echo '{{ authelia_password.container.Output }}' | sed -n 's/^Password hash: //p'"
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
