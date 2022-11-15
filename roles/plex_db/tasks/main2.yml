@@ -42,9 +42,6 @@
         group: "{{ user.name }}"
         mode: "0775"
 
-    - name: Pause until you can verify updates to an application were successful
-      ansible.builtin.pause:
-
     - name: Backup databases
       ansible.builtin.shell: "cp '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}' /tmp/{{ plex_name }}_backup/"
       loop: "{{ plex_db_files }}"
