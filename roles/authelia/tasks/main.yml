@@ -54,7 +54,23 @@
   when: (not authelia_config_stat.stat.exists)
 
 - name: "Generate Password Hash"
-  ansible.builtin.shell: "docker run --rm -v '{{ authelia_paths_location }}:/config' {{ authelia_docker_image }} authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+  community.docker.docker_container:
+    name: authelia-password-hash
+    image: "{{ authelia_docker_image }}"
+    command: "authelia hash-password '{{ user.pass }}'"
+    detach: no
+    volumes:
+      - "{{ authelia_paths_location }}:/config"
+    networks:
+      - name: saltbox
+    purge_networks: yes
+    cleanup: yes
+    state: started
+  register: authelia_password
+  when: (not authelia_user_config_stat.stat.exists)
+
+- name: "Sanitize Password Hash"
+  ansible.builtin.shell: "echo '{{ authelia_password.container.Output }}' | sed -n 's/^Password hash: //p'"
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
