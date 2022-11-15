@@ -57,7 +57,7 @@
   community.docker.docker_container:
     name: authelia-password-hash
     image: "{{ authelia_docker_image }}"
-    command: "authelia hash-password '{{ user.pass }}' | sed -n 's/^Password hash: //p'"
+    command: "authelia hash-password '{{ user.pass }}'"
     volumes:
       - "{{ authelia_paths_location }}:/config"
     networks:
@@ -67,6 +67,10 @@
     state: started
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
+
+- name: "Sanitize Password Hash"
+  ansible.builtin.command: "sed -n 's/^Password hash: //p' {{ authelia_password.stdout }}"
+  register: authelia_password
 
 - name: Import default 'users_database.yml'
   ansible.builtin.template:
