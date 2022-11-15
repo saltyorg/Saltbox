@@ -22,18 +22,18 @@
   vars:
     var_prefix: "plex"
 
+- name: Check if main database passes integrity_check
+  ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'PRAGMA integrity_check(1)'"
+  register: plex_db_integrity_check
+  failed_when: plex_db_integrity_check.stdout != 'ok'
+
+- name: Check if blobs database passes integrity_check
+  ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
+  register: plex_db_blobs_integrity_check
+  failed_when: plex_db_blobs_integrity_check.stdout != 'ok'
+
 - name: Database tasks
   block:
-    - name: Check if main database passes integrity_check
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'PRAGMA integrity_check(1)'"
-      register: plex_db_integrity_check
-      failed_when: plex_db_integrity_check.stdout != 'ok'
-
-    - name: Check if blobs database passes integrity_check
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
-      register: plex_db_blobs_integrity_check
-      failed_when: plex_db_blobs_integrity_check.stdout != 'ok'
-
     - name: Create backup directory
       ansible.builtin.file:
         path: "/tmp/{{ plex_name }}_backup"
@@ -47,9 +47,7 @@
 
     - name: Backup databases
       ansible.builtin.shell: "cp '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}' /tmp/{{ plex_name }}_backup/"
-      loop:
-        - "db"
-        - "blobs.db"
+      loop: "{{ plex_db_files }}"
 
     - name: Vacuum databases
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'VACUUM;'"
@@ -74,9 +72,7 @@
   rescue:
     - name: Restore database backup
       ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}'"
-      loop:
-        - "db"
-        - "blobs.db"
+      loop: "{{ plex_db_files }}"
 
     - name: Delete wal and shm files
       ansible.builtin.file:
