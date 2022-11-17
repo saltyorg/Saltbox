@@ -62,15 +62,6 @@ access_control:
     - domain:
         - "{{ '*.' + user.domain }}"
         - "{{ user.domain }}"
-      policy: bypass
-      networks:
-        - {{ ip_address_public }}/32
-{% if dns.ipv6 %}
-        - {{ ipv6_address_public }}/128
-{% endif %}
-    - domain:
-        - "{{ '*.' + user.domain }}"
-        - "{{ user.domain }}"
       policy: one_factor
 
 session:
