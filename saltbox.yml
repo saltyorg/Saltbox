@@ -49,7 +49,7 @@
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
     - { role: btop, tags: ['saltbox', 'mediabox', 'feederbox', 'btop'] }
     - { role: asshama, tags: ['asshama'] }
-    - { role: authelia, tags: ['authelia'] }
+    - { role: authelia, tags: ['authelia', 'authelia-reset'] }
     - { role: autoheal, tags: ['autoheal'] }
     - { role: autoscan, tags: ['autoscan'] }
     - { role: bazarr, tags: ['bazarr'] }

@@ -12,6 +12,9 @@
     msg: "This server is not set as Authelia master server."
   when: not authelia_is_master
 
+- name: Remove existing Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
 - name: "Import Redis Role"
   ansible.builtin.include_role:
     name: redis
@@ -28,8 +31,11 @@
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+- name: Reset Authelia directory
+  ansible.builtin.file:
+    path: "{{ authelia_paths_location }}"
+    state: absent
+  when: ('authelia-reset' in ansible_run_tags)
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
