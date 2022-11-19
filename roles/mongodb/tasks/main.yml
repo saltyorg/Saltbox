@@ -7,7 +7,7 @@
 #########################################################################
 ---
 - name: "Execute MongoDB roles"
-  include_tasks: main2.yml
+  ansible.builtin.include_tasks: main2.yml
   vars:
     mongodb_name: "{{ role }}"
   with_items: "{{ mongodb_instances }}"
