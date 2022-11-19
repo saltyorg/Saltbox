@@ -12,7 +12,7 @@
 
 - name: Reset Redis directory
   ansible.builtin.file:
-    path: "{{ authelia_paths_location }}"
+    path: "{{ redis_paths_location }}"
     state: absent
   when: ('authelia-reset' in ansible_run_tags)
 
