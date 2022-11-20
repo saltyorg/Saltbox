@@ -118,12 +118,21 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/TABLE272>
+            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
+            <br />
+            <sub style="font-size:14px"><b>TABLE272</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/maximuskowalski>
             <img src=https://avatars.githubusercontent.com/u/13492750?v=4 width="100;"  alt=Max Kowalski/>
             <br />
             <sub style="font-size:14px"><b>Max Kowalski</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Migz93>
             <img src=https://avatars.githubusercontent.com/u/33037112?v=4 width="100;"  alt=Migz93/>
@@ -131,20 +140,11 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>Migz93</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/lonix>
             <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
             <br />
             <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/TABLE272>
-            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
-            <br />
-            <sub style="font-size:14px"><b>TABLE272</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
