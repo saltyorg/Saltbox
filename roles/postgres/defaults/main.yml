@@ -42,14 +42,6 @@ postgres_docker_image_pull: true
 postgres_docker_image_tag: "12-alpine"
 postgres_docker_image: "postgres:{{ postgres_docker_image_tag }}"
 
-# Healthcheck
-postgres_docker_healthcheck:
-  test: ["CMD-SHELL", "pg_isready", "-d", "{{ postgres_docker_env_db }}"]
-  interval: 10s
-  timeout: 5s
-  retries: 10
-  start_period: 10s
-
 # Ports
 postgres_docker_ports_defaults: []
 postgres_docker_ports_custom: []
