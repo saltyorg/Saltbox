@@ -1,17 +1,22 @@
 #########################################################################
 # Title:         Saltbox: Cloudflare Role                               #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Validate API Key
+  ansible.builtin.import_tasks: "/srv/git/saltbox/resources/roles/dns/tasks/cloudflare/subtasks/validate.yml"
+  tags:
+    - cloudflare-validate
+
 - name: Variables Task
   ansible.builtin.import_tasks: "subtasks/variables.yml"
   ignore_errors: true
 
-- name: saltbox Subdomains Task
+- name: Saltbox Subdomains Task
   ansible.builtin.import_tasks: "subtasks/subdomains.yml"
   when: (saltbox_type | length > 0) and dns.enabled
   ignore_errors: true

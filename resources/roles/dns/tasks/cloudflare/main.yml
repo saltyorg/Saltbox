@@ -1,12 +1,15 @@
 #########################################################################
 # Title:         Saltbox: DNS | Cloudflare                              #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Validate API Key
+  ansible.builtin.include_tasks: "subtasks/validate.yml"
+
 - name: Cloudflare | Add DNS Record
   ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
   when: dns_action != 'remove'
