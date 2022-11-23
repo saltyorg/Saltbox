@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: DNS | Cloudflare | Add DNS Record             #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -33,12 +33,12 @@
 - name: Cloudflare | Add DNS Record | IPv4 Block
   block:
 
-    - name: Cloudflare | Validate IP variable
+    - name: Cloudflare | Add DNS Record | IPv4 | Validate IP variable
       ansible.builtin.fail:
         msg: "ip_address_public contains: '{{ ip_address_public }}' which is not a valid IP"
       when: not ip_address_public_is_valid
 
-    - name: Cloudflare | Add DNS Record | Add DNS Record
+    - name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
       community.general.cloudflare_dns:
         account_api_token: "{{ cloudflare.api }}"
         account_email: "{{ cloudflare.email }}"
@@ -51,14 +51,14 @@
         record: "{{ dns_record }}"
       register: cloudflare_dns_record_creation_status
 
-    - name: Cloudflare | Add DNS Record | Tasks on success
+    - name: Cloudflare | Add DNS Record | IPv4 | Tasks on success
       block:
 
-        - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
+        - name: Cloudflare | Add DNS Record | IPv4 | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
             dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
-        - name: Cloudflare | Add DNS Record | Display DNS Record creation status
+        - name: Cloudflare | Add DNS Record | IPv4 | Display DNS Record creation status
           ansible.builtin.debug:
             msg: "DNS A Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns_proxy }}"
 
@@ -66,15 +66,15 @@
 
   when: dns.ipv4
 
-- name: Cloudflare | Add DNS Record | IPv6 Block
+- name: Cloudflare | Add DNS Record | IPv6 Enabled Block
   block:
 
-    - name: Cloudflare | Validate IPv6 variable
+    - name: Cloudflare | Add DNS Record | IPv6 | Validate IPv6 variable
       ansible.builtin.fail:
         msg: "ipv6_address_public contains: '{{ ipv6_address_public }}' which is not a valid IP"
       when: not ipv6_address_public_is_valid
 
-    - name: Cloudflare | Add DNS Record | Add DNS Record
+    - name: Cloudflare | Add DNS Record | IPv6 | Add DNS Record
       community.general.cloudflare_dns:
         account_api_token: "{{ cloudflare.api }}"
         account_email: "{{ cloudflare.email }}"
@@ -87,14 +87,14 @@
         record: "{{ dns_record }}"
       register: cloudflare_dns_v6_record_creation_status
 
-    - name: Cloudflare | Add DNS Record | Tasks on success
+    - name: Cloudflare | Add DNS Record | IPv6 | Tasks on success
       block:
 
-        - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
+        - name: Cloudflare | Add DNS Record | IPv6 | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
             dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
-        - name: Cloudflare | Add DNS Record | Display DNS Record creation status
+        - name: Cloudflare | Add DNS Record | IPv6 | Display DNS Record creation status
           ansible.builtin.debug:
             msg: "DNS AAAA Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns_proxy }}"
 
@@ -103,10 +103,10 @@
   when: dns.ipv6
 
 
-- name: Cloudflare | Add DNS Record | IPv6 Block
+- name: Cloudflare | Add DNS Record | IPv6 Disable Block
   block:
 
-    - name: Cloudflare | IPv6 | Add DNS Record | Remove unused AAAA DNS Record
+    - name: Cloudflare | Add DNS Record | IPv6 | Remove unused AAAA DNS Record
       community.general.cloudflare_dns:
         account_api_token: "{{ cloudflare.api }}"
         account_email: "{{ cloudflare.email }}"
@@ -116,14 +116,14 @@
         record: "{{ dns_record }}"
       register: cloudflare_dns_v6_record_removal_status
 
-    - name: Cloudflare | IPv6 | Add DNS Record | Tasks on success
+    - name: Cloudflare | Add DNS Record | IPv6 | Tasks on success
       block:
 
-        - name: Cloudflare | IPv6 | Add DNS Record | Set 'dns_record_print' variable
+        - name: Cloudflare | Add DNS Record | IPv6 | Set 'dns_record_print' variable
           ansible.builtin.set_fact:
             dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
 
-        - name: Cloudflare | IPv6 | Add DNS Record | Display DNS Record removal status
+        - name: Cloudflare | Add DNS Record | IPv6 | Display DNS Record removal status
           ansible.builtin.debug:
             msg: "DNS AAAA Record for '{{ dns_record_print }}' was removed."
 
