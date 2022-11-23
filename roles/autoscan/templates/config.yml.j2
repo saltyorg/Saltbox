@@ -80,10 +80,10 @@ targets:
 {% for key,instance in plex_info.items() %}
     - url: {{ instance.url }} # {{ instance.name }}
       token: {{ instance.token }}
-      # Uncomment the below three (3) lines if backwards compatibility with
-      # Cloudbox default paths is needed
+      # If backwards compatibility with legacy Cloudbox paths is needed
+      # i.e. /data, then uncomment the below three (3) lines
       #rewrite:
-        #from: /mnt/unionfs/Media/
-        #to: /data/
+        #- from: /mnt/unionfs/Media/
+        #  to: /data/
 {% endfor %}
 {% endif %}
