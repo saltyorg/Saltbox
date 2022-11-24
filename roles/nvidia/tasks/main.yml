@@ -139,13 +139,7 @@
 
     # Install Nvidia Nvtop Tool
 
-    - name: Check if 'nvtop' exists
-      ansible.builtin.stat:
-        path: "{{ nvidia_nvtop_binary_path }}"
-      register: nvtop_binary
-
     - name: "Nvidia Nvtop Task"
       ansible.builtin.include_tasks: "subtasks/nvtop.yml"
-      when: (not nvtop_binary.stat.exists)
 
   when: (ansible_distribution == 'Ubuntu') and ('NVIDIA' in lspci_resp.stdout)
