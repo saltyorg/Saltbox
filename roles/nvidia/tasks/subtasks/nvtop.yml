@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: nvtop | Install gnupg Dependencies
+  ansible.builtin.apt:
+    name: dirmngr
+
 - name: nvtop | Add flexiondotorg apt key
   ansible.builtin.apt_key:
     keyserver: keyserver.ubuntu.com
