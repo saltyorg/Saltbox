@@ -80,7 +80,6 @@
     - { role: redis, tags: ['redis'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: subliminal, tags: ['subliminal'] }
-    - { role: trackarr, tags: ['trackarr'] }
     - { role: traktarr, tags: ['traktarr'] }
     - { role: transfer, tags: ['transfer'] }
     - { role: yyq, tags: ['yyq'] }
