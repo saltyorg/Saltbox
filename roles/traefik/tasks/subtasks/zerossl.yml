@@ -26,4 +26,9 @@
 - name: "Fail when unable to get new credentials"
   ansible.builtin.fail:
     msg: Failed to retrieve ZeroSSL credentials.
-  when: (zerossl.status != 200) or (not zerossl.json.success)
+  when: ((zerossl.status != 200) or (not zerossl.json.success)) and zerossl_is_enabled
+
+- name: "Print failure when unable to get new credentials"
+  ansible.builtin.debug:
+    msg: Failed to retrieve ZeroSSL credentials.
+  when: ((zerossl.status != 200) or (not zerossl.json.success)) and not zerossl_is_enabled
