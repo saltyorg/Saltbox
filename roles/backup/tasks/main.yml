@@ -99,11 +99,11 @@
       ansible.builtin.command: "du -sk /opt"
       register: estimated_backup_size
 
-    - name: Get size of opt folder
+    - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder' folder
       ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder'"
       register: estimated_backup_size_exclude_phototranscoder
 
-    - name: Get size of opt folder
+    - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode' folder
       ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
       register: estimated_backup_size_exclude_transcode
 
