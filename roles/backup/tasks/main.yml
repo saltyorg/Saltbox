@@ -102,10 +102,12 @@
     - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder' folder
       ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder'"
       register: estimated_backup_size_exclude_phototranscoder
+      ignore_errors: true
 
     - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode' folder
       ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
       register: estimated_backup_size_exclude_transcode
+      ignore_errors: true
 
     - name: Get amount of free disk space
       ansible.builtin.shell: "df '{{ backup.local.destination }}' --output=avail | tail -1"
@@ -113,7 +115,7 @@
 
     - name: Set backup_estimated_size
       ansible.builtin.set_fact:
-        backup_estimated_size: "{{ ((estimated_backup_size.stdout.split()[0] | int) - (estimated_backup_size_exclude_phototranscoder.stdout.split()[0] | int) - (estimated_backup_size_exclude_transcode.stdout.split()[0] | int)) }}"
+        backup_estimated_size: "{{ ((estimated_backup_size.stdout.split()[0] | int) - (estimated_backup_size_exclude_phototranscoder.stdout.split()[0] | default(0) | int) - (estimated_backup_size_exclude_transcode.stdout.split()[0] | default(0) | int)) }}"
 
     - name: Set backup_enough_disk_space boolean
       ansible.builtin.set_fact:
