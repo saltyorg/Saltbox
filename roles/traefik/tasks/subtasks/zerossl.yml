@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Display ZeroSSL status"
+  ansible.builtin.debug:
+    msg: "ZeroSSL setting is {{ 'enabled' if zerossl_is_enabled else 'disabled' }}"
+
 - name: Get new credentials
   ansible.builtin.uri:
     url: https://api.zerossl.com/acme/eab-credentials-email
@@ -16,6 +20,7 @@
     body_format: form-urlencoded
     return_content: true
   register: zerossl
+  ignore_errors: true
 
 - name: "Set ZeroSSL variables"
   ansible.builtin.set_fact:
