@@ -22,7 +22,7 @@
 
     - name: Resources | Tasks | DNS | Tasker | Get subdomain
       block:
-        - name: Get subdomain var
+        - name: Resources | Tasks | DNS | Tasker | Set subdomain var
           ansible.builtin.set_fact:
             subdomain_block: 1
 
@@ -34,7 +34,7 @@
 
     - name: Resources | Tasks | DNS | Tasker | Get subdomain
       block:
-        - name: Resources | Tasks | DNS | Tasker | Get subdomain var
+        - name: Resources | Tasks | DNS | Tasker | Set subdomain var
           ansible.builtin.set_fact:
             subdomain_block: 0
 
@@ -44,7 +44,7 @@
           register: subdomain_empty
       when: dns_record | length == 0
 
-    - name: Resources | Tasks | DNS | Tasker | Get subdomain var
+    - name: Resources | Tasks | DNS | Tasker | Set subdomain var
       ansible.builtin.set_fact:
         subdomain: "{{ subdomain_notempty.stdout
                     if (subdomain_block)
