@@ -115,20 +115,6 @@
         - "/home/{{ user.name }}/.config/rclone/rclone.conf"
       ignore_errors: true
 
-    - name: "Copy custom files to '{{ backup.local.destination }}'"
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "{{ backup.local.destination }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: 0775
-        decrypt: false
-        force: true
-      with_items:
-        - "{{ backup2_user_defined_files }}"
-      ignore_errors: true
-      when: (backup2_user_defined_files | length > 0)
-
     # Backup the excludes list if it exists
     - name: "Look for 'backup_excludes_list.txt' file in saltbox folder"
       ansible.builtin.stat:
@@ -230,6 +216,22 @@
             message: "Saltbox Backup: Stopped Docker containers."
 
       when: (docker_containers | trim | length > 0)
+
+    # Custom User Files
+
+    - name: "Copy custom files to '{{ backup.local.destination }}'"
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ backup.local.destination }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        decrypt: false
+        force: true
+      with_items:
+        - "{{ backup2_user_defined_files }}"
+      ignore_errors: true
+      when: (backup2_user_defined_files | length > 0)
 
     # Services
 
