@@ -96,16 +96,28 @@
 
     # Check if there is enough space in the local backup destination
     - name: Get size of opt folder
-      ansible.builtin.command: "du -sk /opt --exclude='/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder' --exclude='/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
+      ansible.builtin.command: "du -sk /opt"
       register: estimated_backup_size
 
+    - name: Get size of opt folder
+      ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder'"
+      register: estimated_backup_size_exclude_phototranscoder
+
+    - name: Get size of opt folder
+      ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
+      register: estimated_backup_size_exclude_transcode
+
     - name: Get amount of free disk space
-      ansible.builtin.shell: "df {{ backup.local.destination }} --output=avail | tail -1"
+      ansible.builtin.shell: "df '{{ backup.local.destination }}' --output=avail | tail -1"
       register: local_backup_destination_free_space
+
+    - name: Set backup_estimated_size
+      ansible.builtin.set_fact:
+        backup_estimated_size: "{{ ((estimated_backup_size.stdout.split()[0] | int) - (estimated_backup_size_exclude_phototranscoder.stdout.split()[0] | int) - (estimated_backup_size_exclude_transcode.stdout.split()[0] | int)) }}"
 
     - name: Set backup_enough_disk_space boolean
       ansible.builtin.set_fact:
-        backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (estimated_backup_size.stdout.split()[0] | int) }}"
+        backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (backup_estimated_size | int) }}"
 
     - name: "Notify | Saltbox Backup: Started Saltbox backup task"
       ansible.builtin.include_role:
@@ -118,7 +130,7 @@
       ansible.builtin.fail:
         msg:
           - "Not enough disk space left in {{ backup.local.destination }}."
-          - "Estimated Backup size: {{ estimated_backup_size.stdout.split()[0] | int }}"
+          - "Estimated Backup size: {{ backup_estimated_size | int }}"
           - "Free space: {{ local_backup_destination_free_space.stdout | int }}"
       when: (not backup_enough_disk_space)
 
@@ -150,20 +162,6 @@
         - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
         - "/home/{{ user.name }}/.config/rclone/rclone.conf"
       ignore_errors: true
-
-    - name: "Copy custom files to '{{ backup.local.destination }}'"
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "{{ backup.local.destination }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: 0775
-        decrypt: false
-        force: true
-      with_items:
-        - "{{ backup_user_defined_files }}"
-      ignore_errors: true
-      when: (backup_user_defined_files | length > 0)
 
     # Backup the excludes list if it exists
     - name: "Look for 'backup_excludes_list.txt' file in saltbox folder"
@@ -266,6 +264,22 @@
             message: "Saltbox Backup: Stopped Docker containers."
 
       when: (docker_containers | trim | length > 0)
+
+    # Custom User Files
+
+    - name: "Copy custom files to '{{ backup.local.destination }}'"
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ backup.local.destination }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+        decrypt: false
+        force: true
+      with_items:
+        - "{{ backup_user_defined_files }}"
+      ignore_errors: true
+      when: (backup_user_defined_files | length > 0)
 
     # Services
 
