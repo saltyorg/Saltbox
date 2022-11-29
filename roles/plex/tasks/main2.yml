@@ -33,6 +33,12 @@
     path: "{{ plex_paths_location }}/98-themepark"
     state: absent
 
+- name: Delete Plex Codecs Folder
+  ansible.builtin.file:
+    path: "{{ plex_paths_application_support_location }}/Codecs"
+    state: absent
+  when: ('plex-reset-codecs' in ansible_run_tags)
+
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
   when: not continuous_integration

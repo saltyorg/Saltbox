@@ -69,7 +69,7 @@
     - { role: node_exporter, tags: ['node_exporter'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
-    - { role: plex, tags: ['plex'] }
+    - { role: plex, tags: ['plex', 'plex-reset-codecs'] }
     - { role: plex_db, tags: ['plex-db'] }
     - { role: postgres, tags: ['postgres'] }
     - { role: prometheus, tags: ['prometheus'] }
