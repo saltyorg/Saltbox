@@ -192,6 +192,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/keldian>
+            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
+            <br />
+            <sub style="font-size:14px"><b>keldian</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/kinv>
             <img src=https://avatars.githubusercontent.com/u/42412447?v=4 width="100;"  alt=kinv/>
             <br />
