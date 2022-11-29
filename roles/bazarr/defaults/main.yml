@@ -122,6 +122,8 @@ bazarr_docker_commands: "{{ lookup('vars', bazarr_name + '_docker_commands_defau
 bazarr_docker_volumes_default:
   - "{{ bazarr_paths_location }}:/config"
   - "/opt/scripts:/scripts"
+  - "/mnt/unionfs/Media/Movies:/movies"
+  - "/mnt/unionfs/Media/TV:/tv"
 bazarr_docker_volumes_custom: []
 bazarr_docker_volumes_theme:
   - "{{ bazarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
