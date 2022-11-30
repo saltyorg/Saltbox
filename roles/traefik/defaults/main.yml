@@ -275,9 +275,9 @@ traefik_docker_hosts: "{{ docker_hosts_common
 traefik_docker_labels_default:
   com.github.saltbox.saltbox_managed: "true"
   traefik.enable: "true"
-  traefik.http.routers.traefik-local.rule: "Host(`{{ traefik_name }}`)"
-  traefik.http.routers.traefik-local.entrypoints: "web, websecure"
-  traefik.http.routers.traefik-local.service: "api@internal"
+  traefik.http.routers.traefik-internal.rule: "Host(`{{ traefik_name }}`)"
+  traefik.http.routers.traefik-internal.entrypoints: "internal"
+  traefik.http.routers.traefik-internal.service: "api@internal"
   traefik.http.routers.traefik-http.rule: "Host(`{{ traefik_web_subdomain }}.{{ traefik_web_domain }}`)"
   traefik.http.routers.traefik-http.entrypoints: "web"
   traefik.http.routers.traefik-http.middlewares: "{{ traefik_default_middleware_http + ',' + traefik_default_sso_middleware
