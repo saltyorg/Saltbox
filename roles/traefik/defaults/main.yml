@@ -152,6 +152,7 @@ traefik_docker_commands_default:
   - "--providers.file.watch={{ traefik_file_watch }}"
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
+  - "--entrypoints.internal.address=:8080"
   - "--entrypoints.web.address=:80"
   - "--entrypoints.web.forwardedheaders.trustedIPs={{ traefik_cloudflare_ips_string }}"
   - "--entrypoints.web.proxyprotocol.trustedIPs={{ traefik_cloudflare_ips_string }}"
