@@ -1,0 +1,110 @@
+##########################################################################
+# Title:            Sandbox: docker_socket_proxy | Default Variables     #
+# Author(s):        salty, JigSawFr                                      #
+# URL:              https://github.com/saltyorg/Sandbox                  #
+# URL:              https://github.com/Tecnativa/docker-socket-proxy     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+docker_socket_proxy_name: docker_socket_proxy
+
+################################
+# Docker
+################################
+
+# Container
+docker_socket_proxy_docker_container: "{{ docker_socket_proxy_name }}"
+
+# Image
+docker_socket_proxy_docker_image_pull: true
+docker_socket_proxy_docker_image_tag: "latest"
+docker_socket_proxy_docker_image: "tecnativa/docker-socket-proxy:{{ docker_socket_proxy_docker_image_tag }}"
+
+# Ports
+docker_socket_proxy_docker_ports_defaults: []
+docker_socket_proxy_docker_ports_custom: []
+docker_socket_proxy_docker_ports: "{{ docker_socket_proxy_docker_ports_defaults
+                                      + docker_socket_proxy_docker_ports_custom
+                                   if (not reverse_proxy_is_enabled)
+                                   else docker_socket_proxy_docker_ports_custom }}"
+
+# Envs
+docker_socket_proxy_docker_envs_default:
+  TZ: "{{ tz }}"
+  EVENTS: "1"
+  PING: "1"
+  VERSION: "1"
+  AUTH: "0"
+  SECRETS: "0"
+  POST: "0"
+docker_socket_proxy_docker_envs_custom: {}
+docker_socket_proxy_docker_envs: "{{ docker_socket_proxy_docker_envs_default
+                                     | combine(docker_socket_proxy_docker_envs_custom) }}"
+
+# Commands
+docker_socket_proxy_docker_commands_default: []
+docker_socket_proxy_docker_commands_custom: []
+docker_socket_proxy_docker_commands: "{{ docker_socket_proxy_docker_commands_default
+                                         + docker_socket_proxy_docker_commands_custom }}"
+
+# Volumes
+docker_socket_proxy_docker_volumes_default:
+  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+docker_socket_proxy_docker_volumes_custom: []
+docker_socket_proxy_docker_volumes: "{{ docker_socket_proxy_docker_volumes_default
+                                        + docker_socket_proxy_docker_volumes_custom }}"
+
+# Devices
+docker_socket_proxy_docker_devices_default: []
+docker_socket_proxy_docker_devices_custom: []
+docker_socket_proxy_docker_devices: "{{ docker_socket_proxy_docker_devices_default
+                                        + docker_socket_proxy_docker_devices_custom }}"
+
+# Hosts
+docker_socket_proxy_docker_hosts_default: []
+docker_socket_proxy_docker_hosts_custom: []
+docker_socket_proxy_docker_hosts: "{{ docker_hosts_common
+                                      | combine(docker_socket_proxy_docker_hosts_default)
+                                      | combine(docker_socket_proxy_docker_hosts_custom) }}"
+
+# Labels
+docker_socket_proxy_docker_labels_default: {}
+docker_socket_proxy_docker_labels_custom: {}
+docker_socket_proxy_docker_labels: "{{ docker_labels_common
+                                       | combine(docker_socket_proxy_docker_labels_default)
+                                       | combine(docker_socket_proxy_docker_labels_custom) }}"
+
+# Hostname
+docker_socket_proxy_docker_hostname: "{{ docker_socket_proxy_name }}"
+
+# Networks
+docker_socket_proxy_docker_networks_alias: "{{ docker_socket_proxy_name }}"
+docker_socket_proxy_docker_networks_default: []
+docker_socket_proxy_docker_networks_custom: []
+docker_socket_proxy_docker_networks: "{{ docker_networks_common
+                                         + docker_socket_proxy_docker_networks_default
+                                         + docker_socket_proxy_docker_networks_custom }}"
+
+# Capabilities
+docker_socket_proxy_docker_capabilities_default: []
+docker_socket_proxy_docker_capabilities_custom: []
+docker_socket_proxy_docker_capabilities: "{{ docker_socket_proxy_docker_capabilities_default
+                                             + docker_socket_proxy_docker_capabilities_custom }}"
+
+# Security Opts
+docker_socket_proxy_docker_security_opts_default: []
+docker_socket_proxy_docker_security_opts_custom: []
+docker_socket_proxy_docker_security_opts: "{{ docker_socket_proxy_docker_security_opts_default
+                                              + docker_socket_proxy_docker_security_opts_custom }}"
+
+# Restart Policy
+docker_socket_proxy_docker_restart_policy: unless-stopped
+
+# State
+docker_socket_proxy_docker_state: started
