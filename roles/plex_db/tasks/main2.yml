@@ -68,7 +68,7 @@
 
   rescue:
     - name: Restore database backup
-      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}'"
+      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/com.plexapp.plugins.library.{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}'"
       loop: "{{ plex_db_files }}"
 
     - name: Delete wal and shm files
