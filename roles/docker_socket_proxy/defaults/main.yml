@@ -37,12 +37,6 @@ docker_socket_proxy_docker_ports: "{{ docker_socket_proxy_docker_ports_defaults
 # Envs
 docker_socket_proxy_docker_envs_default:
   TZ: "{{ tz }}"
-  EVENTS: "1"
-  PING: "1"
-  VERSION: "1"
-  AUTH: "0"
-  SECRETS: "0"
-  POST: "0"
 docker_socket_proxy_docker_envs_custom: {}
 docker_socket_proxy_docker_envs: "{{ docker_socket_proxy_docker_envs_default
                                      | combine(docker_socket_proxy_docker_envs_custom) }}"
@@ -55,7 +49,7 @@ docker_socket_proxy_docker_commands: "{{ docker_socket_proxy_docker_commands_def
 
 # Volumes
 docker_socket_proxy_docker_volumes_default:
-  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  - "/var/run/docker.sock:/var/run/docker.sock"
 docker_socket_proxy_docker_volumes_custom: []
 docker_socket_proxy_docker_volumes: "{{ docker_socket_proxy_docker_volumes_default
                                         + docker_socket_proxy_docker_volumes_custom }}"
@@ -108,3 +102,6 @@ docker_socket_proxy_docker_restart_policy: unless-stopped
 
 # State
 docker_socket_proxy_docker_state: started
+
+# Privileged
+docker_socket_proxy_docker_privileged: true
