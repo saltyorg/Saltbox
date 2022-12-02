@@ -12,7 +12,7 @@
 # Basics
 ################################
 
-docker_socket_proxy_name: docker_socket_proxy
+docker_socket_proxy_name: docker-socket-proxy
 
 ################################
 # Docker
