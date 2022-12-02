@@ -99,7 +99,7 @@ netdata_docker_ports: "{{ netdata_docker_ports_defaults
 netdata_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  DOCKER_HOST: "docker-socket-proxy:2375"
+  DOCKER_HOST: "netdata-docker-socket-proxy:2375"
   NETDATA_CLAIM_TOKEN: "{{ netdata_claim_token }}"
   NETDATA_CLAIM_URL: "{{ netdata_claim_url }}"
   NETDATA_CLAIM_ROOMS: "{{ netdata_claim_room }}"
@@ -162,6 +162,7 @@ netdata_docker_networks: "{{ docker_networks_common
 # Capabilities
 netdata_docker_capabilities_default:
   - SYS_PTRACE
+  - SYS_ADMIN
 netdata_docker_capabilities_custom: []
 netdata_docker_capabilities: "{{ netdata_docker_capabilities_default
                                  + netdata_docker_capabilities_custom }}"
@@ -178,3 +179,6 @@ netdata_docker_restart_policy: unless-stopped
 
 # State
 netdata_docker_state: started
+
+# PID Mode
+netdata_docker_pid_mode: "host"
