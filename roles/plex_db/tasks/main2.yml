@@ -43,7 +43,7 @@
         mode: "0775"
 
     - name: Backup databases
-      ansible.builtin.shell: "cp '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}' /tmp/{{ plex_name }}_backup/"
+      ansible.builtin.shell: "cp '{{ plex_paths_plugin_support_location }}/Databases/{{ item }}' /tmp/{{ plex_name }}_backup/"
       loop: "{{ plex_db_files }}"
 
     - name: "Vacuum '{{ plex_paths_db_location | basename }}' database"
@@ -68,18 +68,18 @@
 
   rescue:
     - name: Restore database backup
-      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/com.plexapp.plugins.library.{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}'"
+      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/{{ item }}'"
       loop: "{{ plex_db_files }}"
 
     - name: Delete wal and shm files
       ansible.builtin.file:
-        path: "{{ plex_paths_plugin_support_location }}/Databases/com.plexapp.plugins.library.{{ item }}"
+        path: "{{ plex_paths_plugin_support_location }}/Databases/{{ item }}"
         state: absent
       loop:
-        - "db-wal"
-        - "db-shm"
-        - "blobs.db-wal"
-        - "blobs.db-shm"
+        - "com.plexapp.plugins.library.db-wal"
+        - "com.plexapp.plugins.library.db-shm"
+        - "com.plexapp.plugins.library.blobs.db-wal"
+        - "com.plexapp.plugins.library.blobs.db-shm"
 
 - name: Start Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

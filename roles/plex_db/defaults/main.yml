@@ -8,5 +8,5 @@
 ##########################################################################
 ---
 plex_db_files:
-  - "db"
-  - "blobs.db"
+  - "com.plexapp.plugins.library.db"
+  - "com.plexapp.plugins.library.blobs.db"
