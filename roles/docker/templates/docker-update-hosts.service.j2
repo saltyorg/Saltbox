@@ -15,6 +15,7 @@ PartOf=docker.service
 
 [Service]
 ExecStart=/usr/local/bin/docker-update-hosts
+RuntimeMaxSec=3600s
 Restart=always
 RestartSec=20s
 StartLimitIntervalSec=0
