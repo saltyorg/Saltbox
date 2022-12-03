@@ -12,10 +12,15 @@
     path: "{{ plex_paths_db_location }}"
   register: plex_db
 
+- name: "Check if '{{ plex_paths_db_blobs_location | basename }}' exists"
+  ansible.builtin.stat:
+    path: "{{ plex_paths_db_blobs_location }}"
+  register: plex_db_blobs
+
 - name: Fail if database does not exist
   ansible.builtin.fail:
-    msg: "Plex database is not present for {{ plex_name }} instance"
-  when: not plex_db.stat.exists
+    msg: "Plex databases are not present for {{ plex_name }} instance"
+  when: not (plex_db.stat.exists and plex_db_blobs.stat.exists)
 
 - name: Stop Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
