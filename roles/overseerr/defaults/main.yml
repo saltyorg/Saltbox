@@ -32,9 +32,7 @@ overseerr_web_subdomain: "{{ overseerr_name }}"
 overseerr_web_domain: "{{ user.domain }}"
 overseerr_web_port: "5055"
 overseerr_web_url: "{{ 'https://' + lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain)
-                       + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}"
+                       + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain) }}"
 
 ################################
 # DNS
@@ -95,14 +93,8 @@ overseerr_docker_image: "{{ lookup('vars', overseerr_name + '_docker_image_repo'
 
 # Ports
 overseerr_docker_ports_defaults: []
-overseerr_docker_ports_ui:
-  - "{{ lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}:{{ lookup('vars', overseerr_name + '_web_port', default=overseerr_web_port) }}"
 overseerr_docker_ports_custom: []
 overseerr_docker_ports: "{{ lookup('vars', overseerr_name + '_docker_ports_defaults', default=overseerr_docker_ports_defaults)
-                            + lookup('vars', overseerr_name + '_docker_ports_ui', default=overseerr_docker_ports_ui)
-                            + lookup('vars', overseerr_name + '_docker_ports_custom', default=overseerr_docker_ports_custom)
-                         if (not reverse_proxy_is_enabled)
-                         else lookup('vars', overseerr_name + '_docker_ports_defaults', default=overseerr_docker_ports_defaults)
                             + lookup('vars', overseerr_name + '_docker_ports_custom', default=overseerr_docker_ports_custom) }}"
 
 # Envs
