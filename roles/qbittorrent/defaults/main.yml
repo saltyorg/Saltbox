@@ -36,9 +36,7 @@ qbittorrent_web_subdomain: "{{ qbittorrent_name }}"
 qbittorrent_web_domain: "{{ user.domain }}"
 qbittorrent_web_port: "8080"
 qbittorrent_web_url: "{{ 'https://' + lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain)
-                         + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain)
-                      if (reverse_proxy_is_enabled)
-                      else 'http://localhost:' + lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
+                         + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}"
 
 ################################
 # DNS
@@ -105,14 +103,8 @@ qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', 
 qbittorrent_docker_ports_defaults:
   - "{{ qbittorrent_docker_ports_56881 }}:{{ qbittorrent_docker_ports_56881 }}"
   - "{{ qbittorrent_docker_ports_56881 }}:{{ qbittorrent_docker_ports_56881 }}/udp"
-qbittorrent_docker_ports_ui:
-  - "{{ qbittorrent_web_port_lookup }}:{{ qbittorrent_web_port_lookup }}"
 qbittorrent_docker_ports_custom: []
 qbittorrent_docker_ports: "{{ lookup('vars', qbittorrent_name + '_docker_ports_defaults', default=qbittorrent_docker_ports_defaults)
-                              + lookup('vars', qbittorrent_name + '_docker_ports_ui', default=qbittorrent_docker_ports_ui)
-                              + lookup('vars', qbittorrent_name + '_docker_ports_custom', default=qbittorrent_docker_ports_custom)
-                           if (not reverse_proxy_is_enabled)
-                           else lookup('vars', qbittorrent_name + '_docker_ports_defaults', default=qbittorrent_docker_ports_defaults)
                               + lookup('vars', qbittorrent_name + '_docker_ports_custom', default=qbittorrent_docker_ports_custom) }}"
 
 # Envs
