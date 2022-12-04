@@ -31,9 +31,7 @@ autoscan_web_subdomain: "{{ autoscan_name }}"
 autoscan_web_domain: "{{ user.domain }}"
 autoscan_web_port: "3030"
 autoscan_web_url: "{{ 'https://' + lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain)
-                      + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}"
+                      + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain) }}"
 
 ################################
 # DNS
@@ -77,14 +75,8 @@ autoscan_docker_image: "cloudb0x/autoscan:{{ lookup('vars', autoscan_name + '_do
 
 # Ports
 autoscan_docker_ports_defaults: []
-autoscan_docker_ports_ui:
-  - "{{ lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}:{{ lookup('vars', autoscan_name + '_web_port', default=autoscan_web_port) }}"
 autoscan_docker_ports_custom: []
 autoscan_docker_ports: "{{ lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
-                           + lookup('vars', autoscan_name + '_docker_ports_ui', default=autoscan_docker_ports_ui)
-                           + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom)
-                        if (not reverse_proxy_is_enabled)
-                        else lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
                            + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom) }}"
 
 # Envs
