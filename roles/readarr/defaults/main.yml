@@ -32,9 +32,7 @@ readarr_web_subdomain: "{{ readarr_name }}"
 readarr_web_domain: "{{ user.domain }}"
 readarr_web_port: "8787"
 readarr_web_url: "{{ 'https://' + lookup('vars', readarr_name + '_web_subdomain', default=readarr_web_subdomain)
-                     + '.' + lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain)
-                  if (reverse_proxy_is_enabled)
-                  else 'http://localhost:' + lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}"
+                     + '.' + lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain) }}"
 
 ################################
 # DNS
@@ -98,14 +96,8 @@ readarr_docker_image: "{{ lookup('vars', readarr_name + '_docker_image_repo', de
 
 # Ports
 readarr_docker_ports_defaults: []
-readarr_docker_ports_ui:
-  - "{{ lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}:{{ lookup('vars', readarr_name + '_web_port', default=readarr_web_port) }}"
 readarr_docker_ports_custom: []
 readarr_docker_ports: "{{ lookup('vars', readarr_name + '_docker_ports_defaults', default=readarr_docker_ports_defaults)
-                          + lookup('vars', readarr_name + '_docker_ports_ui', default=readarr_docker_ports_ui)
-                          + lookup('vars', readarr_name + '_docker_ports_custom', default=readarr_docker_ports_custom)
-                       if (not reverse_proxy_is_enabled)
-                       else lookup('vars', readarr_name + '_docker_ports_defaults', default=readarr_docker_ports_defaults)
                           + lookup('vars', readarr_name + '_docker_ports_custom', default=readarr_docker_ports_custom) }}"
 
 # Envs
