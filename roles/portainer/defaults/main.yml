@@ -29,9 +29,7 @@ portainer_paths_folders_list:
 portainer_web_subdomain: "{{ portainer_name }}"
 portainer_web_domain: "{{ user.domain }}"
 portainer_web_port: "9000"
-portainer_web_url: "{{ 'https://' + portainer_web_subdomain + '.' + portainer_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + portainer_web_port }}"
+portainer_web_url: "{{ 'https://' + portainer_web_subdomain + '.' + portainer_web_domain }}"
 
 ################################
 # DNS
@@ -90,14 +88,8 @@ portainer_docker_image: "portainer/portainer-ce:{{ portainer_docker_image_tag }}
 
 # Ports
 portainer_docker_ports_defaults: []
-portainer_docker_ports_ui:
-  - "{{ portainer_web_port }}:{{ portainer_web_port }}"
 portainer_docker_ports_custom: []
 portainer_docker_ports: "{{ portainer_docker_ports_defaults
-                            + portainer_docker_ports_ui
-                            + portainer_docker_ports_custom
-                         if (not reverse_proxy_is_enabled)
-                         else portainer_docker_ports_defaults
                             + portainer_docker_ports_custom }}"
 
 # Envs
