@@ -30,9 +30,7 @@ bazarr_web_subdomain: "{{ bazarr_name }}"
 bazarr_web_domain: "{{ user.domain }}"
 bazarr_web_port: "6767"
 bazarr_web_url: "{{ 'https://' + lookup('vars', bazarr_name + '_web_subdomain', default=bazarr_web_subdomain)
-                    + '.' + lookup('vars', bazarr_name + '_web_domain', default=bazarr_web_domain)
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}"
+                    + '.' + lookup('vars', bazarr_name + '_web_domain', default=bazarr_web_domain) }}"
 
 ################################
 # DNS
@@ -89,14 +87,8 @@ bazarr_docker_image: "{{ lookup('vars', bazarr_name + '_docker_image_repo', defa
 
 # Ports
 bazarr_docker_ports_defaults: []
-bazarr_docker_ports_ui:
-  - "{{ lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}:{{ lookup('vars', bazarr_name + '_web_port', default=bazarr_web_port) }}"
 bazarr_docker_ports_custom: []
 bazarr_docker_ports: "{{ lookup('vars', bazarr_name + '_docker_ports_defaults', default=bazarr_docker_ports_defaults)
-                         + lookup('vars', bazarr_name + '_docker_ports_ui', default=bazarr_docker_ports_ui)
-                         + lookup('vars', bazarr_name + '_docker_ports_custom', default=bazarr_docker_ports_custom)
-                      if (not reverse_proxy_is_enabled)
-                      else lookup('vars', bazarr_name + '_docker_ports_defaults', default=bazarr_docker_ports_defaults)
                          + lookup('vars', bazarr_name + '_docker_ports_custom', default=bazarr_docker_ports_custom) }}"
 
 # Envs
