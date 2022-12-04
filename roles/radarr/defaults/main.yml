@@ -32,9 +32,7 @@ radarr_web_subdomain: "{{ radarr_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
 radarr_web_url: "{{ 'https://' + lookup('vars', radarr_name + '_web_subdomain', default=radarr_web_subdomain)
-                    + '.' + lookup('vars', radarr_name + '_web_domain', default=radarr_web_domain)
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}"
+                    + '.' + lookup('vars', radarr_name + '_web_domain', default=radarr_web_domain) }}"
 
 ################################
 # DNS
@@ -98,14 +96,8 @@ radarr_docker_image: "{{ lookup('vars', radarr_name + '_docker_image_repo', defa
 
 # Ports
 radarr_docker_ports_defaults: []
-radarr_docker_ports_ui:
-  - "{{ lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}:{{ lookup('vars', radarr_name + '_web_port', default=radarr_web_port) }}"
 radarr_docker_ports_custom: []
 radarr_docker_ports: "{{ lookup('vars', radarr_name + '_docker_ports_defaults', default=radarr_docker_ports_defaults)
-                         + lookup('vars', radarr_name + '_docker_ports_ui', default=radarr_docker_ports_ui)
-                         + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom)
-                      if (not reverse_proxy_is_enabled)
-                      else lookup('vars', radarr_name + '_docker_ports_defaults', default=radarr_docker_ports_defaults)
                          + lookup('vars', radarr_name + '_docker_ports_custom', default=radarr_docker_ports_custom) }}"
 
 # Envs
