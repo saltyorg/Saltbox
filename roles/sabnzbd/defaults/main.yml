@@ -36,9 +36,7 @@ sabnzbd_paths_config_location: "{{ sabnzbd_paths_location }}/sabnzbd.ini"
 sabnzbd_web_subdomain: "{{ sabnzbd_name }}"
 sabnzbd_web_domain: "{{ user.domain }}"
 sabnzbd_web_port: "8080"
-sabnzbd_web_url: "{{ 'https://' + sabnzbd_web_subdomain + '.' + sabnzbd_web_domain
-                  if (reverse_proxy_is_enabled)
-                  else 'http://localhost:' + sabnzbd_web_port }}"
+sabnzbd_web_url: "{{ 'https://' + sabnzbd_web_subdomain + '.' + sabnzbd_web_domain }}"
 
 ################################
 # DNS
@@ -116,14 +114,8 @@ sabnzbd_docker_image: "cr.hotio.dev/hotio/sabnzbd:{{ sabnzbd_docker_image_tag }}
 
 # Ports
 sabnzbd_docker_ports_defaults: []
-sabnzbd_docker_ports_ui:
-  - "{{ sabnzbd_web_port }}:{{ sabnzbd_web_port }}"
 sabnzbd_docker_ports_custom: []
 sabnzbd_docker_ports: "{{ sabnzbd_docker_ports_defaults
-                          + sabnzbd_docker_ports_ui
-                          + sabnzbd_docker_ports_custom
-                       if (not reverse_proxy_is_enabled)
-                       else sabnzbd_docker_ports_defaults
                           + sabnzbd_docker_ports_custom }}"
 
 # Envs
