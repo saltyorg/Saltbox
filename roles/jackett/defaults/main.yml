@@ -29,9 +29,7 @@ jackett_paths_folders_list:
 jackett_web_subdomain: "{{ jackett_name }}"
 jackett_web_domain: "{{ user.domain }}"
 jackett_web_port: "9117"
-jackett_web_url: "{{ 'https://' + jackett_web_subdomain + '.' + jackett_web_domain
-                  if (reverse_proxy_is_enabled)
-                  else 'http://localhost:' + jackett_web_port }}"
+jackett_web_url: "{{ 'https://' + jackett_web_subdomain + '.' + jackett_web_domain }}"
 
 ################################
 # DNS
@@ -85,14 +83,8 @@ jackett_docker_image: "cr.hotio.dev/hotio/jackett:{{ jackett_docker_image_tag }}
 
 # Ports
 jackett_docker_ports_defaults: []
-jackett_docker_ports_ui:
-  - "{{ jackett_web_port }}:{{ jackett_web_port }}"
 jackett_docker_ports_custom: []
 jackett_docker_ports: "{{ jackett_docker_ports_defaults
-                          + jackett_docker_ports_ui
-                          + jackett_docker_ports_custom
-                       if (not reverse_proxy_is_enabled)
-                       else jackett_docker_ports_defaults
                           + jackett_docker_ports_custom }}"
 
 # Envs
