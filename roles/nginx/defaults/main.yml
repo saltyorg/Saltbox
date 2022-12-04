@@ -30,9 +30,7 @@ nginx_web_subdomain: "{{ nginx_name }}"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
 nginx_web_url: "{{ 'https://' + lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain)
-                   + '.' + lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain)
-                if (reverse_proxy_is_enabled)
-                else 'http://localhost:' + lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}"
+                   + '.' + lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain) }}"
 
 ################################
 # DNS
@@ -73,14 +71,8 @@ nginx_docker_image: "{{ lookup('vars', nginx_name + '_docker_image_repo', defaul
 
 # Ports
 nginx_docker_ports_defaults: []
-nginx_docker_ports_ui:
-  - "{{ lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}:{{ lookup('vars', nginx_name + '_web_port', default=nginx_web_port) }}"
 nginx_docker_ports_custom: []
 nginx_docker_ports: "{{ lookup('vars', nginx_name + '_docker_ports_defaults', default=nginx_docker_ports_defaults)
-                        + lookup('vars', nginx_name + '_docker_ports_ui', default=nginx_docker_ports_ui)
-                        + lookup('vars', nginx_name + '_docker_ports_custom', default=nginx_docker_ports_custom)
-                     if (not reverse_proxy_is_enabled)
-                     else lookup('vars', nginx_name + '_docker_ports_defaults', default=nginx_docker_ports_defaults)
                         + lookup('vars', nginx_name + '_docker_ports_custom', default=nginx_docker_ports_custom) }}"
 
 # Envs
