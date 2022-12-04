@@ -29,9 +29,7 @@ organizr_paths_folders_list:
 organizr_web_subdomain: "organizr"
 organizr_web_domain: "{{ user.domain }}"
 organizr_web_port: "80"
-organizr_web_url: "{{ 'https://' + organizr_web_subdomain + '.' + organizr_web_domain
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + organizr_web_port }}"
+organizr_web_url: "{{ 'https://' + organizr_web_subdomain + '.' + organizr_web_domain }}"
 
 ################################
 # DNS
@@ -76,14 +74,8 @@ organizr_docker_image: "organizr/organizr:{{ organizr_docker_image_tag }}"
 
 # Ports
 organizr_docker_ports_defaults: []
-organizr_docker_ports_ui:
-  - "{{ organizr_web_port }}:{{ organizr_web_port }}"
 organizr_docker_ports_custom: []
 organizr_docker_ports: "{{ organizr_docker_ports_defaults
-                           + organizr_docker_ports_ui
-                           + organizr_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else organizr_docker_ports_defaults
                            + organizr_docker_ports_custom }}"
 
 # Envs
