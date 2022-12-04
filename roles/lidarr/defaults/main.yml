@@ -31,9 +31,7 @@ lidarr_web_subdomain: "{{ lidarr_name }}"
 lidarr_web_domain: "{{ user.domain }}"
 lidarr_web_port: "8686"
 lidarr_web_url: "{{ 'https://' + lookup('vars', lidarr_name + '_web_subdomain', default=lidarr_web_subdomain)
-                    + '.' + lookup('vars', lidarr_name + '_web_domain', default=lidarr_web_domain)
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}"
+                    + '.' + lookup('vars', lidarr_name + '_web_domain', default=lidarr_web_domain) }}"
 
 ################################
 # DNS
@@ -97,14 +95,8 @@ lidarr_docker_image: "{{ lookup('vars', lidarr_name + '_docker_image_repo', defa
 
 # Ports
 lidarr_docker_ports_defaults: []
-lidarr_docker_ports_ui:
-  - "{{ lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}:{{ lookup('vars', lidarr_name + '_web_port', default=lidarr_web_port) }}"
 lidarr_docker_ports_custom: []
 lidarr_docker_ports: "{{ lookup('vars', lidarr_name + '_docker_ports_defaults', default=lidarr_docker_ports_defaults)
-                         + lookup('vars', lidarr_name + '_docker_ports_ui', default=lidarr_docker_ports_ui)
-                         + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom)
-                      if (not reverse_proxy_is_enabled)
-                      else lookup('vars', lidarr_name + '_docker_ports_defaults', default=lidarr_docker_ports_defaults)
                          + lookup('vars', lidarr_name + '_docker_ports_custom', default=lidarr_docker_ports_custom) }}"
 
 # Envs
