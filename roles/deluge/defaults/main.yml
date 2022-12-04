@@ -37,9 +37,7 @@ deluge_web_subdomain: "{{ deluge_name }}"
 deluge_web_domain: "{{ user.domain }}"
 deluge_web_port: "8112"
 deluge_web_url: "{{ 'https://' + lookup('vars', deluge_name + '_web_subdomain', default=deluge_web_subdomain)
-                    + '.' + lookup('vars', deluge_name + '_web_domain', default=deluge_web_domain)
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lookup('vars', deluge_name + '_web_port', default=deluge_web_port) }}"
+                    + '.' + lookup('vars', deluge_name + '_web_domain', default=deluge_web_domain) }}"
 
 ################################
 # DNS
@@ -94,14 +92,9 @@ deluge_docker_ports_58112: "{{ port_lookup_58112.port
 deluge_docker_ports_defaults:
   - "{{ deluge_docker_ports_58112 }}:{{ deluge_docker_ports_58112 }}"
   - "{{ deluge_docker_ports_58112 }}:{{ deluge_docker_ports_58112 }}/udp"
-deluge_docker_ports_ui:
-  - "{{ lookup('vars', deluge_name + '_web_port', default=deluge_web_port) }}:{{ lookup('vars', deluge_name + '_web_port', default=deluge_web_port) }}"
 deluge_docker_ports_custom: []
 deluge_docker_ports: "{{ deluge_docker_ports_defaults
-                         + deluge_docker_ports_custom
-                         + (deluge_docker_ports_ui
-                           if (not reverse_proxy_is_enabled)
-                           else []) }}"
+                         + deluge_docker_ports_custom }}"
 
 # Envs
 deluge_docker_envs_default:
