@@ -30,4 +30,3 @@
 
 - name: Post-Install | Settings Tasks
   ansible.builtin.import_tasks: "settings.yml"
-  when: reverse_proxy_is_enabled

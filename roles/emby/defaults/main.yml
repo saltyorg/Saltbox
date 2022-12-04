@@ -36,9 +36,7 @@ emby_web_subdomain: "{{ emby_name }}"
 emby_web_domain: "{{ user.domain }}"
 emby_web_port: "8096"
 emby_web_url: "{{ 'https://' + lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain)
-                  + '.' + lookup('vars', emby_name + '_web_domain', default=emby_web_domain)
-               if (reverse_proxy_is_enabled)
-               else 'http://localhost:' + lookup('vars', emby_name + '_web_port', default=emby_web_port) }}"
+                  + '.' + lookup('vars', emby_name + '_web_domain', default=emby_web_domain) }}"
 
 ################################
 # DNS
@@ -118,14 +116,8 @@ emby_docker_image: "{{ lookup('vars', emby_name + '_docker_image_repo', default=
 
 # Ports
 emby_docker_ports_defaults: []
-emby_docker_ports_ui:
-  - "{{ lookup('vars', emby_name + '_web_port', default=emby_web_port) }}:{{ lookup('vars', emby_name + '_web_port', default=emby_web_port) }}"
 emby_docker_ports_custom: []
 emby_docker_ports: "{{ lookup('vars', emby_name + '_docker_ports_defaults', default=emby_docker_ports_defaults)
-                       + lookup('vars', emby_name + '_docker_ports_ui', default=emby_docker_ports_ui)
-                       + lookup('vars', emby_name + '_docker_ports_custom', default=emby_docker_ports_custom)
-                    if (not reverse_proxy_is_enabled)
-                    else lookup('vars', emby_name + '_docker_ports_defaults', default=emby_docker_ports_defaults)
                        + lookup('vars', emby_name + '_docker_ports_custom', default=emby_docker_ports_custom) }}"
 
 # Envs
