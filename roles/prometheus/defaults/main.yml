@@ -39,9 +39,7 @@ prometheus_paths_folders_list:
 prometheus_web_subdomain: "{{ prometheus_name }}"
 prometheus_web_domain: "{{ user.domain }}"
 prometheus_web_port: "9090"
-prometheus_web_url: "{{ 'https://' + prometheus_web_subdomain + '.' + prometheus_web_domain
-                     if (reverse_proxy_is_enabled)
-                     else 'http://localhost:' + prometheus_web_port }}"
+prometheus_web_url: "{{ 'https://' + prometheus_web_subdomain + '.' + prometheus_web_domain }}"
 
 ################################
 # DNS
@@ -58,15 +56,15 @@ prometheus_dns_proxy: "{{ dns.proxied }}"
 prometheus_traefik_sso_middleware: ""
 
 prometheus_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth,'
-                                         + lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware)
-                                      if (lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware) | length > 0)
-                                      else traefik_default_middleware + ',prometheus-auth' }}"
+                                           + lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware)
+                                        if (lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware) | length > 0)
+                                        else traefik_default_middleware + ',prometheus-auth' }}"
 prometheus_traefik_middleware_custom: ""
 prometheus_traefik_middleware: "{{ prometheus_traefik_middleware_default + ','
-                                 + prometheus_traefik_middleware_custom
-                              if (not prometheus_traefik_middleware_custom.startswith(',') and prometheus_traefik_middleware_custom | length > 0)
-                              else prometheus_traefik_middleware_default
-                                 + prometheus_traefik_middleware_custom }}"
+                                   + prometheus_traefik_middleware_custom
+                                if (not prometheus_traefik_middleware_custom.startswith(',') and prometheus_traefik_middleware_custom | length > 0)
+                                else prometheus_traefik_middleware_default
+                                   + prometheus_traefik_middleware_custom }}"
 prometheus_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prometheus_traefik_enabled: true
 
@@ -84,22 +82,16 @@ prometheus_docker_image: "prom/prometheus:{{ prometheus_docker_image_tag }}"
 
 # Ports
 prometheus_docker_ports_defaults: []
-prometheus_docker_ports_ui:
-  - "{{ prometheus_web_port }}:{{ prometheus_web_port }}"
 prometheus_docker_ports_custom: []
 prometheus_docker_ports: "{{ prometheus_docker_ports_defaults
-                           + prometheus_docker_ports_ui
-                           + prometheus_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else prometheus_docker_ports_defaults
-                           + prometheus_docker_ports_custom }}"
+                             + prometheus_docker_ports_custom }}"
 
 # Envs
 prometheus_docker_envs_default:
   TZ: "{{ tz }}"
 prometheus_docker_envs_custom: {}
 prometheus_docker_envs: "{{ prometheus_docker_envs_default
-                          | combine(prometheus_docker_envs_custom) }}"
+                            | combine(prometheus_docker_envs_custom) }}"
 
 # Commands
 prometheus_docker_commands_default:
@@ -109,7 +101,7 @@ prometheus_docker_commands_default:
   - "--storage.tsdb.retention.size={{ prometheus_size }}"
 prometheus_docker_commands_custom: []
 prometheus_docker_commands: "{{ prometheus_docker_commands_default
-                              + prometheus_docker_commands_custom }}"
+                                + prometheus_docker_commands_custom }}"
 
 # Volumes
 prometheus_docker_volumes_default:
@@ -117,28 +109,28 @@ prometheus_docker_volumes_default:
   - "{{ prometheus_paths_location }}/data:/data"
 prometheus_docker_volumes_custom: []
 prometheus_docker_volumes: "{{ prometheus_docker_volumes_default
-                             + prometheus_docker_volumes_custom }}"
+                               + prometheus_docker_volumes_custom }}"
 
 # Devices
 prometheus_docker_devices_default: []
 prometheus_docker_devices_custom: []
 prometheus_docker_devices: "{{ prometheus_docker_devices_default
-                             + prometheus_docker_devices_custom }}"
+                               + prometheus_docker_devices_custom }}"
 
 # Hosts
 prometheus_docker_hosts_default: []
 prometheus_docker_hosts_custom: []
 prometheus_docker_hosts: "{{ docker_hosts_common
-                           | combine(prometheus_docker_hosts_default)
-                           | combine(prometheus_docker_hosts_custom) }}"
+                             | combine(prometheus_docker_hosts_default)
+                             | combine(prometheus_docker_hosts_custom) }}"
 
 # Labels
 prometheus_docker_labels_default:
   traefik.http.middlewares.prometheus-auth.basicauth.usersfile: "/etc/traefik/auth"
 prometheus_docker_labels_custom: {}
 prometheus_docker_labels: "{{ docker_labels_common
-                            | combine(prometheus_docker_labels_default)
-                            | combine(prometheus_docker_labels_custom) }}"
+                              | combine(prometheus_docker_labels_default)
+                              | combine(prometheus_docker_labels_custom) }}"
 
 # Hostname
 prometheus_docker_hostname: "{{ prometheus_name }}"
@@ -148,20 +140,20 @@ prometheus_docker_networks_alias: "{{ prometheus_name }}"
 prometheus_docker_networks_default: []
 prometheus_docker_networks_custom: []
 prometheus_docker_networks: "{{ docker_networks_common
-                              + prometheus_docker_networks_default
-                              + prometheus_docker_networks_custom }}"
+                                + prometheus_docker_networks_default
+                                + prometheus_docker_networks_custom }}"
 
 # Capabilities
 prometheus_docker_capabilities_default: []
 prometheus_docker_capabilities_custom: []
 prometheus_docker_capabilities: "{{ prometheus_docker_capabilities_default
-                                  + prometheus_docker_capabilities_custom }}"
+                                    + prometheus_docker_capabilities_custom }}"
 
 # Security Opts
 prometheus_docker_security_opts_default: []
 prometheus_docker_security_opts_custom: []
 prometheus_docker_security_opts: "{{ prometheus_docker_security_opts_default
-                                   + prometheus_docker_security_opts_custom }}"
+                                     + prometheus_docker_security_opts_custom }}"
 
 # Restart Policy
 prometheus_docker_restart_policy: unless-stopped
