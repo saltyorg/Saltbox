@@ -29,9 +29,7 @@ prowlarr_paths_folders_list:
 prowlarr_web_subdomain: "{{ prowlarr_name }}"
 prowlarr_web_domain: "{{ user.domain }}"
 prowlarr_web_port: "9696"
-prowlarr_web_url: "{{ 'https://' + prowlarr_web_subdomain + '.' + prowlarr_web_domain
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + prowlarr_web_port }}"
+prowlarr_web_url: "{{ 'https://' + prowlarr_web_subdomain + '.' + prowlarr_web_domain }}"
 
 ################################
 # DNS
@@ -85,14 +83,8 @@ prowlarr_docker_image: "cr.hotio.dev/hotio/prowlarr:{{ prowlarr_docker_image_tag
 
 # Ports
 prowlarr_docker_ports_defaults: []
-prowlarr_docker_ports_ui:
-  - "{{ prowlarr_web_port }}:{{ prowlarr_web_port }}"
 prowlarr_docker_ports_custom: []
 prowlarr_docker_ports: "{{ prowlarr_docker_ports_defaults
-                           + prowlarr_docker_ports_ui
-                           + prowlarr_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else prowlarr_docker_ports_defaults
                            + prowlarr_docker_ports_custom }}"
 
 # Envs
