@@ -28,9 +28,7 @@ grafana_paths_folders_list:
 grafana_web_subdomain: "{{ grafana_name }}"
 grafana_web_domain: "{{ user.domain }}"
 grafana_web_port: "3000"
-grafana_web_url: "{{ 'https://' + grafana_web_subdomain + '.' + grafana_web_domain
-                  if (reverse_proxy_is_enabled)
-                  else 'http://localhost:' + grafana_web_port }}"
+grafana_web_url: "{{ 'https://' + grafana_web_subdomain + '.' + grafana_web_domain }}"
 
 ################################
 # DNS
@@ -67,13 +65,10 @@ grafana_docker_image_tag: "latest"
 grafana_docker_image: "grafana/grafana:{{ grafana_docker_image_tag }}"
 
 # Ports
-grafana_docker_ports_defaults:
-  - "{{ grafana_web_port }}"
+grafana_docker_ports_defaults: []
 grafana_docker_ports_custom: []
 grafana_docker_ports: "{{ grafana_docker_ports_defaults
-                          + grafana_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else grafana_docker_ports_custom }}"
+                          + grafana_docker_ports_custom }}"
 
 # Envs
 grafana_docker_envs_default:
