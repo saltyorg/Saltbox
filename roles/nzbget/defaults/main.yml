@@ -37,9 +37,7 @@ nzbget_web_subdomain: "{{ nzbget_name }}"
 nzbget_web_domain: "{{ user.domain }}"
 nzbget_web_port: "6789"
 nzbget_web_login: "{{ user.name }}:{{ user.pass }}"
-nzbget_web_url_with_login: "{{ 'https://' + nzbget_web_login + '@' + nzbget_web_subdomain + '.' + nzbget_web_domain
-                            if (reverse_proxy_is_enabled)
-                            else 'http://' + nzbget_web_login + '@' + 'localhost:' + nzbget_web_port }}"
+nzbget_web_url_with_login: "{{ 'https://' + nzbget_web_login + '@' + nzbget_web_subdomain + '.' + nzbget_web_domain }}"
 
 ################################
 # DNS
@@ -199,14 +197,8 @@ nzbget_docker_image: "cr.hotio.dev/hotio/nzbget:{{ nzbget_docker_image_tag }}"
 
 # Ports
 nzbget_docker_ports_defaults: []
-nzbget_docker_ports_ui:
-  - "{{ nzbget_web_port }}:{{ nzbget_web_port }}"
 nzbget_docker_ports_custom: []
 nzbget_docker_ports: "{{ nzbget_docker_ports_defaults
-                         + nzbget_docker_ports_ui
-                         + nzbget_docker_ports_custom
-                      if (not reverse_proxy_is_enabled)
-                      else nzbget_docker_ports_defaults
                          + nzbget_docker_ports_custom }}"
 
 # Envs
