@@ -42,9 +42,7 @@ rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/
 rutorrent_web_subdomain: "{{ rutorrent_name }}"
 rutorrent_web_domain: "{{ user.domain }}"
 rutorrent_web_port: "80"
-rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + rutorrent_web_port }}"
+rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain }}"
 
 ################################
 # DNS
@@ -178,15 +176,9 @@ rutorrent_docker_ports_defaults:
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}"
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}/udp"
   - "{{ rutorrent_docker_ports_6881 }}:{{ rutorrent_docker_ports_6881 }}/udp"
-rutorrent_docker_ports_ui:
-  - "{{ rutorrent_web_port }}:{{ rutorrent_web_port }}"
 rutorrent_docker_ports_custom: []
 
 rutorrent_docker_ports: "{{ rutorrent_docker_ports_defaults
-                            + rutorrent_docker_ports_ui
-                            + rutorrent_docker_ports_custom
-                         if (not reverse_proxy_is_enabled)
-                         else rutorrent_docker_ports_defaults
                             + rutorrent_docker_ports_custom }}"
 
 # Envs
