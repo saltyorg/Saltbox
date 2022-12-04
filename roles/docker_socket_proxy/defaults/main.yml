@@ -30,9 +30,7 @@ docker_socket_proxy_docker_image: "tecnativa/docker-socket-proxy:{{ docker_socke
 docker_socket_proxy_docker_ports_defaults: []
 docker_socket_proxy_docker_ports_custom: []
 docker_socket_proxy_docker_ports: "{{ docker_socket_proxy_docker_ports_defaults
-                                      + docker_socket_proxy_docker_ports_custom
-                                   if (not reverse_proxy_is_enabled)
-                                   else docker_socket_proxy_docker_ports_custom }}"
+                                      + docker_socket_proxy_docker_ports_custom }}"
 
 # Envs
 docker_socket_proxy_docker_envs_default:
