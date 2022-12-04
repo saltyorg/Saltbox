@@ -155,20 +155,6 @@ ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 | default(ansible_
 ipv6_address_public_is_valid: "{{ ipv6_address_public | ansible.utils.ipv6 }}"
 
 ################################
-# Reverse Proxy
-################################
-
-reverse_proxy_is_enabled: "{{ (user is defined) and
-                              (user is not none) and
-                              (user | trim | length > 0) and
-                              (user.domain is defined) and
-                              (user.domain is not none) and
-                              (user.domain | trim | length > 0) and
-                              (user.email is defined) and
-                              (user.email is not none) and
-                              (user.email | trim | length > 0) }}"
-
-################################
 # Theme
 ################################
 
@@ -327,7 +313,7 @@ docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_tr
                         else docker_labels_traefik_main }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
-                       if (traefik_role_enabled and reverse_proxy_is_enabled)
+                       if traefik_role_enabled
                        else docker_labels_saltbox }}"
 
 docker_networks_name_common: saltbox
