@@ -38,9 +38,7 @@ redis_docker_image: "redis:{{ redis_docker_image_tag }}"
 redis_docker_ports_defaults: []
 redis_docker_ports_custom: []
 redis_docker_ports: "{{ redis_docker_ports_defaults
-                        + redis_docker_ports_custom
-                     if (not reverse_proxy_is_enabled)
-                     else redis_docker_ports_custom }}"
+                        + redis_docker_ports_custom }}"
 
 # Envs
 redis_docker_envs_default:
