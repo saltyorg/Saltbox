@@ -46,9 +46,7 @@ postgres_docker_image: "postgres:{{ postgres_docker_image_tag }}"
 postgres_docker_ports_defaults: []
 postgres_docker_ports_custom: []
 postgres_docker_ports: "{{ postgres_docker_ports_defaults
-                           + postgres_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else postgres_docker_ports_custom }}"
+                           + postgres_docker_ports_custom }}"
 
 # Envs
 postgres_docker_envs_default:
