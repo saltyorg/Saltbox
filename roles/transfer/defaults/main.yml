@@ -32,9 +32,7 @@ transfer_web_domain: "{{ user.domain }}"
 transfer_web_port: "8080"
 transfer_web_user: "{{ user.name }}"
 transfer_web_pass: "{{ user.pass }}"
-transfer_web_url: "{{ 'https://' + transfer_web_subdomain + '.' + transfer_web_domain
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + transfer_web_port }}"
+transfer_web_url: "{{ 'https://' + transfer_web_subdomain + '.' + transfer_web_domain }}"
 
 ################################
 # DNS
@@ -72,14 +70,8 @@ transfer_docker_image: "dutchcoders/transfer.sh:{{ transfer_docker_image_tag }}"
 
 # Ports
 transfer_docker_ports_defaults: []
-transfer_docker_ports_ui:
-  - "{{ transfer_web_port }}:{{ transfer_web_port }}"
 transfer_docker_ports_custom: []
 transfer_docker_ports: "{{ transfer_docker_ports_defaults
-                           + transfer_docker_ports_ui
-                           + transfer_docker_ports_custom
-                        if (not reverse_proxy_is_enabled)
-                        else transfer_docker_ports_defaults
                            + transfer_docker_ports_custom }}"
 
 # Envs
