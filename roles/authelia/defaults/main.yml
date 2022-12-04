@@ -29,9 +29,7 @@ authelia_paths_folders_list:
 authelia_web_subdomain: "{{ authelia.subdomain }}"
 authelia_web_domain: "{{ user.domain }}"
 authelia_web_port: "9091"
-authelia_web_url: "{{ 'https://' + authelia_web_subdomain + '.' + authelia_web_domain
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + authelia_web_port }}"
+authelia_web_url: "{{ 'https://' + authelia_web_subdomain + '.' + authelia_web_domain }}"
 
 ################################
 # DNS
