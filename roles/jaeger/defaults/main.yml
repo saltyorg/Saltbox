@@ -29,9 +29,7 @@ jaeger_paths_folders_list:
 jaeger_web_subdomain: "{{ traefik.subdomains.jaeger }}"
 jaeger_web_domain: "{{ user.domain }}"
 jaeger_web_port: "16686"
-jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + jaeger_web_port }}"
+jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain }}"
 
 ################################
 # DNS
@@ -74,14 +72,8 @@ jaeger_docker_image: "jaegertracing/all-in-one:{{ jaeger_docker_image_tag }}"
 
 # Ports
 jaeger_docker_ports_defaults: []
-jaeger_docker_ports_ui:
-  - "{{ jaeger_web_port }}:{{ jaeger_web_port }}"
 jaeger_docker_ports_custom: []
 jaeger_docker_ports: "{{ jaeger_docker_ports_defaults
-                         + jaeger_docker_ports_ui
-                         + jaeger_docker_ports_custom
-                      if (not reverse_proxy_is_enabled)
-                      else jaeger_docker_ports_defaults
                          + jaeger_docker_ports_custom }}"
 
 # Envs
