@@ -32,9 +32,7 @@ tautulli_web_subdomain: "{{ tautulli_name }}"
 tautulli_web_domain: "{{ user.domain }}"
 tautulli_web_port: "8181"
 tautulli_web_url: "{{ 'https://' + lookup('vars', tautulli_name + '_web_subdomain', default=tautulli_web_subdomain)
-                      + '.' + lookup('vars', tautulli_name + '_web_domain', default=tautulli_web_domain)
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}"
+                      + '.' + lookup('vars', tautulli_name + '_web_domain', default=tautulli_web_domain) }}"
 
 ################################
 # DNS
@@ -91,14 +89,8 @@ tautulli_docker_image: "{{ lookup('vars', tautulli_name + '_docker_image_repo', 
 
 # Ports
 tautulli_docker_ports_defaults: []
-tautulli_docker_ports_ui:
-  - "{{ lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}:{{ lookup('vars', tautulli_name + '_web_port', default=tautulli_web_port) }}"
 tautulli_docker_ports_custom: []
 tautulli_docker_ports: "{{ lookup('vars', tautulli_name + '_docker_ports_defaults', default=tautulli_docker_ports_defaults)
-                           + lookup('vars', tautulli_name + '_docker_ports_ui', default=tautulli_docker_ports_ui)
-                           + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom)
-                        if (not reverse_proxy_is_enabled)
-                        else lookup('vars', tautulli_name + '_docker_ports_defaults', default=tautulli_docker_ports_defaults)
                            + lookup('vars', tautulli_name + '_docker_ports_custom', default=tautulli_docker_ports_custom) }}"
 
 # Envs
