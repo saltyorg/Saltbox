@@ -31,9 +31,7 @@ nzbhydra2_paths_config_location: "{{ nzbhydra2_paths_location }}/nzbhydra.yml"
 nzbhydra2_web_subdomain: "{{ nzbhydra2_name }}"
 nzbhydra2_web_domain: "{{ user.domain }}"
 nzbhydra2_web_port: "5076"
-nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain
-                    if (reverse_proxy_is_enabled)
-                    else 'http://localhost:' + nzbhydra2_web_port }}"
+nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain }}"
 
 ################################
 # DNS
@@ -122,14 +120,8 @@ nzbhydra2_docker_image: "cr.hotio.dev/hotio/nzbhydra2:{{ nzbhydra2_docker_image_
 
 # Ports
 nzbhydra2_docker_ports_defaults: []
-nzbhydra2_docker_ports_ui:
-  - "{{ nzbhydra2_web_port }}:{{ nzbhydra2_web_port }}"
 nzbhydra2_docker_ports_custom: []
 nzbhydra2_docker_ports: "{{ nzbhydra2_docker_ports_defaults
-                            + nzbhydra2_docker_ports_ui
-                            + nzbhydra2_docker_ports_custom
-                         if (not reverse_proxy_is_enabled)
-                         else nzbhydra2_docker_ports_defaults
                             + nzbhydra2_docker_ports_custom }}"
 
 # Envs
