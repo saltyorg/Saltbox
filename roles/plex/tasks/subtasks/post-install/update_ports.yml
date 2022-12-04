@@ -28,7 +28,7 @@
           if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
           else plex_web_port }}
 
-  when: plex_open_main_ports or not reverse_proxy_is_enabled
+  when: plex_open_main_ports
 
 - name: Post-Install | Update Ports | Update port in '{{ plex_paths_config_location | basename }}'
   community.general.xml:

@@ -172,16 +172,14 @@ plex_docker_ports: "{{ lookup('vars', plex_name + '_docker_ports_defaults', defa
                          if (lookup('vars', plex_name + '_open_local_ports', default=false))
                          else [])
                        + (lookup('vars', plex_name + '_docker_ports_ui', default=plex_docker_ports_ui)
-                         if (not reverse_proxy_is_enabled or plex_open_main_ports)
+                         if plex_open_main_ports
                          else []) }}"
 
 # Envs
 plex_docker_envs_advertise_ip_url: "{{ lookup('vars', plex_name + '_web_url', default=plex_web_url) + ':443,' + lookup('vars', plex_name + '_web_insecure_url', default=plex_web_insecure_url) + ':80'
                                     if plex_insecure
                                     else lookup('vars', plex_name + '_web_url', default=plex_web_url) + ':443' }}"
-plex_docker_envs_advertise_ip: "{{ lookup('vars', plex_name + '_docker_envs_advertise_ip_url', default=plex_docker_envs_advertise_ip_url)
-                                if (reverse_proxy_is_enabled)
-                                else '' }}"
+plex_docker_envs_advertise_ip: "{{ lookup('vars', plex_name + '_docker_envs_advertise_ip_url', default=plex_docker_envs_advertise_ip_url) }}"
 plex_docker_envs_default:
   PLEX_UID: "{{ uid }}"
   PLEX_GID: "{{ gid }}"
