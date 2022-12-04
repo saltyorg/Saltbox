@@ -39,9 +39,7 @@ nzbthrottle_docker_image: "daghaian/nzbthrottle:{{ nzbthrottle_docker_image_tag 
 nzbthrottle_docker_ports_defaults: []
 nzbthrottle_docker_ports_custom: []
 nzbthrottle_docker_ports: "{{ nzbthrottle_docker_ports_defaults
-                              + nzbthrottle_docker_ports_custom
-                          if (not reverse_proxy_is_enabled)
-                          else nzbthrottle_docker_ports_custom }}"
+                              + nzbthrottle_docker_ports_custom }}"
 
 # Envs
 nzbthrottle_docker_envs_default:
