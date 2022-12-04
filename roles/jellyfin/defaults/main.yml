@@ -39,9 +39,7 @@ jellyfin_web_subdomain: "{{ jellyfin_name }}"
 jellyfin_web_domain: "{{ user.domain }}"
 jellyfin_web_port: "8096"
 jellyfin_web_url: "{{ 'https://' + lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain)
-                      + '.' + lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain)
-                   if (reverse_proxy_is_enabled)
-                   else 'http://localhost:' + lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}"
+                      + '.' + lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain) }}"
 
 ################################
 # DNS
@@ -111,14 +109,8 @@ jellyfin_docker_image: "{{ lookup('vars', jellyfin_name + '_docker_image_repo', 
 
 # Ports
 jellyfin_docker_ports_defaults: []
-jellyfin_docker_ports_ui:
-  - "{{ lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}:{{ lookup('vars', jellyfin_name + '_web_port', default=jellyfin_web_port) }}"
 jellyfin_docker_ports_custom: []
 jellyfin_docker_ports: "{{ lookup('vars', jellyfin_name + '_docker_ports_defaults', default=jellyfin_docker_ports_defaults)
-                           + lookup('vars', jellyfin_name + '_docker_ports_ui', default=jellyfin_docker_ports_ui)
-                           + lookup('vars', jellyfin_name + '_docker_ports_custom', default=jellyfin_docker_ports_custom)
-                        if (not reverse_proxy_is_enabled)
-                        else lookup('vars', jellyfin_name + '_docker_ports_defaults', default=jellyfin_docker_ports_defaults)
                            + lookup('vars', jellyfin_name + '_docker_ports_custom', default=jellyfin_docker_ports_custom) }}"
 
 # Envs
