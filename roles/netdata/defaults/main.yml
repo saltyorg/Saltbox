@@ -47,9 +47,7 @@ netdata_paths_folders_list:
 netdata_web_subdomain: "{{ netdata_name }}"
 netdata_web_domain: "{{ user.domain }}"
 netdata_web_port: "19999"
-netdata_web_url: "{{ 'https://' + netdata_web_subdomain + '.' + netdata_web_domain
-                  if (reverse_proxy_is_enabled)
-                  else 'http://localhost:' + netdata_web_port }}"
+netdata_web_url: "{{ 'https://' + netdata_web_subdomain + '.' + netdata_web_domain }}"
 
 ################################
 # DNS
@@ -92,14 +90,8 @@ netdata_docker_image: "netdata/netdata:{{ netdata_docker_image_tag }}"
 
 # Ports
 netdata_docker_ports_defaults: []
-netdata_docker_ports_ui:
-  - "{{ netdata_web_port }}:{{ netdata_web_port }}"
 netdata_docker_ports_custom: []
 netdata_docker_ports: "{{ netdata_docker_ports_defaults
-                          + netdata_docker_ports_ui
-                          + netdata_docker_ports_custom
-                       if (not reverse_proxy_is_enabled)
-                       else netdata_docker_ports_defaults
                           + netdata_docker_ports_custom }}"
 
 # Envs
