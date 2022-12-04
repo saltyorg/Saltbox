@@ -31,9 +31,7 @@ sonarr_web_subdomain: "{{ sonarr_name }}"
 sonarr_web_domain: "{{ user.domain }}"
 sonarr_web_port: "8989"
 sonarr_web_url: "{{ 'https://' + lookup('vars', sonarr_name + '_web_subdomain', default=sonarr_web_subdomain)
-                    + '.' + lookup('vars', sonarr_name + '_web_domain', default=sonarr_web_domain)
-                 if (reverse_proxy_is_enabled)
-                 else 'http://localhost:' + lookup('vars', sonarr_name + '_web_port', default=sonarr_web_port) }}"
+                    + '.' + lookup('vars', sonarr_name + '_web_domain', default=sonarr_web_domain) }}"
 
 ################################
 # DNS
@@ -97,14 +95,8 @@ sonarr_docker_image: "{{ lookup('vars', sonarr_name + '_docker_image_repo', defa
 
 # Ports
 sonarr_docker_ports_defaults: []
-sonarr_docker_ports_ui:
-  - "{{ lookup('vars', sonarr_name + '_web_port', default=sonarr_web_port) }}:{{ lookup('vars', sonarr_name + '_web_port', default=sonarr_web_port) }}"
 sonarr_docker_ports_custom: []
 sonarr_docker_ports: "{{ lookup('vars', sonarr_name + '_docker_ports_defaults', default=sonarr_docker_ports_defaults)
-                         + lookup('vars', sonarr_name + '_docker_ports_ui', default=sonarr_docker_ports_ui)
-                         + lookup('vars', sonarr_name + '_docker_ports_custom', default=sonarr_docker_ports_custom)
-                      if (not reverse_proxy_is_enabled)
-                      else lookup('vars', sonarr_name + '_docker_ports_defaults', default=sonarr_docker_ports_defaults)
                          + lookup('vars', sonarr_name + '_docker_ports_custom', default=sonarr_docker_ports_custom) }}"
 
 # Envs
