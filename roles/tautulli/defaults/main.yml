@@ -62,7 +62,7 @@ tautulli_traefik_middleware: "{{ tautulli_traefik_middleware_default + ','
 tautulli_traefik_certresolver: "{{ traefik_default_certresolver }}"
 tautulli_traefik_enabled: true
 tautulli_traefik_api_enabled: true
-tautulli_traefik_api_endpoint: "`/api`,`/newsletter`,`/image`,`/pms_image_proxy`"
+tautulli_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/newsletter`) || PathPrefix(`/image`) || PathPrefix(`/pms_image_proxy`)"
 
 ################################
 # THEME

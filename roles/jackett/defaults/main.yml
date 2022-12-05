@@ -58,7 +58,7 @@ jackett_traefik_middleware: "{{ jackett_traefik_middleware_default + ','
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
 jackett_traefik_api_enabled: true
-jackett_traefik_api_endpoint: "`/api`,`/dl`"
+jackett_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/dl`)"
 
 ################################
 # THEME

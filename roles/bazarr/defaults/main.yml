@@ -60,7 +60,7 @@ bazarr_traefik_middleware: "{{ bazarr_traefik_middleware_default + ','
 bazarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 bazarr_traefik_enabled: true
 bazarr_traefik_api_enabled: true
-bazarr_traefik_api_endpoint: "`/api`"
+bazarr_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
 # THEME

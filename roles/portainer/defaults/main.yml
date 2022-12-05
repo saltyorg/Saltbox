@@ -64,7 +64,7 @@ portainer_traefik_middleware_api: "{{ traefik_global_middleware }}"
 portainer_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_traefik_enabled: true
 portainer_traefik_api_enabled: true
-portainer_traefik_api_endpoint: "`/api/websocket/`"
+portainer_traefik_api_endpoint: "PathPrefix(`/api/websocket/`)"
 
 ################################
 # THEME

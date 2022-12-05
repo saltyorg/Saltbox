@@ -65,7 +65,7 @@ sabnzbd_traefik_middleware: "{{ sabnzbd_traefik_middleware_default + ','
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
 sabnzbd_traefik_api_enabled: true
-sabnzbd_traefik_api_endpoint: "`/api`"
+sabnzbd_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
 # Config

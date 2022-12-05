@@ -69,7 +69,7 @@ qbittorrent_traefik_middleware: "{{ qbittorrent_traefik_middleware_default + ','
 qbittorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 qbittorrent_traefik_enabled: true
 qbittorrent_traefik_api_enabled: true
-qbittorrent_traefik_api_endpoint: "`/api`,`/command`,`/query`,`/login`,`/sync`"
+qbittorrent_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) || PathPrefix(`/query`) || PathPrefix(`/login`) || PathPrefix(`/sync`)"
 
 ################################
 # THEME
