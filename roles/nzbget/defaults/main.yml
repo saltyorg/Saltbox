@@ -67,7 +67,7 @@ nzbget_traefik_middleware_api: "{{ traefik_global_middleware }}"
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbget_traefik_enabled: true
 nzbget_traefik_api_enabled: true
-nzbget_traefik_api_endpoint: "PathRegexp(`^/{[A-Za-z0-9]+}:{[A-Za-z0-9]+}/{xml|jsonp?}rpc`) || PathRegexp(`^/{xml|jsonp?}rpc`)"
+nzbget_traefik_api_endpoint: "PathRegexp(`^/[A-Za-z0-9]+:[A-Za-z0-9]+/(xml|json|jsonp)rpc`) || PathRegexp(`^/(xml|json|jsonp)rpc`)"
 
 ################################
 # Config
