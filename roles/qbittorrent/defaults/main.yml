@@ -52,8 +52,8 @@ qbittorrent_dns_proxy: "{{ dns.proxied }}"
 
 qbittorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 qbittorrent_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', qbittorrent_name + '_name', default=qbittorrent_name)
-                                    if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
-                                    else '' }}"
+                                           if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
+                                           else '' }}"
 
 qbittorrent_traefik_middleware_default: "{{ traefik_default_middleware + ',' + qbittorrent_traefik_sso_middleware
                                          if (qbittorrent_traefik_sso_middleware | length > 0)
