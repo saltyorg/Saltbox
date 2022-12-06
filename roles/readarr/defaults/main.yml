@@ -47,18 +47,8 @@ readarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 readarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-readarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                        + lookup('vars', readarr_name + '_traefik_sso_middleware', default=readarr_traefik_sso_middleware)
-                                     if (lookup('vars', readarr_name + '_traefik_sso_middleware', default=readarr_traefik_sso_middleware) | length > 0)
-                                     else traefik_default_middleware }}"
+readarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 readarr_traefik_middleware_custom: ""
-readarr_traefik_middleware: "{{ readarr_traefik_middleware_default + ','
-                                + readarr_traefik_middleware_custom
-                             if (not readarr_traefik_middleware_custom.startswith(',') and readarr_traefik_middleware_custom | length > 0)
-                             else readarr_traefik_middleware_default
-                                + readarr_traefik_middleware_custom }}"
-
 readarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 readarr_traefik_enabled: true
 readarr_traefik_api_enabled: true
