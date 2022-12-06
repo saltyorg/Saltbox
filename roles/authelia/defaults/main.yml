@@ -43,14 +43,13 @@ authelia_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
+authelia_traefik_sso_middleware: ""
 authelia_traefik_middleware_default: "{{ traefik_default_middleware }}"
 authelia_traefik_middleware_custom: ""
-authelia_traefik_middleware: "{{ authelia_traefik_middleware_default
-                                 + (',' + authelia_traefik_middleware_custom
-                                   if (not authelia_traefik_middleware_custom.startswith(',') and authelia_traefik_middleware_custom | length > 0)
-                                   else authelia_traefik_middleware_custom) }}"
 authelia_traefik_certresolver: "{{ traefik_default_certresolver }}"
 authelia_traefik_enabled: true
+authelia_traefik_api_enabled: false
+authelia_traefik_api_endpoint: ""
 
 ################################
 # Docker
