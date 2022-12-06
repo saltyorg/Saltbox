@@ -47,8 +47,8 @@ nzbhydra2_dns_proxy: "{{ dns.proxied }}"
 
 nzbhydra2_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 nzbhydra2_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', nzbhydra2_name + '_name', default=nzbhydra2_name)
-                                    if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                    else '' }}"
+                                         if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '' }}"
 
 nzbhydra2_traefik_middleware_default: "{{ traefik_default_middleware + ','
                                           + lookup('vars', nzbhydra2_name + '_traefik_sso_middleware', default=nzbhydra2_traefik_sso_middleware)
