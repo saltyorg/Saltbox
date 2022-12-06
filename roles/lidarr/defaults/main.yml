@@ -46,18 +46,8 @@ lidarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 lidarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-lidarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                       + lookup('vars', lidarr_name + '_traefik_sso_middleware', default=lidarr_traefik_sso_middleware)
-                                    if (lookup('vars', lidarr_name + '_traefik_sso_middleware', default=lidarr_traefik_sso_middleware) | length > 0)
-                                    else traefik_default_middleware }}"
+lidarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 lidarr_traefik_middleware_custom: ""
-lidarr_traefik_middleware: "{{ lidarr_traefik_middleware_default + ','
-                               + lidarr_traefik_middleware_custom
-                            if (not lidarr_traefik_middleware_custom.startswith(',') and lidarr_traefik_middleware_custom | length > 0)
-                            else lidarr_traefik_middleware_default
-                               + lidarr_traefik_middleware_custom }}"
-
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
 lidarr_traefik_api_enabled: true
