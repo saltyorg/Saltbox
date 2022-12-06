@@ -44,16 +44,13 @@ nginx_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
+nginx_traefik_sso_middleware: ""
 nginx_traefik_middleware_default: "{{ traefik_default_middleware }}"
 nginx_traefik_middleware_custom: ""
-nginx_traefik_middleware: "{{ nginx_traefik_middleware_default + ','
-                              + nginx_traefik_middleware_custom
-                           if (not nginx_traefik_middleware_custom.startswith(',') and nginx_traefik_middleware_custom | length > 0)
-                           else nginx_traefik_middleware_default
-                              + nginx_traefik_middleware_custom }}"
-
 nginx_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nginx_traefik_enabled: true
+nginx_traefik_api_enabled: false
+nginx_traefik_api_endpoint: ""
 
 ################################
 # Docker
