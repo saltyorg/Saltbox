@@ -47,18 +47,8 @@ tautulli_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 tautulli_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-tautulli_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                         + lookup('vars', tautulli_name + '_traefik_sso_middleware', default=tautulli_traefik_sso_middleware)
-                                      if (lookup('vars', tautulli_name + '_traefik_sso_middleware', default=tautulli_traefik_sso_middleware) | length > 0)
-                                      else traefik_default_middleware }}"
+tautulli_traefik_middleware_default: "{{ traefik_default_middleware }}"
 tautulli_traefik_middleware_custom: ""
-tautulli_traefik_middleware: "{{ tautulli_traefik_middleware_default + ','
-                                 + tautulli_traefik_middleware_custom
-                              if (not tautulli_traefik_middleware_custom.startswith(',') and tautulli_traefik_middleware_custom | length > 0)
-                              else tautulli_traefik_middleware_default
-                                 + tautulli_traefik_middleware_custom }}"
-
 tautulli_traefik_certresolver: "{{ traefik_default_certresolver }}"
 tautulli_traefik_enabled: true
 tautulli_traefik_api_enabled: true
