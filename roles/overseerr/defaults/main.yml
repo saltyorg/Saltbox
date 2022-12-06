@@ -53,8 +53,8 @@ overseerr_log_level: "info"
 ################################
 
 overseerr_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', overseerr_name + '_name', default=overseerr_name)
-                                    if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
-                                    else '' }}"
+                                         if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '' }}"
 
 overseerr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 overseerr_traefik_middleware_custom: ""
