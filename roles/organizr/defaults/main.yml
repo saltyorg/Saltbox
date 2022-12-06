@@ -50,15 +50,13 @@ organizr_fpm: "yes"
 # Traefik
 ################################
 
+organizr_traefik_sso_middleware: ""
 organizr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 organizr_traefik_middleware_custom: ""
-organizr_traefik_middleware: "{{ organizr_traefik_middleware_default + ','
-                                 + organizr_traefik_middleware_custom
-                              if (not organizr_traefik_middleware_custom.startswith(',') and organizr_traefik_middleware_custom | length > 0)
-                              else organizr_traefik_middleware_default
-                                 + organizr_traefik_middleware_custom }}"
 organizr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 organizr_traefik_enabled: true
+organizr_traefik_api_enabled: false
+organizr_traefik_api_endpoint: ""
 
 ################################
 # Docker
