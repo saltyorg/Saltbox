@@ -51,17 +51,8 @@ sabnzbd_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 sabnzbd_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-sabnzbd_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                        + lookup('vars', sabnzbd_name + '_traefik_sso_middleware', default=sabnzbd_traefik_sso_middleware)
-                                     if (lookup('vars', sabnzbd_name + '_traefik_sso_middleware', default=sabnzbd_traefik_sso_middleware) | length > 0)
-                                     else traefik_default_middleware }}"
+sabnzbd_traefik_middleware_default: "{{ traefik_default_middleware }}"
 sabnzbd_traefik_middleware_custom: ""
-sabnzbd_traefik_middleware: "{{ sabnzbd_traefik_middleware_default + ','
-                                + sabnzbd_traefik_middleware_custom
-                             if (not sabnzbd_traefik_middleware_custom.startswith(',') and sabnzbd_traefik_middleware_custom | length > 0)
-                             else sabnzbd_traefik_middleware_default
-                                + sabnzbd_traefik_middleware_custom }}"
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
 sabnzbd_traefik_api_enabled: true
