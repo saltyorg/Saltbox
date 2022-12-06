@@ -42,9 +42,13 @@ grafana_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-grafana_traefik_middleware: "{{ traefik_default_middleware }}"
+grafana_traefik_sso_middleware: ""
+grafana_traefik_middleware_default: "{{ traefik_default_middleware }}"
+grafana_traefik_middleware_custom: ""
 grafana_traefik_certresolver: "{{ traefik_default_certresolver }}"
 grafana_traefik_enabled: true
+grafana_traefik_api_enabled: false
+grafana_traefik_api_endpoint: ""
 
 ################################
 # Plugins
