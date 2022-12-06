@@ -54,19 +54,12 @@ prometheus_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 prometheus_traefik_sso_middleware: ""
-
-prometheus_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth,'
-                                           + lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware)
-                                        if (lookup('vars', prometheus_name + '_traefik_sso_middleware', default=prometheus_traefik_sso_middleware) | length > 0)
-                                        else traefik_default_middleware + ',prometheus-auth' }}"
+prometheus_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth,' }}"
 prometheus_traefik_middleware_custom: ""
-prometheus_traefik_middleware: "{{ prometheus_traefik_middleware_default + ','
-                                   + prometheus_traefik_middleware_custom
-                                if (not prometheus_traefik_middleware_custom.startswith(',') and prometheus_traefik_middleware_custom | length > 0)
-                                else prometheus_traefik_middleware_default
-                                   + prometheus_traefik_middleware_custom }}"
 prometheus_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prometheus_traefik_enabled: true
+prometheus_traefik_api_enabled: false
+prometheus_traefik_api_endpoint: ""
 
 ################################
 # Docker
