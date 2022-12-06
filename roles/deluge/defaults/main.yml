@@ -51,14 +51,13 @@ deluge_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
+deluge_traefik_sso_middleware: ""
 deluge_traefik_middleware_default: "{{ traefik_default_middleware }}"
 deluge_traefik_middleware_custom: ""
-deluge_traefik_middleware: "{{ deluge_traefik_middleware_default
-                               + (',' + deluge_traefik_middleware_custom
-                                 if (not deluge_traefik_middleware_custom.startswith(',') and deluge_traefik_middleware_custom | length > 0)
-                                 else deluge_traefik_middleware_custom) }}"
 deluge_traefik_certresolver: "{{ traefik_default_certresolver }}"
 deluge_traefik_enabled: true
+deluge_traefik_api_enabled: false
+deluge_traefik_api_endpoint: ""
 
 ################################
 # THEME
