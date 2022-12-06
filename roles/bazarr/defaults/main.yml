@@ -45,18 +45,8 @@ bazarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 bazarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-bazarr_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                       + lookup('vars', bazarr_name + '_traefik_sso_middleware', default=bazarr_traefik_sso_middleware)
-                                    if (lookup('vars', bazarr_name + '_traefik_sso_middleware', default=bazarr_traefik_sso_middleware) | length > 0)
-                                    else traefik_default_middleware }}"
+bazarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 bazarr_traefik_middleware_custom: ""
-bazarr_traefik_middleware: "{{ bazarr_traefik_middleware_default + ','
-                               + bazarr_traefik_middleware_custom
-                            if (not bazarr_traefik_middleware_custom.startswith(',') and bazarr_traefik_middleware_custom | length > 0)
-                            else bazarr_traefik_middleware_default
-                               + bazarr_traefik_middleware_custom }}"
-
 bazarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 bazarr_traefik_enabled: true
 bazarr_traefik_api_enabled: true
