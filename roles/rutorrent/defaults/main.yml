@@ -57,21 +57,12 @@ rutorrent_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 rutorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-
-rutorrent_traefik_middleware_default: "{{ traefik_default_middleware + ','
-                                          + lookup('vars', rutorrent_name + '_traefik_sso_middleware', default=rutorrent_traefik_sso_middleware)
-                                       if (lookup('vars', rutorrent_name + '_traefik_sso_middleware', default=rutorrent_traefik_sso_middleware) | length > 0)
-                                       else traefik_default_middleware }}"
+rutorrent_traefik_middleware_default: "{{ traefik_default_middleware }}"
 rutorrent_traefik_middleware_custom: ""
-rutorrent_traefik_middleware: "{{ rutorrent_traefik_middleware_default + ','
-                                  + rutorrent_traefik_middleware_custom
-                               if (not rutorrent_traefik_middleware_custom.startswith(',') and rutorrent_traefik_middleware_custom | length > 0)
-                               else rutorrent_traefik_middleware_default
-                                  + rutorrent_traefik_middleware_custom }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
 rutorrent_traefik_api_enabled: true
-rutorrent_traefik_api_middleware: "rutorrent-auth,{{ traefik_default_middleware }}"
+rutorrent_traefik_api_middleware: "rutorrent-auth,{{ traefik_default_middleware_api }}"
 rutorrent_traefik_api_endpoint: "PathPrefix(`/RPC2`)"
 
 ################################
