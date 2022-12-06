@@ -74,7 +74,7 @@ error_pages_docker_hosts: "{{ docker_hosts_common
 # Labels
 error_pages_docker_labels_default:
   traefik.enable: "true"
-  traefik.http.routers.error-pages-router.rule: "HostRegexp(`{host:.+}`)"
+  traefik.http.routers.error-pages-router.rule: "PathPrefix(`/`)"
   traefik.http.routers.error-pages-router.priority: "5"
   traefik.http.routers.error-pages-router.entrypoints: "web,websecure"
   traefik.http.routers.error-pages-router.middlewares: "error-pages-middleware"
