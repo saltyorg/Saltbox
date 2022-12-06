@@ -45,8 +45,8 @@ portainer_dns_proxy: "{{ dns.proxied }}"
 
 portainer_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 portainer_traefik_themepark_middleware: "{{ ',themepark-' + lookup('vars', portainer_name + '_name', default=portainer_name)
-                                    if (portainer_themepark_enabled and global_themepark_plugin_enabled)
-                                    else '' }}"
+                                         if (portainer_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '' }}"
 
 portainer_traefik_middleware_default: "{{ traefik_default_middleware + ','
                                           + lookup('vars', portainer_name + '_traefik_sso_middleware', default=portainer_traefik_sso_middleware)
@@ -137,7 +137,7 @@ portainer_docker_labels: "{{ docker_labels_common
                              | combine((lookup('vars', portainer_name + '_docker_labels_themepark', default=portainer_docker_labels_themepark)
                           if (portainer_themepark_enabled and global_themepark_plugin_enabled)
                           else {}),
-                          lookup('vars', portainer_name + '_docker_labels_custom', default=portainer_docker_labels_custom)) }}"
+                             lookup('vars', portainer_name + '_docker_labels_custom', default=portainer_docker_labels_custom)) }}"
 
 # Hostname
 portainer_docker_hostname: "{{ portainer_name }}"
