@@ -197,7 +197,11 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
-traefik_default_middleware_default: "{{ traefik_error_pages_middleware + 'globalHeaders@file,secureHeaders@file'
+traefik_default_middleware_default: "{{ traefik_role_middleware_sso
+                                        + (',' if (traefik_role_middleware_sso | length > 0)
+                                               else '')
+                                        + traefik_error_pages_middleware
+                                        + 'globalHeaders@file,secureHeaders@file'
                                         + (',gzip'
                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
                                           else '')
@@ -210,6 +214,15 @@ traefik_default_middleware: "{{ traefik_default_middleware_default
                                   if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
                                   else traefik_default_middleware_custom) }}"
 
+traefik_role_middleware_sso: "{{ lookup('vars', traefik_role_var + '_traefik_sso_middleware', default=lookup('vars', role_name + '_traefik_sso_middleware', default='')) }}"
+traefik_role_middleware_default: "{{ lookup('vars', traefik_role_var + '_traefik_middleware_default', default=lookup('vars', role_name + '_traefik_middleware_default', default='')) }}"
+traefik_role_middleware_custom: "{{ lookup('vars', traefik_role_var + '_traefik_middleware_custom', default=lookup('vars', role_name + '_traefik_middleware_custom', default='')) }}"
+
+traefik_middleware: "{{ traefik_role_middleware_default
+                        + (',' + traefik_role_middleware_custom
+                          if (not traefik_role_middleware_custom.startswith(',') and traefik_role_middleware_custom | length > 0)
+                          else traefik_role_middleware_custom) }}"
+
 traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https"
 traefik_default_middleware_custom_http: ""
 traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
@@ -219,6 +232,29 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                      + (',gzip'
                                        if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
                                        else '') }}"
+
+traefik_default_middleware_default_http_api: "globalHeaders@file,redirect-to-https"
+traefik_default_middleware_custom_http_api: ""
+traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http_api
+                                         + (',' + traefik_default_middleware_custom_http_api
+                                           if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
+                                           else traefik_default_middleware_custom_http_api)
+                                         + (',gzip'
+                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
+                                           else '') }}"
+
+traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
+                                            + (',gzip'
+                                              if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
+                                              else '')
+                                            + (',hsts@file'
+                                              if (traefik.hsts)
+                                              else '') }}"
+traefik_default_middleware_custom_api: ""
+traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
+                                    + (',' + traefik_default_middleware_custom_api
+                                      if (not traefik_default_middleware_custom_api.startswith(',') and traefik_default_middleware_custom_api | length > 0)
+                                      else traefik_default_middleware_custom_api) }}"
 
 traefik_default_sso_middleware: "authelia"
 
@@ -286,7 +322,7 @@ docker_labels_traefik_main:
   - '{ "traefik.http.routers.{{ traefik_router }}.priority": "{{ lookup("vars", traefik_role_var + "_traefik_priority", default=lookup("vars", role_name + "_traefik_priority", default="20")) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_middleware", default=lookup("vars", role_name + "_traefik_middleware", default=omit)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ traefik_middleware }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.port": "{{ lookup("vars", traefik_role_var + "_web_http_port", default=lookup("vars", role_name + "_web_http_port", default=traefik_loadbalancer_port)) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.scheme": "{{ lookup("vars", traefik_role_var + "_web_http_scheme", default=lookup("vars", role_name + "_web_http_scheme", default=traefik_loadbalancer_scheme)) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.serverstransport": "{{ lookup("vars", traefik_role_var + "_web_http_serverstransport", default=lookup("vars", role_name + "_web_http_serverstransport", default=omit)) }}" }'
@@ -299,14 +335,14 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.rule": "Host(`{{ traefik_host }}`) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.priority": "30" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware_http", default=lookup("vars", role_name + "_traefik_api_middleware_http", default=traefik_default_middleware_http)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware_http", default=lookup("vars", role_name + "_traefik_api_middleware_http", default=traefik_default_middleware_http_api)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "Host(`{{ traefik_host }}`) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware", default=lookup("vars", role_name + "_traefik_api_middleware", default=traefik_default_middleware)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware", default=lookup("vars", role_name + "_traefik_api_middleware", default=traefik_default_middleware_api)) }}" }'
 
 docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled
