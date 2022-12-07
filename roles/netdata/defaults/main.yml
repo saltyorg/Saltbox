@@ -115,7 +115,7 @@ netdata_docker_commands: "{{ netdata_docker_commands_default
 # Volumes
 netdata_docker_volumes_global: false
 netdata_docker_volumes_default:
-  - "{{ netdata_paths_location }}/config:/etc/netdata:ro"
+  - "{{ netdata_paths_location }}/config:/etc/netdata"
   - "netdatalib:/var/lib/netdata"
   - "netdatacache:/var/cache/netdata"
   - "/etc/passwd:/host/etc/passwd:ro"
