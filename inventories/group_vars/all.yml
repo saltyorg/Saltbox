@@ -299,7 +299,7 @@ docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downlo
 
 docker_hosts_common: []
 
-docker_labels_saltbox_tmp:
+docker_labels_com:
   - com.github.saltbox.saltbox_managed: "true"
 
 docker_labels_diun_tmp:
