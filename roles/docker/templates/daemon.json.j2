@@ -2,7 +2,7 @@
     "storage-driver": "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs','overlay2') }}",
     "userland-proxy": false,
     "log-driver": "json-file",
-    "ipv6": {{ 'true' if dns.ipv6 else 'false' }},
+    "ipv6": {{ 'true' if docker_ipv6 else 'false' }},
     "fixed-cidr-v6": "2001:db8::/64",
     "log-opts": {"max-size": "10m", "max-file": "3"}
 }

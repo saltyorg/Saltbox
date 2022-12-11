@@ -14,7 +14,7 @@
 
 - name: Network | Get saltbox docker network gateway
   ansible.builtin.shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
-  register: docker_ipv6
+  register: docker_network_ipv6
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
 - name: "Network | Create new IPv6 saltbox docker network block"
@@ -29,7 +29,7 @@
           - subnet: 172.19.0.0/16
           - subnet: fd00:dead:beef::/48
 
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and (dns.ipv6)
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and docker_ipv6
 
 - name: "Network | Create new IPv4 saltbox docker network block"
   block:
@@ -41,7 +41,7 @@
         ipam_config:
           - subnet: 172.19.0.0/16
 
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not dns.ipv6)
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not docker_ipv6)
 
 - name: "Network | Migrating existing saltbox docker network block to IPv6"
   block:
@@ -74,7 +74,7 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'false') and (dns.ipv6)
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'false') and docker_ipv6
 
 - name: "Network | Migrating existing saltbox docker network block to IPv4"
   block:
@@ -105,7 +105,7 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_ipv6.stdout == 'true') and (not dns.ipv6)
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'true') and (not docker_ipv6)
 
 - name: Network | Remove IPv6 NAT Container
   community.docker.docker_container:
@@ -132,7 +132,7 @@
     tls_hostname: localhost
     restart_policy: "always"
     privileged: yes
-  when: dns.ipv6
+  when: docker_ipv6
 
 - name: Unset variables
   ansible.builtin.set_fact:
