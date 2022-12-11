@@ -75,6 +75,8 @@ put_docker_dpkg_into_hold: true
 
 docker_containers_startup_delay: 60
 
+docker_ipv6: "{{ dns.ipv6 }}"
+
 # Service
 
 docker_service_after: "{{ mount_type }}.service"
