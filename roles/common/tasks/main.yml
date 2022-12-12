@@ -113,8 +113,7 @@
 - name: Fetch PCI Info
   ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
   register: lscpi_resp
-  when:
-    - (gpu.intel)
+  when: gpu.intel
 
 - name: Install 'intel-gpu-tools'
   ansible.builtin.apt:
@@ -122,7 +121,7 @@
     name:
       - "intel-gpu-tools"
   when:
-    - (gpu.intel)
+    - gpu.intel
     - ('i915' in lscpi_resp.stdout)
 
 - name: Check to see if 'unrar' installed

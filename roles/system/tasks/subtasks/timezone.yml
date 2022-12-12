@@ -43,16 +43,16 @@
 - name: Check if timezone is valid
   ansible.builtin.fail:
     msg: "Invalid timezone given, given timezone was {{ timezone }}\"."
-  when: timezone_list.stdout is defined and timezone not in timezone_list.stdout
+  when: (timezone_list.stdout is defined) and timezone not in timezone_list.stdout
 
 - name: Set timezone
   ansible.builtin.shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
   register: timedatectl_utc
-  changed_when: "timedatectl_utc.stdout is defined and 'Time zone: UTC' in timedatectl_utc.stdout"
-  when: "timedatectl.stdout is defined and 'Time zone: UTC' not in timedatectl.stdout"
+  changed_when: "(timedatectl_utc.stdout is defined) and ('Time zone: UTC' in timedatectl_utc.stdout)"
+  when: "(timedatectl.stdout is defined) and ('Time zone: UTC' not in timedatectl.stdout)"
 
 - name: Set hardware clock to use or not use local RTC
   ansible.builtin.shell: "timedatectl set-local-rtc {% if timezone_use_local_rtc %}1{% else %}0{% endif %} && timedatectl || true"
   register: timedatectl_rtc
-  changed_when: "timedatectl_rtc.stdout is defined and 'RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout"
-  when: "timedatectl_rtc.stdout is defined and timezone_use_local_rtc and 'RTC in local TZ: no' not in timedatectl_rtc.stdout"
+  changed_when: "(timedatectl_rtc.stdout is defined) and ('RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout)"
+  when: "(timedatectl_rtc.stdout is defined) and timezone_use_local_rtc and ('RTC in local TZ: no' not in timedatectl_rtc.stdout)"

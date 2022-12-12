@@ -39,7 +39,7 @@
     force: true
   become: true
   become_user: "{{ user.name }}"
-  when: sandbox_clone_status is failed
+  when: (sandbox_clone_status is failed)
 
 - name: Import default files when missing
   ansible.builtin.copy:

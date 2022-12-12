@@ -41,7 +41,7 @@
         path: "/mnt/unionfs"
         state: absent
 
-  when: (mnt_unionfs is failed) or (mnt_unionfs.stat.exists)
+  when: (mnt_unionfs is failed) or mnt_unionfs.stat.exists
 
 - name: "Mount Path | Create '/mnt/unionfs' directory"
   ansible.builtin.file:

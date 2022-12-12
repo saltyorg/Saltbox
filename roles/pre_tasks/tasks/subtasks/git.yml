@@ -11,7 +11,7 @@
   ansible.builtin.shell: git config --global -l
   register: git_config
   ignore_errors: true
-  when: not ('preinstall' in ansible_run_tags)
+  when: (not 'preinstall' in ansible_run_tags)
 
 - name: Git | Set Saltbox repository as safe directory
   ansible.builtin.shell: git config --global --add safe.directory /srv/git/saltbox

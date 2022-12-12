@@ -96,7 +96,7 @@
     name: zsh
     link: "{{ shell_zsh_binary_path }}"
     path: "{{ shell_zsh_binary_previous_path }}"
-  when: not shell_zsh_binary_path_stat.stat.exists
+  when: (not shell_zsh_binary_path_stat.stat.exists)
 
 # set as default shell
 - name: ZSH | Set ZSH as default shell

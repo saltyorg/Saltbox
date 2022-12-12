@@ -49,7 +49,7 @@
     name: "python"
   vars:
     python_version: "3.8"
-  when: ansible_distribution_version is version('22.04', '==')
+  when: (ansible_distribution_version is version('22.04', '=='))
 
 - name: Check if venv folder exists
   ansible.builtin.stat:
@@ -90,7 +90,7 @@
   ansible.builtin.stat:
     path: "/opt/sonarr/config.xml"
   register: sonarr_config
-  when: not traktarr_config.stat.exists
+  when: (not traktarr_config.stat.exists)
 
 - name: "When sonarr exists, add api key to traktar config"
   block:
@@ -106,13 +106,13 @@
       ansible.builtin.set_fact:
         sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
-  when: (not traktarr_config.stat.exists) and (sonarr_config.stat.exists)
+  when: (not traktarr_config.stat.exists) and sonarr_config.stat.exists
 
 - name: "Check if radarr exists"
   ansible.builtin.stat:
     path: "/opt/radarr/config.xml"
   register: radarr_config
-  when: not traktarr_config.stat.exists
+  when: (not traktarr_config.stat.exists)
 
 - name: "When radarr exists, add api key to traktar config"
   block:
@@ -128,7 +128,7 @@
       ansible.builtin.set_fact:
         radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
-  when: (not traktarr_config.stat.exists) and (radarr_config.stat.exists)
+  when: (not traktarr_config.stat.exists) and radarr_config.stat.exists
 
 - name: Import default config
   ansible.builtin.template:
@@ -138,7 +138,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: not traktarr_config.stat.exists
+  when: (not traktarr_config.stat.exists)
 
 - name: Set traktarr.py as executable
   ansible.builtin.file:
@@ -171,7 +171,7 @@
     dest: "/etc/systemd/system/{{ traktarr_name }}.service"
     mode: "0664"
     force: true
-  when: not traktarr_service.stat.exists
+  when: (not traktarr_service.stat.exists)
 
 - name: Load traktarr service
   ansible.builtin.systemd:

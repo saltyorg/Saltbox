@@ -14,7 +14,7 @@
     msg:
       - "Rclone is not enabled and no local backup exists."
       - "You must either enable rclone, in the backup settings, or provide backup tarball files locally, to perform a restore."
-  when: not (backup.rclone.enable)
+  when: (not backup.rclone.enable)
 
 # Folder
 
@@ -40,7 +40,7 @@
 - name: Run rclone role
   ansible.builtin.include_role:
     name: rclone
-  when: (rclone_conf_playbook_dir.stat.exists) or (not rclone_binary.stat.exists)
+  when: rclone_conf_playbook_dir.stat.exists or (not rclone_binary.stat.exists)
 
 - name: Test rclone remote destination
   ansible.builtin.shell: |

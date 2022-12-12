@@ -23,9 +23,9 @@
   ansible.builtin.file:
     path: "{{ sanity_check_backup_lockfile_path }}"
     state: absent
-  when: (backup_lock.stat.exists) and (backup_lock_age | int >= 2)
+  when: backup_lock.stat.exists and (backup_lock_age | int >= 2)
 
 - name: Backup | Fail when '{{ sanity_check_backup_lockfile_path | basename }}' exists
   ansible.builtin.fail:
     msg: "A Backup task is currently in progress. Please wait for it to complete."
-  when: (backup_lock.stat.exists) and (backup_lock_age | int < 1)
+  when: backup_lock.stat.exists and (backup_lock_age | int < 1)

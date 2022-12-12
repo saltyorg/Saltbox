@@ -49,4 +49,4 @@
       loop_control:
         loop_var: outer_item
 
-  when: ('i915' in lscpi_resp.stdout) and (blacklist_hetzner_conf.stat.exists)
+  when: ('i915' in lscpi_resp.stdout) and blacklist_hetzner_conf.stat.exists

@@ -16,17 +16,17 @@
 
 - name: Update | Fix broken APT install
   ansible.builtin.shell: "{{ kernel_update_apt_fix }}"
-  when: (r.changed)
+  when: r.changed
 
 - name: Update | Set 'reboot_is_necessary' variable
   ansible.builtin.set_fact:
     reboot_is_necessary: true
-  when: (r.changed)
+  when: r.changed
 
 - name: Update | Kernel was updated
   ansible.builtin.debug:
     msg: "Kernel was updated."
-  when: (r.changed)
+  when: r.changed
 
 - name: Update | Kernel was not updated
   ansible.builtin.debug:

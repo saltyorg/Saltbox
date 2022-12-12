@@ -31,7 +31,7 @@
       vars:
         plex_name: "{{ plex_instances[0] }}"
 
-  when: not cloudplow_config.stat.exists
+  when: (not cloudplow_config.stat.exists)
 
 - name: Settings | Existing 'config.json' tasks
   block:

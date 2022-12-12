@@ -179,7 +179,7 @@
         group: "{{ user.name }}"
         mode: 0775
         force: true
-      when: (backup_excludes_list.stat.exists)
+      when: backup_excludes_list.stat.exists
 
     - name: Set 'backup_excludes_list_path' variable
       ansible.builtin.set_fact:
@@ -306,9 +306,9 @@
           ansible.builtin.systemd:
             name: cloudplow
             state: stopped
-          when: (cloudplow_service_running)
+          when: cloudplow_service_running
 
-      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists)
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists
 
     # Create snapshot
 
@@ -331,7 +331,7 @@
           ansible.builtin.debug:
             msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
 
-      when: (use_snapshot)
+      when: use_snapshot
 
     # Start Docker containers when snapshot is enabled
 
@@ -354,7 +354,7 @@
             message: "Saltbox Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
 
-      when: (use_snapshot)
+      when: use_snapshot
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -415,9 +415,9 @@
               ignore_errors: true
               when: (snapshot_deletion is failed)
 
-          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
 
-      when: (use_snapshot) and (snapshot_type == 'btrfs')
+      when: use_snapshot and (snapshot_type == 'btrfs')
 
     - name: Check if tarball files were created
       ansible.builtin.find:
@@ -506,7 +506,7 @@
       become_user: "{{ user.name }}"
       register: rclone_timestamp
       ignore_errors: true
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
     - name: "Archive previous files in '{{ backup.rclone.destination }}'"
@@ -521,7 +521,7 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: (backup.rclone.enable) and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
+      when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
       with_items:
         - "opt"
         - "ansible.cfg"
@@ -552,14 +552,14 @@
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
       become: true
       become_user: "{{ user.name }}"
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.include_role:
         name: notify
       vars:
         message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
       ansible.posix.synchronize:
@@ -570,14 +570,14 @@
         dest_port: "{{ backup.rsync.port }}"
       become: true
       become_user: "{{ user.name }}"
-      when: (backup.rsync.enable)
+      when: backup.rsync.enable
 
     - name: "Notify | Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
       ansible.builtin.include_role:
         name: notify
       vars:
         message: "Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
-      when: (backup.rsync.enable)
+      when: backup.rsync.enable
 
     - name: Get Current Time
       ansible.builtin.shell: "date \"+%s\""
@@ -601,7 +601,7 @@
       ansible.builtin.systemd:
         name: cloudplow
         state: started
-      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
 
     - name: "Remove {{ backup.local.destination }}"
       ansible.builtin.file:
@@ -637,9 +637,9 @@
               ignore_errors: true
               when: (snapshot_deletion is failed)
 
-          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
 
-      when: (use_snapshot) and (snapshot_type == 'btrfs')
+      when: use_snapshot and (snapshot_type == 'btrfs')
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
@@ -664,7 +664,7 @@
       ansible.builtin.systemd:
         name: cloudplow
         state: started
-      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
 
     - name: Backup Status - Failure
       ansible.builtin.debug:

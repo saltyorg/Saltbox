@@ -79,4 +79,4 @@
         mode: 0775
         force: false
 
-  when: not jellyfin_dlna.stat.exists
+  when: (not jellyfin_dlna.stat.exists)

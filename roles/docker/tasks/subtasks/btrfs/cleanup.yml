@@ -55,4 +55,4 @@
 
       when: ('btrfs' in var_lib_docker_file_system.stdout)
 
-  when: (var_lib_docker.stat.exists)
+  when: var_lib_docker.stat.exists

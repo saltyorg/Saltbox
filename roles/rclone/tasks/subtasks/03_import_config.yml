@@ -30,13 +30,13 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: true
-      when: (rclone_conf_default_path.stat.exists)
+      when: rclone_conf_default_path.stat.exists
 
     - name: "Import Config | Remove previous 'rclone.conf' (if it exists)"
       ansible.builtin.file:
         path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
         state: absent
-      when: (rclone_conf_default_path.stat.exists)
+      when: rclone_conf_default_path.stat.exists
 
     - name: "Import Config | Import 'rclone.conf' from '{{ playbook_dir }}'"
       ansible.builtin.copy:
@@ -52,7 +52,7 @@
         path: "{{ playbook_dir }}/rclone.conf"
         state: absent
 
-  when: (rclone_conf_playbook_dir.stat.exists)
+  when: rclone_conf_playbook_dir.stat.exists
 
 # Find and import 'rclone.conf' if located somewhere else
 
@@ -93,4 +93,4 @@
         group: "{{ user.name }}"
       when: (rclone_conf_current_location.stdout.find('Configuration file doesn\'t exist') != -1)
 
-  when: not (rclone_conf_default_path_2.stat.exists)
+  when: (not rclone_conf_default_path_2.stat.exists)

@@ -10,7 +10,7 @@
 - name: "Fail if not running {{ python_valid_distro }}"
   ansible.builtin.fail:
     msg: "This role is only for {{ python_valid_distro }}"
-  when: ansible_distribution_version is version(python_valid_distro, '!=')
+  when: (ansible_distribution_version is version(python_valid_distro, '!='))
 
 - name: Add official gpg signing key to keyring
   ansible.builtin.apt_key:
@@ -56,4 +56,4 @@
 
 - name: Fix System pip
   ansible.builtin.import_tasks: "subtasks/pip.yml"
-  when: not continuous_integration
+  when: (not continuous_integration)

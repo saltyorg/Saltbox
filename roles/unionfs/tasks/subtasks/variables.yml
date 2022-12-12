@@ -20,7 +20,7 @@
 - name: Variables | Fail when no valid remote mount type is specified.
   ansible.builtin.fail:
     msg: "'{{ mounts.unionfs }}' is not a valid unionfs mount type."
-  when: not mount_type_is_defined
+  when: (not mount_type_is_defined)
 
 ################################
 # Service Files List

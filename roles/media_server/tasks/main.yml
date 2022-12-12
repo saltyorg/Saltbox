@@ -17,4 +17,4 @@
 - name: "Execute Autoscan role"
   ansible.builtin.include_role:
     name: "autoscan"
-  when: "'plex' in media_servers_enabled"
+  when: ('plex' in media_servers_enabled)

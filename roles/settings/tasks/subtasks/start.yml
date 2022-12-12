@@ -69,4 +69,4 @@
     owner: "{{ saltbox_yml.stat.uid }}"
     group: "{{ saltbox_yml.stat.gid }}"
     mode: 0664
-  when: (settings_updater_log.stat.exists)
+  when: settings_updater_log.stat.exists

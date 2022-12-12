@@ -56,7 +56,7 @@
         name: docker
         state: stopped
 
-  when: (docker_binary.stat.exists) and (docker_service_running)
+  when: docker_binary.stat.exists and docker_service_running
 
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
@@ -78,7 +78,7 @@
 - name: Wait for 60 seconds before commencing
   ansible.builtin.wait_for:
     timeout: "{{ docker_containers_startup_delay }}"
-  when: not continuous_integration
+  when: (not continuous_integration)
 
 - name: "Stop all Docker containers"
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
@@ -92,7 +92,7 @@
 
 - name: "Re-start all previously running Docker containers"
   ansible.builtin.shell: 'docker start {{ docker_running_containers.stdout }}'
-  when: (docker_binary.stat.exists) and (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
+  when: docker_binary.stat.exists and docker_service_running and (docker_running_containers.stdout | trim | length > 0)
   ignore_errors: true
 
 - name: "Import Docker Hub tasks"

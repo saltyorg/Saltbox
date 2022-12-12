@@ -48,4 +48,4 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: 0644
-  when: plex_port_update is changed
+  when: (plex_port_update is changed)

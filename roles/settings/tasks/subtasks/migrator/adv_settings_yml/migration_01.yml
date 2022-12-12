@@ -29,7 +29,7 @@
     yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: not traefik_tls_settings
+  when: (not traefik_tls_settings)
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
@@ -52,7 +52,7 @@
     yyq e -i '.traefik.metrics = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: not traefik_metrics_settings
+  when: (not traefik_metrics_settings)
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:

@@ -24,4 +24,4 @@
 - name: Cloudflare | Validate | Fail if unsuccessful
   ansible.builtin.fail:
     msg: "Cloudflare Credentials Incorrect"
-  when: not (cloudflare_validation.stdout | from_json).success
+  when: (not (cloudflare_validation.stdout | from_json).success)

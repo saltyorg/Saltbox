@@ -22,4 +22,4 @@
 - name: Page Rules | Remove Page Rule | Print result of Lets Encrypt Cloudflare Page Rule Destruction
   ansible.builtin.debug:
     msg: "Successfully deleted Let's Encrypt Cloudflare page rule for '{{ fld.stdout }}'"
-  when: (cf_page_rule_destruction.results[0].json.success is defined) and (cf_page_rule_destruction.results[0].json.success)
+  when: (cf_page_rule_destruction.results[0].json.success is defined) and cf_page_rule_destruction.results[0].json.success

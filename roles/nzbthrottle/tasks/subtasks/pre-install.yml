@@ -18,7 +18,7 @@
     - name: Pre-Install | Import Plex Auth Token role
       ansible.builtin.include_role:
         name: plex_auth_token
-      when: (plex_account_is_enabled)
+      when: plex_account_is_enabled
 
     - name: Pre-Install | Import default config
       ansible.builtin.template:
@@ -31,4 +31,4 @@
       vars:
         plex_name: "{{ plex_instances[0] }}"
 
-  when: not nzbthrottle_paths_config_location_stat.stat.exists
+  when: (not nzbthrottle_paths_config_location_stat.stat.exists)

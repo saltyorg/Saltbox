@@ -31,4 +31,4 @@
 - name: Resources | Tasks | Instances | Get Info | Set 'sonarr_info' variable
   ansible.builtin.set_fact:
     sonarr_info: "{{ sonarr_info | default({}) | combine({sonarr_name: {'name': sonarr_name, 'url': sonarr_web_url, 'api_key': 'not installed'}}) }}"
-  when: not (sonarr_paths_config_location_stat.stat.exists)
+  when: (not sonarr_paths_config_location_stat.stat.exists)

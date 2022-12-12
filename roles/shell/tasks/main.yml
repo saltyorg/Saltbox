@@ -12,7 +12,7 @@
 
 - name: Import 'z' subtask
   ansible.builtin.include_tasks: "subtasks/z.yml"
-  when: not ('preinstall' in ansible_run_tags)
+  when: (not 'preinstall' in ansible_run_tags)
 
 - name: Import '{{ shell_type }}' subtask
   ansible.builtin.include_tasks: "subtasks/shell/{{ shell_type }}.yml"

@@ -35,7 +35,7 @@
               else 'no' }}"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: not new_settings
+  when: (not new_settings)
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
