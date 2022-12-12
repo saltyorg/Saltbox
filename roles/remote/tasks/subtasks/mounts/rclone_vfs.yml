@@ -120,7 +120,7 @@
         msg:
           - "Rclone remote '{{ rclone.remote }}:' is not working properly."
           - "{{ rclone_test.stderr }}"
-      when: not rclone_remote_is_working
+      when: (not rclone_remote_is_working)
       ignore_errors: true
 
   when: rclone_remote_is_configured
@@ -129,5 +129,5 @@
   ansible.builtin.fail:
     msg:
       - "Rclone remote '{{ rclone.remote }}:' is not configured properly."
-  when: not rclone_remote_is_configured
+  when: (not rclone_remote_is_configured)
   ignore_errors: true

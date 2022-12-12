@@ -65,7 +65,7 @@
     group: '{{ user.name }}'
     mode: 0775
     force: true
-  when: not nfs_vlan_service.stat.exists
+  when: (not nfs_vlan_service.stat.exists)
 
 - name: Start 'nfs_vlan.service'
   ansible.builtin.systemd:

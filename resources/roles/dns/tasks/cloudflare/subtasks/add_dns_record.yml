@@ -36,7 +36,7 @@
     - name: Cloudflare | Add DNS Record | IPv4 | Validate IP variable
       ansible.builtin.fail:
         msg: "ip_address_public contains: '{{ ip_address_public }}' which is not a valid IP"
-      when: not ip_address_public_is_valid
+      when: (not ip_address_public_is_valid)
 
     - name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
       community.general.cloudflare_dns:
@@ -72,7 +72,7 @@
     - name: Cloudflare | Add DNS Record | IPv6 | Validate IPv6 variable
       ansible.builtin.fail:
         msg: "ipv6_address_public contains: '{{ ipv6_address_public }}' which is not a valid IP"
-      when: not ipv6_address_public_is_valid
+      when: (not ipv6_address_public_is_valid)
 
     - name: Cloudflare | Add DNS Record | IPv6 | Add DNS Record
       community.general.cloudflare_dns:
@@ -129,4 +129,4 @@
 
       when: cloudflare_dns_v6_record_removal_status is succeeded
 
-  when: not dns.ipv6
+  when: (not dns.ipv6)

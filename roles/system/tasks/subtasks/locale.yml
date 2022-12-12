@@ -37,4 +37,4 @@
 
 - name: Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'
   ansible.builtin.command: localectl set-locale LANG={{ system_locale }} LANGUAGE={{ system_language }}
-  changed_when: locale_lang != system_locale or locale_language != system_language
+  changed_when: (locale_lang != system_locale) or (locale_language != system_language)

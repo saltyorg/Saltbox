@@ -25,17 +25,17 @@
   ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
   register: docker_running_containers
   ignore_errors: true
-  when: (docker_binary.stat.exists) and (docker_service_running)
+  when: docker_binary.stat.exists and docker_service_running
 
 - name: Stop all running Docker containers
   ansible.builtin.shell: "docker stop {{ docker_running_containers.stdout }}"
   ignore_errors: true
-  when: (docker_binary.stat.exists) and (docker_service_running) and not (docker_running_containers.stdout | trim | length == 0)
+  when: docker_binary.stat.exists and docker_service_running and not (docker_running_containers.stdout | trim | length == 0)
 
 - name: Wait for 10 seconds before commencing
   ansible.builtin.wait_for:
     timeout: 10
-  when: (docker_binary.stat.exists) and (docker_service_running) and not (docker_running_containers.stdout | trim | length == 0)
+  when: docker_binary.stat.exists and docker_service_running and not (docker_running_containers.stdout | trim | length == 0)
 
 - name: Check if 'unionfs.service' exists
   ansible.builtin.stat:
@@ -49,7 +49,7 @@
 
 - name: Populate Service Facts
   ansible.builtin.service_facts:
-  when: (unionfs_service.stat.exists) or (mergerfs_service.stat.exists)
+  when: unionfs_service.stat.exists or mergerfs_service.stat.exists
 
  # Stop unionfs
 

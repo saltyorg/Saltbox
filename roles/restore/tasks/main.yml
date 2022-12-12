@@ -46,13 +46,13 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: true
-      when: (localhost_yml_default_path.stat.exists)
+      when: localhost_yml_default_path.stat.exists
 
     - name: "Remove previous 'localhost.yml' (if it exists)"
       ansible.builtin.file:
         path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
         state: absent
-      when: (localhost_yml_default_path.stat.exists)
+      when: localhost_yml_default_path.stat.exists
 
     - name: "Import 'localhost.yml' from '{{ playbook_dir }}'"
       ansible.builtin.copy:
@@ -68,7 +68,7 @@
         path: "{{ playbook_dir }}/localhost.yml"
         state: absent
 
-  when: (localhost_yml_playbook_dir.stat.exists)
+  when: localhost_yml_playbook_dir.stat.exists
 
 - name: BTRFS Tasks
   ansible.builtin.include_tasks: "btrfs.yml"
@@ -133,7 +133,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: (backup_excludes_list.stat.exists)
+  when: backup_excludes_list.stat.exists
 
 - name: "Backup existing folders in '/opt' to prevent overwriting them"
   ansible.builtin.shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
@@ -164,7 +164,7 @@
     state: absent
   become: true
   become_user: "{{ user.name }}"
-  when: not (backup.local.enable)
+  when: (not backup.local.enable)
 
 - name: Finished restoring the backup
   ansible.builtin.debug:

@@ -12,5 +12,4 @@
 
 - name: "Restart Tasks"
   ansible.builtin.include_tasks: "subtasks/restart.yml"
-  when: (reboot_is_necessary) and
-        (not continuous_integration)
+  when: reboot_is_necessary and (not continuous_integration)

@@ -31,4 +31,4 @@
 - name: Resources | Tasks | Instances | Get Info | Set 'readarr_info' variable
   ansible.builtin.set_fact:
     readarr_info: "{{ readarr_info | default({}) | combine({readarr_name: {'name': readarr_name, 'url': readarr_web_url, 'api_key': 'not installed'}}) }}"
-  when: not (readarr_paths_config_location_stat.stat.exists)
+  when: (not readarr_paths_config_location_stat.stat.exists)

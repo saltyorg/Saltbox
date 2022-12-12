@@ -78,8 +78,7 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
-  when:
-    - (not continuous_integration)
+  when: (not continuous_integration)
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
   ansible.builtin.file:  # noqa risky-file-permissions
@@ -104,4 +103,4 @@
     user: "{{ user.name }}"
     state: present
     key: "{{ user.ssh_key }}"
-  when: user.ssh_key is defined and user.ssh_key is not none and user.ssh_key | length > 0
+  when: (user.ssh_key is defined) and (user.ssh_key is not none )and (user.ssh_key | length > 0)

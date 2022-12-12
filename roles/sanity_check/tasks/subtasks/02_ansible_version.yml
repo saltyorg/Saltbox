@@ -20,7 +20,7 @@
 - name: Check if Ansible needs upgrading
   ansible.builtin.set_fact:
     ansible_update: true
-  when: registered_ansible_version.stdout is version(sanity_check_ansible_version_min, 'lt', version_type='semver')
+  when: (registered_ansible_version.stdout is version(sanity_check_ansible_version_min, 'lt', version_type='semver'))
 
 - name: "Upgrade Ansible -- DO NOT CANCEL"
   ansible.builtin.script:

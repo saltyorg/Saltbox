@@ -36,7 +36,7 @@
 
 - name: Set Time Zone task
   ansible.builtin.import_tasks: "subtasks/timezone.yml"
-  when: tz is defined
+  when: (tz is defined)
   tags: set-timezone
 
 - name: Set Locale task

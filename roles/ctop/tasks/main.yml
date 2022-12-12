@@ -41,4 +41,4 @@
       ansible.builtin.debug:
         msg: "ctop {{ ctop_binary_version.stdout }} installed."
 
-  when: ctop_download_status is succeeded
+  when: (ctop_download_status is succeeded)

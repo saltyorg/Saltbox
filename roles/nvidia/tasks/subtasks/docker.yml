@@ -47,18 +47,18 @@
   ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
   register: docker_running_containers
   ignore_errors: true
-  when: (docker_service_running)
+  when: docker_service_running
 
 - name: Docker | Stop all running Docker containers
   ansible.builtin.shell: "docker stop {{ docker_running_containers.stdout }}"
   ignore_errors: true
-  when: (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
+  when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)
 
 - name: Docker | Stop docker service
   ansible.builtin.systemd:
     name: docker
     state: stopped
-  when: (docker_service_running)
+  when: docker_service_running
 
 # https://github.com/linkernetworks/vortex-installer/blob/master/roles/common/tasks/nvidia-docker.yml
 - name: Docker | Add runtime to '/etc/docker/daemon.json'
@@ -68,9 +68,9 @@
   ansible.builtin.systemd:
     name: docker
     state: started
-  when: (docker_service_running)
+  when: docker_service_running
 
 - name: Docker | Re-start all previously running Docker containers
   ansible.builtin.shell: 'docker start {{ docker_running_containers.stdout }}'
   ignore_errors: true
-  when: (docker_service_running) and (docker_running_containers.stdout | trim | length > 0)
+  when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)

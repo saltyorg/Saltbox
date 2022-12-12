@@ -10,7 +10,7 @@
 - name: Claim Server | Import plex_auth_token
   ansible.builtin.include_role:
     name: plex_auth_token
-  when: (plex_account_is_enabled)
+  when: plex_account_is_enabled
 
 - name: Claim Server | Get {{ plex_name | title }} claim code via API
   block:
@@ -34,7 +34,7 @@
       ansible.builtin.set_fact:
         plex_claim_code: "{{ plex_claim.json.token }}"
 
-  when: (plex_account_is_enabled)
+  when: plex_account_is_enabled
 
 - name: Claim Server | Get {{ plex_name | title }} claim code via prompts
   block:

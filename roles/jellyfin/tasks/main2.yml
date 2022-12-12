@@ -21,11 +21,11 @@
 
 - name: Docker Devices Task
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/set_docker_devices_variable.yml"
-  when: (gpu.intel or gpu.nvidia)
+  when: gpu.intel or gpu.nvidia
 
 - name: Import preinstall task
   ansible.builtin.import_tasks: "subtasks/preinstall.yml"
-  when: not continuous_integration
+  when: (not continuous_integration)
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
@@ -33,5 +33,5 @@
 - name: Import postinstall task
   ansible.builtin.import_tasks: "subtasks/postinstall.yml"
   when:
-    - not continuous_integration
-    - not jellyfin_existing_install.stat.exists
+    - (not continuous_integration)
+    - (not jellyfin_existing_install.stat.exists)

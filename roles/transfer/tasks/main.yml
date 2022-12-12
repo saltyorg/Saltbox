@@ -59,16 +59,16 @@
       ansible.builtin.shell: "/usr/local/bin/transfer --version | head -n 1 | awk '{ print $1 }'"
       register: transfer_version
       ignore_errors: true
-      when: x is success
+      when: (x is success)
 
     - name: "Display transfer version"
       ansible.builtin.debug:
         msg: "transfer {{ transfer_version.stdout }} installed."
-      when: x is success
+      when: (x is success)
 
     - name: "transfer install failed"
       ansible.builtin.debug:
         msg: "transfer install failed."
-      when: x is not success
+      when: (x is not success)
 
-  when: not transfer_binary.stat.exists
+  when: (not transfer_binary.stat.exists)

@@ -46,7 +46,7 @@
   environment: "{{ env_vars }}"
   args:
     warn: false
-  when: not continuous_integration
+  when: (not continuous_integration)
   ignore_errors: true
 
 - name: APT | Remove useless packages from the cache

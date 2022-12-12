@@ -63,7 +63,7 @@
         msg:
           - "Rclone remote 'feeder:' is not working properly."
           - "{{ rclone_test.stderr }}"
-      when: not feeder_remote_is_working
+      when: (not feeder_remote_is_working)
       ignore_errors: true
 
   when: feeder_remote_is_configured
@@ -72,7 +72,7 @@
   ansible.builtin.fail:
     msg:
       - "Rclone remote 'feeder:' is not configured properly."
-  when: not feeder_remote_is_configured
+  when: (not feeder_remote_is_configured)
   ignore_errors: true
 
 - name: Feeder | Set 'feeder_remote_is_active' variable

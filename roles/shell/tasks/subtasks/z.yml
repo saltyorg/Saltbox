@@ -31,4 +31,4 @@
 - name: z | 'z' Installed
   ansible.builtin.debug:
     msg: "'z (jump around)' Installed"
-  when: shell_z_git_clone_status is succeeded
+  when: (shell_z_git_clone_status is succeeded)

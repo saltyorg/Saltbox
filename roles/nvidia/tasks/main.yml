@@ -64,16 +64,16 @@
             msg:
               - "Purged Nvidia drivers. System will now reboot."
               - "You will need to re-run your previous tag after the system has rebooted."
-          when: (dpkg_purge_output.stdout | length > 0) and dpkg_purge_output.rc == 0
+          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
 
         - name: Reboot
           ansible.builtin.shell: reboot
-          when: (dpkg_purge_output.stdout | length > 0) and dpkg_purge_output.rc == 0
+          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
 
         - name: Reboot message
           ansible.builtin.fail:
             msg: "Uninstalled Nvidia driver. You will need to restart the server for changes to take effect."
-          when: (dpkg_purge_output.stdout | length > 0) and dpkg_purge_output.rc == 0
+          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
 
       when: (nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0)
 
@@ -88,7 +88,7 @@
       ansible.builtin.include_tasks: "subtasks/kernel.yml"
       when:
         - (not blacklist_nouveau_conf.stat.exists)
-        - (nvidia_kernel_blacklist_nouveau)
+        - nvidia_kernel_blacklist_nouveau
 
     # Install Nvidia Driver
 

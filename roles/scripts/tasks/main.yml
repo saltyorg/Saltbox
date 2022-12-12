@@ -125,7 +125,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: not frontail_preset.stat.exists
+  when: (not frontail_preset.stat.exists)
 
 - name: Import 'sync_torrents_to_rclone_remote.sh'
   ansible.builtin.template:

@@ -39,4 +39,4 @@
     - "{{ get_zone_records_result.json.result | json_query('[*]') }}"
   loop_control:
     label: "{{ item.type + ': ' + item.name }}"
-  when: item.name is defined and user.domain in item.name and item.type in ["A", "AAAA"]
+  when: (item.name is defined) and (user.domain in item.name) and (item.type in ["A", "AAAA"])

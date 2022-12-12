@@ -28,4 +28,4 @@
 
 - name: Post-Install | Settings Tasks
   ansible.builtin.import_tasks: "settings.yml"
-  when: not jellyfin_existing_install.stat.exists
+  when: (not jellyfin_existing_install.stat.exists)

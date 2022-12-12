@@ -31,4 +31,4 @@
 - name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
   ansible.builtin.set_fact:
     radarr_info: "{{ radarr_info | default({}) | combine({radarr_name: {'name': radarr_name, 'url': radarr_web_url, 'api_key': 'not installed'}}) }}"
-  when: not (radarr_paths_config_location_stat.stat.exists)
+  when: (not radarr_paths_config_location_stat.stat.exists)

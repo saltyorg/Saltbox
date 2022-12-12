@@ -33,9 +33,9 @@
   ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
   register: yyq_version
   ignore_errors: true
-  when: x is success
+  when: (x is success)
 
 - name: "Display yyq version"
   ansible.builtin.debug:
     msg: "yyq {{ yyq_version.stdout }} installed."
-  when: x is success
+  when: (x is success)

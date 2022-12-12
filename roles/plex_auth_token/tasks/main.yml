@@ -47,7 +47,7 @@
 - name: "Auth Token | Set plex_auth_token variable if previously saved"
   ansible.builtin.set_fact:
     plex_auth_token: "{{ lookup('ini', 'token section=' + plex_name + ' file=/opt/saltbox/plex.ini') | regex_replace('\n', '') }}"
-  when: plex_ini.stat.exists and not plex_auth_client_identifier_missing
+  when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
 
 - name: "Auth Token | Set plex_no_token status"
   ansible.builtin.set_fact:
@@ -68,7 +68,7 @@
       Accept: "application/json"
     status_code: [200, 401]
   register: plex_token
-  when: plex_ini.stat.exists and not plex_auth_client_identifier_missing
+  when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
 
 - name: "Auth Token | 2FA Enabled"
   block:
@@ -132,7 +132,7 @@
           ansible.builtin.set_fact:
             plex_auth_token: "{{ plex_token_new.json.authToken | regex_replace('\n', '') }}"
 
-      when: (plex_no_token) or (plex_token.status == 401)
+      when: plex_no_token or (plex_token.status == 401)
   when: plex.tfa
 
 - name: "Auth Token | 2FA Disabled"
@@ -155,7 +155,7 @@
       ansible.builtin.set_fact:
         plex_auth_token: "{{ plex_token_raw.json.user.authToken | regex_replace('\n', '') }}"
 
-  when: not plex.tfa
+  when: (not plex.tfa)
 
 - name: "Auth Token | Display Plex Auth Token"
   ansible.builtin.debug:

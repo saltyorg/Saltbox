@@ -44,4 +44,4 @@
       ansible.builtin.debug:
         msg: "NetHogs {{ nethogs_binary_version.stdout }} installed."
 
-  when: nethogs_clone_status is succeeded
+  when: (nethogs_clone_status is succeeded)

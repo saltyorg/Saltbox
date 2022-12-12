@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Settings Task
   ansible.builtin.import_tasks: "settings.yml"
-  when: not sabnzbd_conf_stat.stat.exists
+  when: (not sabnzbd_conf_stat.stat.exists)
 
 - name: Post-Install | Web Task
   ansible.builtin.import_tasks: "web.yml"

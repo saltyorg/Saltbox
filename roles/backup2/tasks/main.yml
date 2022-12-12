@@ -129,13 +129,13 @@
         group: "{{ user.name }}"
         mode: 0775
         force: true
-      when: (backup_excludes_list.stat.exists)
+      when: backup_excludes_list.stat.exists
 
     - name: Set 'backup_excludes_list_path' variable
       ansible.builtin.set_fact:
         backup_excludes_list_path: "{{
           (playbook_dir + '/backup_excludes_list.txt')
-          if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
+          if ((backup_excludes_list is defined) and backup_excludes_list.stat.exists)
           else (playbook_dir + '/roles/backup2/files/backup_excludes_list.txt') }}"
 
     - name: saltbox Restore Service
@@ -256,9 +256,9 @@
           ansible.builtin.systemd:
             name: cloudplow
             state: stopped
-          when: (cloudplow_service_running)
+          when: cloudplow_service_running
 
-      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists)
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists
 
     # Create snapshot
 
@@ -281,7 +281,7 @@
           ansible.builtin.debug:
             msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
 
-      when: (use_snapshot)
+      when: use_snapshot
 
     # Start Docker containers when snapshot is enabled
 
@@ -304,7 +304,7 @@
             message: "Saltbox Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
 
-      when: (use_snapshot)
+      when: use_snapshot
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -335,7 +335,7 @@
       become_user: "{{ user.name }}"
       register: rclone_timestamp
       ignore_errors: true
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
     - name: "Archive previous files in '{{ backup.rclone.destination }}'"
@@ -350,7 +350,7 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: (backup.rclone.enable) and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
+      when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
       with_items:
         - "opt"
         - "ansible.cfg"
@@ -370,7 +370,7 @@
         /usr/bin/rclone mkdir '{{ backup.rclone.destination }}/opt'
       become: true
       become_user: "{{ user.name }}"
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: "Wait for 5 seconds before uploading"
       ansible.builtin.wait_for:
@@ -388,21 +388,21 @@
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
       become: true
       become_user: "{{ user.name }}"
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: "Run items asynchronously in batch of {{ backup2_async_batch_size }} items"
       ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
       loop: "{{ opt_folders | batch(backup2_async_batch_size) | list }}"
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.include_role:
         name: notify
       vars:
         message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-      when: (backup.rclone.enable)
+      when: backup.rclone.enable
 
     - name: Snapshot | Cleanup Tasks
       block:
@@ -427,9 +427,9 @@
               ignore_errors: true
               when: (snapshot_deletion is failed)
 
-          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
 
-      when: (use_snapshot) and (snapshot_type == 'btrfs')
+      when: use_snapshot and (snapshot_type == 'btrfs')
 
     # Start Docker containers when snapshot is not enabled
 
@@ -508,7 +508,7 @@
 
           when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
 
-      when: (use_snapshot) and (snapshot_type == 'btrfs')
+      when: use_snapshot and (snapshot_type == 'btrfs')
 
     - name: Start Docker Containers
       block:
@@ -528,7 +528,7 @@
       ansible.builtin.systemd:
         name: cloudplow
         state: started
-      when: (cloudplow_service is defined) and (cloudplow_service.stat.exists) and (cloudplow_service_running)
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
 
     - name: Backup Status - Failure
       ansible.builtin.debug:

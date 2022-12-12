@@ -54,7 +54,7 @@
   ansible.builtin.set_fact:
     rclone_version_specified: "{{ rclone.version }}"
     rclone_download_url: "https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip"
-  when: (rclone_version_is_specified) and (rclone.version == 'beta')
+  when: rclone_version_is_specified and (rclone.version == 'beta')
 
 - name: Build URL | Specified version tasks
   block:
@@ -92,5 +92,5 @@
       when: (rclone_version_specified0_check.stdout | trim | length == 0)
 
   when:
-    - (rclone_version_is_specified)
+    - rclone_version_is_specified
     - not ((rclone.version == 'beta') or (rclone.version == 'latest') or (rclone.version == 'current'))

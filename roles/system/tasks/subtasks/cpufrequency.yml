@@ -18,7 +18,7 @@
     name:
       - linux-tools-common
       - linux-tools-generic
-  when: ansible_distribution == 'Ubuntu'
+  when: (ansible_distribution == 'Ubuntu')
 
 - name: "CPU Frequency | Install 'linux-tools-{{ ansible_kernel }}'"
   ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
@@ -72,4 +72,4 @@
     enabled: false
     daemon_reload: true
   ignore_errors: true
-  when: "'ondemand.service' in services and services['ondemand.service']['status'] == 'enabled'"
+  when: ('ondemand.service' in services and services['ondemand.service']['status'] == 'enabled')

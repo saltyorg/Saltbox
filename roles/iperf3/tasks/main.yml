@@ -35,4 +35,4 @@
       ansible.builtin.debug:
         msg: "iperf3 {{ iperf3_binary_version.stdout }} installed."
 
-  when: iperf_clone_status is success
+  when: (iperf_clone_status is success)

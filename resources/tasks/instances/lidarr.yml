@@ -31,4 +31,4 @@
 - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
   ansible.builtin.set_fact:
     lidarr_info: "{{ lidarr_info | default({}) | combine({lidarr_name: {'name': lidarr_name, 'url': lidarr_web_url, 'api_key': 'not installed'}}) }}"
-  when: not (lidarr_paths_config_location_stat.stat.exists)
+  when: (not lidarr_paths_config_location_stat.stat.exists)

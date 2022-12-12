@@ -25,4 +25,4 @@
   until: pms_check.stderr.find("No such file or directory") == -1
   retries: 600
   changed_when: false
-  failed_when: pms_check.rc == 1 or pms_check.rc > 2
+  failed_when: (pms_check.rc == 1) or (pms_check.rc > 2)

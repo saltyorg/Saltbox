@@ -20,7 +20,7 @@
 - name: Fail if database does not exist
   ansible.builtin.fail:
     msg: "Plex databases are not present for {{ plex_name }} instance"
-  when: not (plex_db.stat.exists and plex_db_blobs.stat.exists)
+  when: (not (plex_db.stat.exists and plex_db_blobs.stat.exists))
 
 - name: Stop Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
@@ -30,12 +30,12 @@
 - name: Check if main database passes integrity_check
   ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'PRAGMA integrity_check(1)'"
   register: plex_db_integrity_check
-  failed_when: plex_db_integrity_check.stdout != 'ok'
+  failed_when: (plex_db_integrity_check.stdout != 'ok')
 
 - name: Check if blobs database passes integrity_check
   ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
   register: plex_db_blobs_integrity_check
-  failed_when: plex_db_blobs_integrity_check.stdout != 'ok'
+  failed_when: (plex_db_blobs_integrity_check.stdout != 'ok')
 
 - name: Database tasks
   block:
@@ -54,22 +54,22 @@
     - name: "Vacuum '{{ plex_paths_db_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'VACUUM;'"
       register: plex_db_vacuum
-      failed_when: plex_db_vacuum.rc != 0
+      failed_when: (plex_db_vacuum.rc != 0)
 
     - name: "Vacuum '{{ plex_paths_db_blobs_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'VACUUM;'"
       register: plex_db_blobs_vacuum
-      failed_when: plex_db_blobs_vacuum.rc != 0
+      failed_when: (plex_db_blobs_vacuum.rc != 0)
 
     - name: "Reindex '{{ plex_paths_db_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'REINDEX;'"
       register: plex_db_reindex
-      failed_when: plex_db_reindex.rc != 0
+      failed_when: (plex_db_reindex.rc != 0)
 
     - name: "Reindex '{{ plex_paths_db_blobs_location | basename }}' database"
       ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'REINDEX;'"
       register: plex_db_blobs_reindex
-      failed_when: plex_db_blobs_reindex.rc != 0
+      failed_when: (plex_db_blobs_reindex.rc != 0)
 
   rescue:
     - name: Restore database backup

@@ -59,7 +59,7 @@
     no_extra_spaces: true
     mode: "0644"
     state: present
-  when: (motd_news.stat.exists)
+  when: motd_news.stat.exists
 
 - name: Disable MOTD news service
   ansible.builtin.systemd:
@@ -119,7 +119,7 @@
     - name: Migrate value of motd banner
       ansible.builtin.shell: |
         jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
-      when: motd_banner.stdout == '"Cloudbox"'
+      when: (motd_banner.stdout == 'Cloudbox')
 
   when: motd_config.stat.exists
 
@@ -133,7 +133,7 @@
     - name: Migrate value of motd banner  # noqa jinja[spacing]
       ansible.builtin.shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
-      when: disk_path.stdout == 'null'
+      when: (disk_path.stdout == 'null')
 
   when: motd_config.stat.exists
 

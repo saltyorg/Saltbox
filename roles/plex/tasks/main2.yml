@@ -41,7 +41,7 @@
 
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
-  when: not continuous_integration
+  when: (not continuous_integration)
 
 - name: Preferences Tasks
   ansible.builtin.import_tasks: "subtasks/preferences/preferences.yml"
@@ -49,7 +49,7 @@
 
 - name: Docker Devices Task
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/set_docker_devices_variable.yml"
-  when: (gpu.intel or gpu.nvidia)
+  when: gpu.intel or gpu.nvidia
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

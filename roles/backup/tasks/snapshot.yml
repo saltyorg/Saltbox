@@ -16,14 +16,14 @@
 - name: "Snapshot | Determine '/' filesystem type"
   ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
-  when: (backup.misc.snapshot) and (item.mount == '/')
+  when: backup.misc.snapshot and (item.mount == '/')
   with_items:
     - "{{ ansible_mounts }}"
 
 - name: "Snapshot | Determine '/opt' filesystem type"
   ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
-  when: (backup.misc.snapshot) and (item.mount == '/opt')
+  when: backup.misc.snapshot and (item.mount == '/opt')
   with_items:
     - "{{ ansible_mounts }}"
 
@@ -71,7 +71,7 @@
           ignore_errors: true
           when: (snapshot_deletion is failed)
 
-      when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
+      when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
 
     - name: Snapshot | Create BTRFS snapshot directory
       ansible.builtin.file:
@@ -84,5 +84,5 @@
         - "{{ backup_snapshot_destination_path | dirname }}"
 
   when:
-    - (backup.misc.snapshot)
+    - backup.misc.snapshot
     - ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))

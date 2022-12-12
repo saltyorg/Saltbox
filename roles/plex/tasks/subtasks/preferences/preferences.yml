@@ -45,7 +45,7 @@
       become: true
       become_user: "{{ user.name }}"
       ignore_errors: true
-      when: (transcoder_path_fix)
+      when: transcoder_path_fix
 
     - name: Preferences | Set 'plex_server_claimed' variable
       ansible.builtin.set_fact:
@@ -53,10 +53,8 @@
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken is defined) and
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"
 
-  when:
-    - (preferences_xml.stat.exists)
+  when: preferences_xml.stat.exists
 
 - name: Preferences | Claim {{ plex_name | title }} Server
   ansible.builtin.import_tasks: "claim_server.yml"
-  when:
-    - (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and not plex_server_claimed)
+  when: (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and (not plex_server_claimed))

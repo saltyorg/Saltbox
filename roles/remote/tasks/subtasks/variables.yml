@@ -30,7 +30,7 @@
 - name: Variables | Fail when no valid remote mount type is specified.
   ansible.builtin.fail:
     msg: "'{{ mounts.remote }}' is not a valid remote mount type."
-  when: not mount_types_is_defined and not feeder_mount_is_enabled
+  when: (not mount_types_is_defined) and (not feeder_mount_is_enabled)
 
 ################################
 # Feeder
