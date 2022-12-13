@@ -51,7 +51,7 @@ sonarr_traefik_middleware_custom: ""
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_traefik_enabled: true
 sonarr_traefik_api_enabled: true
-sonarr_traefik_api_endpoint: "PathPrefix(`/api`)"
+sonarr_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`)"
 
 ################################
 # API
