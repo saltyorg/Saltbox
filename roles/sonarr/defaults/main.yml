@@ -61,7 +61,7 @@ sonarr_traefik_middleware: "{{ sonarr_traefik_middleware_default + ','
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_traefik_enabled: true
 sonarr_traefik_api_enabled: true
-sonarr_traefik_api_endpoint: "`/api`"
+sonarr_traefik_api_endpoint: "`/api`,`/feed`"
 
 ################################
 # API
