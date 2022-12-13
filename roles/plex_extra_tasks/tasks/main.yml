@@ -15,7 +15,6 @@
 - name: Set 'docker_installed_containers_list' variable
   ansible.builtin.set_fact:
     docker_installed_containers_list: "{{ (docker_installed_containers_list.stdout).split() }}"
-
   tags:
     - plex-db-cache-size
 
