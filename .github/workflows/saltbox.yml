@@ -34,7 +34,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Lint Ansible Playbook
-      uses: ansible-community/ansible-lint-action@v6.9.1
+      uses: ansible-community/ansible-lint-action@v6.8.2
 
   add-contributors:
     runs-on: ubuntu-22.04
@@ -47,7 +47,7 @@ jobs:
         REPO_NAME: 'saltyorg/Saltbox'
         CONTRIBUTOR: '### Contributors'
         COLUMN_PER_ROW: '6'
-        ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACCESS_TOKEN: ${{secrets.GITHUB_TOKEN}}
         IMG_WIDTH: '100'
         FONT_SIZE: '14'
         PATH: '/README.md'
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ansible-lint, find-roles]
     strategy:
-      matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
+      matrix: ${{fromJson(needs.find-roles.outputs.matrix)}}
       fail-fast: false
 
     steps:
