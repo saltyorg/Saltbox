@@ -10,11 +10,10 @@
 ---
 - name: "Migrator | 'settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    old_download: "{{ true if not
-        ((downloads.nzbs is undefined)
-        or
-        (downloads.torrents is undefined))
-        else false }}"
+    old_download: "{{ not
+                      ((downloads.nzbs is undefined)
+                      or
+                      (downloads.torrents is undefined)) }}"
 
 - name: Migrator | 'settings.yml' | Migration 01 | Delete 'downloads' dict
   ansible.builtin.shell: |

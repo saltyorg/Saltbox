@@ -12,7 +12,7 @@
     src: feeder.service.j2
     dest: /etc/systemd/system/feeder.service
     mode: '0755'
-    force: "{{ true if ('mounts_override' in ansible_run_tags) else false }}"
+    force: "{{ ('mounts_override' in ansible_run_tags) }}"
 
 - name: Feeder | Systemd daemon-reload 'feeder.service'
   ansible.builtin.systemd:

@@ -50,7 +50,7 @@
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
     mode: 0775
-    force: "{{ true if hetzner_nfs_init_overwrite_client else false }}"
+    force: "{{ hetzner_nfs_init_overwrite_client }}"
 
 - name: Check 'nfs_vlan.service' exists
   ansible.builtin.stat:

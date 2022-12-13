@@ -10,19 +10,17 @@
 ---
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    traefik_tls_settings: "{{ true if not
-        ((traefik is undefined)
-        or
-        (traefik is none)
-        or
-        (traefik | trim | length == 0)
-        or
-        (traefik.tls is undefined)
-        or
-        (traefik.tls is none)
-        or
-        (traefik.tls | trim | length == 0))
-        else false }}"
+    traefik_tls_settings: "{{ not ((traefik is undefined)
+                              or
+                              (traefik is none)
+                              or
+                              (traefik | trim | length == 0)
+                              or
+                              (traefik.tls is undefined)
+                              or
+                              (traefik.tls is none)
+                              or
+                              (traefik.tls | trim | length == 0)) }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
   ansible.builtin.shell: |
@@ -33,19 +31,17 @@
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    traefik_metrics_settings: "{{ true if not
-        ((traefik is undefined)
-        or
-        (traefik is none)
-        or
-        (traefik | trim | length == 0)
-        or
-        (traefik.metrics is undefined)
-        or
-        (traefik.metrics is none)
-        or
-        (traefik.metrics | trim | length == 0))
-        else false }}"
+    traefik_metrics_settings: "{{ not ((traefik is undefined)
+                                  or
+                                  (traefik is none)
+                                  or
+                                  (traefik | trim | length == 0)
+                                  or
+                                  (traefik.metrics is undefined)
+                                  or
+                                  (traefik.metrics is none)
+                                  or
+                                  (traefik.metrics | trim | length == 0)) }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
   ansible.builtin.shell: |
@@ -56,13 +52,11 @@
 
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    old_dockerhub: "{{ true if not
-        ((dockerhub is undefined)
-        or
-        (dockerhub is none)
-        or
-        (dockerhub | trim | length == 0))
-        else false }}"
+    old_dockerhub: "{{ not ((dockerhub is undefined)
+                       or
+                       (dockerhub is none)
+                       or
+                       (dockerhub | trim | length == 0)) }}"
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
   ansible.builtin.shell: |
