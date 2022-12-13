@@ -62,7 +62,7 @@ radarr_traefik_middleware: "{{ radarr_traefik_middleware_default + ','
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_traefik_enabled: true
 radarr_traefik_api_enabled: true
-radarr_traefik_api_endpoint: "`/api`"
+radarr_traefik_api_endpoint: "`/api`,`/feed`"
 
 ################################
 # API
