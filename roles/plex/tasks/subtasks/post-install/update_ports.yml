@@ -14,19 +14,16 @@
 
 - name: Post-Install | Update Ports | Find external port binding for '{{ plex_docker_container }}' docker port '{{ plex_web_port }}'
   block:
-
     - name: Post-Install | Update Ports | Lookup host port mapped to '{{ plex_docker_container }}' docker port '{{ plex_web_port }}'
-      ansible.builtin.shell:
-        docker port {{ plex_docker_container }} {{ plex_web_port }} 2> /dev/null | sed 's/[0-9.]*://'
+      ansible.builtin.shell: docker port {{ plex_docker_container }} {{ plex_web_port }} 2> /dev/null | sed 's/[0-9.]*://'
       register: plex_docker_port_lookup_cmd
       changed_when: false
 
     - name: Post-Install | Update Ports | Set port variable
       ansible.builtin.set_fact:
-        plex_docker_port_lookup: >-
-          {{ (plex_docker_port_lookup_cmd.stdout | trim)
-          if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
-          else plex_web_port }}
+        plex_docker_port_lookup: "{{ (plex_docker_port_lookup_cmd.stdout | trim)
+                                  if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
+                                  else plex_web_port }}"
 
   when: plex_open_main_ports
 

@@ -29,7 +29,6 @@
     state: stopped
     container_default_behavior: compatibility
     tls_hostname: localhost
-
   when: plex_is_running_outer_state
 
   tags:
@@ -43,13 +42,11 @@
 - name: "Install Sub-Zero Plugin"
   ansible.builtin.include_role:
     name: sub_zero
-
   when: plex_plugin_sub_zero
 
 - name: "Install WebTools Plugin"
   ansible.builtin.include_role:
     name: webtools
-
   when: plex_plugin_webtools
 
 - name: Start Docker Container
@@ -58,7 +55,6 @@
     state: started
     container_default_behavior: compatibility
     tls_hostname: localhost
-
   when: plex_is_running_outer_state
   tags:
     - plex-db-cache-size
