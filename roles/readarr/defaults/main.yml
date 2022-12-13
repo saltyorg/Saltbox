@@ -52,7 +52,7 @@ readarr_traefik_middleware_custom: ""
 readarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 readarr_traefik_enabled: true
 readarr_traefik_api_enabled: true
-readarr_traefik_api_endpoint: "PathPrefix(`/api`)"
+readarr_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`)"
 
 ################################
 # API
