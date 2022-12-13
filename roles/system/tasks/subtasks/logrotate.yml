@@ -56,18 +56,6 @@
               notifempty
               create 644 {{ user.name }} {{ user.name }}
           }
-      - path: "traefik"
-        content: |
-          /opt/traefik/*.log {
-              rotate 5
-              size {{ traefik_max_log_size }}
-              missingok
-              notifempty
-              postrotate
-                docker kill --signal="USR1" traefik
-              endscript
-              create 644 {{ user.name }} {{ user.name }}
-          }
 
 - name: Logrotate | Add items to '/etc/logrotate.d'
   ansible.builtin.blockinfile:

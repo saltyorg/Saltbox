@@ -20,5 +20,4 @@ timezone_use_local_rtc: false
 system_locale: "en_US.UTF-8"
 system_language: "en_US.UTF-8"
 
-traefik_max_log_size: 10M
 saltbox_max_log_size: 2M
