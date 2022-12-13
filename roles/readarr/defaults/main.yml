@@ -62,7 +62,7 @@ readarr_traefik_middleware: "{{ readarr_traefik_middleware_default + ','
 readarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 readarr_traefik_enabled: true
 readarr_traefik_api_enabled: true
-readarr_traefik_api_endpoint: "`/api`"
+readarr_traefik_api_endpoint: "`/api`,`/feed`"
 
 ################################
 # API
