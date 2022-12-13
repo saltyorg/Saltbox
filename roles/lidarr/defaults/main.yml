@@ -61,7 +61,7 @@ lidarr_traefik_middleware: "{{ lidarr_traefik_middleware_default + ','
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
 lidarr_traefik_api_enabled: true
-lidarr_traefik_api_endpoint: "`/api`"
+lidarr_traefik_api_endpoint: "`/api`,`/feed`"
 
 ################################
 # API
