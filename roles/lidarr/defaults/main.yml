@@ -51,7 +51,7 @@ lidarr_traefik_middleware_custom: ""
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
 lidarr_traefik_api_enabled: true
-lidarr_traefik_api_endpoint: "PathPrefix(`/api`)"
+lidarr_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`)"
 
 ################################
 # API
