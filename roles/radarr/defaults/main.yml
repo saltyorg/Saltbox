@@ -52,7 +52,7 @@ radarr_traefik_middleware_custom: ""
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_traefik_enabled: true
 radarr_traefik_api_enabled: true
-radarr_traefik_api_endpoint: "PathPrefix(`/api`)"
+radarr_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`)"
 
 ################################
 # API
