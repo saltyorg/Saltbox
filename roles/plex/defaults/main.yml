@@ -21,11 +21,9 @@ plex_username: "{{ plex.user }}"
 plex_password: "{{ plex.pass }}"
 plex_open_main_ports: false
 plex_open_local_ports: false
-plex_db_cache_size: default
 plex_plugin_webtools: true
 plex_plugin_sub_zero: true
 plex_insecure: false
-plex_modify_binary: false
 
 ################################
 # Paths
@@ -198,13 +196,8 @@ plex_docker_volumes_default:
   - "/dev/shm:/dev/shm"
   - "{{ plex_paths_transcodes_location }}:/transcode"
 plex_docker_volumes_custom: []
-plex_docker_volumes_modify:
-  - "{{ plex_paths_location }}/99-modify-binary:/etc/cont-init.d/99-modify-binary"
 plex_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_docker_volumes_default)
-                         + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom)
-                         + (lookup('vars', plex_name + '_docker_volumes_modify', default=plex_docker_volumes_modify)
-                           if lookup('vars', plex_name + '_modify_binary', default=plex_modify_binary)
-                           else []) }}"
+                         + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_docker_volumes_custom) }}"
 
 # Mounts
 plex_docker_mounts_default:

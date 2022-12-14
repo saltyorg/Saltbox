@@ -57,21 +57,6 @@
 - name: Post-Install Tasks
   ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
 
-- name: PlexSQL Block
-  block:
-    - name: Copy Plex Binaries out
-      ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ /opt/plexsql"
-
-    - name: Set '/opt/plexsql' ownership recursively
-      ansible.builtin.file:
-        path: "/opt/plexsql"
-        state: directory
-        recurse: yes
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-
-  when: (plex_name == plex_instances[0])
-
 - name: "Execute Plex Extra Tasks role"
   ansible.builtin.include_role:
     name: "plex_extra_tasks"
