@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+- name: Delete old '/opt/plexsql'
+  ansible.builtin.file:
+    path: "/opt/plexsql"
+    state: absent
+
 - name: Copy Plex Binaries out
   ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ /opt/plexsql"
 
