@@ -72,10 +72,6 @@
       failed_when: (plex_db_blobs_reindex.rc != 0)
 
   rescue:
-    - name: Restore database backup
-      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/{{ item }}'"
-      loop: "{{ plex_db_files }}"
-
     - name: Delete wal and shm files
       ansible.builtin.file:
         path: "{{ plex_paths_plugin_support_location }}/Databases/{{ item }}"
@@ -85,6 +81,10 @@
         - "com.plexapp.plugins.library.db-shm"
         - "com.plexapp.plugins.library.blobs.db-wal"
         - "com.plexapp.plugins.library.blobs.db-shm"
+
+    - name: Restore database backup
+      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_paths_plugin_support_location }}/Databases/{{ item }}'"
+      loop: "{{ plex_db_files }}"
 
 - name: Start Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
