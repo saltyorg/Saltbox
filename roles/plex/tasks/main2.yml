@@ -59,6 +59,16 @@
 
 - name: PlexSQL Block
   block:
+    - name: Wait for Plex executable to be created
+      community.docker.docker_container_exec:
+        container: "{{ plex_docker_container }}"
+        command: bash -c "ls '/usr/lib/plexmediaserver/Plex Media Server'"
+      register: pms_check
+      until: pms_check.stderr.find("No such file or directory") == -1
+      retries: 600
+      changed_when: false
+      failed_when: (pms_check.rc == 1) or (pms_check.rc > 2)
+
     - name: Delete old '/opt/plexsql'
       ansible.builtin.file:
         path: "/opt/plexsql"
