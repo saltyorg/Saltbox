@@ -29,3 +29,5 @@
 /*.log.*
 .vscode/settings.json
 
+### Visual Studio ###
+/.vs
