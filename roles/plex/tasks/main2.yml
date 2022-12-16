@@ -28,10 +28,14 @@
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-- name: Remove '98-themepark'
+- name: Remove previously imported files that are no longer needed
   ansible.builtin.file:
-    path: "{{ plex_paths_location }}/98-themepark"
+    path: "{{ item }}"
     state: absent
+  with_items:
+    - "{{ plex_paths_location }}/98-themepark"
+    - "{{ plex_paths_location }}/99-modify-binary"
+    - "{{ server_appdata_path }}/scripts/bbe"
 
 - name: Delete Plex Codecs Folder
   ansible.builtin.file:
