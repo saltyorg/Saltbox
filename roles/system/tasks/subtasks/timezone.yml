@@ -30,6 +30,7 @@
     - name: Time Zone | Set 'timezone' variable from 'http://ip-api.com'
       ansible.builtin.set_fact:
         timezone: "{{ ip_api_timezone_response.content | trim }}"
+        timezone_string: "Time zone: {{ timezone }}"
       when:
         - (ip_api_timezone_response is succeeded)
         - (ip_api_timezone_response.content | trim | length > 0)
@@ -48,8 +49,8 @@
 - name: Set timezone
   ansible.builtin.shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
   register: timedatectl_utc
-  changed_when: "(timedatectl_utc.stdout is defined) and ('Time zone: UTC' in timedatectl_utc.stdout)"
-  when: "(timedatectl.stdout is defined) and ('Time zone: UTC' not in timedatectl.stdout)"
+  changed_when: "(timedatectl_utc.stdout is defined) and (timezone_string in timedatectl_utc.stdout)"
+  when: "(timedatectl.stdout is defined) and (timezone_string not in timedatectl.stdout)"
 
 - name: Set hardware clock to use or not use local RTC
   ansible.builtin.shell: "timedatectl set-local-rtc {% if timezone_use_local_rtc %}1{% else %}0{% endif %} && timedatectl || true"
