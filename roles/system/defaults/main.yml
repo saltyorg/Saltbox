@@ -15,6 +15,7 @@ pam_limit_nofile: "100000"
 fs_file_max: "100000"
 
 timezone: "{{ tz }}"
+timezone_string: "Time zone: {{ tz }}"
 timezone_use_local_rtc: false
 
 system_locale: "en_US.UTF-8"
