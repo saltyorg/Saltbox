@@ -119,18 +119,18 @@
     - name: Migrate value of motd banner
       ansible.builtin.shell: |
         jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
-      when: (motd_banner.stdout == 'Cloudbox')
+      when: ('Cloudbox' in motd_banner.stdout)
 
   when: motd_config.stat.exists
 
 - name: Config path migration
   block:
 
-    - name: Check value of motd banner
+    - name: Check value of disk path
       ansible.builtin.shell: "jq '.disk.path' /opt/motd/config.json"
       register: disk_path
 
-    - name: Migrate value of motd banner  # noqa jinja[spacing]
+    - name: Migrate value of disk path  # noqa jinja[spacing]
       ansible.builtin.shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
       when: (disk_path.stdout == 'null')
