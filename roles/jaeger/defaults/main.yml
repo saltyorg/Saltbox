@@ -91,11 +91,18 @@ jaeger_docker_commands: "{{ jaeger_docker_commands_default
                             + jaeger_docker_commands_custom }}"
 
 # Volumes
-jaeger_docker_volumes_default:
-  - "/tmp:/tmp"
+jaeger_docker_volumes_default: []
 jaeger_docker_volumes_custom: []
 jaeger_docker_volumes: "{{ jaeger_docker_volumes_default
                            + jaeger_docker_volumes_custom }}"
+
+# Mounts
+jaeger_docker_mounts_default:
+  - target: /tmp
+    type: tmpfs
+jaeger_docker_mounts_custom: []
+jaeger_docker_volumes: "{{ jaeger_docker_mounts_default
+                           + jaeger_docker_mounts_custom }}"
 
 # Devices
 jaeger_docker_devices_default: []
