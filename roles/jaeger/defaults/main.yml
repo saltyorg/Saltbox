@@ -101,7 +101,7 @@ jaeger_docker_mounts_default:
   - target: /tmp
     type: tmpfs
 jaeger_docker_mounts_custom: []
-jaeger_docker_volumes: "{{ jaeger_docker_mounts_default
+jaeger_docker_mounts: "{{ jaeger_docker_mounts_default
                            + jaeger_docker_mounts_custom }}"
 
 # Devices
