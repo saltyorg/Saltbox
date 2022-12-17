@@ -115,7 +115,6 @@ overseerr_docker_commands: "{{ lookup('vars', overseerr_name + '_docker_commands
 # Volumes
 overseerr_docker_volumes_default:
   - "{{ overseerr_paths_location }}:/app/config"
-  - "{{ overseerr_paths_cache }}:/app/.next/cache"
 overseerr_docker_volumes_custom: []
 overseerr_docker_volumes: "{{ lookup('vars', overseerr_name + '_docker_volumes_default', default=overseerr_docker_volumes_default)
                               + lookup('vars', overseerr_name + '_docker_volumes_custom', default=overseerr_docker_volumes_custom) }}"
