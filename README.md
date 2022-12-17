@@ -155,6 +155,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/keldian>
+            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
+            <br />
+            <sub style="font-size:14px"><b>keldian</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/powerdude>
             <img src=https://avatars.githubusercontent.com/u/780882?v=4 width="100;"  alt=powerdude/>
             <br />
@@ -168,6 +175,8 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>Filipe</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Arcanemagus>
             <img src=https://avatars.githubusercontent.com/u/427137?v=4 width="100;"  alt=Landon Abney/>
@@ -175,8 +184,6 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>Landon Abney</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/ldub>
             <img src=https://avatars.githubusercontent.com/u/3114081?v=4 width="100;"  alt=Lev Dubinets/>
@@ -196,13 +203,6 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
             <br />
             <sub style="font-size:14px"><b>bandwith</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/keldian>
-            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
-            <br />
-            <sub style="font-size:14px"><b>keldian</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
