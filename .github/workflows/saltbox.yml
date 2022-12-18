@@ -38,7 +38,7 @@ jobs:
 
   add-contributors:
     runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v3
 
