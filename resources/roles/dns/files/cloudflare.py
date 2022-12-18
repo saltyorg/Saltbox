@@ -41,7 +41,7 @@ def main():
 
         while True:
             page_number += 1
-            raw_results = cf.zones.dns_records.get(zone_id, params={'per_page': 100, 'page': page_number})
+            raw_results = cf.zones.dns_records.get(zone_id, params={'name': args.record, 'per_page': 100, 'page': page_number})
             dns_records = dns_records + raw_results['result']
 
             total_pages = raw_results['result_info']['total_pages']
@@ -52,10 +52,7 @@ def main():
     except CloudFlare.exceptions.CloudFlareAPIError as e:
         exit('/zones/dns_records.get %d %s - api call failed' % (e, e))
 
-    # Filter the records to only the ones we want
-    filtered_records = list(filter(lambda dns_record: dns_record['name'] == args.record, dns_records))
-
-    print(json.dumps(filtered_records))
+    print(json.dumps(dns_records))
 
     exit(0)
 
