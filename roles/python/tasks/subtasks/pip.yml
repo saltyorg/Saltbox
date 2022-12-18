@@ -13,19 +13,18 @@
 
 - name: "Fix System pip"
   block:
-    - name: Check if pip is installed
-      ansible.builtin.command: "python3 -m pip --version"
+    - name: "Replace 'python3.8' with 'python3'"
+      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' /usr/local/bin/pip"
 
-    - name: Download 'get-pip.py'
-      ansible.builtin.get_url:
-        url: "{{ python_get_pip_url }}"
-        dest: /tmp/get-pip.py
-        mode: '0664'
-      register: x
-      until: "x is not failed"
-      retries: 5
-      delay: 10
-
-    - name: "Install pip for Python3"
-      ansible.builtin.command: "python3 /tmp/get-pip.py"
   when: system_pip.stdout_lines[0] == "#!/usr/bin/python3.8"
+
+- name: "Check System pip3"
+  ansible.builtin.command: "cat /usr/local/bin/pip3"
+  register: system_pip3
+
+- name: "Fix System pip3"
+  block:
+    - name: "Replace 'python3.8' with 'python3'"
+      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' /usr/local/bin/pip3"
+
+  when: system_pip3.stdout_lines[0] == "#!/usr/bin/python3.8"
