@@ -1,0 +1,20 @@
+#########################################################################
+# Title:         Saltbox: DNS | Defaults                                #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+cloudflare_reinstall: false
+
+cloudflare_path: "/srv/git/cloudflare"
+
+cloudflare_venv_path: "{{ cloudflare_path }}/venv"
+
+cloudflare_python_path: "{{ cloudflare_bin_folder }}/python3"
+
+cloudflare_script_path: "{{ cloudflare_path }}/cloudflare.py"
+
+cloudflare_requirements_path: "{{ cloudflare_path }}/requirements.txt"

@@ -7,8 +7,14 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | Validate API Key
-  ansible.builtin.include_tasks: "subtasks/validate.yml"
+- name: Cloudflare | Check if Cloudflare folder exists
+  ansible.builtin.stat:
+    path: "{{ cloudflare_path }}"
+  register: cloudflare_folder
+
+- name: Cloudflare | Setup
+  ansible.builtin.include_tasks: "subtasks/setup.yml"
+  when: (not cloudflare_folder.stat.exists) or cloudflare_reinstall
 
 - name: Cloudflare | Add DNS Record
   ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"

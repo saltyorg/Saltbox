@@ -7,11 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Validate API Key
-  ansible.builtin.import_tasks: "/srv/git/saltbox/resources/roles/dns/tasks/cloudflare/subtasks/validate.yml"
-  tags:
-    - cloudflare-validate
-
 - name: Variables Task
   ansible.builtin.import_tasks: "subtasks/variables.yml"
   ignore_errors: true

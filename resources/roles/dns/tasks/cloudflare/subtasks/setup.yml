@@ -1,0 +1,61 @@
+#########################################################################
+# Title:         Saltbox: DNS | Cloudflare | Setup                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Cloudflare | Setup | Create directory
+  ansible.builtin.file:
+    path: "{{ cloudflare_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+    recurse: true
+
+- name: Cloudflare | Setup | Import Cloudflare files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    force: true
+    dest: "{{ cloudflare_path }}/{{ item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  with_items:
+    - "cloudflare.py"
+    - "requirements.txt"
+
+- name: Cloudflare | Setup | Set Python version
+  ansible.builtin.set_fact:
+    cloudflare_python: "{{ 'python3'
+                        if ansible_distribution_version is version('20.04', '==')
+                        else 'python3.8' }}"
+
+- name: Cloudflare | Setup | Execute Python role
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "3.8"
+  when: ansible_distribution_version is version('22.04', '==')
+
+- name: Cloudflare | Setup | Check if venv folder exists
+  ansible.builtin.stat:
+    path: "{{ cloudflare_venv_path }}"
+  register: cloudflare_venv_folder
+
+- name: Cloudflare | Setup | Delete venv folder
+  ansible.builtin.file:
+    path: "{{ cloudflare_venv_path }}"
+    state: absent
+  when: cloudflare_venv_folder.stat.exists
+
+- name: Cloudflare | Setup | Install pip requirements
+  ansible.builtin.pip:
+    requirements: "{{ cloudflare_requirements_path }}"
+    virtualenv_python: "{{ cloudflare_python }}"
+    virtualenv: "{{ cloudflare_venv_path }}"
+  become: true
+  become_user: "{{ user.name }}"
