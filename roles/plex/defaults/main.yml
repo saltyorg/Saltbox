@@ -185,7 +185,7 @@ plex_docker_envs_default:
   PLEX_GID: "{{ gid }}"
   PLEX_CLAIM: "{{ (plex_claim_code) | default(omit) }}"
   CHANGE_CONFIG_DIR_OWNERSHIP: "false"
-  NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
+  NVIDIA_DRIVER_CAPABILITIES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
   ADVERTISE_IP: "{{ plex_docker_envs_advertise_ip }}"
