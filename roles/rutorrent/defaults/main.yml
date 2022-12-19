@@ -226,7 +226,10 @@ rutorrent_docker_security_opts: "{{ rutorrent_docker_security_opts_default
 rutorrent_docker_restart_policy: unless-stopped
 
 # Stop Timeout
-rutorrent_docker_stop_timeout: 900
+rutorrent_docker_stop_timeout: 300
 
 # State
 rutorrent_docker_state: started
+
+# Init
+rutorrent_docker_init: true
