@@ -7,12 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Apprise | Install 'apprise' pip module
-  ansible.builtin.pip:
-    name: apprise
-    state: present
-    executable: pip3
-
 - name: Apprise | Send Notification
   ansible.builtin.shell: apprise -b '{{ message }}' '{{ apprise }}'
   become: true

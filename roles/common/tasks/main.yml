@@ -145,23 +145,6 @@
     mode: 0775
     force: true
 
-- name: Install common pip modules
-  ansible.builtin.pip:
-    state: present
-    name:
-      - certbot
-      - ndg-httpsclient
-      - apprise
-      - dnspython
-      - lxml
-      - jmespath
-      - passlib
-      - PyMySQL
-      - tld
-    virtualenv_python: "{{ saltbox_python }}"
-    virtualenv: "{{ saltbox_venv_path }}"
-  ignore_errors: true
-
 - name: "Check to see if yyq is installed"
   ansible.builtin.stat:
     path: "/usr/local/bin/yyq"

@@ -9,7 +9,7 @@
 ---
 - name: Get FLD
   ansible.builtin.shell: |
-    python3 -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
+    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
   register: fld
 
 - name: Get zones

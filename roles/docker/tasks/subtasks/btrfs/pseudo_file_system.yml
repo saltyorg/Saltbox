@@ -9,15 +9,6 @@
 ---
 # https://gist.github.com/hopeseekr/cd2058e71d01deca5bae9f4e5a555440
 
-- name: BTRFS | Psuedo-File-System | Install jmespath pip module
-  ansible.builtin.pip:
-    state: present
-    name:
-      - jmespath
-    virtualenv_python: "{{ saltbox_python }}"
-    virtualenv: "{{ saltbox_venv_path }}"
-  ignore_errors: true
-
 - name: "BTRFS | Psuedo-File-System | Determine if '/var/lib/docker' is mounted"
   ansible.builtin.set_fact:
     var_lib_docker_mount_exists: "{{ true if (ansible_mounts | json_query('[?mount == `/var/lib/docker`]')) else false }}"

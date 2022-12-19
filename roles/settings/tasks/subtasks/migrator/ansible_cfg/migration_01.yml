@@ -25,7 +25,7 @@
     - { section: 'defaults', option: 'fact_path', value: './ansible_facts.d' }
     - { section: 'defaults', option: 'log_path', value: './saltbox.log' }
     - { section: 'defaults', option: 'callbacks_enabled', value: 'profile_tasks' }
-    - { section: 'defaults', option: 'interpreter_python', value: '/usr/bin/python3' }
+    - { section: 'defaults', option: 'interpreter_python', value: '/srv/ansible/venv/bin/python3' }
     - { section: 'defaults', option: 'remote_tmp', value: '/tmp/ansible' }
     - { section: 'defaults', option: 'force_color', value: 'True' }
 
