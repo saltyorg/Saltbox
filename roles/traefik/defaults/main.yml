@@ -45,12 +45,11 @@ traefik_metrics_domain: "{{ user.domain }}"
 # Logging
 ################################
 
-traefik_log: true
 traefik_log_level: "ERROR"
 traefik_log_max_size: "10M"
-traefik_log_max_backups: 3
-traefik_log_max_age: 3
-traefik_log_compress: 3
+traefik_log_max_backups: "3"
+traefik_log_max_age: "3"
+traefik_log_compress: "3"
 traefik_access_log: false
 traefik_access_buffer: 100
 
@@ -169,13 +168,9 @@ traefik_docker_commands_default:
   - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
   - "--api.dashboard=true"
   - "--api=true"
-  - "--log={{ traefik_log }}"
+  - "--log=true"
   - "--log.level={{ traefik_log_level }}"
   - "--log.filepath=/etc/traefik/traefik.log"
-  - "--log.maxsize={{ traefik_log_max_size }}"
-  - "--log.maxbackups={{ traefik_log_max_backups }}"
-  - "--log.maxage={{ traefik_log_max_age }}"
-  - "--log.compress={{ traefik_log_compress }}"
   - "--accesslog={{ traefik_access_log }}"
   - "--accesslog.fields.names.StartUTC=drop"
   - "--accesslog.fields.headers.names.User-Agent=keep"
