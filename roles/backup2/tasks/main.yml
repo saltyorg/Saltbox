@@ -454,6 +454,23 @@
 
       when: (not use_snapshot)
 
+    - name: "Get size of '{{ backup.rclone.destination }}'"
+      ansible.builtin.shell: "rclone size {{ backup.rclone.destination }} --max-depth 2 | grep size | awk '{print substr($5,2);}'"
+      become: true
+      become_user: "{{ user.name }}"
+      register: backup_remote_size
+
+    - name: "Set backup_size"
+      ansible.builtin.set_fact:
+        backup_size: "{{ (backup_remote_size.stdout | int) | filesizeformat }}"
+
+    - name: "Notify | Saltbox Backup: Uploaded backup had a total size of {{ backup_size }}."
+      ansible.builtin.include_role:
+        name: notify
+      vars:
+        message: "Saltbox Backup: Uploaded backup had a total size of {{ backup_size }}."
+      ignore_errors: true
+
     - name: Get Current Time
       ansible.builtin.shell: "date \"+%s\""
       register: end_time_lookup
