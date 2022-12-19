@@ -10,7 +10,8 @@
 - name: Install common pip modules
   ansible.builtin.pip:
     name: jmespath
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
 
 - name: Install pkg-config
   ansible.builtin.apt:

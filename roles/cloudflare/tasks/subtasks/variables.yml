@@ -17,7 +17,8 @@
 - name: Install tld python package
   ansible.builtin.pip:
     name: tld
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
 
 - name: Get FLD
   ansible.builtin.shell: |

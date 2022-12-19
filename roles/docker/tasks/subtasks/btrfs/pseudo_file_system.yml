@@ -14,7 +14,8 @@
     state: present
     name:
       - jmespath
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
   ignore_errors: true
 
 - name: "BTRFS | Psuedo-File-System | Determine if '/var/lib/docker' is mounted"
