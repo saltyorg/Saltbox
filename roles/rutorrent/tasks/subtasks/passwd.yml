@@ -1,0 +1,20 @@
+#########################################################################
+# Title:         Saltbox: ruTorrent | Passwd Tasks                      #
+# Author(s):     desimaniac, l3uddz, salty                              #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Passwd Tasks | Create htpasswd files
+  community.general.htpasswd:
+    path: "{{ rutorrent_paths_location }}/passwd/{{ item }}.htpasswd"
+    name: "{{ user.name }}"
+    password: "{{ user.pass }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+  with_items:
+    - rpc
+    - webdav

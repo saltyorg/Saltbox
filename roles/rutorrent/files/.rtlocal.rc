@@ -1,0 +1,50 @@
+# Launch as a daemon
+system.daemon.set = true
+
+# Instance layout
+method.insert = cfg.basedir, private|const|string, (cat,"/data/rtorrent/")
+method.insert = cfg.download, private|const|string, (cat,"/mnt/unionfs/downloads/rutorrent/")
+method.insert = cfg.download_complete, private|const|string, (cat,(cfg.download),"completed/")
+method.insert = cfg.download_temp, private|const|string, (cat,(cfg.download),"incomplete/")
+method.insert = cfg.logs, private|const|string, (cat,(cfg.basedir),"log/")
+method.insert = cfg.session, private|const|string, (cat,(cfg.basedir),".session/")
+method.insert = cfg.watch, private|const|string, (cat,(cfg.basedir),"watched/")
+method.insert = cfg.rundir, private|const|string, (cat,"/var/run/rtorrent/")
+
+# Gets the full path of data of a torrent (it's a workaround for the possibly empty 'd.base_path' attribute)
+method.insert = d.data_path, simple, "if=(d.is_multi_file), (cat,(d.directory),/), (cat,(d.directory),/,(d.name))"
+
+# Default directory to save the downloaded torrents
+directory.default.set = (cat,(cfg.download_temp))
+
+# Default session directory
+session.path.set = (cat,(cfg.session))
+
+# PID file
+execute.nothrow = sh,-c,(cat,"echo >",(cfg.rundir),"rtorrent.pid"," ",(system.pid))
+
+# SCGI socket and make it group-writable and secure
+network.scgi.open_local = (cat, (cfg.rundir), "scgi.socket")
+schedule2 = scgi_permission, 0, 0, (cat,"execute.nothrow=chmod,\"g+w,o=\",",(cfg.rundir),"scgi.socket")
+
+# Listening port for incoming peer traffic
+network.port_range.set = @RT_INC_PORT@-@RT_INC_PORT@
+network.port_random.set = no
+
+# UDP port to use for DHT
+dht.port.set = @RT_DHT_PORT@
+
+# XMLRPC size limit
+network.xmlrpc.size_limit.set = @XMLRPC_SIZE_LIMIT@
+
+# Logging
+## levels = critical error warn notice info debug
+## groups = connection_* dht_* peer_* rpc_* storage_* thread_* tracker_* torrent_*
+log.open_file = "log",(cat,(cfg.logs),"rtorrent.log")
+log.add_output = "@RT_LOG_LEVEL@","log"
+log.add_output = "rpc_events","log"
+#log.execute = (cat,(cfg.logs),"execute.log")
+#log.xmlrpc = (cat,(cfg.logs),"xmlrpc.log")
+
+# Initialize plugins
+execute2 = {sh,-c,/usr/bin/php7 /var/www/rutorrent/php/initplugins.php rtorrent &}

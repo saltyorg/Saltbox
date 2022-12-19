@@ -22,18 +22,13 @@ rutorrent_paths_location: "{{ server_appdata_path }}/{{ rutorrent_paths_folder }
 rutorrent_paths_downloads_location: "{{ downloads_torrents_path }}/{{ rutorrent_paths_folder }}"
 rutorrent_paths_folders_list:
   - "{{ rutorrent_paths_location }}"
-  - "{{ rutorrent_paths_location }}/plugins"
-  - "{{ rutorrent_paths_location }}/themes"
+  - "{{ rutorrent_paths_location }}/data"
+  - "{{ rutorrent_paths_location }}/overrides"
+  - "{{ rutorrent_paths_location }}/passwd"
   - "{{ rutorrent_paths_downloads_location }}"
   - "{{ rutorrent_paths_downloads_location }}/completed"
+  - "{{ rutorrent_paths_downloads_location }}/incomplete"
   - "{{ rutorrent_paths_downloads_location }}/watched"
-
-# Config files
-rutorrent_paths_config_php_location: "{{ rutorrent_paths_location }}/rutorrent/settings/config.php"
-rutorrent_paths_rtorrent_rc_location: "{{ rutorrent_paths_location }}/rtorrent/rtorrent.rc"
-rutorrent_paths_nginx_conf_location: "{{ rutorrent_paths_location }}/nginx/nginx.conf"
-rutorrent_paths_php_local_ini_location: "{{ rutorrent_paths_location }}/php/php-local.ini"
-rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/settings/plugins.ini"
 
 ################################
 # Web
@@ -41,8 +36,10 @@ rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/
 
 rutorrent_web_subdomain: "{{ rutorrent_name }}"
 rutorrent_web_domain: "{{ user.domain }}"
-rutorrent_web_port: "80"
-rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain }}"
+rutorrent_web_port: "8080"
+rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain
+                    if (reverse_proxy_is_enabled)
+                    else 'http://localhost:' + rutorrent_web_port }}"
 
 ################################
 # DNS
@@ -70,76 +67,21 @@ rutorrent_traefik_middleware: "{{ rutorrent_traefik_middleware_default + ','
                                   + rutorrent_traefik_middleware_custom }}"
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
-rutorrent_traefik_api_enabled: true
-rutorrent_traefik_api_middleware: "rutorrent-auth,{{ traefik_default_middleware }}"
-rutorrent_traefik_api_endpoint: "`/RPC2`"
 
 ################################
 # Config
 ################################
 
-rutorrent_config_public_trackers: false
-
-## New Installs
-
-# rtorrent.rc
-rutorrent_config_new_installs_rutorrent_rc_settings_default:
-  # Minimum number of peers to connect to per torrent
-  - { option: "throttle.min_peers.normal.set", value: "1" }
-  # Maximum number of simultaneous upload slots per torrent
-  - { option: "throttle.max_uploads.set", value: "1024" }
-  # Maximum number of simultaneous download slots, globally
-  - { option: "throttle.max_downloads.global.set", value: "1024" }
-  # Maximum number of simultaneous upload slots, globally
-  - { option: "throttle.max_uploads.global.set", value: "1024" }
-  # Maximum download rate, globally (KiB); 0 = unlimited
-  - { option: "throttle.global_down.max_rate.set_kb", value: "0" }
-  # Maximum upload rate, globally (KiB); 0 = unlimited
-  - { option: "throttle.global_up.max_rate.set_kb", value: "0" }
-  # Maximum number of open files
-  - { option: "network.max_open_files.set", value: "1024" }
-  # Maximum XMLRPC payloads
-  - { option: "network.xmlrpc.size_limit.set", value: "20M" }
-  # Encryption Parameters
-  - { option: "protocol.encryption.set", value: "allow_incoming,try_outgoing,enable_retry,prefer_plaintext" }
-  # Hash check on completion - disabled
-  - { option: "pieces.hash.on_completion.set", value: "no" }
-  # Disk space allocation - disabled
-  - { option: "system.file.allocate.set", value: "0" }
-  # Download Directory
-  - { option: "directory.default.set", value: "/mnt/unionfs/downloads/torrents/rutorrent/completed" }
-  # Watched Directory
-  - { option: "schedule", value: 'watch_directory,5,5,"load.start=/mnt/unionfs/downloads/torrents/rutorrent/watched/*.torrent,d.delete_tied="' }
-rutorrent_config_new_installs_rutorrent_rc_settings_custom: []
-rutorrent_config_new_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_default
-                                                              + rutorrent_config_new_installs_rutorrent_rc_settings_custom }}"
-
-# php-local.ini
-rutorrent_config_new_installs_php_local_ini_settings_default:
-  # Maximum Upload File Size via Web Browser (eg Uploading Torrent Files)
-  - { option: "upload_max_filesize", value: "20M" }
-rutorrent_config_new_installs_php_local_ini_settings_custom: []
-rutorrent_config_new_installs_php_local_ini_settings_list: "{{ rutorrent_config_new_installs_php_local_ini_settings_default
-                                                               + rutorrent_config_new_installs_php_local_ini_settings_custom }}"
-
-## Existing Installs
-
-# rtorrent.rc
-rutorrent_config_existing_installs_rutorrent_rc_settings_default:
-  # Execute - Initiate Plugins
-  - { option: "execute", value: "{sh,-c,/usr/bin/php7 /app/rutorrent/php/initplugins.php abc &}" }
-  # IP address that is reported to the tracker
-  - { option: "network.local_address.set", value: "{{ ip_address_public }}" }
-  # Ports
-  - { option: "network.port_range.set", value: "{{ rutorrent_docker_ports_51413 }}-{{ rutorrent_docker_ports_51413 }}" }
-  - { option: "dht.port.set", value: "{{ rutorrent_docker_ports_6881 }}" }
-  # Enable / Disable Public Trackers
-  - { option: "dht.mode.set", value: "{{ rutorrent_config_public_trackers | ternary('on', 'disable') }}" }
-  - { option: "trackers.use_udp.set", value: "{{ rutorrent_config_public_trackers | ternary('yes', 'no') }}" }
-  - { option: "protocol.pex.set", value: "{{ rutorrent_config_public_trackers | ternary('yes', 'no') }}" }
-rutorrent_config_existing_installs_rutorrent_rc_settings_custom: []
-rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_default
-                                                                   + rutorrent_config_existing_installs_rutorrent_rc_settings_custom }}"
+rutorrent_config_memory_limit: "256M"
+rutorrent_config_upload_max_size: "16M"
+rutorrent_config_opcache_mem_size: "128"
+rutorrent_config_max_file_uploads: "50"
+rutorrent_config_real_ip_from: "172.19.0.0/16"
+rutorrent_config_xmlrpc_size_limit: "1M"
+rutorrent_config_webdav_port: "9000"
+rutorrent_config_ru_remove_core_plugins: "erasedata,httprpc"
+rutorrent_config_ru_save_uploaded_torrents: "true"
+rutorrent_config_ru_overwrite_uploaded_torrents: "false"
 
 ################################
 # THEME
@@ -160,13 +102,17 @@ rutorrent_docker_container: "{{ rutorrent_name }}"
 # Image
 rutorrent_docker_image_pull: true
 rutorrent_docker_image_tag: "latest"
-rutorrent_docker_image: "horjulf/rutorrent-autodl:{{ rutorrent_docker_image_tag }}"
+rutorrent_docker_image: "crazymax/rtorrent-rutorrent:{{ rutorrent_docker_image_tag }}"
 
 # Ports
 rutorrent_docker_ports_51413: "{{ port_lookup_51413.port
                                if (port_lookup_51413.port is defined)
                                   and (port_lookup_51413.port | trim | length > 0)
                                else '51413' }}"
+rutorrent_docker_ports_9000: "{{ port_lookup_9000.port
+                              if (port_lookup_9000.port is defined)
+                                  and (port_lookup_9000.port | trim | length > 0)
+                              else '9000' }}"
 rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
                               if (port_lookup_6881.port is defined)
                                   and (port_lookup_6881.port | trim | length > 0)
@@ -175,10 +121,17 @@ rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
 rutorrent_docker_ports_defaults:
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}"
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}/udp"
+  - "{{ rutorrent_docker_ports_9000 }}:{{ rutorrent_config_webdav_port }}"
   - "{{ rutorrent_docker_ports_6881 }}:{{ rutorrent_docker_ports_6881 }}/udp"
+rutorrent_docker_ports_ui:
+  - "{{ rutorrent_web_port }}:{{ rutorrent_web_port }}"
 rutorrent_docker_ports_custom: []
 
 rutorrent_docker_ports: "{{ rutorrent_docker_ports_defaults
+                            + rutorrent_docker_ports_ui
+                            + rutorrent_docker_ports_custom
+                         if (not reverse_proxy_is_enabled)
+                         else rutorrent_docker_ports_defaults
                             + rutorrent_docker_ports_custom }}"
 
 # Envs
@@ -186,6 +139,18 @@ rutorrent_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
+  WAN_IP: "{{ ip_address_public }}"
+  MEMORY_LIMIT: "{{ rutorrent_config_memory_limit }}"
+  UPLOAD_MAX_SIZE: "{{ rutorrent_config_upload_max_size }}"
+  OPCACHE_MEM_SIZE: "{{ rutorrent_config_opcache_mem_size }}"
+  MAX_FILE_UPLOADS: "{{ rutorrent_config_max_file_uploads }}"
+  REAL_IP_FROM: "{{ rutorrent_config_real_ip_from }}"
+  WEBDAV_PORT: "{{ rutorrent_config_webdav_port }}"
+  RT_DHT_PORT: "{{ rutorrent_docker_ports_6881 }}"
+  RT_INC_PORT: "{{ rutorrent_docker_ports_51413 }}"
+  RU_REMOVE_CORE_PLUGINS: "{{ rutorrent_config_ru_remove_core_plugins }}"
+  RU_SAVE_UPLOADED_TORRENTS: "{{ rutorrent_config_ru_save_uploaded_torrents }}"
+  RU_OVERWRITE_UPLOADED_TORRENTS: "{{ rutorrent_config_ru_overwrite_uploaded_torrents }}"
   TP_DOMAIN: "{{ rutorrent_themepark_domain }}"
   TP_THEME: "{{ rutorrent_themepark_theme }}"
 rutorrent_docker_envs_custom: {}
@@ -200,8 +165,10 @@ rutorrent_docker_commands: "{{ rutorrent_docker_commands_default
 
 # Volumes
 rutorrent_docker_volumes_default:
-  - "{{ rutorrent_paths_location }}:/config"
+  - "{{ rutorrent_paths_location }}/data:/data"
+  - "{{ rutorrent_paths_location }}/passwd:/passwd"
   - "{{ server_appdata_path }}/scripts:/scripts"
+  - "{{ rutorrent_paths_location }}/overrides/.rtlocal.rc:/tpls/etc/rtorrent/.rtlocal.rc"
 rutorrent_docker_volumes_custom: []
 rutorrent_docker_volumes_theme:
   - "{{ rutorrent_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
@@ -226,8 +193,7 @@ rutorrent_docker_hosts: "{{ docker_hosts_common
                             | combine(rutorrent_docker_hosts_custom) }}"
 
 # Labels
-rutorrent_docker_labels_default:
-  traefik.http.middlewares.rutorrent-auth.basicauth.usersfile: "/etc/traefik/auth"
+rutorrent_docker_labels_default: {}
 rutorrent_docker_labels_custom: {}
 rutorrent_docker_labels: "{{ docker_labels_common
                              | combine(rutorrent_docker_labels_default)

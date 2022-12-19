@@ -1,0 +1,29 @@
+#########################################################################
+# Title:         Saltbox: ruTorrent | Port Tasks                        #
+# Author(s):     desimaniac, l3uddz, salty                              #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Port Tasks | Get next available port within the range of '51413-51423'
+  find_next_open_port:
+    low_bound: 51413
+    high_bound: 51423
+  register: port_lookup_51413
+  ignore_errors: true
+
+- name: Port Tasks | Get next available port within the range of '9000-9010'
+  find_next_open_port:
+    low_bound: 9000
+    high_bound: 9010
+  register: port_lookup_9000
+  ignore_errors: true
+
+- name: Port Tasks | Get next available port within the range of '6881-6891'
+  find_next_open_port:
+    low_bound: 6881
+    high_bound: 6891
+  register: port_lookup_6881
+  ignore_errors: true

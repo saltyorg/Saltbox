@@ -1,11 +1,17 @@
 #########################################################################
-# Title:         Saltbox: ruTorrent | Post-Install | Settings           #
-# Author(s):     desimaniac                                             #
+# Title:         Saltbox: ruTorrent | File Tasks                        #
+# Author(s):     desimaniac, l3uddz, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Post-Install | Settings | Update settings For New Installs
-  ansible.builtin.import_tasks: "new_installs.yml"
+- name: File Tasks | Import custom '.rtlocal.rc'
+  ansible.builtin.copy:
+    src: ".rtlocal.rc"
+    force: false
+    dest: "{{ rutorrent_paths_location }}/overrides/.rtlocal.rc"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
