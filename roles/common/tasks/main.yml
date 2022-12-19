@@ -158,7 +158,8 @@
       - passlib
       - PyMySQL
       - tld
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
   ignore_errors: true
 
 - name: "Check to see if yyq is installed"

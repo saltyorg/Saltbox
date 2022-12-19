@@ -30,7 +30,8 @@
   ansible.builtin.pip:
     state: present
     name: docker
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
   ignore_errors: true
 
 - name: Tasks for when Docker exists and is running

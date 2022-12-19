@@ -22,7 +22,8 @@
 - name: Install argon2_cffi python package
   ansible.builtin.pip:
     name: argon2_cffi
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
