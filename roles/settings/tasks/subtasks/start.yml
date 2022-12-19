@@ -10,7 +10,8 @@
 - name: "Start | Install ruamel.yaml"
   ansible.builtin.pip:
     name: ruamel.yaml
-    executable: pip3
+    virtualenv_python: "{{ saltbox_python }}"
+    virtualenv: "{{ saltbox_venv_path }}"
 
 - name: "Start | Check to see if yyq is installed"
   ansible.builtin.stat:
