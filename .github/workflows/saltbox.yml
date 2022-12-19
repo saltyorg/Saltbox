@@ -74,6 +74,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create /srv/ansible
+        run: sudo mkdir /srv/ansible
+
       - name: Install Dependencies
         uses: nick-fields/retry@v2
         with:
@@ -84,9 +87,6 @@ jobs:
         
       - name: Create /srv/git
         run: sudo mkdir /srv/git
-
-      - name: Create /srv/ansible
-        run: sudo mkdir /srv/ansible
 
       - name: Symlink cloned repository to /srv/git/saltbox
         run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
