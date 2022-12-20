@@ -38,13 +38,18 @@
         loop_var: inner_item
       when: (_service_file is not regex('.*\.timer'))
 
-    # if applicable
-    - name: "Services | Update 'rc-addr' in existing '{{ _service_file }}'"
+    - name: "Services | Replace 'rc-addr' with 'url' in existing '{{ _service_file }}'"
       ansible.builtin.replace:
         path: "/etc/systemd/system/{{ _service_file }}"
-        regexp: "rc-addr=localhost:[0-9]*"
-        replace: 'rc-addr=localhost:5572'
+        regexp: "rc-addr localhost:[0-9]*"
+        replace: 'url http://localhost:5572'
       when: (_service_file is not regex('.*\.timer'))
+
+    - name: "Services | Replace 'rc-addr' with 'url' in existing 'rclone_refresh.service'"
+      ansible.builtin.replace:
+        path: "/etc/systemd/system/rclone_refresh.service"
+        regexp: "rc-addr localhost:[0-9]*"
+        replace: 'url http://localhost:5572'
 
     - name: "Services | Systemd daemon-reload"
       ansible.builtin.systemd:
