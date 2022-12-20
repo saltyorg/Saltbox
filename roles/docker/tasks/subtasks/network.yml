@@ -126,7 +126,8 @@
       - "/lib/modules:/lib/modules:ro"
     hostname: "ipv6nat"
     networks_cli_compatible: true
-    purge_networks: true
+    comparisons:
+      networks: strict
     network_mode: "host"
     container_default_behavior: compatibility
     tls_hostname: localhost
