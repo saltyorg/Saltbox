@@ -7,7 +7,7 @@
 #                            GNU General Public License v3.0                           #
 ########################################################################################
 ---
-- name: "Migrator | 'ansible.cfg' | Add default entries to 'ansible.cfg'"
+- name: "Migrator | 'ansible.cfg' | Add default entries to 'ansible.cfg'" # noqa args[module]
   community.general.ini_file:
     path: "{{ playbook_dir }}/{{ file }}"
     section: "{{ item.section }}"
@@ -22,7 +22,7 @@
   loop:
     - { section: 'defaults', option: 'inventory', value: './inventories/local' }
     - { section: 'defaults', option: 'roles_path', value: 'roles:resources/roles' }
-    - { section: 'defaults', option: 'fact_path', value: './ansible_facts.d' }
+    - { section: 'defaults', option: 'fact_path', state: 'absent' }
     - { section: 'defaults', option: 'log_path', value: './saltbox.log' }
     - { section: 'defaults', option: 'callbacks_enabled', value: 'profile_tasks' }
     - { section: 'defaults', option: 'interpreter_python', value: '/srv/ansible/venv/bin/python3' }

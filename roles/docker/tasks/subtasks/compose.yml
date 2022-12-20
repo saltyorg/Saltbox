@@ -20,14 +20,11 @@
   ansible.builtin.shell: "{{ compose_release_lookup_command }}"
   args:
     executable: /bin/bash
-    warn: false
   register: compose_download_url
   ignore_errors: true
 
 - name: Download Compose
   ansible.builtin.shell: curl -SL {{ compose_download_url.stdout | default(compose_download_backup_url, true) }} -o /usr/local/lib/docker/cli-plugins/docker-compose
-  args:
-    warn: false
 
 - name: Make docker-compose executable
   ansible.builtin.file:
@@ -41,14 +38,11 @@
       ansible.builtin.shell: "{{ compose_switch_release_lookup_command }}"
       args:
         executable: /bin/bash
-        warn: false
       register: compose_switch_download_url
       ignore_errors: true
 
     - name: Download Compose Switch
       ansible.builtin.shell: curl -SL {{ compose_switch_download_url.stdout | default(compose_switch_download_backup_url, true) }} -o /usr/local/bin/compose-switch
-      args:
-        warn: false
 
     - name: Make docker-compose executable
       ansible.builtin.file:

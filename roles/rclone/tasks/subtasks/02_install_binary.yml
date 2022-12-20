@@ -26,10 +26,9 @@
     - "/home/{{ user.name }}/.config"
     - "/home/{{ user.name }}/.config/rclone"
 
-- name: Install Binary | Cleanup rclone tmp path
+- name: Install Binary | Cleanup rclone tmp path # noqa deprecated-command-syntax
   ansible.builtin.shell: rm -rf /tmp/rclone-*-linux-amd64
-  args:
-    warn: false
+  ignore_errors: true
 
 - name: Install Binary | Display rclone version being installed
   ansible.builtin.debug:

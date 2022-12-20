@@ -28,7 +28,7 @@
 - name: Post-Install | Settings Task
   ansible.builtin.import_tasks: "settings/main.yml"
 
-- name: Post-Install | Start container
+- name: Post-Install | Start container # noqa args[module]
   community.docker.docker_container:
     name: "{{ nzbget_docker_container }}"
     state: "{{ nzbget_docker_state }}"

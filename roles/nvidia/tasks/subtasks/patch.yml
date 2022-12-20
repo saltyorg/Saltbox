@@ -25,7 +25,6 @@
   ansible.builtin.shell: "{{ nvidia_patch_download_dest }}"
   args:
     executable: /bin/bash
-    warn: false
   register: patch_install
   ignore_errors: true
 

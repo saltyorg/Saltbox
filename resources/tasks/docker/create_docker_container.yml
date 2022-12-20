@@ -13,7 +13,7 @@
                   if (var_prefix is defined)
                   else role_name }}"
 
-- name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container
+- name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container # noqa args[module]
   community.docker.docker_container:
     auto_remove: "{{ lookup('vars', _var_prefix + '_docker_auto_remove', default=omit) }}"
     blkio_weight: "{{ lookup('vars', _var_prefix + '_docker_blkio_weight', default=omit) }}"
@@ -50,7 +50,7 @@
     groups: "{{ lookup('vars', _var_prefix + '_docker_groups', default=omit) }}"
     healthcheck: "{{ lookup('vars', _var_prefix + '_docker_healthcheck', default=omit) }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit)
-               if lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == docker_networks_name_common
+               if (lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == docker_networks_name_common)
                else omit }}"
     image: "{{ lookup('vars', _var_prefix + '_docker_image') }}"
     init: "{{ lookup('vars', _var_prefix + '_docker_init', default=omit) }}"

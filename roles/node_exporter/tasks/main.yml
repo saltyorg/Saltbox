@@ -11,7 +11,6 @@
   ansible.builtin.shell: "{{ node_exporter_latest_release_lookup_command }}"
   args:
     executable: /bin/bash
-    warn: false
   register: node_exporter_latest_download_url
   ignore_errors: true
 

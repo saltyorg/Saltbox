@@ -19,6 +19,7 @@ skip_list:
   - no-handler
   - command-instead-of-module
   - command-instead-of-shell
+  - deprecated-command-syntax
   - yaml[line-length]
   - yaml[truthy]
   - schema[tasks]

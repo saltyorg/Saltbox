@@ -22,8 +22,6 @@
 
 - name: "CPU Frequency | Install 'linux-tools-{{ ansible_kernel }}'"
   ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
-  args:
-    warn: false
   ignore_errors: true
 
 - name: CPU Frequency | Ensure 'cpufrequtils' is enabled
@@ -58,8 +56,6 @@
 
 - name: CPU Frequency | Set 'GOVERNOR' used currently to performance
   ansible.builtin.shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
-  args:
-    warn: false
   ignore_errors: true
 
 - name: Populate Service Facts

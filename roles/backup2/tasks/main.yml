@@ -101,7 +101,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-        decrypt: false
         force: true
       with_items:
         - "{{ playbook_dir }}/ansible.cfg"
@@ -160,7 +159,6 @@
           /etc/systemd/system/* /opt/systemd-backup/
       args:
         executable: /bin/bash
-        warn: false
       ignore_errors: true
 
     - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
@@ -226,7 +224,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-        decrypt: false
         force: true
       with_items:
         - "{{ backup2_user_defined_files }}"
@@ -565,5 +562,3 @@
 
     - name: "Reset logs folder ownership."
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
-      args:
-        warn: false

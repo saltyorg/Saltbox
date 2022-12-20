@@ -35,7 +35,7 @@
     mode: "0775"
   loop: "{{ sabnzbd_config_settings_web }}"
 
-- name: Post-Install | Web | Start container
+- name: Post-Install | Web | Start container # noqa args[module]
   community.docker.docker_container:
     name: "{{ sabnzbd_docker_container }}"
     container_default_behavior: compatibility

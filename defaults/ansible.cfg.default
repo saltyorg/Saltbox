@@ -1,7 +1,6 @@
 [defaults]
 inventory = ./inventories/local
 roles_path = roles:resources/roles
-fact_path = ./ansible_facts.d
 log_path = ./saltbox.log
 callbacks_enabled = profile_tasks
 interpreter_python = /srv/ansible/venv/bin/python3

@@ -1,5 +1,8 @@
 ---
 - hosts: localhost
+  module_defaults:
+    ansible.builtin.setup:
+      fact_path: "/srv/git/saltbox/ansible_facts.d"
   vars_files:
     - ['accounts.yml', 'defaults/accounts.yml.default']
     - ['settings.yml', 'defaults/settings.yml.default']
