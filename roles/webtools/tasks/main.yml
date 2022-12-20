@@ -34,8 +34,6 @@
 
     - name: Check latest available version for WebTools
       ansible.builtin.shell: curl -s {{ plex_plugin_webtools_release_url }} | jq -r .tag_name
-      args:
-        warn: false
       register: plex_plugin_webtools_latest_version
       ignore_errors: true
       changed_when: false
@@ -84,8 +82,6 @@
       ansible.builtin.shell: |
         curl -s {{ plex_plugin_webtools_release_url }} \
           | jq -r ".assets[] | select(.name | test(\"WebTools.bundle.zip\")) | .browser_download_url"
-      args:
-        warn: false
       register: plex_plugin_webtools_download_url
       ignore_errors: true
       changed_when: false
@@ -151,7 +147,7 @@
       when: (plex_plugin_webtools_download_status is failed) or
             ((plex_plugin_webtools_download_status is success) and (not plex_plugin_webtools_version_status.stat.exists))
 
-    - name: Start {{ plex_name | title }} container
+    - name: Start {{ plex_name | title }} container # noqa args[module]
       community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: "{{ plex_docker_state }}"

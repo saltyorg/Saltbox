@@ -43,8 +43,6 @@
     -H "X-Auth-Key: {{ cloudflare.api }}" \
     -H "Content-Type: application/json" \
     | jq -r '.result[] | select(.targets[].constraint.value | contains("{{ fld.stdout }}/.well-known")) | .id'
-  args:
-    warn: false
   register: cf_page_rules
 
 - name: Variables | Set 'cloudflare_page_rules' Variable

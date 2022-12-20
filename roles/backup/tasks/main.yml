@@ -151,7 +151,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-        decrypt: false
         force: true
       with_items:
         - "{{ playbook_dir }}/ansible.cfg"
@@ -210,7 +209,6 @@
           /etc/systemd/system/* /opt/systemd-backup/
       args:
         executable: /bin/bash
-        warn: false
       ignore_errors: true
 
     - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
@@ -276,7 +274,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-        decrypt: false
         force: true
       with_items:
         - "{{ backup_user_defined_files }}"
@@ -386,7 +383,6 @@
           > /dev/null
       args:
         executable: /bin/bash
-        warn: false
       with_items: "{{ opt_folders }}"
       loop_control:
         label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
@@ -483,8 +479,7 @@
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
-      args:
-        warn: false
+      ignore_errors: true
 
     # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
     - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
@@ -493,7 +488,6 @@
       become_user: "{{ user.name }}"
       args:
         executable: /bin/bash
-        warn: false
 
     # Due to a touch command in a previous backup, all files on rclone.destination have same mod dates, therefore, only one file's mod date is needed.
     - name: "Get datestamp for previous '{{ backup.rclone.destination }}/settings.yml'"
@@ -643,8 +637,7 @@
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
-      args:
-        warn: false
+      ignore_errors: true
 
     - name: Start Docker Containers
       block:
@@ -684,5 +677,4 @@
 
     - name: "Reset logs folder ownership."
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
-      args:
-        warn: false
+      ignore_errors: true

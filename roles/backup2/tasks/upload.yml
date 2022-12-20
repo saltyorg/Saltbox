@@ -16,7 +16,6 @@
       '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'
   args:
     executable: /bin/bash
-    warn: false
   become: true
   become_user: "{{ user.name }}"
   async: 14400
@@ -29,6 +28,7 @@
 - name: Check sync status
   ansible.builtin.async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
+    _async_dir: "/tmp/.ansible_async/"
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: "async_result_item"
@@ -42,6 +42,7 @@
   ansible.builtin.async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
     mode: cleanup
+    _async_dir: "/tmp/.ansible_async/"
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: "async_result_item"

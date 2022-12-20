@@ -22,7 +22,7 @@
         enabled: false
       ignore_errors: true
 
-    - name: "Services | Update credentials in existing '{{ _service_file }}'"
+    - name: "Services | Update credentials in existing '{{ _service_file }}'" # noqa args[module]
       community.general.ini_file:
         path: "/etc/systemd/system/{{ _service_file }}"
         section: Service

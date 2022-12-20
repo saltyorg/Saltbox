@@ -15,7 +15,7 @@
     name:
       - logrotate
 
-- name: Logrotate | Configure '/etc/logrotate.conf'
+- name: Logrotate | Configure '/etc/logrotate.conf' # noqa args[module]
   ansible.builtin.lineinfile:
     path: "/etc/logrotate.conf"
     line: "{{ item.line }}"

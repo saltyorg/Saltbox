@@ -12,7 +12,7 @@
     name: "{{ vars[item ~ '_dpkg'] }}"
     selection: install
 
-- name: Binary | Install '{{ lookup('vars', item + '_package') }}'
+- name: Binary | Install '{{ lookup('vars', item + '_package') }}' # noqa args[module]
   ansible.builtin.apt:
     name: "{{ lookup('vars', item + '_package') }}"
     state: "{{ docker_package_state }}"

@@ -137,8 +137,6 @@
 
 - name: "Backup existing folders in '/opt' to prevent overwriting them"
   ansible.builtin.shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
-  args:
-    warn: false
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
@@ -146,8 +144,6 @@
 
 - name: "Unarchive backup tarballs into '/opt'"
   ansible.builtin.shell: tar -xf '{{ item }}' -C '/opt/'
-  args:
-    warn: false
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:

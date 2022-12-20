@@ -16,7 +16,7 @@
     name: "Backup Saltbox"
     state: absent
 
-- name: "Schedule cron backup."
+- name: "Schedule cron backup." # noqa args[module]
   ansible.builtin.cron:
     name: "Saltbox Backup"
     special_time: "{{ backup.cron.cron_time }}"
