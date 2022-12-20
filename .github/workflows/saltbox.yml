@@ -83,7 +83,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           shell: bash
-          command: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && ansible --version
+          command: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && /srv/ansible/venv/bin/ansible --version
         
       - name: Create /srv/git
         run: sudo mkdir /srv/git
@@ -104,7 +104,7 @@ jobs:
         run: tree -a
 
       - name: Syntax Check
-        run: sudo ansible-playbook saltbox.yml --syntax-check
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
 
       - name: Install Saltbox Core
         uses: nick-fields/retry@v2
@@ -112,7 +112,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           shell: bash
-          command: sudo ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+          command: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox') || contains(matrix.roles, 'core')) }}
 
       - name: Install ${{ matrix.roles }}
@@ -121,7 +121,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           shell: bash
-          command: sudo ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+          command: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
 
   webhook:
     name: 'webhook'
