@@ -31,7 +31,7 @@
 - name: Post-Install | Settings Task
   ansible.builtin.import_tasks: "settings/main.yml"
 
-- name: Post-Install | Start container
+- name: Post-Install | Start container # noqa args[module]
   community.docker.docker_container:
     name: "{{ rutorrent_docker_container }}"
     container_default_behavior: compatibility

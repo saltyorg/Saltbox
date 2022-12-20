@@ -37,8 +37,6 @@
 
     - name: Check latest available version for Sub-Zero
       ansible.builtin.shell: curl -s {{ plex_plugin_subzero_release_url }} | jq -r .tag_name
-      args:
-        warn: false
       register: plex_plugin_subzero_latest_version
       ignore_errors: true
       changed_when: false
@@ -87,8 +85,6 @@
       ansible.builtin.shell: |
         curl -s {{ plex_plugin_subzero_release_url }} \
           | jq -r ".assets[] | select(.name | test(\"Sub-Zero.bundle\")) | .browser_download_url"
-      args:
-        warn: false
       register: plex_plugin_subzero_download_url
       ignore_errors: true
       changed_when: false
@@ -156,7 +152,7 @@
       when: (plex_plugin_subzero_download_status is failed) or
             ((plex_plugin_subzero_download_status is success) and (not plex_plugin_subzero_info_plist_status.stat.exists))
 
-    - name: "Start {{ plex_name | title }} container"
+    - name: "Start {{ plex_name | title }} container" # noqa args[module]
       community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: "{{ plex_docker_state }}"

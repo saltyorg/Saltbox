@@ -45,7 +45,6 @@
   ansible.builtin.shell: "{{ rclone_latest_release_lookup_command }}"
   args:
     executable: /bin/bash
-    warn: false
   register: rclone_latest_download_url
   ignore_errors: true
   when: (not rclone_version_is_specified) or (rclone.version == 'latest') or (rclone.version == 'current')

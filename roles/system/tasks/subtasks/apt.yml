@@ -22,8 +22,6 @@
 
 - name: APT | Fix any potential apt issues
   ansible.builtin.shell: apt-get install --fix-broken --quiet --yes
-  args:
-    warn: false
   environment: "{{ env_vars }}"
   ignore_errors: true
 
@@ -44,8 +42,6 @@
 - name: APT | APT full-upgrade
   ansible.builtin.shell: apt-get full-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
   environment: "{{ env_vars }}"
-  args:
-    warn: false
   when: (not continuous_integration)
   ignore_errors: true
 
