@@ -8,19 +8,6 @@
 #########################################################################
 ---
 ################################
-# Ansible Version
-################################
-
-sanity_check_ansible_version_min: 6.6.0
-ansible_update: false
-
-################################
-# Python Version
-################################
-
-sanity_check_python_version_min: 3.8
-
-################################
 # Ansible Tags
 ################################
 # Source: http://blog.leifmadsen.com/blog/2017/01/04/finding-available-ansible-tags-in-playbooks-and-roles/
