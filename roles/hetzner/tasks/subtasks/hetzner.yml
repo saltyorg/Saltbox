@@ -30,16 +30,12 @@
         regexp: '(^blacklist\si915.*)'
         replace: '#\1'
 
-    - name: Hetzner | Hetzner GRUB files
-      ansible.builtin.set_fact:
-        hetzner_grub_files:
-          - "/etc/default/grub.d/hetzner.cfg"
-          - "/etc/default/grub"
-
     - name: Hetzner | Check status of GRUB files
       ansible.builtin.stat:
         path: "{{ item }}"
-      loop: "{{ hetzner_grub_files }}"
+      loop:
+        - "/etc/default/grub.d/hetzner.cfg"
+        - "/etc/default/grub"
       register: hetzner_grub_files_status
 
     - name: Hetzner | Hetzner GRUB edits
