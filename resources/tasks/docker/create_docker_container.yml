@@ -24,7 +24,7 @@
     command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
     command_handling: compatibility
     comparisons:
-      networks: strict
+      '*': ignore
     container_default_behavior: compatibility
     cpu_period: "{{ lookup('vars', _var_prefix + '_docker_cpu_period', default=omit) }}"
     cpu_quota: "{{ lookup('vars', _var_prefix + '_docker_cpu_quota', default=omit) }}"

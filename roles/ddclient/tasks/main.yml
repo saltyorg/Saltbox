@@ -13,6 +13,7 @@
     name: ddclient
     state: absent
     container_default_behavior: compatibility
+    tls_hostname: localhost
 
 - name: Create ddclient directories
   ansible.builtin.file:
@@ -71,6 +72,9 @@
           - ddclient
     networks_cli_compatible: true
     network_mode: "{{ docker_networks_name_common }}"
-    purge_networks: true
+    container_default_behavior: compatibility
+    tls_hostname: localhost
     restart_policy: unless-stopped
     state: started
+    comparisons:
+      '*': ignore

@@ -19,6 +19,8 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: stopped
+    comparisons:
+      '*': ignore
 
 - name: Post-Install | Settings | Update settings
   ansible.builtin.shell: |
@@ -33,3 +35,5 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: "{{ nzbhydra2_docker_state }}"
+    comparisons:
+      '*': ignore

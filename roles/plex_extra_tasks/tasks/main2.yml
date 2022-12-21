@@ -27,8 +27,11 @@
   community.docker.docker_container:
     name: "{{ plex_docker_container }}"
     state: stopped
+    command_handling: compatibility
     container_default_behavior: compatibility
     tls_hostname: localhost
+    comparisons:
+      '*': ignore
   when: plex_is_running_outer_state
 
   tags:
@@ -53,8 +56,11 @@
   community.docker.docker_container:
     name: "{{ plex_docker_container }}"
     state: started
+    command_handling: compatibility
     container_default_behavior: compatibility
     tls_hostname: localhost
+    comparisons:
+      '*': ignore
   when: plex_is_running_outer_state
   tags:
     - plex-db-cache-size

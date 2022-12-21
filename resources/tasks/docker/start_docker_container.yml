@@ -19,3 +19,5 @@
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: started
     tls_hostname: localhost
+    comparisons:
+      '*': ignore

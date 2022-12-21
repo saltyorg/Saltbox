@@ -16,6 +16,8 @@
     timeout: "180"
     stop_timeout: "180"
     tls_hostname: localhost
+    comparisons:
+      '*': ignore
   when: (plex_name in docker_running_containers)
 
 - name: Create ASS and HAMA directories
@@ -88,4 +90,6 @@
     state: started
     container_default_behavior: compatibility
     tls_hostname: localhost
+    comparisons:
+      '*': ignore
   when: (plex_name in docker_running_containers)
