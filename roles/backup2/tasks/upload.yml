@@ -25,10 +25,9 @@
     loop_var: "async_item"
   register: async_results
 
-- name: Check sync status
+- name: Check sync status # noqa args[module]
   ansible.builtin.async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
-    _async_dir: "/tmp/.ansible_async/"
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: "async_result_item"
@@ -38,11 +37,10 @@
   until: async_poll_results.finished
   retries: 999
 
-- name: Cleanup sync cache
+- name: Cleanup sync cache # noqa args[module]
   ansible.builtin.async_status:
     jid: "{{ async_result_item.ansible_job_id }}"
     mode: cleanup
-    _async_dir: "/tmp/.ansible_async/"
   loop: "{{ async_results.results }}"
   loop_control:
     loop_var: "async_result_item"
