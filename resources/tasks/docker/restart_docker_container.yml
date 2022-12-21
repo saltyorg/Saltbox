@@ -22,6 +22,8 @@
     state: stopped
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
+    comparisons:
+      '*': ignore
 
 - name: Resources | Tasks | Docker | Restart Docker Container | Start Docker Container
   community.docker.docker_container:
@@ -29,3 +31,5 @@
     name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
     state: started
     tls_hostname: localhost
+    comparisons:
+      '*': ignore

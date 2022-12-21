@@ -17,6 +17,9 @@
     name: "{{ emby_docker_container }}"
     state: stopped
     container_default_behavior: compatibility
+    tls_hostname: localhost
+    comparisons:
+      '*': ignore
 
 - name: Settings | Update config file
   community.general.xml:
@@ -32,3 +35,6 @@
     name: "{{ emby_docker_container }}"
     state: "{{ emby_docker_state }}"
     container_default_behavior: compatibility
+    tls_hostname: localhost
+    comparisons:
+      '*': ignore

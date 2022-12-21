@@ -68,6 +68,8 @@
             container_default_behavior: compatibility
             tls_hostname: localhost
             state: "stopped"
+            comparisons:
+              '*': ignore
 
           when: (plex_docker_container in docker_running_containers_list)
 
@@ -151,6 +153,10 @@
       community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: "{{ plex_docker_state }}"
+        container_default_behavior: compatibility
+        tls_hostname: localhost
+        comparisons:
+          '*': ignore
       when:
         - ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)

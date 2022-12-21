@@ -18,6 +18,8 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: stopped
+    comparisons:
+      '*': ignore
 
 - name: Post-Install | Web | Wait for 10 seconds
   ansible.builtin.wait_for:
@@ -41,3 +43,5 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: "{{ sabnzbd_docker_state }}"
+    comparisons:
+      '*': ignore

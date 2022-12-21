@@ -31,9 +31,12 @@
       - "/opt/error_pages:/out:rw"
     networks:
       - name: saltbox
-    purge_networks: yes
+    container_default_behavior: compatibility
+    tls_hostname: localhost
     auto_remove: yes
     state: started
+    comparisons:
+      '*': ignore
   when: (not error_pages_folder.stat.exists)
 
 - name: Remove existing Docker container

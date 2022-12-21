@@ -27,6 +27,8 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: stopped
+    comparisons:
+      '*': ignore
 
 - name: Post-Install | Settings Task
   ansible.builtin.import_tasks: "settings/main.yml"
@@ -37,3 +39,5 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     state: "{{ rutorrent_docker_state }}"
+    comparisons:
+      '*': ignore
