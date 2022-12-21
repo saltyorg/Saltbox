@@ -67,6 +67,8 @@
     purge_networks: yes
     cleanup: yes
     state: started
+    container_default_behavior: compatibility
+    tls_hostname: localhost
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 

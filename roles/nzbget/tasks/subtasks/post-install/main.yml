@@ -21,6 +21,9 @@
     name: "{{ nzbget_docker_container }}"
     state: stopped
     container_default_behavior: compatibility
+    tls_hostname: localhost
+    comparisons:
+      '*': ignore
 
 - name: Post-Install | Scripts Task
   ansible.builtin.import_tasks: "scripts/main.yml"
@@ -33,3 +36,6 @@
     name: "{{ nzbget_docker_container }}"
     state: "{{ nzbget_docker_state }}"
     container_default_behavior: compatibility
+    tls_hostname: localhost
+    comparisons:
+      '*': ignore

@@ -15,7 +15,7 @@
 
 - name: Settings | DB Cache Size | Get Current Plex DB Cache Size
   ansible.builtin.shell: |
-    '/opt/plexsql/Plex SQLite' "{{ plex_paths_db_location }}" \
+    sqlite3 "{{ plex_paths_db_location }}" \
       "PRAGMA default_cache_size;"
   args:
     executable: /bin/bash
@@ -28,7 +28,7 @@
 
 - name: Settings | DB Cache Size | Check if 'plex_db_cache_size' was specified
   ansible.builtin.set_fact:
-    db_cache_size_is_specified: "{{ not ((plex_db_cache_size is undefined)
+    db_cache_size_is_specified: "{{ ((plex_db_cache_size is undefined)
                                     or
                                     (plex_db_cache_size is none)
                                     or
@@ -47,6 +47,10 @@
       community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: stopped
+        container_default_behavior: compatibility
+        tls_hostname: localhost
+        comparisons:
+          '*': ignore
       when: ('plex_db_cache_size' in ansible_run_tags)
 
     - name: Settings | DB Cache Size | Display Desired Plex DB Cache Size
@@ -55,7 +59,7 @@
 
     - name: "Settings | DB Cache Size | Set Plex DB Cache Size"
       ansible.builtin.shell: |
-        '/opt/plexsql/Plex SQLite' "{{ plex_paths_db_location }}" \
+        sqlite3 "{{ plex_paths_db_location }}" \
           "PRAGMA default_cache_size = '{{ desired_db_cache_size | int }}';"
       args:
         executable: /bin/bash
@@ -64,11 +68,15 @@
 
     - name: Settings | DB Cache Size | Get New Plex DB Cache Size
       ansible.builtin.shell: |
-        '/opt/plexsql/Plex SQLite' "{{ plex_paths_db_location }}" \
+        sqlite3 "{{ plex_paths_db_location }}" \
           "PRAGMA default_cache_size;"
       args:
         executable: /bin/bash
       register: new_db_cache_size
+
+    - name: debug
+      ansible.builtin.debug:
+        var: new_db_cache_size
 
     - name: Settings | DB Cache Size | Display New Plex DB Cache Size
       ansible.builtin.debug:
@@ -78,6 +86,10 @@
       community.docker.docker_container:
         name: "{{ plex_docker_container }}"
         state: started
+        container_default_behavior: compatibility
+        tls_hostname: localhost
+        comparisons:
+          '*': ignore
       when: ('plex_db_cache_size' in ansible_run_tags)
 
   when: (current_db_cache_size.stdout | int) != (desired_db_cache_size | regex_replace(',', '') | int)
