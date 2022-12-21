@@ -17,13 +17,9 @@
     timeout: 10
 
 - name: Post-Install | Stop container
-  community.docker.docker_container:
-    name: "{{ nzbget_docker_container }}"
-    state: stopped
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+  vars:
+    var_prefix: "{{ nzbget_docker_container }}"
 
 - name: Post-Install | Scripts Task
   ansible.builtin.import_tasks: "scripts/main.yml"
@@ -31,11 +27,7 @@
 - name: Post-Install | Settings Task
   ansible.builtin.import_tasks: "settings/main.yml"
 
-- name: Post-Install | Start container # noqa args[module]
-  community.docker.docker_container:
-    name: "{{ nzbget_docker_container }}"
-    state: "{{ nzbget_docker_state }}"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+- name: Post-Install | Start container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+  vars:
+    var_prefix: "{{ nzbget_docker_container }}"

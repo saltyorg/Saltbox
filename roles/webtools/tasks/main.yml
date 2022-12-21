@@ -63,13 +63,9 @@
             docker_running_containers_list: "{{ (docker_running_containers_list.stdout).split() }}"
 
         - name: Stop {{ plex_name | title }} container
-          community.docker.docker_container:
-            name: "{{ plex_docker_container }}"
-            container_default_behavior: compatibility
-            tls_hostname: localhost
-            state: "stopped"
-            comparisons:
-              '*': ignore
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+          vars:
+            _var_prefix: "plex"
 
           when: (plex_docker_container in docker_running_containers_list)
 
@@ -149,14 +145,10 @@
       when: (plex_plugin_webtools_download_status is failed) or
             ((plex_plugin_webtools_download_status is success) and (not plex_plugin_webtools_version_status.stat.exists))
 
-    - name: Start {{ plex_name | title }} container # noqa args[module]
-      community.docker.docker_container:
-        name: "{{ plex_docker_container }}"
-        state: "{{ plex_docker_state }}"
-        container_default_behavior: compatibility
-        tls_hostname: localhost
-        comparisons:
-          '*': ignore
+    - name: Start {{ plex_name | title }} container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+      vars:
+        _var_prefix: "plex"
       when:
         - ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)

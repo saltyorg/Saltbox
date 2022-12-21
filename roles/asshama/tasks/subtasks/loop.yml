@@ -9,18 +9,12 @@
 #########################################################################
 ---
 - name: "Stop {{ plex_name }} container"
-  community.docker.docker_container:
-    name: "{{ plex_name }}"
-    state: stopped
-    container_default_behavior: compatibility
-    timeout: "180"
-    stop_timeout: "180"
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+  vars:
+    var_prefix: plex
   when: (plex_name in docker_running_containers)
 
-- name: Create ASS and HAMA directories
+- name: "Create ASS and HAMA directories"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -46,7 +40,7 @@
     - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/text'
     - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/FanartTV'
 
-- name: Get latest Absolute Series Scanner.py
+- name: "Get latest Absolute Series Scanner.py"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
     dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py'
@@ -56,7 +50,7 @@
   retries: 5
   delay: 10
 
-- name: Set ASS directory permissions
+- name: "Set ASS directory permissions"
   ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
     state: directory
@@ -65,7 +59,7 @@
     group: "{{ user.name }}"
     recurse: true
 
-- name: Clone Hama Bundle
+- name: "Clone Hama Bundle"
   ansible.builtin.git:
     repo: https://github.com/ZeroQI/Hama.bundle.git
     dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
@@ -75,7 +69,7 @@
   become: true
   become_user: "{{ user.name }}"
 
-- name: Set HAMA directory permissions
+- name: "Set HAMA directory permissions"
   ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     state: directory
@@ -85,11 +79,7 @@
     recurse: true
 
 - name: "Start {{ plex_name }} container"
-  community.docker.docker_container:
-    name: "{{ plex_name }}"
-    state: started
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+  vars:
+    var_prefix: plex
   when: (plex_name in docker_running_containers)

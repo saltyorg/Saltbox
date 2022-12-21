@@ -13,13 +13,7 @@
     state: present
 
 - name: Settings | Stop Docker container
-  community.docker.docker_container:
-    name: "{{ emby_docker_container }}"
-    state: stopped
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
 
 - name: Settings | Update config file
   community.general.xml:
@@ -30,11 +24,5 @@
   become_user: "{{ user.name }}"
   loop: "{{ emby_config_settings_list }}"
 
-- name: Settings | Start Docker container # noqa args[module]
-  community.docker.docker_container:
-    name: "{{ emby_docker_container }}"
-    state: "{{ emby_docker_state }}"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+- name: Settings | Start Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

@@ -13,13 +13,7 @@
     state: present
 
 - name: Post-Install | Web | Stop container
-  community.docker.docker_container:
-    name: "{{ sabnzbd_docker_container }}"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    state: stopped
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
 
 - name: Post-Install | Web | Wait for 10 seconds
   ansible.builtin.wait_for:
@@ -37,11 +31,5 @@
     mode: "0775"
   loop: "{{ sabnzbd_config_settings_web }}"
 
-- name: Post-Install | Web | Start container # noqa args[module]
-  community.docker.docker_container:
-    name: "{{ sabnzbd_docker_container }}"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    state: "{{ sabnzbd_docker_state }}"
-    comparisons:
-      '*': ignore
+- name: Post-Install | Web | Start container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

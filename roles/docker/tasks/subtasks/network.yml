@@ -108,13 +108,9 @@
   when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'true') and (not docker_ipv6)
 
 - name: Network | Remove IPv6 NAT Container
-  community.docker.docker_container:
-    name: "ipv6nat"
-    state: absent
-    container_default_behavior: compatibility
-    timeout: 180
-    stop_timeout: 180
-    tls_hostname: localhost
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  vars:
+    var_prefix: "ipv6nat"
 
 - name: Network | Create IPv6 NAT Container
   community.docker.docker_container:

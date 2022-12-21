@@ -18,7 +18,7 @@
     container_default_behavior: compatibility
     force_kill: "{{ lookup('vars', _var_prefix + '_docker_force_kill', default=omit) }}"
     kill_signal: "{{ lookup('vars', _var_prefix + '_docker_kill_signal', default=omit) }}"
-    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    name: "{{ lookup('vars', _var_prefix + '_docker_container', default=_var_prefix) }}"
     state: stopped
     stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
@@ -28,7 +28,7 @@
 - name: Resources | Tasks | Docker | Restart Docker Container | Start Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    name: "{{ lookup('vars', _var_prefix + '_docker_container') }}"
+    name: "{{ lookup('vars', _var_prefix + '_docker_container', default=_var_prefix) }}"
     state: started
     tls_hostname: localhost
     comparisons:

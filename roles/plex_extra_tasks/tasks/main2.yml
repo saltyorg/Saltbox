@@ -21,14 +21,9 @@
     plex_is_running_outer_state: "{{ plex_docker_container in docker_running_containers_list }}"
 
 - name: Stop Docker Container
-  community.docker.docker_container:
-    name: "{{ plex_docker_container }}"
-    state: stopped
-    command_handling: compatibility
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+  vars:
+    var_prefix: "plex"
   when: plex_is_running_outer_state
 
 - name: "Install Sub-Zero Plugin"
@@ -42,12 +37,7 @@
   when: plex_plugin_webtools
 
 - name: Start Docker Container
-  community.docker.docker_container:
-    name: "{{ plex_docker_container }}"
-    state: started
-    command_handling: compatibility
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    comparisons:
-      '*': ignore
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+  vars:
+    var_prefix: "plex"
   when: plex_is_running_outer_state
