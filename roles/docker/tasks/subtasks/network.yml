@@ -127,7 +127,7 @@
     hostname: "ipv6nat"
     networks_cli_compatible: true
     comparisons:
-          '*': ignore
+      '*': ignore
     network_mode: "host"
     container_default_behavior: compatibility
     tls_hostname: localhost
