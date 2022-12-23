@@ -1,0 +1,122 @@
+##########################################################################
+# Title:         Saltbox: OpenLDAP | Default Variables                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+openldap_name: "openldap"
+
+################################
+# Paths
+################################
+
+openldap_paths_folder: "{{ openldap_name }}"
+openldap_paths_location: "{{ server_appdata_path }}/{{ openldap_paths_folder }}"
+openldap_paths_folders_list:
+  - "{{ openldap_paths_location }}"
+  - "{{ openldap_paths_location }}/db"
+  - "{{ openldap_paths_location }}/config"
+
+################################
+# Docker
+################################
+
+# Container
+openldap_docker_container: "{{ openldap_name }}"
+
+# Image
+openldap_docker_image_pull: true
+openldap_docker_image_repo: "osixia/openldap"
+openldap_docker_image_tag: "latest"
+openldap_docker_image: "{{ openldap_docker_image_repo
+                           + ':' + openldap_docker_image_tag }}"
+
+# Ports
+openldap_docker_ports_defaults: []
+openldap_docker_ports_custom: []
+openldap_docker_ports: "{{ openldap_docker_ports_defaults
+                           + openldap_docker_ports_custom }}"
+
+# Envs
+openldap_docker_envs_default:
+  TZ: "{{ tz }}"
+  LDAP_ORGANISATION: "Saltbox"
+  LDAP_DOMAIN: "{{ authelia_domain.stdout }}.{{ authelia_tld.stdout }}"
+  LDAP_ADMIN_PASSWORD: "{{ user.pass }}"
+  LDAP_CONFIG_PASSWORD: "{{ user.pass }}"
+  LDAP_TLS: "false"
+  LDAP_OPENLDAP_UID: "{{ uid }}"
+  LDAP_OPENLDAP_GID: "{{ gid }}"
+openldap_docker_envs_custom: {}
+openldap_docker_envs: "{{ openldap_docker_envs_default
+                          | combine(openldap_docker_envs_custom) }}"
+
+# Commands
+openldap_docker_commands_default: []
+openldap_docker_commands_custom: []
+openldap_docker_commands: "{{ openldap_docker_commands_default
+                              + openldap_docker_commands_custom }}"
+
+# Volumes
+openldap_docker_volumes_default:
+  - "{{ openldap_paths_location }}/db:/var/lib/ldap"
+  - "{{ openldap_paths_location }}/config:/etc/ldap/slapd.d"
+openldap_docker_volumes_custom: []
+openldap_docker_volumes: "{{ openldap_docker_volumes_default
+                             + openldap_docker_volumes_custom }}"
+
+# Devices
+openldap_docker_devices_default: []
+openldap_docker_devices_custom: []
+openldap_docker_devices: "{{ openldap_docker_devices_default
+                             + openldap_docker_devices_custom }}"
+
+# Hosts
+openldap_docker_hosts_default: []
+openldap_docker_hosts_custom: []
+openldap_docker_hosts: "{{ docker_hosts_common
+                           | combine(openldap_docker_hosts_default)
+                           | combine(openldap_docker_hosts_custom) }}"
+
+# Labels
+openldap_docker_labels_default: {}
+openldap_docker_labels_custom: {}
+openldap_docker_labels: "{{ docker_labels_common
+                            | combine(openldap_docker_labels_default)
+                            | combine(openldap_docker_labels_custom) }}"
+
+# Hostname
+openldap_docker_hostname: "{{ openldap_name }}"
+
+# Networks
+openldap_docker_networks_alias: "{{ openldap_name }}"
+openldap_docker_networks_default: []
+openldap_docker_networks_custom: []
+openldap_docker_networks: "{{ docker_networks_common
+                              + openldap_docker_networks_default
+                              + openldap_docker_networks_custom }}"
+
+# Capabilities
+openldap_docker_capabilities_default: []
+openldap_docker_capabilities_custom: []
+openldap_docker_capabilities: "{{ openldap_docker_capabilities_default
+                                  + openldap_docker_capabilities_custom }}"
+
+# Security Opts
+openldap_docker_security_opts_default: []
+openldap_docker_security_opts_custom: []
+openldap_docker_security_opts: "{{ openldap_docker_security_opts_default
+                                   + openldap_docker_security_opts_custom }}"
+
+# Restart Policy
+openldap_docker_restart_policy: unless-stopped
+
+# State
+openldap_docker_state: started

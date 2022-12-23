@@ -25,7 +25,7 @@ log:
   level: info
   format: text
   file_path: "/config/authelia.log"
-  keep_stdout: false
+  keep_stdout: true
 
 totp:
   issuer: authelia.com
@@ -43,7 +43,15 @@ totp:
 # Read more at https://www.authelia.com/docs/configuration/duo-push-notifications.html
 #
 
+webauthn:
+  disable: false
+  display_name: Authelia
+  attestation_conveyance_preference: indirect
+  user_verification: preferred
+  timeout: 60s
+
 authentication_backend:
+{% if authelia_authentication_backend == 'file' %}
   file:
     path: /config/users_database.yml
     password:
@@ -52,6 +60,24 @@ authentication_backend:
       salt_length: 16
       parallelism: 8
       memory: 64
+{% endif %}
+{% if authelia_authentication_backend == 'ldap' %}
+  ldap:
+    implementation: custom
+    url: ldap://openldap
+    start_tls: false
+    tls:
+      skip_verify: true
+      minimum_version: TLS1.2
+    base_dn: dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}
+    additional_users_dn: ou=people
+    users_filter: (&({username_attribute}={input})(objectClass=person))
+    additional_groups_dn: ou=groups
+    groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+    group_name_attribute: cn
+    user: cn=admin,dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}
+    password: {{ user.pass }}
+{% endif %}
 
 #
 # Read more at https://www.authelia.com/docs/configuration/access-control.html
@@ -122,4 +148,17 @@ notifier:
 #
 # Read more at https://www.authelia.com/docs/configuration/notifier/smtp.html
 #
+
+telemetry:
+  metrics:
+    enabled: false
+    address: "tcp://0.0.0.0:9959"
+    buffers:
+      read: 4096
+      write: 4096
+    timeouts:
+      read: 6s
+      write: 6s
+      idle: 30s
+
 ...

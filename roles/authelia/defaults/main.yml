@@ -14,6 +14,13 @@
 authelia_name: authelia
 
 ################################
+# Configuration
+################################
+
+# Options are file or ldap
+authelia_authentication_backend: "file"
+
+################################
 # Paths
 ################################
 
@@ -60,7 +67,7 @@ authelia_docker_container: "{{ authelia_name }}"
 
 # Image
 authelia_docker_image_pull: true
-authelia_docker_image_tag: "4.36"
+authelia_docker_image_tag: "4.37"
 authelia_docker_image: "authelia/authelia:{{ authelia_docker_image_tag }}"
 
 # Ports

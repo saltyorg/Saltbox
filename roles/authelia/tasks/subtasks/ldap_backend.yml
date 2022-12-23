@@ -1,0 +1,18 @@
+##########################################################################
+# Title:         Saltbox: Authelia | LDAP Backend Task                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Domain | Get FLD
+  ansible.builtin.shell: |
+    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ authelia_web_domain | default(user.domain) }}\", as_object=True); print(res.tld)"
+  register: authelia_tld
+
+- name: Domain | Get FLD
+  ansible.builtin.shell: |
+    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ authelia_web_domain | default(user.domain) }}\", as_object=True); print(res.domain)"
+  register: authelia_domain

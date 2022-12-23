@@ -12,19 +12,13 @@
     msg: "This server is not set as Authelia master server."
   when: (not authelia_is_master)
 
+- name: "Fail if invalid Authentication Backend"
+  ansible.builtin.fail:
+    msg: "authelia_authentication_backend was not set to a valid value"
+  when: not ((authelia_authentication_backend == 'ldap') or (authelia_authentication_backend == 'file'))
+
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-
-- name: "Import Redis Role"
-  ansible.builtin.include_role:
-    name: redis
-
-- name: Add DNS record
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
-  vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Reset Authelia directory
   ansible.builtin.file:
@@ -40,10 +34,57 @@
     path: "{{ authelia_paths_location }}/configuration.yml"
   register: authelia_config_stat
 
-- name: Check if 'users_database.yml' exists
-  ansible.builtin.stat:
-    path: "{{ authelia_paths_location }}/users_database.yml"
-  register: authelia_user_config_stat
+- name: Load authentication_backend value
+  ansible.builtin.shell: |
+    yyq e '.authentication_backend' {{ authelia_paths_location }}/configuration.yml
+  register: authentication_backend_key
+  when: authelia_config_stat.stat.exists and (not 'authelia-reset' in ansible_run_tags)
+
+- name: Fail if Configuration was generated with incorrect authentication_backend
+  ansible.builtin.fail:
+    msg:
+      - "You seem to have changed 'authelia_authentication_backend' but the old configuration still exists."
+      - "Backup the Authelia opt folder if you want to keep it and then run the 'authelia-reset' tag."
+      - "Port any modifications made to your configurations.yml from the backup that you want to keep."
+  when:
+    - (not 'authelia-reset' in ansible_run_tags)
+    - authelia_config_stat.stat.exists
+    - ((('ldap' in authentication_backend_key.stdout) and (authelia_authentication_backend == 'file'))
+      or (('file' in authentication_backend_key.stdout) and (authelia_authentication_backend == 'ldap')))
+
+- name: Authentication Backend Task
+  ansible.builtin.import_tasks: "subtasks/auth_backend.yml"
+  when: (not authelia_config_stat.stat.exists) or ('authelia-reset' in ansible_run_tags)
+
+- name: "Import Redis Role"
+  ansible.builtin.include_role:
+    name: redis
+
+- name: "Import OpenLDAP Role"
+  ansible.builtin.include_role:
+    name: openldap
+  when: (authelia_authentication_backend == 'ldap')
+
+- name: "Import phpLDAPadmin Role"
+  ansible.builtin.include_role:
+    name: phpldapadmin
+  when: (authelia_authentication_backend == 'ldap')
+
+- name: Remove LDAP Containers when using File provider
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  vars:
+    _var_prefix: "{{ item }}"
+  loop:
+    - "openldap"
+    - "phpldapadmin"
+  when: (authelia_authentication_backend == 'file')
+
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Import default 'configuration.yml'
   ansible.builtin.template:
@@ -53,38 +94,6 @@
     group: "{{ user.name }}"
     mode: "0775"
   when: (not authelia_config_stat.stat.exists)
-
-- name: "Generate Password Hash"
-  community.docker.docker_container:
-    name: authelia-password-hash
-    image: "{{ authelia_docker_image }}"
-    command: "authelia hash-password '{{ user.pass }}'"
-    detach: no
-    volumes:
-      - "{{ authelia_paths_location }}:/config"
-    networks:
-      - name: saltbox
-    purge_networks: yes
-    cleanup: yes
-    state: started
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-  register: authelia_password
-  when: (not authelia_user_config_stat.stat.exists)
-
-- name: "Sanitize Password Hash"
-  ansible.builtin.shell: "echo '{{ authelia_password.container.Output }}' | sed -n 's/^Password hash: //p'"
-  register: authelia_password
-  when: (not authelia_user_config_stat.stat.exists)
-
-- name: Import default 'users_database.yml'
-  ansible.builtin.template:
-    src: users_database.yml.j2
-    dest: "{{ authelia_paths_location }}/users_database.yml"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-  when: (not authelia_user_config_stat.stat.exists)
 
 - name: Settings Task
   ansible.builtin.import_tasks: "subtasks/settings.yml"
