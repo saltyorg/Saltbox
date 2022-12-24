@@ -74,10 +74,6 @@
         executable: /bin/bash
       register: new_db_cache_size
 
-    - name: debug
-      ansible.builtin.debug:
-        var: new_db_cache_size
-
     - name: Settings | DB Cache Size | Display New Plex DB Cache Size
       ansible.builtin.debug:
         msg: "Plex DB cache size is now set to '{{ new_db_cache_size.stdout | int }}'."
@@ -92,4 +88,4 @@
           '*': ignore
       when: ('plex_db_cache_size' in ansible_run_tags)
 
-  when: (current_db_cache_size.stdout | int) != (desired_db_cache_size | regex_replace(',', '') | int)
+  when: plex_db_cache_size_enabled and (current_db_cache_size.stdout | int) != (desired_db_cache_size | regex_replace(',', '') | int)

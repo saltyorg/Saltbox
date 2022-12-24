@@ -22,6 +22,7 @@ plex_password: "{{ plex.pass }}"
 plex_open_main_ports: false
 plex_open_local_ports: false
 plex_db_cache_size: default
+plex_db_cache_size_enabled: true
 plex_plugin_webtools: true
 plex_plugin_sub_zero: true
 plex_insecure: false
