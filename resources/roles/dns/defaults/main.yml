@@ -9,7 +9,7 @@
 ---
 cloudflare_reinstall: false
 
-cloudflare_path: "/srv/git/cloudflare"
+cloudflare_path: "/srv/cloudflare"
 
 cloudflare_venv_path: "{{ cloudflare_path }}/venv"
 
