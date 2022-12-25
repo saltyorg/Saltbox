@@ -8,9 +8,7 @@
 #########################################################################
 ---
 - name: Misc | Install argcomplete
-  ansible.builtin.pip:
-    state: present
-    name: "{{ shell_misc_argcomplete_pip_package }}"
+  ansible.builtin.shell: "pip install {{ shell_misc_argcomplete_pip_package }}"
   ignore_errors: true
 
 # For Ansible command line utilities
