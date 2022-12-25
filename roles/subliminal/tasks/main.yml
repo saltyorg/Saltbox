@@ -8,10 +8,7 @@
 #########################################################################
 ---
 - name: Install Subliminal
-  ansible.builtin.pip:
-    state: present
-    name: "git+https://github.com/Diaoul/subliminal.git@develop"
-    executable: pip3
+  ansible.builtin.shell: "pip install git+https://github.com/Diaoul/subliminal.git@develop"
   ignore_errors: true
 
 - name: "Get Subliminal version"
