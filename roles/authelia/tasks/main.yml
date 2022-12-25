@@ -54,7 +54,6 @@
 
 - name: Authentication Backend Task
   ansible.builtin.import_tasks: "subtasks/auth_backend.yml"
-  when: (not authelia_config_stat.stat.exists) or ('authelia-reset' in ansible_run_tags)
 
 - name: "Import Redis Role"
   ansible.builtin.include_role:
