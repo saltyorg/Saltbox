@@ -15,9 +15,6 @@
   loop: "{{ custom_apt }}"
 
 - name: Install custom pip modules
-  ansible.builtin.pip:
-    state: present
-    name: "{{ item }}"
-    executable: pip3
+  ansible.builtin.shell: "pip install {{ item }}"
   ignore_errors: true
   loop: "{{ custom_pip }}"
