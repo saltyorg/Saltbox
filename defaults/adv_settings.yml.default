@@ -4,7 +4,6 @@ system:
 docker:
   json_driver: no
 dns:
-  enabled: yes
   proxied: no
   ipv4: yes
   ipv6: no

@@ -13,7 +13,7 @@
 
 - name: Saltbox Subdomains Task
   ansible.builtin.import_tasks: "subtasks/subdomains.yml"
-  when: (saltbox_type | length > 0) and dns.enabled
+  when: (saltbox_type | length > 0) and skip_dns
   ignore_errors: true
 
 - name: Purge Cache Task
