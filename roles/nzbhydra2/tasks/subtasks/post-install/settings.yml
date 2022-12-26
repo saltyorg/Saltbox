@@ -11,7 +11,10 @@
   ansible.builtin.wait_for:
     path: "{{ nzbhydra2_paths_config_location }}"
     state: present
-    timeout: 15
+
+- name: Wait 30 seconds
+  ansible.builtin.wait_for:
+    timeout: 30
 
 - name: Post-Install | Settings | Stop container
   community.docker.docker_container:
