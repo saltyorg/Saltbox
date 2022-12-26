@@ -23,7 +23,6 @@
 
 - name: Tasks to do with git clone is a success
   block:
-
     - name: Build and install iperf3
       ansible.builtin.shell: "{{ iperf3_binary_build_command }}"
 

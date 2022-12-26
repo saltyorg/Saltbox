@@ -17,7 +17,6 @@
 - name: Install pip 'glances'
   ansible.builtin.shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
   ignore_errors: true
-  tags: glances
 
 - name: Create glances directory
   ansible.builtin.file:
