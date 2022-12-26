@@ -204,17 +204,17 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
-traefik_default_middleware_default: "{{ traefik_role_middleware_sso
-                                        + (',' if (traefik_role_middleware_sso | length > 0)
-                                               else '')
-                                        + traefik_error_pages_middleware
+traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file'
                                         + (',gzip'
                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
                                           else '')
                                         + (',hsts@file'
                                           if (traefik.hsts)
-                                          else '') }}"
+                                          else '')
+                                        + (',' if (traefik_role_middleware_sso | length > 0)
+                                               else '')
+                                        + traefik_role_middleware_sso }}"
 traefik_default_middleware_custom: ""
 traefik_default_middleware: "{{ traefik_default_middleware_default
                                 + (',' + traefik_default_middleware_custom
