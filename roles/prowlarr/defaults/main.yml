@@ -78,7 +78,7 @@ prowlarr_docker_container: "{{ prowlarr_name }}"
 
 # Image
 prowlarr_docker_image_pull: true
-prowlarr_docker_image_tag: "testing"
+prowlarr_docker_image_tag: "latest"
 prowlarr_docker_image: "cr.hotio.dev/hotio/prowlarr:{{ prowlarr_docker_image_tag }}"
 
 # Ports
