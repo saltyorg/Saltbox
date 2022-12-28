@@ -26,7 +26,7 @@ mariadb_paths_folders_list:
 # Settings
 ################################
 
-mariadb_docker_env_password: "password4321"
+mariadb_docker_env_password: "password321"
 mariadb_docker_env_user: "{{ user.name }}"
 mariadb_docker_env_db: "saltbox"
 

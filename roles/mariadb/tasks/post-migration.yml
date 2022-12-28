@@ -23,7 +23,7 @@
       community.mysql.mysql_db:
         login_host: "mariadb"
         login_user: "root"
-        login_password: "{{ mariadb_docker_envs_mysql_root_password }}"
+        login_password: "{{ mariadb_docker_env_password }}"
         state: import
         name: all
         target: /tmp/dump.sql
