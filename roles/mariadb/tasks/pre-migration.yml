@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: MariaDB Migration                             #
+# Title:         Saltbox: MariaDB Pre-Migration                         #
 # Author(s):     owine                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -7,13 +7,17 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Check for '/opt/{{ mariadb_name }}/databases'
+- name: Check for '/opt/mariadb/databases'
   ansible.builtin.stat:
-    path: "/opt/{{ mariadb_name }}/databases"
+    path: "/opt/mariadb/databases"
   register: folder
 
-- name: Move contents of '/opt/{{ mariadb_name }}/databases' to '/opt/{{ mariadb_name }}'
-  ansible.builtin.shell: |
-    mv "/opt/{{ mariadb_name }}/databases/*"  "/opt/{{ mariadb_name }}/"
-    find "/opt/{{ mariadb_name }}/*" -type d -empty -delete
+- name: Dump databases
+  community.mysql.mysql_db:
+    login_host: "mariadb"
+    login_user: "root"
+    login_password: "{{ mariadb_docker_envs_mysql_root_password }}"
+    state: dump
+    name: all
+    target: /tmp/dump.sql
   when: folder.stat.exists
