@@ -11,6 +11,7 @@
       --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
       --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
       --stats=30s \
+      --bwlimit={{ backup2_rclone_upload_speed_limit }} \
       -vv \
       --log-file='{{ playbook_dir }}/backup_rclone.log' \
       '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'

@@ -10,3 +10,6 @@
 backup2_ignore_containers: []
 backup2_user_defined_files: []
 backup2_async_batch_size: 99
+
+# Options can be found at https://rclone.org/docs/#bwlimit-bandwidth-spec
+backup2_rclone_upload_speed_limit: "off"
