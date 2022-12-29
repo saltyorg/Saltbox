@@ -1,7 +1,7 @@
 #!/bin/bash
 printf '' > /srv/git/saltbox/ansible-update.log
 {
-    python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade --root-user-action=ignore apprise certbot
+    python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade --root-user-action=ignore apprise certbot virtualenv
     /srv/ansible/venv/bin/python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pip setuptools wheel
     /srv/ansible/venv/bin/python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade pyOpenSSL requests netaddr jmespath jinja2 ansible">=7.0.0,<8.0.0"
     /srv/ansible/venv/bin/python3 -m pip install --no-cache-dir --disable-pip-version-check --upgrade ruamel.yaml tld argon2_cffi ndg-httpsclient
