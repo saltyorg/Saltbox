@@ -9,3 +9,6 @@
 ---
 backup_ignore_containers: []
 backup_user_defined_files: []
+
+# Options can be found at https://rclone.org/docs/#bwlimit-bandwidth-spec
+backup_rclone_upload_speed_limit: "off"

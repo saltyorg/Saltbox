@@ -541,6 +541,7 @@
           --transfers="{{ backup_rclone_transfers }}" \
           --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
           --stats=30s \
+          --bwlimit={{ backup_rclone_upload_speed_limit }} \
           -vv \
           --log-file='{{ playbook_dir }}/backup_rclone.log' \
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
