@@ -35,8 +35,8 @@
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
     # Apps Start
     - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
-    - { role: download_clients, tags: ['saltbox', 'feederbox', 'download_clients'] }
-    - { role: download_indexers, tags: ['saltbox', 'feederbox', 'download_indexers'] }
+    - { role: download_clients, tags: ['saltbox', 'feederbox', 'download-clients'] }
+    - { role: download_indexers, tags: ['saltbox', 'feederbox', 'download-indexers'] }
     - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
     - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
