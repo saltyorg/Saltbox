@@ -1,0 +1,15 @@
+#########################################################################
+# Title:         Saltbox: Download Indexers Role                        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Execute Download Indexers roles"
+  ansible.builtin.include_role:
+    name: "{{ download_indexer_role }}"
+  with_items: "{{ download_indexers_enabled }}"
+  loop_control:
+    loop_var: download_indexer_role

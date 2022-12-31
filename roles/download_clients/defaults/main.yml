@@ -1,0 +1,10 @@
+##########################################################################
+# Title:         Saltbox: Download Clients | Default Variables           #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+download_clients_enabled: ["rutorrent", "nzbget"]

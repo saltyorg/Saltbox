@@ -35,15 +35,13 @@
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
     # Apps Start
     - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
+    - { role: download_clients, tags: ['saltbox', 'feederbox', 'download_clients'] }
+    - { role: download_indexers, tags: ['saltbox', 'feederbox', 'download_indexers'] }
     - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
     - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
     - { role: organizr, tags: ['saltbox', 'feederbox', 'organizr'] }
     - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow'], when: ['use_remote'] }
-    - { role: nzbget, tags: ['saltbox', 'feederbox', 'nzbget'], when: ['use_nzbs'] }
-    - { role: rutorrent, tags: ['saltbox', 'feederbox', 'rutorrent'], when: ['use_torrents'] }
-    - { role: jackett, tags: ['saltbox', 'feederbox', 'jackett'], when: ['use_torrents'] }
-    - { role: nzbhydra2, tags: ['saltbox', 'feederbox', 'nzbhydra2'], when: ['use_nzbs'] }
     - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
@@ -63,6 +61,7 @@
     - { role: diun, tags: ['diun'] }
     - { role: emby, tags: ['emby'] }
     - { role: grafana, tags: ['grafana'] }
+    - { role: jackett, tags: ['jackett'] }
     - { role: jellyfin, tags: ['jellyfin'] }
     - { role: mainline, tags: ['mainline'] }
     - { role: mariadb, tags: ['mariadb'] }
@@ -70,6 +69,8 @@
     - { role: netdata, tags: ['netdata'] }
     - { role: nginx, tags: ['nginx'] }
     - { role: node_exporter, tags: ['node_exporter'] }
+    - { role: nzbget, tags: ['nzbget'] }
+    - { role: nzbhydra2, tags: ['nzbhydra2'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
     - { role: plex, tags: ['plex', 'plex-reset-codecs'] }
@@ -81,6 +82,7 @@
     - { role: qbittorrent, tags: ['qbittorrent'] }
     - { role: readarr, tags: ['readarr'] }
     - { role: redis, tags: ['redis'] }
+    - { role: rutorrent, tags: ['rutorrent'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: subliminal, tags: ['subliminal'] }
     - { role: traktarr, tags: ['traktarr'] }

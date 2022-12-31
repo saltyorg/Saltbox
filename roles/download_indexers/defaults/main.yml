@@ -1,0 +1,10 @@
+##########################################################################
+# Title:         Saltbox: Download Indexers | Default Variables          #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+download_indexers_enabled: ["jackett", "nzbhydra2"]
