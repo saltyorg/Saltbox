@@ -1,0 +1,53 @@
+#########################################################################
+# Title:         Saltbox: MariaDB Migration                             #
+# Author(s):     owine                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Check for '/opt/mariadb/databases'
+  ansible.builtin.stat:
+    path: "/opt/mariadb/databases"
+  register: folder
+
+- name: Dump legacy databases and bail out
+  block:
+
+    - name: Dump databases
+      community.mysql.mysql_db:
+        login_host: "mariadb"
+        login_user: "root"
+        login_password: "{{ mariadb_docker_env_password }}"
+        state: dump
+        name: all
+        target: /opt/mariadb/dump.sql
+
+    - name: Wait for 5 seconds
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: Relocate '/opt/mariadb' to '/opt/mariadb_legacy'
+      ansible.builtin.shell: "mv /opt/mariadb /opt/mariadb_legacy"
+      register: relocate
+
+    - name: Wait for 5 seconds
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: Remove '/opt/mariadb/'
+      ansible.builtin.file:
+        path: /opt/mariadb/
+        state: absent
+      when: relocate.rc == 0
+
+    - name: Notify user of migration
+      ansible.builtin.fail:
+        msg:
+          - "The MariaDB Docker image has been migrated. Your existing appdata has been migrated to '/opt/mariadb_legacy'."
+          - "A SQL dump is available at '/opt/mariadb_legacy/dump.sql' to facilitate easy import into the new container."
+          - "You will need to re-run the `mariadb` role to provision the new container."
+      ignore_errors: true
+
+  when: folder.stat.exists
