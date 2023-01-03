@@ -58,6 +58,8 @@
 - name: "Import Redis Role"
   ansible.builtin.include_role:
     name: redis
+  vars:
+    redis_instances: ["redis"]
 
 - name: "Import OpenLDAP Role"
   ansible.builtin.include_role:
