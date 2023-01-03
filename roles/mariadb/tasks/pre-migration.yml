@@ -12,12 +12,39 @@
     path: "/opt/mariadb/databases"
   register: folder
 
-- name: Dump databases
-  community.mysql.mysql_db:
-    login_host: "mariadb"
-    login_user: "root"
-    login_password: "{{ mariadb_docker_env_password }}"
-    state: dump
-    name: all
-    target: /tmp/dump.sql
+- name: Dump and backup databases
+  block:
+
+    - name: Dump databases
+      community.mysql.mysql_db:
+        login_host: "mariadb"
+        login_user: "root"
+        login_password: "{{ mariadb_docker_env_password }}"
+        state: dump
+        name: all
+        target: /opt/mariadb/dump.sql
+
+    - name: Wait for 5 seconds
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+      vars:
+        var_prefix: "mariadb"
+
+    - name: Relocate '/opt/mariadb' to '/opt/mariadb_legacy'
+      ansible.builtin.shell: "mv /opt/mariadb /opt/mariadb_legacy"
+      register: relocate
+
+    - name: Wait for 5 seconds
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: Remove '/opt/mariadb/'
+      ansible.builtin.file:
+        path: /opt/mariadb/
+        state: absent
+      when: relocate.rc == 0
+
   when: folder.stat.exists

@@ -7,17 +7,17 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Check for '/opt/mariadb/databases'
+- name: Check for 'dump.sql'
   ansible.builtin.stat:
-    path: "/opt/mariadb/databases"
-  register: folder
+    path: "/opt/mariadb_legacy/dump.sql"
+  register: dump
 
 - name: Import databases
   block:
 
-    - name: Wait for 10 seconds
+    - name: Wait for 5 seconds
       ansible.builtin.wait_for:
-        timeout: 30
+        timeout: 5
 
     - name: Import databases
       community.mysql.mysql_db:
@@ -26,13 +26,6 @@
         login_password: "{{ mariadb_docker_env_password }}"
         state: import
         name: all
-        target: /tmp/dump.sql
-      register: import
+        target: /opt/mariadb_legacy/dump.sql
 
-    - name: Remove '/opt/mariadb/databases'
-      ansible.builtin.file:
-        path: /opt/mariadb/databases
-        state: absent
-      when: import.rc == 0
-
-  when: folder.stat.exists
+  when: (not folder.stat.exists and dump.stat.exists)
