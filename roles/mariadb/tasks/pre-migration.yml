@@ -15,6 +15,10 @@
 - name: Dump and backup databases
   block:
 
+    - name: Install mysql-client dependency
+      ansible.builtin.apt:
+        name: mysql-client
+
     - name: Dump databases
       community.mysql.mysql_db:
         login_host: "mariadb"
@@ -23,6 +27,7 @@
         state: dump
         name: all
         target: /opt/mariadb/dump.sql
+        skip_lock_tables: true
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
