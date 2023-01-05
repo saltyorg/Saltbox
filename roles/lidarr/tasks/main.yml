@@ -12,7 +12,6 @@
   vars:
     lidarr_original_name: "{{ role }}"
     lidarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
-    instance_dash: "{{ '-' in role }}"
   with_items: "{{ lidarr_instances }}"
   loop_control:
     loop_var: role
