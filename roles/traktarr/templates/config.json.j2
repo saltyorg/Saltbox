@@ -37,7 +37,7 @@
       "blacklisted_min_runtime": 30,
       "blacklisted_max_runtime": 0,
       "blacklisted_min_year": 2000,
-      "blacklisted_max_year": 2020,
+      "blacklisted_max_year": {{ ansible_date_time.year }},
       "blacklisted_tmdb_ids": [],
       "blacklisted_title_keywords": [
         "untitled",
@@ -57,7 +57,7 @@
       "blacklisted_min_runtime": 15,
       "blacklisted_max_runtime": 0,
       "blacklisted_min_year": 2010,
-      "blacklisted_max_year": 2020,
+      "blacklisted_max_year": {{ ansible_date_time.year }},
       "blacklisted_genres": [
         "news",
         "special-interest"
