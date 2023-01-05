@@ -23,10 +23,6 @@
   register: cloudflare_record
   ignore_errors: true
 
-- name: debug
-  debug:
-    var: cloudflare_record
-
 - name: Cloudflare | Add DNS Record | Print Failure Output
   ansible.builtin.fail:
     msg: "{{ cloudflare_record.stderr }}"
