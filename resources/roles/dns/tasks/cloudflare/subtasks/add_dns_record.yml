@@ -23,6 +23,10 @@
   register: cloudflare_record
   ignore_errors: true
 
+- name: debug
+  debug:
+    var: cloudflare_record
+
 - name: Cloudflare | Add DNS Record | Print Failure Output
   ansible.builtin.fail:
     msg: "{{ cloudflare_record.stderr }}"
@@ -57,6 +61,11 @@
         msg: "DNS CNAME Record for '{{ dns_record_print }}' was removed."
 
   when: cloudflare_dns_record_removal_status is succeeded and cloudflare_dns_record_removal_status.changed
+
+- name: Cloudflare | Add DNS Record | Initialize 'cloudflare_ipv4_record' and cloudflare_ipv6_record variables
+  ansible.builtin.set_fact:
+    cloudflare_ipv4_record: []
+    cloudflare_ipv6_record: []
 
 - name: Cloudflare | Add DNS Record | Set 'cloudflare_ipv4_record' variable
   ansible.builtin.set_fact:
@@ -106,7 +115,7 @@
 
       when: cloudflare_dns_record_creation_status is succeeded
 
-  when: dns.ipv4 and ((not ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record.content == ip_address_public))) or (not cloudflare_ipv4_record is defined))
+  when: dns.ipv4 and ((not ((cloudflare_ipv4_record is defined and (cloudflare_ipv4_record | length > 0)) and (cloudflare_ipv4_record.content == ip_address_public))) or not (cloudflare_ipv4_record is defined and (cloudflare_ipv4_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv6 Enabled Block
   block:
@@ -141,7 +150,7 @@
 
       when: cloudflare_dns_v6_record_creation_status is succeeded
 
-  when: dns.ipv6 and ((not ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record.content == ipv6_address_public))) or (not cloudflare_ipv6_record is defined))
+  when: dns.ipv6 and ((not ((cloudflare_ipv6_record is defined and (cloudflare_ipv6_record | length > 0)) and (cloudflare_ipv6_record.content == ipv6_address_public))) or not (cloudflare_ipv6_record is defined and (cloudflare_ipv6_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv6 Disable Block
   block:
@@ -167,4 +176,4 @@
 
       when: cloudflare_dns_v6_record_removal_status is succeeded
 
-  when: (not dns.ipv6) and (cloudflare_ipv6_record is defined)
+  when: (not dns.ipv6) and (cloudflare_ipv6_record is defined and (cloudflare_ipv6_record | length > 0))
