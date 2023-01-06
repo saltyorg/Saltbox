@@ -23,4 +23,5 @@
   loop_control:
     loop_var: plex_instance
   vars:
-    plex_name: "{{ plex_instance }}"
+    plex_original_name: "{{ plex_instance }}"
+    plex_name: "{{ plex_instance if not '-' in plex_instance else (plex_instance | replace('-', '_')) }}"
