@@ -20,9 +20,12 @@ authelia_name: authelia
 # Options are file or ldap
 authelia_authentication_backend: "file"
 
+# Setting for default Access Control Policy
+# Reference: https://www.authelia.com/configuration/security/access-control/#one_factor
 authelia_access_control_policy: "one_factor"
 
 # Settings for Duo
+# Reference: https://www.authelia.com/configuration/second-factor/duo/
 authelia_duo_enabled: false
 authelia_duo_hostname: ""
 authelia_duo_integration_key: ""
@@ -30,11 +33,31 @@ authelia_duo_secret_key: ""
 authelia_duo_self_enrollment: "true"
 
 # Settings for Webauthn
+# Reference: https://www.authelia.com/configuration/second-factor/webauthn/
 authelia_webauthn_disable: false
 authelia_webauthn_display_name: "Authelia"
 authelia_webauthn_attestation_conveyance_preference: "indirect"
 authelia_webauthn_user_verification: "preferred"
 authelia_webauthn_timeout: "60s"
+
+# Settings for Notifier
+# Reference: https://www.authelia.com/configuration/notifications/introduction/
+authelia_notifier: "filesystem"
+authelia_notifier_disable_startup_check: "false"
+authelia_notifier_smtp_host: ""
+authelia_notifier_smtp_port: ""
+authelia_notifier_smtp_timeout: ""
+authelia_notifier_smtp_username: ""
+authelia_notifier_smtp_password: ""
+authelia_notifier_smtp_sender: ""
+authelia_notifier_smtp_identifier: ""
+authelia_notifier_smtp_subject: ""
+authelia_notifier_smtp_startup_check_address: ""
+authelia_notifier_smtp_disable_require_tls: ""
+authelia_notifier_smtp_disable_html_emails: ""
+authelia_notifier_smtp_tls_server_name: ""
+authelia_notifier_smtp_tls_skip_verify: ""
+authelia_notifier_smtp_tls_minimum_version: ""
 
 ################################
 # Paths

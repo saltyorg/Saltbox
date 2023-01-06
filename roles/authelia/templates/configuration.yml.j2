@@ -128,9 +128,30 @@ ntp:
   disable_failure: false
 
 notifier:
-  disable_startup_check: false
+  disable_startup_check: {{ authelia_notifier_disable_startup_check }}
+{% if authelia_authentication_backend == 'filesystem' %}
   filesystem:
     filename: /config/notification.txt
+
+{% endif %}
+{% if authelia_authentication_backend == 'smtp' %}
+  smtp:
+    host: {{ authelia_notifier_smtp_host }}
+    port: {{ authelia_notifier_smtp_port }}
+    timeout: {{ (authelia_notifier_smtp_timeout) | default(omit) }}
+    username: {{ (authelia_notifier_smtp_username) | default(omit) }}
+    password: {{ (authelia_notifier_smtp_password) | default(omit) }}
+    sender: {{ authelia_notifier_smtp_sender }}
+    identifier: {{ (authelia_notifier_smtp_identifier) | default(omit) }}
+    subject: "{{ (authelia_notifier_smtp_subject) | default(omit) }}"
+    startup_check_address: {{ (authelia_notifier_smtp_startup_check_address) | default(omit) }}
+    disable_require_tls: {{ (authelia_notifier_smtp_disable_require_tls) | default(omit) }}
+    disable_html_emails: {{ (authelia_notifier_smtp_disable_html_emails) | default(omit) }}
+    tls:
+      server_name: {{ (authelia_notifier_smtp_tls_server_name) | default(omit) }}
+      skip_verify: {{ (authelia_notifier_smtp_tls_skip_verify) | default(omit) }}
+      minimum_version: {{ (authelia_notifier_smtp_tls_minimum_version) | default(omit) }}
+{% endif %}
 
 #
 # If you want to use email here is a template (Replace the above entry as you can only have one notifier configured)
