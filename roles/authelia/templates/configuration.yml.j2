@@ -42,13 +42,20 @@ totp:
 #
 # Read more at https://www.authelia.com/docs/configuration/duo-push-notifications.html
 #
+{% if authelia_duo_enabled == 'true' %}
 
+ duo_api:
+   hostname: {{ authelia_duo_hostname }}
+   integration_key: {{ authelia_duo_integration_key }}
+   secret_key: {{ authelia_duo_ssecret_key }}
+
+{% endif %}
 webauthn:
-  disable: false
-  display_name: Authelia
-  attestation_conveyance_preference: indirect
-  user_verification: preferred
-  timeout: 60s
+  disable: {{ authelia_webauthn_disable }}
+  display_name: {{ authelia_webauthn_display_name }}
+  attestation_conveyance_preference: {{ authelia_webauthn_attestation_conveyance_preference }}
+  user_verification: {{ authelia_webauthn_user_verification }}
+  timeout: {{ authelia_webauthn_timeout }}
 
 authentication_backend:
 {% if authelia_authentication_backend == 'file' %}
@@ -88,7 +95,7 @@ access_control:
     - domain:
         - "{{ '*.' + user.domain }}"
         - "{{ user.domain }}"
-      policy: one_factor
+      policy: {{ authelia_access_control_policy }}
 
 session:
   name: "{{ authelia_web_subdomain + '.' + authelia_web_domain }}"

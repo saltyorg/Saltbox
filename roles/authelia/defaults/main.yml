@@ -20,6 +20,21 @@ authelia_name: authelia
 # Options are file or ldap
 authelia_authentication_backend: "file"
 
+authelia_access_control_policy: "one_factor"
+
+# Settings for Duo
+authelia_duo_enabled: false
+authelia_duo_hostname: ""
+authelia_duo_integration_key: ""
+authelia_duo_secret_key: ""
+
+# Settings for Webauthn
+authelia_webauthn_disable: false
+authelia_webauthn_display_name: "Authelia"
+authelia_webauthn_attestation_conveyance_preference: "indirect"
+authelia_webauthn_user_verification: "preferred"
+authelia_webauthn_timeout: "60s"
+
 ################################
 # Paths
 ################################
