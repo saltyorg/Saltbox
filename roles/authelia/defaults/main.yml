@@ -20,7 +20,7 @@ authelia_name: authelia
 # Options are file or ldap
 authelia_authentication_backend: "file"
 
-# Setting for default Access Control Policy
+# Setting for default Access Control Policy - recommended options one_factor or two_factor
 # Reference: https://www.authelia.com/configuration/security/access-control/#one_factor
 authelia_access_control_policy: "one_factor"
 
@@ -42,6 +42,7 @@ authelia_webauthn_timeout: "60s"
 
 # Settings for Notifier
 # Reference: https://www.authelia.com/configuration/notifications/introduction/
+# Options are filesystem or smtp. Options specific to smtp prefixed with smtp
 authelia_notifier: "filesystem"
 authelia_notifier_disable_startup_check: "false"
 authelia_notifier_smtp_host: ""
