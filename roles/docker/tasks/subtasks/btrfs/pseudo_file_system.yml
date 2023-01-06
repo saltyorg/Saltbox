@@ -16,19 +16,19 @@
 - name: BTRFS | Psuedo-File-System | Tasks when '/var/lib/docker' is not mounted
   block:
 
-    - name: BTRFS | Psuedo-File-System | Create blank '/media/docker-volume.img'
-      ansible.builtin.shell: touch /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Create blank '{{ docker_filesystem_path }}'
+      ansible.builtin.shell: touch {{ docker_filesystem_path }}
 
-    - name: BTRFS | Psuedo-File-System | Set NOCOW on '/media/docker-volume.img'
-      ansible.builtin.shell: chattr +C /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Set NOCOW on '{{ docker_filesystem_path }}'
+      ansible.builtin.shell: chattr +C {{ docker_filesystem_path }}
 
-    - name: BTRFS | Psuedo-File-System | Set size on '/media/docker-volume.img'
-      ansible.builtin.shell: fallocate -l 20G /media/docker-volume.img
+    - name: BTRFS | Psuedo-File-System | Set size on '{{ docker_filesystem_path }}'
+      ansible.builtin.shell: fallocate -l {{ docker_filesystem_size }} {{ docker_filesystem_path }}
 
     - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
       community.general.filesystem:
         fstype: ext4
-        dev: /media/docker-volume.img
+        dev: "{{ docker_filesystem_path }}"
 
     - name: BTRFS | Psuedo-File-System | Stop docker service
       ansible.builtin.systemd:
@@ -47,7 +47,7 @@
     - name: BTRFS | Psuedo-File-System | Mount pseudo-file-system
       ansible.posix.mount:
         name: /var/lib/docker
-        src: /media/docker-volume.img
+        src: "{{ docker_filesystem_path }}"
         fstype: ext4
         opts: loop
         state: mounted
