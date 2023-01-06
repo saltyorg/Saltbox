@@ -48,6 +48,7 @@ totp:
    hostname: {{ authelia_duo_hostname }}
    integration_key: {{ authelia_duo_integration_key }}
    secret_key: {{ authelia_duo_ssecret_key }}
+   enable_self_enrollment: {{ authelia_duo_self_enrollment }}
 
 {% endif %}
 webauthn:

@@ -27,6 +27,7 @@ authelia_duo_enabled: false
 authelia_duo_hostname: ""
 authelia_duo_integration_key: ""
 authelia_duo_secret_key: ""
+authelia_duo_self_enrollment: "true"
 
 # Settings for Webauthn
 authelia_webauthn_disable: false
