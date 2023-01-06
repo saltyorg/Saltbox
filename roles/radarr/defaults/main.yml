@@ -11,14 +11,13 @@
 # Basics
 ################################
 
-radarr_name: radarr
 radarr_instances: ["radarr"]
 
 ################################
 # Paths
 ################################
 
-radarr_paths_folder: "{{ radarr_name }}"
+radarr_paths_folder: "{{ radarr_original_name }}"
 radarr_paths_location: "{{ server_appdata_path }}/{{ radarr_paths_folder }}"
 radarr_paths_folders_list:
   - "{{ radarr_paths_location }}"
@@ -28,7 +27,7 @@ radarr_paths_config_location: "{{ radarr_paths_location }}/config.xml"
 # Web
 ################################
 
-radarr_web_subdomain: "{{ radarr_name }}"
+radarr_web_subdomain: "{{ radarr_original_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
 radarr_web_url: "{{ 'https://' + lookup('vars', radarr_name + '_web_subdomain', default=radarr_web_subdomain)
@@ -75,7 +74,7 @@ radarr_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-radarr_docker_container: "{{ radarr_name }}"
+radarr_docker_container: "{{ radarr_original_name }}"
 
 # Image
 radarr_docker_image_pull: true
@@ -145,10 +144,10 @@ radarr_docker_labels: "{{ docker_labels_common
                           | combine(lookup('vars', radarr_name + '_docker_labels_custom', default=radarr_docker_labels_custom)) }}"
 
 # Hostname
-radarr_docker_hostname: "{{ radarr_name }}"
+radarr_docker_hostname: "{{ radarr_original_name }}"
 
 # Networks
-radarr_docker_networks_alias: "{{ radarr_name }}"
+radarr_docker_networks_alias: "{{ radarr_original_name }}"
 radarr_docker_networks_default: []
 radarr_docker_networks_custom: []
 radarr_docker_networks: "{{ docker_networks_common

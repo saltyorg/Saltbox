@@ -17,7 +17,7 @@ nginx_instances: ["nginx"]
 # Paths
 ################################
 
-nginx_paths_folder: "{{ nginx_name }}"
+nginx_paths_folder: "{{ nginx_original_name }}"
 nginx_paths_location: "{{ server_appdata_path }}/{{ nginx_paths_folder }}"
 nginx_paths_folders_list:
   - "{{ nginx_paths_location }}"
@@ -57,7 +57,7 @@ nginx_traefik_api_endpoint: ""
 ################################
 
 # Container
-nginx_docker_container: "{{ nginx_name }}"
+nginx_docker_container: "{{ nginx_original_name }}"
 
 # Image
 nginx_docker_image_pull: true
@@ -115,10 +115,10 @@ nginx_docker_labels: "{{ docker_labels_common
                          | combine(lookup('vars', nginx_name + '_docker_labels_custom', default=nginx_docker_labels_custom)) }}"
 
 # Hostname
-nginx_docker_hostname: "{{ nginx_name }}"
+nginx_docker_hostname: "{{ nginx_original_name }}"
 
 # Networks
-nginx_docker_networks_alias: "{{ nginx_name }}"
+nginx_docker_networks_alias: "{{ nginx_original_name }}"
 nginx_docker_networks_default: []
 nginx_docker_networks_custom: []
 nginx_docker_networks: "{{ docker_networks_common

@@ -17,7 +17,7 @@ deluge_instances: ["deluge"]
 # Paths
 ################################
 
-deluge_paths_folder: "{{ deluge_name }}"
+deluge_paths_folder: "{{ deluge_original_name }}"
 deluge_paths_location: "{{ server_appdata_path }}/{{ deluge_paths_folder }}"
 deluge_paths_conf: "{{ deluge_paths_location }}/core.conf"
 deluge_paths_downloads_location: "{{ downloads_torrents_path }}/{{ deluge_paths_folder }}"
@@ -33,7 +33,7 @@ deluge_paths_folders_list:
 # Web
 ################################
 
-deluge_web_subdomain: "{{ deluge_name }}"
+deluge_web_subdomain: "{{ deluge_original_name }}"
 deluge_web_domain: "{{ user.domain }}"
 deluge_web_port: "8112"
 deluge_web_url: "{{ 'https://' + lookup('vars', deluge_name + '_web_subdomain', default=deluge_web_subdomain)
@@ -73,7 +73,7 @@ deluge_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-deluge_docker_container: "{{ deluge_name }}"
+deluge_docker_container: "{{ deluge_original_name }}"
 
 # Image
 deluge_docker_image_pull: true
@@ -147,10 +147,10 @@ deluge_docker_labels: "{{ docker_labels_common
                           | combine(lookup('vars', deluge_name + '_docker_labels_custom', default=deluge_docker_labels_custom)) }}"
 
 # Hostname
-deluge_docker_hostname: "{{ deluge_name }}"
+deluge_docker_hostname: "{{ deluge_original_name }}"
 
 # Networks
-deluge_docker_networks_alias: "{{ deluge_name }}"
+deluge_docker_networks_alias: "{{ deluge_original_name }}"
 deluge_docker_networks_default: []
 deluge_docker_networks_custom: []
 deluge_docker_networks: "{{ docker_networks_common

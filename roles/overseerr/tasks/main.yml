@@ -10,7 +10,8 @@
 - name: "Execute Overseerr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    overseerr_name: "{{ role }}"
+    overseerr_original_name: "{{ role }}"
+    overseerr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ overseerr_instances }}"
   loop_control:
     loop_var: role

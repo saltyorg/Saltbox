@@ -17,7 +17,7 @@ postgres_instances: ["postgres"]
 # Paths
 ################################
 
-postgres_paths_folder: "{{ postgres_name }}"
+postgres_paths_folder: "{{ postgres_original_name }}"
 postgres_paths_location: "{{ server_appdata_path }}/{{ postgres_paths_folder }}"
 postgres_paths_folders_list:
   - "{{ postgres_paths_location }}"
@@ -35,7 +35,7 @@ postgres_docker_env_db: "saltbox"
 ################################
 
 # Container
-postgres_docker_container: "{{ postgres_name }}"
+postgres_docker_container: "{{ postgres_original_name }}"
 
 # Image
 postgres_docker_image_pull: true
@@ -93,10 +93,10 @@ postgres_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', postgres_name + '_docker_labels_custom', default=postgres_docker_labels_custom)) }}"
 
 # Hostname
-postgres_docker_hostname: "{{ postgres_name }}"
+postgres_docker_hostname: "{{ postgres_original_name }}"
 
 # Networks
-postgres_docker_networks_alias: "{{ postgres_name }}"
+postgres_docker_networks_alias: "{{ postgres_original_name }}"
 postgres_docker_networks_default: []
 postgres_docker_networks_custom: []
 postgres_docker_networks: "{{ docker_networks_common

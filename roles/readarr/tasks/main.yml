@@ -10,7 +10,8 @@
 - name: "Execute Readarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    readarr_name: "{{ role }}"
+    readarr_original_name: "{{ role }}"
+    readarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ readarr_instances }}"
   loop_control:
     loop_var: role

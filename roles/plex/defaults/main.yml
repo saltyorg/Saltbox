@@ -29,7 +29,7 @@ plex_insecure: false
 # Paths
 ################################
 
-plex_paths_folder: "{{ plex_name }}"
+plex_paths_folder: "{{ plex_original_name }}"
 plex_paths_location: "{{ server_appdata_path }}/{{ plex_paths_folder }}"
 plex_paths_transcodes_location: "{{ transcodes_path }}/{{ plex_paths_folder }}"
 plex_paths_folders_list:
@@ -53,7 +53,7 @@ plex_paths_db_blobs_location: "{{ plex_paths_plugin_support_location }}/Database
 # Web
 ################################
 
-plex_web_subdomain: "{{ plex_name }}"
+plex_web_subdomain: "{{ plex_original_name }}"
 plex_web_domain: "{{ user.domain }}"
 plex_web_port: "32400"
 plex_web_scheme: "https"
@@ -129,7 +129,7 @@ plex_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-plex_docker_container: "{{ plex_name }}"
+plex_docker_container: "{{ plex_original_name }}"
 
 # Image
 plex_docker_image_pull: true
@@ -252,10 +252,10 @@ plex_docker_labels: "{{ docker_labels_common
                                   lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom)) }}"
 
 # Hostname
-plex_docker_hostname: "{{ plex_name }}"
+plex_docker_hostname: "{{ plex_original_name }}"
 
 # Networks
-plex_docker_networks_alias: "{{ plex_name }}"
+plex_docker_networks_alias: "{{ plex_original_name }}"
 plex_docker_networks_default: []
 plex_docker_networks_custom: []
 plex_docker_networks: "{{ docker_networks_common

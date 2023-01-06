@@ -17,7 +17,7 @@ tautulli_instances: ["tautulli"]
 # Paths
 ################################
 
-tautulli_paths_folder: "{{ tautulli_name }}"
+tautulli_paths_folder: "{{ tautulli_original_name }}"
 tautulli_paths_location: "{{ server_appdata_path }}/{{ tautulli_paths_folder }}"
 tautulli_paths_scripts_location: "{{ server_appdata_path }}/scripts/tautulli"
 tautulli_paths_folders_list:
@@ -28,7 +28,7 @@ tautulli_paths_folders_list:
 # Web
 ################################
 
-tautulli_web_subdomain: "{{ tautulli_name }}"
+tautulli_web_subdomain: "{{ tautulli_original_name }}"
 tautulli_web_domain: "{{ user.domain }}"
 tautulli_web_port: "8181"
 tautulli_web_url: "{{ 'https://' + lookup('vars', tautulli_name + '_web_subdomain', default=tautulli_web_subdomain)
@@ -69,7 +69,7 @@ tautulli_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-tautulli_docker_container: "{{ tautulli_name }}"
+tautulli_docker_container: "{{ tautulli_original_name }}"
 
 # Image
 tautulli_docker_image_pull: true
@@ -138,10 +138,10 @@ tautulli_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', tautulli_name + '_docker_labels_custom', default=tautulli_docker_labels_custom)) }}"
 
 # Hostname
-tautulli_docker_hostname: "{{ tautulli_name }}"
+tautulli_docker_hostname: "{{ tautulli_original_name }}"
 
 # Networks
-tautulli_docker_networks_alias: "{{ tautulli_name }}"
+tautulli_docker_networks_alias: "{{ tautulli_original_name }}"
 tautulli_docker_networks_default: []
 tautulli_docker_networks_custom: []
 tautulli_docker_networks: "{{ docker_networks_common

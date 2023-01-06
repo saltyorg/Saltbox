@@ -10,7 +10,8 @@
 - name: "Execute MariaDB roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    mariadb_name: "{{ role }}"
+    mariadb_original_name: "{{ role }}"
+    mariadb_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ mariadb_instances }}"
   loop_control:
     loop_var: role

@@ -10,7 +10,8 @@
 - name: "Execute Nginx roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    nginx_name: "{{ role }}"
+    nginx_original_name: "{{ role }}"
+    nginx_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ nginx_instances }}"
   loop_control:
     loop_var: role

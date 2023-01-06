@@ -16,7 +16,7 @@ qbittorrent_instances: ["qbittorrent"]
 # Paths
 ################################
 
-qbittorrent_paths_folder: "{{ qbittorrent_name }}"
+qbittorrent_paths_folder: "{{ qbittorrent_original_name }}"
 qbittorrent_paths_location: "{{ server_appdata_path }}/{{ qbittorrent_paths_folder }}"
 qbittorrent_paths_downloads_location: "{{ downloads_torrents_path }}/{{ qbittorrent_paths_folder }}"
 qbittorrent_paths_conf: "{{ qbittorrent_paths_location }}/qBittorrent/qBittorrent.conf"
@@ -32,7 +32,7 @@ qbittorrent_paths_folders_list:
 # Web
 ################################
 
-qbittorrent_web_subdomain: "{{ qbittorrent_name }}"
+qbittorrent_web_subdomain: "{{ qbittorrent_original_name }}"
 qbittorrent_web_domain: "{{ user.domain }}"
 qbittorrent_web_port: "8080"
 qbittorrent_web_url: "{{ 'https://' + lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain)
@@ -74,7 +74,7 @@ qbittorrent_themepark_theme: "{{ global_themepark_theme }}"
 ################################
 
 # Container
-qbittorrent_docker_container: "{{ qbittorrent_name }}"
+qbittorrent_docker_container: "{{ qbittorrent_original_name }}"
 
 # Image
 qbittorrent_docker_image_pull: true
@@ -148,10 +148,10 @@ qbittorrent_docker_labels: "{{ docker_labels_common
                             lookup('vars', qbittorrent_name + '_docker_labels_custom', default=qbittorrent_docker_labels_custom)) }}"
 
 # Hostname
-qbittorrent_docker_hostname: "{{ qbittorrent_name }}"
+qbittorrent_docker_hostname: "{{ qbittorrent_original_name }}"
 
 # Networks
-qbittorrent_docker_networks_alias: "{{ qbittorrent_name }}"
+qbittorrent_docker_networks_alias: "{{ qbittorrent_original_name }}"
 qbittorrent_docker_networks_default: []
 qbittorrent_docker_networks_custom: []
 qbittorrent_docker_networks: "{{ docker_networks_common

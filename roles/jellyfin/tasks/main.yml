@@ -10,7 +10,8 @@
 - name: "Execute Jellyfin roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    jellyfin_name: "{{ role }}"
+    jellyfin_original_name: "{{ role }}"
+    jellyfin_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ jellyfin_instances }}"
   loop_control:
     loop_var: role

@@ -10,7 +10,8 @@
 - name: "Execute Sonarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    sonarr_name: "{{ role }}"
+    sonarr_original_name: "{{ role }}"
+    sonarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ sonarr_instances }}"
   loop_control:
     loop_var: role

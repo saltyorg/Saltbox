@@ -10,7 +10,8 @@
 - name: "Execute Bazarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    bazarr_name: "{{ role }}"
+    bazarr_original_name: "{{ role }}"
+    bazarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ bazarr_instances }}"
   loop_control:
     loop_var: role

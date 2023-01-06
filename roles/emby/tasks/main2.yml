@@ -7,11 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Fail if dash is present in instance name."
-  ansible.builtin.fail:
-    msg: "Dashes are not allowed in instance name as it breaks variable overrides."
-  when: "'-' in emby_name"
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:

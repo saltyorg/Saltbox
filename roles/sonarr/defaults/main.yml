@@ -17,7 +17,7 @@ sonarr_instances: ["sonarr"]
 # Paths
 ################################
 
-sonarr_paths_folder: "{{ sonarr_name }}"
+sonarr_paths_folder: "{{ sonarr_original_name }}"
 sonarr_paths_location: "{{ server_appdata_path }}/{{ sonarr_paths_folder }}"
 sonarr_paths_folders_list:
   - "{{ sonarr_paths_location }}"
@@ -27,7 +27,7 @@ sonarr_paths_config_location: "{{ sonarr_paths_location }}/config.xml"
 # Web
 ################################
 
-sonarr_web_subdomain: "{{ sonarr_name }}"
+sonarr_web_subdomain: "{{ sonarr_original_name }}"
 sonarr_web_domain: "{{ user.domain }}"
 sonarr_web_port: "8989"
 sonarr_web_url: "{{ 'https://' + lookup('vars', sonarr_name + '_web_subdomain', default=sonarr_web_subdomain)
@@ -74,7 +74,7 @@ sonarr_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-sonarr_docker_container: "{{ sonarr_name }}"
+sonarr_docker_container: "{{ sonarr_original_name }}"
 
 # Image
 sonarr_docker_image_pull: true
@@ -144,10 +144,10 @@ sonarr_docker_labels: "{{ docker_labels_common
                           | combine(lookup('vars', sonarr_name + '_docker_labels_custom', default=sonarr_docker_labels_custom)) }}"
 
 # Hostname
-sonarr_docker_hostname: "{{ sonarr_name }}"
+sonarr_docker_hostname: "{{ sonarr_original_name }}"
 
 # Networks
-sonarr_docker_networks_alias: "{{ sonarr_name }}"
+sonarr_docker_networks_alias: "{{ sonarr_original_name }}"
 sonarr_docker_networks_default: []
 sonarr_docker_networks_custom: []
 sonarr_docker_networks: "{{ docker_networks_common
