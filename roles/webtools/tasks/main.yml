@@ -65,7 +65,7 @@
         - name: Stop {{ plex_name | title }} container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
           vars:
-            _var_prefix: "plex"
+            var_prefix: "plex"
 
           when: (plex_docker_container in docker_running_containers_list)
 
@@ -148,7 +148,7 @@
     - name: Start {{ plex_name | title }} container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
       vars:
-        _var_prefix: "plex"
+        var_prefix: "plex"
       when:
         - ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)
