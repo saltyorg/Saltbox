@@ -75,6 +75,10 @@ put_docker_dpkg_into_hold: true
 
 docker_containers_startup_delay: 60
 
+docker_filesystem_path: "/media/docker-volume.img"
+
+docker_filesystem_size: "20G"
+
 docker_ipv6: "{{ dns.ipv6 }}"
 
 # Service
