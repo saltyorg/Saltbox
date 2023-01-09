@@ -70,6 +70,7 @@
         state: absent
 
     - name: Move previous backup if it exists locally
+      when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
       block:
         # Use mv because Ansible copy & delete takes a lot longer.
         - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
@@ -77,7 +78,6 @@
           become: true
           become_user: "{{ user.name }}"
           when: dir_files.matched | int != 0
-      when: backup_local_folder.stat.exists and backup_local_folder.stat.isdir
 
     - name: "Create backup folders."
       ansible.builtin.file:
@@ -189,8 +189,8 @@
         docker_containers: "{{ docker_containers.stdout if (docker_containers is success) else '' }}"
 
     - name: Docker container tasks
+      when: (docker_containers | trim | length > 0)
       block:
-
         - name: Convert Docker containers string into a list
           ansible.builtin.set_fact:
             docker_containers: "{{ (docker_containers).split() | sort }}"
@@ -212,8 +212,6 @@
             name: notify
           vars:
             message: "Saltbox Backup: Stopped Docker containers."
-
-      when: (docker_containers | trim | length > 0)
 
     # Custom User Files
 
@@ -243,8 +241,8 @@
       register: cloudplow_service
 
     - name: Stop 'cloudplow' service block
+      when: (cloudplow_service is defined) and cloudplow_service.stat.exists
       block:
-
         - name: Get 'cloudplow' service state
           ansible.builtin.set_fact:
             cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
@@ -255,13 +253,11 @@
             state: stopped
           when: cloudplow_service_running
 
-      when: (cloudplow_service is defined) and cloudplow_service.stat.exists
-
     # Create snapshot
 
     - name: Create Snapshot
+      when: use_snapshot
       block:
-
         - name: "Snapshot | Wait for 5 seconds before creating snapshot"
           ansible.builtin.wait_for:
             timeout: 5
@@ -278,13 +274,11 @@
           ansible.builtin.debug:
             msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
 
-      when: use_snapshot
-
     # Start Docker containers when snapshot is enabled
 
     - name: Snapshot | Start Docker containers
+      when: use_snapshot
       block:
-
         - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
@@ -300,8 +294,6 @@
           vars:
             message: "Saltbox Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
-
-      when: use_snapshot
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -402,16 +394,16 @@
       when: backup.rclone.enable
 
     - name: Snapshot | Cleanup Tasks
+      when: use_snapshot and (snapshot_type == 'btrfs')
       block:
-
         - name: Snapshot | Check if BTRFS snapshot is mounted
           ansible.builtin.stat:
             path: "{{ backup_snapshot_destination_path }}"
           register: btrfs_snapshot_mounted
 
         - name: Snapshot | Delete BTRFS snapshot
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
           block:
-
             - name: Snapshot | Delete existing BTRFS snapshot (1/2)
               ansible.builtin.command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
               register: snapshot_deletion
@@ -424,15 +416,11 @@
               ignore_errors: true
               when: (snapshot_deletion is failed)
 
-          when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
-
-      when: use_snapshot and (snapshot_type == 'btrfs')
-
     # Start Docker containers when snapshot is not enabled
 
     - name: Start Docker Containers
+      when: (not use_snapshot)
       block:
-
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
@@ -448,8 +436,6 @@
           vars:
             message: "Saltbox Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
-
-      when: (not use_snapshot)
 
     - name: "Get size of '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: "rclone size {{ backup.rclone.destination }} --max-depth 2 | grep size | awk '{print substr($5,2);}'"
@@ -498,16 +484,16 @@
 
   rescue:
     - name: Snapshot | Cleanup Tasks
+      when: use_snapshot and (snapshot_type == 'btrfs')
       block:
-
         - name: Snapshot | Check if BTRFS snapshot is mounted
           ansible.builtin.stat:
             path: "{{ backup_snapshot_destination_path }}"
           register: btrfs_snapshot_mounted
 
         - name: Snapshot | Delete BTRFS snapshot
+          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
           block:
-
             - name: Snapshot | Delete existing BTRFS snapshot (1/2)
               ansible.builtin.command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
               register: snapshot_deletion
@@ -520,13 +506,9 @@
               ignore_errors: true
               when: (snapshot_deletion is failed)
 
-          when: (btrfs_snapshot_mounted.stat.isdir is defined) and (btrfs_snapshot_mounted.stat.isdir)
-
-      when: use_snapshot and (snapshot_type == 'btrfs')
-
     - name: Start Docker Containers
+      when: (not use_snapshot)
       block:
-
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
@@ -535,8 +517,6 @@
           ansible.builtin.shell: 'docker start {{ docker_containers }}'
           ignore_errors: true
           when: (docker_containers | trim | length > 0)
-
-      when: (not use_snapshot)
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd:

@@ -27,8 +27,8 @@
   when: docker_binary.stat.exists
 
 - name: Tasks for when Docker exists and is running
+  when: docker_binary.stat.exists and docker_service_running
   block:
-
     - name: Gather list of running Docker containers
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
       register: docker_running_containers
@@ -48,8 +48,6 @@
       ansible.builtin.systemd:
         name: docker
         state: stopped
-
-  when: docker_binary.stat.exists and docker_service_running
 
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"

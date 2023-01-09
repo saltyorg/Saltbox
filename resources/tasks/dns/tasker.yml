@@ -8,6 +8,7 @@
 #########################################################################
 ---
 - name: Resources | Tasks | DNS | Tasker | DNS Task Block
+  when: cloudflare_records_enabled and role_dns_enabled and not skip_dns
   block:
     - name: Resources | Tasks | DNS | Tasker | Get FLD
       ansible.builtin.shell: |
@@ -15,6 +16,7 @@
       register: fld
 
     - name: Resources | Tasks | DNS | Tasker | Get subdomain
+      when: dns_record | length > 0
       block:
         - name: Resources | Tasks | DNS | Tasker | Set subdomain var
           ansible.builtin.set_fact:
@@ -24,9 +26,9 @@
           ansible.builtin.shell: |
             {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_record }}.{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
           register: subdomain_notempty
-      when: dns_record | length > 0
 
     - name: Resources | Tasks | DNS | Tasker | Get subdomain
+      when: dns_record | length == 0
       block:
         - name: Resources | Tasks | DNS | Tasker | Set subdomain var
           ansible.builtin.set_fact:
@@ -36,7 +38,6 @@
           ansible.builtin.shell: |
             {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
           register: subdomain_empty
-      when: dns_record | length == 0
 
     - name: Resources | Tasks | DNS | Tasker | Set subdomain var
       ansible.builtin.set_fact:
@@ -60,5 +61,3 @@
         _dns_role_zone: "{{ _dns_tasker_zone }}"
         _dns_role_action: "{{ _dns_tasker_action }}"
         _dns_role_proxy: "{{ _dns_tasker_proxy }}"
-
-  when: cloudflare_records_enabled and role_dns_enabled and not skip_dns

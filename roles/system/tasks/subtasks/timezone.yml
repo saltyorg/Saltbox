@@ -19,8 +19,12 @@
   changed_when: false
 
 - name: Time Zone | Fetch Time Zone if set to 'auto'
+  when:
+    - (system is defined)
+    - (system.timezone is defined)
+    - ('auto' in system.timezone | lower)
+  ignore_errors: true
   block:
-
     - name: Time Zone | Get Time Zone from 'http://ip-api.com'
       ansible.builtin.uri:
         url: http://ip-api.com/line?fields=timezone
@@ -34,12 +38,6 @@
       when:
         - (ip_api_timezone_response is succeeded)
         - (ip_api_timezone_response.content | trim | length > 0)
-
-  when:
-    - (system is defined)
-    - (system.timezone is defined)
-    - ('auto' in system.timezone | lower)
-  ignore_errors: true
 
 - name: Check if timezone is valid
   ansible.builtin.fail:

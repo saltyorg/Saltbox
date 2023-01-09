@@ -13,8 +13,8 @@
   register: folder
 
 - name: Dump and backup databases
+  when: folder.stat.exists
   block:
-
     - name: Install mysql-client dependency
       ansible.builtin.apt:
         name: mysql-client
@@ -51,5 +51,3 @@
         path: /opt/mariadb/
         state: absent
       when: relocate.rc == 0
-
-  when: folder.stat.exists

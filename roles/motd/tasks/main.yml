@@ -109,8 +109,8 @@
   when: (not motd_config.stat.exists)
 
 - name: Banner Title migration
+  when: motd_config.stat.exists
   block:
-
     - name: Check value of motd banner
       ansible.builtin.shell: "jq '.motd.banner_title' /opt/motd/config.json"
       register: motd_banner
@@ -120,11 +120,9 @@
         jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
       when: ('Cloudbox' in motd_banner.stdout)
 
-  when: motd_config.stat.exists
-
 - name: Config path migration
+  when: motd_config.stat.exists
   block:
-
     - name: Check value of disk path
       ansible.builtin.shell: "jq '.disk.path' /opt/motd/config.json"
       register: disk_path
@@ -133,8 +131,6 @@
       ansible.builtin.shell: |
         jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
       when: (disk_path.stdout == 'null')
-
-  when: motd_config.stat.exists
 
 - name: Touch '/opt/motd/activity.log' file
   ansible.builtin.file:

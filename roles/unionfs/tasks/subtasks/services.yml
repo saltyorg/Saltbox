@@ -13,8 +13,8 @@
   register: _service_file_status
 
 - name: "Services | Tasks for '{{ _service_file }}'"
+  when: _service_file_status.stat.exists
   block:
-
     - name: "Services | Stop and disable existing '{{ _service_file }}'"
       ansible.builtin.systemd:
         name: "{{ _service_file }}"
@@ -56,5 +56,3 @@
     - name: "Services | Systemd daemon-reload"
       ansible.builtin.systemd:
         daemon_reload: true
-
-  when: _service_file_status.stat.exists

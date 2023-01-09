@@ -31,8 +31,8 @@
   register: nethogs_clone_status
 
 - name: Tasks to do with git clone is a success
+  when: (nethogs_clone_status is succeeded)
   block:
-
     - name: Build and install NetHogs
       ansible.builtin.shell: "{{ nethogs_binary_build_command }}"
 
@@ -43,5 +43,3 @@
     - name: Display nethogs binary version
       ansible.builtin.debug:
         msg: "NetHogs {{ nethogs_binary_version.stdout }} installed."
-
-  when: (nethogs_clone_status is succeeded)

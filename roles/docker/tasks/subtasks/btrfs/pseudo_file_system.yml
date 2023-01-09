@@ -14,8 +14,8 @@
     var_lib_docker_mount_exists: "{{ true if (ansible_mounts | json_query('[?mount == `/var/lib/docker`]')) else false }}"
 
 - name: BTRFS | Psuedo-File-System | Tasks when '/var/lib/docker' is not mounted
+  when: (not var_lib_docker_mount_exists)
   block:
-
     - name: BTRFS | Psuedo-File-System | Create blank '{{ docker_filesystem_path }}'
       ansible.builtin.shell: touch {{ docker_filesystem_path }}
 
@@ -51,5 +51,3 @@
         fstype: ext4
         opts: loop
         state: mounted
-
-  when: (not var_lib_docker_mount_exists)

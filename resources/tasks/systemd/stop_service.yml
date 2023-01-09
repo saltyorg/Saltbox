@@ -21,8 +21,8 @@
   register: service_status
 
 - name: Resources | Tasks | systemd | Stop Service | existing '{{ _service_file }}' tasks
+  when: service_status.stat.exists
   block:
-
     - name: Resources | Tasks | systemd | Stop Service | populate service facts
       ansible.builtin.service_facts:
 
@@ -35,5 +35,3 @@
         name: "{{ _service_name }}"
         state: stopped
       when: service_running
-
-  when: service_status.stat.exists

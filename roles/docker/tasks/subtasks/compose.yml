@@ -32,8 +32,8 @@
     mode: a+x
 
 - name: Install Compose Switch
+  when: compose_install_switch
   block:
-
     - name: "Get URL for latest Compose release"
       ansible.builtin.shell: "{{ compose_switch_release_lookup_command }}"
       args:
@@ -64,5 +64,3 @@
 
     - name: Define alternatives group for docker-compose command - Entry 2
       ansible.builtin.shell: update-alternatives --install /usr/local/bin/docker-compose docker-compose /usr/local/bin/compose-switch 99
-
-  when: compose_install_switch

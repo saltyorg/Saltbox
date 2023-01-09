@@ -18,8 +18,8 @@
   ignore_errors: true
 
 - name: "Mount Path | Tasks for '{{ mount_path }}' path"
+  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)
   block:
-
     - name: "Mount Path | Remove empty directories in '{{ mount_path }}'"
       ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"
       ignore_errors: true
@@ -41,5 +41,3 @@
       ansible.builtin.file:
         path: "{{ mount_path }}"
         state: absent
-
-  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)

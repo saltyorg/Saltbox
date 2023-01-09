@@ -13,8 +13,8 @@
   register: preferences_xml
 
 - name: "Preferences | '{{ plex_paths_config_location | basename }}' Tasks"
+  when: preferences_xml.stat.exists
   block:
-
     - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
       community.general.xml:
         path: "{{ plex_paths_config_location }}"
@@ -52,8 +52,6 @@
         plex_server_claimed: "{{ (preferences_xml_resp is succeeded) and
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken is defined) and
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"
-
-  when: preferences_xml.stat.exists
 
 - name: Preferences | Claim {{ plex_name | title }} Server
   ansible.builtin.import_tasks: "claim_server.yml"

@@ -16,8 +16,8 @@
       - ethtool
 
 - name: Network | Network Tasks Block
+  when: (ansible_default_ipv4 is defined) and (ansible_default_ipv4.type == "ether")
   block:
-
     - name: Network | Check for '/etc/vnstat.conf'
       ansible.builtin.stat:
         path: "/etc/vnstat.conf"
@@ -60,5 +60,3 @@
         group: "root"
         mode: "0755"
       when: ('I218' in nic.stdout) or ('I219' in nic.stdout)
-
-  when: (ansible_default_ipv4 is defined) and (ansible_default_ipv4.type == "ether")

@@ -13,8 +13,8 @@
   register: lidarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Lidarr API Key tasks
+  when: (lidarr_paths_config_location_stat.stat.exists)
   block:
-
     - name: Resources | Tasks | Instances | Get Info | Fetch Lidarr API Key
       community.general.xml:
         path: "{{ lidarr_paths_config_location }}"
@@ -25,8 +25,6 @@
     - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
       ansible.builtin.set_fact:
         lidarr_info: "{{ lidarr_info | default({}) | combine({lidarr_name: {'name': lidarr_name, 'url': lidarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
-
-  when: (lidarr_paths_config_location_stat.stat.exists)
 
 - name: Resources | Tasks | Instances | Get Info | Set 'lidarr_info' variable
   ansible.builtin.set_fact:

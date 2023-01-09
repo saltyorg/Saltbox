@@ -18,8 +18,8 @@
   when: ('saltbox' in docker_networks_list.stdout_lines)
 
 - name: "Network | Create new IPv6 saltbox docker network block"
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and docker_ipv6
   block:
-
     - name: Create saltbox network
       community.docker.docker_network:
         name: saltbox
@@ -28,12 +28,10 @@
         ipam_config:
           - subnet: 172.19.0.0/16
           - subnet: fd00:dead:beef::/48
-
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and docker_ipv6
 
 - name: "Network | Create new IPv4 saltbox docker network block"
+  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not docker_ipv6)
   block:
-
     - name: Create saltbox network
       community.docker.docker_network:
         name: saltbox
@@ -41,11 +39,9 @@
         ipam_config:
           - subnet: 172.19.0.0/16
 
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not docker_ipv6)
-
 - name: "Network | Migrating existing saltbox docker network block to IPv6"
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'false') and docker_ipv6
   block:
-
     - name: Network | Get list of containers on saltbox network
       ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
@@ -74,11 +70,9 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'false') and docker_ipv6
-
 - name: "Network | Migrating existing saltbox docker network block to IPv4"
+  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'true') and (not docker_ipv6)
   block:
-
     - name: Network | Get list of containers on saltbox network
       ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
       register: docker_containers
@@ -104,8 +98,6 @@
       register: q
       failed_when: q.rc > 1
       ignore_errors: true
-
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'true') and (not docker_ipv6)
 
 - name: Network | Remove IPv6 NAT Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

@@ -8,50 +8,38 @@
 #########################################################################
 ---
 - name: Migrator | Migrations for all config files
+  when: (file != "ansible.cfg")
   block:
-
     - name: Migrator | All | Migration 01
       ansible.builtin.include_tasks: "migrator/all/migration_01.yml"
       when: (file != "backup_config.yml")
 
-  when: (file != "ansible.cfg")
-
 - name: Migrator | Migrations for 'ansible.cfg'
+  when: (file == "ansible.cfg")
   block:
-
     - name: Migrator | 'ansible.cfg' | Migration 01
       ansible.builtin.include_tasks: "migrator/ansible_cfg/migration_01.yml"
 
-  when: (file == "ansible.cfg")
-
 - name: Migrator | Migrations for 'accounts.yml'
+  when: (file == "accounts.yml")
   block:
-
     - name: Migrator | 'accounts.yml' | Migration 01
       ansible.builtin.include_tasks: "migrator/accounts_yml/migration_01.yml"
 
-  when: (file == "accounts.yml")
-
 - name: Migrator | Migrations for 'adv_settings.yml'
+  when: (file == "adv_settings.yml")
   block:
-
     - name: Migrator | 'adv_settings.yml' | Migration 01
       ansible.builtin.include_tasks: "migrator/adv_settings_yml/migration_01.yml"
 
-  when: (file == "adv_settings.yml")
-
 - name: Migrator | Migrations for 'backup_config.yml'
+  when: (file == "backup_config.yml")
   block:
-
     - name: Migrator | 'backup_config.yml' | Migration 01
       ansible.builtin.include_tasks: "migrator/backup_config_yml/migration_01.yml"
 
-  when: (file == "backup_config.yml")
-
 - name: Migrator | Migrations for 'settings.yml'
+  when: (file == "settings.yml")
   block:
-
     - name: Migrator | 'settings.yml' | Migration 01
       ansible.builtin.include_tasks: "migrator/settings_yml/migration_01.yml"
-
-  when: (file == "settings.yml")

@@ -17,8 +17,8 @@
   register: plex_plugin_subzero_bundle_status
 
 - name: Tasks for previously installed Sub-Zero Plugin
+  when: plex_plugin_subzero_bundle_status.stat.exists
   block:
-
     - name: Set default value for 'plex_plugin_subzero_is_outdated' variable
       ansible.builtin.set_fact:
         plex_plugin_subzero_is_outdated: false
@@ -48,14 +48,14 @@
               ((plex_plugin_subzero_latest_version is success) and
               (plex_plugin_subzero_previously_installed_version is version(plex_plugin_subzero_latest_version.stdout, '<'))) }}"
 
-  when: plex_plugin_subzero_bundle_status.stat.exists
-
 - name: Install Sub-Zero Plugin
+  when: (not plex_plugin_subzero_bundle_status.stat.exists) or
+        (plex_plugin_subzero_bundle_status.stat.exists and plex_plugin_subzero_is_outdated) or
+        ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
   block:
-
     - name: Check to see if {{ plex_name | title }} is running
+      when: ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
       block:
-
         - name: Gather list of running Docker containers
           ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
           register: docker_running_containers_list
@@ -68,11 +68,7 @@
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
           vars:
             var_prefix: "plex"
-
-
           when: (plex_docker_container in docker_running_containers_list)
-
-      when: ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
 
     - name: Remove outdated Sub-Zero Plugin
       ansible.builtin.file:
@@ -115,16 +111,16 @@
       ignore_errors: true
 
     - name: Post-Successfull Sub-Zero Plugin Download
+      when: (plex_plugin_subzero_download_status is success)
       block:
-
         - name: Check for newly installed Sub-Zero Plugin
           ansible.builtin.stat:
             path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
           register: plex_plugin_subzero_info_plist_status
 
         - name: Post-Successfull Sub-Zero Plugin Install
+          when: plex_plugin_subzero_info_plist_status.stat.exists
           block:
-
             - name: Check version of newly installed Sub-Zero Plugin
               community.general.xml:
                 path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
@@ -140,10 +136,6 @@
               ansible.builtin.debug:
                 msg: "Sub-Zero Plugin version {{ plex_plugin_subzero_newly_installed_version }} installed."
 
-          when: plex_plugin_subzero_info_plist_status.stat.exists
-
-      when: (plex_plugin_subzero_download_status is success)
-
     - name: Sub-Zero Plugin install failed
       ansible.builtin.debug:
         msg: "Sub-Zero Plugin install failed."
@@ -157,10 +149,6 @@
       when: ('plex-plugin-sub-zero' in ansible_run_tags) or
             ('plex-plugin-sub-zero-reinstall' in ansible_run_tags) or
             (plex_docker_container in docker_running_containers_list)
-
-  when: (not plex_plugin_subzero_bundle_status.stat.exists) or
-        (plex_plugin_subzero_bundle_status.stat.exists and plex_plugin_subzero_is_outdated) or
-        ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
 
 - name: Sub-Zero Plugin was not updated
   ansible.builtin.debug:

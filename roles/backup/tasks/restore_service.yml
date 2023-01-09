@@ -108,8 +108,10 @@
   when: (encrypted_files_list | trim | length > 0)
 
 - name: Restore Service | Restore Service Upload Tasks
+  when:
+    - (unencrypted_files_list | trim | length == 0)
+    - (encrypted_files_list | trim | length > 0)
   block:
-
     - name: Restore Service | Upload encrypted config file(s)
       ansible.builtin.shell: "curl -F 'file=@{{ item }}' 'https://crs.saltbox.dev/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
       with_fileglob:
@@ -153,7 +155,3 @@
       vars:
         message: "Saltbox Backup: Config files uploaded to the Saltbox Restore Service."
       when: (files_uploaded_list | trim | length > 0)
-
-  when:
-    - (unencrypted_files_list | trim | length == 0)
-    - (encrypted_files_list | trim | length > 0)

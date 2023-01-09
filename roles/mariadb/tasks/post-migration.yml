@@ -13,8 +13,8 @@
   register: dump
 
 - name: Import databases
+  when: (not folder.stat.exists and dump.stat.exists)
   block:
-
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
         timeout: 5
@@ -27,5 +27,3 @@
         state: import
         name: all
         target: /opt/mariadb_legacy/dump.sql
-
-  when: (not folder.stat.exists and dump.stat.exists)

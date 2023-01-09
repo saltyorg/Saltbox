@@ -51,8 +51,6 @@
   ansible.builtin.service_facts:
   when: unionfs_service.stat.exists or mergerfs_service.stat.exists
 
- # Stop unionfs
-
 - name: Get 'unionfs.service' state
   ansible.builtin.set_fact:
     unionfs_service_running: "{{ (services['unionfs.service'] is defined) and (services['unionfs.service']['state'] == 'running') }}"
@@ -64,8 +62,6 @@
     name: unionfs
   when: unionfs_service.stat.exists and unionfs_service_running
 
- # stop mergerfs
-
 - name: Get 'mergerfs.service' state
   ansible.builtin.set_fact:
     mergerfs_service_running: "{{ (services['mergerfs.service'] is defined) and (services['mergerfs.service']['state'] == 'running') }}"
@@ -76,8 +72,6 @@
     state: stopped
     name: mergerfs
   when: mergerfs_service.stat.exists and mergerfs_service_running
-
- # force unmount remotes
 
 - name: 'Force unmount remotes'
   ansible.builtin.shell: '/bin/umount -f {{ item }} 2>/dev/null || :'

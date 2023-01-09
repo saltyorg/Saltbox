@@ -15,15 +15,15 @@
   register: var_lib_docker
 
 - name: BTRFS | Cleanup | Tasks when '/var/lib/docker' exists
+  when: var_lib_docker.stat.exists
   block:
-
     - name: BTRFS | Cleanup | Check filesystem of '/var/lib/docker' path
       ansible.builtin.shell: stat -f -c %T /var/lib/docker
       register: var_lib_docker_file_system
 
     - name: BTRFS | Cleanup | Tasks when '/var/lib/docker' is btrfs
+      when: ('btrfs' in var_lib_docker_file_system.stdout)
       block:
-
         - name: BTRFS | Cleanup | Remove all docker containers, images, and volumes
           ansible.builtin.shell: |
             docker container stop $(docker ps -aq) &> /dev/null || true
@@ -52,7 +52,3 @@
           ansible.builtin.file:
             path: "/var/lib/docker"
             state: absent
-
-      when: ('btrfs' in var_lib_docker_file_system.stdout)
-
-  when: var_lib_docker.stat.exists

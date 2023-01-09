@@ -13,8 +13,8 @@
   register: outer_item_stat
 
 - name: BTRFS | Do following tasks when '{{ outer_item }}' does not exist
+  when: (not outer_item_stat.stat.exists)
   block:
-
     - name: BTRFS | Create '{{ outer_item }}' path
       ansible.builtin.file:
         path: "{{ outer_item }}"
@@ -30,5 +30,3 @@
     - name: BTRFS | Set NOCOW on '{{ outer_item }} if BTRFS'
       ansible.builtin.shell: "chattr +C {{ outer_item }}"
       when: ('btrfs' in outer_item_file_system.stdout)
-
-  when: (not outer_item_stat.stat.exists)

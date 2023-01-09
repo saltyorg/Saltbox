@@ -22,8 +22,8 @@
   register: blacklist_hetzner_conf
 
 - name: Hetzner | Hetzner GRUB Edits Block
+  when: ('i915' in lscpi_resp.stdout) and blacklist_hetzner_conf.stat.exists
   block:
-
     - name: Hetzner | Comment out 'i915' blacklists in 'blacklist-hetzner.conf'
       ansible.builtin.replace:
         path: "/etc/modprobe.d/blacklist-hetzner.conf"
@@ -44,5 +44,3 @@
       loop: "{{ hetzner_grub_files_status.results }}"
       loop_control:
         loop_var: outer_item
-
-  when: ('i915' in lscpi_resp.stdout) and blacklist_hetzner_conf.stat.exists

@@ -13,6 +13,7 @@
   when: plex_account_is_enabled
 
 - name: Claim Server | Get {{ plex_name | title }} claim code via API
+  when: plex_account_is_enabled
   block:
     - name: "Get {{ plex_name | title }} claim code"
       ansible.builtin.uri:
@@ -34,11 +35,9 @@
       ansible.builtin.set_fact:
         plex_claim_code: "{{ plex_claim.json.token }}"
 
-  when: plex_account_is_enabled
-
 - name: Claim Server | Get {{ plex_name | title }} claim code via prompts
+  when: (not plex_account_is_enabled)
   block:
-
     - name: "Claim Server | Ask user for {{ plex_name | title }} claim code"
       ansible.builtin.pause:
         prompt: "Please visit 'https://plex.tv/claim', login with your Plex account,
@@ -48,8 +47,6 @@
     - name: "Claim Server | Set 'plex_claim_code' variable"
       ansible.builtin.set_fact:
         plex_claim_code: "{{ plex_claim_code_prompt.user_input }}"
-
-  when: (not plex_account_is_enabled)
 
 - name: Claim Server | Assert {{ plex_name | title }} claim code exists
   ansible.builtin.assert:

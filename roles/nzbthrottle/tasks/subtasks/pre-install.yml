@@ -13,8 +13,8 @@
   register: nzbthrottle_paths_config_location_stat
 
 - name: Pre-Install | New config tasks
+  when: (not nzbthrottle_paths_config_location_stat.stat.exists)
   block:
-
     - name: Pre-Install | Import Plex Auth Token role
       ansible.builtin.include_role:
         name: plex_auth_token
@@ -31,5 +31,3 @@
       vars:
         plex_original_name: "{{ plex_instances[0] }}"
         plex_name: "{{ plex_instances[0] if not '-' in plex_instances[0] else (plex_instances[0] | replace('-', '_')) }}"
-
-  when: (not nzbthrottle_paths_config_location_stat.stat.exists)

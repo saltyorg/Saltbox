@@ -17,8 +17,8 @@
     msg: "Saltbox pre-install has completed!"
 
 - name: Preinstall | Tasks for kernel restart
+  when: (preinstall_kernel_restart is defined) and preinstall_kernel_restart
   block:
-
     - name: "Preinstall | Display message when restarting server"
       ansible.builtin.debug:
         msg: "Restarting the server to apply changes..."
@@ -31,5 +31,3 @@
         msg:
           - "Failed to reboot automatically."
           - "You will need to restart the server yourself for changes to take effect."
-
-  when: (preinstall_kernel_restart is defined) and preinstall_kernel_restart

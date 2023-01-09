@@ -29,8 +29,8 @@
   register: transfer_binary
 
 - name: Install 'transfer' utility
+  when: (not transfer_binary.stat.exists)
   block:
-
     - name: Get latest transfer URL
       ansible.builtin.shell: >-
           curl -s {{ cvm }}https://api.github.com/repos/l3uddz/transfer/releases/latest |
@@ -70,5 +70,3 @@
       ansible.builtin.debug:
         msg: "transfer install failed."
       when: (x is not success)
-
-  when: (not transfer_binary.stat.exists)

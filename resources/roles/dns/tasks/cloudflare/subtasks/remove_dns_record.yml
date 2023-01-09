@@ -18,8 +18,8 @@
   register: cloudflare_dns_record_removal_status
 
 - name: Cloudflare | Remove DNS Record | IPv4 | Tasks on success
+  when: cloudflare_dns_record_removal_status is succeeded
   block:
-
     - name: Cloudflare | Remove DNS Record | IPv4 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
         dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
@@ -27,9 +27,6 @@
     - name: Cloudflare | Remove DNS Record | IPv4 | Display DNS Record removal status
       ansible.builtin.debug:
         msg: "DNS A Record for '{{ dns_record_print }}' was removed."
-
-  when: cloudflare_dns_record_removal_status is succeeded
-
 
 - name: Cloudflare | Remove DNS Record | IPv6 | Remove DNS Record
   community.general.cloudflare_dns:
@@ -42,8 +39,8 @@
   register: cloudflare_dns_v6_record_removal_status
 
 - name: Cloudflare | Remove DNS Record | IPv6 | Tasks on success
+  when: cloudflare_dns_v6_record_removal_status is succeeded
   block:
-
     - name: Cloudflare | Remove DNS Record | IPv6 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
         dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
@@ -51,5 +48,3 @@
     - name: Cloudflare | Remove DNS Record | IPv6 | Display DNS Record removal status
       ansible.builtin.debug:
         msg: "DNS AAAA Record for '{{ dns_record_print }}' was removed."
-
-  when: cloudflare_dns_v6_record_removal_status is succeeded

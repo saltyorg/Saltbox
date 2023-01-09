@@ -9,6 +9,8 @@ exclude_paths:
   - library/
   - scripts/
 
+offline: true
+
 skip_list:
   - braces
   - git-latest
@@ -25,4 +27,3 @@ skip_list:
   - schema[tasks]
   - name[casing]
   - name[template]
-  - key-order[task]

@@ -37,13 +37,11 @@
 ################################
 
 - name: Variables | Add feeder entries to variable
+  when: feeder_mount_is_enabled
   block:
-
     - name: Variables | Add 'feeder' to 'mount_types' variable
       ansible.builtin.set_fact:
         desired_mount_types: "{{ desired_mount_types + ['feeder'] }}"
-
-  when: feeder_mount_is_enabled
 
 ################################
 # Mount Paths

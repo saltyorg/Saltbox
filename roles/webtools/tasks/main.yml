@@ -17,8 +17,8 @@
   register: plex_plugin_webtools_bundle_status
 
 - name: Tasks for previously installed WebTools Plugin
+  when: plex_plugin_webtools_bundle_status.stat.exists
   block:
-
     - name: Set default value for 'plex_plugin_webtools_is_outdated' variable
       ansible.builtin.set_fact:
         plex_plugin_webtools_is_outdated: false
@@ -45,14 +45,14 @@
               ((plex_plugin_webtools_latest_version is success) and
               (plex_plugin_webtools_previously_installed_version is version(plex_plugin_webtools_latest_version.stdout, '<', strict=True))) }}"
 
-  when: plex_plugin_webtools_bundle_status.stat.exists
-
 - name: Install WebTools Plugin
+  when: (not plex_plugin_webtools_bundle_status.stat.exists) or
+        (plex_plugin_webtools_bundle_status.stat.exists and plex_plugin_webtools_is_outdated) or
+        ('plex-plugin-webtools-reinstall' in ansible_run_tags)
   block:
-
     - name: Check to see if {{ plex_name | title }} is running
+      when: ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
       block:
-
         - name: Gather list of running Docker containers
           ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
           register: docker_running_containers_list
@@ -68,8 +68,6 @@
             var_prefix: "plex"
 
           when: (plex_docker_container in docker_running_containers_list)
-
-      when: ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
 
     - name: Remove outdated WebTools Plugin
       ansible.builtin.file:
@@ -112,16 +110,16 @@
       ignore_errors: true
 
     - name: Post-Successfull WebTools Plugin Download
+      when: (plex_plugin_webtools_download_status is success)
       block:
-
         - name: Check for newly installed WebTools Plugin
           ansible.builtin.stat:
             path: "{{ plex_plugin_webtools_paths_version_location }}"
           register: plex_plugin_webtools_version_status
 
         - name: Post-Successfull WebTools Plugin Install
+          when: plex_plugin_webtools_version_status.stat.exists
           block:
-
             - name: Check version of newly installed WebTools Plugin
               ansible.builtin.shell: cat '{{ plex_plugin_webtools_paths_version_location }}' |  head -n 1 | awk '{ print }'
               register: plex_plugin_webtools_newly_installed_version
@@ -134,10 +132,6 @@
             - name: Display WebTools Plugin version
               ansible.builtin.debug:
                 msg: "WebTools Plugin version {{ plex_plugin_webtools_newly_installed_version }} installed."
-
-          when: plex_plugin_webtools_version_status.stat.exists
-
-      when: (plex_plugin_webtools_download_status is success)
 
     - name: WebTools Plugin install failed
       ansible.builtin.debug:
@@ -152,10 +146,6 @@
       when:
         - ('plex-plugin-webtools' in ansible_run_tags) or ('plex-plugin-webtools-reinstall' in ansible_run_tags)
         - (plex_docker_container in docker_running_containers_list)
-
-  when: (not plex_plugin_webtools_bundle_status.stat.exists) or
-        (plex_plugin_webtools_bundle_status.stat.exists and plex_plugin_webtools_is_outdated) or
-        ('plex-plugin-webtools-reinstall' in ansible_run_tags)
 
 - name: WebTools Plugin was not updated
   ansible.builtin.debug:

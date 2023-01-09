@@ -37,7 +37,6 @@
 
 - name: "Install Binary | Download and unarchive rclone"
   block:
-
     - name: "Install Binary | Download and unarchive rclone"
       ansible.builtin.unarchive:
         src: "{{ rclone_download_url }}"
@@ -50,7 +49,6 @@
       delay: 10
 
   rescue:
-
     - name: "Install Binary | Download and unarchive rclone from Github"
       ansible.builtin.unarchive:
         src: "{{ rclone_latest_download_url.stdout }}"

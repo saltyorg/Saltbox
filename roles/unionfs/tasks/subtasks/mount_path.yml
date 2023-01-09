@@ -18,8 +18,8 @@
   ignore_errors: true
 
 - name: "Mount Path | Tasks for '/mnt/unionfs' path"
+  when: (mnt_unionfs is failed) or mnt_unionfs.stat.exists
   block:
-
     - name: "Mount Path | Remove empty directories in '/mnt/unionfs'"
       ansible.builtin.shell: "find '/mnt/unionfs' -type d -empty -delete"
       ignore_errors: true
@@ -40,8 +40,6 @@
       ansible.builtin.file:
         path: "/mnt/unionfs"
         state: absent
-
-  when: (mnt_unionfs is failed) or mnt_unionfs.stat.exists
 
 - name: "Mount Path | Create '/mnt/unionfs' directory"
   ansible.builtin.file:

@@ -15,8 +15,8 @@
   when: ('preinstall' in ansible_run_tags)
 
 - name: Restart | Tasks for non-preinstall
+  when: ('preinstall' not in ansible_run_tags)
   block:
-
     - name: Restart | Success message
       ansible.builtin.debug:
         msg:
@@ -31,5 +31,3 @@
         msg:
           - "Failed to reboot automatically."
           - "You will need to restart the server yourself for changes to take effect."
-
-  when: ('preinstall' not in ansible_run_tags)

@@ -22,8 +22,8 @@
     - "{{ ansible_mounts }}"
 
 - name: "Setup btrfsmaintenance scripts"
+  when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
   block:
-
     - name: "Clone btrfsmaintenance repo"
       ansible.builtin.git:
         repo: https://github.com/kdave/btrfsmaintenance.git
@@ -83,8 +83,6 @@
       ansible.builtin.shell: /opt/btrfsmaintenance/btrfsmaintenance-refresh-cron.sh timer
       args:
         chdir: /opt/btrfsmaintenance/
-
-  when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
 
 # Check for no btrfs and exit - not working
 - name: "Exit if no btrfs partitions found"

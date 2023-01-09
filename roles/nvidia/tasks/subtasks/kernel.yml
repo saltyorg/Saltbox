@@ -17,8 +17,8 @@
   register: r
 
 - name: Kernel | Continue with tasks
+  when: r.changed
   block:
-
     - name: Kernel | Update initramfs
       ansible.builtin.command: update-initramfs -u
 
@@ -34,5 +34,3 @@
     - name: Kernel | Reboot message
       ansible.builtin.fail:
         msg: "Disabled nouveau driver. You will need to restart the server for changes to take effect."
-
-  when: r.changed

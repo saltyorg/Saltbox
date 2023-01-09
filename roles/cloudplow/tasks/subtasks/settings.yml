@@ -18,8 +18,8 @@
   register: cloudplow_config
 
 - name: Settings | New 'config.json' tasks
+  when: (not cloudplow_config.stat.exists)
   block:
-
     - name: Settings | Import 'config.json'
       ansible.builtin.template:
         src: config.json.j2
@@ -32,11 +32,9 @@
         plex_original_name: "{{ plex_instances[0] }}"
         plex_name: "{{ plex_instances[0] if not '-' in plex_instances[0] else (plex_instances[0] | replace('-', '_')) }}"
 
-  when: (not cloudplow_config.stat.exists)
-
 - name: Settings | Existing 'config.json' tasks
+  when: cloudplow_config.stat.exists
   block:
-
     - name: Settings | Install required packages
       ansible.builtin.apt:
         state: present
@@ -67,8 +65,6 @@
         jq '.plex.token = "{{ plex_auth_token | default('') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
-
-  when: cloudplow_config.stat.exists
 
 - name: Settings | Upgrade 'config.json'
   ansible.builtin.shell: "{{ cloudplow_python_path }} {{ cloudplow_script_path }} update_config"

@@ -17,8 +17,8 @@
   register: jellyfin_xml_old
 
 - name: Preinstall MIGRATE | New `{{ jellyfin_paths_xml_loct_old | basename }}` tasks
+  when: jellyfin_xml_old.stat.exists
   block:
-
     - name: Preinstall MIGRATE | Import `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists
       ansible.builtin.copy:
         src: "{{ jellyfin_paths_xml_loct_old }}"
@@ -32,8 +32,6 @@
       ansible.builtin.file:
         path: "{{ jellyfin_paths_xml_loct_old }}"
         state: absent
-
-  when: jellyfin_xml_old.stat.exists
 
 # Low priority as migrate should not be needed.
 # Need to find out what other files need to be moved, network.xml - metadata, db's.
@@ -68,8 +66,8 @@
 ################################
 
 - name: Settings DLNA | New `{{ jellyfin_paths_dlna_location | basename }}` tasks
+  when: (not jellyfin_dlna.stat.exists)
   block:
-
     - name: Import 'dlna.xml' config
       ansible.builtin.copy:
         src: "dlna.xml"
@@ -78,5 +76,3 @@
         group: "{{ user.name }}"
         mode: 0775
         force: false
-
-  when: (not jellyfin_dlna.stat.exists)

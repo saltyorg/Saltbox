@@ -93,8 +93,8 @@
   when: (not traktarr_config.stat.exists)
 
 - name: "When sonarr exists, add api key to traktar config"
+  when: (not traktarr_config.stat.exists) and sonarr_config.stat.exists
   block:
-
     - name: Pull sonarr api key
       community.general.xml:
         path: "/opt/sonarr/config.xml"
@@ -106,8 +106,6 @@
       ansible.builtin.set_fact:
         sonarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
 
-  when: (not traktarr_config.stat.exists) and sonarr_config.stat.exists
-
 - name: "Check if radarr exists"
   ansible.builtin.stat:
     path: "/opt/radarr/config.xml"
@@ -115,8 +113,8 @@
   when: (not traktarr_config.stat.exists)
 
 - name: "When radarr exists, add api key to traktar config"
+  when: (not traktarr_config.stat.exists) and radarr_config.stat.exists
   block:
-
     - name: Pull radarr api key
       community.general.xml:
         path: "/opt/radarr/config.xml"
@@ -127,8 +125,6 @@
     - name: Set radarr api Key
       ansible.builtin.set_fact:
         radarr_api_key: "{{ xmlresp.matches[0].ApiKey }}"
-
-  when: (not traktarr_config.stat.exists) and radarr_config.stat.exists
 
 - name: Import default config
   ansible.builtin.template:

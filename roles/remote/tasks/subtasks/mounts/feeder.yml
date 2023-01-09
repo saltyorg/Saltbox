@@ -36,8 +36,8 @@
     feeder_remote_is_configured: "{{ 'feeder:' in rclone_config_remotes }}"
 
 - name: Feeder | Tasks when Rclone remote is configured
+  when: feeder_remote_is_configured
   block:
-
     - name: "Feeder | Test Rclone remote 'feeder:'"
       ansible.builtin.shell: |
         rclone lsd 'feeder:' \
@@ -65,8 +65,6 @@
           - "{{ rclone_test.stderr }}"
       when: (not feeder_remote_is_working)
       ignore_errors: true
-
-  when: feeder_remote_is_configured
 
 - name: "Feeder | Display error message when Rclone remote is not configured properly"
   ansible.builtin.fail:

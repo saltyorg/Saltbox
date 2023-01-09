@@ -13,8 +13,8 @@
   register: autoscan_config
 
 - name: Settings | New `{{ autoscan_paths_config_location | basename }}` tasks
+  when: (not autoscan_config.stat.exists)
   block:
-
     - name: Settings | Import default `{{ autoscan_paths_config_location | basename }}`
       ansible.builtin.template:
         src: config.yml.j2
@@ -22,5 +22,3 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: 0775
-
-  when: (not autoscan_config.stat.exists)

@@ -18,8 +18,8 @@
 
 # Exit playbook When necessary
 - name: Finish | Exit Tasks
+  when: exit_is_necessary
   block:
-
     - name: "Finish | Check 'settings-updater.py' run status for errors"
       ansible.builtin.debug:
         msg:
@@ -41,8 +41,6 @@
 
     - name: "Finish | Exit"
       ansible.builtin.meta: end_play
-
-  when: exit_is_necessary
 
 # Make sure accounts.yml has been filled in by user
 - name: "Finish | Get stats on 'accounts.yml' for hash check"

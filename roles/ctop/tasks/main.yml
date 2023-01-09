@@ -30,8 +30,8 @@
   delay: 10
 
 - name: Tasks to do when ctop download is successful
+  when: (ctop_download_status is succeeded)
   block:
-
     - name: Get ctop binary version
       ansible.builtin.shell: "{{ ctop_binary_version_lookup_command }}"
       register: ctop_binary_version
@@ -40,5 +40,3 @@
     - name: Display ctop binary version
       ansible.builtin.debug:
         msg: "ctop {{ ctop_binary_version.stdout }} installed."
-
-  when: (ctop_download_status is succeeded)

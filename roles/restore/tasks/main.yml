@@ -31,8 +31,8 @@
   register: localhost_yml_playbook_dir
 
 - name: "Import 'localhost.yml' from '{{ playbook_dir }}'"
+  when: localhost_yml_playbook_dir.stat.exists
   block:
-
     - name: "Check if a previous 'localhost.yml' exists"
       ansible.builtin.stat:
         path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
@@ -67,8 +67,6 @@
       ansible.builtin.file:
         path: "{{ playbook_dir }}/localhost.yml"
         state: absent
-
-  when: localhost_yml_playbook_dir.stat.exists
 
 - name: BTRFS Tasks
   ansible.builtin.include_tasks: "btrfs.yml"

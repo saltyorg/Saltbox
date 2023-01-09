@@ -72,8 +72,8 @@
     rclone_remote_is_configured: "{{ (rclone.remote + ':') in rclone_config_remotes }}"
 
 - name: Rclone VFS | Tasks when Rclone remote is configured
+  when: rclone_remote_is_configured
   block:
-
     - name: "Rclone VFS | Test Rclone remote '{{ rclone.remote }}:'"
       ansible.builtin.shell: |
         rclone lsd '{{ rclone.remote }}:' \
@@ -88,8 +88,8 @@
         rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
 
     - name: Rclone VFS | Tasks when Rclone remote is working properly
+      when: rclone_remote_is_working
       block:
-
         - name: Rclone VFS | Start 'rclone_vfs.service'
           ansible.builtin.systemd:
             name: rclone_vfs.service
@@ -113,8 +113,6 @@
             enabled: true
             no_block: true
 
-      when: rclone_remote_is_working
-
     - name: "Rclone VFS | Display error message when Rclone remote is not working properly"
       ansible.builtin.fail:
         msg:
@@ -122,8 +120,6 @@
           - "{{ rclone_test.stderr }}"
       when: (not rclone_remote_is_working)
       ignore_errors: true
-
-  when: rclone_remote_is_configured
 
 - name: "Rclone VFS | Display error message when Rclone remote is not configured properly"
   ansible.builtin.fail:

@@ -15,7 +15,7 @@
 - name: Mounts | Set opts for '/' ext4 mount
   ansible.posix.mount:
     path: /
-    opts: defaults,noatime,nobarrier
+    opts: defaults,nodiratime,relatime
     state: present
     fstype: ext4
     src: "{{ item.device }}"

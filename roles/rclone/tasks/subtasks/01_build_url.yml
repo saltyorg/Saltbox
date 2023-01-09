@@ -37,7 +37,7 @@
   ansible.builtin.set_fact:
     rclone_version_specified: "latest"
     rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
-  when: (not rclone_version_is_specified) or (rclone.version == 'latest') or (rclone.version == 'current')
+  when: (not rclone_version_is_specified) or (rclone.version in ['latest', 'current'])
 
 - name: "Get URL for latest rclone release"
   ansible.builtin.shell: "{{ rclone_latest_release_lookup_command }}"
@@ -45,7 +45,7 @@
     executable: /bin/bash
   register: rclone_latest_download_url
   ignore_errors: true
-  when: (not rclone_version_is_specified) or (rclone.version == 'latest') or (rclone.version == 'current')
+  when: (not rclone_version_is_specified) or (rclone.version in ['latest', 'current'])
 
 - name: Build URL | Set vars for beta version
   ansible.builtin.set_fact:
@@ -54,8 +54,10 @@
   when: rclone_version_is_specified and (rclone.version == 'beta')
 
 - name: Build URL | Specified version tasks
+  when:
+    - rclone_version_is_specified
+    - not (rclone.version in ['beta', 'latest', 'current'])
   block:
-
     - name: Build URL | Set temp 'rclone_version_specified0' var for specified version
       ansible.builtin.set_fact:
         rclone_version_specified0: >-
@@ -87,7 +89,3 @@
         rclone_version_specified: "latest"
         rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
       when: (rclone_version_specified0_check.stdout | trim | length == 0)
-
-  when:
-    - rclone_version_is_specified
-    - not ((rclone.version == 'beta') or (rclone.version == 'latest') or (rclone.version == 'current'))
