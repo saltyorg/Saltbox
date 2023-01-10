@@ -16,7 +16,7 @@
 
 - name: Docker Containers Stop Tasks
   ansible.builtin.import_tasks: "subtasks/docker/containers_stop.yml"
-  when: (not ('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags))
+  when: not (('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags))
 
 # Existing Setup
 
