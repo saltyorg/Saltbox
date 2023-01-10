@@ -89,6 +89,9 @@ nzbhydra2_config_settings_default:
   - .downloading.downloaders[0].addPaused = false
   # JVM Memory. If RAM >= 8GB, set XMX to 512, else 256.
   - .main.xmx = {{ nzbhydra2_config_settings_jvm_memory }}
+  # Accept Authelia Remote-User header from saltbox network for auth
+  - .auth.authHeader = "Remote-User"
+  - .auth.authHeaderIpRanges[0] = "172.19.0.1-172.19.0.254"
 
 nzbhydra2_config_settings_custom: []
 
