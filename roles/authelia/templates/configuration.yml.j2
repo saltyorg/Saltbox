@@ -129,12 +129,12 @@ ntp:
 
 notifier:
   disable_startup_check: {{ authelia_notifier_disable_startup_check }}
-{% if authelia_authentication_backend == 'filesystem' %}
+{% if authelia_notifier == 'filesystem' %}
   filesystem:
     filename: /config/notification.txt
 
 {% endif %}
-{% if authelia_authentication_backend == 'smtp' %}
+{% if authelia_notifier == 'smtp' %}
   smtp:
     host: {{ authelia_notifier_smtp_host }}
     port: {{ authelia_notifier_smtp_port }}
