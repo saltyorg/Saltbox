@@ -60,18 +60,18 @@ access_control:
   default_policy: deny
   rules:
     - domain:
-        - "{{ '*.' + user.domain }}"
-        - "{{ user.domain }}"
+        - "{{ '*.' + user.domain | lower }}"
+        - "{{ user.domain | lower }}"
       policy: one_factor
 
 session:
-  name: "{{ authelia_web_subdomain + '.' + authelia_web_domain }}"
+  name: "{{ authelia_web_subdomain + '.' + authelia_web_domain | lower }}"
   secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
   expiration: 1h
   inactivity: 5m
   remember_me_duration: 1M
   same_site: lax
-  domain: {{ user.domain }}
+  domain: {{ user.domain | lower }}
   redis:
     host: redis
     port: 6379
