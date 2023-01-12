@@ -29,8 +29,6 @@ sysctl_settings:
   fs.file-max: "{{ fs_file_max }}"
   fs.inotify.max_user_watches: "{{ system_inotify }}"
   kernel.numa_balancing: 0
-  net.core.busy_poll: 50
-  net.core.busy_read: 50
   net.core.default_qdisc: cake
   net.core.netdev_budget: 50000
   net.core.netdev_max_backlog: 100000
