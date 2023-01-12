@@ -13,7 +13,3 @@
     high_bound: 32410
   register: port_lookup_32400
   ignore_errors: true
-
-- name: Pre-Install | Import Modify Binary'
-  ansible.builtin.import_tasks: modify_binary.yml
-  when: plex_modify_binary

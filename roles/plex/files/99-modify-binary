@@ -1,6 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-echo "Modifying Plex Binary"
-mv -f "/usr/lib/plexmediaserver/Plex Media Server" "/usr/lib/plexmediaserver/Plex Media Server.old"
-/scripts/bbe -e 's/cache_size=2000/cache_size=9999/' "/usr/lib/plexmediaserver/Plex Media Server.old" > "/usr/lib/plexmediaserver/Plex Media Server"
-chmod +x "/usr/lib/plexmediaserver/Plex Media Server"

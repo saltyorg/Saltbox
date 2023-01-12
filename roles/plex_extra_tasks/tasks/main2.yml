@@ -20,9 +20,6 @@
   ansible.builtin.set_fact:
     plex_is_running_outer_state: "{{ plex_docker_container in docker_running_containers_list }}"
 
-- name: Plex Post-Install Checks
-  ansible.builtin.import_tasks: "subtasks/post_install_checks.yml"
-
 - name: Stop Docker Container
   community.docker.docker_container:
     name: "{{ plex_docker_container }}"
@@ -33,14 +30,6 @@
     comparisons:
       '*': ignore
   when: plex_is_running_outer_state
-
-  tags:
-    - plex-db-cache-size
-
-- name: "DB Cache Size Settings"
-  ansible.builtin.import_tasks: "subtasks/settings/db_cache_size.yml"
-  tags:
-    - plex-db-cache-size
 
 - name: "Install Sub-Zero Plugin"
   ansible.builtin.include_role:
@@ -62,5 +51,3 @@
     comparisons:
       '*': ignore
   when: plex_is_running_outer_state
-  tags:
-    - plex-db-cache-size
