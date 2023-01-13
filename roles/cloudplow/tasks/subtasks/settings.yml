@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if Plex instance is defined
+  ansible.builtin.set_fact:
+    plex_original_name: "{{ plex_name | default(plex_instances[0]) }}"
+    plex_name: "{{ (plex_name | default(plex_instances[0])) if not '-' in (plex_name | default(plex_instances[0])) else ((plex_name | default(plex_instances[0])) | replace('-', '_')) }}"
+
 - name: Settings | Import Plex Auth Token role
   ansible.builtin.include_role:
     name: plex_auth_token
@@ -28,9 +33,6 @@
         group: "{{ user.name }}"
         mode: "0775"
         force: true
-      vars:
-        plex_original_name: "{{ plex_name | default(plex_instances[0]) }}"
-        plex_name: "{{ (plex_name | default(plex_instances[0])) if not '-' in (plex_name | default(plex_instances[0])) else ((plex_name | default(plex_instances[0])) | replace('-', '_')) }}"
 
 - name: Settings | Existing 'config.json' tasks
   when: cloudplow_config.stat.exists
