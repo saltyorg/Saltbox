@@ -21,6 +21,35 @@ traefik_trusted_ips: ""
 traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
 traefik_http3: false
+traefik_entrypoint_web_port: "80"
+traefik_entrypoint_websecure_port: "443"
+# Format is as follows:
+# traefik_entrypoint_custom:
+#   tailscale:
+#     address: "IP"
+#     port: 80
+#     tls: false
+#   tailscale-secure:
+#     address: "IP"
+#     port: 443
+#     tls: true
+
+traefik_entrypoint_custom: {}
+
+################################
+# Templates
+################################
+
+traefik_entrypoint_template:
+  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + item.value.port }}"
+
+traefik_entrypoint_tls_template:
+  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + item.value.port }}"
+  - "--entrypoints.{{ item.key }}.http.tls.certResolver={{ traefik_default_certresolver }}"
+
+traefik_entrypoint_http3_template:
+  - "--entrypoints.{{ item.key }}.http3"
+  - "--entrypoints.{{ item.key }}.http3.advertisedport={{ item.value.port }}"
 
 ################################
 # Paths
@@ -136,9 +165,9 @@ traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
 traefik_docker_ports_defaults:
-  - "80:80/tcp"
-  - "443:443/tcp"
-  - "443:443/udp"
+  - "{{ traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
+  - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
+  - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
 traefik_docker_ports_custom: []
 traefik_docker_ports: "{{ traefik_docker_ports_defaults
                           + traefik_docker_ports_custom }}"
@@ -159,10 +188,10 @@ traefik_docker_commands_default:
   - "--providers.docker=true"
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.internal.address=:8080"
-  - "--entrypoints.web.address=:80"
+  - "--entrypoints.web.address=:{{ traefik_entrypoint_web_port }}"
   - "--entrypoints.web.forwardedheaders.trustedIPs={{ traefik_cloudflare_ips_string }}"
   - "--entrypoints.web.proxyprotocol.trustedIPs={{ traefik_cloudflare_ips_string }}"
-  - "--entrypoints.websecure.address=:443"
+  - "--entrypoints.websecure.address=:{{ traefik_entrypoint_websecure_port }}"
   - "--entrypoints.websecure.forwardedheaders.trustedIPs={{ traefik_cloudflare_ips_string }}"
   - "--entrypoints.websecure.proxyprotocol.trustedIPs={{ traefik_cloudflare_ips_string }}"
   - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
@@ -237,7 +266,7 @@ traefik_docker_commands_tracing:
   - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
 traefik_docker_commands_http3:
   - "--entrypoints.websecure.http3"
-  - "--entrypoints.websecure.http3.advertisedport=443"
+  - "--entrypoints.websecure.http3.advertisedport={{ traefik_entrypoint_websecure_port }}"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
@@ -255,7 +284,8 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                                else [])
                              + (traefik_docker_commands_http3
                                if traefik_http3
-                               else []) }}"
+                               else [])
+                             + custom_entrypoints }}"
 
 # Volumes
 traefik_docker_volumes_default:
