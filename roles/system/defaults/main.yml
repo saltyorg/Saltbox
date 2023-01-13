@@ -39,9 +39,9 @@ sysctl_settings:
   net.core.wmem_max: 16777216
   net.ipv4.conf.all.accept_redirects: 0
   net.ipv4.conf.all.accept_source_route: 0
-  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.conf.all.rp_filter: 2
   net.ipv4.conf.all.secure_redirects: 0
-  net.ipv4.conf.default.rp_filter: 1
+  net.ipv4.conf.default.rp_filter: 2
   net.ipv4.ip_local_port_range: "30000 65535"
   net.ipv4.tcp_adv_win_scale: 2
   net.ipv4.tcp_congestion_control: bbr
