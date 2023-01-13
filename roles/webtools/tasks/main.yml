@@ -9,7 +9,8 @@
 ---
 - name: Check if Plex instance is defined
   ansible.builtin.set_fact:
-    plex_name: "{{ plex_name | default(plex_instances[0]) }}"
+    plex_original_name: "{{ plex_name | default(plex_instances[0]) }}"
+    plex_name: "{{ (plex_name | default(plex_instances[0])) if not '-' in (plex_name | default(plex_instances[0])) else ((plex_name | default(plex_instances[0])) | replace('-', '_')) }}"
 
 - name: Check for previously installed WebTools Plugin
   ansible.builtin.stat:

@@ -29,5 +29,5 @@
         mode: "0775"
         force: true
       vars:
-        plex_original_name: "{{ plex_instances[0] }}"
-        plex_name: "{{ plex_instances[0] if not '-' in plex_instances[0] else (plex_instances[0] | replace('-', '_')) }}"
+        plex_original_name: "{{ plex_name | default(plex_instances[0]) }}"
+        plex_name: "{{ (plex_name | default(plex_instances[0])) if not '-' in (plex_name | default(plex_instances[0])) else ((plex_name | default(plex_instances[0])) | replace('-', '_')) }}"
