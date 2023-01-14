@@ -41,10 +41,10 @@ traefik_entrypoint_custom: {}
 ################################
 
 traefik_entrypoint_template:
-  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + item.value.port }}"
+  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + (item.value.port | string) }}"
 
 traefik_entrypoint_tls_template:
-  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + item.value.port }}"
+  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + (item.value.port | string) }}"
   - "--entrypoints.{{ item.key }}.http.tls.certResolver={{ traefik_default_certresolver }}"
 
 traefik_entrypoint_http3_template:
