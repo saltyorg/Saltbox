@@ -33,6 +33,7 @@
 - name: Initialize 'custom_entrypoints' variable
   ansible.builtin.set_fact:
     custom_entrypoints: []
+    custom_entrypoints_ports: []
 
 - name: Set 'custom_entrypoints' variable
   ansible.builtin.set_fact:
