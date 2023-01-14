@@ -38,4 +38,4 @@
   ansible.builtin.set_fact:
     custom_entrypoints: "{{ custom_entrypoints + (traefik_entrypoint_tls_template if item.value.tls else traefik_entrypoint_template) + (traefik_entrypoint_http3_template if (item.value.tls and traefik_http3) else []) }}"
   loop: "{{ traefik_entrypoint_custom | dict2items }}"
-  when: (custom_entrypoints | length > 0)
+  when: (traefik_entrypoint_custom | length > 0)
