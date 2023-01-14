@@ -41,15 +41,22 @@ traefik_entrypoint_custom: {}
 ################################
 
 traefik_entrypoint_template:
-  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + (item.value.port | string) }}"
+  - "--entrypoints.{{ item.key }}.address={{ item.value.address + ':' + (item.value.port | string) }}"
 
 traefik_entrypoint_tls_template:
-  - "--entrypoints.{{ item.key }}.address=:{{ item.value.address + ':' + (item.value.port | string) }}"
+  - "--entrypoints.{{ item.key }}.address={{ item.value.address + ':' + (item.value.port | string) }}"
   - "--entrypoints.{{ item.key }}.http.tls.certResolver={{ traefik_default_certresolver }}"
 
 traefik_entrypoint_http3_template:
   - "--entrypoints.{{ item.key }}.http3"
   - "--entrypoints.{{ item.key }}.http3.advertisedport={{ item.value.port }}"
+
+traefik_entrypoint_ports_template:
+  - "{{ item.value.port }}:{{ item.value.port }}/tcp"
+
+traefik_entrypoint_ports_tls_template:
+  - "{{ item.value.port }}:{{ item.value.port }}/tcp"
+  - "{{ item.value.port }}:{{ item.value.port }}/udp"
 
 ################################
 # Paths

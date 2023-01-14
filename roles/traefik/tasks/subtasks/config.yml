@@ -39,3 +39,14 @@
     custom_entrypoints: "{{ custom_entrypoints + (traefik_entrypoint_tls_template if item.value.tls else traefik_entrypoint_template) + (traefik_entrypoint_http3_template if (item.value.tls and traefik_http3) else []) }}"
   loop: "{{ traefik_entrypoint_custom | dict2items }}"
   when: (traefik_entrypoint_custom | length > 0)
+
+- name: Set 'custom_entrypoints_ports' variable
+  ansible.builtin.set_fact:
+    custom_entrypoints_ports: "{{ custom_entrypoints_ports + (traefik_entrypoint_ports_tls_template if item.value.tls else traefik_entrypoint_ports_template) }}"
+  loop: "{{ traefik_entrypoint_custom | dict2items }}"
+  when: (traefik_entrypoint_custom | length > 0)
+
+- name: Set 'traefik_docker_ports_defaults' variable
+  ansible.builtin.set_fact:
+    traefik_docker_ports_defaults: "{{ (traefik_docker_ports_defaults + custom_entrypoints_ports) | unique }}"
+  when: (traefik_entrypoint_custom | length > 0)
