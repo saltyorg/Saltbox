@@ -27,11 +27,11 @@ traefik_entrypoint_websecure_port: "443"
 # traefik_entrypoint_custom:
 #   tailscale:
 #     address: "IP"
-#     port: 80
+#     port: "80"
 #     tls: false
 #   tailscale-secure:
 #     address: "IP"
-#     port: 443
+#     port: "443"
 #     tls: true
 
 traefik_entrypoint_custom: {}
