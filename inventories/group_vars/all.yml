@@ -265,9 +265,9 @@ traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
                else traefik_domain }}"
 
-traefik_entrypoint_web_default: "web"
+traefik_entrypoint_web_default: "{{ 'web' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_web', default=traefik_entrypoint_web_default) }}"
-traefik_entrypoint_websecure_default: "websecure"
+traefik_entrypoint_websecure_default: "{{ 'websecure' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_websecure', default=traefik_entrypoint_websecure_default) }}"
 
 ################################
