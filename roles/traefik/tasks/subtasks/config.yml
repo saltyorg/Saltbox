@@ -57,3 +57,16 @@
   ansible.builtin.set_fact:
     traefik_docker_ports_defaults: "{{ (traefik_docker_ports_defaults + custom_entrypoints_ports) | unique }}"
   when: (traefik_entrypoint_custom | length > 0)
+
+- name: Tailscale block
+  when: traefik_tailscale_enabled
+  block:
+    - name: Get Tailscale IPs
+      ansible.builtin.shell: "tailscale ip"
+      register: tailscale_ips
+      failed_when: tailscale_ips.rc != 0
+
+    - name: set_fact
+      ansible.builtin.set_fact:
+        tailscale_ipv4: "{{ tailscale_ips.stdout_lines[0] }}"
+        tailscale_ipv6: "{{ tailscale_ips.stdout_lines[1] }}"
