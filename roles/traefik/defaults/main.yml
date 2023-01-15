@@ -22,6 +22,7 @@ traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
 traefik_http3: false
 traefik_tailscale_enabled: false
+# traefik_tailscale_bind_ip: "" # Set to override the WANIP port binding when server is not connected directly to the Internet.
 traefik_entrypoint_web_port: "80"
 traefik_entrypoint_websecure_port: "443"
 traefik_entrypoint_custom: {}
@@ -182,9 +183,9 @@ traefik_docker_ports_defaults:
   - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
   - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
 traefik_docker_ports_tailscale_ipv4_defaults:
-  - "{{ ip_address_public + ':' + traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
-  - "{{ ip_address_public + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
-  - "{{ ip_address_public + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
+  - "{{ lookup('vars', traefik_tailscale_bind_ip, default=ip_address_public) + ':' + traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
+  - "{{ lookup('vars', traefik_tailscale_bind_ip, default=ip_address_public) + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
+  - "{{ lookup('vars', traefik_tailscale_bind_ip, default=ip_address_public) + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_web_port }}:81/tcp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_websecure_port }}:444/tcp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_websecure_port }}:444/udp"
