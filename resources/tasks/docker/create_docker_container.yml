@@ -96,9 +96,9 @@
     userns_mode: "{{ lookup('vars', _var_prefix + '_docker_userns_mode', default=omit) }}"
     uts: "{{ lookup('vars', _var_prefix + '_docker_uts', default=omit) }}"
     volume_driver: "{{ lookup('vars', _var_prefix + '_docker_volume_driver', default=omit) }}"
-    volumes: "{{ (docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit))
+    volumes: "{{ ((docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit))
               if lookup('vars', _var_prefix + '_docker_volumes_global', default=true)
-              else lookup('vars', _var_prefix + '_docker_volumes', default=omit) }}"
+              else lookup('vars', _var_prefix + '_docker_volumes', default=omit)) | unique }}"
     volumes_from: "{{ lookup('vars', _var_prefix + '_docker_volumes_from', default=omit) }}"
     working_dir: "{{ lookup('vars', _var_prefix + '_docker_working_dir', default=omit) }}"
   register: result
