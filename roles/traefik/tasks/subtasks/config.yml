@@ -35,6 +35,12 @@
     custom_entrypoints: []
     custom_entrypoints_ports: []
 
+- name: Check if entrypoints container ports we already use
+  ansible.builtin.fail:
+    msg: "You cannot use custom entrypoint with ports 80/443"
+  when: ((item.value.port | string) in ['80', '443'])
+  with_dict: "{{ traefik_entrypoint_custom }}"
+
 - name: Set 'custom_entrypoints' variable
   ansible.builtin.set_fact:
     custom_entrypoints: "{{ custom_entrypoints + (traefik_entrypoint_tls_template if item.value.tls else traefik_entrypoint_template) + (traefik_entrypoint_http3_template if (item.value.tls and traefik_http3) else []) }}"
