@@ -23,18 +23,20 @@ traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
 traefik_http3: false
 traefik_entrypoint_web_port: "80"
 traefik_entrypoint_websecure_port: "443"
-# Format is as follows:
-# traefik_entrypoint_custom:
-#   tailscale:
-#     address: "IP"
-#     port: "80"
-#     tls: false
-#   tailscale-secure:
-#     address: "IP"
-#     port: "443"
-#     tls: true
-
 traefik_entrypoint_custom: {}
+# Format is as follows (address can be empty string "" to bind on every interface):
+# Type options are tcp, udp or both.
+# traefik_entrypoint_custom:
+#   tcp-entrypoint:
+#     address: "IP"
+#     port: "81"
+#     tls: false
+#     type: tcp
+#   tcp-and-udp-entrypoint-with-tls:
+#     address: "IP"
+#     port: "444"
+#     tls: true
+#     type: both
 
 ################################
 # Templates
@@ -51,10 +53,13 @@ traefik_entrypoint_http3_template:
   - "--entrypoints.{{ item.key }}.http3"
   - "--entrypoints.{{ item.key }}.http3.advertisedport={{ item.value.port }}"
 
-traefik_entrypoint_ports_template:
+traefik_entrypoint_ports_tcp_template:
   - "{{ item.value.port }}:{{ item.value.port }}/tcp"
 
-traefik_entrypoint_ports_tls_template:
+traefik_entrypoint_ports_udp_template:
+  - "{{ item.value.port }}:{{ item.value.port }}/udp"
+
+traefik_entrypoint_ports_both_template:
   - "{{ item.value.port }}:{{ item.value.port }}/tcp"
   - "{{ item.value.port }}:{{ item.value.port }}/udp"
 

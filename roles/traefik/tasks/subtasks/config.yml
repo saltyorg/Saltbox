@@ -49,7 +49,7 @@
 
 - name: Set 'custom_entrypoints_ports' variable
   ansible.builtin.set_fact:
-    custom_entrypoints_ports: "{{ custom_entrypoints_ports + (traefik_entrypoint_ports_tls_template if item.value.tls else traefik_entrypoint_ports_template) }}"
+    custom_entrypoints_ports: "{{ custom_entrypoints_ports + (lookup('vars', 'traefik_entrypoint_ports_' + item.value.type + '_template')) }}"
   loop: "{{ traefik_entrypoint_custom | dict2items }}"
   when: (traefik_entrypoint_custom | length > 0)
 
