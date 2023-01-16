@@ -53,6 +53,7 @@ mariadb_docker_envs_default:
   TZ: "{{ tz }}"
   MARIADB_ROOT_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
   MARIADB_USER: "{{ lookup('vars', mariadb_name + '_docker_env_user', default=mariadb_docker_env_user) }}"
+  MARIADB_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
   MARIADB_DATABASE: "{{ lookup('vars', mariadb_name + '_docker_env_db', default=mariadb_docker_env_db) }}"
 mariadb_docker_envs_custom: {}
 mariadb_docker_envs: "{{ lookup('vars', mariadb_name + '_docker_envs_default', default=mariadb_docker_envs_default)
