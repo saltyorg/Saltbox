@@ -168,7 +168,7 @@ zerossl_is_enabled: "{{ dns.zerossl | bool }}"
 # Traefik
 ################################
 
-traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
+traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) | replace('-', '_') }}"
 
 traefik_challenge_provider: "{{ traefik.provider }}"
 traefik_default_certprovider: "{{ 'cfdns'
