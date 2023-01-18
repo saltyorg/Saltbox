@@ -9,7 +9,7 @@
 #########################################################################
 
 [Unit]
-{% if use_remote %}
+{% if use_remote and not continuous_integration %}
 After={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
 Requires={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
 {% else %}
