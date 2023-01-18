@@ -75,7 +75,6 @@
 
 - name: Feeder | Set 'feeder_remote_is_active' variable
   ansible.builtin.set_fact:
-    feeder_remote_is_active: "{{ (feeder_remote_is_configured is defined and
-                                    feeder_remote_is_configured) and
-                                  (feeder_remote_is_working is defined and
-                                    feeder_remote_is_working) }}"
+    feeder_remote_is_active: "{{ (feeder_remote_is_configured is defined and feeder_remote_is_configured)
+                                 and
+                                 (feeder_remote_is_working is defined and feeder_remote_is_working) }}"
