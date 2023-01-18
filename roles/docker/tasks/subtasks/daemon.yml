@@ -35,17 +35,7 @@
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
     mode: 0644
-    force: false
-
-- name: "Daemon | Edit override file"
-  community.general.ini_file:
-    path: /etc/systemd/system/docker.service.d/override.conf
-    section: Unit
-    option: "After"
-    value: "{{ docker_service_after }}"
-    state: present
-    mode: '0644'
-    no_extra_spaces: true
+    force: "{{ docker_service_force }}"
 
 - name: "Daemon | Remove old init entry from '/etc/docker/daemon.json'"
   ansible.builtin.shell: jq 'del(."init")' /etc/docker/daemon.json  | sponge /etc/docker/daemon.json

@@ -9,7 +9,10 @@
 #########################################################################
 
 [Unit]
+{% if use_remote %}
+After={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
+Requires={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
+{% else %}
 After={{ docker_service_after }}
-
-[Service]
-ExecStartPre=/bin/sleep {{ docker_service_sleep }}
+Requires={{ docker_service_after }}
+{% endif %}
