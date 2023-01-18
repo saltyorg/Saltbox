@@ -12,12 +12,6 @@
 - name: Variables Task
   ansible.builtin.import_tasks: "subtasks/variables.yml"
 
-# Stop Docker Containers
-
-- name: Docker Containers Stop Tasks
-  ansible.builtin.import_tasks: "subtasks/docker/containers_stop.yml"
-  when: not (('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags))
-
 # Existing Setup
 
 - name: Service Tasks
@@ -44,4 +38,3 @@
 
 - name: Docker Containers Start Tasks
   ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"
-  when: (('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags))

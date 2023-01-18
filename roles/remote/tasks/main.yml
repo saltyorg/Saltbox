@@ -16,7 +16,6 @@
 
 - name: Container Tasks
   ansible.builtin.import_tasks: "subtasks/containers.yml"
-  when: ('mounts' in ansible_run_tags) or ('mounts_override' in ansible_run_tags)
 
 # Existing Setup
 
