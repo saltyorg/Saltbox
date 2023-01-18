@@ -25,10 +25,10 @@
     - { role: system, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'system'] }
     - { role: common, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'common'] }
     - { role: motd, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'motd'] }
-    - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker'] }
-    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
     - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'], when: ['use_remote'] }
     - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'] }
+    - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker'] }
+    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
     - { role: scripts, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik_reset_certs'] }
