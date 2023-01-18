@@ -377,6 +377,11 @@ traefik_docker_labels_default:
                                                           else authelia_web_url + '/api/verify?rd=' + authelia_web_url + '/' }}"
   traefik.http.middlewares.authelia.forwardauth.trustForwardHeader: "true"
   traefik.http.middlewares.authelia.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
+  traefik.http.middlewares.authelia-basic.forwardauth.address: "{{ 'http://authelia:9091/api/verify?auth=basic&rd=' + authelia_web_url + '/'
+                                                                if authelia_is_master
+                                                                else authelia_web_url + '/api/verify?auth=basic&rd=' + authelia_web_url + '/' }}"
+  traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader: "true"
+  traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
 traefik_docker_labels_dns_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
