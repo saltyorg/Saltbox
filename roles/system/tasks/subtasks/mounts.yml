@@ -23,9 +23,9 @@
     - "{{ ansible_mounts }}"
   when: (item.mount == '/') and (item.fstype == 'ext4')
 
-- name: Mounts | Install 'fuse'
+- name: "Mounts | Install '{{ mounts_fuse }}'"
   ansible.builtin.apt:
-    name: fuse
+    name: "{{ mounts_fuse }}"
     state: present
 
 - name: Mounts | Import 'fuse.conf'
