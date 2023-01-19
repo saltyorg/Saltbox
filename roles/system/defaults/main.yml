@@ -7,6 +7,8 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+mounts_fuse: "fuse"
+
 run_sysctl_tasks: true
 cpu_performance_mode: true
 
