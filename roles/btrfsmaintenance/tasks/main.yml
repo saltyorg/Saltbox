@@ -24,7 +24,7 @@
 - name: "Setup btrfsmaintenance scripts"
   when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
   block:
-    - name: "Clone btrfsmaintenance repo"
+    - name: "Install apt package"
       ansible.builtin.apt:
         name: "btrfsmaintenance"
         state: present
