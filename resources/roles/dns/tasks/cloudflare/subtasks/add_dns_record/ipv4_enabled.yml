@@ -1,0 +1,37 @@
+############################################################################
+# Title:         Saltbox: DNS | Cloudflare | Add DNS Record | IPv4 Enabled #
+# Author(s):     salty                                                     #
+# URL:           https://github.com/saltyorg/Saltbox                       #
+# --                                                                       #
+############################################################################
+#                   GNU General Public License v3.0                        #
+############################################################################
+---
+- name: Cloudflare | Add DNS Record | IPv4 | Validate IP variable
+  ansible.builtin.fail:
+    msg: "ip_address_public contains: '{{ ip_address_public }}' which is not a valid IP"
+  when: (not ip_address_public_is_valid)
+
+- name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
+  community.general.cloudflare_dns:
+    account_api_token: "{{ cloudflare.api }}"
+    account_email: "{{ cloudflare.email }}"
+    zone: "{{ dns_zone }}"
+    state: present
+    solo: true
+    proxied: "{{ dns_proxy }}"
+    type: A
+    value: "{{ ip_address_public }}"
+    record: "{{ dns_record }}"
+  register: cloudflare_dns_record_creation_status
+
+- name: Cloudflare | Add DNS Record | IPv4 | Tasks on success
+  when: cloudflare_dns_record_creation_status is succeeded
+  block:
+    - name: Cloudflare | Add DNS Record | IPv4 | Set 'dns_record_print' variable
+      ansible.builtin.set_fact:
+        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+
+    - name: Cloudflare | Add DNS Record | IPv4 | Display DNS Record creation status
+      ansible.builtin.debug:
+        msg: "DNS A Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns_proxy }}"
