@@ -83,6 +83,8 @@ docker_service_after: "{{ mount_type }}.service"
 
 docker_service_sleep: 120
 
+docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
+
 ################################
 # Docker Compose
 ################################
