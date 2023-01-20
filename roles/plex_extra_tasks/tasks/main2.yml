@@ -7,24 +7,28 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Gather list of running Docker containers
-  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-  register: docker_running_containers_list
+- name: Wait for '{{ plex_paths_config_location | basename }}' to be created
+  ansible.builtin.wait_for:
+    path: "{{ plex_paths_config_location }}"
+    state: present
+
+- name: Wait for {{ plex_name | title }} DB to be created
+  ansible.builtin.wait_for:
+    path: "{{ plex_paths_db_location }}"
+    state: present
+
+- name: Wait for {{ plex_name | title }} executable to be created
+  ansible.builtin.shell: docker exec {{ plex_docker_container }} bash -c "ls '/usr/lib/plexmediaserver/Plex Media Server'"
+  register: pms_check
+  until: pms_check.stderr.find("No such file or directory") == -1
+  retries: 600
   changed_when: false
-
-- name: Set 'docker_running_containers_list' variable
-  ansible.builtin.set_fact:
-    docker_running_containers_list: "{{ (docker_running_containers_list.stdout).split() }}"
-
-- name: Set 'plex_is_running_outer_state' variable
-  ansible.builtin.set_fact:
-    plex_is_running_outer_state: "{{ plex_docker_container in docker_running_containers_list }}"
+  failed_when: pms_check.rc == 1 or pms_check.rc > 2
 
 - name: Stop Docker Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
   vars:
     var_prefix: "plex"
-  when: plex_is_running_outer_state
 
 - name: "Install Sub-Zero Plugin"
   ansible.builtin.include_role:
@@ -40,4 +44,3 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
   vars:
     var_prefix: "plex"
-  when: plex_is_running_outer_state
