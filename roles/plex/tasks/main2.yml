@@ -61,12 +61,7 @@
 - name: Post-Install Tasks
   ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
 
-- name: Give container time to fetch binary.
-  ansible.builtin.wait_for:
-    timeout: 30
-  when: (plex_docker_image_tag in ['public', 'beta', 'plexpass'])
-
 - name: "Execute Plex Extra Tasks role"
   ansible.builtin.include_role:
     name: "plex_extra_tasks"
-  when: (not continuous_integration)
+  when: (plex_plugin_sub_zero or plex_plugin_webtools) and (not continuous_integration)
