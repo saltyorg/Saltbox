@@ -25,27 +25,13 @@
   when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
   block:
     - name: "Clone btrfsmaintenance repo"
-      ansible.builtin.git:
-        repo: https://github.com/kdave/btrfsmaintenance.git
-        dest: "/opt/btrfsmaintenance"
-        clone: true
-        version: HEAD
-        force: true
-      become: true
-      become_user: "{{ user.name }}"
-
-    - name: "Set btrfsmaintenance directory permissions"
-      ansible.builtin.file:
-        path: "/opt/btrfsmaintenance"
-        state: directory
-        mode: 0775
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        recurse: true
+      ansible.builtin.apt:
+        name: "btrfsmaintenance"
+        state: present
 
     - name: "Change mountpoints to 'auto'"
       ansible.builtin.lineinfile:
-        path: "/opt/btrfsmaintenance/sysconfig.btrfsmaintenance"
+        path: "/etc/default/btrfsmaintenance"
         regexp: '^{{ item }}\s?='
         line: '{{ item }}="auto"'
         state: present
@@ -54,35 +40,12 @@
         - BTRFS_BALANCE_MOUNTPOINTS
         - BTRFS_SCRUB_MOUNTPOINTS
 
-    - name: "Execute dist-install.sh"
-      become: true
-      become_user: root
-      ansible.builtin.shell: /opt/btrfsmaintenance/dist-install.sh
-      args:
-        chdir: /opt/btrfsmaintenance/
-
-    - name: "Copy .timer files to systemd"
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: /etc/systemd/system
-        mode: '0644'
-      with_fileglob:
-        - /opt/btrfsmaintenance/*.timer
-
-    - name: "Copy .service files to systemd"
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: /etc/systemd/system
-        mode: '0644'
-      with_fileglob:
-        - /opt/btrfsmaintenance/*.service
-
-    - name: "Execute btrfsmaintenance-refresh-cron.sh"
-      become: true
-      become_user: root
-      ansible.builtin.shell: /opt/btrfsmaintenance/btrfsmaintenance-refresh-cron.sh timer
-      args:
-        chdir: /opt/btrfsmaintenance/
+    - name: "Change trim schedule to 'weekly'"
+      ansible.builtin.lineinfile:
+        path: "/etc/default/btrfsmaintenance"
+        regexp: '^BTRFS_TRIM_PERIOD="nine"\s?='
+        line: 'BTRFS_TRIM_PERIOD="weekly"'
+        state: present
 
 # Check for no btrfs and exit - not working
 - name: "Exit if no btrfs partitions found"
