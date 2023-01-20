@@ -7,19 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | Add DNS Record | Find pip3 path
-  ansible.builtin.find:
-    paths: "{{ cloudflare_path }}/venv"
-    recurse: true
-    patterns: 'pip3'
-  register: files
-
-- name: Cloudflare | Add DNS Record | Path
-  ansible.builtin.set_fact:
-    cloudflare_bin_folder: "{{ files.files[0].path | dirname }}"
-
 - name: Cloudflare | Add DNS Record | Fetch Record information
-  ansible.builtin.shell: "{{ cloudflare_bin_folder }}/python3 {{ cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ dns_zone }}' --record '{{ dns_record }}.{{ dns_zone }}'"
+  ansible.builtin.shell: "{{ cloudflare_path }}/venv/bin/python3 {{ cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ dns_zone }}' --record '{{ dns_record }}.{{ dns_zone }}'"
   register: cloudflare_record
   ignore_errors: true
 
@@ -31,6 +20,8 @@
 - name: Cloudflare | Add DNS Record | Convert JSON to Dictionary
   ansible.builtin.set_fact:
     cloudflare_record_dict: "{{ cloudflare_record.stdout | from_json }}"
+    cloudflare_ipv4_record: []
+    cloudflare_ipv6_record: []
 
 - name: Cloudflare | Add DNS Record | Remove DNS CNAME Record
   community.general.cloudflare_dns:
@@ -56,11 +47,6 @@
     - name: Cloudflare | Add DNS Record | Display DNS CNAME Record removal status
       ansible.builtin.debug:
         msg: "DNS CNAME Record for '{{ dns_record_print }}' was removed."
-
-- name: Cloudflare | Add DNS Record | Initialize 'cloudflare_ipv4_record' and cloudflare_ipv6_record variables
-  ansible.builtin.set_fact:
-    cloudflare_ipv4_record: []
-    cloudflare_ipv6_record: []
 
 - name: Cloudflare | Add DNS Record | Set 'cloudflare_ipv4_record' variable
   ansible.builtin.set_fact:
