@@ -110,6 +110,20 @@
       - "run-one"
   ignore_errors: true
 
+- name: Install common Python packages
+  ansible.builtin.pip:
+    name:
+      - "tld"
+      - "argon2_cffi"
+      - "ndg-httpsclient"
+      - "dnspython"
+      - "lxml"
+      - "jmespath"
+      - "passlib"
+      - "PyMySQL"
+      - "docker"
+    state: "latest"
+
 - name: Fetch PCI Info
   ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
   register: lscpi_resp
