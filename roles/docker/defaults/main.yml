@@ -91,6 +91,13 @@ docker_service_force: true
 
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
 
+fuse_overlayfs_releases_url: "{{ cvm }}https://api.github.com/repos/containers/fuse-overlayfs/releases/latest"
+
+fuse_overlayfs_release_lookup_command: |
+  curl -s {{ fuse_overlayfs_releases_url }} \
+    | jq -r ".assets[] | select(.name | test(\"fuse-overlayfs-x86_64\")) \
+    | .browser_download_url"
+
 ################################
 # Docker Compose
 ################################
