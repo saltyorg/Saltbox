@@ -7,6 +7,22 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: fuse-overlayfs Block
+  when: (docker_daemon_storage_driver == "fuse-overlayfs")
+  block:
+    - name: "Get URL for latest fuse-overlayfs release"
+      ansible.builtin.shell: "{{ fuse_overlayfs_release_lookup_command }}"
+      args:
+        executable: /bin/bash
+      register: fuse_overlayfs_download_url
+      ignore_errors: true
+
+    - name: Download fuse-overlayfs
+      ansible.builtin.get_url:
+        url: "{{ fuse_overlayfs_download_url.stdout }}"
+        dest: "/usr/local/bin/fuse-overlayfs"
+        mode: '0755'
+
 - name: Create docker directory
   ansible.builtin.file:
     path: "{{ item }}"
