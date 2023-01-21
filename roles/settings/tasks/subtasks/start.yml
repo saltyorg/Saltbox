@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Start | Install ruamel.yaml"
+  ansible.builtin.pip:
+    name: ruamel.yaml
+    state: "latest"
+
 - name: "Start | Check to see if yyq is installed"
   ansible.builtin.stat:
     path: "/usr/local/bin/yyq"
