@@ -16,8 +16,8 @@
   with_items: "{{ saltbox_roles.stdout_lines }}"
 
 - name: Sandbox
+  when: (playbook_dir == "/opt/saltbox_mod")
   block:
-
     - name: Find Sandbox roles
       ansible.builtin.shell: "find /opt/sandbox/roles -type d -name 'defaults'"
       register: sandbox_roles
@@ -25,7 +25,6 @@
     - name: Include Sandbox role default vars
       ansible.builtin.include_vars: "{{ item }}/main.yml"
       with_items: "{{ sandbox_roles.stdout_lines }}"
-  when: (playbook_dir == "/opt/saltbox_mod")
 
 - name: Check if 'localhost.yml' exists
   ansible.builtin.stat:
