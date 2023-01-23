@@ -7,34 +7,30 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Variables Block
-  when: (playbook_dir != "/srv/git/saltbox" and not continuous_integration) or (playbook_dir != "/home/runner/work/Saltbox/Saltbox" and continuous_integration)
-  tags: always
+- name: Find Saltbox roles
+  ansible.builtin.shell: "find /srv/git/saltbox/roles -type d -name 'defaults'"
+  register: saltbox_roles
+
+- name: Include Saltbox role default vars
+  ansible.builtin.include_vars: "{{ item }}/main.yml"
+  with_items: "{{ saltbox_roles.stdout_lines }}"
+
+- name: Sandbox
+  when: (playbook_dir == "/opt/saltbox_mod")
   block:
-    - name: Find Saltbox roles
-      ansible.builtin.shell: "find /srv/git/saltbox/roles -type d -name 'defaults'"
-      register: saltbox_roles
+    - name: Find Sandbox roles
+      ansible.builtin.shell: "find /opt/sandbox/roles -type d -name 'defaults'"
+      register: sandbox_roles
 
-    - name: Include Saltbox role default vars
+    - name: Include Sandbox role default vars
       ansible.builtin.include_vars: "{{ item }}/main.yml"
-      with_items: "{{ saltbox_roles.stdout_lines }}"
+      with_items: "{{ sandbox_roles.stdout_lines }}"
 
-    - name: Sandbox
-      when: (playbook_dir == "/opt/saltbox_mod")
-      block:
-        - name: Find Sandbox roles
-          ansible.builtin.shell: "find /opt/sandbox/roles -type d -name 'defaults'"
-          register: sandbox_roles
+- name: Check if 'localhost.yml' exists
+  ansible.builtin.stat:
+    path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  register: localhost_inventory_file
 
-        - name: Include Sandbox role default vars
-          ansible.builtin.include_vars: "{{ item }}/main.yml"
-          with_items: "{{ sandbox_roles.stdout_lines }}"
-
-    - name: Check if 'localhost.yml' exists
-      ansible.builtin.stat:
-        path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
-      register: localhost_inventory_file
-
-    - name: Import Inventory variables
-      ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
-      when: localhost_inventory_file.stat.exists
+- name: Import Inventory variables
+  ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  when: localhost_inventory_file.stat.exists

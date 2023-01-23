@@ -11,7 +11,7 @@
     - ['providers.yml', 'defaults/providers.yml.default']
   roles:
     - { role: settings, tags: ['settings'] }
-    - { role: pre_tasks, tags: ['pre_tasks'] }
+    - { role: pre_tasks, tags: ['always', 'pre_tasks'] }
     - { role: sanity_check, tags: ['sanity_check'] }
     - { role: backup, tags: ['backup'] }
     - { role: backup2, tags: ['backup2'] }

@@ -9,12 +9,10 @@
 ---
 - name: APT Tasks
   ansible.builtin.import_tasks: "subtasks/apt.yml"
-  tags: always
 
 - name: Git Tasks
   ansible.builtin.import_tasks: "subtasks/git.yml"
-  tags: always
 
 - name: Variables Tasks
   ansible.builtin.include_tasks: "subtasks/variables.yml"
-  tags: always
+  when: (playbook_dir != "/srv/git/saltbox" and not continuous_integration) or (playbook_dir != "/home/runner/work/Saltbox/Saltbox" and continuous_integration)
