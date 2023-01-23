@@ -26,6 +26,7 @@ rutorrent_paths_folders_list:
   - "{{ rutorrent_paths_location }}/themes"
   - "{{ rutorrent_paths_downloads_location }}"
   - "{{ rutorrent_paths_downloads_location }}/completed"
+  - "{{ rutorrent_paths_downloads_location }}/incoming"
   - "{{ rutorrent_paths_downloads_location }}/watched"
 
 # Config files
