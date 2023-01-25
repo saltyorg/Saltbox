@@ -110,7 +110,7 @@
       - "run-one"
   ignore_errors: true
 
-- name: Install common Python packages
+- name: Install common Python packages (Ansible venv)
   ansible.builtin.pip:
     name:
       - "tld"
@@ -122,6 +122,12 @@
       - "passlib"
       - "PyMySQL"
       - "docker"
+    state: "latest"
+
+- name: Install common Python packages (System Python)
+  ansible.builtin.pip:
+    name: apprise
+    executable: pip3
     state: "latest"
 
 - name: Fetch PCI Info
