@@ -122,11 +122,17 @@
       - "passlib"
       - "PyMySQL"
       - "docker"
+      - "pyOpenSSL"
+      - "requests"
+      - "netaddr"
+      - "jinja2"
     state: "latest"
 
 - name: Install common Python packages (System Python)
   ansible.builtin.pip:
-    name: apprise
+    name:
+      - "apprise"
+      - "certbot"
     executable: pip3
     state: "latest"
 
