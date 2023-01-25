@@ -326,6 +326,22 @@
       ignore_errors: true
       when: backup.rclone.enable
 
+    - name: Define Archive List
+      ansible.builtin.set_fact:
+        backup_archive_list:
+          - "opt"
+          - "ansible.cfg"
+          - "accounts.yml"
+          - "settings.yml"
+          - "adv_settings.yml"
+          - "backup_config.yml"
+          - "providers.yml"
+          - "rclone.conf"
+          - "localhost.yml"
+          - "hetzner_nfs.yml"
+          - "backup_excludes.txt"
+          - "backup_excludes_list.txt"
+
     # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
     - name: "Archive previous files in '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
@@ -340,19 +356,7 @@
       failed_when: rclone_move.rc > 3
       ignore_errors: true
       when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
-      with_items:
-        - "opt"
-        - "ansible.cfg"
-        - "accounts.yml"
-        - "settings.yml"
-        - "adv_settings.yml"
-        - "backup_config.yml"
-        - "providers.yml"
-        - "rclone.conf"
-        - "localhost.yml"
-        - "hetzner_nfs.yml"
-        - "backup_excludes.txt"
-        - "backup_excludes_list.txt"
+      loop: "{{ backup_archive_list + backup_user_defined_files }}"
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
