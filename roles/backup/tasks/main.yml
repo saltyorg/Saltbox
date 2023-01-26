@@ -39,7 +39,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task."
+        message: "{{ backup_instance }} Backup: Started {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task."
 
     - name: "Create 'backup.lock'."
       ansible.builtin.file:
@@ -125,7 +125,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Not enough disk space. Aborting."
+        message: "{{ backup_instance }} Backup: Not enough disk space. Aborting."
       when: (not backup_enough_disk_space)
 
     - name: "Fail when not enough disk space"
@@ -261,7 +261,7 @@
           ansible.builtin.include_role:
             name: notify
           vars:
-            message: "Saltbox Backup: Stopped Docker containers."
+            message: "{{ backup_instance }} Backup: Stopped Docker containers."
 
     # Custom User Files
 
@@ -342,7 +342,7 @@
           ansible.builtin.include_role:
             name: notify
           vars:
-            message: "Saltbox Backup: Started Docker containers."
+            message: "{{ backup_instance }} Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
@@ -435,7 +435,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Backup created with total size of {{ backup_size }}."
+        message: "{{ backup_instance }} Backup: Backup created with total size of {{ backup_size }}."
       ignore_errors: true
 
     # Start Docker containers when snapshot is not enabled
@@ -456,7 +456,7 @@
           ansible.builtin.include_role:
             name: notify
           vars:
-            message: "Saltbox Backup: Started Docker containers."
+            message: "{{ backup_instance }} Backup: Started Docker containers."
           when: (docker_containers | trim | length > 0)
 
     - name: "Wait for 10 seconds before uploads"
@@ -543,7 +543,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
+        message: "{{ backup_instance }} Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
       when: backup.rclone.enable
 
     - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
@@ -561,7 +561,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
+        message: "{{ backup_instance }} Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
       when: backup.rsync.enable
 
     - name: Get Current Time
@@ -580,7 +580,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task in {{ total_time }} minutes."
+        message: "{{ backup_instance }} Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task in {{ total_time }} minutes."
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd:
@@ -652,7 +652,7 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Backup terminated due to an error."
+        message: "{{ backup_instance }} Backup: Backup terminated due to an error."
 
   always:
     - name: "Remove 'backup.lock'"

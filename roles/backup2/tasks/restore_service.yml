@@ -98,7 +98,7 @@
     name: notify
   vars:
     message: >
-      Saltbox Backup: The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'.
+      {{ backup_instance }} Backup: The following config file(s) were NOT encrypted successfully: '{{ unencrypted_files_list | trim }}'.
       Restore Service will now be skipped.
   when: (unencrypted_files_list | trim | length > 0)
 
@@ -134,7 +134,7 @@
         name: notify
       vars:
         message: >
-          Saltbox Backup: The following encrypted config file(s) were too large to upload to the Saltbox Restore Service:
+          {{ backup_instance }} Backup: The following encrypted config file(s) were too large to upload to the Saltbox Restore Service:
           '{{ files_too_large_to_upload_list | trim }}'
       when: (files_too_large_to_upload_list | trim | length > 0)
 
@@ -153,5 +153,5 @@
       ansible.builtin.include_role:
         name: notify
       vars:
-        message: "Saltbox Backup: Config files uploaded to the Saltbox Restore Service."
+        message: "{{ backup_instance }} Backup: Config files uploaded to the Saltbox Restore Service."
       when: (files_uploaded_list | trim | length > 0)
