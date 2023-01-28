@@ -88,6 +88,7 @@
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
+  tags: dockerhub
   when: dockerhub_is_enabled
 
 - name: "Import DNS tasks"
