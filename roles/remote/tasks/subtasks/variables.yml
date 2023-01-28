@@ -14,12 +14,12 @@
 - name: Variables | Set 'rclone_vfs' mount variables
   ansible.builtin.set_fact:
     desired_mount_types: ['rclone_vfs']
-  when: (mounts.remote | lower == 'rclone_vfs')
+  when: (mounts.remote | lower == 'rclone_vfs') and rclone_remote_is_defined
 
 - name: Variables | Set 'rclone_vfs_cache' mount variables
   ansible.builtin.set_fact:
     desired_mount_types: ['rclone_vfs_cache']
-  when: (mounts.remote | lower == 'rclone_vfs_cache')
+  when: (mounts.remote | lower == 'rclone_vfs_cache') and rclone_remote_is_defined
 
 - name: Variables | Set 'mount_types_is_defined' variable
   ansible.builtin.set_fact:
