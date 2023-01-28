@@ -11,6 +11,11 @@
 # Mount Types
 ################################
 
+- name: Variables | Initialize 'desired_mount_types' variable
+  ansible.builtin.set_fact:
+    desired_mount_types: []
+  when: not rclone_remote_is_defined
+
 - name: Variables | Set 'rclone_vfs' mount variables
   ansible.builtin.set_fact:
     desired_mount_types: ['rclone_vfs']
