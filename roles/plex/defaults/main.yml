@@ -186,7 +186,7 @@ plex_docker_envs: "{{ lookup('vars', plex_name + '_docker_envs_default', default
 plex_docker_commands_default: []
 plex_docker_commands_custom: []
 plex_docker_commands: "{{ lookup('vars', plex_name + '_docker_commands_default', default=plex_docker_commands_default)
-                          + lookup('vars', plex_name + '_docker_docker_commands_custom', default=plex_docker_commands_custom) }}"
+                          + lookup('vars', plex_name + '_docker_commands_custom', default=plex_docker_commands_custom) }}"
 
 # Volumes
 plex_docker_volumes_default:

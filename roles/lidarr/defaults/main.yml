@@ -106,7 +106,7 @@ lidarr_docker_envs: "{{ lookup('vars', lidarr_name + '_docker_envs_default', def
 lidarr_docker_commands_default: []
 lidarr_docker_commands_custom: []
 lidarr_docker_commands: "{{ lookup('vars', lidarr_name + '_docker_commands_default', default=lidarr_docker_commands_default)
-                            + lookup('vars', lidarr_name + '_docker_docker_commands_custom', default=lidarr_docker_commands_custom) }}"
+                            + lookup('vars', lidarr_name + '_docker_commands_custom', default=lidarr_docker_commands_custom) }}"
 
 # Volumes
 lidarr_docker_volumes_default:

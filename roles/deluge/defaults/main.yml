@@ -116,7 +116,7 @@ deluge_docker_envs: "{{ lookup('vars', deluge_name + '_docker_envs_default', def
 deluge_docker_commands_default: []
 deluge_docker_commands_custom: []
 deluge_docker_commands: "{{ lookup('vars', deluge_name + '_docker_commands_default', default=deluge_docker_commands_default)
-                            + lookup('vars', deluge_name + '_docker_docker_commands_custom', default=deluge_docker_commands_custom) }}"
+                            + lookup('vars', deluge_name + '_docker_commands_custom', default=deluge_docker_commands_custom) }}"
 
 # Volumes
 deluge_docker_volumes_default:

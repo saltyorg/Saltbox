@@ -125,7 +125,7 @@ emby_docker_envs: "{{ lookup('vars', emby_name + '_docker_envs_default', default
 emby_docker_commands_default: []
 emby_docker_commands_custom: []
 emby_docker_commands: "{{ lookup('vars', emby_name + '_docker_commands_default', default=emby_docker_commands_default)
-                          + lookup('vars', emby_name + '_docker_docker_commands_custom', default=emby_docker_commands_custom) }}"
+                          + lookup('vars', emby_name + '_docker_commands_custom', default=emby_docker_commands_custom) }}"
 
 # Volumes
 emby_docker_volumes_default:

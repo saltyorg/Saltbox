@@ -85,7 +85,7 @@ nginx_docker_envs: "{{ lookup('vars', nginx_name + '_docker_envs_default', defau
 nginx_docker_commands_default: []
 nginx_docker_commands_custom: []
 nginx_docker_commands: "{{ lookup('vars', nginx_name + '_docker_commands_default', default=nginx_docker_commands_default)
-                           + lookup('vars', nginx_name + '_docker_docker_commands_custom', default=nginx_docker_commands_custom) }}"
+                           + lookup('vars', nginx_name + '_docker_commands_custom', default=nginx_docker_commands_custom) }}"
 
 # Volumes
 nginx_docker_volumes_default:

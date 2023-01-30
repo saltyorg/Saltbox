@@ -84,7 +84,7 @@ autoscan_docker_envs: "{{ lookup('vars', autoscan_name + '_docker_envs_default',
 autoscan_docker_commands_default: []
 autoscan_docker_commands_custom: []
 autoscan_docker_commands: "{{ lookup('vars', autoscan_name + '_docker_commands_default', default=autoscan_docker_commands_default)
-                              + lookup('vars', autoscan_name + '_docker_docker_commands_custom', default=autoscan_docker_commands_custom) }}"
+                              + lookup('vars', autoscan_name + '_docker_commands_custom', default=autoscan_docker_commands_custom) }}"
 
 # Volumes
 autoscan_docker_volumes_default:

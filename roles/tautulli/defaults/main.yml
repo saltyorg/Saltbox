@@ -101,7 +101,7 @@ tautulli_docker_envs: "{{ lookup('vars', tautulli_name + '_docker_envs_default',
 tautulli_docker_commands_default: []
 tautulli_docker_commands_custom: []
 tautulli_docker_commands: "{{ lookup('vars', tautulli_name + '_docker_commands_default', default=tautulli_docker_commands_default)
-                              + lookup('vars', tautulli_name + '_docker_docker_commands_custom', default=tautulli_docker_commands_custom) }}"
+                              + lookup('vars', tautulli_name + '_docker_commands_custom', default=tautulli_docker_commands_custom) }}"
 
 # Volumes
 tautulli_docker_volumes_default:

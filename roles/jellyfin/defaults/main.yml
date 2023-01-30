@@ -120,7 +120,7 @@ jellyfin_docker_envs: "{{ lookup('vars', jellyfin_name + '_docker_envs_default',
 jellyfin_docker_commands_default: []
 jellyfin_docker_commands_custom: []
 jellyfin_docker_commands: "{{ lookup('vars', jellyfin_name + '_docker_commands_default', default=jellyfin_docker_commands_default)
-                              + lookup('vars', jellyfin_name + '_docker_docker_commands_custom', default=jellyfin_docker_commands_custom) }}"
+                              + lookup('vars', jellyfin_name + '_docker_commands_custom', default=jellyfin_docker_commands_custom) }}"
 
 # Volumes
 jellyfin_docker_volumes_default:

@@ -107,7 +107,7 @@ readarr_docker_envs: "{{ lookup('vars', readarr_name + '_docker_envs_default', d
 readarr_docker_commands_default: []
 readarr_docker_commands_custom: []
 readarr_docker_commands: "{{ lookup('vars', readarr_name + '_docker_commands_default', default=readarr_docker_commands_default)
-                             + lookup('vars', readarr_name + '_docker_docker_commands_custom', default=readarr_docker_commands_custom) }}"
+                             + lookup('vars', readarr_name + '_docker_commands_custom', default=readarr_docker_commands_custom) }}"
 
 # Volumes
 readarr_docker_volumes_default:

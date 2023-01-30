@@ -106,7 +106,7 @@ radarr_docker_envs: "{{ lookup('vars', radarr_name + '_docker_envs_default', def
 radarr_docker_commands_default: []
 radarr_docker_commands_custom: []
 radarr_docker_commands: "{{ lookup('vars', radarr_name + '_docker_commands_default', default=radarr_docker_commands_default)
-                            + lookup('vars', radarr_name + '_docker_docker_commands_custom', default=radarr_docker_commands_custom) }}"
+                            + lookup('vars', radarr_name + '_docker_commands_custom', default=radarr_docker_commands_custom) }}"
 
 # Volumes
 radarr_docker_volumes_default:

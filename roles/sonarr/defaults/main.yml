@@ -106,7 +106,7 @@ sonarr_docker_envs: "{{ lookup('vars', sonarr_name + '_docker_envs_default', def
 sonarr_docker_commands_default: []
 sonarr_docker_commands_custom: []
 sonarr_docker_commands: "{{ lookup('vars', sonarr_name + '_docker_commands_default', default=sonarr_docker_commands_default)
-                            + lookup('vars', sonarr_name + '_docker_docker_commands_custom', default=sonarr_docker_commands_custom) }}"
+                            + lookup('vars', sonarr_name + '_docker_commands_custom', default=sonarr_docker_commands_custom) }}"
 
 # Volumes
 sonarr_docker_volumes_default:

@@ -111,7 +111,7 @@ qbittorrent_docker_envs: "{{ lookup('vars', qbittorrent_name + '_docker_envs_def
 qbittorrent_docker_commands_default: []
 qbittorrent_docker_commands_custom: []
 qbittorrent_docker_commands: "{{ lookup('vars', qbittorrent_name + '_docker_commands_default', default=qbittorrent_docker_commands_default)
-                                 + lookup('vars', qbittorrent_name + '_docker_docker_commands_custom', default=qbittorrent_docker_commands_custom) }}"
+                                 + lookup('vars', qbittorrent_name + '_docker_commands_custom', default=qbittorrent_docker_commands_custom) }}"
 
 # Volumes
 qbittorrent_docker_volumes_default:
