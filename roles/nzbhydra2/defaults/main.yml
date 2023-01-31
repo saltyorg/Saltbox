@@ -69,8 +69,8 @@ nzbhydra2_themepark_theme: "{{ global_themepark_theme }}"
 ################################
 
 nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
-                                            | round(0, 'ceil') | int >= 8)
-                                            | ternary('512', '256') }}"
+                                           | round(0, 'ceil') | int >= 8)
+                                           | ternary('512', '256') }}"
 
 nzbhydra2_config_settings_default:
   # NZBGet
@@ -89,9 +89,6 @@ nzbhydra2_config_settings_default:
   - .downloading.downloaders[0].addPaused = false
   # JVM Memory. If RAM >= 8GB, set XMX to 512, else 256.
   - .main.xmx = {{ nzbhydra2_config_settings_jvm_memory }}
-  # Accept Authelia Remote-User header from saltbox network for auth
-  - .auth.authHeader = "Remote-User"
-  - .auth.authHeaderIpRanges[0] = "172.19.0.1-172.19.0.254"
 
 nzbhydra2_config_settings_custom: []
 
@@ -107,8 +104,8 @@ nzbhydra2_docker_container: "{{ nzbhydra2_name }}"
 
 # Image
 nzbhydra2_docker_image_pull: true
-nzbhydra2_docker_image_tag: "release"
-nzbhydra2_docker_image: "cr.hotio.dev/hotio/nzbhydra2:{{ nzbhydra2_docker_image_tag }}"
+nzbhydra2_docker_image_tag: "latest"
+nzbhydra2_docker_image: "lscr.io/linuxserver/nzbhydra2:{{ nzbhydra2_docker_image_tag }}"
 
 # Ports
 nzbhydra2_docker_ports_defaults: []
