@@ -40,3 +40,8 @@
     - 'containerd_io'
     - 'docker_ce'
     - 'docker_ce_cli'
+
+- name: Binary | Install apparmor
+  ansible.builtin.apt:
+    name:
+      - apparmor
