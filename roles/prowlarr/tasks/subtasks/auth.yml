@@ -12,21 +12,25 @@
     path: "/opt/{{ prowlarr_name }}/config.xml"
     state: present
 
-- name: Lookup AuthenticationMethod value
+- name: Auth | Wait for 10 seconds
+  ansible.builtin.wait_for:
+    timeout: 10
+
+- name: Auth | Lookup AuthenticationMethod value
   community.general.xml:
     path: "/opt/{{ prowlarr_name }}/config.xml"
     xpath: "/Config/AuthenticationMethod"
     content: "text"
   register: xmlresp
 
-- name: Toggle AuthenticationMethod to External
+- name: Auth | Toggle AuthenticationMethod to External
   when: ((xmlresp.matches[0].AuthenticationMethod is defined) and (xmlresp.matches[0].AuthenticationMethod != 'External'))
   block:
-    - name: Change the 'AuthenticationMethod' attribute to 'External'
+    - name: Auth | Change the 'AuthenticationMethod' attribute to 'External'
       community.general.xml:
         path: "/opt/{{ prowlarr_name }}/config.xml"
         xpath: "/Config/AuthenticationMethod"
         value: "External"
 
-    - name: Restart Docker container
+    - name: Auth | Restart Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
