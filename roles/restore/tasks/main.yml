@@ -15,12 +15,12 @@
 - name: User Role
   ansible.builtin.include_role:
     name: user
-  when: (user_check.rc == 1)
+  when: (user_check.rc == 1) and (not restore_tar is defined)
 
 - name: Set shell
   ansible.builtin.include_role:
     name: shell
-  when: (user_check.rc == 1)
+  when: (user_check.rc == 1) and (not restore_tar is defined)
 
 - name: Variables
   ansible.builtin.import_tasks: "variables.yml"
@@ -31,6 +31,7 @@
   register: localhost_yml_playbook_dir
 
 - name: "Import 'localhost.yml' from '{{ playbook_dir }}'"
+  when: localhost_yml_playbook_dir.stat.exists and (not restore_tar is defined)
   block:
 
     - name: "Check if a previous 'localhost.yml' exists"
@@ -67,8 +68,6 @@
       ansible.builtin.file:
         path: "{{ playbook_dir }}/localhost.yml"
         state: absent
-
-  when: localhost_yml_playbook_dir.stat.exists
 
 - name: BTRFS Tasks
   ansible.builtin.include_tasks: "btrfs.yml"
@@ -118,7 +117,11 @@
 # Restore from remote backup when local backup does not exist
 - name: Restore Remote
   ansible.builtin.import_tasks: "restore_remote.yml"
-  when: (dir_files.matched | int == 0)
+  when: (dir_files.matched | int == 0) and (not restore_tar is defined)
+
+- name: Restore specific tar
+  ansible.builtin.import_tasks: "restore_tar.yml"
+  when: (dir_files.matched | int == 0) and (restore_tar is defined)
 
 - name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
   ansible.builtin.stat:
@@ -133,7 +136,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  when: backup_excludes_list.stat.exists
+  when: backup_excludes_list.stat.exists and (not restore_tar is defined)
 
 - name: "Backup existing folders in '/opt' to prevent overwriting them"
   ansible.builtin.shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
