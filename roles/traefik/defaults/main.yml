@@ -20,6 +20,7 @@ traefik_name: traefik
 traefik_trusted_ips: ""
 traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
+traefik_dns_resolvers: "1.1.1.1:53,1.0.0.1:53"
 
 ################################
 # Paths
@@ -172,7 +173,7 @@ traefik_docker_commands_default:
   - "--accesslog.filepath=/etc/traefik/access.log"
   - "--accesslog.bufferingsize={{ traefik_access_buffer }}"
   - "--certificatesresolvers.cfdns.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
-  - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+  - "--certificatesresolvers.cfdns.acme.dnschallenge.resolvers={{ traefik_dns_resolvers }}"
   - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
@@ -182,7 +183,7 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.httpresolver.acme.email={{ user.email }}"
   - "--certificatesresolvers.httpresolver.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
-  - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+  - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers={{ traefik_dns_resolvers }}"
   - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
   - "--certificatesresolvers.zerossl.acme.caserver=https://acme.zerossl.com/v2/DV90"
   - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
@@ -196,7 +197,7 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.zerosslhttp.acme.storage=/etc/traefik/acme.json"
 traefik_docker_commands_google_acme_tmp:
   - "--certificatesresolvers.google.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
-  - "--certificatesresolvers.google.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+  - "--certificatesresolvers.google.acme.dnschallenge.resolvers={{ traefik_dns_resolvers }}"
   - "--certificatesresolvers.google.acme.email={{ user.email }}"
   - "--certificatesresolvers.google.acme.caserver=https://dv.acme-v02.api.pki.goog/directory"
   - "--certificatesresolvers.google.acme.eab.kid={{ traefik_google_kid | default('') }}"
