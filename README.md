@@ -205,12 +205,5 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>bandwith</b></sub>
         </a>
     </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/KaneAll>
-            <img src=https://avatars.githubusercontent.com/u/42412447?v=4 width="100;"  alt=KaneAll/>
-            <br />
-            <sub style="font-size:14px"><b>KaneAll</b></sub>
-        </a>
-    </td>
 </tr>
 </table>
