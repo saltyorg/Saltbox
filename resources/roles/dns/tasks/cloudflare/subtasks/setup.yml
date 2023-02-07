@@ -7,6 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Cloudflare | Setup | Install 'tld' Python package (Ansible venv)
+  ansible.builtin.pip:
+    name:
+      - "tld"
+    state: "latest"
+
 - name: Cloudflare | Setup | Create directory
   ansible.builtin.file:
     path: "{{ cloudflare_path }}"
