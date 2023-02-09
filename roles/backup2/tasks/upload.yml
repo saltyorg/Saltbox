@@ -17,6 +17,7 @@
       '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'
   args:
     executable: /bin/bash
+  environment: "{{ backup2_rclone_env }}"
   become: true
   become_user: "{{ user.name }}"
   async: 14400
