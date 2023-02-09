@@ -386,6 +386,7 @@
           -vv \
           --log-file='{{ playbook_dir }}/backup_rclone.log' \
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
+      environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
       when: backup.rclone.enable
