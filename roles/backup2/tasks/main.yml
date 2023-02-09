@@ -328,6 +328,7 @@
           {{ backup.rclone.destination }}/settings.yml \
           --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
           | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
+      environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
       register: rclone_timestamp
@@ -342,6 +343,7 @@
           '{{ backup.rclone.destination }}/{{ item }}' \
           '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
           2>/dev/null
+      environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
       register: rclone_move
@@ -365,6 +367,7 @@
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
         /usr/bin/rclone mkdir '{{ backup.rclone.destination }}/opt'
+      environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
       when: backup.rclone.enable
