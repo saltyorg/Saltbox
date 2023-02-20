@@ -17,7 +17,7 @@
   block:
     - name: APT | Run 'dpkg --configure --pending'
       ansible.builtin.shell: dpkg --configure --pending
-  
+
   rescue:
     - name: APT | Reinstall python3-debian
       ansible.builtin.shell: apt-get --reinstall install python3-debian
