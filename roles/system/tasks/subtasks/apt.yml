@@ -14,7 +14,16 @@
       DEBIAN_PRIORITY: critical
 
 - name: APT | Fix any potential dpkg issues
-  ansible.builtin.shell: dpkg --configure --pending
+  block:
+    - name: APT | Run 'dpkg --configure --pending'
+      ansible.builtin.shell: dpkg --configure --pending
+  
+  rescue:
+    - name: APT | Reinstall python3-debian
+      ansible.builtin.shell: apt-get --reinstall install python3-debian
+
+    - name: APT | Run 'dpkg --configure --pending' Again
+      ansible.builtin.shell: dpkg --configure --pending
 
 - name: APT | Kill existing apt and apt-get
   ansible.builtin.shell: "killall apt apt-get >/dev/null 2>&1 || :"
