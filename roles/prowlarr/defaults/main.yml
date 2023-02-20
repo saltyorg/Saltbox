@@ -49,7 +49,7 @@ prowlarr_traefik_middleware_custom: ""
 prowlarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prowlarr_traefik_enabled: true
 prowlarr_traefik_api_enabled: true
-prowlarr_traefik_api_endpoint: "PathRegexp(`/[0-9]+/api`) || PathRegexp(`/[0-9]+/download`) || PathPrefix(`/api`)"
+prowlarr_traefik_api_endpoint: "PathRegexp(`/[0-9]+/api`) || PathRegexp(`/[0-9]+/download`) || PathPrefix(`/api`) || PathPrefix(`/ping`)"
 
 ################################
 # THEME
