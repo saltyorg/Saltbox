@@ -32,7 +32,6 @@ rutorrent_paths_folders_list:
 # Config files
 rutorrent_paths_config_php_location: "{{ rutorrent_paths_location }}/rutorrent/settings/config.php"
 rutorrent_paths_rtorrent_rc_location: "{{ rutorrent_paths_location }}/rtorrent/rtorrent.rc"
-rutorrent_paths_nginx_conf_location: "{{ rutorrent_paths_location }}/nginx/nginx.conf"
 rutorrent_paths_php_local_ini_location: "{{ rutorrent_paths_location }}/php/php-local.ini"
 rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/settings/plugins.ini"
 
@@ -119,7 +118,7 @@ rutorrent_config_new_installs_php_local_ini_settings_list: "{{ rutorrent_config_
 # rtorrent.rc
 rutorrent_config_existing_installs_rutorrent_rc_settings_default:
   # Execute - Initiate Plugins
-  - { option: "execute", value: "{sh,-c,/usr/bin/php7 /app/rutorrent/php/initplugins.php abc &}" }
+  - { option: "execute", value: "{sh,-c,/usr/bin/php81 /app/rutorrent/php/initplugins.php abc &}" }
   # IP address that is reported to the tracker
   - { option: "network.local_address.set", value: "{{ ip_address_public }}" }
   # Ports
@@ -152,7 +151,7 @@ rutorrent_docker_container: "{{ rutorrent_name }}"
 # Image
 rutorrent_docker_image_pull: true
 rutorrent_docker_image_tag: "latest"
-rutorrent_docker_image: "horjulf/rutorrent-autodl:{{ rutorrent_docker_image_tag }}"
+rutorrent_docker_image: "saltydk/rutorrent:{{ rutorrent_docker_image_tag }}"
 
 # Ports
 rutorrent_docker_ports_51413: "{{ port_lookup_51413.port

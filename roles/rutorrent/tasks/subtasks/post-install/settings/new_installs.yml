@@ -41,12 +41,3 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-
-- name: Post-Install | Settings | New Installs | Import custom 'nginx.conf' with htpasswd support
-  ansible.builtin.copy:
-    src: nginx.conf
-    force: true
-    dest: "{{ rutorrent_paths_nginx_conf_location }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
