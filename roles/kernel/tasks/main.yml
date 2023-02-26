@@ -28,7 +28,7 @@
   when:
     - (ansible_distribution == 'Ubuntu')
     - (ansible_distribution_version is version('22.04', '=='))
-    - (ansible_kernel is version('5.15', '<'))
+    - (ansible_kernel is version('5.19', '<'))
 
 - name: Restart Tasks
   ansible.builtin.include_tasks: "subtasks/05_restart.yml"
