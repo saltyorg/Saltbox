@@ -31,9 +31,9 @@
   ansible.builtin.set_fact:
     traefik_cloudflare_ipv4: "{{ cloudflare_ipv4_ips.result }}"
     traefik_cloudflare_ipv6: "{{ cloudflare_ipv6_ips.result }}"
-  when: (cloudflare_ips.status == 200) and cloudflare_ips.json.success
+  when: (cloudflare_ipv4_ips.status != 200) or (cloudflare_ipv6_ips.status != 200)
 
 - name: "Fail when unable to get API output"
   ansible.builtin.fail:
     msg: Failed to retrieve API output.
-  when: (cloudflare_ips.status != 200) or (not cloudflare_ips.json.success)
+  when: (cloudflare_ipv4_ips.status != 200) or (cloudflare_ipv6_ips.status != 200)
