@@ -7,20 +7,30 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Get IPs from Cloudflare
+- name: Get IPv4 IPs from Cloudflare
   ansible.builtin.uri:
-    url: https://api.cloudflare.com/client/v4/ips
+    url: https://www.cloudflare.com/ips-v4
     method: GET
     return_content: true
-  register: cloudflare_ips
+  register: cloudflare_ipv4_ips
   retries: "5"
   delay: 10
-  until: cloudflare_ips.status == 200
+  until: cloudflare_ipv4_ips.status == 200
+
+- name: Get IPv6 IPs from Cloudflare
+  ansible.builtin.uri:
+    url: https://www.cloudflare.com/ips-v6
+    method: GET
+    return_content: true
+  register: cloudflare_ipv6_ips
+  retries: "5"
+  delay: 10
+  until: cloudflare_ipv6_ips.status == 200
 
 - name: Create Cloudflare IPv4 and IPv6 variables
   ansible.builtin.set_fact:
-    traefik_cloudflare_ipv4: "{{ cloudflare_ips.json.result.ipv4_cidrs }}"
-    traefik_cloudflare_ipv6: "{{ cloudflare_ips.json.result.ipv6_cidrs }}"
+    traefik_cloudflare_ipv4: "{{ cloudflare_ipv4_ips.result }}"
+    traefik_cloudflare_ipv6: "{{ cloudflare_ipv6_ips.result }}"
   when: (cloudflare_ips.status == 200) and cloudflare_ips.json.success
 
 - name: "Fail when unable to get API output"
