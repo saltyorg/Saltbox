@@ -17,13 +17,15 @@
   block:
 
     - name: BTRFS | Psuedo-File-System | Create blank '{{ docker_filesystem_path }}'
-      ansible.builtin.shell: touch {{ docker_filesystem_path }}
-
-    - name: BTRFS | Psuedo-File-System | Set NOCOW on '{{ docker_filesystem_path }}'
-      ansible.builtin.shell: chattr +C {{ docker_filesystem_path }}
+      ansible.builtin.file:
+        path: "{{ docker_filesystem_path }}"
+        attributes: "+C"
+        state: touch
 
     - name: BTRFS | Psuedo-File-System | Set size on '{{ docker_filesystem_path }}'
-      ansible.builtin.shell: fallocate -l {{ docker_filesystem_size }} {{ docker_filesystem_path }}
+      community.general.filesize:
+        path: "{{ docker_filesystem_path }}"
+        size: "{{ docker_filesystem_size }}"
 
     - name: BTRFS | Psuedo-File-System | Create pseudo filesystem
       community.general.filesystem:
@@ -67,10 +69,7 @@
       ansible.posix.mount:
         name: /var/lib/docker
         state: unmounted
-
-#    - name: BTRFS | Psuedo-File-System | Resize '{{ docker_filesystem_path }}'
-#      ansible.builtin.shell: fallocate -l {{ docker_filesystem_size }} {{ docker_filesystem_path }}
-
+  
     - name: BTRFS | Psuedo-File-System | Resize '{{ docker_filesystem_path }}'
       community.general.filesize:
         path: "{{ docker_filesystem_path }}"
