@@ -20,6 +20,7 @@
       ansible.builtin.file:
         path: "{{ docker_filesystem_path }}"
         attributes: "+C"
+        mode: '0644'
         state: touch
 
     - name: BTRFS | Psuedo-File-System | Set size on '{{ docker_filesystem_path }}'
@@ -67,7 +68,7 @@
       ansible.posix.mount:
         name: /var/lib/docker
         state: unmounted
-  
+
     - name: BTRFS | Psuedo-File-System | Resize '{{ docker_filesystem_path }}'
       community.general.filesize:
         path: "{{ docker_filesystem_path }}"
