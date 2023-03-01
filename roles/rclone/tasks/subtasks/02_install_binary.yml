@@ -47,6 +47,7 @@
       until: "x is not failed"
       retries: 5
       delay: 10
+      timeout: 60
 
   rescue:
     - name: "Install Binary | Download and unarchive rclone from Github"
@@ -59,6 +60,7 @@
       until: "x is not failed"
       retries: 5
       delay: 10
+      timeout: 60
 
 - name: Install Binary | Find rclone tmp dir
   ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
