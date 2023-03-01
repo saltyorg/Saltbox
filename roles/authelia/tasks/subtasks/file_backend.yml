@@ -22,7 +22,6 @@
       - "{{ authelia_paths_location }}:/config"
     networks:
       - name: saltbox
-    purge_networks: yes
     cleanup: yes
     state: started
     container_default_behavior: compatibility
