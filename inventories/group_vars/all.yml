@@ -186,10 +186,12 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
+traefik_default_gzip: "true"
+
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file,autodetect'
                                         + (',gzip'
-                                          if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
+                                          if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
                                           else '')
                                         + (',hsts@file'
                                           if (traefik.hsts)
@@ -219,7 +221,7 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                        if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
                                        else traefik_default_middleware_custom_http)
                                      + (',gzip'
-                                       if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=false)))
+                                       if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
                                        else '') }}"
 
 traefik_default_middleware_default_http_api: "globalHeaders@file,redirect-to-https,autodetect"
@@ -229,12 +231,12 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                            if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
                                            else traefik_default_middleware_custom_http_api)
                                          + (',gzip'
-                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=false)))
+                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
                                            else '') }}"
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file,autodetect'
                                             + (',gzip'
-                                              if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=false)))
+                                              if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
                                               else '')
                                             + (',hsts@file'
                                               if (traefik.hsts)
