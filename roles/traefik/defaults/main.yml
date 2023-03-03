@@ -166,6 +166,7 @@ traefik_dns_provider_netcup:
 traefik_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
 traefik_traefik_enabled: true
+traefik_traefik_autodetect_enabled: true
 
 ################################
 # Docker
