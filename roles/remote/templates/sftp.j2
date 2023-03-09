@@ -1,8 +1,8 @@
 # /etc/systemd/system/{{ _service_file }}
 #########################################################################
-# Title:         Saltbox: Seedbox Mount                                 #
+# Title:         Saltbox: Rcone SFTP Mount                              #
 # Location:      /etc/systemd/system/sonarr.service                     #
-# Author(s):     desimaniac                                             #
+# Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -10,12 +10,12 @@
 #########################################################################
 
 [Unit]
-Description=Seedbox Mount
+Description=Rclone SFTP Mount
 After=network-online.target
 
 [Service]
-User=salty
-Group=salty
+User={{ user.name }}
+Group={{ user.name }}
 Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
