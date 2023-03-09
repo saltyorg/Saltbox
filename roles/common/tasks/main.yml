@@ -184,7 +184,7 @@
 
 - name: "Set yyq version"
   ansible.builtin.set_fact:
-    yyq_current_version: "{{ yyq_version_settings_check.stdout
+    yyq_current_version: "{{ yyq_version_settings_check.stdout[1:]
                           if yyq_version_settings_check.stdout is defined
                           else '0.0.0' }}"
 
