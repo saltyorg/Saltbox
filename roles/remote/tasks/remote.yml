@@ -1,0 +1,249 @@
+#########################################################################
+# Title:         Saltbox: Remote Role | Remote Tasks                    #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Remote | Set Variables"
+  ansible.builtin.set_fact:
+    _service_file: "rclone_{{ item.remote }}.service"
+    _service_refresh: "rclone_{{ item.remote }}_refresh"
+    mount_path: "/mnt/remote/{{ item.remote }}"
+
+- name: "Remote | Check if '{{ _service_file }}' exists"
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ _service_file }}"
+  register: _service_file_status
+
+- name: "Remote | Tasks for '{{ _service_file }}'"
+  when: _service_file_status.stat.exists
+  block:
+    - name: "Remote | Stop and disable existing '{{ _service_file }}'"
+      ansible.builtin.systemd:
+        name: "{{ _service_file }}"
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: "Remote | Update credentials in existing '{{ _service_file }}'"
+      community.general.ini_file:
+        path: "/etc/systemd/system/{{ _service_file }}"
+        section: Service
+        option: "{{ inner_item.option }}"
+        value: "{{ inner_item.value }}"
+        state: present
+        mode: "0644"
+        no_extra_spaces: true
+      loop:
+        - { option: 'User', value: "{{ user.name }}" }
+        - { option: 'Group', value: "{{ user.name }}" }
+      loop_control:
+        loop_var: inner_item
+      when: (_service_file is not regex('.*\.timer'))
+
+    - name: "Remote | Replace 'rc-addr' with 'url' in existing '{{ _service_file }}'"
+      ansible.builtin.replace:
+        path: "/etc/systemd/system/{{ _service_file }}"
+        regexp: "rc-addr localhost:[0-9]*"
+        replace: 'url http://localhost:{{ item.port }}'
+      when: (_service_file is not regex('.*\.timer'))
+
+    - name: "Remote | Check if 'rclone_refresh.service' exists"
+      ansible.builtin.stat:
+        path: "/etc/systemd/system/{{ _service_refresh }}.service"
+      register: rclone_refresh_service_file_status
+      when: (item.template != "sftp")
+
+    - name: "Remote | Replace 'rc-addr' with 'url' in existing 'rclone_refresh.service'"
+      ansible.builtin.replace:
+        path: "/etc/systemd/system/{{ _service_refresh }}.service"
+        regexp: "rc-addr localhost:[0-9]*"
+        replace: 'url http://localhost:{{ item.port }}'
+      when: (item.template != "sftp") and rclone_refresh_service_file_status.stat.exists
+
+    - name: "Remote | Systemd daemon-reload"
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+- name: "Remote | Force unmount '{{ mount_path }}'"
+  ansible.builtin.shell: "/bin/umount -f '{{ mount_path }}' 2>/dev/null || :"
+  ignore_errors: true
+
+- name: "Remote | Check if '{{ mount_path }}' exists"
+  ansible.builtin.stat:
+    path: "{{ mount_path }}"
+  register: mount_path_stat
+  ignore_errors: true
+
+- name: "Remote | Tasks for '{{ mount_path }}' path"
+  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)
+  block:
+    - name: "Remote | Remove empty directories in '{{ mount_path }}'"
+      ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"
+      ignore_errors: true
+
+    - name: "Remote | Recursively find '{{ mount_path }}' files"
+      ansible.builtin.find:
+        paths: '{{ mount_path }}'
+        hidden: true
+        recurse: true
+      register: mount_path_stat_files
+      ignore_errors: true
+
+    - name: "Remote | Backup non-empty '{{ mount_path }}' path"
+      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
+      ignore_errors: true
+      when: (mount_path_stat_files.matched | int > 0)
+
+    - name: "Remote | Remove '{{ mount_path }}'"
+      ansible.builtin.file:
+        path: "{{ mount_path }}"
+        state: absent
+
+- name: Remote | Create mount directory
+  ansible.builtin.file:
+    path: "{{ mount_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+
+- name: Remote | Reset permissions for 'rclone.conf'
+  ansible.builtin.file:
+    path: "{{ rclone_config_path }}"
+    state: file
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: 0775
+
+- name: Remote | Create cache directory
+  ansible.builtin.file:
+    path: "{{ rclone_vfs_cache_dir }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (rclone_vfs_cache_dir | length > 0)
+
+- name: Remote | Import '{{ _service_file }}'
+  ansible.builtin.template:
+    src: "{{ item.template }}{{ '' if item.template is regex('^/.*') else '.j2' }}"
+    dest: "/etc/systemd/system/{{ _service_file }}"
+    mode: '0755'
+    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+
+- name: Remote | Systemd daemon-reload '{{ _service_file }}'
+  ansible.builtin.systemd:
+    name: "{{ _service_file }}"
+    state: stopped
+    enabled: false
+    daemon_reload: true
+
+- name: Remote | Import '{{ _service_refresh }}.timer'
+  ansible.builtin.template:
+    src: rclone_refresh.timer.j2
+    dest: "/etc/systemd/system/{{ _service_refresh }}.timer"
+    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+    mode: '0755'
+  when: (item.template != "sftp")
+
+- name: Remote | Systemd daemon-reload '{{ _service_refresh }}.timer'
+  ansible.builtin.systemd:
+    name: "{{ _service_refresh }}.timer"
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  when: (item.template != "sftp")
+
+- name: Remote | Import '{{ _service_refresh }}.service'
+  ansible.builtin.template:
+    src: "rclone_refresh.service.j2"
+    dest: "/etc/systemd/system/{{ _service_refresh }}.service"
+    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+    mode: '0755'
+  when: (item.template != "sftp")
+
+- name: Remote | Systemd daemon-reload '{{ _service_refresh }}.service'
+  ansible.builtin.systemd:
+    name: "{{ _service_refresh }}.service"
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  when: (item.template != "sftp")
+
+- name: Remote | Get list of Rclone remotes in config
+  ansible.builtin.shell: rclone listremotes
+  become: true
+  become_user: "{{ user.name }}"
+  register: rclone_config_remotes
+
+- name: Remote | Set 'rclone_config_remotes' variable
+  ansible.builtin.set_fact:
+    rclone_config_remotes: "{{ (rclone_config_remotes.stdout).split() }}"
+
+- name: Remote | Set 'rclone_remote_is_configured' variable
+  ansible.builtin.set_fact:
+    rclone_remote_is_configured: "{{ (item.remote + ':') in rclone_config_remotes }}"
+
+- name: Remote | Tasks when Rclone remote is configured
+  when: rclone_remote_is_configured
+  block:
+    - name: "Remote | Test Rclone remote '{{ item.remote }}:'"
+      ansible.builtin.shell: |
+        rclone lsd '{{ item.remote }}:' \
+          --user-agent='{{ user_agent }}'
+      become: true
+      become_user: "{{ user.name }}"
+      register: rclone_test
+      failed_when: (rclone_test.rc | int > 5)
+
+    - name: Remote | Set 'rclone_remote_is_working' variable
+      ansible.builtin.set_fact:
+        rclone_remote_is_working: "{{ rclone_test.rc | int == 0 }}"
+
+    - name: Remote | Tasks when Rclone remote is working properly
+      when: rclone_remote_is_working
+      block:
+        - name: Remote | Start '{{ _service_file }}'
+          ansible.builtin.systemd:
+            name: "{{ _service_file }}"
+            state: started
+            enabled: true
+
+        - name: Remote | "Wait for 5 seconds"
+          ansible.builtin.wait_for:
+            timeout: 5
+
+        - name: Remote | Start '{{ _service_refresh }}.timer'
+          ansible.builtin.systemd:
+            name: "{{ _service_refresh }}.timer"
+            state: started
+            enabled: true
+          when: (item.template != "sftp")
+
+        - name: Remote | Start '{{ _service_refresh }}.service'
+          ansible.builtin.systemd:
+            name: "{{ _service_refresh }}.service"
+            state: started
+            enabled: true
+            no_block: true
+          when: (item.template != "sftp")
+
+    - name: "Remote | Display error message when Rclone remote is not working properly"
+      ansible.builtin.fail:
+        msg:
+          - "Rclone remote '{{ item.remote }}:' is not working properly."
+          - "{{ rclone_test.stderr }}"
+      when: (not rclone_remote_is_working)
+      ignore_errors: true
+
+- name: "Remote | Display error message when Rclone remote is not configured properly"
+  ansible.builtin.fail:
+    msg:
+      - "Rclone remote '{{ item.remote }}:' is not configured properly."
+  when: (not rclone_remote_is_configured)
+  ignore_errors: true

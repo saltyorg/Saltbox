@@ -43,7 +43,7 @@ mergerfs_download_backup_url: "
   {{ ansible_distribution | lower }}-\
   {{ mergerfs_release_distribution }}_amd64.deb"
 
-mergerfs_mount_branches: "{{ local_mount_branch }}=RW:/mnt/remote=NC"
+mergerfs_mount_branches: "{{ local_mount_branch }}=RW:{{ _remotes_list }}"
 
 mergerfs_mount_service_after: "network-online.target"
 

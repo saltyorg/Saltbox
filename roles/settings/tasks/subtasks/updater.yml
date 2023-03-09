@@ -30,3 +30,6 @@
   ansible.builtin.set_fact:
     exit_is_necessary: true
   when: (settings_updater.rc == 2)
+
+- name: Updater | Sort Keys
+  ansible.builtin.shell: yyq -i 'sort_keys(.)' {{ playbook_dir }}/{{ file }}

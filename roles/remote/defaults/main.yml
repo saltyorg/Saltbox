@@ -14,99 +14,7 @@
 user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36
 
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
-
-################################
-# Feeder
-################################
-
-feeder_mount_start_command: |-
-  /usr/bin/rclone mount \
-    --user-agent='{{ user_agent }}' \
-    --config={{ rclone_config_path }} \
-    --allow-other \
-    --copy-links \
-    --dir-cache-time=1m \
-    --max-read-ahead=200M \
-    --umask=002 \
-    --syslog \
-    -v \
-    feeder:/mnt/local /mnt/feeder
-
-feeder_mount_stop_command: /bin/fusermount -uz /mnt/feeder
-
-################################
-# Rclone VFS
-################################
-
-rclone_vfs_mount_start_command: |-
-  /usr/bin/rclone mount \
-    --user-agent='{{ user_agent }}' \
-    --config={{ rclone_config_path }} \
-    --allow-other \
-    --rc \
-    --rc-no-auth \
-    --rc-addr=localhost:5572 \
-    --drive-skip-gdocs \
-    --vfs-read-chunk-size=64M \
-    --vfs-read-chunk-size-limit=2048M \
-    --buffer-size=64M \
-    --poll-interval=15s \
-    --dir-cache-time=1000h \
-    --timeout=10m \
-    --drive-chunk-size=64M \
-    --drive-pacer-min-sleep=10ms \
-    --drive-pacer-burst=1000 \
-    --umask=002 \
-    --syslog \
-    {{ '--bind=' + ansible_default_ipv4.address + ' ' if mounts.ipv4_only else '' }}-v \
-    {{ rclone.remote }}: /mnt/remote
-
-rclone_vfs_mount_stop_command: /bin/fusermount -uz /mnt/remote
-
-rclone_vfs_mount_start_post_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:5572 _async=true
-
-################################
-# Rclone VFS Cache
-################################
-
-rclone_vfs_cache_max_size: 50G
-rclone_vfs_cache_max_age: 504h
 rclone_vfs_cache_dir: ""
-
-rclone_vfs_cache_mount_start_command: |-
-  /usr/bin/rclone mount \
-    --user-agent='{{ user_agent }}' \
-    --config={{ rclone_config_path }} \
-    --allow-other \
-    --async-read=true \
-    --dir-cache-time=1000h \
-    --buffer-size=32M \
-    --poll-interval=15s \
-    --rc \
-    --rc-no-auth \
-    --rc-addr=localhost:5572 \
-    --use-mmap \
-    --vfs-read-ahead=128M \
-    --vfs-read-chunk-size=32M \
-    --vfs-read-chunk-size-limit=2G \
-    --vfs-cache-max-age={{ rclone_vfs_cache_max_age }} \
-    --vfs-cache-mode=full \
-    --vfs-cache-poll-interval=30s \
-    --vfs-cache-max-size={{ rclone_vfs_cache_max_size }} \
-    --timeout=10m \
-    --drive-skip-gdocs \
-    --drive-pacer-min-sleep=10ms \
-    --drive-pacer-burst=1000 \
-    --umask=002 \
-    {{ '--cache-dir=' + rclone_vfs_cache_dir + ' ' if (rclone_vfs_cache_dir | length > 0) else '' }}--syslog \
-    {{ '--bind=' + ansible_default_ipv4.address + ' ' if mounts.ipv4_only else '' }}-v \
-    {{ rclone.remote }}: /mnt/remote
-
-rclone_vfs_cache_mount_stop_command: /bin/fusermount -uz /mnt/remote
-
-rclone_vfs_cache_mount_start_post_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:5572 _async=true
 
 ################################
 # Rclone VFS Refresh
@@ -114,4 +22,4 @@ rclone_vfs_cache_mount_start_post_command: |-
 
 rclone_vfs_refresh_interval: 86400
 rclone_vfs_refresh_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:5572 _async=true
+  /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ item.port }} _async=true

@@ -1,0 +1,67 @@
+# /etc/systemd/system/{{ _service_file }}
+#########################################################################
+# Title:         Saltbox: Rclone VFS Mount                              #
+# Author(s):     EnorMOZ, salty                                         #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+Description=Rclone VFS Mount
+After=network-online.target
+
+[Service]
+User={{ user.name }}
+Group={{ user.name }}
+Type=notify
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/rclone mount \
+    --allow-other \
+{% if mounts.ipv4_only %}
+    --bind={{ ansible_default_ipv4.address }} \
+{% endif %}
+    --config={{ rclone_config_path }} \
+    --buffer-size={{ '32M' if item.cache.enabled else '64M' }} \
+    --dir-cache-time=5000h \
+{% if not item.cache.enabled %}
+    --drive-chunk-size=64M \
+{% endif %}
+    --drive-pacer-burst=1000 \
+    --drive-pacer-min-sleep=10ms \
+    --drive-skip-gdocs \
+    --poll-interval=15s \
+    --rc \
+    --rc-no-auth \
+    --rc-addr=localhost:{{ item.port }} \
+    --syslog \
+    --timeout=10m \
+    --umask=002 \
+    --use-mmap \
+    --user-agent='{{ user_agent }}' \
+{% if item.cache.enabled %}
+    --vfs-cache-max-age={{ item.cache.max_age | default('504h') }} \
+    --vfs-cache-max-size={{ item.cache.size | default('50G') }} \
+    --vfs-cache-mode=full \
+    --vfs-cache-poll-interval=30s \
+    --vfs-read-ahead=128M \
+{% endif %}
+    --vfs-read-chunk-size-limit=2G \
+    --vfs-read-chunk-size={{ '32M' if item.cache.enabled else '64M' }} \
+    -v \
+    {{ item.remote }}: /mnt/remote/{{ item.remote }}
+ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ item.port }} _async=true
+ExecStop=/bin/fusermount -uz /mnt/remote/{{ item.remote }}
+Restart=on-abort
+RestartSec=5
+StartLimitInterval=60s
+StartLimitBurst=3
+{% if item.cache.enabled %}
+TimeoutSec=21600
+LimitNOFILE=infinity
+LimitMEMLOCK=infinity
+{% endif %}
+
+[Install]
+WantedBy=default.target

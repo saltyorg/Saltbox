@@ -1,7 +1,7 @@
 # /etc/systemd/system/docker.service.d/override.conf
 #########################################################################
 # Title:         Saltbox: Docker Config Override                        #
-# Author(s):     l3uddz, desimaniac                                     #
+# Author(s):     l3uddz, desimaniac, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -10,8 +10,8 @@
 
 [Unit]
 {% if use_remote and not continuous_integration %}
-After={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
-Requires={{ docker_service_after }}{{ ' rclone_vfs.service' if rclone_remote_is_defined else '' }}{{ ' feeder.service' if feeder_mount_is_enabled else '' }}
+After={{ _remotes_services_list if rclone_remote_is_defined else '' }}{{ docker_service_after }}
+Requires={{ _remotes_services_list if rclone_remote_is_defined else '' }}{{ docker_service_after }}
 {% else %}
 After={{ docker_service_after }}
 Requires={{ docker_service_after }}

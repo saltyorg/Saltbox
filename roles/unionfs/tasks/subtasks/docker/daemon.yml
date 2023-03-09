@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Docker | Daemon | Set '_remotes_list' variable
+  ansible.builtin.set_fact:
+    _remotes_services_list: "{{ _remotes_services_list | default('') + 'rclone_' + item.remote + '.service ' }}"
+  with_items: "{{ rclone.remotes }}"
+
 - name: "Docker | Daemon | Create override directory"
   ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d

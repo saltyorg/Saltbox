@@ -56,22 +56,16 @@ plex_account_is_enabled: "{{ (plex is defined) and
 # Role Conditionals
 ################################
 
-feeder_mount_is_enabled: "{{ (mounts is defined) and
-                             (mounts is not none) and
-                             (mounts | trim | length > 0) and
-                             (mounts.feeder is defined) and
-                             (mounts.feeder is not none) and
-                             (mounts.feeder | trim | length > 0) and
-                             (mounts.feeder) }}"
+feeder_mount_is_enabled: "{{ rclone.remotes | selectattr('remote', 'equalto', 'feeder') | list | count > 0 }}"
 
 rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone is not none) and
                               (rclone | trim | length > 0) and
-                              (rclone.remote is defined) and
-                              (rclone.remote is not none) and
-                              (rclone.remote | trim | length > 0) }}"
+                              (rclone.remotes is defined) and
+                              (rclone.remotes is not none) and
+                              (rclone.remotes | trim | length > 0) }}"
 
-use_remote: "{{ feeder_mount_is_enabled or rclone_remote_is_defined }}"
+use_remote: "{{ rclone_remote_is_defined }}"
 
 use_nvidia: "{{ gpu.nvidia | bool }}"
 

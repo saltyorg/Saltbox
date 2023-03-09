@@ -21,16 +21,6 @@
                               (traefik.tls is none)
                               or
                               (traefik.tls | trim | length == 0)) }}"
-
-- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
-  ansible.builtin.shell: |
-    yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
-  become: true
-  become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: (not traefik_tls_settings)
-
-- name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  ansible.builtin.set_fact:
     traefik_metrics_settings: "{{ not ((traefik is undefined)
                                   or
                                   (traefik is none)
@@ -42,6 +32,33 @@
                                   (traefik.metrics is none)
                                   or
                                   (traefik.metrics | trim | length == 0)) }}"
+    old_dockerhub: "{{ not ((dockerhub is undefined)
+                       or
+                       (dockerhub is none)
+                       or
+                       (dockerhub | trim | length == 0)) }}"
+    old_dns_enabled: "{{ not ((dns.enabled is undefined)
+                         or
+                         (dns.enabled is none)
+                         or
+                         (dns.enabled | trim | length == 0)) }}"
+    old_feeder_mount: "{{ not ((mounts.feeder is undefined)
+                          or
+                          (mounts.feeder is none)
+                          or
+                          (mounts.feeder | trim | length == 0)) }}"
+    old_remote_mount: "{{ not ((mounts.remote is undefined)
+                          or
+                          (mounts.remote is none)
+                          or
+                          (mounts.remote | trim | length == 0)) }}"
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
+  ansible.builtin.shell: |
+    yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: (not traefik_tls_settings)
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
   ansible.builtin.shell: |
@@ -50,14 +67,6 @@
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (not traefik_metrics_settings)
 
-- name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  ansible.builtin.set_fact:
-    old_dockerhub: "{{ not ((dockerhub is undefined)
-                       or
-                       (dockerhub is none)
-                       or
-                       (dockerhub | trim | length == 0)) }}"
-
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
   ansible.builtin.shell: |
     yyq e -i 'del(.dockerhub)' {{ playbook_dir }}/{{ file }}
@@ -65,20 +74,26 @@
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_dockerhub
 
-- name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
-  ansible.builtin.set_fact:
-    old_dns_enabled: "{{ not ((dns.enabled is undefined)
-                         or
-                         (dns.enabled is none)
-                         or
-                         (dns.enabled | trim | length == 0)) }}"
-
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dns.enabled' key-pair
   ansible.builtin.shell: |
     yyq e -i 'del(.dns.enabled)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_dns_enabled
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'mounts.feeder' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.mounts.feeder)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_feeder_mount
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'mounts.remote' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.mounts.remote)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_remote_mount
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:

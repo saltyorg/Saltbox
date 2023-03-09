@@ -1,43 +1,84 @@
 #########################################################################
 # Title:         Saltbox: Remote Role                                   #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Variables
+- name: "Gather list of running Docker containers"
+  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
+  register: saltbox_managed_containers
+  ignore_errors: true
 
-- name: Variables Task
-  ansible.builtin.import_tasks: "subtasks/variables.yml"
+- name: "Set 'containers_list' variable"
+  ansible.builtin.set_fact:
+    containers_list: "{{ saltbox_managed_containers.stdout }}"
 
-# Stop Containers
+- name: "Stop all running Docker containers"
+  ansible.builtin.shell: "docker stop {{ containers_list }}"
+  ignore_errors: true
+  when: (containers_list | trim | length > 0)
 
-- name: Container Tasks
-  ansible.builtin.import_tasks: "subtasks/containers.yml"
+- name: "Check if 'rclone_vfs.service' exists"
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/rclone_vfs.service"
+  register: rclone_vfs_status
 
-# Existing Setup
+- name: "Tasks for 'rclone_vfs.service'"
+  when: rclone_vfs_status.stat.exists
+  block:
+    - name: "Stop and disable existing 'rclone_vfs.service'"
+      ansible.builtin.systemd:
+        name: "rclone_vfs.service"
+        state: stopped
+        enabled: false
+      ignore_errors: true
 
-- name: Service Tasks
-  ansible.builtin.include_tasks: "subtasks/services.yml"
-  vars:
-    _service_file: "{{ item }}"
-  loop: "{{ service_files }}"
+    - name: Delete 'rclone_vfs.service'
+      ansible.builtin.file:
+        path: "/etc/systemd/system/rclone_vfs.service"
+        state: absent
 
-- name: Mount Path Tasks
-  ansible.builtin.include_tasks: "subtasks/mount_path.yml"
-  vars:
-    mount_path: "{{ item }}"
-  loop: "{{ mount_paths }}"
+- name: "Check if 'rclone_refresh.service' exists"
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/rclone_refresh.service"
+  register: rclone_refresh_status
 
-# New Setup
+- name: "Tasks for 'rclone_refresh.service'"
+  when: rclone_refresh_status.stat.exists
+  block:
+    - name: "Stop and disable existing 'rclone_refresh.service'"
+      ansible.builtin.systemd:
+        name: "rclone_refresh.service"
+        state: stopped
+        enabled: false
+      ignore_errors: true
 
-- name: Basic Tasks
-  ansible.builtin.import_tasks: "subtasks/basics.yml"
+    - name: "Stop and disable existing 'rclone_refresh.timer'"
+      ansible.builtin.systemd:
+        name: "rclone_refresh.timer"
+        state: stopped
+        enabled: false
+      ignore_errors: true
 
-# Mount
+    - name: Delete 'rclone_refresh' services
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ item }}"
+        state: absent
+      loop:
+        - "rclone_refresh.service"
+        - "rclone_refresh.timer"
 
-- name: Mount Tasks
-  ansible.builtin.include_tasks: "subtasks/mounts/{{ item }}.yml"
-  loop: "{{ desired_mount_types }}"
+- name: Create '/mnt/remote' directory
+  ansible.builtin.file:
+    path: "/mnt/remote"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Remote Tasks
+  ansible.builtin.include_tasks: "remote.yml"
+  with_items: "{{ rclone.remotes }}"

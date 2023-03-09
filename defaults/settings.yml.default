@@ -1,10 +1,17 @@
 ---
-downloads: /mnt/unionfs/downloads
-transcodes: /mnt/local/transcodes
-rclone:
-  version: latest
-  remote: google
-shell: bash
 authelia:
   master: yes
   subdomain: login
+downloads: /mnt/unionfs/downloads
+rclone:
+  version: latest
+  remotes:
+    - remote: google
+      template: google
+      cache:
+        enabled: false
+        size: 50G
+        max_age: 504h
+      port: 5572
+shell: bash
+transcodes: /mnt/local/transcodes

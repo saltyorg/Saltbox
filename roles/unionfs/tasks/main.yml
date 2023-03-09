@@ -26,11 +26,6 @@
     _service_file: "{{ item }}"
   loop: "{{ service_files }}"
 
-# New Setup
-
-- name: Basic Tasks
-  ansible.builtin.import_tasks: "subtasks/basics.yml"
-
 # Mount UnionFS
 
 - name: Mount UnionFS Tasks

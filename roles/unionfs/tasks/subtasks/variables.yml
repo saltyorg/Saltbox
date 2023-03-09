@@ -47,3 +47,16 @@
 - name: Variables | Set new 'service_files' variable
   ansible.builtin.set_fact:
     service_files: "{{ service_files_temp }}"
+
+################################
+# Remotes List
+################################
+
+- name: Variables | Set '_remotes_list' variable
+  ansible.builtin.set_fact:
+    _remotes_list: "{{ _remotes_list | default('') + '/mnt/remote/' + item.remote + '=NC:' }}"
+  with_items: "{{ rclone.remotes }}"
+
+- name: Variables | Remove trailing colon in '_remotes_list'
+  ansible.builtin.set_fact:
+    _remotes_list: "{{ _remotes_list[:-1] }}"

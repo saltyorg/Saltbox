@@ -1,13 +1,18 @@
 ---
-system:
-  timezone: auto
-docker:
-  json_driver: no
 dns:
   proxied: no
   ipv4: yes
   ipv6: no
   zerossl: no
+docker:
+  json_driver: no
+gpu:
+  intel: yes
+  nvidia: no
+mounts:
+  ipv4_only: no
+system:
+  timezone: auto
 traefik:
   tls: no
   http: no
@@ -20,10 +25,3 @@ traefik:
     metrics: metrics
     jaeger: jaeger
   error_pages: no
-mounts:
-  remote: rclone_vfs
-  ipv4_only: no
-  feeder: no
-gpu:
-  intel: yes
-  nvidia: no
