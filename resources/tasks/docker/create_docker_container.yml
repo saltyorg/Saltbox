@@ -21,7 +21,7 @@
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
     cgroup_parent: "{{ lookup('vars', _var_prefix + '_docker_cgroup_parent', default=omit) }}"
     cleanup: "{{ lookup('vars', _var_prefix + '_docker_cleanup', default=omit) }}"
-    command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) }}"
+    command: "{{ lookup('vars', _var_prefix + '_docker_commands', default=omit) | reject('equalto', omit) | list }}"
     command_handling: compatibility
     container_default_behavior: compatibility
     cpu_period: "{{ lookup('vars', _var_prefix + '_docker_cpu_period', default=omit) }}"
@@ -45,7 +45,7 @@
     env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     env_file: "{{ lookup('vars', _var_prefix + '_docker_env_file', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
-    exposed_ports: "{{ (lookup('vars', _var_prefix + '_docker_exposed_ports', default=omit) | unique)
+    exposed_ports: "{{ (lookup('vars', _var_prefix + '_docker_exposed_ports', default=omit) | unique | reject('equalto', omit) | list)
                     if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
                     else [] }}"
     groups: "{{ lookup('vars', _var_prefix + '_docker_groups', default=omit) }}"
@@ -78,7 +78,7 @@
     paused: "{{ lookup('vars', _var_prefix + '_docker_paused', default=omit) }}"
     pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
     privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
-    published_ports: "{{ (lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique)
+    published_ports: "{{ (lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
                       if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
                       else [] }}"
     pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
@@ -102,7 +102,7 @@
     volume_driver: "{{ lookup('vars', _var_prefix + '_docker_volume_driver', default=omit) }}"
     volumes: "{{ ((docker_volumes_common + lookup('vars', _var_prefix + '_docker_volumes', default=omit))
               if lookup('vars', _var_prefix + '_docker_volumes_global', default=true)
-              else lookup('vars', _var_prefix + '_docker_volumes', default=omit)) | unique }}"
+              else lookup('vars', _var_prefix + '_docker_volumes', default=omit)) | unique | reject('equalto', omit) | list }}"
     volumes_from: "{{ lookup('vars', _var_prefix + '_docker_volumes_from', default=omit) }}"
     working_dir: "{{ lookup('vars', _var_prefix + '_docker_working_dir', default=omit) }}"
   register: result
