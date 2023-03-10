@@ -7,10 +7,10 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-backup2_ignore_containers: {{ backup_ignore_containers }}
-backup2_user_defined_files: {{ backup_user_defined_files }}
+backup2_ignore_containers: "{{ backup_ignore_containers }}"
+backup2_user_defined_files: "{{ backup_user_defined_files }}"
 backup2_async_batch_size: 99
-backup2_rclone_env: {{ backup_rclone_env }}
+backup2_rclone_env: "{{ backup_rclone_env }}"
 
 # Options can be found at https://rclone.org/docs/#bwlimit-bandwidth-spec
-backup2_rclone_upload_speed_limit: {{ backup_rclone_upload_speed_limit }}
+backup2_rclone_upload_speed_limit: "{{ backup_rclone_upload_speed_limit }}"
