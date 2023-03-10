@@ -9,7 +9,7 @@
 ---
 - name: "ZeroSSL | Display ZeroSSL status"
   ansible.builtin.debug:
-    msg: "ZeroSSL setting is {{ 'enabled' if zerossl_is_enabled else 'disabled' }}"
+    msg: "ZeroSSL setting is {{ 'enabled' if zerossl_is_enabled else 'disabled' }}."
 
 - name: "ZeroSSL | Check if PIN exists"
   ansible.builtin.stat:
