@@ -371,7 +371,7 @@ traefik_docker_labels_default:
   traefik.http.routers.traefik.entrypoints: "{{ traefik_entrypoint_websecure }}"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
-  traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware }}" # Temporary workaround for dashboard being broken with headers set - Old value is traefik_default_middleware
+  traefik.http.routers.traefik.middlewares: "{{ traefik_default_middleware }}"
   traefik.http.routers.traefik.priority: "20"
   traefik.http.routers.traefik.service: "api@internal"
   traefik.http.middlewares.traefik-auth.basicauth.usersfile: "/etc/traefik/auth"

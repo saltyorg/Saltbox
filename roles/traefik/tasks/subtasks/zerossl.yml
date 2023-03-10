@@ -7,33 +7,80 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Display ZeroSSL status"
+- name: "ZeroSSL | Display ZeroSSL status"
   ansible.builtin.debug:
     msg: "ZeroSSL setting is {{ 'enabled' if zerossl_is_enabled else 'disabled' }}"
 
-- name: Get new credentials
-  ansible.builtin.uri:
-    url: https://api.zerossl.com/acme/eab-credentials-email
-    method: POST
-    body:
-      email: "{{ user.email }}"
-    body_format: form-urlencoded
-    return_content: true
-  register: zerossl
-  ignore_errors: true
+- name: "ZeroSSL | Check if PIN exists"
+  ansible.builtin.stat:
+    path: "/opt/saltbox/zerossl.ini"
+  register: zerossl_ini
 
-- name: "Set ZeroSSL variables"
-  ansible.builtin.set_fact:
-    traefik_zerossl_kid: "{{ zerossl.json.eab_kid }}"
-    traefik_zerossl_hmacencoded: "{{ zerossl.json.eab_hmac_key }}"
-  when: (zerossl.status == 200) and zerossl.json.success
+- name: "ZeroSSL | Existing Credentials Block"
+  when: zerossl_ini.stat.exists
+  block:
+    - name: "ZeroSSL | Set ZeroSSL variables"
+      ansible.builtin.set_fact:
+        traefik_zerossl_kid: "{{ lookup('ini', 'kid section=zerossl file=/opt/saltbox/zerossl.ini') }}"
+        traefik_zerossl_hmacencoded: "{{ lookup('ini', 'hmacencoded section=zerossl file=/opt/saltbox/zerossl.ini') }}"
 
-- name: "Fail when unable to get new credentials"
-  ansible.builtin.fail:
-    msg: Failed to retrieve ZeroSSL credentials.
-  when: ((zerossl.status != 200) or (not zerossl.json.success)) and zerossl_is_enabled
+- name: "ZeroSSL | New Credentials Block"
+  when: not zerossl_ini.stat.exists
+  block:
+    - name: "ZeroSSL | Get new credentials"
+      ansible.builtin.uri:
+        url: https://api.zerossl.com/acme/eab-credentials-email
+        method: POST
+        body:
+          email: "{{ user.email }}"
+        body_format: form-urlencoded
+        return_content: true
+      register: zerossl
+      ignore_errors: true
 
-- name: "Print failure when unable to get new credentials"
-  ansible.builtin.debug:
-    msg: Failed to retrieve ZeroSSL credentials.
-  when: ((zerossl.status != 200) or (not zerossl.json.success)) and not zerossl_is_enabled
+    - name: "ZeroSSL | Set ZeroSSL variables"
+      ansible.builtin.set_fact:
+        traefik_zerossl_kid: "{{ zerossl.json.eab_kid }}"
+        traefik_zerossl_hmacencoded: "{{ zerossl.json.eab_hmac_key }}"
+      when: (zerossl.status == 200) and zerossl.json.success
+
+    - name: "ZeroSSL | Fail when unable to get new credentials"
+      ansible.builtin.fail:
+        msg: Failed to retrieve ZeroSSL credentials.
+      when: ((zerossl.status != 200) or (not zerossl.json.success)) and zerossl_is_enabled
+
+    - name: "ZeroSSL | Print failure when unable to get new credentials"
+      ansible.builtin.debug:
+        msg: Failed to retrieve ZeroSSL credentials.
+      when: ((zerossl.status != 200) or (not zerossl.json.success)) and not zerossl_is_enabled
+
+    - name: "ZeroSSL | Create directories"
+      ansible.builtin.file:
+        path: "/opt/saltbox"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+      when: (zerossl.status == 200) and zerossl.json.success
+
+    - name: "ZeroSSL | Add kid to '/opt/saltbox/zerossl.ini'"
+      community.general.ini_file:
+        path: /opt/saltbox/zerossl.ini
+        section: "zerossl"
+        option: kid
+        value: "{{ traefik_zerossl_kid }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      when: (zerossl.status == 200) and zerossl.json.success
+
+    - name: "ZeroSSL | Add hmacencoded to '/opt/saltbox/zerossl.ini'"
+      community.general.ini_file:
+        path: /opt/saltbox/zerossl.ini
+        section: "zerossl"
+        option: hmacencoded
+        value: "{{ traefik_zerossl_hmacencoded }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      when: (zerossl.status == 200) and zerossl.json.success
