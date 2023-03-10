@@ -159,6 +159,10 @@ traefik_dns_provider_netcup:
   NETCUP_API_KEY: "{{ netcup.api_key }}"
   NETCUP_API_PASSWORD: "{{ netcup.api_password }}"
 
+traefik_dns_provider_porkbun:
+  PORKBUN_API_KEY: "{{ porkbun.api_key }}"
+  PORKBUN_SECRET_API_KEY: "{{ porkbun.secret_key }}"
+
 ################################
 # Traefik
 ################################

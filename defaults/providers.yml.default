@@ -23,3 +23,6 @@ netcup:
   customer_number:
   api_key:
   api_password:
+porkbun:
+  api_key:
+  secret_key:
