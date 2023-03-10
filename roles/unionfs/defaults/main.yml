@@ -11,7 +11,7 @@
 # Global
 ################################
 
-local_mount_branch: "{{ '/mnt/feeder' if (feeder_remote_is_active is defined and feeder_remote_is_active) else '/mnt/local' }}"
+local_mount_branch: "{{ '/mnt/remote/feeder' if (feeder_remote_is_active is defined and feeder_remote_is_active) else '/mnt/local' }}"
 
 mount_type: "mergerfs"
 
