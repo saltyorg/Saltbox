@@ -22,7 +22,7 @@ ExecStart=/usr/bin/rclone mount \
 {% if mounts.ipv4_only %}
     --bind={{ ansible_default_ipv4.address }} \
 {% endif %}
-{% if (rclone_vfs_cache_dir | length > 0) %}
+{% if (rclone_vfs_cache_dir | length > 0) and item.cache.enabled %}
     --cache-dir={{ rclone_vfs_cache_dir }} \
 {% endif %}
     --config={{ rclone_config_path }} \
