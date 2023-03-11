@@ -171,30 +171,9 @@
     mode: 0775
     force: true
 
-- name: "Check to see if yyq is installed"
-  ansible.builtin.stat:
-    path: "/usr/local/bin/yyq"
-  register: yyq_binary
-
-- name: "Get yyq version"
-  ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
-  register: yyq_version_settings_check
-  ignore_errors: true
-  when: yyq_binary.stat.exists
-
-- name: "Set yyq version"
-  ansible.builtin.set_fact:
-    yyq_current_version: "{{ (yyq_version_settings_check.stdout[1:]
-                              if yyq_version_settings_check.stdout is regex('^v.*')
-                              else yyq_version_settings_check.stdout)
-                          if yyq_version_settings_check.stdout is defined
-                          else '0.0.0' }}"
-
 - name: "Install yyq"
   ansible.builtin.include_role:
     name: yyq
-  when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver'))
-        or (not yyq_binary.stat.exists)
 
 - name: "Install Nano Syntax Highlighting"
   ansible.builtin.shell: "curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh"
