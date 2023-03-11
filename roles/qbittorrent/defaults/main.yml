@@ -68,6 +68,7 @@ qbittorrent_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) 
 # Options can be found at https://github.com/gilbN/theme.park
 qbittorrent_themepark_enabled: false
 qbittorrent_themepark_theme: "{{ global_themepark_theme }}"
+qbittorrent_themepark_headers: "\"content-security-policy: default-src 'self'; style-src 'self' 'unsafe-inline' theme-park.dev raw.githubusercontent.com use.fontawesome.com; img-src 'self' theme-park.dev raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; font-src use.fontawesome.com;\""
 
 ################################
 # Docker

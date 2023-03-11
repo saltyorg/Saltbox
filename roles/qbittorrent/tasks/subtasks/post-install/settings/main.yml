@@ -42,3 +42,27 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+
+- name: Post-Install | Settings | Update CustomHTTPHeaders 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\CustomHTTPHeaders
+    value: "{{ qbittorrent_themepark_headers if qbittorrent_themepark_enabled else '' }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Update CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\CustomHTTPHeadersEnabled
+    value: "{{ 'true' if qbittorrent_themepark_enabled else 'false' }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
