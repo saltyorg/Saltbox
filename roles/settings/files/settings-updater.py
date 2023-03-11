@@ -3,7 +3,7 @@
 
     #########################################################################
     # Title:         Settings Updater Script                                #
-    # Author(s):     l3uddz                                                 #
+    # Author(s):     l3uddz, chazlarson                                     #
     # URL:           https://github.com/saltyorg/Saltbox                    #
     # Description:   Adds variables to settings.yml.                        #
     # --                                                                    #
@@ -77,13 +77,20 @@ def dump_settings(settings, file_to_dump):
     dumped = False
     try:
         with open(file_to_dump, 'w') as fp:
-            yaml.round_trip_dump(settings, fp, indent=2, block_seq_indent=2,
-                                 explicit_start=True, default_flow_style=False)
+            yaml.round_trip_dump(settings, fp)
+            # yaml.round_trip_dump(settings, fp, indent=2, block_seq_indent=2, explicit_start=True, default_flow_style=False)
         dumped = True
     except Exception:
         log.exception("Exception dumping upgraded %s: ", file_to_dump)
     return dumped
 
+def is_remote_entry(thing):
+    ret_val = False
+    if type(thing) == yaml.comments.CommentedMap:
+        rem_set = {'port', 'remote', 'template', 'cache'}
+        for k in thing.keys():
+            ret_val = ret_val or (k in rem_set)
+    return ret_val
 
 def _inner_upgrade(settings1, settings2, key=None, overwrite=False):
     sub_upgraded = False
@@ -111,7 +118,9 @@ def _inner_upgrade(settings1, settings2, key=None, overwrite=False):
                 sub_upgraded = True
     elif isinstance(settings1, list) and key:
         for v in settings1:
-            if v not in settings2:
+            is_remote = is_remote_entry(v)
+            might_not_want_it = len(settings2) > 0
+            if v not in settings2 and not is_remote and not might_not_want_it:
                 merged.append(v)
                 sub_upgraded = True
                 log.info("Added to setting %r: %s", str(key), str(v))
