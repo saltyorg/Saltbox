@@ -54,8 +54,9 @@
 
 - name: Variables | Set '_remotes_list' variable
   ansible.builtin.set_fact:
-    _remotes_list: "{{ _remotes_list | default('') + '/mnt/remote/' + item.remote + '=NC:' }}"
+    _remotes_list: "{{ _remotes_list | default('') + '/mnt/remote/' + item.remote + '=NC:' + custom_mount_branch }}"
   with_items: "{{ rclone.remotes }}"
+  when: item.remote != "feeder"
 
 - name: Variables | Remove trailing colon in '_remotes_list'
   ansible.builtin.set_fact:
