@@ -301,15 +301,19 @@ docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downlo
 
 docker_hosts_common: []
 
+docker_labels_diun_template:
+  diun.enable: "true"
+
+docker_labels_autoheal_template:
+  autoheal: "true"
+  autoheal.stop.timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
+
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
+  - "{{ docker_labels_diun_template if lookup('vars', role_name + '_diun_enabled', default=true) else omit }}"
+  - "{{ docker_labels_autoheal_template if lookup('vars', role_name + '_autoheal_enabled', default=true) else omit }}"
 
-docker_labels_diun_tmp:
-  - diun.enable: "true"
-
-docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | combine(docker_labels_diun_tmp)
-                        if lookup('vars', role_name + '_diun_enabled', default=true)
-                        else docker_labels_saltbox_tmp }}"
+docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | reject('equalto', omit) | list }}"
 
 docker_labels_traefik_main:
   - traefik.enable: "true"

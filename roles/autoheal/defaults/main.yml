@@ -33,7 +33,7 @@ autoheal_docker_ports: "{{ autoheal_docker_ports_defaults
 
 # Envs
 autoheal_docker_envs_default:
-  AUTOHEAL_CONTAINER_LABEL: "all"
+  AUTOHEAL_CONTAINER_LABEL: "autoheal"
 autoheal_docker_envs_custom: {}
 autoheal_docker_envs: "{{ autoheal_docker_envs_default
                           | combine(autoheal_docker_envs_custom) }}"
