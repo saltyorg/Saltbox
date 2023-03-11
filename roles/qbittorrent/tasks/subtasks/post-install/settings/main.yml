@@ -48,7 +48,7 @@
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
     option: WebUI\CustomHTTPHeaders
-    value: "{{ qbittorrent_themepark_headers if qbittorrent_themepark_enabled else '' }}"
+    value: "{{ qbittorrent_themepark_headers if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else '' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -60,7 +60,7 @@
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
     option: WebUI\CustomHTTPHeadersEnabled
-    value: "{{ 'true' if qbittorrent_themepark_enabled else 'false' }}"
+    value: "{{ 'true' if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else 'false' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
