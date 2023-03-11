@@ -11,7 +11,7 @@
 # Global
 ################################
 
-local_mount_branch: "{{ '/mnt/remote/feeder' if (feeder_remote_is_active is defined and feeder_remote_is_active) else '/mnt/local' }}"
+local_mount_branch: "{{ '/mnt/remote/feeder=RW:' if (feeder_remote_is_active is defined and feeder_remote_is_active) else '/mnt/local=RW:' }}"
 
 mount_type: "mergerfs"
 
@@ -45,7 +45,7 @@ mergerfs_download_backup_url: "
   {{ ansible_distribution | lower }}-\
   {{ mergerfs_release_distribution }}_amd64.deb"
 
-mergerfs_mount_branches: "{{ local_mount_branch }}=RW:{{ _remotes_list }}"
+mergerfs_mount_branches: "{{ local_mount_branch }}{{ _remotes_list }}"
 
 mergerfs_mount_service_after: "network-online.target"
 
