@@ -1,0 +1,80 @@
+##########################################################################
+# Title:         Saltbox: Arr DB Role                                    #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Fail if no roles are enabled.
+  ansible.builtin.fail:
+    msg:
+      - "You must enable at least one of the role variables to run this role."
+      - "Use the Saltbox inventory to enable."
+
+- name: Install SQLite3
+  ansible.builtin.apt:
+    name: sqlite3
+    state: present
+
+- name: "Execute Sonarr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_sonarr_enabled
+  vars:
+    sonarr_original_name: "{{ role }}"
+    sonarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    arr_type: "sonarr"
+  with_items: "{{ sonarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: "Execute Radarr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_radarr_enabled
+  vars:
+    radarr_original_name: "{{ role }}"
+    radarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    arr_type: "radarr"
+  with_items: "{{ radarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: "Execute Lidarr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_lidarr_enabled
+  vars:
+    lidarr_original_name: "{{ role }}"
+    lidarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    arr_type: "lidarr"
+  with_items: "{{ lidarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: "Execute Readarr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_readarr_enabled
+  vars:
+    readarr_original_name: "{{ role }}"
+    readarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    arr_type: "readarr"
+  with_items: "{{ readarr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: "Execute Whisparr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_whisparr_enabled
+  vars:
+    whisparr_original_name: "{{ role }}"
+    whisparr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    arr_type: "whisparr"
+  with_items: "{{ whisparr_instances }}"
+  loop_control:
+    loop_var: role
+
+- name: "Execute Prowlarr DB tasks"
+  ansible.builtin.include_tasks: arr.yml
+  when: arr_db_prowlarr_enabled
+  vars:
+    arr_type: "prowlarr"

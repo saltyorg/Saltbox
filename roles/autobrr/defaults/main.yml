@@ -1,0 +1,140 @@
+##########################################################################
+# Title:         Saltbox: Autobrr | Default Variables                    #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+autobrr_name: autobrr
+
+################################
+# Paths
+################################
+
+autobrr_paths_folder: "{{ autobrr_name }}"
+autobrr_paths_location: "{{ server_appdata_path }}/{{ autobrr_paths_folder }}"
+autobrr_paths_config_location: "{{ autobrr_paths_location }}/config.toml"
+autobrr_paths_folders_list:
+  - "{{ autobrr_paths_location }}"
+
+################################
+# Web
+################################
+
+autobrr_web_subdomain: "{{ autobrr_name }}"
+autobrr_web_domain: "{{ user.domain }}"
+autobrr_web_port: "7474"
+autobrr_web_url: "{{ 'https://' + autobrr_web_subdomain + '.' + autobrr_web_domain }}"
+
+################################
+# DNS
+################################
+
+autobrr_dns_record: "{{ autobrr_web_subdomain }}"
+autobrr_dns_zone: "{{ autobrr_web_domain }}"
+autobrr_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+autobrr_traefik_sso_middleware: ""
+autobrr_traefik_middleware_default: "{{ traefik_default_middleware }}"
+autobrr_traefik_middleware_custom: ""
+autobrr_traefik_certresolver: "{{ traefik_default_certresolver }}"
+autobrr_traefik_enabled: true
+
+################################
+# Docker
+################################
+
+# Container
+autobrr_docker_container: "{{ autobrr_name }}"
+
+# Image
+autobrr_docker_image_pull: true
+autobrr_docker_image_tag: "latest"
+autobrr_docker_image: "ghcr.io/autobrr/autobrr:{{ autobrr_docker_image_tag }}"
+
+# Ports
+autobrr_docker_ports_defaults: []
+autobrr_docker_ports_custom: []
+autobrr_docker_ports: "{{ autobrr_docker_ports_defaults
+                          + autobrr_docker_ports_custom }}"
+
+# Envs
+autobrr_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+autobrr_docker_envs_custom: {}
+autobrr_docker_envs: "{{ autobrr_docker_envs_default
+                         | combine(autobrr_docker_envs_custom) }}"
+
+# Commands
+autobrr_docker_commands_default: []
+autobrr_docker_commands_custom: []
+autobrr_docker_commands: "{{ autobrr_docker_commands_default
+                             + autobrr_docker_commands_custom }}"
+
+# Volumes
+autobrr_docker_volumes_default:
+  - "{{ autobrr_paths_location }}:/config"
+autobrr_docker_volumes_custom: []
+autobrr_docker_volumes: "{{ autobrr_docker_volumes_default
+                            + autobrr_docker_volumes_custom }}"
+
+# Devices
+autobrr_docker_devices_default: []
+autobrr_docker_devices_custom: []
+autobrr_docker_devices: "{{ autobrr_docker_devices_default
+                            + autobrr_docker_devices_custom }}"
+
+# Hosts
+autobrr_docker_hosts_default: []
+autobrr_docker_hosts_custom: []
+autobrr_docker_hosts: "{{ docker_hosts_common
+                          | combine(autobrr_docker_hosts_default)
+                          | combine(autobrr_docker_hosts_custom) }}"
+
+# Labels
+autobrr_docker_labels_default: {}
+autobrr_docker_labels_custom: {}
+autobrr_docker_labels: "{{ docker_labels_common
+                           | combine(autobrr_docker_labels_default)
+                           | combine(autobrr_docker_labels_custom) }}"
+
+# Hostname
+autobrr_docker_hostname: "{{ autobrr_name }}"
+
+# Networks
+autobrr_docker_networks_alias: "{{ autobrr_name }}"
+autobrr_docker_networks_default: []
+autobrr_docker_networks_custom: []
+autobrr_docker_networks: "{{ docker_networks_common
+                             + autobrr_docker_networks_default
+                             + autobrr_docker_networks_custom }}"
+
+# Capabilities
+autobrr_docker_capabilities_default: []
+autobrr_docker_capabilities_custom: []
+autobrr_docker_capabilities: "{{ autobrr_docker_capabilities_default
+                                 + autobrr_docker_capabilities_custom }}"
+
+# Security Opts
+autobrr_docker_security_opts_default: []
+autobrr_docker_security_opts_custom: []
+autobrr_docker_security_opts: "{{ autobrr_docker_security_opts_default
+                                  + autobrr_docker_security_opts_custom }}"
+
+# Restart Policy
+autobrr_docker_restart_policy: unless-stopped
+
+# State
+autobrr_docker_state: started

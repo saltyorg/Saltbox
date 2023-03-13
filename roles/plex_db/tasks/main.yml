@@ -26,7 +26,8 @@
 - name: "Execute Plex DB tasks"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    plex_name: "{{ role }}"
+    plex_original_name: "{{ role }}"
+    plex_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
   with_items: "{{ plex_instances }}"
   loop_control:
     loop_var: role

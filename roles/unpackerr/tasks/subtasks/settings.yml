@@ -1,0 +1,33 @@
+#########################################################################
+# Title:         Saltbox: unpackerr Role - Settings                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Settings | Check if `{{ unpackerr_config_location | basename }}` exists
+  ansible.builtin.stat:
+    path: "{{ unpackerr_config_location }}"
+  register: unpackerr_config
+
+- name: Settings | New `{{ unpackerr_config_location | basename }}` tasks
+  when: not unpackerr_config.stat.exists
+  block:
+    - name: Get Instance Info
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
+      vars:
+        get_info_list:
+          - sonarr
+          - radarr
+          - lidarr
+          - readarr
+
+    - name: Settings | Import default `{{ unpackerr_config_location | basename }}`
+      ansible.builtin.template:
+        src: unpackerr.conf.j2
+        dest: "{{ unpackerr_config_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775

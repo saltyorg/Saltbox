@@ -1,0 +1,138 @@
+##########################################################################
+# Title:         Saltbox: Dozzle | Default Variables                     #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+dozzle_name: dozzle
+
+################################
+# Paths
+################################
+
+dozzle_paths_folder: "{{ dozzle_name }}"
+dozzle_paths_location: "{{ server_appdata_path }}/{{ dozzle_paths_folder }}"
+dozzle_paths_folders_list:
+  - "{{ dozzle_paths_location }}"
+
+################################
+# Web
+################################
+
+dozzle_web_subdomain: "{{ dozzle_name }}"
+dozzle_web_domain: "{{ user.domain }}"
+dozzle_web_port: "8080"
+dozzle_web_url: "{{ 'https://' + dozzle_web_subdomain + '.' + dozzle_web_domain }}"
+
+################################
+# DNS
+################################
+
+dozzle_dns_record: "{{ dozzle_web_subdomain }}"
+dozzle_dns_zone: "{{ dozzle_web_domain }}"
+dozzle_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+dozzle_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+dozzle_traefik_middleware_default: "{{ traefik_default_middleware }}"
+dozzle_traefik_middleware_custom: ""
+dozzle_traefik_certresolver: "{{ traefik_default_certresolver }}"
+dozzle_traefik_enabled: true
+dozzle_traefik_api_enabled: false
+dozzle_traefik_api_endpoint: ""
+
+################################
+# Docker
+################################
+
+# Container
+dozzle_docker_container: "{{ dozzle_name }}"
+
+# Image
+dozzle_docker_image_pull: true
+dozzle_docker_image_tag: "latest"
+dozzle_docker_image: "amir20/dozzle:{{ dozzle_docker_image_tag }}"
+
+# Ports
+dozzle_docker_ports_defaults: []
+dozzle_docker_ports_custom: []
+dozzle_docker_ports: "{{ dozzle_docker_ports_defaults
+                         + dozzle_docker_ports_custom }}"
+
+# Envs
+dozzle_docker_envs_default: {}
+dozzle_docker_envs_custom: {}
+dozzle_docker_envs: "{{ dozzle_docker_envs_default
+                        | combine(dozzle_docker_envs_custom) }}"
+
+# Commands
+dozzle_docker_commands_default: []
+dozzle_docker_commands_custom: []
+dozzle_docker_commands: "{{ dozzle_docker_commands_default
+                            + dozzle_docker_commands_custom }}"
+
+# Volumes
+dozzle_docker_volumes_default:
+  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+dozzle_docker_volumes_custom: []
+dozzle_docker_volumes: "{{ dozzle_docker_volumes_default
+                           + dozzle_docker_volumes_custom }}"
+
+# Devices
+dozzle_docker_devices_default: []
+dozzle_docker_devices_custom: []
+dozzle_docker_devices: "{{ dozzle_docker_devices_default
+                           + dozzle_docker_devices_custom }}"
+
+# Hosts
+dozzle_docker_hosts_default: []
+dozzle_docker_hosts_custom: []
+dozzle_docker_hosts: "{{ docker_hosts_common
+                         | combine(dozzle_docker_hosts_default)
+                         | combine(dozzle_docker_hosts_custom) }}"
+
+# Labels
+dozzle_docker_labels_default: {}
+dozzle_docker_labels_custom: {}
+dozzle_docker_labels: "{{ docker_labels_common
+                          | combine(dozzle_docker_labels_default)
+                          | combine(dozzle_docker_labels_custom) }}"
+
+# Hostname
+dozzle_docker_hostname: "{{ dozzle_name }}"
+
+# Networks
+dozzle_docker_networks_alias: "{{ dozzle_name }}"
+dozzle_docker_networks_default: []
+dozzle_docker_networks_custom: []
+dozzle_docker_networks: "{{ docker_networks_common
+                            + dozzle_docker_networks_default
+                            + dozzle_docker_networks_custom }}"
+
+# Capabilities
+dozzle_docker_capabilities_default: []
+dozzle_docker_capabilities_custom: []
+dozzle_docker_capabilities: "{{ dozzle_docker_capabilities_default
+                                + dozzle_docker_capabilities_custom }}"
+
+# Security Opts
+dozzle_docker_security_opts_default: []
+dozzle_docker_security_opts_custom: []
+dozzle_docker_security_opts: "{{ dozzle_docker_security_opts_default
+                                  + dozzle_docker_security_opts_custom }}"
+
+# Restart Policy
+dozzle_docker_restart_policy: unless-stopped
+
+# State
+dozzle_docker_state: started

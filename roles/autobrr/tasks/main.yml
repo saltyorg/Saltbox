@@ -1,0 +1,56 @@
+#########################################################################
+# Title:            Saltbox: Autobrr                                    #
+# Author(s):        salty                                               #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+
+- name: Remove existing Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+- name: Check if already installed
+  ansible.builtin.stat:
+    path: "{{ autobrr_paths_location }}"
+  register: autobbr_directory
+
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: Check if `{{ autobrr_paths_config_location | basename }}` exists
+  ansible.builtin.stat:
+    path: "{{ autobrr_paths_config_location }}"
+  register: autobrr_config
+
+- name: New `{{ autobrr_paths_config_location | basename }}` tasks
+  when: not autobrr_config.stat.exists
+  block:
+    - name: Generate sessionSecret
+      ansible.builtin.shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c16"
+      register: autobrr_secret
+
+    - name: Import default `{{ autobrr_paths_config_location | basename }}`
+      ansible.builtin.template:
+        src: config.toml.j2
+        dest: "{{ autobrr_paths_config_location }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: 0775
+
+- name: Create Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+- name: Advise user to create Autobrr user
+  ansible.builtin.debug:
+    msg:
+      - "Run the following to create your user:"
+      - "docker exec -it {{ lookup('vars', role_name + '_name') }} sh -c 'autobrrctl --config /config create-user {{ user.name }}'"
+  when: not autobbr_directory.stat.exists

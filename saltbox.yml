@@ -50,7 +50,9 @@
     - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
     - { role: btop, tags: ['saltbox', 'mediabox', 'feederbox', 'btop'] }
     - { role: asshama, tags: ['asshama'] }
+    - { role: arr_db, tags: ['arr-db'] }
     - { role: authelia, tags: ['authelia', 'authelia-reset'] }
+    - { role: autobrr, tags: ['autobrr'] }
     - { role: autoheal, tags: ['autoheal'] }
     - { role: autoscan, tags: ['autoscan'] }
     - { role: bazarr, tags: ['bazarr'] }
@@ -59,6 +61,7 @@
     - { role: ddclient, tags: ['ddclient'] }
     - { role: deluge, tags: ['deluge'] }
     - { role: diun, tags: ['diun'] }
+    - { role: dozzle, tags: ['dozzle'] }
     - { role: emby, tags: ['emby'] }
     - { role: grafana, tags: ['grafana'] }
     - { role: jackett, tags: ['jackett'] }
@@ -87,6 +90,8 @@
     - { role: subliminal, tags: ['subliminal'] }
     - { role: traktarr, tags: ['traktarr'] }
     - { role: transfer, tags: ['transfer'] }
+    - { role: unpackerr, tags: ['unpackerr'] }
+    - { role: whisparr, tags: ['whisparr'] }
     - { role: yyq, tags: ['yyq'] }
     # Apps End
     - { role: custom, tags: ['custom'] }

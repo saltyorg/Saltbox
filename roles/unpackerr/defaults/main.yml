@@ -1,0 +1,114 @@
+##########################################################################
+# Title:         Saltbox: unpackerr | Default Variables                  #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+unpackerr_name: unpackerr
+
+################################
+# Paths
+################################
+
+unpackerr_paths_folder: "{{ unpackerr_name }}"
+unpackerr_paths_location: "{{ server_appdata_path }}/{{ unpackerr_paths_folder }}"
+unpackerr_config_location: "{{ unpackerr_paths_location }}/unpackerr.conf"
+unpackerr_paths_folders_list:
+  - "{{ unpackerr_paths_location }}"
+
+################################
+# Docker
+################################
+
+# Container
+unpackerr_docker_container: "{{ unpackerr_name }}"
+
+# Image
+unpackerr_docker_image_pull: true
+unpackerr_docker_image_tag: "latest"
+unpackerr_docker_image: "hotio/unpackerr:{{ unpackerr_docker_image_tag }}"
+
+# Ports
+unpackerr_docker_ports_defaults: []
+unpackerr_docker_ports_custom: []
+unpackerr_docker_ports: "{{ unpackerr_docker_ports_defaults
+                            + unpackerr_docker_ports_custom }}"
+
+# Envs
+unpackerr_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  UMASK: "002"
+unpackerr_docker_envs_custom: {}
+unpackerr_docker_envs: "{{ unpackerr_docker_envs_default
+                           | combine(unpackerr_docker_envs_custom) }}"
+
+# Commands
+unpackerr_docker_commands_default: []
+unpackerr_docker_commands_custom: []
+unpackerr_docker_commands: "{{ unpackerr_docker_commands_default
+                               + unpackerr_docker_commands_custom }}"
+
+# Volumes
+unpackerr_docker_volumes_default:
+  - "{{ unpackerr_paths_location }}:/config"
+unpackerr_docker_volumes_custom: []
+unpackerr_docker_volumes: "{{ unpackerr_docker_volumes_default
+                              + unpackerr_docker_volumes_custom }}"
+
+# Devices
+unpackerr_docker_devices_default: []
+unpackerr_docker_devices_custom: []
+unpackerr_docker_devices: "{{ unpackerr_docker_devices_default
+                              + unpackerr_docker_devices_custom }}"
+
+# Hosts
+unpackerr_docker_hosts_default: []
+unpackerr_docker_hosts_custom: []
+unpackerr_docker_hosts: "{{ docker_hosts_common
+                            | combine(unpackerr_docker_hosts_default)
+                            | combine(unpackerr_docker_hosts_custom) }}"
+
+# Labels
+unpackerr_docker_labels_default: {}
+unpackerr_docker_labels_custom: {}
+unpackerr_docker_labels: "{{ docker_labels_common
+                             | combine(unpackerr_docker_labels_default)
+                             | combine(unpackerr_docker_labels_custom) }}"
+
+# Hostname
+unpackerr_docker_hostname: "{{ unpackerr_name }}"
+
+# Networks
+unpackerr_docker_networks_alias: "{{ unpackerr_name }}"
+unpackerr_docker_networks_default: []
+unpackerr_docker_networks_custom: []
+unpackerr_docker_networks: "{{ docker_networks_common
+                               + unpackerr_docker_networks_default
+                               + unpackerr_docker_networks_custom }}"
+
+# Capabilities
+unpackerr_docker_capabilities_default: []
+unpackerr_docker_capabilities_custom: []
+unpackerr_docker_capabilities: "{{ unpackerr_docker_capabilities_default
+                                  + unpackerr_docker_capabilities_custom }}"
+
+# Security Opts
+unpackerr_docker_security_opts_default: []
+unpackerr_docker_security_opts_custom: []
+unpackerr_docker_security_opts: "{{ unpackerr_docker_security_opts_default
+                                    + unpackerr_docker_security_opts_custom }}"
+
+# Restart Policy
+unpackerr_docker_restart_policy: unless-stopped
+
+# State
+unpackerr_docker_state: started

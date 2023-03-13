@@ -86,7 +86,7 @@ def dump_settings(settings, file_to_dump):
 
 def is_remote_entry(thing):
     ret_val = False
-    if type(thing) == yaml.comments.CommentedMap:
+    if type(thing) == CommentedMap:
         rem_set = {'port', 'remote', 'template', 'cache'}
         for k in thing.keys():
             ret_val = ret_val or (k in rem_set)
