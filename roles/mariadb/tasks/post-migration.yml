@@ -13,11 +13,11 @@
   register: dump
 
 - name: Import databases
-  when: (not folder.stat.exists and dump.stat.exists)
+  when: (not subfolder.stat.exists and dump.stat.exists)
   block:
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
-        timeout: 5
+        timeout: 15
 
     - name: Import databases
       community.mysql.mysql_db:

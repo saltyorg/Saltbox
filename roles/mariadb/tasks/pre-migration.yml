@@ -10,10 +10,10 @@
 - name: Check for '/opt/mariadb/databases'
   ansible.builtin.stat:
     path: "/opt/mariadb/databases"
-  register: folder
+  register: subfolder
 
 - name: Dump and backup databases
-  when: folder.stat.exists
+  when: subfolder.stat.exists
   block:
     - name: Install mysql-client dependency
       ansible.builtin.apt:
