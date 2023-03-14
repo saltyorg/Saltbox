@@ -28,6 +28,7 @@
         name: all
         target: /opt/mariadb/dump.sql
         skip_lock_tables: true
+        dump_extra_args: --column-statistics=0
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
