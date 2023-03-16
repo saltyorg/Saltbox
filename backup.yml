@@ -5,3 +5,4 @@
     - ['backup_config.yml', 'defaults/backup_config.yml.default']
   roles:
     - { role: backup, tags: ['backup'] }
+    - { role: backup2, tags: ['backup2'] }
