@@ -15,3 +15,13 @@ backup_rclone_env: {}
 backup_rclone_upload_speed_limit: "off"
 
 backup_instance: "Saltbox"
+
+################################
+# Notifications
+################################
+
+backup_notify_stop_docker_containers: true
+backup_notify_start_docker_containers: true
+backup_notify_size: true
+backup_notify_rclone_complete: true
+backup_notify_rsync_complete: true

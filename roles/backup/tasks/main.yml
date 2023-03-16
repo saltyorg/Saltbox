@@ -136,7 +136,7 @@
       ansible.builtin.set_fact:
         backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (backup_estimated_size | int) }}"
 
-    - name: "Notify | Saltbox Backup: Started Saltbox backup task"
+    - name: "Notify | Saltbox Backup: Not enough disk space. Aborting."
       ansible.builtin.include_role:
         name: notify
       vars:
@@ -277,6 +277,7 @@
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Stopped Docker containers."
+          when: backup_notify_stop_docker_containers
 
     # Custom User Files
 
@@ -358,7 +359,7 @@
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -452,6 +453,7 @@
       vars:
         message: "{{ backup_instance }} Backup: Backup created with total size of {{ backup_size }}."
       ignore_errors: true
+      when: backup_notify_size
 
     # Start Docker containers when snapshot is not enabled
 
@@ -472,7 +474,7 @@
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Wait for 10 seconds before uploads"
       ansible.builtin.wait_for:
@@ -562,7 +564,7 @@
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-      when: backup.rclone.enable
+      when: backup.rclone.enable and backup_notify_rclone_complete
 
     - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
       ansible.posix.synchronize:
@@ -580,7 +582,7 @@
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
-      when: backup.rsync.enable
+      when: backup.rsync.enable and backup_notify_rsync_complete
 
     - name: Get Current Time
       ansible.builtin.shell: "date \"+%s\""
