@@ -144,3 +144,33 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
+
+- name: Import 'StickyDownloadQueue.py'
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/Hidendra/nzbget-sticky-download-queue/master/StickyDownloadQueue.py"
+    dest: "/opt/scripts/nzbget/StickyDownloadQueue.py"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+    validate_certs: false
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
+  ignore_errors: true
+
+- name: Import 'CappedDownloadQueue.py'
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/Hidendra/nzbget-capped-download-queue/master/CappedDownloadQueue.py"
+    dest: "/opt/scripts/nzbget/CappedDownloadQueue.py"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+    validate_certs: false
+  register: x
+  until: "x is not failed"
+  retries: 5
+  delay: 10
+  ignore_errors: true
