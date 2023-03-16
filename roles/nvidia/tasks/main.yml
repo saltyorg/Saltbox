@@ -18,10 +18,10 @@
   changed_when: false
   failed_when: false
 
-- name: Do something if Secure Boot is enabled
-  when: secure_boot_enabled.rc == 0
+- name: Fail if Secure Boot is enabled
   ansible.builtin.fail:
     msg: "This role does not support SecureBoot enabled systems."
+  when: secure_boot_enabled.rc == 0
 
 - name: Install pkg-config
   ansible.builtin.apt:
