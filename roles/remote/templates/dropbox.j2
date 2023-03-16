@@ -29,7 +29,7 @@ ExecStart=/usr/bin/rclone mount \
     --buffer-size=32M \
     --dir-cache-time=5000h \
     --disable-http2 \
-    --poll-interval=15s \
+    --poll-interval=30s \
     --rc \
     --rc-no-auth \
     --rc-addr=localhost:{{ item.port }} \
