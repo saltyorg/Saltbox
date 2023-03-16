@@ -7,6 +7,21 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if running without tags
+  when: ('all' in ansible_run_tags)
+  block:
+    - name: "Notify | Saltbox Backup: Started Saltbox backup task"
+      ansible.builtin.include_role:
+        name: notify
+      vars:
+        message: "{{ backup_instance }} Backup: Role cannot run without a tag."
+
+    - name: Fail if running without a tag
+      ansible.builtin.fail:
+        msg:
+          - "Backup Role cannot run without a tag."
+          - "Use backup or backup2 tag."
+
 - name: Backup
   block:
     - name: Sanity Check
