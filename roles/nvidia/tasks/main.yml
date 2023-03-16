@@ -1,12 +1,28 @@
 #########################################################################
 # Title:         Saltbox: Nvidia Role                                   #
-# Author(s):     desimaniac, l3uddz                                     #
+# Author(s):     desimaniac, l3uddz, salty                              #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Install mokutil
+  ansible.builtin.apt:
+    name: mokutil
+    state: present
+
+- name: Check if Secure Boot is enabled
+  ansible.builtin.shell: "mokutil --sb-state | grep -q 'SecureBoot enabled'"
+  register: secure_boot_enabled
+  changed_when: false
+  failed_when: false
+
+- name: Do something if Secure Boot is enabled
+  when: secure_boot_enabled.rc == 0
+  ansible.builtin.fail:
+    msg: "This role does not support SecureBoot enabled systems."
+
 - name: Install pkg-config
   ansible.builtin.apt:
     name: pkg-config
