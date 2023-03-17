@@ -135,6 +135,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
+  when: rclone_remote_is_defined
 
 - name: Import 'download_torrents_from_rclone_remote.sh'
   ansible.builtin.template:
@@ -144,6 +145,7 @@
     group: "{{ user.name }}"
     mode: "0775"
     force: true
+  when: rclone_remote_is_defined
 
 - name: Import 'StickyDownloadQueue.py'
   ansible.builtin.get_url:
