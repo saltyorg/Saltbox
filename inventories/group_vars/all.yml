@@ -63,7 +63,7 @@ rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone | trim | length > 0) and
                               (rclone.remotes is defined) and
                               (rclone.remotes is not none) and
-                              (rclone.remotes | trim | length > 0) }}"
+                              (rclone.remotes | length > 0) }}"
 
 use_remote: "{{ rclone_remote_is_defined }}"
 
