@@ -15,6 +15,7 @@ user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
 rclone_vfs_cache_dir: ""
+rclone_override_service: true
 
 ################################
 # Rclone VFS Refresh

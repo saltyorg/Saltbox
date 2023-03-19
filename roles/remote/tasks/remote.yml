@@ -134,7 +134,7 @@
     src: "{{ item.template }}{{ '' if item.template is regex('^/.*') else '.j2' }}"
     dest: "/etc/systemd/system/{{ _service_file }}"
     mode: '0755'
-    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+    force: "{{ rclone_override_service }}"
 
 - name: Remote | Systemd daemon-reload '{{ _service_file }}'
   ansible.builtin.systemd:
@@ -147,7 +147,7 @@
   ansible.builtin.template:
     src: rclone_refresh.timer.j2
     dest: "/etc/systemd/system/{{ _service_refresh }}.timer"
-    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+    force: "{{ rclone_override_service }}"
     mode: '0755'
   when: (item.template != "sftp")
 
@@ -163,7 +163,7 @@
   ansible.builtin.template:
     src: "rclone_refresh.service.j2"
     dest: "/etc/systemd/system/{{ _service_refresh }}.service"
-    force: "{{ ('mounts_override' in ansible_run_tags) }}"
+    force: "{{ rclone_override_service }}"
     mode: '0755'
   when: (item.template != "sftp")
 

@@ -33,7 +33,7 @@
     src: mergerfs.service.j2
     dest: /etc/systemd/system/mergerfs.service
     mode: "0755"
-    force: "{{ 'true' if ('mounts_override' in ansible_run_tags) else 'false' }}"
+    force: "{{ mergerfs_override_service }}"
 
 - name: Mount Path Tasks
   ansible.builtin.import_tasks: "mount_path.yml"
