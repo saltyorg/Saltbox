@@ -1,8 +1,14 @@
 {
-    "storage-driver": "{{ docker_daemon_storage_driver }}",
-    "userland-proxy": false,
-    "log-driver": "json-file",
-    "ipv6": {{ 'true' if docker_ipv6 else 'false' }},
+{% if (docker_dns | length > 0) %}
+    "dns": [{% for dns_entry in docker_dns %}"{{ dns_entry }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+{% endif %}
     "fixed-cidr-v6": "2001:db8::/64",
-    "log-opts": {"max-size": "10m", "max-file": "3"}
+    "ipv6": {{ 'true' if docker_ipv6 else 'false' }},
+    "log-driver": "json-file",
+    "log-opts": {
+      "max-size": "10m",
+      "max-file": "3"
+    },
+    "storage-driver": "{{ docker_daemon_storage_driver }}",
+    "userland-proxy": false
 }
