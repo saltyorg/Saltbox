@@ -54,7 +54,7 @@ nvidia_docker_runtime_docker_daemon_json_jq_command: |
   jq '."default-runtime" = "nvidia"
       | .runtimes.nvidia.path = "/usr/bin/nvidia-container-runtime"
       | .runtimes.nvidia.runtimeArgs = []' \
-      /etc/docker/daemon.json | jq . | sponge /etc/docker/daemon.json
+      /etc/docker/daemon.json | jq --sort-keys | sponge /etc/docker/daemon.json
 
 ################################
 # Kernel
