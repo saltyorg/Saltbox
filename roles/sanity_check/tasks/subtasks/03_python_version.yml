@@ -11,7 +11,7 @@
   ansible.builtin.debug:
     msg: "Ansible running on Python version: {{ ansible_python_version }}"
 
-- name: Fail if Ansible is using '/usr/bin/python3' as the Python interpreter
+- name: Python Version | Fail if Ansible is using '/usr/bin/python3' as the Python interpreter
   ansible.builtin.fail:
     msg: "Run 'sb install settings' to upgrade your ansible.cfg"
   when: ansible_python.executable == '/usr/bin/python3'

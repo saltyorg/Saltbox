@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Find Ansible version
+- name: Ansible Version | Find Ansible version
   ansible.builtin.shell: "{{ saltbox_python }} -c 'from ansible_collections.ansible_release import ansible_version; print(ansible_version)'"
   register: registered_ansible_version
 
-- name: Print Ansible version
+- name: Ansible Version | Print Ansible version
   ansible.builtin.debug:
     msg:
       - "Installed Ansible version: {{ registered_ansible_version.stdout }}."

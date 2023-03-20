@@ -15,3 +15,12 @@
       Saltbox was designed for use on Ubuntu servers running version 20.04+.
     success_msg: >-
       System is running {{ ansible_lsb.description if ansible_lsb is defined else (ansible_distribution + ' ' + ansible_distribution_version) }}.
+
+- name: System | Virtualization Check
+  ansible.builtin.command: "systemd-detect-virt"
+  register: systemd_detect_virt
+  failed_when: false
+
+- name: System | Print Virtualization Status
+  ansible.builtin.debug:
+    msg: "System Virtualization Status: {{ systemd_detect_virt.stdout | default('ERROR') }}"
