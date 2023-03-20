@@ -27,9 +27,9 @@
 - name: Repository | Saltbox Up to Date
   ansible.builtin.debug:
     msg: "Saltbox is running the latest commit for branch: {{ git_branch.stdout }}"
-  when: (git_origin_version.stdout | length) and (git_version.stdout == git_origin_version.stdout)
+  when: (git_origin_version.stdout | length > 0) and (git_version.stdout == git_origin_version.stdout)
 
 - name: Repository | Saltbox Outdated
   ansible.builtin.debug:
     msg: "Saltbox is not using the newest commit for branch: {{ git_branch.stdout }} - {{ git_origin_version.stdout }}"
-  when: (git_origin_version.stdout | length) and (git_version.stdout != git_origin_version.stdout)
+  when: (git_origin_version.stdout | length > 0) and (git_version.stdout != git_origin_version.stdout)
