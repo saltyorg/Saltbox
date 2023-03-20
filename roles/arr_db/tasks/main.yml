@@ -23,7 +23,7 @@
   when: arr_db_sonarr_enabled
   vars:
     sonarr_original_name: "{{ role }}"
-    sonarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    sonarr_name: "{{ role | replace('-', '_') }}"
     arr_type: "sonarr"
   with_items: "{{ sonarr_instances }}"
   loop_control:
@@ -34,7 +34,7 @@
   when: arr_db_radarr_enabled
   vars:
     radarr_original_name: "{{ role }}"
-    radarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    radarr_name: "{{ role | replace('-', '_') }}"
     arr_type: "radarr"
   with_items: "{{ radarr_instances }}"
   loop_control:
@@ -45,7 +45,7 @@
   when: arr_db_lidarr_enabled
   vars:
     lidarr_original_name: "{{ role }}"
-    lidarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    lidarr_name: "{{ role | replace('-', '_') }}"
     arr_type: "lidarr"
   with_items: "{{ lidarr_instances }}"
   loop_control:
@@ -56,7 +56,7 @@
   when: arr_db_readarr_enabled
   vars:
     readarr_original_name: "{{ role }}"
-    readarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    readarr_name: "{{ role | replace('-', '_') }}"
     arr_type: "readarr"
   with_items: "{{ readarr_instances }}"
   loop_control:
@@ -67,7 +67,7 @@
   when: arr_db_whisparr_enabled
   vars:
     whisparr_original_name: "{{ role }}"
-    whisparr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    whisparr_name: "{{ role | replace('-', '_') }}"
     arr_type: "whisparr"
   with_items: "{{ whisparr_instances }}"
   loop_control:

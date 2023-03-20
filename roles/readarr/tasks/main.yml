@@ -11,7 +11,7 @@
   ansible.builtin.include_tasks: main2.yml
   vars:
     readarr_original_name: "{{ role }}"
-    readarr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    readarr_name: "{{ role | replace('-', '_') }}"
   with_items: "{{ readarr_instances }}"
   loop_control:
     loop_var: role

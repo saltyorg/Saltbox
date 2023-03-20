@@ -11,7 +11,7 @@
   ansible.builtin.include_tasks: main2.yml
   vars:
     whisparr_original_name: "{{ role }}"
-    whisparr_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    whisparr_name: "{{ role | replace('-', '_') }}"
   with_items: "{{ whisparr_instances }}"
   loop_control:
     loop_var: role

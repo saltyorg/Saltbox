@@ -11,7 +11,7 @@
   ansible.builtin.include_tasks: main2.yml
   vars:
     emby_original_name: "{{ role }}"
-    emby_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    emby_name: "{{ role | replace('-', '_') }}"
   with_items: "{{ emby_instances }}"
   loop_control:
     loop_var: role

@@ -11,7 +11,7 @@
   ansible.builtin.include_tasks: main2.yml
   vars:
     postgres_original_name: "{{ role }}"
-    postgres_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    postgres_name: "{{ role | replace('-', '_') }}"
   with_items: "{{ postgres_instances }}"
   loop_control:
     loop_var: role

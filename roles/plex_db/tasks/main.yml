@@ -27,7 +27,7 @@
   ansible.builtin.include_tasks: main2.yml
   vars:
     plex_original_name: "{{ role }}"
-    plex_name: "{{ role if not '-' in role else (role | replace('-', '_')) }}"
+    plex_name: "{{ role | replace('-', '_') }}"
   with_items: "{{ plex_instances }}"
   loop_control:
     loop_var: role
