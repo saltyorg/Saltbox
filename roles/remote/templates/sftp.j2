@@ -39,7 +39,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-cache-poll-interval=30s \
 {% endif %}
     -v \
-    {{ item.remote }}:{{ '/mnt/local' if item.remote == 'feeder' else '' }} /mnt/remote/{{ item.remote }}
+    {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default='/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ item.remote }}
 ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ item.port }} _async=true
 ExecStop=/bin/fusermount -uz /mnt/remote/{{ item.remote }}
 Restart=on-abort

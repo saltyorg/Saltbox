@@ -53,7 +53,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-read-chunk-size-limit=2G \
     --vfs-read-chunk-size={{ '32M' if item.cache.enabled else '64M' }} \
     -v \
-    {{ item.remote }}: /mnt/remote/{{ item.remote }}
+    {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default="") }} /mnt/remote/{{ item.remote }}
 ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ item.port }} _async=true
 ExecStop=/bin/fusermount -uz /mnt/remote/{{ item.remote }}
 Restart=on-abort
