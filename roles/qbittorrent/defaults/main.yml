@@ -11,6 +11,28 @@
 ################################
 
 qbittorrent_instances: ["qbittorrent"]
+qbittorrent_host_install: false
+
+################################
+# Host Install
+################################
+
+# Options are: libtorrent1 (latest), libtorrent2 (latest) or legacy (4.3.9)
+qbittorrent_host_branch: libtorrent1
+# Possible to provide a URL to a specific build by overriding this
+qbittorrent_host_download_url: "https://github.com/userdocs/qbittorrent-nox-static/releases/download/{{ qbittorret_release_version.stdout }}/x86_64-qbittorrent-nox"
+
+# Lookup variables
+qbittorrent_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
+                               if qbittorrent_host_branch != 'legacy'
+                               else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
+qbittorrent_host_lookup_libtorrent1: 'release-\(.qbittorrent)_v\(.libtorrent_1_2)'
+qbittorrent_host_lookup_libtorrent2: 'release-\(.qbittorrent)_v\(.libtorrent_2_0)'
+qbittorrent_host_release_lookup: "{{ qbittorrent_host_lookup_libtorrent2
+                                  if qbittorrent_host_branch == 'libtorrent2'
+                                  else qbittorrent_host_lookup_libtorrent1 }}"
+qbittorrent_host_version: |
+  curl -sL {{ qbittorrent_host_release_url }} | jq -r '. | "{{ qbittorrent_host_release_lookup }}"'
 
 ################################
 # Paths
@@ -89,6 +111,10 @@ qbittorrent_docker_ports_56881: "{{ port_lookup_56881.port
                                  if (port_lookup_56881.port is defined)
                                     and (port_lookup_56881.port | trim | length > 0)
                                  else '56881' }}"
+qbittorrent_docker_ports_8080: "{{ port_lookup_8080.port
+                                if (port_lookup_8080.port is defined)
+                                   and (port_lookup_8080.port | trim | length > 0)
+                                else '8080' }}"
 qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
 
 qbittorrent_docker_ports_defaults:

@@ -7,11 +7,23 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Pre-Install | Remove 'qbittorrent.yml' file
+  ansible.builtin.file:
+    path: "/opt/traefik/{{ qbittorrent_original_name }}.yml"
+    state: absent
+
 - name: Pre-Install | Get next available port within the range of '56881-56901' # noqa fqcn[action]
   find_next_open_port:
     low_bound: 56881
     high_bound: 56901
   register: port_lookup_56881
+  ignore_errors: true
+
+- name: Pre-Install | Get next available port within the range of '8080-8090' # noqa fqcn[action]
+  find_next_open_port:
+    low_bound: 8080
+    high_bound: 8090
+  register: port_lookup_8080
   ignore_errors: true
 
 - name: Pre-Install | Settings | Update 'qBittorrent.conf' config settings
@@ -26,3 +38,13 @@
     group: "{{ user.name }}"
     mode: "0775"
   when: qbittorrent_paths_conf_stat.stat.exists
+
+- name: Pre-Install | Import 'qbittorrent.yml' file
+  ansible.builtin.template:
+    src: "qbittorrent.yml.j2"
+    dest: "/opt/traefik/{{ qbittorrent_original_name }}.yml"
+    owner: '{{ user.name }}'
+    group: '{{ user.name }}'
+    mode: 0644
+    force: true
+  when: qbittorrent_host_install

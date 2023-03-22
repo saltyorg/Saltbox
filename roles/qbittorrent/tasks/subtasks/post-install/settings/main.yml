@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                                #
 ####################################################################################
 ---
-- name: Post-Install | Settings | Update Port in 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update Session\Port in 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: BitTorrent
@@ -19,7 +19,7 @@
     group: "{{ user.name }}"
     mode: "0775"
 
-- name: Post-Install | Settings | Update HostHeaderValidation 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
@@ -31,7 +31,7 @@
     group: "{{ user.name }}"
     mode: "0775"
 
-- name: Post-Install | Settings | Update CSRFProtection 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update WebUI\CSRFProtection 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
@@ -43,7 +43,7 @@
     group: "{{ user.name }}"
     mode: "0775"
 
-- name: Post-Install | Settings | Update CustomHTTPHeaders 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update WebUI\CustomHTTPHeaders 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
@@ -55,12 +55,48 @@
     group: "{{ user.name }}"
     mode: "0775"
 
-- name: Post-Install | Settings | Update CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update WebUI\CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
     section: Preferences
     option: WebUI\CustomHTTPHeadersEnabled
     value: "{{ 'true' if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else 'false' }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Update LegalNotice.Accepted 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: LegalNotice
+    option: Accepted
+    value: "true"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\Port
+    value: "{{ qbittorrent_docker_ports_8080 if qbittorrent_host_install else '8080' }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\Address
+    value: "{{ '172.19.0.1' if qbittorrent_host_install else '*' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"

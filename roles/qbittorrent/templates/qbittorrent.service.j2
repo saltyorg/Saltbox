@@ -1,0 +1,27 @@
+# /etc/systemd/system/{{ qbittorrent_original_name }}
+#########################################################################
+# Title:         Saltbox: qBittorrent                                   #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+Description={{ qbittorrent_original_name }}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ user.name }}
+Group={{ user.name }}
+Type=exec
+Environment="XDG_CONFIG_HOME={{ qbittorrent_paths_location }}" "XDG_DATA_HOME={{ qbittorrent_paths_location }}" "HOME={{ qbittorrent_paths_location }}"
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/{{ qbittorrent_original_name }}-nox --webui-port={{ qbittorrent_docker_ports_8080 }}
+AmbientCapabilities=CAP_NET_RAW
+TimeoutStopSec=1800
+
+[Install]
+WantedBy=default.target
