@@ -12,9 +12,9 @@
     path: "{{ qbittorrent_paths_conf }}"
     state: present
 
-- name: Post-Install | Wait for 10 seconds
+- name: Post-Install | Wait for 30 seconds
   ansible.builtin.wait_for:
-    timeout: 10
+    timeout: 30
 
 - name: Post-Install | Stop container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
