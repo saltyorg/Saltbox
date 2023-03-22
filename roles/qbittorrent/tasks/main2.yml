@@ -6,6 +6,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Remove '{{ qbittorrent_original_name }}' from hosts
+  ansible.builtin.blockinfile:
+    path: "/etc/hosts"
+    marker: "# {mark} ANSIBLE {{ qbittorrent_original_name }} MANAGED BLOCK"
+    block: ""
+
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
@@ -53,6 +59,13 @@
 - name: Host Install
   when: qbittorrent_host_install
   block:
+    - name: Add '{{ qbittorrent_original_name }}' to hosts
+      ansible.builtin.blockinfile:
+        path: "/etc/hosts"
+        marker: "# {mark} ANSIBLE {{ qbittorrent_original_name }} MANAGED BLOCK"
+        block: |
+          172.19.0.1 {{ qbittorrent_original_name }}
+
     - name: Get Download Url
       ansible.builtin.shell: "{{ qbittorrent_host_version }}"
       register: qbittorret_release_version
