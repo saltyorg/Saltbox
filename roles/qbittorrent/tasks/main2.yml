@@ -75,6 +75,7 @@
         url: "{{ qbittorrent_host_download_url }}"
         dest: "/usr/bin/{{ qbittorrent_original_name }}-nox"
         mode: '0755'
+        force: true
 
     - name: Import '{{ qbittorrent_original_name }}.service'
       ansible.builtin.template:
