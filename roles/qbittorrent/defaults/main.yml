@@ -19,10 +19,15 @@ qbittorrent_host_install: false
 
 # Options are: libtorrent1 (latest), libtorrent2 (latest) or legacy (4.3.9)
 qbittorrent_host_branch: libtorrent1
-# Possible to provide a URL to a specific build by overriding this
-qbittorrent_host_download_url: "https://github.com/userdocs/qbittorrent-nox-static/releases/download/{{ qbittorret_release_version.stdout }}/x86_64-qbittorrent-nox"
+# Example being "release-4.4.5_v1.2.18"
+# If this is set then the above branch logic is ignored
+qbittorrent_host_specific_version: ""
 
 # Lookup variables
+qbittorrent_host_download_endpoint: "https://github.com/userdocs/qbittorrent-nox-static/releases/download/"
+qbittorrent_host_download_url: "{{ qbittorrent_host_download_endpoint }}{{ qbittorrent_host_specific_version
+                                                                        if (qbittorrent_host_specific_version | length > 0)
+                                                                        else qbittorret_release_version.stdout }}/x86_64-qbittorrent-nox"
 qbittorrent_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
                                if qbittorrent_host_branch != 'legacy'
                                else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
