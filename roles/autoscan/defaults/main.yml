@@ -45,8 +45,9 @@ autoscan_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
+autoscan_traefik_regex_middleware_string: ",{{ autoscan_original_name }}-replacepathregex"
 autoscan_traefik_sso_middleware: ""
-autoscan_traefik_middleware_default: "{{ traefik_default_middleware }}"
+autoscan_traefik_middleware_default: "{{ traefik_default_middleware + autoscan_traefik_regex_middleware_string }}"
 autoscan_traefik_middleware_custom: ""
 autoscan_traefik_certresolver: "{{ traefik_default_certresolver }}"
 autoscan_traefik_enabled: true
@@ -107,7 +108,16 @@ autoscan_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', autoscan_name + '_docker_hosts_custom', default=autoscan_docker_hosts_custom)) }}"
 
 # Labels
-autoscan_docker_labels_default: {}
+autoscan_docker_labels_default:
+  - '{ "traefik.http.middlewares.{{ traefik_router }}-replacepathregex.replacepathregex.regex": "^/$" }'
+  - '{ "traefik.http.middlewares.{{ traefik_router }}-replacepathregex.replacepathregex.replacement": "/triggers/manual" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.service": "{{ traefik_router }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.rule": "Host(`{{ traefik_host }}`) && PathPrefix(`/triggers`)" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.priority": "99" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.options": "securetls@file" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.middlewares": "{{ traefik_middleware | regex_replace(autoscan_traefik_regex_middleware_string) }}" }'
 autoscan_docker_labels_custom: {}
 autoscan_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', autoscan_name + '_docker_labels_default', default=autoscan_docker_labels_default))
