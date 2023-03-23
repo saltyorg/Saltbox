@@ -114,7 +114,7 @@ autoscan_docker_labels_default:
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.rule": "Host(`{{ traefik_host }}`) && PathPrefix(`/triggers`)" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.priority": "99" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.priority": "{{ lookup("vars", traefik_role_var + "_traefik_priority", default=lookup("vars", role_name + "_traefik_priority", default="40")) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.middlewares": "{{ traefik_middleware | regex_replace(autoscan_traefik_regex_middleware_string) }}" }'
