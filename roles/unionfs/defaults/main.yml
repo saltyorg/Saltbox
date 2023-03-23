@@ -17,7 +17,7 @@ mount_type: "mergerfs"
 
 custom_mount_branch: "" # Format: ":/mnt/remote/someremote=NC"
 
-mergerfs_override_service: true
+mergerfs_override_service: "{{ mounts_override }}"
 
 ################################
 # MergerFS
