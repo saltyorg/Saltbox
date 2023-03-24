@@ -5,6 +5,7 @@ backup:
     destination: /mnt/local/Backups/Saltbox
   rclone:
     enable: true
+    template: google
     destination: google:/Backups/Saltbox
   rsync:
     enable: false

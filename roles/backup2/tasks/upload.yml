@@ -9,9 +9,7 @@
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
       | /usr/bin/rclone rcat \
       --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-      --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
-      --drive-stop-on-upload-limit \
-      --stats=30s \
+      {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} --stats=30s \
       --bwlimit={{ backup2_rclone_upload_speed_limit }} \
       -vv \
       --log-file='{{ playbook_dir }}/backup_rclone.log' \
@@ -40,13 +38,3 @@
   until: async_poll_results.finished
   retries: 9999
   delay: 5
-
-- name: Cleanup sync cache # noqa args[module]
-  ansible.builtin.async_status:
-    jid: "{{ async_result_item.ansible_job_id }}"
-    mode: cleanup
-  loop: "{{ async_results.results }}"
-  loop_control:
-    loop_var: "async_result_item"
-  become: true
-  become_user: "{{ user.name }}"

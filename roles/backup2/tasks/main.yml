@@ -392,8 +392,18 @@
       ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
-      loop: "{{ opt_folders | batch(backup2_async_batch_size) | list }}"
+      loop: "{{ opt_folders | batch(backup2_async_batch_size | int) | list }}"
       when: backup.rclone.enable
+
+    - name: Cleanup sync cache # noqa args[module]
+      ansible.builtin.async_status:
+        jid: "{{ async_result_item.ansible_job_id }}"
+        mode: cleanup
+      loop: "{{ async_results.results }}"
+      loop_control:
+        loop_var: "async_result_item"
+      become: true
+      become_user: "{{ user.name }}"
 
     - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.include_role:

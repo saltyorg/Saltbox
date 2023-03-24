@@ -548,7 +548,7 @@
         /usr/bin/rclone copy \
           --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
           --transfers="{{ backup_rclone_transfers }}" \
-          --drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" \
+          {{ lookup('vars', 'backup_' + backup.rclone.template + '_template', default='') }} \
           --stats=30s \
           --bwlimit={{ backup_rclone_upload_speed_limit }} \
           -vv \
