@@ -410,6 +410,7 @@ mounts_override: true
 
 backup_rclone_transfers: 4
 backup_rclone_drive_chunk_size: 128M
+backup_rclone_dropbox_chunk_size: 128M
 
 reverse_proxy_apps:
   - traefik

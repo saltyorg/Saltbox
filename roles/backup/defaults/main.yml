@@ -27,4 +27,4 @@ backup_notify_rclone_complete: true
 backup_notify_rsync_complete: true
 
 backup_google_template: '--drive-chunk-size="{{ backup_rclone_drive_chunk_size }}"'
-backup_dropbox_template: '--disable-http2 --tpslimit 4 --tpslimit-burst 0'
+backup_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_size }}" --disable-http2 --tpslimit 4 --tpslimit-burst 0'
