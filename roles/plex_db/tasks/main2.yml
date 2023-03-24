@@ -19,7 +19,7 @@
 
 - name: Fail if database does not exist
   ansible.builtin.fail:
-    msg: "Plex databases are not present for {{ plex_name }} instance"
+    msg: "Plex databases are not present for {{ plex_original_name }} instance"
   when: (not (plex_db.stat.exists and plex_db_blobs.stat.exists))
 
 - name: Stop Docker container

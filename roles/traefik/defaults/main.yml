@@ -20,6 +20,7 @@ traefik_name: traefik
 traefik_trusted_ips: ""
 traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
+# HTTP3 can cause issues with some apps
 traefik_http3: false
 traefik_tailscale_enabled: false
 # traefik_tailscale_bind_ip: "" # Set to override the WANIP port binding when server is not connected directly to the Internet.
@@ -171,7 +172,6 @@ traefik_dns_provider_porkbun:
 traefik_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
 traefik_traefik_enabled: true
-traefik_traefik_autodetect_enabled: true
 
 ################################
 # Docker
@@ -313,7 +313,6 @@ traefik_docker_commands_tracing:
   - "--tracing.jaeger.traceContextHeaderName=uber-trace-id"
   - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
 traefik_docker_commands_http3:
-  - "--entrypoints.websecure.http3"
   - "--entrypoints.websecure.http3.advertisedport={{ traefik_entrypoint_websecure_port }}"
 traefik_docker_commands_tailscale:
   - "--entrypoints.tailscale-web.address=:81"
