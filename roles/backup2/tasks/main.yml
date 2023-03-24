@@ -395,7 +395,7 @@
       ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
-      loop: "{{ opt_folders | batch(backup2_async_batch_size) | list }}"
+      loop: "{{ opt_folders | batch(backup2_async_batch_size | int) | list }}"
       when: backup.rclone.enable
 
     - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
