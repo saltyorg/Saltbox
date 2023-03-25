@@ -22,6 +22,6 @@
     special_time: "{{ backup.cron.cron_time }}"
     job: >
       sudo PATH='/usr/bin:/bin:/usr/local/bin' env ANSIBLE_CONFIG='{{ playbook_dir }}/ansible.cfg' '{{ playbook_binary.stdout }}'
-      '{{ playbook_dir }}/backup.yml --tags backup2' >> '{{ playbook_dir }}/saltbox_backup2.log' 2>&1
+      {{ playbook_dir }}/backup.yml --tags backup2 >> '{{ playbook_dir }}/saltbox_backup2.log' 2>&1
     state: "{{ backup.cron.enable | ternary('present', 'absent') }}"
     user: "{{ user.name }}"
