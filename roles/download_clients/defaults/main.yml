@@ -7,4 +7,4 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-download_clients_enabled: ["rutorrent", "nzbget"]
+download_clients_enabled: ["qbittorrent", "nzbget"]
