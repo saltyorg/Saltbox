@@ -9,7 +9,7 @@
 ---
 - name: User Account | Set 'user_group_dict'
   ansible.builtin.set_fact:
-    user_group_dict: "{{ {'docker': user_docker_group_id | default(false), user.name: user_group_id | default(false)} }}"
+    user_group_dict: "{{ {user.name: user_group_id | default(false), 'docker': user_docker_group_id | default(false)} }}"
 
 - name: User Account | Create common groups
   ansible.builtin.group:
