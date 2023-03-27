@@ -11,11 +11,11 @@
 # Global
 ################################
 
-local_mount_branch: "{{ '/mnt/remote/feeder=RW:' if (feeder_remote_is_active is defined and feeder_remote_is_active) else '/mnt/local=RW:' }}"
+local_mount_branch: "{{ '/mnt/remote/feeder=RW:' if feeder_mount_is_enabled else '/mnt/local=RW:' }}"
 
 mount_type: "mergerfs"
 
-custom_mount_branch: "" # Format: ":/mnt/remote/someremote=NC"
+custom_mount_branch: "" # Format: "/mnt/remote/someremote=NC"
 
 mergerfs_override_service: "{{ mounts_override }}"
 
