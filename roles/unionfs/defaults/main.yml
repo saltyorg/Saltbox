@@ -54,7 +54,7 @@ mergerfs_mount_service_after: "network-online.target"
 mergerfs_mount_start_command: |-
   /usr/bin/mergerfs \
     -o category.create=ff,async_read=true,cache.files=partial \
-    -o dropcacheonclose=true,use_ino,minfreespace=0 \
+    -o dropcacheonclose=true,use_ino,minfreespace=0,fsname=mergerfs \
     -o xattr=nosys,statfs_ignore=ro,allow_other,umask=002,noatime \
     {{ mergerfs_mount_branches }} /mnt/unionfs
 
