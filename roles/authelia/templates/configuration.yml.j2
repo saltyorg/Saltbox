@@ -44,11 +44,11 @@ totp:
 #
 {% if authelia_duo_enabled == 'true' %}
 
- duo_api:
-   hostname: {{ authelia_duo_hostname }}
-   integration_key: {{ authelia_duo_integration_key }}
-   secret_key: {{ authelia_duo_secret_key }}
-   enable_self_enrollment: {{ authelia_duo_self_enrollment }}
+duo_api:
+  hostname: {{ authelia_duo_hostname }}
+  integration_key: {{ authelia_duo_integration_key }}
+  secret_key: {{ authelia_duo_secret_key }}
+  enable_self_enrollment: {{ authelia_duo_self_enrollment }}
 
 {% endif %}
 webauthn:
