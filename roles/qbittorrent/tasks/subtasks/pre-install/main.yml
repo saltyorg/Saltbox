@@ -27,17 +27,103 @@
   ignore_errors: true
 
 - name: Pre-Install | Settings | Update 'qBittorrent.conf' config settings
-  community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
-    section: BitTorrent
-    option: Session\Port
-    value: "{{ qbittorrent_docker_ports_56881 }}"
-    no_extra_spaces: true
-    state: present
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
   when: qbittorrent_paths_conf_stat.stat.exists
+  block:
+    - name: Pre-Install | Settings | Update Session\Port in 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: BitTorrent
+        option: Session\Port
+        value: "{{ qbittorrent_docker_ports_56881 }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\HostHeaderValidation
+        value: "false"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\CSRFProtection 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\CSRFProtection
+        value: "false"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\CustomHTTPHeaders 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\CustomHTTPHeaders
+        value: "{{ qbittorrent_themepark_headers if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else '' }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\CustomHTTPHeadersEnabled
+        value: "{{ 'true' if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else 'false' }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update LegalNotice.Accepted 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: LegalNotice
+        option: Accepted
+        value: "true"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\Port
+        value: "{{ qbittorrent_docker_ports_8080 if qbittorrent_host_install else '8080' }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Pre-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: Preferences
+        option: WebUI\Address
+        value: "{{ '172.19.0.1' if qbittorrent_host_install else '*' }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
 
 - name: Pre-Install | Import 'qbittorrent.yml' file
   ansible.builtin.template:

@@ -105,4 +105,4 @@
 
 - name: Post-Install Tasks
   ansible.builtin.import_tasks: "subtasks/post-install/main.yml"
-  when: (not continuous_integration)
+  when: (not continuous_integration) and (not qbittorrent_paths_conf_stat.stat.exists)
