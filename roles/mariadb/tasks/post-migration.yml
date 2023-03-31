@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: MariaDB Pre-Migration                         #
+# Title:         Saltbox: MariaDB Post-Migration                        #
 # Author(s):     owine                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -13,7 +13,7 @@
   register: dump
 
 - name: Import databases
-  when: (not subfolder.stat.exists and dump.stat.exists)
+  when: subfolder.stat.exists and dump.stat.exists
   block:
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
