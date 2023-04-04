@@ -46,9 +46,6 @@
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-- name: Traefik Cloudflare Tasks
-  ansible.builtin.import_tasks: "subtasks/cloudflare.yml"
-
 - name: Traefik ZeroSSL Tasks
   ansible.builtin.import_tasks: "subtasks/zerossl.yml"
   when: (not continuous_integration)

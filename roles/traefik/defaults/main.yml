@@ -112,12 +112,6 @@ traefik_metrics_dns_zone: "{{ traefik_metrics_domain }}"
 traefik_metrics_dns_proxy: "{{ dns.proxied }}"
 
 ################################
-# Cloudflare IPs
-################################
-
-traefik_cloudflare_ips_string: "{{ (traefik_cloudflare_ipv4 + traefik_cloudflare_ipv6) | join('\n') | replace('\n', ',') }}{{ ',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '' }}"
-
-################################
 # DNS Provider
 ################################
 
@@ -231,11 +225,11 @@ traefik_docker_commands_default:
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.internal.address=:8080"
   - "--entrypoints.web.address=:{{ traefik_entrypoint_web_port }}"
-  - "--entrypoints.web.forwardedheaders.trustedIPs={{ traefik_cloudflare_ips_string }}"
-  - "--entrypoints.web.proxyprotocol.trustedIPs={{ traefik_cloudflare_ips_string }}"
+  - "{{ '--entrypoints.web.forwardedheaders.trustedIPs={{ traefik_trusted_ips }}' if (traefik_trusted_ips | length > 0) else omit }}"
+  - "{{ '--entrypoints.web.proxyprotocol.trustedIPs={{ traefik_trusted_ips }}' if (traefik_trusted_ips | length > 0) else omit }}"
   - "--entrypoints.websecure.address=:{{ traefik_entrypoint_websecure_port }}"
-  - "--entrypoints.websecure.forwardedheaders.trustedIPs={{ traefik_cloudflare_ips_string }}"
-  - "--entrypoints.websecure.proxyprotocol.trustedIPs={{ traefik_cloudflare_ips_string }}"
+  - "{{ '--entrypoints.websecure.forwardedheaders.trustedIPs={{ traefik_trusted_ips }}' if (traefik_trusted_ips | length > 0) else omit }}"
+  - "{{ '--entrypoints.websecure.proxyprotocol.trustedIPs={{ traefik_trusted_ips }}' if (traefik_trusted_ips | length > 0) else omit }}"
   - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
   - "--api.dashboard=true"
   - "--api=true"
@@ -297,6 +291,9 @@ traefik_docker_commands_metrics:
   - "--metrics.prometheus.addrouterslabels=true"
   - "--metrics.prometheus.addserviceslabels=true"
   - "--metrics.prometheus.manualrouting=true"
+traefik_docker_commands_cloudflarewarp_plugin:
+  - "--experimental.plugins.cloudflarewarp.modulename=github.com/BetterCorp/cloudflarewarp"
+  - "--experimental.plugins.cloudflarewarp.version=v1.3.3"
 traefik_docker_commands_themepark_plugin:
   - "--experimental.plugins.themepark.modulename=github.com/packruler/traefik-themepark"
   - "--experimental.plugins.themepark.version=v1.3.0"
@@ -322,6 +319,9 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
                              + (traefik_docker_commands_metrics
                                if traefik.metrics
+                               else [])
+                             + (traefik_docker_commands_cloudflarewarp_plugin
+                               if cloudflare_is_enabled
                                else [])
                              + (traefik_docker_commands_themepark_plugin
                                if global_themepark_plugin_enabled
@@ -396,6 +396,9 @@ traefik_docker_labels_default:
   traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader: "true"
   traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders: "Remote-User, Remote-Groups, Remote-Name, Remote-Email"
 
+traefik_docker_labels_cloudflare:
+  traefik.http.middlewares.cloudflarewarp.plugin.cloudflarewarp.disableDefault: "false"
+
 traefik_docker_labels_dns_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
   traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
@@ -420,18 +423,17 @@ traefik_docker_labels_metrics:
 
 traefik_docker_labels_custom: {}
 
-traefik_docker_labels_validation: "{{ traefik_docker_labels_dns_validation
-                                   if not (traefik_tls)
-                                   else traefik_docker_labels_tls_validation }}"
-
-traefik_docker_labels_metrics_temp: "{{ {}
-                                     if not (traefik.metrics)
-                                     else traefik_docker_labels_metrics }}"
-
 traefik_docker_labels: "{{ traefik_docker_labels_default
                            | combine(traefik_docker_labels_custom)
-                           | combine(traefik_docker_labels_validation)
-                           | combine(traefik_docker_labels_metrics_temp) }}"
+                           | combine((traefik_docker_labels_tls_validation
+                                     if traefik_tls
+                                     else traefik_docker_labels_dns_validation))
+                           | combine((traefik_docker_labels_metrics
+                                     if traefik.metrics
+                                     else {}))
+                           | combine((traefik_docker_labels_cloudflare
+                                     if cloudflare_is_enabled
+                                     else {})) }}"
 
 # Hostname
 traefik_docker_hostname: "{{ traefik_name }}"
