@@ -44,11 +44,13 @@ autobrr_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-autobrr_traefik_sso_middleware: ""
+autobrr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 autobrr_traefik_middleware_default: "{{ traefik_default_middleware }}"
 autobrr_traefik_middleware_custom: ""
 autobrr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 autobrr_traefik_enabled: true
+autobrr_traefik_api_enabled: true
+autobrr_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
 # Docker
