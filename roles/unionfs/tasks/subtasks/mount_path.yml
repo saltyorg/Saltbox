@@ -20,6 +20,11 @@
 - name: "Mount Path | Tasks for '/mnt/unionfs' path"
   when: (mnt_unionfs is failed) or mnt_unionfs.stat.exists
   block:
+    - name: "Mount Path | Remove '/mnt/unionfs' immutable flag"
+      ansible.builtin.file:
+        path: "/mnt/unionfs"
+        attributes: '-i'
+
     - name: "Mount Path | Remove empty directories in '/mnt/unionfs'"
       ansible.builtin.shell: "find '/mnt/unionfs' -type d -empty -delete"
       ignore_errors: true
@@ -48,4 +53,5 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+    attributes: '+i'
     recurse: true
