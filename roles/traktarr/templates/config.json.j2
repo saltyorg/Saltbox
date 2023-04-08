@@ -77,14 +77,14 @@
     "api_key": "{{ radarr_api_key | default('',true) }}",
     "minimum_availability": "released",
     "quality": "HD-1080p",
-    "root_folder": "/movies/",
+    "root_folder": "/mnt/unionfs/Media/Movies/",
     "url": "https://radarr.{{ user.domain }}"
   },
   "sonarr": {
     "api_key": "{{ sonarr_api_key | default('',true) }}",
     "language": "English",
     "quality": "HD-1080p",
-    "root_folder": "/tv/",
+    "root_folder": "/mnt/unionfs/Media/TV/",
     "season_folder": true,
     "tags": {},
     "url": "https://sonarr.{{ user.domain }}"

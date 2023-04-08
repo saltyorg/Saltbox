@@ -112,16 +112,19 @@ sonarr_docker_commands: "{{ lookup('vars', sonarr_name + '_docker_commands_defau
 sonarr_docker_volumes_default:
   - "{{ sonarr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
+sonarr_docker_volumes_legacy:
   - "/mnt/unionfs/Media/TV:/tv"
 sonarr_docker_volumes_custom: []
 sonarr_docker_volumes_theme:
   - "{{ sonarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 sonarr_docker_volumes: "{{ lookup('vars', sonarr_name + '_docker_volumes_default', default=sonarr_docker_volumes_default)
                            + lookup('vars', sonarr_name + '_docker_volumes_custom', default=sonarr_docker_volumes_custom)
-                        if not (lookup('vars', sonarr_name + '_themepark_enabled', default=sonarr_themepark_enabled))
-                        else lookup('vars', sonarr_name + '_docker_volumes_default', default=sonarr_docker_volumes_default)
-                           + lookup('vars', sonarr_name + '_docker_volumes_custom', default=sonarr_docker_volumes_custom)
-                           + lookup('vars', sonarr_name + '_docker_volumes_theme', default=sonarr_docker_volumes_theme) }}"
+                           + (lookup('vars', sonarr_name + '_docker_volumes_legacy', default=sonarr_docker_volumes_legacy)
+                             if docker_legacy_volume
+                             else [])
+                           + (lookup('vars', sonarr_name + '_docker_volumes_theme', default=sonarr_docker_volumes_theme)
+                             if lookup('vars', sonarr_name + '_themepark_enabled', default=sonarr_themepark_enabled)
+                             else []) }}"
 
 # Devices
 sonarr_docker_devices_default: []

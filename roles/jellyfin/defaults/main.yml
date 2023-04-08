@@ -126,12 +126,16 @@ jellyfin_docker_commands: "{{ lookup('vars', jellyfin_name + '_docker_commands_d
 jellyfin_docker_volumes_default:
   - "{{ jellyfin_paths_location }}:/config:rw"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt/unionfs/Media:/data"
   - "/dev/shm:/dev/shm"
   - "{{ jellyfin_paths_transcodes_location }}:/transcode"
+jellyfin_docker_volumes_legacy:
+  - "/mnt/unionfs/Media:/data"
 jellyfin_docker_volumes_custom: []
 jellyfin_docker_volumes: "{{ lookup('vars', jellyfin_name + '_docker_volumes_default', default=jellyfin_docker_volumes_default)
-                             + lookup('vars', jellyfin_name + '_docker_volumes_custom', default=jellyfin_docker_volumes_custom) }}"
+                             + lookup('vars', jellyfin_name + '_docker_volumes_custom', default=jellyfin_docker_volumes_custom)
+                             + (lookup('vars', jellyfin_name + '_docker_volumes_legacy', default=jellyfin_docker_volumes_legacy)
+                               if docker_legacy_volume
+                               else []) }}"
 
 # Mounts
 jellyfin_docker_mounts_default:

@@ -286,6 +286,11 @@ traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
                else traefik_domain }}"
 
+traefik_host_override: "{{ lookup('vars', traefik_role_var + '_web_host_override', default=lookup('vars', role_name + '_web_host_override', default='')) | length > 0 }}"
+traefik_host_template: "{{ lookup('vars', traefik_role_var + '_web_host_override', default=lookup('vars', role_name + '_web_host_override', default=''))
+                        if traefik_host_override
+                        else 'Host(`' + traefik_host + '`)' }}"
+
 traefik_entrypoint_web_default: "{{ 'web' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_web', default=traefik_entrypoint_web_default) }}"
 traefik_entrypoint_websecure_default: "{{ 'websecure' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-websecure' }}"
@@ -332,12 +337,12 @@ docker_labels_traefik_main:
   - traefik.enable: "true"
   - '{ "traefik.http.routers.{{ traefik_router }}-http.entrypoints": "{{ traefik_entrypoint_web }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-http.service": "{{ traefik_router }}-http" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-http.rule": "Host(`{{ traefik_host }}`)" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-http.rule": "{{ traefik_host_template }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-http.priority": "20" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_middleware_http", default=lookup("vars", role_name + "_traefik_middleware_http", default=traefik_default_middleware_http)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_router }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.rule": "Host(`{{ traefik_host }}`)" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.rule": "{{ traefik_host_template }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.priority": "{{ lookup("vars", traefik_role_var + "_traefik_priority", default=lookup("vars", role_name + "_traefik_priority", default="20")) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
@@ -352,12 +357,12 @@ docker_labels_traefik_main:
 docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.entrypoints": "{{ traefik_entrypoint_web }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.rule": "Host(`{{ traefik_host }}`) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.rule": "({{ traefik_host_template }}) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware_http", default=lookup("vars", role_name + "_traefik_api_middleware_http", default=traefik_default_middleware_http_api)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "Host(`{{ traefik_host }}`) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "({{ traefik_host_template }}) && ({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
@@ -415,6 +420,7 @@ reboot_is_necessary: false
 skip_dns: false
 role_dns_enabled: "{{ lookup('vars', role_name + '_dns_enabled', default=true) }}"
 mounts_override: true
+docker_legacy_volume: false
 
 ################################
 # Backup

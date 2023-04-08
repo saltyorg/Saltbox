@@ -104,6 +104,7 @@ bazarr_docker_commands: "{{ lookup('vars', bazarr_name + '_docker_commands_defau
 bazarr_docker_volumes_default:
   - "{{ bazarr_paths_location }}:/config"
   - "/opt/scripts:/scripts"
+bazarr_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"
   - "/mnt/unionfs/Media/TV:/tv"
 bazarr_docker_volumes_custom: []
@@ -111,10 +112,12 @@ bazarr_docker_volumes_theme:
   - "{{ bazarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 bazarr_docker_volumes: "{{ lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
                            + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
-                        if not (lookup('vars', bazarr_name + '_themepark_enabled', default=bazarr_themepark_enabled))
-                        else lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
-                           + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
-                           + lookup('vars', bazarr_name + '_docker_volumes_theme', default=bazarr_docker_volumes_theme) }}"
+                           + (lookup('vars', bazarr_name + '_docker_volumes_legacy', default=bazarr_docker_volumes_legacy)
+                             if docker_legacy_volume
+                             else [])
+                           + (lookup('vars', bazarr_name + '_docker_volumes_theme', default=bazarr_docker_volumes_theme)
+                             if lookup('vars', bazarr_name + '_themepark_enabled', default=bazarr_themepark_enabled)
+                             else []) }}"
 
 # Devices
 bazarr_docker_devices_default: []

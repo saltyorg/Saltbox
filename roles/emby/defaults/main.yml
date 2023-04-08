@@ -131,12 +131,16 @@ emby_docker_commands: "{{ lookup('vars', emby_name + '_docker_commands_default',
 emby_docker_volumes_default:
   - "{{ emby_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-  - "/mnt/unionfs/Media:/data"
   - "/dev/shm:/dev/shm"
   - "{{ emby_paths_transcodes_location }}:/transcode"
+emby_docker_volumes_legacy:
+  - "/mnt/unionfs/Media:/data"
 emby_docker_volumes_custom: []
 emby_docker_volumes: "{{ lookup('vars', emby_name + '_docker_volumes_default', default=emby_docker_volumes_default)
-                         + lookup('vars', emby_name + '_docker_volumes_custom', default=emby_docker_volumes_custom) }}"
+                         + lookup('vars', emby_name + '_docker_volumes_custom', default=emby_docker_volumes_custom)
+                         + (lookup('vars', emby_name + '_docker_volumes_legacy', default=emby_docker_volumes_legacy)
+                           if docker_legacy_volume
+                           else []) }}"
 
 # Mounts
 emby_docker_mounts_default:
