@@ -16,6 +16,7 @@
     url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3AE27527713D2479DCAFFD58A89D7C1B2F76304D
     dest: /etc/apt/trusted.gpg.d/cappelikan.asc
     mode: "0644"
+  register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
