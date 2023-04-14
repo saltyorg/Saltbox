@@ -11,15 +11,25 @@
   ansible.builtin.apt:
     name: dirmngr
 
-- name: nvtop | Add flexiondotorg apt key
-  ansible.builtin.apt_key:
-    keyserver: keyserver.ubuntu.com
-    id: 824A27DD09DEDA33BF7835962EA8F35793D8809A
-    keyring: /usr/share/keyrings/flexiondotorg.gpg
+- name: Add gpg signing key to trusted.gpg.d
+  ansible.builtin.get_url:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x824A27DD09DEDA33BF7835962EA8F35793D8809A
+    dest: /etc/apt/trusted.gpg.d/flexiondotorg.asc
+    mode: "0644"
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  delay: 10
+  until: result is succeeded
+
+- name: Remove old repository entry
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/flexiondotorg.gpg] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    filename: "flexiondotorg"
+    update_cache: true
+    state: absent
 
 - name: nvtop | Add flexiondotorg/nvtop repository
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/flexiondotorg.gpg] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/flexiondotorg.asc] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
     filename: "flexiondotorg"
     state: present
     update_cache: true
