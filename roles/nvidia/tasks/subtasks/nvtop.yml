@@ -11,7 +11,7 @@
   ansible.builtin.apt:
     name: dirmngr
 
-- name: Add gpg signing key to trusted.gpg.d
+- name: nvtop | Add gpg signing key to trusted.gpg.d
   ansible.builtin.get_url:
     url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x824A27DD09DEDA33BF7835962EA8F35793D8809A
     dest: /etc/apt/trusted.gpg.d/flexiondotorg.asc
@@ -20,7 +20,7 @@
   delay: 10
   until: result is succeeded
 
-- name: Remove old repository entry
+- name: nvtop | Remove old repository entry
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/flexiondotorg.gpg] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
     filename: "flexiondotorg"
