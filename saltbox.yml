@@ -61,6 +61,7 @@
     - { role: ddclient, tags: ['ddclient'] }
     - { role: deluge, tags: ['deluge'] }
     - { role: diun, tags: ['diun'] }
+    - { role: docker_socket_proxy, tags: ['docker-socket-proxy'] }
     - { role: dozzle, tags: ['dozzle'] }
     - { role: emby, tags: ['emby'] }
     - { role: grafana, tags: ['grafana'] }

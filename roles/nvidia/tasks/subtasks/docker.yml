@@ -16,10 +16,13 @@
   loop: "{{ nvidia_docker_runtime_apt_repo_url_list_old }}"
 
 - name: Docker | Add 'nvidia-container-runtime' APT Repo Key
-  ansible.builtin.apt_key:
+  ansible.builtin.get_url:
     url: "{{ nvidia_docker_runtime_apt_key_url }}"
-    keyring: /usr/share/keyrings/nvidia.gpg
-    state: present
+    dest: /etc/apt/trusted.gpg.d/nvidia.asc
+    mode: "0644"
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  delay: 10
+  until: result is succeeded
 
 - name: Docker | Add 'nvidia-container-runtime' APT list
   ansible.builtin.apt_repository:

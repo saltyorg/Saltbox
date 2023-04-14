@@ -12,15 +12,21 @@
     msg: "This role is only for {{ python_valid_distro }}"
   when: (ansible_distribution_version is version(python_valid_distro, '!='))
 
-- name: Add official gpg signing key to keyring
-  ansible.builtin.apt_key:
-    keyserver: "{{ python_apt_keyserver }}"
-    id: "{{ python_apt_key_id }}"
-    keyring: /usr/share/keyrings/deadsnakes.gpg
-  register: result
+- name: Add gpg signing key to trusted.gpg.d
+  ansible.builtin.get_url:
+    url: http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
+    dest: /etc/apt/trusted.gpg.d/deadsnakes.asc
+    mode: "0644"
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
+
+- name: Remove old repository entry
+  ansible.builtin.apt_repository:
+    repo: "{{ python_apt_repo_url_old }}"
+    filename: "deadsnakes"
+    update_cache: true
+    state: absent
 
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:

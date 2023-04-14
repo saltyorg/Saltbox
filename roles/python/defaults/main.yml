@@ -7,9 +7,8 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-python_apt_key_id: F23C5A6CF475977595C89F51BA6932366A755776
-python_apt_keyserver: keyserver.ubuntu.com
-python_apt_repo_url: "deb [arch=amd64 signed-by=/usr/share/keyrings/deadsnakes.gpg] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+python_apt_repo_url_old: "deb [arch=amd64 signed-by=/usr/share/keyrings/deadsnakes.gpg] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+python_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/deadsnakes.asc] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
 
 python_get_pip_url: "https://bootstrap.pypa.io/get-pip.py"
 
