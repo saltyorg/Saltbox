@@ -12,6 +12,7 @@
     url: "{{ docker_apt_key_url }}"
     dest: /etc/apt/trusted.gpg.d/docker.asc
     mode: "0644"
+  register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
