@@ -7,6 +7,27 @@
 #                            GNU General Public License v3.0                           #
 ########################################################################################
 ---
+- name: "Migrator | 'accounts.yml' | Migration 01 | Set variables"
+  ansible.builtin.set_fact:
+    plex_tfa_settings: "{{ not ((plex is undefined)
+                                or
+                                (plex is none)
+                                or
+                                (plex | trim | length == 0)
+                                or
+                                (plex.tfa is undefined)
+                                or
+                                (plex.tfa is none)
+                                or
+                                (plex.tfa | trim | length == 0)) }}"
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'plex.tfa' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.plex.tfa)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: plex_tfa_settings
+
 - name: Migrator | 'accounts.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/{{ file }}"

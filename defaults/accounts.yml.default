@@ -9,7 +9,6 @@ dockerhub:
 plex:
   user:
   pass:
-  tfa: no
 user:
   name: seed
   pass: password123
