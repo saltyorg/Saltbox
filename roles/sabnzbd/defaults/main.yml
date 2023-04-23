@@ -26,7 +26,6 @@ sabnzbd_paths_folders_list:
   - "{{ sabnzbd_paths_downloads_location }}/complete"
   - "{{ sabnzbd_paths_downloads_location }}/incomplete"
   - "{{ sabnzbd_paths_downloads_location }}/watch"
-  - "{{ sabnzbd_paths_downloads_location }}/logs"
 sabnzbd_paths_config_location: "{{ sabnzbd_paths_location }}/sabnzbd.ini"
 
 ################################
@@ -75,6 +74,7 @@ sabnzbd_config_settings_web:
   # Web
   - { option: "host_whitelist", value: "{{ sabnzbd_web_subdomain }}.{{ sabnzbd_web_domain }}, {{ sabnzbd_name }}" }
   - { option: "url_base", value: "" }
+  - { option: "log_dir", value: "/config/logs" }
 
 sabnzbd_config_settings_default:
   # Web
@@ -84,7 +84,7 @@ sabnzbd_config_settings_default:
   - { option: "dirscan_dir", value: "{{ sabnzbd_paths_downloads_location }}/watch" }
   - { option: "download_dir", value: "{{ sabnzbd_paths_downloads_location }}/incomplete" }
   - { option: "complete_dir", value: "{{ sabnzbd_paths_downloads_location }}/complete" }
-  - { option: "log_dir", value: "{{ sabnzbd_paths_downloads_location }}/logs" }
+  - { option: "log_dir", value: "/config/logs" }
 
 sabnzbd_config_settings_custom: []
 
