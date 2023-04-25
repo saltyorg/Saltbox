@@ -153,7 +153,7 @@ plex_docker_ports_local:
   - "32414:32414/udp"
   - "32469:32469"
 plex_docker_ports_ui:
-  - "{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}:{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}"
+  - "{{ plex_docker_ports_32400 }}:{{ lookup('vars', plex_name + '_web_port', default=plex_web_port) }}"
 plex_docker_ports_custom: []
 plex_docker_ports: "{{ lookup('vars', plex_name + '_docker_ports_defaults', default=plex_docker_ports_defaults)
                        + lookup('vars', plex_name + '_docker_ports_custom', default=plex_docker_ports_custom)
