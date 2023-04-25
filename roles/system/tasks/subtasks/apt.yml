@@ -13,6 +13,13 @@
       DEBIAN_FRONTEND: noninteractive
       DEBIAN_PRIORITY: critical
 
+- name: APT | Import 'saltbox.conf'
+  ansible.builtin.copy:
+    src: saltbox.conf
+    dest: "/etc/needrestart/conf.d/saltbox.conf"
+    mode: "0644"
+    force: true
+
 - name: APT | Fix any potential dpkg issues
   block:
     - name: APT | Run 'dpkg --configure --pending'
