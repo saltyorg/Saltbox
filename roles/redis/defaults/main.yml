@@ -17,7 +17,7 @@ redis_instances: ["redis"]
 # Paths
 ################################
 
-redis_paths_folder: "{{ redis_original_name }}"
+redis_paths_folder: "{{ redis_name }}"
 redis_paths_location: "{{ server_appdata_path }}/{{ redis_paths_folder }}"
 redis_paths_folders_list:
   - "{{ redis_paths_location }}"
@@ -27,7 +27,7 @@ redis_paths_folders_list:
 ################################
 
 # Container
-redis_docker_container: "{{ redis_original_name }}"
+redis_docker_container: "{{ redis_name }}"
 
 # Image
 redis_docker_image_pull: true
@@ -81,10 +81,10 @@ redis_docker_labels: "{{ docker_labels_common
                          | combine(lookup('vars', redis_name + '_docker_labels_custom', default=redis_docker_labels_custom)) }}"
 
 # Hostname
-redis_docker_hostname: "{{ redis_original_name }}"
+redis_docker_hostname: "{{ redis_name }}"
 
 # Networks
-redis_docker_networks_alias: "{{ redis_original_name }}"
+redis_docker_networks_alias: "{{ redis_name }}"
 redis_docker_networks_default: []
 redis_docker_networks_custom: []
 redis_docker_networks: "{{ docker_networks_common

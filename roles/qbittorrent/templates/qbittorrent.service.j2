@@ -1,4 +1,4 @@
-# /etc/systemd/system/{{ qbittorrent_original_name }}.service
+# /etc/systemd/system/{{ qbittorrent_name }}.service
 #########################################################################
 # Title:         Saltbox: qBittorrent                                   #
 # Author(s):     salty                                                  #
@@ -9,7 +9,7 @@
 #########################################################################
 
 [Unit]
-Description={{ qbittorrent_original_name }}
+Description={{ qbittorrent_name }}
 After=network-online.target docker.service
 Requires=network-online.target docker.service
 
@@ -19,7 +19,7 @@ Group={{ user.name }}
 Type=exec
 Environment="XDG_CONFIG_HOME={{ qbittorrent_paths_location }}" "XDG_DATA_HOME={{ qbittorrent_paths_location }}" "HOME={{ qbittorrent_paths_location }}"
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/{{ qbittorrent_original_name }}-nox --webui-port={{ qbittorrent_docker_ports_8080 }}
+ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ qbittorrent_docker_ports_8080 }}
 AmbientCapabilities=CAP_NET_RAW
 TimeoutStopSec=1800
 

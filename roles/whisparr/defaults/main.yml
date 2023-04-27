@@ -17,7 +17,7 @@ whisparr_instances: ["whisparr"]
 # Paths
 ################################
 
-whisparr_paths_folder: "{{ whisparr_original_name }}"
+whisparr_paths_folder: "{{ whisparr_name }}"
 whisparr_paths_location: "{{ server_appdata_path }}/{{ whisparr_paths_folder }}"
 whisparr_paths_folders_list:
   - "{{ whisparr_paths_location }}"
@@ -27,7 +27,7 @@ whisparr_paths_config_location: "{{ whisparr_paths_location }}/config.xml"
 # Web
 ################################
 
-whisparr_web_subdomain: "{{ whisparr_original_name }}"
+whisparr_web_subdomain: "{{ whisparr_name }}"
 whisparr_web_domain: "{{ user.domain }}"
 whisparr_web_port: "6969"
 whisparr_web_url: "{{ 'https://' + lookup('vars', whisparr_name + '_web_subdomain', default=whisparr_web_subdomain)
@@ -74,7 +74,7 @@ whisparr_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-whisparr_docker_container: "{{ whisparr_original_name }}"
+whisparr_docker_container: "{{ whisparr_name }}"
 
 # Image
 whisparr_docker_image_pull: true
@@ -143,10 +143,10 @@ whisparr_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', whisparr_name + '_docker_labels_custom', default=whisparr_docker_labels_custom)) }}"
 
 # Hostname
-whisparr_docker_hostname: "{{ whisparr_original_name }}"
+whisparr_docker_hostname: "{{ whisparr_name }}"
 
 # Networks
-whisparr_docker_networks_alias: "{{ whisparr_original_name }}"
+whisparr_docker_networks_alias: "{{ whisparr_name }}"
 whisparr_docker_networks_default: []
 whisparr_docker_networks_custom: []
 whisparr_docker_networks: "{{ docker_networks_common

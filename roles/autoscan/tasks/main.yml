@@ -10,8 +10,7 @@
 - name: "Execute Autoscan roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    autoscan_original_name: "{{ role }}"
-    autoscan_name: "{{ role | replace('-', '_') }}"
+    autoscan_name: "{{ role }}"
   with_items: "{{ autoscan_instances }}"
   loop_control:
     loop_var: role

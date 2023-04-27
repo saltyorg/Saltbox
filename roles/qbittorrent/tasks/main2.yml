@@ -6,10 +6,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove '{{ qbittorrent_original_name }}' from hosts
+- name: Remove '{{ qbittorrent_name }}' from hosts
   ansible.builtin.blockinfile:
     path: "/etc/hosts"
-    marker: "# {mark} ANSIBLE {{ qbittorrent_original_name }} MANAGED BLOCK"
+    marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
     block: ""
 
 - name: Add DNS record
@@ -21,26 +21,26 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Check if '{{ qbittorrent_original_name }}.service' exists
+- name: Check if '{{ qbittorrent_name }}.service' exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ qbittorrent_original_name }}.service"
+    path: "/etc/systemd/system/{{ qbittorrent_name }}.service"
   register: qbittorrent_service
 
-- name: Stop '{{ qbittorrent_original_name }}.service'
+- name: Stop '{{ qbittorrent_name }}.service'
   ansible.builtin.systemd:
-    name: "{{ qbittorrent_original_name }}.service"
+    name: "{{ qbittorrent_name }}.service"
     state: stopped
   when: qbittorrent_service.stat.exists
 
-- name: Remove '{{ qbittorrent_original_name }}.service' file
+- name: Remove '{{ qbittorrent_name }}.service' file
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ qbittorrent_original_name }}.service"
+    path: "/etc/systemd/system/{{ qbittorrent_name }}.service"
     state: absent
   when: qbittorrent_service.stat.exists and not qbittorrent_host_install
 
-- name: Remove '{{ qbittorrent_original_name }}-nox' file
+- name: Remove '{{ qbittorrent_name }}-nox' file
   ansible.builtin.file:
-    path: "/usr/bin/{{ qbittorrent_original_name }}-nox"
+    path: "/usr/bin/{{ qbittorrent_name }}-nox"
     state: absent
   when: qbittorrent_service.stat.exists and not qbittorrent_host_install
 
@@ -59,12 +59,12 @@
 - name: Host Install
   when: qbittorrent_host_install
   block:
-    - name: Add '{{ qbittorrent_original_name }}' to hosts
+    - name: Add '{{ qbittorrent_name }}' to hosts
       ansible.builtin.blockinfile:
         path: "/etc/hosts"
-        marker: "# {mark} ANSIBLE {{ qbittorrent_original_name }} MANAGED BLOCK"
+        marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
         block: |
-          172.19.0.1 {{ qbittorrent_original_name }}
+          172.19.0.1 {{ qbittorrent_name }}
 
     - name: Get Download Url
       ansible.builtin.shell: "{{ qbittorrent_host_version }}"
@@ -73,27 +73,27 @@
     - name: Download 'qbittorrent-nox'
       ansible.builtin.get_url:
         url: "{{ qbittorrent_host_download_url }}"
-        dest: "/usr/bin/{{ qbittorrent_original_name }}-nox"
+        dest: "/usr/bin/{{ qbittorrent_name }}-nox"
         mode: '0755'
         force: true
 
-    - name: Import '{{ qbittorrent_original_name }}.service'
+    - name: Import '{{ qbittorrent_name }}.service'
       ansible.builtin.template:
         src: "qbittorrent.service.j2"
-        dest: "/etc/systemd/system/{{ qbittorrent_original_name }}.service"
+        dest: "/etc/systemd/system/{{ qbittorrent_name }}.service"
         mode: '0755'
         force: true
 
-    - name: Systemd daemon-reload '{{ qbittorrent_original_name }}.service'
+    - name: Systemd daemon-reload '{{ qbittorrent_name }}.service'
       ansible.builtin.systemd:
-        name: "{{ qbittorrent_original_name }}.service"
+        name: "{{ qbittorrent_name }}.service"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Start '{{ qbittorrent_original_name }}.service'
+    - name: Start '{{ qbittorrent_name }}.service'
       ansible.builtin.systemd:
-        name: "{{ qbittorrent_original_name }}.service"
+        name: "{{ qbittorrent_name }}.service"
         state: started
         enabled: true
 

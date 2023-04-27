@@ -17,7 +17,7 @@ autoscan_instances: ["autoscan"]
 # Paths
 ################################
 
-autoscan_paths_folder: "{{ autoscan_original_name }}"
+autoscan_paths_folder: "{{ autoscan_name }}"
 autoscan_paths_location: "{{ server_appdata_path }}/{{ autoscan_paths_folder }}"
 autoscan_paths_folders_list:
   - "{{ autoscan_paths_location }}"
@@ -27,7 +27,7 @@ autoscan_paths_config_location: "{{ autoscan_paths_location }}/config.yml"
 # Web
 ################################
 
-autoscan_web_subdomain: "{{ autoscan_original_name }}"
+autoscan_web_subdomain: "{{ autoscan_name }}"
 autoscan_web_domain: "{{ user.domain }}"
 autoscan_web_port: "3030"
 autoscan_web_url: "{{ 'https://' + lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain)
@@ -45,7 +45,7 @@ autoscan_dns_proxy: "{{ dns.proxied }}"
 # Traefik
 ################################
 
-autoscan_traefik_regex_middleware_string: ",{{ autoscan_original_name }}-replacepathregex"
+autoscan_traefik_regex_middleware_string: ",{{ autoscan_name }}-replacepathregex"
 autoscan_traefik_sso_middleware: ""
 autoscan_traefik_middleware_default: "{{ traefik_default_middleware + autoscan_traefik_regex_middleware_string }}"
 autoscan_traefik_middleware_custom: ""
@@ -59,7 +59,7 @@ autoscan_traefik_api_endpoint: ""
 ################################
 
 # Container
-autoscan_docker_container: "{{ autoscan_original_name }}"
+autoscan_docker_container: "{{ autoscan_name }}"
 
 # Image
 autoscan_docker_image_pull: true
@@ -124,10 +124,10 @@ autoscan_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', autoscan_name + '_docker_labels_custom', default=autoscan_docker_labels_custom)) }}"
 
 # Hostname
-autoscan_docker_hostname: "{{ autoscan_original_name }}"
+autoscan_docker_hostname: "{{ autoscan_name }}"
 
 # Networks
-autoscan_docker_networks_alias: "{{ autoscan_original_name }}"
+autoscan_docker_networks_alias: "{{ autoscan_name }}"
 autoscan_docker_networks_default: []
 autoscan_docker_networks_custom: []
 autoscan_docker_networks: "{{ docker_networks_common

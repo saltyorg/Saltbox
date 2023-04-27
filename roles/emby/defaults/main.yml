@@ -17,7 +17,7 @@ emby_instances: ["emby"]
 # Paths
 ################################
 
-emby_paths_folder: "{{ emby_original_name }}"
+emby_paths_folder: "{{ emby_name }}"
 emby_paths_location: "{{ server_appdata_path }}/{{ emby_paths_folder }}"
 emby_paths_transcodes_location: "{{ transcodes_path }}/{{ emby_paths_folder }}"
 emby_paths_folders_list:
@@ -32,7 +32,7 @@ emby_paths_dlna_xml_location: "{{ emby_paths_location }}/config/dlna.xml"
 # Web
 ################################
 
-emby_web_subdomain: "{{ emby_original_name }}"
+emby_web_subdomain: "{{ emby_name }}"
 emby_web_domain: "{{ user.domain }}"
 emby_web_port: "8096"
 emby_web_url: "{{ 'https://' + lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain)
@@ -95,7 +95,7 @@ emby_config_settings_list: "{{ lookup('vars', emby_name + '_config_settings_defa
 ################################
 
 # Container
-emby_docker_container: "{{ emby_original_name }}"
+emby_docker_container: "{{ emby_name }}"
 
 # Image
 emby_docker_image_pull: true
@@ -177,10 +177,10 @@ emby_docker_labels: "{{ docker_labels_common
                           lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
 
 # Hostname
-emby_docker_hostname: "{{ emby_original_name }}"
+emby_docker_hostname: "{{ emby_name }}"
 
 # Networks
-emby_docker_networks_alias: "{{ emby_original_name }}"
+emby_docker_networks_alias: "{{ emby_name }}"
 emby_docker_networks_default: []
 emby_docker_networks_custom: []
 emby_docker_networks: "{{ docker_networks_common

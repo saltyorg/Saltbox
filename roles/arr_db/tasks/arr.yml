@@ -19,7 +19,7 @@
 
 - name: "{{ arr_type | capitalize }} | Fail if database does not exist"
   ansible.builtin.fail:
-    msg: "{{ arr_type | capitalize }} databases are not present for {{ lookup('vars', arr_type + '_original_name') }} instance"
+    msg: "{{ arr_type | capitalize }} databases are not present for {{ lookup('vars', arr_type + '_name') }} instance"
   when: (not (arr_db.stat.exists and arr_logs_db.stat.exists))
 
 - name: "{{ arr_type | capitalize }} | Stop Docker container"

@@ -9,7 +9,7 @@
 ---
 - name: Pre-Install | Remove 'qbittorrent.yml' file
   ansible.builtin.file:
-    path: "/opt/traefik/{{ qbittorrent_original_name }}.yml"
+    path: "/opt/traefik/{{ qbittorrent_name }}.yml"
     state: absent
 
 - name: Pre-Install | Get next available port within the range of '56881-56901' # noqa fqcn[action]
@@ -164,7 +164,7 @@
 - name: Pre-Install | Import 'qbittorrent.yml' file
   ansible.builtin.template:
     src: "qbittorrent.yml.j2"
-    dest: "/opt/traefik/{{ qbittorrent_original_name }}.yml"
+    dest: "/opt/traefik/{{ qbittorrent_name }}.yml"
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
     mode: 0644

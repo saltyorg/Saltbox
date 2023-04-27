@@ -17,7 +17,7 @@ jellyfin_instances: ["jellyfin"]
 # Paths
 ################################
 
-jellyfin_paths_folder: "{{ jellyfin_original_name }}"
+jellyfin_paths_folder: "{{ jellyfin_name }}"
 jellyfin_paths_location: "{{ server_appdata_path }}/{{ jellyfin_paths_folder }}"
 jellyfin_paths_transcodes_location: "{{ transcodes_path }}/{{ jellyfin_paths_folder }}"
 jellyfin_paths_folders_list:
@@ -35,7 +35,7 @@ jellyfin_paths_xml_loct_old: "{{ jellyfin_paths_location }}/app/config/system.xm
 # Web
 ################################
 
-jellyfin_web_subdomain: "{{ jellyfin_original_name }}"
+jellyfin_web_subdomain: "{{ jellyfin_name }}"
 jellyfin_web_domain: "{{ user.domain }}"
 jellyfin_web_port: "8096"
 jellyfin_web_url: "{{ 'https://' + lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain)
@@ -90,7 +90,7 @@ jellyfin_network_settings_list: "{{ lookup('vars', jellyfin_name + '_network_set
 ################################
 
 # Container
-jellyfin_docker_container: "{{ jellyfin_original_name }}"
+jellyfin_docker_container: "{{ jellyfin_name }}"
 
 # Image
 jellyfin_docker_image_pull: true
@@ -166,10 +166,10 @@ jellyfin_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', jellyfin_name + '_docker_labels_custom', default=jellyfin_docker_labels_custom)) }}"
 
 # Hostname
-jellyfin_docker_hostname: "{{ jellyfin_original_name }}"
+jellyfin_docker_hostname: "{{ jellyfin_name }}"
 
 # Networks
-jellyfin_docker_networks_alias: "{{ jellyfin_original_name }}"
+jellyfin_docker_networks_alias: "{{ jellyfin_name }}"
 jellyfin_docker_networks_default: []
 jellyfin_docker_networks_custom: []
 jellyfin_docker_networks: "{{ docker_networks_common

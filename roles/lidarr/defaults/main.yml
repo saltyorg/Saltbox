@@ -17,7 +17,7 @@ lidarr_instances: ["lidarr"]
 # Paths
 ################################
 
-lidarr_paths_folder: "{{ lidarr_original_name }}"
+lidarr_paths_folder: "{{ lidarr_name }}"
 lidarr_paths_location: "{{ server_appdata_path }}/{{ lidarr_paths_folder }}"
 lidarr_paths_folders_list:
   - "{{ lidarr_paths_location }}"
@@ -27,7 +27,7 @@ lidarr_paths_config_location: "{{ lidarr_paths_location }}/config.xml"
 # Web
 ################################
 
-lidarr_web_subdomain: "{{ lidarr_original_name }}"
+lidarr_web_subdomain: "{{ lidarr_name }}"
 lidarr_web_domain: "{{ user.domain }}"
 lidarr_web_port: "8686"
 lidarr_web_url: "{{ 'https://' + lookup('vars', lidarr_name + '_web_subdomain', default=lidarr_web_subdomain)
@@ -74,7 +74,7 @@ lidarr_themepark_domain: "{{ global_themepark_domain }}"
 ################################
 
 # Container
-lidarr_docker_container: "{{ lidarr_original_name }}"
+lidarr_docker_container: "{{ lidarr_name }}"
 
 # Image
 lidarr_docker_image_pull: true
@@ -144,10 +144,10 @@ lidarr_docker_labels: "{{ docker_labels_common
                           | combine(lookup('vars', lidarr_name + '_docker_labels_custom', default=lidarr_docker_labels_custom)) }}"
 
 # Hostname
-lidarr_docker_hostname: "{{ lidarr_original_name }}"
+lidarr_docker_hostname: "{{ lidarr_name }}"
 
 # Networks
-lidarr_docker_networks_alias: "{{ lidarr_original_name }}"
+lidarr_docker_networks_alias: "{{ lidarr_name }}"
 lidarr_docker_networks_default: []
 lidarr_docker_networks_custom: []
 lidarr_docker_networks: "{{ docker_networks_common

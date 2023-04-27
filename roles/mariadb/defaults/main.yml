@@ -17,7 +17,7 @@ mariadb_instances: ["mariadb"]
 # Paths
 ################################
 
-mariadb_paths_folder: "{{ mariadb_original_name }}"
+mariadb_paths_folder: "{{ mariadb_name }}"
 mariadb_paths_location: "{{ server_appdata_path }}/{{ mariadb_paths_folder }}"
 mariadb_paths_folders_list:
   - "{{ mariadb_paths_location }}"
@@ -35,7 +35,7 @@ mariadb_docker_env_db: "saltbox"
 ################################
 
 # Container
-mariadb_docker_container: "{{ mariadb_original_name }}"
+mariadb_docker_container: "{{ mariadb_name }}"
 
 # Image
 mariadb_docker_image_pull: true
@@ -93,10 +93,10 @@ mariadb_docker_labels: "{{ docker_labels_common
                             | combine(lookup('vars', mariadb_name + '_docker_labels_custom', default=mariadb_docker_labels_custom)) }}"
 
 # Hostname
-mariadb_docker_hostname: "{{ mariadb_original_name }}"
+mariadb_docker_hostname: "{{ mariadb_name }}"
 
 # Networks
-mariadb_docker_networks_alias: "{{ mariadb_original_name }}"
+mariadb_docker_networks_alias: "{{ mariadb_name }}"
 mariadb_docker_networks_default: []
 mariadb_docker_networks_custom: []
 mariadb_docker_networks: "{{ docker_networks_common

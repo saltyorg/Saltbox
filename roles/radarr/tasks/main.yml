@@ -10,8 +10,7 @@
 - name: "Execute Radarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    radarr_original_name: "{{ role }}"
-    radarr_name: "{{ role | replace('-', '_') }}"
+    radarr_name: "{{ role }}"
   with_items: "{{ radarr_instances }}"
   loop_control:
     loop_var: role

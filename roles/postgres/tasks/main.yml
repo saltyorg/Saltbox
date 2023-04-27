@@ -10,8 +10,7 @@
 - name: "Execute PostgreSQL roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    postgres_original_name: "{{ role }}"
-    postgres_name: "{{ role | replace('-', '_') }}"
+    postgres_name: "{{ role }}"
   with_items: "{{ postgres_instances }}"
   loop_control:
     loop_var: role
