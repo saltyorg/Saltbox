@@ -20,7 +20,7 @@
 - name: Check if already installed
   ansible.builtin.stat:
     path: "{{ autobrr_paths_location }}"
-  register: autobbr_directory
+  register: autobrr_directory
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
@@ -53,4 +53,4 @@
     msg:
       - "Run the following to create your user:"
       - "docker exec -it {{ lookup('vars', role_name + '_name') }} sh -c 'autobrrctl --config /config create-user {{ user.name }}'"
-  when: not autobbr_directory.stat.exists
+  when: not autobrr_directory.stat.exists
