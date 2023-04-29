@@ -1,0 +1,119 @@
+##########################################################################
+# Title:         Saltbox: Cloudflare DNS | Default Variables             #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+ddns_name: cfdns
+
+################################
+# Settings
+################################
+
+# Comma separated FQDN's that you want the container to manage
+ddns_custom_urls: ""
+ddns_delay: "60"
+
+################################
+# Docker
+################################
+
+# Container
+ddns_docker_container: "{{ ddns_name }}"
+
+# Image
+ddns_docker_image_pull: true
+ddns_docker_image_tag: "latest"
+ddns_docker_image: "saltydk/dns:{{ ddns_docker_image_tag }}"
+
+# Ports
+ddns_docker_ports_defaults: []
+ddns_docker_ports_custom: []
+ddns_docker_ports: "{{ ddns_docker_ports_defaults
+                       + ddns_docker_ports_custom }}"
+
+# Envs
+ddns_docker_envs_default:
+  TZ: "{{ tz }}"
+  CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
+  CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
+  CLOUDFLARE_PROXY_DEFAULT: "{{ dns.proxied | string }}"
+  TRAEFIK_API_URL: "http://traefik:8080"
+  TRAEFIK_ENTRYPOINTS: "websecure,web"
+  CUSTOM_URLS: "{{ ddns_custom_urls if (ddns_custom_urls | length > 0) else omit }}"
+  IP_VERSION: "{{ 'both' if (dns.ipv4 and dns.ipv6) else ('4' if dns.ipv4 else '6') }}"
+  DELAY: "{{ ddns_delay }}"
+ddns_docker_envs_custom: {}
+ddns_docker_envs: "{{ ddns_docker_envs_default
+                      | combine(ddns_docker_envs_custom) }}"
+
+# Commands
+ddns_docker_commands_default: []
+ddns_docker_commands_custom: []
+ddns_docker_commands: "{{ ddns_docker_commands_default
+                          + ddns_docker_commands_custom }}"
+
+# Volumes
+ddns_docker_volumes_default: []
+ddns_docker_volumes_custom: []
+ddns_docker_volumes: "{{ ddns_docker_volumes_default
+                         + ddns_docker_volumes_custom }}"
+
+# Devices
+ddns_docker_devices_default: []
+ddns_docker_devices_custom: []
+ddns_docker_devices: "{{ ddns_docker_devices_default
+                         + ddns_docker_devices_custom }}"
+
+# Hosts
+ddns_docker_hosts_default: []
+ddns_docker_hosts_custom: []
+ddns_docker_hosts: "{{ docker_hosts_common
+                       | combine(ddns_docker_hosts_default)
+                       | combine(ddns_docker_hosts_custom) }}"
+
+# Labels
+ddns_docker_labels_default: {}
+ddns_docker_labels_custom: {}
+ddns_docker_labels: "{{ docker_labels_common
+                        | combine(ddns_docker_labels_default)
+                        | combine(ddns_docker_labels_custom) }}"
+
+# Hostname
+ddns_docker_hostname: "{{ ddns_name }}"
+
+# Networks
+ddns_docker_networks_alias: "{{ ddns_name }}"
+ddns_docker_networks_default: []
+ddns_docker_networks_custom: []
+ddns_docker_networks: "{{ docker_networks_common
+                          + ddns_docker_networks_default
+                          + ddns_docker_networks_custom }}"
+
+# Capabilities
+ddns_docker_capabilities_default: []
+ddns_docker_capabilities_custom: []
+ddns_docker_capabilities: "{{ ddns_docker_capabilities_default
+                              + ddns_docker_capabilities_custom }}"
+
+# Security Opts
+ddns_docker_security_opts_default: []
+ddns_docker_security_opts_custom: []
+ddns_docker_security_opts: "{{ ddns_docker_security_opts_default
+                               + ddns_docker_security_opts_custom }}"
+
+# Restart Policy
+ddns_docker_restart_policy: unless-stopped
+
+# State
+ddns_docker_state: started
+
+# Init
+ddns_docker_init: true

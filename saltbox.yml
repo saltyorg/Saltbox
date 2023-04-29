@@ -59,6 +59,7 @@
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }
     - { role: cadvisor, tags: ['cadvisor'] }
     - { role: ddclient, tags: ['ddclient'] }
+    - { role: ddns, tags: ['ddns'] }
     - { role: deluge, tags: ['deluge'] }
     - { role: diun, tags: ['diun'] }
     - { role: docker_socket_proxy, tags: ['docker-socket-proxy'] }
