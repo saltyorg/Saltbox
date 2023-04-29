@@ -118,7 +118,7 @@
     state: file
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
 
 - name: Remote | Create cache directory
   ansible.builtin.file:
@@ -133,7 +133,7 @@
   ansible.builtin.template:
     src: "{{ item.template }}{{ '' if item.template is regex('^/.*') else '.j2' }}"
     dest: "/etc/systemd/system/{{ _service_file }}"
-    mode: '0755'
+    mode: "0755"
     force: "{{ rclone_override_service }}"
 
 - name: Remote | Systemd daemon-reload '{{ _service_file }}'
@@ -148,7 +148,7 @@
     src: rclone_refresh.timer.j2
     dest: "/etc/systemd/system/{{ _service_refresh }}.timer"
     force: "{{ rclone_override_service }}"
-    mode: '0755'
+    mode: "0755"
   when: (item.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.timer'
@@ -164,7 +164,7 @@
     src: "rclone_refresh.service.j2"
     dest: "/etc/systemd/system/{{ _service_refresh }}.service"
     force: "{{ rclone_override_service }}"
-    mode: '0755'
+    mode: "0755"
   when: (item.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.service'

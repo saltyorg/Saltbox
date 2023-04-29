@@ -20,7 +20,7 @@
       ansible.builtin.file:
         path: "{{ docker_filesystem_path }}"
         attributes: "+C"
-        mode: '0644'
+        mode: "0644"
         state: touch
 
     - name: BTRFS | Psuedo-File-System | Set size on '{{ docker_filesystem_path }}'

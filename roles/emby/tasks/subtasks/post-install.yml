@@ -16,7 +16,7 @@
     path: "{{ emby_paths_transcodes_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     recurse: true
 
 - name: Post-Install | Import 'dlna.xml'
@@ -25,7 +25,7 @@
     dest: "{{ emby_paths_dlna_xml_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: false
 
 - name: Post-Install | Settings Tasks

@@ -167,6 +167,6 @@
     dest: "/opt/traefik/{{ qbittorrent_name }}.yml"
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: 0644
+    mode: "0644"
     force: true
   when: qbittorrent_host_install

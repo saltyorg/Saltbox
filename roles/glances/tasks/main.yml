@@ -24,7 +24,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0775
+    mode: "0775"
   with_items:
     - /etc/glances
 
@@ -34,5 +34,5 @@
     dest: /etc/glances/glances.conf
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
     force: false

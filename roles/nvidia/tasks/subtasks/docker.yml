@@ -30,7 +30,7 @@
     repo: "{{ item }}"
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
     state: present
-    mode: 0644
+    mode: "0644"
     update_cache: true
   loop: "{{ nvidia_docker_runtime_apt_repo_url_list }}"
 

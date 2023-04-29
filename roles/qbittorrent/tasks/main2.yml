@@ -74,14 +74,14 @@
       ansible.builtin.get_url:
         url: "{{ qbittorrent_host_download_url }}"
         dest: "/usr/bin/{{ qbittorrent_name }}-nox"
-        mode: '0755'
+        mode: "0755"
         force: true
 
     - name: Import '{{ qbittorrent_name }}.service'
       ansible.builtin.template:
         src: "qbittorrent.service.j2"
         dest: "/etc/systemd/system/{{ qbittorrent_name }}.service"
-        mode: '0755'
+        mode: "0755"
         force: true
 
     - name: Systemd daemon-reload '{{ qbittorrent_name }}.service'

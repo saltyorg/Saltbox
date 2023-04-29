@@ -62,7 +62,7 @@
         state: touch
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
 
     - name: Check if previous backup folder exists
       ansible.builtin.stat:
@@ -100,7 +100,7 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         recurse: true
       with_items:
         - "/home/{{ user.name }}/logs"
@@ -165,7 +165,7 @@
         dest: "{{ backup.local.destination }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
       with_items:
         - "{{ playbook_dir }}/ansible.cfg"
@@ -191,7 +191,7 @@
         dest: "{{ backup.local.destination }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
       when: backup_excludes_list.stat.exists
 
@@ -236,7 +236,7 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         recurse: true
       with_items:
         - "/opt/systemd-backup"
@@ -287,7 +287,7 @@
         dest: "{{ backup.local.destination }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: true
       with_items:
         - "{{ backup_user_defined_files }}"

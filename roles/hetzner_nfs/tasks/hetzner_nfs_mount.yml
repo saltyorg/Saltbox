@@ -11,7 +11,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
@@ -24,7 +24,7 @@
     dest: /etc/hosts.deny
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: 0644
+    mode: "0644"
     force: true
 
 - name: Import 'hosts.allow' file
@@ -33,7 +33,7 @@
     dest: /etc/hosts.allow
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: 0644
+    mode: "0644"
     force: true
 
 - name: Install nfs requirements
@@ -49,7 +49,7 @@
     dest: /opt/hetzner_nfs/init_vlan.sh
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: 0775
+    mode: "0775"
     force: "{{ hetzner_nfs_init_overwrite_client }}"
 
 - name: Check 'nfs_vlan.service' exists
@@ -63,7 +63,7 @@
     dest: /etc/systemd/system/nfs_vlan.service
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: 0775
+    mode: "0775"
     force: true
   when: (not nfs_vlan_service.stat.exists)
 

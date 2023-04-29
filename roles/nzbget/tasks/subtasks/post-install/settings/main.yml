@@ -15,7 +15,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
   loop: "{{ nzbget_config_new_installs_settings_list }}"
   when: (not nzbget_paths_config_location_stat.stat.exists)
 
@@ -27,5 +27,5 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
   loop: "{{ nzbget_config_existing_installs_settings_list }}"

@@ -21,13 +21,13 @@
       ansible.builtin.get_url:
         url: "{{ fuse_overlayfs_download_url.stdout }}"
         dest: "/usr/local/bin/fuse-overlayfs"
-        mode: '0755'
+        mode: "0755"
 
 - name: Create docker directory
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
   with_items:
@@ -37,20 +37,20 @@
   ansible.builtin.template:
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
-    mode: 0775
+    mode: "0775"
     force: true
 
 - name: "Daemon | Create override directory"
   ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
-    mode: 0644
+    mode: "0644"
 
 - name: "Daemon | Import override file"
   ansible.builtin.template:
     src: override.conf.j2
     dest: /etc/systemd/system/docker.service.d/override.conf
-    mode: 0644
+    mode: "0644"
     force: "{{ docker_service_force }}"
 
 - name: "Daemon | Remove old init entry from '/etc/docker/daemon.json'"

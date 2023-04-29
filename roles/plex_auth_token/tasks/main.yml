@@ -138,5 +138,5 @@
     path: /opt/saltbox
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: '0755'
+    mode: "0755"
     recurse: true

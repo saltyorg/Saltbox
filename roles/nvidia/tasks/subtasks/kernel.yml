@@ -13,7 +13,7 @@
     dest: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
     owner: "root"
     group: "root"
-    mode: 0664
+    mode: "0664"
   register: r
 
 - name: Kernel | Continue with tasks

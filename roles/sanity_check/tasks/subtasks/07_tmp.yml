@@ -11,6 +11,6 @@
   ansible.builtin.file:
     path: "/tmp/ansible"
     state: directory
-    mode: 0777
+    mode: "0777"
     owner: "root"
     group: "root"

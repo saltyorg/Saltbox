@@ -14,8 +14,8 @@
 
 - name: "Fail if invalid Authentication Backend"
   ansible.builtin.fail:
-    msg: "authelia_authentication_backend was not set to a valid value"
-  when: not ((authelia_authentication_backend == 'ldap') or (authelia_authentication_backend == 'file'))
+    msg: "authelia_authentication_backend is not valid. Use 'file' or 'ldap'."
+  when: not authelia_authentication_backend in ["file", "ldap"]
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

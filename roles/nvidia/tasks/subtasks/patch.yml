@@ -11,7 +11,7 @@
   ansible.builtin.get_url:
     url: "{{ nvidia_patch_download_url }}"
     dest: "{{ nvidia_patch_download_dest }}"
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
     force: true

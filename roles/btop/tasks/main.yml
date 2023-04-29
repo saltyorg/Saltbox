@@ -28,7 +28,7 @@
     dest: "/tmp/btop"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: '0777'
+    mode: "0755"
   register: x
   until: "x is not failed"
   retries: 5

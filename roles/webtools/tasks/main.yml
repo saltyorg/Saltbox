@@ -92,7 +92,7 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         recurse: true
       with_items:
         - "{{ plex_paths_plugins_location }}"

@@ -77,7 +77,7 @@
   ansible.builtin.file:
     path: /etc/update-motd.d
     state: directory
-    mode: 0775
+    mode: "0775"
 
 - name: Clone Saltbox MOTD
   ansible.builtin.git:
@@ -104,7 +104,7 @@
     dest: /opt/motd/config.json
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: false
   when: (not motd_config.stat.exists)
 
@@ -138,7 +138,7 @@
     state: touch
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
 
 - name: Set 'saltbox-motd.py' as executable
   ansible.builtin.file:
@@ -152,7 +152,7 @@
     src: /opt/motd/motd/
     dest: /etc/update-motd.d/
     force: true
-    mode: 0775
+    mode: "0775"
 
 - name: Check if '/etc/ssh/sshd_config' exists
   ansible.builtin.stat:

@@ -19,5 +19,5 @@
     dest: "{{ playbook_dir }}/{{ file }}"
     owner: "{{ saltbox_yml.stat.uid }}"
     group: "{{ saltbox_yml.stat.gid }}"
-    mode: 0664
+    mode: "0664"
   when: (not file0.stat.exists)

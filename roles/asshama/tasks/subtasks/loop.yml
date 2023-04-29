@@ -18,7 +18,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
@@ -43,8 +43,8 @@
 - name: "Get latest Absolute Series Scanner.py"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
-    dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py'
-    mode: '0775'
+    dest: "{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py"
+    mode: "0775"
   register: x
   until: "x is not failed"
   retries: 5
@@ -54,7 +54,7 @@
   ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true
@@ -73,7 +73,7 @@
   ansible.builtin.file:
     path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     state: directory
-    mode: 0775
+    mode: "0775"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true

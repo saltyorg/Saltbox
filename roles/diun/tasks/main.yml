@@ -19,7 +19,7 @@
     dest: "{{ diun_paths_location }}/diun.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: false
 
 - name: Create Docker container

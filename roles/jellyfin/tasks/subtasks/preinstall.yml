@@ -25,7 +25,7 @@
         dest: "{{ jellyfin_paths_sys_xml_location }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: false
 
     - name: Preinstall MIGRATE | Remove old `{{ jellyfin_paths_xml_loct_old | basename }}` if it exists"
@@ -74,5 +74,5 @@
         dest: "{{ jellyfin_paths_dlna_location }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
         force: false

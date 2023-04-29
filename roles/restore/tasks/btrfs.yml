@@ -21,7 +21,7 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: 0775
+        mode: "0775"
 
     - name: BTRFS | Check file system on '{{ outer_item }}'
       ansible.builtin.shell: stat -f -c %T "{{ outer_item }}"

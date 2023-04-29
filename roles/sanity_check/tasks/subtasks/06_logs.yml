@@ -18,4 +18,4 @@
     state: touch
     owner: "{{ saltbox_yml.stat.uid }}"
     group: "{{ saltbox_yml.stat.gid }}"
-    mode: 0664
+    mode: "0664"

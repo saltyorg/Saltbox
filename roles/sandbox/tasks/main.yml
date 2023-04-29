@@ -13,7 +13,7 @@
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     recurse: true
   with_items:
     - /opt/sandbox
@@ -47,7 +47,7 @@
     dest: "/opt/sandbox/{{ (item | basename | splitext)[0] }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0775
+    mode: "0775"
     force: false
   with_fileglob:
     - /opt/sandbox/defaults/*.*
@@ -58,7 +58,7 @@
     dest: "/opt/sandbox/ansible.cfg"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: 0664
+    mode: "0664"
     force: true
 
 - name: Activate Git Hooks
