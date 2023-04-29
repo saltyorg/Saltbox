@@ -19,6 +19,7 @@
 /backup_config.yml
 /backup_excludes_list.txt
 /hetzner_nfs.yml
+/localhost.yml
 /providers.yml
 /rclone.conf
 /settings.yml
