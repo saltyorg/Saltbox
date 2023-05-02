@@ -142,6 +142,10 @@ overseerr_docker_labels: "{{ docker_labels_common
 # Hostname
 overseerr_docker_hostname: "{{ overseerr_name }}"
 
+# Network Mode
+overseerr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+overseerr_docker_network_mode: "{{ lookup('vars', overseerr_name + '_docker_network_mode_default', default=overseerr_docker_network_mode_default) }}"
+
 # Networks
 overseerr_docker_networks_alias: "{{ overseerr_name }}"
 overseerr_docker_networks_default: []

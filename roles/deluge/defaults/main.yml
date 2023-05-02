@@ -149,6 +149,10 @@ deluge_docker_labels: "{{ docker_labels_common
 # Hostname
 deluge_docker_hostname: "{{ deluge_name }}"
 
+# Network Mode
+deluge_docker_network_mode_default: "{{ docker_networks_name_common }}"
+deluge_docker_network_mode: "{{ lookup('vars', deluge_name + '_docker_network_mode_default', default=deluge_docker_network_mode_default) }}"
+
 # Networks
 deluge_docker_networks_alias: "{{ deluge_name }}"
 deluge_docker_networks_default: []

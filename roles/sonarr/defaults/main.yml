@@ -149,6 +149,10 @@ sonarr_docker_labels: "{{ docker_labels_common
 # Hostname
 sonarr_docker_hostname: "{{ sonarr_name }}"
 
+# Network Mode
+sonarr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+sonarr_docker_network_mode: "{{ lookup('vars', sonarr_name + '_docker_network_mode_default', default=sonarr_docker_network_mode_default) }}"
+
 # Networks
 sonarr_docker_networks_alias: "{{ sonarr_name }}"
 sonarr_docker_networks_default: []

@@ -146,6 +146,10 @@ readarr_docker_labels: "{{ docker_labels_common
 # Hostname
 readarr_docker_hostname: "{{ readarr_name }}"
 
+# Network Mode
+readarr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+readarr_docker_network_mode: "{{ lookup('vars', readarr_name + '_docker_network_mode_default', default=readarr_docker_network_mode_default) }}"
+
 # Networks
 readarr_docker_networks_alias: "{{ readarr_name }}"
 readarr_docker_networks_default: []

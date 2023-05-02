@@ -258,6 +258,10 @@ plex_docker_labels: "{{ docker_labels_common
 # Hostname
 plex_docker_hostname: "{{ plex_name }}"
 
+# Network Mode
+plex_docker_network_mode_default: "{{ docker_networks_name_common }}"
+plex_docker_network_mode: "{{ lookup('vars', plex_name + '_docker_network_mode_default', default=plex_docker_network_mode_default) }}"
+
 # Networks
 plex_docker_networks_alias: "{{ plex_name }}"
 plex_docker_networks_default: []

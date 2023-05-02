@@ -182,6 +182,10 @@ qbittorrent_docker_labels: "{{ docker_labels_common
 # Hostname
 qbittorrent_docker_hostname: "{{ qbittorrent_name }}"
 
+# Network Mode
+qbittorrent_docker_network_mode_default: "{{ docker_networks_name_common }}"
+qbittorrent_docker_network_mode: "{{ lookup('vars', qbittorrent_name + '_docker_network_mode_default', default=qbittorrent_docker_network_mode_default) }}"
+
 # Networks
 qbittorrent_docker_networks_alias: "{{ qbittorrent_name }}"
 qbittorrent_docker_networks_default: []

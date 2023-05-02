@@ -145,6 +145,10 @@ whisparr_docker_labels: "{{ docker_labels_common
 # Hostname
 whisparr_docker_hostname: "{{ whisparr_name }}"
 
+# Network Mode
+whisparr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+whisparr_docker_network_mode: "{{ lookup('vars', whisparr_name + '_docker_network_mode_default', default=whisparr_docker_network_mode_default) }}"
+
 # Networks
 whisparr_docker_networks_alias: "{{ whisparr_name }}"
 whisparr_docker_networks_default: []

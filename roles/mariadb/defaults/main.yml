@@ -95,6 +95,10 @@ mariadb_docker_labels: "{{ docker_labels_common
 # Hostname
 mariadb_docker_hostname: "{{ mariadb_name }}"
 
+# Network Mode
+mariadb_docker_network_mode_default: "{{ docker_networks_name_common }}"
+mariadb_docker_network_mode: "{{ lookup('vars', mariadb_name + '_docker_network_mode_default', default=mariadb_docker_network_mode_default) }}"
+
 # Networks
 mariadb_docker_networks_alias: "{{ mariadb_name }}"
 mariadb_docker_networks_default: []

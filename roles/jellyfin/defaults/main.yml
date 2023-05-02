@@ -168,6 +168,10 @@ jellyfin_docker_labels: "{{ docker_labels_common
 # Hostname
 jellyfin_docker_hostname: "{{ jellyfin_name }}"
 
+# Network Mode
+jellyfin_docker_network_mode_default: "{{ docker_networks_name_common }}"
+jellyfin_docker_network_mode: "{{ lookup('vars', jellyfin_name + '_docker_network_mode_default', default=jellyfin_docker_network_mode_default) }}"
+
 # Networks
 jellyfin_docker_networks_alias: "{{ jellyfin_name }}"
 jellyfin_docker_networks_default: []

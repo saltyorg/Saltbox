@@ -95,6 +95,10 @@ postgres_docker_labels: "{{ docker_labels_common
 # Hostname
 postgres_docker_hostname: "{{ postgres_name }}"
 
+# Network Mode
+postgres_docker_network_mode_default: "{{ docker_networks_name_common }}"
+postgres_docker_network_mode: "{{ lookup('vars', postgres_name + '_docker_network_mode_default', default=postgres_docker_network_mode_default) }}"
+
 # Networks
 postgres_docker_networks_alias: "{{ postgres_name }}"
 postgres_docker_networks_default: []

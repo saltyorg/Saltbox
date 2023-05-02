@@ -149,6 +149,10 @@ radarr_docker_labels: "{{ docker_labels_common
 # Hostname
 radarr_docker_hostname: "{{ radarr_name }}"
 
+# Network Mode
+radarr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+radarr_docker_network_mode: "{{ lookup('vars', radarr_name + '_docker_network_mode_default', default=radarr_docker_network_mode_default) }}"
+
 # Networks
 radarr_docker_networks_alias: "{{ radarr_name }}"
 radarr_docker_networks_default: []

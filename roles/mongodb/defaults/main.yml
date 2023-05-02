@@ -88,6 +88,10 @@ mongodb_docker_labels: "{{ docker_labels_common
 # Hostname
 mongodb_docker_hostname: "{{ mongodb_name }}"
 
+# Network Mode
+mongodb_docker_network_mode_default: "{{ docker_networks_name_common }}"
+mongodb_docker_network_mode: "{{ lookup('vars', mongodb_name + '_docker_network_mode_default', default=mongodb_docker_network_mode_default) }}"
+
 # Networks
 mongodb_docker_networks_alias: "{{ mongodb_name }}"
 mongodb_docker_networks_default: []
