@@ -156,6 +156,10 @@ lidarr_docker_labels: "{{ docker_labels_common
 # Hostname
 lidarr_docker_hostname: "{{ lidarr_name }}"
 
+# Network Mode
+lidarr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+lidarr_docker_network_mode: "{{ lookup('vars', lidarr_name + '_docker_network_mode_default', default=lidarr_docker_network_mode_default) }}"
+
 # Networks
 lidarr_docker_networks_alias: "{{ lidarr_name }}"
 lidarr_docker_networks_default: []

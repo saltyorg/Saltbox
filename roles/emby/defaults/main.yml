@@ -185,6 +185,10 @@ emby_docker_labels: "{{ docker_labels_common
 # Hostname
 emby_docker_hostname: "{{ emby_name }}"
 
+# Network Mode
+emby_docker_network_mode_default: "{{ docker_networks_name_common }}"
+emby_docker_network_mode: "{{ lookup('vars', emby_name + '_docker_network_mode_default', default=emby_docker_network_mode_default) }}"
+
 # Networks
 emby_docker_networks_alias: "{{ emby_name }}"
 emby_docker_networks_default: []

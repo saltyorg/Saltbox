@@ -149,6 +149,10 @@ tautulli_docker_labels: "{{ docker_labels_common
 # Hostname
 tautulli_docker_hostname: "{{ tautulli_name }}"
 
+# Network Mode
+tautulli_docker_network_mode_default: "{{ docker_networks_name_common }}"
+tautulli_docker_network_mode: "{{ lookup('vars', tautulli_name + '_docker_network_mode_default', default=tautulli_docker_network_mode_default) }}"
+
 # Networks
 tautulli_docker_networks_alias: "{{ tautulli_name }}"
 tautulli_docker_networks_default: []

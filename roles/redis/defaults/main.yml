@@ -83,6 +83,10 @@ redis_docker_labels: "{{ docker_labels_common
 # Hostname
 redis_docker_hostname: "{{ redis_name }}"
 
+# Network Mode
+redis_docker_network_mode_default: "{{ docker_networks_name_common }}"
+redis_docker_network_mode: "{{ lookup('vars', redis_name + '_docker_network_mode_default', default=redis_docker_network_mode_default) }}"
+
 # Networks
 redis_docker_networks_alias: "{{ redis_name }}"
 redis_docker_networks_default: []

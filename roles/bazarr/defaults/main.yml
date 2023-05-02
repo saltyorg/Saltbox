@@ -149,6 +149,10 @@ bazarr_docker_labels: "{{ docker_labels_common
 # Hostname
 bazarr_docker_hostname: "{{ bazarr_name }}"
 
+# Network Mode
+bazarr_docker_network_mode_default: "{{ docker_networks_name_common }}"
+bazarr_docker_network_mode: "{{ lookup('vars', bazarr_name + '_docker_network_mode_default', default=bazarr_docker_network_mode_default) }}"
+
 # Networks
 bazarr_docker_networks_alias: "{{ bazarr_name }}"
 bazarr_docker_networks_default: []

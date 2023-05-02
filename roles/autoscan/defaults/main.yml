@@ -124,6 +124,10 @@ autoscan_docker_labels: "{{ docker_labels_common
 # Hostname
 autoscan_docker_hostname: "{{ autoscan_name }}"
 
+# Network Mode
+autoscan_docker_network_mode_default: "{{ docker_networks_name_common }}"
+autoscan_docker_network_mode: "{{ lookup('vars', autoscan_name + '_docker_network_mode_default', default=autoscan_docker_network_mode_default) }}"
+
 # Networks
 autoscan_docker_networks_alias: "{{ autoscan_name }}"
 autoscan_docker_networks_default: []
