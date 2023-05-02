@@ -71,6 +71,9 @@
         - "rclone_refresh.service"
         - "rclone_refresh.timer"
 
+### TODO
+### Remove old remotes added using the new format
+
 - name: Create '/mnt/remote' directory
   ansible.builtin.file:
     path: "/mnt/remote"
