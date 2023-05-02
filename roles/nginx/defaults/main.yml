@@ -120,6 +120,10 @@ nginx_docker_labels: "{{ docker_labels_common
 # Hostname
 nginx_docker_hostname: "{{ nginx_name }}"
 
+# Network Mode
+nginx_docker_network_mode_default: "{{ docker_networks_name_common }}"
+nginx_docker_network_mode: "{{ lookup('vars', nginx_name + '_docker_network_mode_default', default=nginx_docker_network_mode_default) }}"
+
 # Networks
 nginx_docker_networks_alias: "{{ nginx_name }}"
 nginx_docker_networks_default: []
