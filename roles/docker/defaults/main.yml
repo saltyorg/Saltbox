@@ -102,23 +102,6 @@ fuse_overlayfs_release_lookup_command: |
 # Docker Compose
 ################################
 
-compose_paths_folders_list:
-  - "/usr/local/lib/docker"
-  - "/usr/local/lib/docker/cli-plugins"
-
-compose_github_endpoint: "latest"
-
-compose_releases_url: "{{ cvm }}https://api.github.com/repos/docker/compose/releases/{{ compose_github_endpoint }}"
-
-compose_releases_download_url: https://github.com/docker/compose/releases/download
-
-compose_release_lookup_command: |
-  curl -s {{ compose_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"docker-compose-linux-x86_64\") and (contains(\"sha256\") | not)) \
-    | .browser_download_url"
-
-compose_download_backup_url: "https://github.com/docker/compose/releases/download/v2.6.0/docker-compose-linux-x86_64"
-
 compose_install_switch: true
 
 compose_switch_github_endpoint: "latest"
