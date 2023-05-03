@@ -7,30 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Create directory
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "root"
-    group: "root"
-    mode: "0775"
-  with_items: "{{ compose_paths_folders_list }}"
-
-- name: "Get URL for latest Compose release"
-  ansible.builtin.shell: "{{ compose_release_lookup_command }}"
-  args:
-    executable: /bin/bash
-  register: compose_download_url
-  ignore_errors: true
-
-- name: Download Compose
-  ansible.builtin.shell: curl -SL {{ compose_download_url.stdout | default(compose_download_backup_url, true) }} -o /usr/local/lib/docker/cli-plugins/docker-compose
-
-- name: Make docker-compose executable
-  ansible.builtin.file:
-    dest: "/usr/local/lib/docker/cli-plugins/docker-compose"
-    mode: a+x
-
 - name: Install Compose Switch
   when: compose_install_switch
   block:
