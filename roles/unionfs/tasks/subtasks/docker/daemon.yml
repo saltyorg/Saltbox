@@ -11,6 +11,7 @@
   ansible.builtin.set_fact:
     _remotes_services_list: "{{ _remotes_services_list | default('') + 'rclone_' + item.remote + '.service ' }}"
   with_items: "{{ rclone.remotes }}"
+  when: use_remote
 
 - name: "Docker | Daemon | Create override directory"
   ansible.builtin.file:
