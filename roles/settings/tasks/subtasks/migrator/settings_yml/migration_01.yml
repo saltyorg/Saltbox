@@ -35,7 +35,14 @@
     yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "template": "google", "cache": {"enabled": false, "size": "50G", "max_age": "504h"}, "port": 5572}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: rclone.remotes is undefined
+  when: (rclone.remotes is undefined) and rclone_remote_is_defined
+
+- name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
+  ansible.builtin.shell: |
+    yyq e -i '.rclone.remotes = ""' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: (rclone.remotes is undefined) and not rclone_remote_is_defined
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
