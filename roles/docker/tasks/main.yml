@@ -7,6 +7,14 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+# Temporary workaround for https://github.com/ansible-collections/community.docker/issues/611
+- name: Install version locked websocket-client, requests and urllib3
+  ansible.builtin.pip:
+    name:
+      - websocket-client==0.59.0
+      - requests==2.28.2
+      - urllib3==1.26.15
+
 - name: Check filesystem of '/var/lib/' path
   ansible.builtin.shell: stat -f -c %T /var/lib/
   register: var_lib_file_system
