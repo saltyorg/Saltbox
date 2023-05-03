@@ -30,6 +30,7 @@
   ansible.builtin.set_fact:
     _remotes_services_list: "{{ _remotes_services_list | default('') + 'rclone_' + item.remote + '.service ' }}"
   with_items: "{{ rclone.remotes }}"
+  when: use_remote
 
 - name: Tasks for when Docker exists and is running
   when: docker_binary.stat.exists and docker_service_running
