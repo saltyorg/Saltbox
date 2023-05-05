@@ -8,47 +8,6 @@
 ##########################################################################
 ---
 ################################
-# UnionFS Mount Types
-################################
-
-- name: Variables | Set 'mount_type_is_defined' variable
-  ansible.builtin.set_fact:
-    mount_type_is_defined: "{{ (mount_type is defined) and
-                               (mount_type is not none) and
-                               (mount_type | trim | length > 0) }}"
-
-- name: Variables | Fail when no valid remote mount type is specified.
-  ansible.builtin.fail:
-    msg: "'{{ mounts.unionfs }}' is not a valid unionfs mount type."
-  when: (not mount_type_is_defined)
-
-################################
-# Service Files List
-################################
-
-- name: Variables | Set '_service_file' variable
-  ansible.builtin.set_fact:
-    _service_file: "{{ mount_type }}.service"
-
-- name: Variables | Set 'service_files_stat' variable
-  ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ _service_file }}"
-  register: service_file_stat
-
-- name: Variables | Create empty 'service_files_temp' list
-  ansible.builtin.set_fact:
-    service_files_temp: []
-
-- name: Variables | Build 'service_files' list
-  ansible.builtin.set_fact:
-    service_files_temp: "{{ service_files_temp + [_service_file] }}"
-  when: service_file_stat.stat.exists
-
-- name: Variables | Set new 'service_files' variable
-  ansible.builtin.set_fact:
-    service_files: "{{ service_files_temp }}"
-
-################################
 # Remotes List
 ################################
 

@@ -74,38 +74,20 @@
     daemon_reload: true
     enabled: true
 
- # unionfs edits
-
-- name: Add 'After=init_vlan.service' to 'unionfs.service'
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/unionfs.service
-    regexp: '(^After\=network-online\.target).*'
-    line: '\1 init_vlan.service'
-    state: present
-    backrefs: yes
-  when: unionfs_service.stat.exists
-
-- name: Replace '/mnt/local' with '/mnt/feeder' in 'unionfs.service'
-  ansible.builtin.replace:
-    path: /etc/systemd/system/unionfs.service
-    regexp: "\\/mnt\\/local"
-    replace: '/mnt/feeder'
-  when: unionfs_service.stat.exists
-
   # mergerfs edits
 
-- name: Add 'After=init_vlan.service' to 'mergerfs.service'
+- name: Add 'After=init_vlan.service' to '{{ mergerfs_service_name }}'
   ansible.builtin.lineinfile:
-    path: /etc/systemd/system/mergerfs.service
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
     regexp: '(^After\=network-online\.target).*'
     line: '\1 init_vlan.service'
     state: present
     backrefs: yes
   when: mergerfs_service.stat.exists
 
-- name: Replace '/mnt/local' with '/mnt/feeder' in 'mergerfs.service'
+- name: Replace '/mnt/local' with '/mnt/feeder' in '{{ mergerfs_service_name }}'
   ansible.builtin.replace:
-    path: /etc/systemd/system/mergerfs.service
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
     regexp: "\\/mnt\\/local"
     replace: '/mnt/feeder'
   when: mergerfs_service.stat.exists

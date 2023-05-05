@@ -92,7 +92,7 @@ docker_ipv6: "{{ dns.ipv6 }}"
 
 # Service
 
-docker_service_after: "mergerfs.service"
+docker_service_after: "{{ mergerfs_service_name }}"
 
 docker_service_sleep: 120
 

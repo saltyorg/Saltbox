@@ -71,8 +71,21 @@
         - "rclone_refresh.service"
         - "rclone_refresh.timer"
 
-### TODO
-### Remove old remotes added using the new format
+- name: Populate Service Facts
+  ansible.builtin.service_facts:
+
+- name: Get list of existing remote services
+  ansible.builtin.set_fact:
+    saltbox_managed_rclone_services: "{{ (saltbox_managed_rclone_services | default([])) + [rclone_service.key] }}"
+  loop: "{{ services | dict2items }}"
+  loop_control:
+    loop_var: rclone_service
+  when: (rclone_service_template in rclone_service.key) and (not 'refresh' in rclone_service.key)
+
+- name: Cleanup Tasks
+  ansible.builtin.include_tasks: "cleanup.yml"
+  with_items: "{{ saltbox_managed_rclone_services }}"
+  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0)
 
 - name: Create '/mnt/remote' directory
   ansible.builtin.file:

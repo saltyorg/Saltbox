@@ -20,11 +20,8 @@
 
 # Existing Setup
 
-- name: Service Tasks
-  ansible.builtin.include_tasks: "subtasks/services.yml"
-  vars:
-    _service_file: "{{ item }}"
-  loop: "{{ service_files }}"
+- name: Legacy Task
+  ansible.builtin.import_tasks: "subtasks/legacy.yml"
 
 # Mount UnionFS
 

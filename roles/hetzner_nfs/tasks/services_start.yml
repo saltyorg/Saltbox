@@ -7,18 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Start 'unionfs.service'
+- name: Start '{{ mergerfs_service_name }}'
   ansible.builtin.systemd:
     state: started
-    name: unionfs
-    daemon_reload: true
-    enabled: true
-  when: unionfs_service.stat.exists and unionfs_service_running
-
-- name: Start 'mergerfs.service'
-  ansible.builtin.systemd:
-    state: started
-    name: mergerfs
+    name: "{{ mergerfs_service_name }}"
     daemon_reload: true
     enabled: true
   when: mergerfs_service.stat.exists and mergerfs_service_running

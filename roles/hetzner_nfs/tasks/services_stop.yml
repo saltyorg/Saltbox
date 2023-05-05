@@ -37,40 +37,24 @@
     timeout: 10
   when: docker_binary.stat.exists and docker_service_running and not (docker_running_containers.stdout | trim | length == 0)
 
-- name: Check if 'unionfs.service' exists
+- name: Check if '{{ mergerfs_service_name }}' exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/unionfs.service"
-  register: unionfs_service
-
-- name: Check if 'mergerfs.service' exists
-  ansible.builtin.stat:
-    path: "/etc/systemd/system/mergerfs.service"
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
   register: mergerfs_service
 
 - name: Populate Service Facts
   ansible.builtin.service_facts:
-  when: unionfs_service.stat.exists or mergerfs_service.stat.exists
-
-- name: Get 'unionfs.service' state
-  ansible.builtin.set_fact:
-    unionfs_service_running: "{{ (services['unionfs.service'] is defined) and (services['unionfs.service']['state'] == 'running') }}"
-  when: unionfs_service.stat.exists
-
-- name: Stop existing 'unionfs.service'
-  ansible.builtin.systemd:
-    state: stopped
-    name: unionfs
-  when: unionfs_service.stat.exists and unionfs_service_running
-
-- name: Get 'mergerfs.service' state
-  ansible.builtin.set_fact:
-    mergerfs_service_running: "{{ (services['mergerfs.service'] is defined) and (services['mergerfs.service']['state'] == 'running') }}"
   when: mergerfs_service.stat.exists
 
-- name: Stop existing 'mergerfs.service'
+- name: Get '{{ mergerfs_service_name }}' state
+  ansible.builtin.set_fact:
+    mergerfs_service_running: "{{ (services[mergerfs_service_name] is defined) and (services[mergerfs_service_name]['state'] == 'running') }}"
+  when: mergerfs_service.stat.exists
+
+- name: Stop existing '{{ mergerfs_service_name }}'
   ansible.builtin.systemd:
     state: stopped
-    name: mergerfs
+    name: "{{ mergerfs_service_name }}"
   when: mergerfs_service.stat.exists and mergerfs_service_running
 
 - name: 'Force unmount remotes'

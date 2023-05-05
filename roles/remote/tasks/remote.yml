@@ -9,8 +9,8 @@
 ---
 - name: "Remote | Set Variables"
   ansible.builtin.set_fact:
-    _service_file: "rclone_{{ item.remote }}.service"
-    _service_refresh: "rclone_{{ item.remote }}_refresh"
+    _service_file: "{{ rclone_service_template + item.remote }}.service"
+    _service_refresh: "{{ rclone_service_template + item.remote }}_refresh"
     mount_path: "/mnt/remote/{{ item.remote }}"
 
 - name: "Remote | Check if '{{ _service_file }}' exists"

@@ -1,0 +1,93 @@
+#########################################################################
+# Title:         Saltbox: Remote Role | Cleanup Tasks                   #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Cleanup | Set 'rclone_service_name'"
+  ansible.builtin.set_fact:
+    rclone_service_name: "{{ item.split('.')[0] }}"
+
+- name: "Cleanup | Fail if 'rclone_service_name' is empty"
+  ansible.builtin.fail:
+    msg: "rclone_service_name is empty"
+  when: rclone_service_name | length == 0
+
+- name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}.service'"
+  ansible.builtin.systemd:
+    name: "{{ rclone_service_name }}.service"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ rclone_service_name }}.service"
+    state: absent
+
+- name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.service'"
+  ansible.builtin.systemd:
+    name: "{{ rclone_service_name }}_refresh.service"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
+  ansible.builtin.systemd:
+    name: "{{ rclone_service_name }}_refresh.timer"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: "Cleanup | Delete '{{ rclone_refresh_service }}_refresh' services"
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ rclone_refresh_service }}"
+    state: absent
+  loop_control:
+    loop_var: rclone_refresh_service
+  loop:
+    - "{{ rclone_service_name }}_refresh.service"
+    - "{{ rclone_service_name }}_refresh.timer"
+
+- name: "Cleanup | Set 'cleanup_mount_path'"
+  ansible.builtin.set_fact:
+    cleanup_mount_path: "{{ item.split('.')[0].split('_')[-1] }}"
+
+- name: "Cleanup | Fail if 'cleanup_mount_path' is empty"
+  ansible.builtin.fail:
+    msg: "rclone_service_name is empty"
+  when: cleanup_mount_path | length == 0
+
+- name: "Cleanup | Check if '{{ cleanup_mount_path }}' exists"
+  ansible.builtin.stat:
+    path: "{{ cleanup_mount_path }}"
+  register: cleanup_mount_path_stat
+  ignore_errors: true
+
+- name: "Cleanup | Tasks for '{{ cleanup_mount_path }}' path"
+  when: (cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists)
+  block:
+    - name: "Cleanup | Remove empty directories in '{{ cleanup_mount_path }}'"
+      ansible.builtin.shell: "find '{{ cleanup_mount_path }}' -type d -empty -delete"
+      ignore_errors: true
+
+    - name: "Cleanup | Recursively find '{{ cleanup_mount_path }}' files"
+      ansible.builtin.find:
+        paths: '{{ cleanup_mount_path }}'
+        hidden: true
+        recurse: true
+      register: cleanup_mount_path_stat_files
+      ignore_errors: true
+
+    - name: "Cleanup | Backup non-empty '{{ cleanup_mount_path }}' path"
+      ansible.builtin.shell: "mv {{ cleanup_mount_path }} {{ cleanup_mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
+      ignore_errors: true
+      when: (cleanup_mount_path_stat_files.matched | int > 0)
+
+    - name: "Cleanup | Remove '{{ cleanup_mount_path }}'"
+      ansible.builtin.file:
+        path: "{{ cleanup_mount_path }}"
+        state: absent

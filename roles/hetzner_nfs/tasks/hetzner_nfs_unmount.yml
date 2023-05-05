@@ -38,38 +38,20 @@
     - "/opt/hetzner_nfs"
     - "/mnt/feeder"
 
- # unionfs edits
-
-- name: Remove 'After=init_vlan.service' in 'unionfs.service'
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/unionfs.service
-    regexp: '(^After\=.*)\sinit_vlan\.service\s(.*)'
-    line: '\1 \2'
-    state: present
-    backrefs: yes
-  when: unionfs_service.stat.exists
-
-- name: Replace '/mnt/feeder' with '/mnt/local' in 'unionfs.service'
-  ansible.builtin.replace:
-    path: /etc/systemd/system/unionfs.service
-    regexp: "\\/mnt\\/feeder"
-    replace: '/mnt/local'
-  when: unionfs_service.stat.exists
-
   # mergerfs edits
 
-- name: Remove 'After=init_vlan.service' in 'mergerfs.service'
+- name: Remove 'After=init_vlan.service' in '{{ mergerfs_service_name }}'
   ansible.builtin.lineinfile:
-    path: /etc/systemd/system/mergerfs.service
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
     regexp: '(^After\=.*)\sinit_vlan\.service\s(.*)'
     line: '\1 \2'
     state: present
     backrefs: yes
   when: mergerfs_service.stat.exists
 
-- name: Replace '/mnt/feeder' with '/mnt/local' in 'mergerfs.service'
+- name: Replace '/mnt/feeder' with '/mnt/local' in '{{ mergerfs_service_name }}'
   ansible.builtin.replace:
-    path: /etc/systemd/system/mergerfs.service
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
     regexp: "\\/mnt\\/feeder"
     replace: '/mnt/local'
   when: mergerfs_service.stat.exists
