@@ -36,7 +36,7 @@
 
 - name: Set '_remotes_list' variable
   ansible.builtin.set_fact:
-    _remotes_services_list: "{{ _remotes_services_list | default('') + 'rclone_' + item.remote + '.service ' }}"
+    _remotes_services_list: "{{ _remotes_services_list | default('') + (rclone_service_template + item.remote + '.service ') }}"
   with_items: "{{ rclone.remotes }}"
   when: use_remote
 
