@@ -128,6 +128,12 @@
     path: "{{ backup.local.destination }}/backup_excludes_list.txt"
   register: backup_excludes_list
 
+- name: "Delete 'z' opt folder when doing full restore"
+  ansible.builtin.file:
+    path: "/opt/z"
+    state: absent
+  when: (not restore_tar is defined)
+
 - name: "Copy 'backup_excludes_list.txt' from '{{ backup.local.destination }}'."
   ansible.builtin.copy:
     src: "{{ backup.local.destination }}/backup_excludes_list.txt"
