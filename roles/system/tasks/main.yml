@@ -28,11 +28,11 @@
 
 - name: CPU Frequency tasks
   ansible.builtin.include_tasks: "subtasks/cpufrequency.yml"
-  when: cpu_performance_mode
+  when: cpu_performance_mode and ("none" in systemd_detect_virt.stdout)
 
 - name: Remove CPU Power task
   ansible.builtin.include_tasks: "subtasks/remove_cpupower.yml"
-  when: cpu_performance_mode
+  when: cpu_performance_mode and ("none" in systemd_detect_virt.stdout)
 
 - name: Set Time Zone task
   ansible.builtin.import_tasks: "subtasks/timezone.yml"
