@@ -11,7 +11,6 @@
 - name: Get timedatectl information
   ansible.builtin.command: timedatectl
   register: timedatectl
-  ignore_errors: true
 
 - name: Get timezone list
   ansible.builtin.command: timedatectl list-timezones --no-pager
@@ -23,21 +22,14 @@
     - (system is defined)
     - (system.timezone is defined)
     - ('auto' in system.timezone | lower)
-  ignore_errors: true
   block:
-    - name: Time Zone | Get Time Zone from 'http://ip-api.com'
-      ansible.builtin.uri:
-        url: http://ip-api.com/line?fields=timezone
-        return_content: true
-      register: ip_api_timezone_response
+    - name: Get IP geolocation data
+      community.general.ipinfoio_facts:
 
-    - name: Time Zone | Set 'timezone' variable from 'http://ip-api.com'
+    - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
       ansible.builtin.set_fact:
-        timezone: "{{ ip_api_timezone_response.content | trim }}"
+        timezone: "{{ ansible_facts.timezone }}"
         timezone_string: "Time zone: {{ timezone }}"
-      when:
-        - (ip_api_timezone_response is succeeded)
-        - (ip_api_timezone_response.content | trim | length > 0)
 
 - name: Check if timezone is valid
   ansible.builtin.fail:
