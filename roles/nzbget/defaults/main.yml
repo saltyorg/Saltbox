@@ -71,7 +71,7 @@ nzbget_config_new_installs_settings_default:
   - { regexp: '^ControlPassword\s?=.*', line: "ControlPassword={{ user.pass }}" }
   - { regexp: '^FormAuth\s?=.*', line: 'FormAuth=yes' }
   # Paths
-  - { regexp: '^MainDir\s?=.*', line: 'MainDir=/mnt/unionfs/downloads/nzbs/nzbget' }
+  - { regexp: '^MainDir\s?=.*', line: 'MainDir=/mnt/unionfs/downloads/nzbs/{{ nzbget_name }}' }
   - { regexp: '^QueueDir\s?=.*', line: "QueueDir=${MainDir}/queue" }
   - { regexp: '^TempDir\s?=.*', line: "TempDir=${MainDir}/tmp" }
   - { regexp: '^ScriptDir\s?=.*', line: 'ScriptDir=/scripts/nzbget' }
