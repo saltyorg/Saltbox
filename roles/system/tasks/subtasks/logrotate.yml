@@ -36,6 +36,16 @@
               notifempty
               create 644 {{ user.name }} {{ user.name }}
           }
+      - path: "saltbox_backup_rclone"
+        content: |
+          /srv/git/saltbox/backup_rclone.log {
+              weekly
+              rotate 5
+              size {{ saltbox_max_log_size }}
+              missingok
+              notifempty
+              create 644 {{ user.name }} {{ user.name }}
+          }
       - path: "sandbox"
         content: |
           /opt/sandbox/sandbox.log {
