@@ -17,7 +17,6 @@ rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
 rclone_vfs_cache_dir: ""
 rclone_override_service: "{{ mounts_override }}"
 rclone_service_template: "saltbox_managed_rclone_"
-rclone_async_refresh: true
 
 ################################
 # Rclone VFS Refresh
