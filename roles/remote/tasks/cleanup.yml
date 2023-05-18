@@ -54,7 +54,7 @@
 
 - name: "Cleanup | Set 'cleanup_mount_path'"
   ansible.builtin.set_fact:
-    cleanup_mount_path: "{{ item.split('.')[0].split('_')[-1] }}"
+    cleanup_mount_path: "/mnt/remote/{{ item.split('.')[0].split('_')[-1] }}"
 
 - name: "Cleanup | Fail if 'cleanup_mount_path' is empty"
   ansible.builtin.fail:
