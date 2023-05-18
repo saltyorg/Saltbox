@@ -34,8 +34,8 @@ ExecStart=/usr/bin/rclone mount \
     --rc-no-auth \
     --rc-addr=localhost:{{ item.port }} \
     --syslog \
-    --tpslimit 12 \
-    --tpslimit-burst 0 \
+    --tpslimit=12 \
+    --tpslimit-burst=0 \
     --timeout=10m \
     --umask=002 \
     --use-mmap \
