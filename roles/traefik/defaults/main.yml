@@ -116,8 +116,8 @@ traefik_dns_provider_porkbun:
   PORKBUN_SECRET_API_KEY: "{{ porkbun.secret_key }}"
 
 traefik_dns_provider_pdns:
-  PDNS_API_KEY: "{{ pdns.api_key }}"
-  PDNS_API_URL: "{{ pdns.api_url }}"
+  PDNS_API_KEY: "{{ powerdns.api_key }}"
+  PDNS_API_URL: "{{ powerdns.api_url }}"
 
 ################################
 # Traefik
