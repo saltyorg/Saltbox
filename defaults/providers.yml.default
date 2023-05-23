@@ -26,3 +26,6 @@ netcup:
 porkbun:
   api_key:
   secret_key:
+pdns:
+  api_key:
+  api_url:
