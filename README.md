@@ -199,6 +199,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/patricksindelka>
+            <img src=https://avatars.githubusercontent.com/u/9056550?v=4 width="100;"  alt=Patrick Sindelka/>
+            <br />
+            <sub style="font-size:14px"><b>Patrick Sindelka</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/bandwith>
             <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
             <br />
