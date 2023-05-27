@@ -388,7 +388,7 @@
       become_user: "{{ user.name }}"
       when: backup.rclone.enable
 
-    - name: "Run items asynchronously in batch of {{ backup2_async_batch_size }} items"
+    - name: "Run items asynchronously in batches of {{ backup2_async_batch_size }} items"
       ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
