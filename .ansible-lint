@@ -10,6 +10,8 @@ exclude_paths:
   - scripts/
   - inventories/host_vars/
 
+offline: False
+
 mock_modules:
   - find_open_port
 
