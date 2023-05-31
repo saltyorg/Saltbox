@@ -31,7 +31,7 @@ mariadb_docker_container: "{{ mariadb_name }}"
 
 # Image
 mariadb_docker_image_pull: true
-mariadb_docker_image_tag: "latest"
+mariadb_docker_image_tag: "10.6.13"
 mariadb_docker_image: "lscr.io/linuxserver/mariadb:{{ mariadb_docker_image_tag }}"
 
 # Ports
