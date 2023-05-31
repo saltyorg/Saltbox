@@ -112,13 +112,11 @@ qbittorrent_docker_image: "{{ lookup('vars', qbittorrent_name + '_docker_image_r
                               + ':' + lookup('vars', qbittorrent_name + '_docker_image_tag', default=qbittorrent_docker_image_tag) }}"
 
 # Ports
-qbittorrent_docker_ports_56881: "{{ port_lookup_56881.port
-                                 if (port_lookup_56881.port is defined)
-                                    and (port_lookup_56881.port | trim | length > 0)
+qbittorrent_docker_ports_56881: "{{ port_lookup_56881.meta.port
+                                 if (port_lookup_56881.meta.port is defined) and (port_lookup_56881.meta.port | trim | length > 0)
                                  else '56881' }}"
-qbittorrent_docker_ports_8080: "{{ port_lookup_8080.port
-                                if (port_lookup_8080.port is defined)
-                                   and (port_lookup_8080.port | trim | length > 0)
+qbittorrent_docker_ports_8080: "{{ port_lookup_8080.meta.port
+                                if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
                                 else '8080' }}"
 qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
 

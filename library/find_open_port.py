@@ -36,6 +36,9 @@ EXAMPLES = """
 
 def find_port(module, low_bound, high_bound, protocol):
     try:
+        if high_bound <= low_bound:
+            module.fail_json(msg="High bound must be higher than low bound")
+
         # Generate sequence
         seq = set(range(low_bound, high_bound + 1))
 

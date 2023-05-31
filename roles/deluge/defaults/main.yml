@@ -83,9 +83,8 @@ deluge_docker_image: "{{ lookup('vars', deluge_name + '_docker_image_repo', defa
                          + ':' + lookup('vars', deluge_name + '_docker_image_tag', default=deluge_docker_image_tag) }}"
 
 # Ports
-deluge_docker_ports_58112: "{{ port_lookup_58112.port
-                            if (port_lookup_58112.port is defined)
-                               and (port_lookup_58112.port | trim | length > 0)
+deluge_docker_ports_58112: "{{ port_lookup_58112.meta.port
+                            if (port_lookup_58112.meta.port is defined) and (port_lookup_58112.meta.port | trim | length > 0)
                             else '58112' }}"
 
 deluge_docker_ports_defaults:

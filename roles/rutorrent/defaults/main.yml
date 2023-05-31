@@ -154,13 +154,11 @@ rutorrent_docker_image_tag: "latest"
 rutorrent_docker_image: "saltydk/rutorrent:{{ rutorrent_docker_image_tag }}"
 
 # Ports
-rutorrent_docker_ports_51413: "{{ port_lookup_51413.port
-                               if (port_lookup_51413.port is defined)
-                                  and (port_lookup_51413.port | trim | length > 0)
+rutorrent_docker_ports_51413: "{{ port_lookup_51413.meta.port
+                               if (port_lookup_51413.meta.port is defined) and (port_lookup_51413.meta.port | trim | length > 0)
                                else '51413' }}"
-rutorrent_docker_ports_6881: "{{ port_lookup_6881.port
-                              if (port_lookup_6881.port is defined)
-                                  and (port_lookup_6881.port | trim | length > 0)
+rutorrent_docker_ports_6881: "{{ port_lookup_6881.meta.port
+                              if (port_lookup_6881.meta.port is defined) and (port_lookup_6881.meta.port | trim | length > 0)
                               else '6881' }}"
 
 rutorrent_docker_ports_defaults:

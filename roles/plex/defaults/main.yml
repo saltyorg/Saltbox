@@ -139,8 +139,8 @@ plex_docker_image: "{{ lookup('vars', plex_name + '_docker_image_repo', default=
                        + ':' + lookup('vars', plex_name + '_docker_image_tag', default=plex_docker_image_tag) }}"
 
 # Ports
-plex_docker_ports_32400: "{{ port_lookup_32400.port
-                          if (port_lookup_32400.port is defined) and (port_lookup_32400.port | trim | length > 0)
+plex_docker_ports_32400: "{{ port_lookup_32400.meta.port
+                          if (port_lookup_32400.meta.port is defined) and (port_lookup_32400.meta.port | trim | length > 0)
                           else '32400' }}"
 
 plex_docker_ports_defaults: []
