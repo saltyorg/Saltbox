@@ -33,28 +33,28 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Lint Ansible Playbook
-      uses: ansible-community/ansible-lint-action@v6.11.0
+      - name: Lint Ansible Playbook
+        uses: ansible-community/ansible-lint-action@v6.16.0
 
   add-contributors:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/master'
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: BobAnkh/add-contributors@master
-      with:
-        REPO_NAME: 'saltyorg/Saltbox'
-        CONTRIBUTOR: '### Contributors'
-        COLUMN_PER_ROW: '6'
-        ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        IMG_WIDTH: '100'
-        FONT_SIZE: '14'
-        PATH: '/README.md'
-        COMMIT_MESSAGE: 'docs(README): update contributors'
-        AVATAR_SHAPE: 'square'
+      - uses: BobAnkh/add-contributors@master
+        with:
+          REPO_NAME: 'saltyorg/Saltbox'
+          CONTRIBUTOR: '### Contributors'
+          COLUMN_PER_ROW: '6'
+          ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMG_WIDTH: '100'
+          FONT_SIZE: '14'
+          PATH: '/README.md'
+          COMMIT_MESSAGE: 'docs(README): update contributors'
+          AVATAR_SHAPE: 'square'
 
   find-roles:
     runs-on: ubuntu-22.04
@@ -86,7 +86,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && /srv/ansible/venv/bin/ansible --version
-        
+
       - name: Create /srv/git
         run: sudo mkdir /srv/git
 

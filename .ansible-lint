@@ -8,8 +8,12 @@ exclude_paths:
   - filter_plugins/
   - library/
   - scripts/
+  - inventories/host_vars/
 
 offline: true
+
+mock_modules:
+  - find_open_port
 
 skip_list:
   - braces
@@ -27,3 +31,5 @@ skip_list:
   - schema[tasks]
   - name[casing]
   - name[template]
+  - var-naming[no-role-prefix]
+  - schema[playbook]

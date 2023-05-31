@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: localhost # noqa name[play]
   module_defaults:
     ansible.builtin.setup:
       fact_path: "/srv/git/saltbox/ansible_facts.d"

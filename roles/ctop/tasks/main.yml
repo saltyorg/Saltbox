@@ -18,7 +18,7 @@
   ansible.builtin.get_url:
     url: "{{ ctop_download_url_lookup.stdout | default(ctop_download_url_backup, true) }}"
     dest: "{{ ctop_binary_path }}"
-    mode: 0775
+    mode: "0775"
     owner: root
     group: root
     force: true

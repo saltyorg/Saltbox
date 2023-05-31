@@ -1,5 +1,5 @@
 ---
-- hosts: localhost
+- hosts: localhost # noqa name[play]
   vars_files:
     - ['accounts.yml', 'defaults/accounts.yml.default']
     - ['backup_config.yml', 'defaults/backup_config.yml.default']

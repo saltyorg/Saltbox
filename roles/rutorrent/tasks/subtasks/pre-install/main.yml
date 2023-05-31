@@ -13,16 +13,18 @@
     state: absent
 
 - name: Pre-Install | Get next available port within the range of '51413-51423' # noqa fqcn[action]
-  find_next_open_port:
+  find_open_port:
     low_bound: 51413
     high_bound: 51423
+    protocol: both
   register: port_lookup_51413
   ignore_errors: true
 
 - name: Pre-Install | Get next available port within the range of '6881-6891' # noqa fqcn[action]
-  find_next_open_port:
+  find_open_port:
     low_bound: 6881
     high_bound: 6891
+    protocol: udp
   register: port_lookup_6881
   ignore_errors: true
 

@@ -8,8 +8,9 @@
 #########################################################################
 ---
 - name: Pre-Install | Get next available port within the range of '32400-32410' # noqa fqcn[action]
-  find_next_open_port:
+  find_open_port:
     low_bound: 32400
     high_bound: 32410
+    protocol: tcp
   register: port_lookup_32400
   ignore_errors: true
