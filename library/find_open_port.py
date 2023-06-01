@@ -28,7 +28,7 @@ options:
 
 EXAMPLES = """
 - name: Find an available port
-  find_port:
+  find_open_port:
     low_bound: 5000
     high_bound: 6000
     protocol: tcp
