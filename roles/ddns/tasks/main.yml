@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Fail if DNS management is not enabled"
+- name: "Fail if no DNS management is enabled"
   ansible.builtin.fail:
     msg:
       - "IPv4 or IPv6 DNS management has to be enabled."
-      - "Check your 'adv_settings.yml'"
+      - "Check your 'adv_settings.yml' config."
   when: not (dns.ipv4 or dns.ipv6)
 
 - name: Remove existing Docker container
