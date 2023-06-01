@@ -49,27 +49,33 @@ triggers:
 {% for instance in sonarr_instances %}
     - name: {{ instance }} # /triggers/{{ instance }}
       priority: 2
+{% if docker_legacy_volume %}
       rewrite:
         - from: /tv/
           to: /data/TV/
+{% endif %}
 
 {% endfor %}
   radarr:
 {% for instance in radarr_instances %}
     - name: {{ instance }} # /triggers/{{ instance }}
       priority: 2
+{% if docker_legacy_volume %}
       rewrite:
         - from: /movies/
           to: /data/Movies/
+{% endif %}
 
 {% endfor %}
   lidarr:
 {% for instance in lidarr_instances %}
     - name: {{ instance }} # /triggers/{{ instance }}
       priority: 1
+{% if docker_legacy_volume %}
       rewrite:
         - from: /music/
           to: /data/Music/
+{% endif %}
 
 {% endfor %}
 # <- targets ->
@@ -80,10 +86,10 @@ targets:
 {% for key,instance in plex_info.items() %}
     - url: {{ instance.url }} # {{ instance.name }}
       token: {{ instance.token }}
-      # If backwards compatibility with legacy Cloudbox paths is needed
-      # i.e. /data, then uncomment the below three (3) lines
-      #rewrite:
-        #- from: /mnt/unionfs/Media/
-        #  to: /data/
+{% if docker_legacy_volume %}
+      rewrite:
+        - from: /mnt/unionfs/Media/
+          to: /data/
+{% endif %}
 {% endfor %}
 {% endif %}
