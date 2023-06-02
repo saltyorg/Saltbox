@@ -4,14 +4,14 @@ authelia:
   subdomain: login
 downloads: /mnt/unionfs/downloads
 rclone:
-  version: latest
   remotes:
-    - remote: google
-      template: google
-      cache:
+    - cache:
         enabled: false
-        size: 50G
         max_age: 504h
+        size: 50G
       port: 5572
+      remote: google
+      template: google
+  version: latest
 shell: bash
 transcodes: /mnt/local/transcodes

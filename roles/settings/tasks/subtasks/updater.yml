@@ -32,4 +32,4 @@
   when: (settings_updater.rc == 2)
 
 - name: Updater | Sort Keys
-  ansible.builtin.shell: yyq -i 'sort_keys(.)' {{ playbook_dir }}/{{ file }}
+  ansible.builtin.shell: yyq -i 'sort_keys(..)' {{ playbook_dir }}/{{ file }}

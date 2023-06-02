@@ -1,17 +1,17 @@
 ---
 apprise:
 cloudflare:
-  email:
   api:
+  email:
 dockerhub:
-  user:
   token:
-plex:
   user:
+plex:
   pass:
+  user:
 user:
-  name: seed
-  pass: password123
   domain: testsaltbox.ml
   email: your@email.com
+  name: seed
+  pass: password123
   ssh_key:

@@ -13,16 +13,16 @@ hetzner:
 linode:
   token:
 namecheap:
-  api_user:
   api_key:
+  api_user:
 namedotcom:
-  username:
   api_token:
   server: api.name.com
+  username:
 netcup:
-  customer_number:
   api_key:
   api_password:
+  customer_number:
 porkbun:
   api_key:
   secret_key:

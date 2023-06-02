@@ -1,9 +1,8 @@
 ---
 dns:
-  proxied: no
   ipv4: yes
   ipv6: no
-  zerossl: no
+  proxied: no
 docker:
   json_driver: no
 gpu:
@@ -14,14 +13,15 @@ mounts:
 system:
   timezone: auto
 traefik:
-  tls: no
-  http: no
-  metrics: no
-  tracing: no
+  cert:
+    http_validation: no
+    zerossl: no
+  error_pages: no
   hsts: no
+  metrics: no
   provider: cloudflare
   subdomains:
     dash: dash
-    metrics: metrics
     jaeger: jaeger
-  error_pages: no
+    metrics: metrics
+  tracing: no

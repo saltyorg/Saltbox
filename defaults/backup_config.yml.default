@@ -1,21 +1,21 @@
 ---
 backup:
-  local:
-    enable: true
-    destination: /mnt/local/Backups/Saltbox
-  rclone:
-    enable: true
-    template: google
-    destination: google:/Backups/Saltbox
-  rsync:
-    enable: false
-    destination: rsync://somehost.com/Backups/Saltbox
-    port: 22
   cron:
     cron_time: weekly
     enable: no
-  restore_service:
-    user:
-    pass:
+  local:
+    destination: /mnt/local/Backups/Saltbox
+    enable: true
   misc:
     snapshot: true
+  rclone:
+    destination: google:/Backups/Saltbox
+    enable: true
+    template: google
+  restore_service:
+    pass:
+    user:
+  rsync:
+    destination: rsync://somehost.com/Backups/Saltbox
+    enable: false
+    port: 22

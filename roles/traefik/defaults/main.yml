@@ -43,6 +43,7 @@ traefik_entrypoint_custom: {}
 #     type: both
 traefik_dns_resolvers: "1.1.1.1:53,1.0.0.1:53"
 traefik_disable_propagation_check: false
+traefik_enable_http_validation: "{{ traefik.cert.http_validation | default(false) }}"
 
 ################################
 # Templates
@@ -252,12 +253,6 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
   - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
   - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
-  - "--certificatesresolvers.tlsresolver.acme.tlschallenge=true"
-  - "--certificatesresolvers.tlsresolver.acme.email={{ user.email }}"
-  - "--certificatesresolvers.tlsresolver.acme.storage=/etc/traefik/acme.json"
-  - "--certificatesresolvers.httpresolver.acme.httpchallenge.entrypoint=web"
-  - "--certificatesresolvers.httpresolver.acme.email={{ user.email }}"
-  - "--certificatesresolvers.httpresolver.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
   - "--certificatesresolvers.zerossl.acme.dnschallenge.resolvers={{ traefik_dns_resolvers }}"
   - "--certificatesresolvers.zerossl.acme.email={{ user.email }}"
@@ -267,6 +262,10 @@ traefik_docker_commands_default:
   - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/acme.json"
   - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
   - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
+traefik_docker_commands_http_validation_acme:
+  - "--certificatesresolvers.httpresolver.acme.httpchallenge.entrypoint=web"
+  - "--certificatesresolvers.httpresolver.acme.email={{ user.email }}"
+  - "--certificatesresolvers.httpresolver.acme.storage=/etc/traefik/acme.json"
   - "--certificatesresolvers.zerosslhttp.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.zerosslhttp.acme.email={{ user.email }}"
   - "--certificatesresolvers.zerosslhttp.acme.caserver=https://acme.zerossl.com/v2/DV90"
@@ -332,6 +331,9 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                                else [])
                              + (traefik_docker_commands_tracing
                                if traefik.tracing
+                               else [])
+                             + (traefik_docker_commands_http_validation_acme
+                               if (traefik_enable_http_validation)
                                else [])
                              + (traefik_docker_commands_google_acme
                                if (traefik_google_kid is defined) and (traefik_google_hmacencoded is defined)
@@ -408,7 +410,7 @@ traefik_docker_labels_dns_validation:
   traefik.http.routers.traefik.tls.domains[0].main: "{{ user.domain }}"
   traefik.http.routers.traefik.tls.domains[0].sans: "{{ '*.' + user.domain }}"
 
-traefik_docker_labels_tls_validation:
+traefik_docker_labels_http_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
 
 traefik_docker_labels_metrics:
@@ -429,8 +431,8 @@ traefik_docker_labels_custom: {}
 
 traefik_docker_labels: "{{ traefik_docker_labels_default
                            | combine(traefik_docker_labels_custom)
-                           | combine((traefik_docker_labels_tls_validation
-                                     if traefik_tls
+                           | combine((traefik_docker_labels_http_validation
+                                     if traefik_http
                                      else traefik_docker_labels_dns_validation))
                            | combine((traefik_docker_labels_metrics
                                      if traefik.metrics

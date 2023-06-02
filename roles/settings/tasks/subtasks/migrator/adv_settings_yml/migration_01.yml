@@ -10,17 +10,39 @@
 ---
 - name: "Migrator | 'adv_settings.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
-    traefik_tls_settings: "{{ not ((traefik is undefined)
+    old_traefik_tls_settings: "{{ not ((traefik is undefined)
+                                  or
+                                  (traefik is none)
+                                  or
+                                  (traefik | trim | length == 0)
+                                  or
+                                  (traefik.tls is undefined)
+                                  or
+                                  (traefik.tls is none)
+                                  or
+                                  (traefik.tls | trim | length == 0)) }}"
+    old_traefik_http_settings: "{{ not ((traefik is undefined)
+                                   or
+                                   (traefik is none)
+                                   or
+                                   (traefik | trim | length == 0)
+                                   or
+                                   (traefik.http is undefined)
+                                   or
+                                   (traefik.http is none)
+                                   or
+                                   (traefik.http | trim | length == 0)) }}"
+    old_zerossl_settings: "{{ not ((dns is undefined)
                               or
-                              (traefik is none)
+                              (dns is none)
                               or
-                              (traefik | trim | length == 0)
+                              (dns | trim | length == 0)
                               or
-                              (traefik.tls is undefined)
+                              (dns.zerossl is undefined)
                               or
-                              (traefik.tls is none)
+                              (dns.zerossl is none)
                               or
-                              (traefik.tls | trim | length == 0)) }}"
+                              (dns.zerossl | trim | length == 0)) }}"
     traefik_metrics_settings: "{{ not ((traefik is undefined)
                                   or
                                   (traefik is none)
@@ -53,12 +75,40 @@
                           or
                           (mounts.remote | trim | length == 0)) }}"
 
-- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.tls' dict
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.tls' dict
   ansible.builtin.shell: |
-    yyq e -i '.traefik.tls = "no"' {{ playbook_dir }}/{{ file }}
+    yyq e -i 'del(.traefik.tls)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: (not traefik_tls_settings)
+  when: old_traefik_tls_settings
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.cert.http_validation' dict
+  ansible.builtin.shell: |
+    yyq e -i '.traefik.cert.http_validation = "{{ 'yes' if (traefik.http | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_traefik_http_settings
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.http' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.traefik.http)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_traefik_http_settings
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.cert.zerossl' dict
+  ansible.builtin.shell: |
+    yyq e -i '.traefik.cert.zerossl = "{{ 'yes' if (dns.zerossl | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_zerossl_settings
+
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dns.zerossl' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.dns.zerossl)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_zerossl_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
   ansible.builtin.shell: |

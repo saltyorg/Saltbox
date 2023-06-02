@@ -156,7 +156,7 @@ authelia_is_master: "{{ authelia.master | bool }}"
 # ZeroSSL
 ################################
 
-zerossl_is_enabled: "{{ dns.zerossl | bool }}"
+zerossl_is_enabled: "{{ traefik.cert.zerossl | bool }}"
 
 ################################
 # Traefik
@@ -166,12 +166,12 @@ traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) | r
 
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
 traefik_default_certprovider: "{{ 'cfdns'
-                               if (not dns.zerossl)
+                               if (not traefik.cert.zerossl)
                                else 'zerossl' }}"
-traefik_default_zerossl_resolver: "{{ 'zerosslhttp' }}"
-traefik_default_resolver: "{{ 'httpresolver' if (traefik.http or not traefik.tls) else 'tlsresolver' }}"
+traefik_default_zerossl_resolver: "zerosslhttp"
+traefik_default_resolver: "httpresolver"
 traefik_default_certresolver: "{{ traefik_default_certprovider
-                               if (not traefik_tls)
+                               if (not traefik_http)
                                else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
 
 traefik_error_pages_enabled: "{{ traefik.error_pages }}"
@@ -271,9 +271,9 @@ traefik_default_sso_middleware: "authelia"
 traefik_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_enabled', default=lookup('vars', role_name + '_traefik_enabled', default=false)) }}"
 traefik_role_api_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_api_enabled', default=lookup('vars', role_name + '_traefik_api_enabled', default=false)) }}"
 
-traefik_tls: "{{ false
-              if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) and (not (traefik.tls or traefik.http))
-              else true }}"
+traefik_http: "{{ false
+               if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) and (not traefik.cert.http_validation)
+               else true }}"
 
 traefik_subdomain: "{{ lookup('vars', traefik_role_var + '_web_subdomain', default=lookup('vars', role_name + '_web_subdomain', default=omit)) }}"
 traefik_domain: "{{ lookup('vars', traefik_role_var + '_web_domain', default=lookup('vars', role_name + '_web_domain', default=omit)) }}"
