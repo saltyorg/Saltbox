@@ -19,7 +19,7 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
-{% if (rclone_vfs_cache_dir | length > 0) and item.cache.enabled %}
+{% if (rclone_vfs_cache_dir | length > 0) and item.vfs_cache.enabled %}
     --cache-dir={{ rclone_vfs_cache_dir }} \
 {% endif %}
     --config={{ rclone_config_path }} \
@@ -27,20 +27,20 @@ ExecStart=/usr/bin/rclone mount \
     --dir-cache-time=1m \
     --max-read-ahead=200M \
     --rc \
-    --rc-addr=localhost:{{ item.port }} \
+    --rc-addr=localhost:{{ rclone_remort_port }} \
     --rc-no-auth \
     --syslog \
     --umask=002 \
     --user-agent='{{ user_agent }}' \
-{% if item.cache.enabled %}
-    --vfs-cache-max-age={{ item.cache.max_age | default('504h') }} \
-    --vfs-cache-max-size={{ item.cache.size | default('50G') }} \
+{% if item.vfs_cache.enabled %}
+    --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
+    --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
     --vfs-cache-poll-interval=30s \
 {% endif %}
     -v \
     {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default='/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ item.remote }}
-ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ item.port }} _async=true
+ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ rclone_remort_port }} _async=true
 ExecStop=/bin/fusermount3 -uz /mnt/remote/{{ item.remote }}
 Restart=on-abort
 RestartSec=5

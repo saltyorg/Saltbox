@@ -5,13 +5,12 @@ authelia:
 downloads: /mnt/unionfs/downloads
 rclone:
   remotes:
-    - cache:
+    - remote: google
+      template: google
+      vfs_cache:
         enabled: false
         max_age: 504h
         size: 50G
-      port: 5572
-      remote: google
-      template: google
   version: latest
 shell: bash
 transcodes: /mnt/local/transcodes

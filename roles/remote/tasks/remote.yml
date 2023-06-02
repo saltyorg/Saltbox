@@ -13,6 +13,13 @@
     _service_refresh: "{{ rclone_service_template + item.remote }}_refresh"
     mount_path: "/mnt/remote/{{ item.remote }}"
 
+- name: Remote | Get next available port within the range of '5572-5672' # noqa fqcn[action]
+  find_open_port:
+    low_bound: 5572
+    high_bound: 5672
+    protocol: both
+  register: port_lookup_rclone
+
 - name: "Remote | Check if '{{ _service_file }}' exists"
   ansible.builtin.stat:
     path: "/etc/systemd/system/{{ _service_file }}"
@@ -48,7 +55,7 @@
       ansible.builtin.replace:
         path: "/etc/systemd/system/{{ _service_file }}"
         regexp: "rc-addr localhost:[0-9]*"
-        replace: 'url http://localhost:{{ item.port }}'
+        replace: 'url http://localhost:{{ remote_rclone_port }}'
       when: (_service_file is not regex('.*\.timer'))
 
     - name: "Remote | Check if 'rclone_refresh.service' exists"
@@ -61,7 +68,7 @@
       ansible.builtin.replace:
         path: "/etc/systemd/system/{{ _service_refresh }}.service"
         regexp: "rc-addr localhost:[0-9]*"
-        replace: 'url http://localhost:{{ item.port }}'
+        replace: 'url http://localhost:{{ remote_rclone_port }}'
       when: (item.template != "sftp") and rclone_refresh_service_file_status.stat.exists
 
     - name: "Remote | Systemd daemon-reload"
