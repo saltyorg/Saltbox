@@ -47,7 +47,9 @@
     env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     env_file: "{{ lookup('vars', _var_prefix + '_docker_env_file', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
-    exposed_ports: "{{ lookup('vars', _var_prefix + '_docker_exposed_ports', default=omit) }}"
+    exposed_ports: "{{ (lookup('vars', _var_prefix + '_docker_exposed_ports', default=[]) | unique | reject('equalto', omit) | list)
+                    if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
+                    else [] }}"
     groups: "{{ lookup('vars', _var_prefix + '_docker_groups', default=omit) }}"
     healthcheck: "{{ lookup('vars', _var_prefix + '_docker_healthcheck', default=omit) }}"
     hostname: "{{ lookup('vars', _var_prefix + '_docker_hostname', default=omit)
@@ -78,7 +80,9 @@
     paused: "{{ lookup('vars', _var_prefix + '_docker_paused', default=omit) }}"
     pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
     privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
-    published_ports: "{{ lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique }}"
+    published_ports: "{{ (lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
+                      if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
+                      else [] }}"
     pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
     read_only: "{{ lookup('vars', _var_prefix + '_docker_read_only', default=omit) }}"
     recreate: "{{ lookup('vars', _var_prefix + '_docker_recreate', default=omit) }}"
