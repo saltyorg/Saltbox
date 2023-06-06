@@ -11,7 +11,7 @@
   ansible.builtin.include_role:
     name: "node_exporter"
 
-- name: "Execute cAdvisor role"
+- name: "Execute Cadvisor role"
   ansible.builtin.include_role:
     name: "cadvisor"
 
