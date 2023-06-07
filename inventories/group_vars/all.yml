@@ -187,6 +187,7 @@ zerossl_is_enabled: "{{ dns.zerossl | bool }}"
 ################################
 
 traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
+traefik_role_middleware_sso: "{{ lookup('vars', traefik_role_var + '_traefik_sso_middleware', default=lookup('vars', role_name + '_traefik_sso_middleware', default='')) }}"
 
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
 traefik_default_certprovider: "{{ 'cfdns'
@@ -225,7 +226,20 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                        else traefik_default_middleware_custom_http)
                                      + (',gzip'
                                        if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
-                                       else '') }}"
+                                       else '')
+                                     + (',' if (traefik_role_middleware_sso | length > 0)
+                                       else '')
+                                     + traefik_role_middleware_sso }}"
+
+traefik_default_middleware_default_http_api: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https"
+traefik_default_middleware_custom_http_api: ""
+traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
+                                         + (',' + traefik_default_middleware_custom_http
+                                           if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
+                                           else traefik_default_middleware_custom_http)
+                                         + (',gzip'
+                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=true)))
+                                           else '') }}"
 
 traefik_default_sso_middleware: "authelia"
 
@@ -306,7 +320,7 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }}))" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.priority": "30" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware_http", default=lookup("vars", role_name + "_traefik_api_middleware_http", default=traefik_default_middleware_http)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("vars", traefik_role_var + "_traefik_api_middleware_http", default=lookup("vars", role_name + "_traefik_api_middleware_http", default=traefik_default_middleware_http_api)) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "websecure" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "(Host(`{{ traefik_host }}`) && PathPrefix({{ lookup("vars", traefik_role_var + "_traefik_api_endpoint", default=lookup("vars", role_name + "_traefik_api_endpoint", default=omit)) }}))" }'
