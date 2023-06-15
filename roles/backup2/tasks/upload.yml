@@ -9,7 +9,9 @@
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
       | /usr/bin/rclone rcat \
       --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
-      {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} --stats=30s \
+      {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} \
+      --stats=30s \
+      {{ '--bind=' + ansible_default_ipv4.address if mounts.ipv4_only else '' }} \
       --bwlimit={{ backup2_rclone_upload_speed_limit }} \
       -vv \
       --log-file='{{ playbook_dir }}/backup_rclone.log' \
