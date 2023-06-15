@@ -62,8 +62,7 @@ qbittorrent_paths_folders_list:
 qbittorrent_web_subdomain: "{{ qbittorrent_name }}"
 qbittorrent_web_domain: "{{ user.domain }}"
 qbittorrent_web_port: "8080"
-qbittorrent_web_url: "{{ 'https://' + lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain)
-                         + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}"
+qbittorrent_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

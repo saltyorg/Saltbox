@@ -47,7 +47,7 @@ netdata_paths_folders_list:
 netdata_web_subdomain: "{{ netdata_name }}"
 netdata_web_domain: "{{ user.domain }}"
 netdata_web_port: "19999"
-netdata_web_url: "{{ 'https://' + netdata_web_subdomain + '.' + netdata_web_domain }}"
+netdata_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

@@ -30,8 +30,7 @@ sonarr_paths_config_location: "{{ sonarr_paths_location }}/config.xml"
 sonarr_web_subdomain: "{{ sonarr_name }}"
 sonarr_web_domain: "{{ user.domain }}"
 sonarr_web_port: "8989"
-sonarr_web_url: "{{ 'https://' + lookup('vars', sonarr_name + '_web_subdomain', default=sonarr_web_subdomain)
-                    + '.' + lookup('vars', sonarr_name + '_web_domain', default=sonarr_web_domain) }}"
+sonarr_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

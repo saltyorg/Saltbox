@@ -29,8 +29,7 @@ bazarr_paths_folders_list:
 bazarr_web_subdomain: "{{ bazarr_name }}"
 bazarr_web_domain: "{{ user.domain }}"
 bazarr_web_port: "6767"
-bazarr_web_url: "{{ 'https://' + lookup('vars', bazarr_name + '_web_subdomain', default=bazarr_web_subdomain)
-                    + '.' + lookup('vars', bazarr_name + '_web_domain', default=bazarr_web_domain) }}"
+bazarr_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

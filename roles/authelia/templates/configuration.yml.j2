@@ -99,7 +99,7 @@ access_control:
       policy: {{ authelia_access_control_policy }}
 
 session:
-  name: "{{ authelia_web_subdomain + '.' + authelia_web_domain | lower }}"
+  name: {{ authelia_web_subdomain + '.' + authelia_web_domain | lower }}
   secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
   expiration: 1h
   inactivity: 5m
@@ -121,7 +121,7 @@ storage:
     path: /config/db.sqlite3
 
 ntp:
-  address: "time.cloudflare.com:123"
+  address: time.cloudflare.com:123
   version: 3
   max_desync: 3s
   disable_startup_check: false

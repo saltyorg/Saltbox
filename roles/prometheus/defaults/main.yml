@@ -39,7 +39,7 @@ prometheus_paths_folders_list:
 prometheus_web_subdomain: "{{ prometheus_name }}"
 prometheus_web_domain: "{{ user.domain }}"
 prometheus_web_port: "9090"
-prometheus_web_url: "{{ 'https://' + prometheus_web_subdomain + '.' + prometheus_web_domain }}"
+prometheus_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

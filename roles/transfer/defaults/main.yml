@@ -32,7 +32,7 @@ transfer_web_domain: "{{ user.domain }}"
 transfer_web_port: "8080"
 transfer_web_user: "{{ user.name }}"
 transfer_web_pass: "{{ user.pass }}"
-transfer_web_url: "{{ 'https://' + transfer_web_subdomain + '.' + transfer_web_domain }}"
+transfer_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS

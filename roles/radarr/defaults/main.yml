@@ -30,8 +30,7 @@ radarr_paths_config_location: "{{ radarr_paths_location }}/config.xml"
 radarr_web_subdomain: "{{ radarr_name }}"
 radarr_web_domain: "{{ user.domain }}"
 radarr_web_port: "7878"
-radarr_web_url: "{{ 'https://' + lookup('vars', radarr_name + '_web_subdomain', default=radarr_web_subdomain)
-                    + '.' + lookup('vars', radarr_name + '_web_domain', default=radarr_web_domain) }}"
+radarr_web_url: "{{ 'https://' + traefik_host }}"
 
 ################################
 # DNS
