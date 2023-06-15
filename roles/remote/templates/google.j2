@@ -19,6 +19,7 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
+    --attr-timeout=8760h \
 {% if mounts.ipv4_only %}
     --bind={{ ansible_default_ipv4.address }} \
 {% endif %}
@@ -27,7 +28,7 @@ ExecStart=/usr/bin/rclone mount \
 {% endif %}
     --config={{ rclone_config_path }} \
     --buffer-size={{ '32M' if item.vfs_cache.enabled else '64M' }} \
-    --dir-cache-time=5000h \
+    --dir-cache-time=8760h \
 {% if not item.vfs_cache.enabled %}
     --drive-chunk-size=64M \
 {% endif %}
