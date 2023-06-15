@@ -551,6 +551,7 @@
           {{ lookup('vars', 'backup_' + backup.rclone.template + '_template', default='') }} \
           --stats=30s \
           --bwlimit={{ backup_rclone_upload_speed_limit }} \
+          {{ '--bind=' + ansible_default_ipv4.address if mounts.ipv4_only else '' }} \
           -vv \
           --log-file='{{ playbook_dir }}/backup_rclone.log' \
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
