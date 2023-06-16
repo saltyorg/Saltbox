@@ -63,11 +63,17 @@
         name: docker
         state: stopped
 
-- name: Add the overlay module
-  community.general.modprobe:
-    name: overlay
-    state: present
-  when: ('overlay' in docker_daemon_storage_driver)
+- name: Check if overlay can be loaded
+  block:
+    - name: Add the overlay module
+      community.general.modprobe:
+        name: overlay
+        state: present
+      when: ('overlay' in docker_daemon_storage_driver)
+
+  rescue:
+    - name: Install missing modules package
+      ansible.builtin.shell: apt-get install --reinstall linux-modules-$(uname -r)
 
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
