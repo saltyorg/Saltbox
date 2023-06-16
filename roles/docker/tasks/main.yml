@@ -27,7 +27,6 @@
 
 - name: Populate Service Facts
   ansible.builtin.service_facts:
-  when: docker_binary.stat.exists
 
 - name: Get Docker service state
   ansible.builtin.set_fact:
@@ -73,7 +72,7 @@
 
   rescue:
     - name: Install missing modules package
-      ansible.builtin.shell: apt-get install --reinstall linux-modules-$(uname -r)
+      ansible.builtin.shell: "apt-get install --reinstall linux-modules-{{ ansible_kernel }}"
 
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
