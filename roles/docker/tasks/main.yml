@@ -63,6 +63,12 @@
         name: docker
         state: stopped
 
+- name: Add the overlay module
+  community.general.modprobe:
+    name: overlay
+    state: present
+  when: ('overlay' in docker_daemon_storage_driver)
+
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
 
