@@ -219,6 +219,7 @@
           --no-recursive \
           --no-links \
           --no-perms \
+          --exclude='saltbox_managed_*' \
           --include='*.service' \
           --include='*.mount' \
           /etc/systemd/system/* /opt/systemd-backup/
