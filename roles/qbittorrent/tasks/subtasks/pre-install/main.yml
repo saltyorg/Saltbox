@@ -108,7 +108,7 @@
         path: "{{ qbittorrent_paths_conf }}"
         section: Preferences
         option: WebUI\Port
-        value: "{{ qbittorrent_docker_ports_8080 if qbittorrent_host_install else '8080' }}"
+        value: "{{ qbittorrent_docker_ports_8080 if qbittorrent_host_install else lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
         no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"
