@@ -13,18 +13,20 @@
   register: yyq_binary
 
 - name: "Get yyq version"
-  ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+  ansible.builtin.shell: "/usr/local/bin/yyq --version"
   register: yyq_version_settings_check
   ignore_errors: true
   when: yyq_binary.stat.exists
 
 - name: "Set yyq version"
   ansible.builtin.set_fact:
-    yyq_current_version: "{{ (yyq_version_settings_check.stdout[1:]
-                              if yyq_version_settings_check.stdout is regex('^v.*')
-                              else yyq_version_settings_check.stdout)
+    yyq_current_version: "{{ yyq_version_settings_check.stdout | regex_findall('(?<=version )v?\\d+\\.\\d+\\.\\d+') | map('regex_replace', '^v', '') | first
                           if yyq_version_settings_check.stdout is defined
                           else '0.0.0' }}"
+
+- name: "Print current yyq version"
+  ansible.builtin.debug:
+    msg: "{{ yyq_current_version }}"
 
 - name: "Install yyq"
   when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver')) or (not yyq_binary.stat.exists)
@@ -52,12 +54,12 @@
       delay: 10
 
     - name: "Get yyq version"
-      ansible.builtin.shell: "/usr/local/bin/yyq --version | head -n 1 | grep -oP '(?<=version )[^ ]*'"
+      ansible.builtin.shell: "/usr/local/bin/yyq --version"
       register: yyq_version
       ignore_errors: true
       when: (x is success)
 
     - name: "Display yyq version"
       ansible.builtin.debug:
-        msg: "yyq {{ yyq_version.stdout }} installed."
+        msg: "yyq {{ yyq_version.stdout | regex_findall('(?<=version )v?\\d+\\.\\d+\\.\\d+') | map('regex_replace', '^v', '') | first }} installed."
       when: (x is success)
