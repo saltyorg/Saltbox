@@ -36,7 +36,7 @@
         path: "{{ qbittorrent_paths_conf }}"
         section: BitTorrent
         option: Session\Port
-        value: "{{ qbittorrent_docker_ports_56881 }}"
+        value: "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
         no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"

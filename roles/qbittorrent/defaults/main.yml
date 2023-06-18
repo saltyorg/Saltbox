@@ -120,8 +120,8 @@ qbittorrent_docker_ports_8080: "{{ port_lookup_8080.meta.port
 qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
 
 qbittorrent_docker_ports_defaults:
-  - "{{ qbittorrent_docker_ports_56881 }}:{{ qbittorrent_docker_ports_56881 }}"
-  - "{{ qbittorrent_docker_ports_56881 }}:{{ qbittorrent_docker_ports_56881 }}/udp"
+  - "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}:{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
+  - "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}:{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}/udp"
 qbittorrent_docker_ports_custom: []
 qbittorrent_docker_ports: "{{ lookup('vars', qbittorrent_name + '_docker_ports_defaults', default=qbittorrent_docker_ports_defaults)
                               + lookup('vars', qbittorrent_name + '_docker_ports_custom', default=qbittorrent_docker_ports_custom) }}"
