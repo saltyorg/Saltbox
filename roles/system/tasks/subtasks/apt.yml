@@ -13,13 +13,17 @@
       DEBIAN_FRONTEND: noninteractive
       DEBIAN_PRIORITY: critical
 
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
 - name: APT | Import 'saltbox.conf'
   ansible.builtin.copy:
     src: saltbox.conf
     dest: "/etc/needrestart/conf.d/saltbox.conf"
     mode: "0644"
     force: true
-  when: (ansible_distribution_version is version('22.04', '=='))
+  when: ('needrestart' in ansible_facts.packages) and (ansible_distribution_version is version('22.04', '=='))
 
 - name: APT | Fix any potential dpkg issues
   block:
