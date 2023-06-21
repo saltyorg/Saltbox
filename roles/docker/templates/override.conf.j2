@@ -16,3 +16,6 @@ Requires={{ _remotes_services_list if rclone_remote_is_defined else '' }}{{ dock
 After={{ docker_service_after }}
 Requires={{ docker_service_after }}
 {% endif %}
+
+[Service]
+ExecStartPre=/bin/sleep {{ docker_service_sleep }}
