@@ -9,4 +9,6 @@
 ---
 custom_apt: []
 
+custom_deb: []
+
 custom_pip: []
