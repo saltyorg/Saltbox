@@ -19,3 +19,11 @@ backup2_rclone_upload_speed_limit: "{{ backup_rclone_upload_speed_limit }}"
 
 backup2_google_template: '--drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" --drive-stop-on-upload-limit'
 backup2_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_size }}" --disable-http2 --tpslimit 1 --tpslimit-burst 0'
+
+################################
+# Cleanup
+################################
+
+# Defines how many of the archived backups to keep, so current backup is not counted in this
+backup2_cleanup_number: 99
+backup2_cleanup_enabled: false

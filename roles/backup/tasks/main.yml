@@ -24,6 +24,10 @@
 
 - name: Backup
   block:
+    - name: "Set 'backup_success' variable"
+      ansible.builtin.set_fact:
+        backup_success: false
+
     - name: Sanity Check
       ansible.builtin.import_tasks: "sanity_check.yml"
 
@@ -292,7 +296,6 @@
         force: true
       with_items:
         - "{{ backup_user_defined_files }}"
-      ignore_errors: true
       when: (backup_user_defined_files | length > 0)
 
     # Services
@@ -616,6 +619,10 @@
         state: absent
       when: (dir_files2.matched | int != 0) and (not backup.local.enable)
 
+    - name: "Set 'backup_success' variable"
+      ansible.builtin.set_fact:
+        backup_success: true
+
     - name: Backup Status - Success
       ansible.builtin.debug:
         msg: "Backup Completed Successfully."
@@ -685,3 +692,33 @@
     - name: "Reset logs folder ownership."
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
       ignore_errors: true
+
+- name: Backup Cleanup Block
+  when: backup_cleanup_enabled and backup_success
+  block:
+    - name: Determine number of existing backups
+      ansible.builtin.shell: >
+        rclone lsd {{ backup.rclone.destination }}/archived | awk '{print $NF}' | sort
+      register: backup_list
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: Print existing backups status
+      ansible.builtin.debug:
+        msg: "Rclone returned an error so the remote is likely wrong or this is running against no archived backups."
+      when: backup_list.stderr_lines is search('directory not found', ignorecase=True)
+
+    - name: Set excess backups
+      ansible.builtin.set_fact:
+        excess_backups: "{{ backup_list.stdout_lines | length - backup_cleanup_number }}"
+      when: backup_list.stdout_lines | length > backup_cleanup_number
+
+    - name: Delete excess backups
+      ansible.builtin.shell: >
+        rclone purge {{ backup.rclone.destination }}/archived/{{ item if item | length > 0 else 'non-existant-folder-name' }}
+      loop: "{{ backup_list.stdout_lines[: (excess_backups | int)] }}"
+      when:
+        - excess_backups is defined
+        - backup_list.stderr_lines is not search('directory not found', ignorecase=True)
+      become: true
+      become_user: "{{ user.name }}"
