@@ -66,7 +66,7 @@
       register: tailscale_ips
       failed_when: tailscale_ips.rc != 0
 
-    - name: set_fact
+    - name: Set Tailscale variables
       ansible.builtin.set_fact:
         tailscale_ipv4: "{{ tailscale_ips.stdout_lines[0] }}"
         tailscale_ipv6: "{{ tailscale_ips.stdout_lines[1] }}"

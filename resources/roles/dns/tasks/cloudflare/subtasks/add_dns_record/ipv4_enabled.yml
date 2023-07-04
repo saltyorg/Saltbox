@@ -21,7 +21,9 @@
     solo: true
     proxied: "{{ dns_proxy }}"
     type: A
-    value: "{{ ip_address_public }}"
+    value: "{{ ip_address_public
+            if not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=false)
+            else dns_tailscale_ipv4 }}"
     record: "{{ dns_record }}"
   register: cloudflare_dns_record_creation_status
 

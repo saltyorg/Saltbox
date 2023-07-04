@@ -16,6 +16,19 @@
   ansible.builtin.include_tasks: "subtasks/setup.yml"
   when: (not cloudflare_folder.stat.exists) or cloudflare_reinstall
 
+- name: Cloudflare | Tailscale block
+  when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=false)
+  block:
+    - name: Get Tailscale IPs
+      ansible.builtin.shell: "tailscale ip"
+      register: dns_tailscale_ips
+      failed_when: dns_tailscale_ips.rc != 0
+
+    - name: Set Tailscale variables
+      ansible.builtin.set_fact:
+        dns_tailscale_ipv4: "{{ dns_tailscale_ips.stdout_lines[0] }}"
+        dns_tailscale_ipv6: "{{ dns_tailscale_ips.stdout_lines[1] }}"
+
 - name: Cloudflare | Add DNS Record
   ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
   when: dns_action != 'remove'

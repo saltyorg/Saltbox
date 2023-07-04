@@ -21,14 +21,15 @@
     solo: true
     proxied: "{{ dns_proxy }}"
     type: AAAA
-    value: "{{ ipv6_address_public }}"
+    value: "{{ ipv6_address_public
+            if not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=false)
+            else dns_tailscale_ipv6 }}"
     record: "{{ dns_record }}"
   register: cloudflare_dns_v6_record_creation_status
 
 - name: Cloudflare | Add DNS Record | IPv6 | Tasks on success
   when: cloudflare_dns_v6_record_creation_status is succeeded
   block:
-
     - name: Cloudflare | Add DNS Record | IPv6 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
         dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
