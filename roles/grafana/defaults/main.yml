@@ -28,7 +28,9 @@ grafana_paths_folders_list:
 grafana_web_subdomain: "{{ grafana_name }}"
 grafana_web_domain: "{{ user.domain }}"
 grafana_web_port: "3000"
-grafana_web_url: "{{ 'https://' + traefik_host }}"
+grafana_web_url: "{{ 'https://' + grafana_web_subdomain + '.' + grafana_web_domain
+                  if (grafana_web_subdomain | length > 0)
+                  else grafana_web_domain }}"
 
 ################################
 # DNS

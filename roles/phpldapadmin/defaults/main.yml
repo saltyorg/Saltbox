@@ -26,7 +26,9 @@ phpldapadmin_mail_sender: "{{ user.email }}"
 phpldapadmin_web_subdomain: "ldap"
 phpldapadmin_web_domain: "{{ user.domain }}"
 phpldapadmin_web_port: "80"
-phpldapadmin_web_url: "{{ 'https://' + traefik_host }}"
+phpldapadmin_web_url: "{{ 'https://' + phpldapadmin_web_subdomain + '.' + phpldapadmin_web_domain
+                       if (phpldapadmin_web_subdomain | length > 0)
+                       else phpldapadmin_web_domain }}"
 
 ################################
 # DNS

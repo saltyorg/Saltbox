@@ -30,7 +30,9 @@ autobrr_paths_folders_list:
 autobrr_web_subdomain: "{{ autobrr_name }}"
 autobrr_web_domain: "{{ user.domain }}"
 autobrr_web_port: "7474"
-autobrr_web_url: "{{ 'https://' + traefik_host }}"
+autobrr_web_url: "{{ 'https://' + autobrr_web_subdomain + '.' + autobrr_web_domain
+                  if (autobrr_web_subdomain | length > 0)
+                  else autobrr_web_domain }}"
 
 ################################
 # DNS

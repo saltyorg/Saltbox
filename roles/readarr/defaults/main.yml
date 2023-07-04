@@ -31,7 +31,9 @@ readarr_paths_config_location: "{{ readarr_paths_location }}/config.xml"
 readarr_web_subdomain: "{{ readarr_name }}"
 readarr_web_domain: "{{ user.domain }}"
 readarr_web_port: "8787"
-readarr_web_url: "{{ 'https://' + traefik_host }}"
+readarr_web_url: "{{ 'https://' + lookup('vars', readarr_name + '_web_subdomain', default=readarr_web_subdomain) + '.' + lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain)
+                  if (lookup('vars', readarr_name + '_web_subdomain', default=readarr_web_subdomain) | length > 0)
+                  else lookup('vars', readarr_name + '_web_domain', default=readarr_web_domain) }}"
 
 ################################
 # DNS

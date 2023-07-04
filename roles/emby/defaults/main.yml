@@ -35,7 +35,9 @@ emby_paths_dlna_xml_location: "{{ emby_paths_location }}/config/dlna.xml"
 emby_web_subdomain: "{{ emby_name }}"
 emby_web_domain: "{{ user.domain }}"
 emby_web_port: "8096"
-emby_web_url: "{{ 'https://' + traefik_host }}"
+emby_web_url: "{{ 'https://' + lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain) + '.' + lookup('vars', emby_name + '_web_domain', default=emby_web_domain)
+               if (lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain) | length > 0)
+               else lookup('vars', emby_name + '_web_domain', default=emby_web_domain) }}"
 
 ################################
 # DNS

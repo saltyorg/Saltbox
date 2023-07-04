@@ -29,7 +29,9 @@ petio_paths_folders_list:
 petio_web_subdomain: "{{ petio_name }}"
 petio_web_domain: "{{ user.domain }}"
 petio_web_port: "7777"
-petio_web_url: "{{ 'https://' + traefik_host }}"
+petio_web_url: "{{ 'https://' + petio_web_subdomain + '.' + petio_web_domain
+                if (petio_web_subdomain | length > 0)
+                else petio_web_domain }}"
 
 ################################
 # DNS

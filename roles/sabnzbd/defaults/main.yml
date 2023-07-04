@@ -35,7 +35,9 @@ sabnzbd_paths_config_location: "{{ sabnzbd_paths_location }}/sabnzbd.ini"
 sabnzbd_web_subdomain: "{{ sabnzbd_name }}"
 sabnzbd_web_domain: "{{ user.domain }}"
 sabnzbd_web_port: "8080"
-sabnzbd_web_url: "{{ 'https://' + traefik_host }}"
+sabnzbd_web_url: "{{ 'https://' + sabnzbd_web_subdomain + '.' + sabnzbd_web_domain
+                  if (sabnzbd_web_subdomain | length > 0)
+                  else sabnzbd_web_domain }}"
 
 ################################
 # DNS

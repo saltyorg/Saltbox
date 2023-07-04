@@ -38,7 +38,9 @@ jellyfin_paths_xml_loct_old: "{{ jellyfin_paths_location }}/app/config/system.xm
 jellyfin_web_subdomain: "{{ jellyfin_name }}"
 jellyfin_web_domain: "{{ user.domain }}"
 jellyfin_web_port: "8096"
-jellyfin_web_url: "{{ 'https://' + traefik_host }}"
+jellyfin_web_url: "{{ 'https://' + lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain) + '.' + lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain)
+                   if (lookup('vars', jellyfin_name + '_web_subdomain', default=jellyfin_web_subdomain) | length > 0)
+                   else lookup('vars', jellyfin_name + '_web_domain', default=jellyfin_web_domain) }}"
 
 ################################
 # DNS
