@@ -10,3 +10,7 @@
 plex_db_files:
   - "com.plexapp.plugins.library.db"
   - "com.plexapp.plugins.library.blobs.db"
+
+plex_db_integrity_check_only: false
+plex_db_failed_integrity: false
+plex_db_failed_optimization: false

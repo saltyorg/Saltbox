@@ -27,17 +27,31 @@
   vars:
     var_prefix: "plex"
 
-- name: Check if main database passes integrity_check
-  ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'PRAGMA integrity_check(1)'"
-  register: plex_db_integrity_check
-  failed_when: (plex_db_integrity_check.stdout != 'ok')
+- name: Integrity check
+  block:
+    - name: Check if main database passes integrity_check
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_location }}' 'PRAGMA integrity_check(1)'"
+      register: plex_db_integrity_check
+      failed_when: (plex_db_integrity_check.stdout != 'ok')
 
-- name: Check if blobs database passes integrity_check
-  ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
-  register: plex_db_blobs_integrity_check
-  failed_when: (plex_db_blobs_integrity_check.stdout != 'ok')
+    - name: Check if blobs database passes integrity_check
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
+      register: plex_db_blobs_integrity_check
+      failed_when: (plex_db_blobs_integrity_check.stdout != 'ok')
+
+  rescue:
+    - name: Set Fact
+      ansible.builtin.set_fact:
+        plex_db_failed_integrity: true
+
+    - name: "Notify | Plex instance '{{ plex_name }}' failed the integrity check."
+      ansible.builtin.include_role:
+        name: notify
+      vars:
+        message: "Plex instance '{{ plex_name }}' failed the integrity check."
 
 - name: Database tasks
+  when: not plex_db_integrity_check_only
   block:
     - name: Create backup directory
       ansible.builtin.file:
@@ -72,6 +86,16 @@
       failed_when: (plex_db_blobs_reindex.rc != 0)
 
   rescue:
+    - name: Set Fact
+      ansible.builtin.set_fact:
+        plex_db_failed_optimization: true
+
+    - name: "Notify | Plex instance '{{ plex_name }}' failed the optimization tasks."
+      ansible.builtin.include_role:
+        name: notify
+      vars:
+        message: "Plex instance '{{ plex_name }}' failed the optimization tasks."
+
     - name: Delete wal and shm files
       ansible.builtin.file:
         path: "{{ plex_paths_plugin_support_location }}/Databases/{{ item }}"

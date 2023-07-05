@@ -30,3 +30,15 @@
   with_items: "{{ plex_instances }}"
   loop_control:
     loop_var: role
+
+- name: A Plex instance failed the integrity check.
+  ansible.builtin.fail:
+    msg:
+      - "A Plex instance failed the integrity check."
+  when: plex_db_failed_integrity
+
+- name: A Plex instance failed the optimization tasks.
+  ansible.builtin.fail:
+    msg:
+      - "A Plex instance failed the optimization tasks."
+  when: plex_db_failed_optimization
