@@ -109,3 +109,10 @@
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
+
+- name: Resources | Tasks | Docker | Create Docker Container | Prune dangling images
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: true
+  when: docker_create_image_prune

@@ -164,6 +164,7 @@ zerossl_is_enabled: "{{ traefik.cert.zerossl | bool }}"
 
 traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) | replace('-', '_') }}"
 
+# Replaces powerdns with pdns for config sanity reasons.
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
 traefik_default_certprovider: "{{ 'cfdns'
                                if (not traefik.cert.zerossl)
@@ -302,6 +303,9 @@ traefik_entrypoint_websecure: "{{ lookup('vars', traefik_role_var + '_traefik_en
 ################################
 # Docker
 ################################
+
+# Toggles pruning of dangling images after container creation.
+docker_create_image_prune: true
 
 docker_volumes_downloads_nzbs: "{{ [downloads_usenet_path + ':/downloads/nzbs']
                                 if nzbs_downloads_path_is_defined
