@@ -2,7 +2,6 @@
 backup:
   cron:
     cron_time: weekly
-    enable: no
   local:
     destination: /mnt/local/Backups/Saltbox
     enable: true

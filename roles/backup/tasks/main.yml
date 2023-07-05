@@ -35,13 +35,16 @@
       ansible.builtin.import_tasks: "variables.yml"
       tags:
         - set-backup
+        - unset-backup
         - restore-service
         - saltbox-restore-service
 
     - name: Cron
       ansible.builtin.import_tasks: "cron.yml"
-      when: ('set-backup' in ansible_run_tags) and not ('backup' in ansible_run_tags)
-      tags: set-backup
+      when: (('set-backup' in ansible_run_tags) or ('unset-backup' in ansible_run_tags)) and not ('backup' in ansible_run_tags)
+      tags:
+        - set-backup
+        - unset-backup
 
     - name: Get Current Time
       ansible.builtin.shell: "date \"+%s\""
