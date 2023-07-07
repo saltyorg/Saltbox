@@ -38,6 +38,7 @@ sabnzbd_web_port: "8080"
 sabnzbd_web_url: "{{ 'https://' + sabnzbd_web_subdomain + '.' + sabnzbd_web_domain
                   if (sabnzbd_web_subdomain | length > 0)
                   else sabnzbd_web_domain }}"
+sabnzbd_web_local_url: "{{ 'http://' + sabnzbd_name + ':' + sabnzbd_web_port }}"
 
 ################################
 # DNS
