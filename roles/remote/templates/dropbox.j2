@@ -19,7 +19,6 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
-    --attr-timeout=8760h \
 {% if mounts.ipv4_only %}
     --bind={{ ansible_default_ipv4.address }} \
 {% endif %}
@@ -46,6 +45,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
     --vfs-cache-poll-interval=30s \
+    --vfs-fast-fingerprint \
     --vfs-read-ahead=128M \
 {% endif %}
     --vfs-read-chunk-size-limit=2G \

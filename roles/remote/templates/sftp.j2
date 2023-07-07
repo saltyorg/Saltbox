@@ -37,6 +37,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
     --vfs-cache-poll-interval=30s \
+    --vfs-fast-fingerprint \
 {% endif %}
     -v \
     {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default='/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ item.remote }}
