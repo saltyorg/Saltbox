@@ -16,6 +16,16 @@
     name: plex_auth_token
   when: plex_account_is_enabled
 
+- name: Settings | Check if SABnzbd is installed
+  ansible.builtin.stat:
+    path: "{{ sabnzbd_paths_config_location }}"
+  register: stat_sabnzbd
+
+- name: Settings | Lookup SABnzbd API Key
+  ansible.builtin.set_fact:
+    sabnzbd_apikey: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
+  when: stat_sabnzbd.stat.exists
+
 - name: Settings | Check if 'config.json' exists
   ansible.builtin.stat:
     path: "{{ cloudplow_config_path }}"
@@ -51,9 +61,22 @@
 
     - name: Settings | Update NZBGet credentials in 'config.json'
       ansible.builtin.shell: |
-        jq '.nzbget.url = "{{ nzbget_web_url_with_login }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+        jq '.nzbget.url = "{{ nzbget_web_local_url_web_login }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
+
+    - name: Settings | Update SABnzbd URL in 'config.json'
+      ansible.builtin.shell: |
+        jq '.sabnzbd.url = "{{ sabnzbd_web_local_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: Settings | Update SABnzbd API Key in 'config.json'
+      ansible.builtin.shell: |
+        jq '.sabnzbd.apikey = "{{ sabnzbd_apikey }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+      become: true
+      become_user: "{{ user.name }}"
+      when: stat_sabnzbd.stat.exists
 
     - name: Settings | Update Plex URL in 'config.json'
       ansible.builtin.shell: |

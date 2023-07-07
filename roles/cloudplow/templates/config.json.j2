@@ -8,15 +8,14 @@
     "notifications": {},
     "nzbget": {
         "enabled": false,
-        "url": "{{ nzbget_web_url_with_login }}"
+        "url": "{{ nzbget_web_local_url_web_login }}"
     },
     "plex": {
         "enabled": false,
-        "url": "{{ plex_web_url }}",
-        "token": "{{ plex_auth_token | default('') }}",
-        "poll_interval": 60,
-        "notifications": false,
+        "ignore_local_streams": true,
         "max_streams_before_throttle": 1,
+        "notifications": false,
+        "poll_interval": 60,
         "rclone": {
             "throttle_speeds": {
                 "0": "1000M",
@@ -27,11 +26,14 @@
                 "5": "10M"
             },
             "url": "http://localhost:7949"
-        }
+        },
+        "token": "{{ plex_auth_token | default('') }}",
+        "url": "{{ plex_web_url }}"
     },
     "remotes": {
         "{{ rclone.remotes[0].remote }}": {
             "hidden_remote": "",
+            "rclone_command": "move",
             "rclone_excludes": [
                 "**partial~",
                 "**_HIDDEN~",
@@ -61,12 +63,16 @@
                     "timeout": 62
                 }
             },
-            "rclone_command": "move",
             "remove_empty_dir_depth": 2,
             "sync_remote": "{{ rclone.remotes[0].remote }}:/Media",
             "upload_folder": "/mnt/local/Media",
             "upload_remote": "{{ rclone.remotes[0].remote }}:/Media"
         }
+    },
+    "sabnzbd": {
+        "apikey": "{{ sabnzbd_apikey | default('') }}",
+        "enabled": false,
+        "url": "{{ sabnzbd_web_local_url }}"
     },
     "syncer": {},
     "uploader": {
@@ -77,10 +83,10 @@
             "opened_excludes": [
                 "/downloads/"
             ],
+            "service_account_path": "",
             "size_excludes": [
                 "downloads/*"
-            ],
-            "service_account_path": ""
+            ]
         }
     }
 }
