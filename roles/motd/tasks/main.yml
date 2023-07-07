@@ -117,7 +117,7 @@
 
     - name: Migrate value of motd banner
       ansible.builtin.shell: |
-        jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json|sponge /opt/motd/config.json
+        jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json | sponge /opt/motd/config.json
       when: ('Cloudbox' in motd_banner.stdout)
 
 - name: Config path migration
