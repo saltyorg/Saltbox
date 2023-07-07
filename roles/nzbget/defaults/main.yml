@@ -38,6 +38,7 @@ nzbget_web_domain: "{{ user.domain }}"
 nzbget_web_port: "6789"
 nzbget_web_login: "{{ user.name }}:{{ user.pass }}"
 nzbget_web_url_with_login: "{{ 'https://' + nzbget_web_login + '@' + nzbget_web_subdomain + '.' + nzbget_web_domain }}"
+nzbget_web_local_url_web_login: "{{ 'http://' + nzbget_web_login + '@' + nzbget_name + ':' + nzbget_web_port }}"
 
 ################################
 # DNS
