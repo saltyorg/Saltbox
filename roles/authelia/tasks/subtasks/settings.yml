@@ -7,24 +7,24 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Load encryption_key value
+- name: Settings | Load encryption_key value
   ansible.builtin.shell: |
     yyq e '.storage.encryption_key' {{ authelia_paths_location }}/configuration.yml
   register: authelia_encryption_key
 
-- name: Add encryption_key to config file
+- name: Settings | Add encryption_key to config file
   ansible.builtin.shell: |
     yyq e -i '.storage.encryption_key = "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}"' {{ authelia_paths_location }}/configuration.yml
   become: true
   become_user: "{{ user.name }}"
   when: authelia_encryption_key.stdout == "null"
 
-- name: Load session.redis.host value
+- name: Settings | Load session.redis.host value
   ansible.builtin.shell: |
     yyq e '.session.redis.host' {{ authelia_paths_location }}/configuration.yml
   register: authelia_session_redis_host
 
-- name: Change session.redis.host value to 'authelia_redis'
+- name: Settings | Change session.redis.host value to 'authelia_redis'
   ansible.builtin.shell: |
     yyq e -i '.session.redis.host = "authelia_redis"' {{ authelia_paths_location }}/configuration.yml
   become: true

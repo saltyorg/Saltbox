@@ -7,10 +7,10 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Import File Backend Task
+- name: Auth | Import File Backend Task
   ansible.builtin.import_tasks: "subtasks/file_backend.yml"
   when: (authelia_authentication_backend == 'file')
 
-- name: Import LDAP Backend Task
+- name: Auth | Import LDAP Backend Task
   ansible.builtin.import_tasks: "subtasks/ldap_backend.yml"
   when: (authelia_authentication_backend == 'ldap')

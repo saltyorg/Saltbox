@@ -7,12 +7,12 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Check if 'users_database.yml' exists
+- name: File | Check if 'users_database.yml' exists
   ansible.builtin.stat:
     path: "{{ authelia_paths_location }}/users_database.yml"
   register: authelia_user_config_stat
 
-- name: "Generate Password Hash"
+- name: File | Generate Password Hash
   community.docker.docker_container:
     name: authelia-password-hash
     image: "{{ authelia_docker_image }}"
@@ -29,12 +29,12 @@
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
-- name: "Sanitize Password Hash"
+- name: File | Sanitize Password Hash
   ansible.builtin.shell: "echo '{{ authelia_password.container.Output }}' | sed -n 's/^Digest: //p'"
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 
-- name: Import default 'users_database.yml'
+- name: File | Import default 'users_database.yml'
   ansible.builtin.template:
     src: users_database.yml.j2
     dest: "{{ authelia_paths_location }}/users_database.yml"
@@ -42,3 +42,11 @@
     group: "{{ user.name }}"
     mode: "0775"
   when: (not authelia_user_config_stat.stat.exists)
+
+- name: File | Remove LDAP Containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  vars:
+    var_prefix: "{{ item }}"
+  loop:
+    - "openldap"
+    - "phpldapadmin"
