@@ -71,6 +71,10 @@
         - "rclone_refresh.service"
         - "rclone_refresh.timer"
 
+- name: Run systemd daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: Populate Service Facts
   ansible.builtin.service_facts:
 
@@ -98,3 +102,4 @@
 - name: Remote Tasks
   ansible.builtin.include_tasks: "remote.yml"
   with_items: "{{ rclone.remotes }}"
+  when: rclone_remote_is_defined

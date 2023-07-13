@@ -41,7 +41,6 @@ ExecStart=/usr/bin/rclone mount \
 {% endif %}
     -v \
     {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default='/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ item.remote }}
-ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ rclone_remort_port }} _async=true
 ExecStop=/bin/fusermount3 -uz /mnt/remote/{{ item.remote }}
 Restart=on-abort
 RestartSec=5

@@ -9,7 +9,7 @@
 #########################################################################
 
 [Unit]
-{% if use_remote and not continuous_integration %}
+{% if rclone_remote_is_defined and not continuous_integration %}
 After={{ _remotes_services_list if rclone_remote_is_defined else '' }}{{ docker_service_after }}
 Requires={{ _remotes_services_list if rclone_remote_is_defined else '' }}{{ docker_service_after }}
 {% else %}

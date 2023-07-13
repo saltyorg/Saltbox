@@ -199,7 +199,7 @@
 - name: Remote | Tasks when Rclone remote is configured
   when: rclone_remote_is_configured
   block:
-    - name: "Remote | Test Rclone remote '{{ item.remote }}:'"
+    - name: "Remote | Test Rclone remote '{{ item.remote }}'"
       ansible.builtin.shell: |
         rclone lsd '{{ item.remote }}:' \
           --user-agent='{{ user_agent }}'

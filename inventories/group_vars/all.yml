@@ -65,7 +65,7 @@ rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone.remotes is not none) and
                               (rclone.remotes | length > 0) }}"
 
-use_remote: "{{ rclone_remote_is_defined }}"
+use_remote: true
 
 use_nvidia: "{{ gpu.nvidia | bool }}"
 
