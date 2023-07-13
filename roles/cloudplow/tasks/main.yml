@@ -7,6 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Import Disable Task
+  ansible.builtin.import_tasks: "subtasks/disable.yml"
+  when: ('cloudplow-disable' in ansible_run_tags)
+  tags:
+    - "cloudplow-disable"
+
 - name: Check if Plex instance is defined
   ansible.builtin.set_fact:
     plex_name: "{{ plex_name | default(plex_instances[0]) }}"
