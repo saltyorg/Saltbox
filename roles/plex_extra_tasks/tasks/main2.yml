@@ -25,6 +25,16 @@
   changed_when: false
   failed_when: pms_check.rc == 1 or pms_check.rc > 2
 
+- name: Wait until Plex instance returns expected status code
+  ansible.builtin.uri:
+    url: "http://{{ plex_name }}:32400/web/index.html"
+    method: GET
+    status_code: [200]
+  register: plex_status_result
+  until: plex_status_result.status == 200
+  retries: 30
+  delay: 60
+
 - name: Stop Docker Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
   vars:
