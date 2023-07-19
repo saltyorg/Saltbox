@@ -17,9 +17,6 @@
     mongodb_paths_folder: "{{ petio_name }}"
     mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_paths_folder }}/mongodb"
 
-- name: Import Default MongoDB variables
-  ansible.builtin.include_vars: /srv/git/saltbox/roles/mongodb/defaults/main.yml
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
