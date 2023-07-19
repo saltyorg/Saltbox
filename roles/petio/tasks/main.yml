@@ -13,7 +13,7 @@
   vars:
     mongodb_instances: ["{{ petio_name }}_mongo"]
     mongodb_docker_env_db: "{{ petio_name }}"
-    mongodb_docker_image_tag: "4.4"
+    mongodb_docker_image_tag: "{{ petio_mongodb_version }}"
     mongodb_paths_folder: "{{ petio_name }}"
     mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_paths_folder }}/mongodb"
 
