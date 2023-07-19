@@ -98,7 +98,7 @@ docker_service_sleep: 120
 
 docker_service_force: true
 
-docker_update_hosts_service_runtime_max: 3600s
+docker_update_hosts_service_runtime_max: "3600s"
 
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
 
