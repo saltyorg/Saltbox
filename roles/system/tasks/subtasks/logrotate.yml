@@ -75,3 +75,8 @@
     create: true
     mode: "0644"
   loop: "{{ logrotate_d_items }}"
+
+- name: Logrotate | Remove '/etc/logrotate.d/traefik'
+  ansible.builtin.file:
+    path: /etc/logrotate.d/traefik
+    state: absent
