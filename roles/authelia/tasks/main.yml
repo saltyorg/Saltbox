@@ -61,25 +61,6 @@
   vars:
     redis_instances: ["authelia_redis"]
 
-- name: "Import OpenLDAP Role"
-  ansible.builtin.include_role:
-    name: openldap
-  when: (authelia_authentication_backend == 'ldap')
-
-- name: "Import phpLDAPadmin Role"
-  ansible.builtin.include_role:
-    name: phpldapadmin
-  when: (authelia_authentication_backend == 'ldap')
-
-- name: Remove LDAP Containers when using File provider
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-  vars:
-    var_prefix: "{{ item }}"
-  loop:
-    - "openldap"
-    - "phpldapadmin"
-  when: (authelia_authentication_backend == 'file')
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
