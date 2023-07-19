@@ -27,6 +27,6 @@ rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_port',
 # Rclone VFS Refresh
 ################################
 
-rclone_vfs_refresh_interval: 86400
+rclone_vfs_refresh_interval: 10800
 rclone_vfs_refresh_command: |-
   /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ rclone_remort_port }} _async=true
