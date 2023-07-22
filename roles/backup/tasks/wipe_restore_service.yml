@@ -1,0 +1,25 @@
+#########################################################################
+# Title:         Saltbox: Backup | Saltbox Restore Service Cleanup      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Restore Service Cleanup | Install 'curl'
+  ansible.builtin.apt:
+    name: curl
+    state: present
+
+- name: Restore Service Cleanup | Set variables
+  ansible.builtin.set_fact:
+    restore_service_username: "{{ backup.restore_service.user | hash('sha1') }}"
+
+- name: Restore Service Cleanup | Delete Restore Service Files
+  ansible.builtin.shell: "curl -X POST 'https://crs.saltbox.dev/delete/{{ restore_service_username }}'"
+  register: restore_service_delete
+
+- name: Restore Service Cleanup | Print Output
+  ansible.builtin.debug:
+    var: restore_service_delete.stdout

@@ -38,6 +38,13 @@
         - unset-backup
         - restore-service
         - saltbox-restore-service
+        - wipe-restore-service
+
+    - name: Import Restore Service Cleanup
+      ansible.builtin.import_tasks: "wipe_restore_service.yml"
+      when: ('wipe-restore-service' in ansible_run_tags) and not ('backup' in ansible_run_tags)
+      tags:
+        - wipe-restore-service
 
     - name: Cron
       ansible.builtin.import_tasks: "cron.yml"
