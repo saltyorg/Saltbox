@@ -14,18 +14,18 @@
     - "../../defaults/hetzner_nfs.yml.default"
 
 - name: Server Tasks
-  when: ('hetzner_nfs_server' in ansible_run_tags) or ('hetzner_nfs_server_uninstall' in ansible_run_tags)
+  when: ('hetzner-nfs-server' in ansible_run_tags) or ('hetzner-nfs-server-uninstall' in ansible_run_tags)
   block:
     - name: "Hetzner NFS Server Tasks"
       ansible.builtin.include_tasks: "hetzner_nfs_server.yml"
-      when: ('hetzner_nfs_server' in ansible_run_tags)
+      when: ('hetzner-nfs-server' in ansible_run_tags)
 
     - name: "Hetzner NFS Server Uninstall Tasks"
       ansible.builtin.include_tasks: "hetzner_nfs_server_uninstall.yml"
-      when: ('hetzner_nfs_server_uninstall' in ansible_run_tags)
+      when: ('hetzner-nfs-server-uninstall' in ansible_run_tags)
 
 - name: Client Tasks
-  when: ('hetzner_nfs_client_mount' in ansible_run_tags) or ('hetzner_nfs_client_unmount' in ansible_run_tags)
+  when: ('hetzner-nfs-client-mount' in ansible_run_tags) or ('hetzner-nfs-client-unmount' in ansible_run_tags)
   block:
     - name: Fail when invalid hetzner_nfs.mount_client is specified
       ansible.builtin.fail:
@@ -37,11 +37,11 @@
 
     - name: "Hetzner NFS Mount Tasks"
       ansible.builtin.include_tasks: "hetzner_nfs_mount.yml"
-      when: ('hetzner_nfs_client_mount' in ansible_run_tags)
+      when: ('hetzner-nfs-client-mount' in ansible_run_tags)
 
     - name: "Hetzner NFS UNmount Tasks"
       ansible.builtin.include_tasks: "hetzner_nfs_unmount.yml"
-      when: ('hetzner_nfs_client_unmount' in ansible_run_tags)
+      when: ('hetzner-nfs-client-unmount' in ansible_run_tags)
 
     - name: "Services Start Tasks"
       ansible.builtin.include_tasks: "services_start.yml"

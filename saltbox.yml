@@ -11,8 +11,8 @@
     - ['providers.yml', 'defaults/providers.yml.default']
   roles:
     - { role: settings, tags: ['settings'] }
-    - { role: pre_tasks, tags: ['always', 'pre_tasks'] }
-    - { role: sanity_check, tags: ['sanity_check'] }
+    - { role: pre_tasks, tags: ['always', 'pre-tasks'] }
+    - { role: sanity_check, tags: ['sanity-check'] }
     - { role: backup, tags: ['backup'] }
     - { role: backup2, tags: ['backup2'] }
     - { role: restore, tags: ['restore'] }
@@ -31,7 +31,7 @@
     - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
     - { role: scripts, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
-    - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik_reset_certs'] }
+    - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik-reset-certs'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
     # Apps Start
     - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
@@ -73,7 +73,7 @@
     - { role: mongodb, tags: ['mongodb'] }
     - { role: netdata, tags: ['netdata'] }
     - { role: nginx, tags: ['nginx'] }
-    - { role: node_exporter, tags: ['node_exporter'] }
+    - { role: node_exporter, tags: ['node-exporter'] }
     - { role: nzbget, tags: ['nzbget'] }
     - { role: nzbhydra2, tags: ['nzbhydra2'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
@@ -97,8 +97,8 @@
     - { role: yyq, tags: ['yyq'] }
     # Apps End
     - { role: custom, tags: ['custom'] }
-    - { role: hetzner_nfs, tags: ['hetzner_nfs_server', 'hetzner_nfs_server_uninstall', 'hetzner_nfs_client_mount', 'hetzner_nfs_client_unmount'] }
-    - { role: plex_auth_token, tags: ['plex_auth_token'] }
+    - { role: hetzner_nfs, tags: ['hetzner-nfs-server', 'hetzner-nfs-server-uninstall', 'hetzner-nfs-client-mount', 'hetzner-nfs-client-unmount'] }
+    - { role: plex_auth_token, tags: ['plex-auth-token'] }
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
