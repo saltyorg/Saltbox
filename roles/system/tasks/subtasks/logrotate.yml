@@ -28,17 +28,7 @@
     logrotate_d_items:
       - path: "saltbox"
         content: |
-          /srv/git/saltbox/saltbox.log {
-              weekly
-              rotate 5
-              size {{ saltbox_max_log_size }}
-              missingok
-              notifempty
-              create 644 {{ user.name }} {{ user.name }}
-          }
-      - path: "saltbox_backup_rclone"
-        content: |
-          /srv/git/saltbox/backup_rclone.log {
+          /srv/git/saltbox/*.log {
               weekly
               rotate 5
               size {{ saltbox_max_log_size }}
