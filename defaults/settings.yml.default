@@ -4,6 +4,7 @@ authelia:
   subdomain: login
 downloads: /mnt/unionfs/downloads
 rclone:
+  enabled: true
   remotes:
     - remote: google
       template: google

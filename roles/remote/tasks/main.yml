@@ -102,4 +102,4 @@
 - name: Remote Tasks
   ansible.builtin.include_tasks: "remote.yml"
   with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined
+  when: rclone_remote_is_defined and use_remote
