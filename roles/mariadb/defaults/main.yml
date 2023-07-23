@@ -1,6 +1,6 @@
 ##########################################################################
 # Title:         Saltbox: MariaDB | Default Variables                    #
-# Author(s):     desimaniac                                              #
+# Author(s):     desimaniac, salty, owine                                #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
 ##########################################################################
@@ -31,6 +31,15 @@ mariadb_docker_env_user: "{{ user.name }}"
 mariadb_docker_env_db: "saltbox"
 
 ################################
+# Migration Settings
+################################
+
+mariadb_docker_envs_mysql_root_password: password321
+mariadb_docker_image_migration: "lscr.io/linuxserver/mariadb:10.6.13"
+mariadb_docker_volumes_migration:
+  - "{{ mariadb_paths_location }}:/config"
+
+################################
 # Docker
 ################################
 
@@ -55,6 +64,7 @@ mariadb_docker_envs_default:
   MARIADB_USER: "{{ lookup('vars', mariadb_name + '_docker_env_user', default=mariadb_docker_env_user) }}"
   MARIADB_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
   MARIADB_DATABASE: "{{ lookup('vars', mariadb_name + '_docker_env_db', default=mariadb_docker_env_db) }}"
+  MARIADB_AUTO_UPGRADE: "1"
 mariadb_docker_envs_custom: {}
 mariadb_docker_envs: "{{ lookup('vars', mariadb_name + '_docker_envs_default', default=mariadb_docker_envs_default)
                          | combine(lookup('vars', mariadb_name + '_docker_envs_custom', default=mariadb_docker_envs_custom)) }}"

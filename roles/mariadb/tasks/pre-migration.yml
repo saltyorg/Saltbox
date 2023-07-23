@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: MariaDB Pre-Migration                         #
-# Author(s):     owine                                                  #
+# Author(s):     owine, salty                                           #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -15,20 +15,37 @@
 - name: Dump and backup databases
   when: subfolder.stat.exists
   block:
-    - name: Install mysql-client dependency
-      ansible.builtin.apt:
-        name: mysql-client
+    - name: Create Docker Container # noqa args[module]
+      community.docker.docker_container:
+        command_handling: compatibility
+        container_default_behavior: compatibility
+        default_host_ip: ""
+        env:
+          PUID: "{{ uid }}"
+          PGID: "{{ gid }}"
+          TZ: "{{ tz }}"
+          MYSQL_ROOT_PASSWORD: "{{ mariadb_docker_envs_mysql_root_password }}"
+        hostname: "mariadb"
+        image: "{{ mariadb_docker_image_migration }}"
+        log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('vars', role_name + '_docker_log_driver', default=omit)) }}"
+        log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('vars', role_name + '_docker_log_options', default=omit)) }}"
+        name: "mariadb"
+        network_mode: "{{ docker_networks_name_common }}"
+        networks: "{{ lookup('vars', role_name + '_docker_networks') }}"
+        networks_cli_compatible: true
+        pull: "{{ lookup('vars', role_name + '_docker_image_pull', default='yes') }}"
+        restart_policy: "{{ lookup('vars', role_name + '_docker_restart_policy', default='unless-stopped') }}"
+        state: started
+        stop_timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
+        volumes: "{{ mariadb_docker_volumes_migration }}"
 
-    - name: Dump databases
-      community.mysql.mysql_db:
-        login_host: "mariadb"
-        login_user: "root"
-        login_password: "{{ mariadb_docker_env_password }}"
-        state: dump
-        name: all
-        target: /opt/mariadb/dump.sql
-        skip_lock_tables: true
-        dump_extra_args: --column-statistics=0
+    - name: Wait for 30 seconds
+      ansible.builtin.wait_for:
+        timeout: 30
+
+    - name: Creating database dump
+      ansible.builtin.shell: |
+        docker exec mariadb sh -c 'exec mariadb-dump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > /opt/mariadb/dump.sql
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:

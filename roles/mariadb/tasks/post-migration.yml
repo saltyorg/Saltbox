@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: MariaDB Post-Migration                        #
-# Author(s):     owine                                                  #
+# Author(s):     owine, salty                                           #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -15,15 +15,14 @@
 - name: Import databases
   when: subfolder.stat.exists and dump.stat.exists
   block:
-    - name: Wait for 5 seconds
+    - name: Wait for 15 seconds
       ansible.builtin.wait_for:
         timeout: 15
 
-    - name: Import databases
-      community.mysql.mysql_db:
-        login_host: "mariadb"
-        login_user: "root"
-        login_password: "{{ mariadb_docker_env_password }}"
-        state: import
-        name: all
-        target: /opt/mariadb_legacy/dump.sql
+    - name: Restore data from dump file
+      ansible.builtin.shell: |
+        docker exec -i mariadb sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < /opt/mariadb_legacy/dump.sql
+
+    - name: Force MariaDB upgrade
+      ansible.builtin.shell: |
+        docker exec mariadb sh -c 'exec mariadb-upgrade --force -uroot -p"$MARIADB_ROOT_PASSWORD"'
