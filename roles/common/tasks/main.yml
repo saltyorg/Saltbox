@@ -28,6 +28,7 @@
     - /home/{{ user.name }}/.config
     - /home/{{ user.name }}/.config/pip
     - /opt
+    - /mnt
     - /mnt/local
     - /mnt/local/Media
     - /mnt/local/Media/Movies
