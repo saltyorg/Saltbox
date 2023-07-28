@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: phpLDAPadmin Role                             #
+# Title:         Saltbox: Light LDAP Role                               #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -17,5 +17,33 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
+- name: Reset lldap directory
+  ansible.builtin.file:
+    path: "{{ lldap_paths_location }}"
+    state: absent
+  when: ('lldap-reset' in ansible_run_tags)
+
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: Check if 'lldap_config.toml' exists
+  ansible.builtin.stat:
+    path: "{{ lldap_paths_location }}/lldap_config.toml"
+  register: lldap_config_stat
+
+- name: Import default 'lldap_config.toml'
+  ansible.builtin.template:
+    src: lldap_config.toml.j2
+    dest: "{{ lldap_paths_location }}/lldap_config.toml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (not lldap_config_stat.stat.exists)
+
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+- name: Wait for 60 seconds
+  ansible.builtin.wait_for:
+    timeout: 60
+  when: ('authelia' in ansible_run_tags) or ('authelia-reset' in ansible_run_tags)

@@ -1,0 +1,167 @@
+##########################################################################
+# Title:         Saltbox: Light LDAP | Default Variables                 #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+lldap_name: "lldap"
+
+################################
+# Configuration
+################################
+
+# Toggles if the configuration template uses SMTP or not.
+lldap_smtp_enabled: false
+# The SMTP server.
+lldap_smtp_server: "smtp.gmail.com"
+# The SMTP port.
+lldap_smtp_port: "587"
+# How the connection is encrypted, either "NONE" (no encryption), "TLS" or "STARTTLS".
+lldap_smtp_encryption: "TLS"
+# The SMTP user, usually your email address.
+lldap_smtp_user: "sender@gmail.com"
+# The SMTP password.
+lldap_smtp_password: "password"
+# is a free-form name, followed by an email between <>.
+lldap_smtp_from: "LLDAP Admin <sender@gmail.com>"
+# The header field, optional: how the sender appears in the email.
+# The first is a free-form name, followed by an email between <>.
+lldap_smtp_reply_to: "Do not reply <noreply@localhost>"
+
+################################
+# Paths
+################################
+
+lldap_paths_folder: "{{ lldap_name }}"
+lldap_paths_location: "{{ server_appdata_path }}/{{ lldap_paths_folder }}"
+lldap_paths_folders_list:
+  - "{{ lldap_paths_location }}"
+
+################################
+# Web
+################################
+
+lldap_web_subdomain: "lldap"
+lldap_web_domain: "{{ user.domain }}"
+lldap_web_port: "17170"
+lldap_web_url: "{{ 'https://' + lldap_web_subdomain + '.' + lldap_web_domain
+                if (lldap_web_subdomain | length > 0)
+                else lldap_web_domain }}"
+
+################################
+# DNS
+################################
+
+lldap_dns_record: "{{ lldap_web_subdomain }}"
+lldap_dns_zone: "{{ lldap_web_domain }}"
+lldap_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+lldap_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+lldap_traefik_middleware_default: "{{ traefik_default_middleware }}"
+lldap_traefik_middleware_custom: ""
+lldap_traefik_certresolver: "{{ traefik_default_certresolver }}"
+lldap_traefik_enabled: true
+lldap_traefik_api_enabled: false
+lldap_traefik_api_endpoint: ""
+
+################################
+# Docker
+################################
+
+# Container
+lldap_docker_container: "{{ lldap_name }}"
+
+# Image
+lldap_docker_image_pull: true
+lldap_docker_image_repo: "nitnelave/lldap"
+lldap_docker_image_tag: "stable"
+lldap_docker_image: "{{ lldap_docker_image_repo
+                        + ':' + lldap_docker_image_tag }}"
+
+# Ports
+lldap_docker_ports_defaults: []
+lldap_docker_ports_custom: []
+lldap_docker_ports: "{{ lldap_docker_ports_defaults
+                        + lldap_docker_ports_custom }}"
+
+# Envs
+lldap_docker_envs_default:
+  TZ: "{{ tz }}"
+  UID: "{{ uid }}"
+  GID: "{{ gid }}"
+lldap_docker_envs_custom: {}
+lldap_docker_envs: "{{ lldap_docker_envs_default
+                       | combine(lldap_docker_envs_custom) }}"
+
+# Commands
+lldap_docker_commands_default: []
+lldap_docker_commands_custom: []
+lldap_docker_commands: "{{ lldap_docker_commands_default
+                           + lldap_docker_commands_custom }}"
+
+# Volumes
+lldap_docker_volumes_default:
+  - "{{ lldap_paths_location }}:/data"
+lldap_docker_volumes_custom: []
+lldap_docker_volumes: "{{ lldap_docker_volumes_default
+                          + lldap_docker_volumes_custom }}"
+
+# Devices
+lldap_docker_devices_default: []
+lldap_docker_devices_custom: []
+lldap_docker_devices: "{{ lldap_docker_devices_default
+                          + lldap_docker_devices_custom }}"
+
+# Hosts
+lldap_docker_hosts_default: []
+lldap_docker_hosts_custom: []
+lldap_docker_hosts: "{{ docker_hosts_common
+                        | combine(lldap_docker_hosts_default)
+                        | combine(lldap_docker_hosts_custom) }}"
+
+# Labels
+lldap_docker_labels_default: {}
+lldap_docker_labels_custom: {}
+lldap_docker_labels: "{{ docker_labels_common
+                         | combine(lldap_docker_labels_default)
+                         | combine(lldap_docker_labels_custom) }}"
+
+# Hostname
+lldap_docker_hostname: "{{ lldap_name }}"
+
+# Networks
+lldap_docker_networks_alias: "{{ lldap_name }}"
+lldap_docker_networks_default: []
+lldap_docker_networks_custom: []
+lldap_docker_networks: "{{ docker_networks_common
+                           + lldap_docker_networks_default
+                           + lldap_docker_networks_custom }}"
+
+# Capabilities
+lldap_docker_capabilities_default: []
+lldap_docker_capabilities_custom: []
+lldap_docker_capabilities: "{{ lldap_docker_capabilities_default
+                               + lldap_docker_capabilities_custom }}"
+
+# Security Opts
+lldap_docker_security_opts_default: []
+lldap_docker_security_opts_custom: []
+lldap_docker_security_opts: "{{ lldap_docker_security_opts_default
+                                + lldap_docker_security_opts_custom }}"
+
+# Restart Policy
+lldap_docker_restart_policy: unless-stopped
+
+# State
+lldap_docker_state: started

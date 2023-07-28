@@ -17,8 +17,23 @@ authelia_name: authelia
 # Configuration
 ################################
 
+# Options are light, dark, grey or auto.
+authelia_theme: "auto"
+
 # Options are file or ldap
 authelia_authentication_backend: "file"
+authelia_authentication_backend_password_reset_disable: "false"
+authelia_authentication_backend_password_reset_custom_url: ""
+authelia_authentication_backend_refresh_interval: "5m"
+authelia_authentication_backend_file_path: "/config/users_database.yml"
+authelia_authentication_backend_file_watch: "true"
+authelia_authentication_backend_file_password_algorithm: "argon2"
+authelia_authentication_backend_file_password_argon2_variant: "argon2id"
+authelia_authentication_backend_file_password_argon2_iterations: "3"
+authelia_authentication_backend_file_password_argon2_memory: "65536"
+authelia_authentication_backend_file_password_argon2_parallelism: "4"
+authelia_authentication_backend_file_password_argon2_key_length: "32"
+authelia_authentication_backend_file_password_argon2_salt_length: "16"
 
 # Setting for default Access Control Policy - recommended options one_factor or two_factor
 # Reference: https://www.authelia.com/configuration/security/access-control/#one_factor
@@ -59,6 +74,68 @@ authelia_notifier_smtp_disable_html_emails: ""
 authelia_notifier_smtp_tls_server_name: ""
 authelia_notifier_smtp_tls_skip_verify: ""
 authelia_notifier_smtp_tls_minimum_version: ""
+
+# Settings for Authelia's server
+# Reference: https://www.authelia.com/configuration/miscellaneous/server/
+# https://www.authelia.com/c/server#buffer-sizes
+authelia_server_host: "0.0.0.0"
+authelia_server_port: "9091"
+authelia_server_path: ""
+authelia_server_buffers_read: "10485760"
+authelia_server_buffers_write: "10485760"
+authelia_server_enable_pprof: "false"
+authelia_server_enable_expvars: "false"
+authelia_server_disable_healthcheck: "false"
+authelia_server_headers_csp_template: "frame-ancestors 'self' *.{{ user.domain }} {{ user.domain }}; default-src 'self'; object-src 'none'; style-src 'self' 'nonce-${NONCE}'"
+
+# Settings for Logging
+# Reference: https://www.authelia.com/configuration/miscellaneous/logging/
+authelia_log_level: "info"
+authelia_log_format: "text"
+authelia_log_file_path: "/config/authelia.log"
+authelia_log_keep_stdout: "true"
+
+# JWT
+authelia_jwt_secret: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
+
+# TOTP
+authelia_totp_issuer: "authelia.com"
+authelia_totp_period: "30"
+authelia_totp_skew: "1"
+authelia_totp_digits: "6"
+authelia_totp_secret_size: "32"
+
+# Default redirection
+authelia_default_redirection_url: ""
+
+# Default 2FA Method
+authelia_default_2fa_method: ""
+
+# NTP
+authelia_ntp_address: "time.cloudflare.com:123"
+authelia_ntp_version: "3"
+authelia_ntp_max_desync: "3s"
+authelia_ntp_disable_startup_check: "false"
+authelia_ntp_disable_failure: "false"
+
+# Password Policy
+authelia_password_policy_standard_enabled: "false"
+authelia_password_policy_standard_min_length: "8"
+authelia_password_policy_standard_max_length: "0"
+authelia_password_policy_standard_require_uppercase: "true"
+authelia_password_policy_standard_require_lowercase: "true"
+authelia_password_policy_standard_require_number: "true"
+authelia_password_policy_standard_require_special: "true"
+authelia_password_policy_zxcvbn_enabled: "false"
+authelia_password_policy_zxcvbn_min_score: "3"
+
+# Access Control
+authelia_access_control_default_policy: "deny"
+authelia_access_control_rules:
+  - domain:
+      - "{{ '*.' + user.domain | lower }}"
+      - "{{ user.domain | lower }}"
+    policy: "{{ authelia_access_control_policy }}"
 
 ################################
 # Paths

@@ -68,6 +68,7 @@
     - { role: grafana, tags: ['grafana'] }
     - { role: jackett, tags: ['jackett'] }
     - { role: jellyfin, tags: ['jellyfin'] }
+    - { role: lldap, tags: ['lldap', 'lldap-reset'] }
     - { role: mainline, tags: ['mainline'] }
     - { role: mariadb, tags: ['mariadb'] }
     - { role: mongodb, tags: ['mongodb'] }
