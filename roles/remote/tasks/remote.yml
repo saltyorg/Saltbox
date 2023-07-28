@@ -246,11 +246,9 @@
           - "Rclone remote '{{ item.remote }}:' is not working properly."
           - "{{ rclone_test.stderr }}"
       when: (not rclone_remote_is_working)
-      ignore_errors: true
 
 - name: "Remote | Display error message when Rclone remote is not configured properly"
   ansible.builtin.fail:
     msg:
       - "Rclone remote '{{ item.remote }}:' is not configured properly."
   when: (not rclone_remote_is_configured)
-  ignore_errors: true

@@ -19,8 +19,8 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
-{% if (rclone_vfs_cache_dir | length > 0) and item.vfs_cache.enabled %}
-    --cache-dir={{ rclone_vfs_cache_dir }} \
+{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.vfs_cache.enabled %}
+    --cache-dir={{ rclone_vfs_cache_dir_lookup }} \
 {% endif %}
     --config={{ rclone_config_path }} \
     --copy-links \
