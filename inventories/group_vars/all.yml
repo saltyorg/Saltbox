@@ -67,7 +67,7 @@ rclone_remote_is_defined: "{{ (rclone is defined) and
 
 use_cloudplow: "{{ rclone_remote_is_defined and use_remote }}"
 
-use_remote: "{{ rclone.enabled }}"
+use_remote: "{{ rclone.enabled and not continuous_integration }}"
 
 use_nvidia: "{{ gpu.nvidia | bool }}"
 
