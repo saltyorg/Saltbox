@@ -51,7 +51,7 @@
     - { role: btop, tags: ['saltbox', 'mediabox', 'feederbox', 'btop'] }
     - { role: asshama, tags: ['asshama'] }
     - { role: arr_db, tags: ['arr-db'] }
-    - { role: authelia, tags: ['authelia', 'authelia-reset'] }
+    - { role: authelia, tags: ['authelia', 'authelia-reset', 'lldap-reset'] }
     - { role: autobrr, tags: ['autobrr'] }
     - { role: autoheal, tags: ['autoheal'] }
     - { role: autoscan, tags: ['autoscan'] }
@@ -68,7 +68,6 @@
     - { role: grafana, tags: ['grafana'] }
     - { role: jackett, tags: ['jackett'] }
     - { role: jellyfin, tags: ['jellyfin'] }
-    - { role: lldap, tags: ['lldap', 'lldap-reset'] }
     - { role: mainline, tags: ['mainline'] }
     - { role: mariadb, tags: ['mariadb'] }
     - { role: mongodb, tags: ['mongodb'] }

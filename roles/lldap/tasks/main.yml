@@ -46,4 +46,4 @@
 - name: Wait for 60 seconds
   ansible.builtin.wait_for:
     timeout: 60
-  when: ('authelia' in ansible_run_tags) or ('authelia-reset' in ansible_run_tags)
+  when: ('authelia' in ansible_run_tags) or ('authelia-reset' in ansible_run_tags) or ('lldap-reset' in ansible_run_tags)
