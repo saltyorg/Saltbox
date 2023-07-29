@@ -26,7 +26,7 @@
 
     - name: Cron
       ansible.builtin.import_tasks: "cron.yml"
-      when: (('set-backup2' in ansible_run_tags) or ('unset-backup2' in ansible_run_tags)) and not ('backup2' in ansible_run_tags)
+      when: (['set-backup2', 'unset-backup2'] | intersect(ansible_run_tags)) and not ('backup2' in ansible_run_tags)
       tags:
         - set-backup2
         - unset-backup2
