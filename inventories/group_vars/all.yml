@@ -65,6 +65,13 @@ rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone.remotes is not none) and
                               (rclone.remotes | length > 0) }}"
 
+rclone_old_remote_is_defined: "{{ (rclone is defined) and
+                                  (rclone is not none) and
+                                  (rclone | trim | length > 0) and
+                                  (rclone.remote is defined) and
+                                  (rclone.remote is not none) and
+                                  (rclone.remote | trim | length > 0) }}"
+
 use_cloudplow: "{{ rclone_remote_is_defined and use_remote }}"
 
 use_remote: "{{ rclone.enabled and not continuous_integration }}"

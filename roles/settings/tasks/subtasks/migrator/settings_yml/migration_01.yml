@@ -35,18 +35,18 @@
     yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "template": "google", "cache": {"enabled": false, "size": "50G", "max_age": "504h"}, "port": 5572}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: (rclone.remotes is undefined) and rclone_remote_is_defined
+  when: (rclone.remotes is undefined) and rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
     yyq e -i '.rclone.remotes += [{"remote": "google", "template": "google", "cache": {"enabled": false, "size": "50G", "max_age": "504h"}, "port": 5572}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: (rclone.remotes is undefined) and not rclone_remote_is_defined
+  when: (rclone.remotes is undefined) and not rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.enabled' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.enabled = {{ "true" if rclone_remote_is_defined else "false" }}' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.enabled = {{ "true" if (rclone_old_remote_is_defined or rclone_remote_is_defined) else "false" }}' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.enabled is undefined)
