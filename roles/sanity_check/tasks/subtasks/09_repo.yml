@@ -16,7 +16,7 @@
   register: git_version
 
 - name: Repository | Check Git Origin Hash
-  ansible.builtin.shell: "curl -L --connect-timeout 2.37 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' {{ cvm }}https://api.github.com/repos/saltyorg/Saltbox/commits?sha={{ git_branch.stdout }} | jq -r '.[0][\"sha\"]'"
+  ansible.builtin.shell: "curl -L --connect-timeout 2.37 -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' https://api.github.com/repos/saltyorg/Saltbox/commits?sha={{ git_branch.stdout }} | jq -r '.[0][\"sha\"]'"
   register: git_origin_version
   ignore_errors: true
 
