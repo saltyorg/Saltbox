@@ -86,19 +86,15 @@ def dump_settings(settings, file_to_dump):
 
 def is_remote_entry(thing):
     ret_val = False
-    if type(thing) == CommentedMap:
+    if type(thing) == yaml.comments.CommentedMap:
         rem_set = {'port', 'remote', 'template', 'cache'}
         for k in thing.keys():
             ret_val = ret_val or (k in rem_set)
     return ret_val
 
 def _inner_upgrade(settings1, settings2, key=None, overwrite=False):
-    if isinstance(settings2, (dict, list)):
-        merged = settings2.copy()
-    else:
-        merged = settings2
-
     sub_upgraded = False
+    merged = settings2.copy()
 
     if isinstance(settings1, dict):
         for k, v in settings1.items():
@@ -113,38 +109,22 @@ def _inner_upgrade(settings1, settings2, key=None, overwrite=False):
                 continue
 
             # iterate children
-            if isinstance(v, dict):
+            if isinstance(v, dict) or isinstance(v, list):
                 merged[k], did_upgrade = _inner_upgrade(settings1[k], settings2[k], key=k,
-                                                            overwrite=overwrite)
-                sub_upgraded = did_upgrade if did_upgrade else sub_upgraded
-            elif isinstance(v, list):
-                # check if the corresponding value in settings2 is also a list
-                if isinstance(settings2[k], list):
-                    merged[k], did_upgrade = _inner_upgrade(settings1[k], settings2[k], key=k,
                                                                 overwrite=overwrite)
-                    sub_upgraded = did_upgrade if did_upgrade else sub_upgraded
-                else:
-                    # if it's not a list, use the default list from settings1
-                    merged[k] = v
-                    sub_upgraded = True
-                    log.info("Mismatched type for %r. Used default value: %s", str(k), str(v))
+                sub_upgraded = did_upgrade if did_upgrade else sub_upgraded
             elif settings1[k] != settings2[k] and overwrite:
                 merged = settings1
                 sub_upgraded = True
     elif isinstance(settings1, list) and key:
-        # check if settings2 is also a list
-        if isinstance(settings2, list):
-            for v in settings1:
-                if v not in settings2:
-                    merged.append(v)
-                    sub_upgraded = True
-                    log.info("Added to setting %r: %s", str(key), str(v))
-                    continue
-        else:
-            # if settings2 is not a list, use the default list from settings1
-            merged = settings1
-            sub_upgraded = True
-            log.info("Mismatched type for %r. Used default value: %s", str(key), str(settings1))
+        for v in settings1:
+            is_remote = is_remote_entry(v)
+            might_not_want_it = len(settings2) > 0
+            if v not in settings2 and not is_remote and not might_not_want_it:
+                merged.append(v)
+                sub_upgraded = True
+                log.info("Added to setting %r: %s", str(key), str(v))
+                continue
 
     return merged, sub_upgraded
 
