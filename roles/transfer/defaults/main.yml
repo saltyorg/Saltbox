@@ -17,11 +17,7 @@ transfer_name: transfer
 # Paths
 ################################
 
-transfer_paths_folder: "{{ transfer_name }}"
-transfer_paths_location: "{{ server_appdata_path }}/{{ transfer_paths_folder }}"
-transfer_uploads_location: "/tmp/{{ transfer_name }}"
-transfer_paths_folders_list:
-  - "{{ transfer_uploads_location }}"
+transfer_uploads_location: "/tmp"
 
 ################################
 # Web
@@ -76,8 +72,6 @@ transfer_docker_ports: "{{ transfer_docker_ports_defaults
 
 # Envs
 transfer_docker_envs_default:
-  PUID: "{{ uid }}"
-  PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   BASEDIR: "{{ transfer_uploads_location }}"
   PROVIDER: "local"
@@ -94,11 +88,18 @@ transfer_docker_commands: "{{ transfer_docker_commands_default
                               + transfer_docker_commands_custom }}"
 
 # Volumes
-transfer_docker_volumes_default:
-  - "{{ transfer_uploads_location }}:{{ transfer_uploads_location }}"
+transfer_docker_volumes_default: []
 transfer_docker_volumes_custom: []
 transfer_docker_volumes: "{{ transfer_docker_volumes_default
-                              + transfer_docker_volumes_custom }}"
+                             + transfer_docker_volumes_custom }}"
+
+# Mounts
+transfer_docker_mounts_default:
+  - target: /tmp
+    type: tmpfs
+transfer_docker_mounts_custom: []
+transfer_docker_mounts: "{{ transfer_docker_mounts_default
+                            + transfer_docker_mounts_custom }}"
 
 # Devices
 transfer_docker_devices_default: []
@@ -110,8 +111,8 @@ transfer_docker_devices: "{{ transfer_docker_devices_default
 transfer_docker_hosts_default: []
 transfer_docker_hosts_custom: []
 transfer_docker_hosts: "{{ docker_hosts_common
-                            | combine(transfer_docker_hosts_default)
-                            | combine(transfer_docker_hosts_custom) }}"
+                           | combine(transfer_docker_hosts_default)
+                           | combine(transfer_docker_hosts_custom) }}"
 
 # Labels
 transfer_docker_labels_default: {}
@@ -148,6 +149,3 @@ transfer_docker_restart_policy: unless-stopped
 
 # State
 transfer_docker_state: started
-
-# User
-transfer_docker_user: "{{ uid }}:{{ gid }}"
