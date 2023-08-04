@@ -40,8 +40,8 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-fast-fingerprint \
 {% endif %}
     -v \
-    {{ item.remote }}:{{ lookup('vars', (item.remote | replace('-', '_') | lower) + '_folder', default='/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ item.remote }}
-ExecStop=/bin/fusermount3 -uz /mnt/remote/{{ item.remote }}
+    {{ rclone_remote_with_path + ('/mnt/local' if item.remote == 'feeder' else '') }} /mnt/remote/{{ rclone_remote_name }}
+ExecStop=/bin/fusermount3 -uz /mnt/remote/{{ rclone_remote_name }}
 Restart=on-abort
 RestartSec=5
 StartLimitInterval=60s

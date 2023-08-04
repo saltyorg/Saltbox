@@ -9,9 +9,9 @@
 ---
 - name: "Remote | Set Variables"
   ansible.builtin.set_fact:
-    _service_file: "{{ rclone_service_template + item.remote }}.service"
-    _service_refresh: "{{ rclone_service_template + item.remote }}_refresh"
-    mount_path: "/mnt/remote/{{ item.remote }}"
+    _service_file: "{{ rclone_service_template + rclone_remote_name }}.service"
+    _service_refresh: "{{ rclone_service_template + rclone_remote_name }}_refresh"
+    mount_path: "/mnt/remote/{{ rclone_remote_name }}"
 
 - name: Remote | Get next available port within the range of '5572-5672' # noqa fqcn[action]
   find_open_port:
@@ -194,14 +194,14 @@
 
 - name: Remote | Set 'rclone_remote_is_configured' variable
   ansible.builtin.set_fact:
-    rclone_remote_is_configured: "{{ (item.remote + ':') in rclone_config_remotes }}"
+    rclone_remote_is_configured: "{{ (rclone_remote_name + ':') in rclone_config_remotes }}"
 
 - name: Remote | Tasks when Rclone remote is configured
   when: rclone_remote_is_configured
   block:
-    - name: "Remote | Test Rclone remote '{{ item.remote }}'"
+    - name: "Remote | Test Rclone remote '{{ rclone_remote_name }}'"
       ansible.builtin.shell: |
-        rclone lsd '{{ item.remote }}:' \
+        rclone lsd '{{ rclone_remote_with_path }}' \
           --user-agent='{{ user_agent }}'
       become: true
       become_user: "{{ user.name }}"
@@ -243,12 +243,12 @@
     - name: "Remote | Display error message when Rclone remote is not working properly"
       ansible.builtin.fail:
         msg:
-          - "Rclone remote '{{ item.remote }}:' is not working properly."
+          - "Rclone remote '{{ rclone_remote_with_path }}' is not working properly."
           - "{{ rclone_test.stderr }}"
       when: (not rclone_remote_is_working)
 
 - name: "Remote | Display error message when Rclone remote is not configured properly"
   ansible.builtin.fail:
     msg:
-      - "Rclone remote '{{ item.remote }}:' is not configured properly."
+      - "Rclone remote '{{ rclone_remote_with_path }}' is not configured properly."
   when: (not rclone_remote_is_configured)

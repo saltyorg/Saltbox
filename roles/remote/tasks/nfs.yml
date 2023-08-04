@@ -1,0 +1,66 @@
+#########################################################################
+# Title:         Saltbox: Remote Role | Remote Tasks (NFS)              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Remote (NFS) | Set Variables"
+  ansible.builtin.set_fact:
+    mount_path: "/mnt/remote/{{ rclone_remote_name }}"
+
+- name: "Remote (NFS) | Ensure '{{ mount_path }}' is not mounted"
+  ansible.posix.mount:
+    path: "{{ mount_path }}"
+    state: unmounted
+
+- name: "Remote (NFS) | Check if '{{ mount_path }}' exists"
+  ansible.builtin.stat:
+    path: "{{ mount_path }}"
+  register: mount_path_stat
+  ignore_errors: true
+
+- name: "Remote (NFS) | Tasks for '{{ mount_path }}' path"
+  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)
+  block:
+    - name: "Remote (NFS) | Remove empty directories in '{{ mount_path }}'"
+      ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"
+      ignore_errors: true
+
+    - name: "Remote (NFS) | Recursively find '{{ mount_path }}' files"
+      ansible.builtin.find:
+        paths: '{{ mount_path }}'
+        hidden: true
+        recurse: true
+      register: mount_path_stat_files
+      ignore_errors: true
+
+    - name: "Remote (NFS) | Backup non-empty '{{ mount_path }}' path"
+      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
+      ignore_errors: true
+      when: (mount_path_stat_files.matched | int > 0)
+
+    - name: "Remote (NFS) | Remove '{{ mount_path }}'"
+      ansible.builtin.file:
+        path: "{{ mount_path }}"
+        state: absent
+
+- name: Remote (NFS) | Create mount directory
+  ansible.builtin.file:
+    path: "{{ mount_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+
+- name: Remote (NFS) | Mount NFS volume
+  ansible.posix.mount:
+    src: "{{ rclone_remote_with_path }}"
+    path: "{{ mount_path }}"
+    opts: "{{ nfs_opts }}"
+    boot: true
+    state: mounted
+    fstype: nfs
