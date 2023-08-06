@@ -29,13 +29,12 @@ ExecStart=/usr/bin/rclone mount \
     --buffer-size=32M \
     --dir-cache-time=8760h \
     --disable-http2 \
+    --dropbox-pacer-min-sleep=85ms \
     --poll-interval=30s \
     --rc \
     --rc-no-auth \
     --rc-addr=localhost:{{ rclone_remort_port }} \
     --syslog \
-    --tpslimit=12 \
-    --tpslimit-burst=0 \
     --timeout=10m \
     --umask=002 \
     --use-mmap \
@@ -44,7 +43,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
     --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
-    --vfs-cache-poll-interval=30s \
+    --vfs-cache-poll-interval=1m0s \
     --vfs-fast-fingerprint \
     --vfs-read-ahead=128M \
 {% endif %}

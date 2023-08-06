@@ -36,7 +36,7 @@ ExecStart=/usr/bin/rclone mount \
     --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
     --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
-    --vfs-cache-poll-interval=30s \
+    --vfs-cache-poll-interval=1m0s \
     --vfs-fast-fingerprint \
 {% endif %}
     -v \
