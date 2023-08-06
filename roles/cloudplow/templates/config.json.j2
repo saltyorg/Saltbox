@@ -31,7 +31,7 @@
         "url": "{{ plex_web_url }}"
     },
     "remotes": {
-        "{{ rclone.remotes[0].remote }}": {
+        "{{ rclone_first_remote_name }}": {
             "hidden_remote": "",
             "rclone_command": "move",
             "rclone_excludes": [
@@ -64,9 +64,9 @@
                 }
             },
             "remove_empty_dir_depth": 2,
-            "sync_remote": "{{ rclone.remotes[0].remote }}:Media",
+            "sync_remote": "{{ rclone_first_remote_name_with_path }}",
             "upload_folder": "/mnt/local/Media",
-            "upload_remote": "{{ rclone.remotes[0].remote }}:Media"
+            "upload_remote": "{{ rclone_first_remote_name_with_path }}"
         }
     },
     "sabnzbd": {
@@ -76,7 +76,7 @@
     },
     "syncer": {},
     "uploader": {
-        "{{ rclone.remotes[0].remote }}": {
+        "{{ rclone_first_remote_name }}": {
             "check_interval": 30,
             "exclude_open_files": false,
             "max_size_gb": 200,
