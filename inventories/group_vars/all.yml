@@ -449,7 +449,6 @@ cvm: https://cvm.saltbox.dev/version?url=
 reboot_is_necessary: false
 skip_dns: false
 role_dns_enabled: "{{ lookup('vars', role_name + '_dns_enabled', default=true) }}"
-mounts_override: true
 docker_legacy_volume: false
 
 ################################

@@ -15,7 +15,7 @@ local_mount_branch: "{{ '/mnt/remote/feeder=RW:' if feeder_mount_is_enabled else
 
 custom_mount_branch: "" # Format: "/mnt/remote/someremote=NC"
 
-mergerfs_override_service: "{{ mounts_override }}"
+mergerfs_override_service: true
 
 mergerfs_service_name: "saltbox_managed_mergerfs.service"
 
