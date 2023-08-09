@@ -111,7 +111,7 @@ ddns_docker_security_opts: "{{ ddns_docker_security_opts_default
                                + ddns_docker_security_opts_custom }}"
 
 # Restart Policy
-ddns_docker_restart_policy: unless-stopped
+ddns_docker_restart_policy: always
 
 # State
 ddns_docker_state: started
