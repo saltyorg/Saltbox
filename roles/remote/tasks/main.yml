@@ -29,6 +29,42 @@
 - name: "Tasks for 'rclone_vfs.service'"
   when: rclone_vfs_status.stat.exists
   block:
+    - name: "Create services folder."
+      ansible.builtin.file:
+        path: "/opt/services"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+        recurse: true
+
+    - name: "Synchronize '/etc/systemd/system' to '/opt/services'"
+      ansible.builtin.shell: |
+        /usr/bin/rsync \
+          --delay-updates \
+          -F \
+          --compress \
+          --archive \
+          --no-recursive \
+          --no-links \
+          --no-perms \
+          --exclude='saltbox_managed_*' \
+          --include='*.service' \
+          --include='*.mount' \
+          /etc/systemd/system/* /opt/services/
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+
+    - name: "Reset permissions of folders"
+      ansible.builtin.file:
+        path: "/opt/services"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+        recurse: true
+
     - name: "Stop and disable existing 'rclone_vfs.service'"
       ansible.builtin.systemd:
         name: "rclone_vfs.service"
@@ -102,9 +138,9 @@
 - name: Remote Tasks
   ansible.builtin.include_tasks: "remote.yml"
   with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and use_remote and item.template != "nfs"
+  when: rclone_remote_is_defined and item.template != "nfs"
 
 - name: Remote Tasks (NFS)
   ansible.builtin.include_tasks: "nfs.yml"
   with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and use_remote and item.template == "nfs"
+  when: rclone_remote_is_defined and item.template == "nfs"
