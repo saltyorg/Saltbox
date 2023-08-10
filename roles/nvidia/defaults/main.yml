@@ -38,7 +38,9 @@ nvidia_patch_backup_file_location: "/opt/nvidia/libnvidia-encode-backup"
 
 nvidia_docker_runtime_apt_key_url: https://nvidia.github.io/nvidia-container-runtime/gpgkey
 
-nvidia_docker_runtime_apt_repo_url_list:
+nvidia_docker_runtime_apt_repo_list_url: "https://nvidia.github.io/nvidia-container-runtime/{{ ansible_distribution | lower }}{{ ansible_distribution_version }}/nvidia-container-runtime.list"
+
+nvidia_docker_runtime_apt_repo_url_list_old2:
   - 'deb [signed-by=/etc/apt/trusted.gpg.d/nvidia.asc] https://nvidia.github.io/libnvidia-container/{{ ansible_distribution | lower }}{{ ansible_distribution_version }}/$(ARCH) /'
   - 'deb [signed-by=/etc/apt/trusted.gpg.d/nvidia.asc] https://nvidia.github.io/nvidia-container-runtime/{{ ansible_distribution | lower }}{{ ansible_distribution_version }}/$(ARCH) /'
 

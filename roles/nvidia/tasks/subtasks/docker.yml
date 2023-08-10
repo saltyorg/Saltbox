@@ -13,7 +13,7 @@
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
     update_cache: true
     state: absent
-  loop: "{{ nvidia_docker_runtime_apt_repo_url_list_old }}"
+  loop: "{{ nvidia_docker_runtime_apt_repo_url_list_old + nvidia_docker_runtime_apt_repo_url_list_old2 }}"
 
 - name: Docker | Add 'nvidia-container-runtime' APT Repo Key
   ansible.builtin.get_url:
@@ -32,7 +32,8 @@
     state: present
     mode: 0644
     update_cache: true
-  loop: "{{ nvidia_docker_runtime_apt_repo_url_list }}"
+  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | replace('deb', 'deb [signed-by=/etc/apt/trusted.gpg.d/nvidia.asc]') }}"
+  when: not item.startswith('#')
 
 - name: Docker | Install 'nvidia-container-runtime'
   ansible.builtin.apt:
