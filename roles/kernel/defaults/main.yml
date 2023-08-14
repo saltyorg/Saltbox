@@ -22,3 +22,5 @@ kernel_update_apt_package: linux-generic-hwe-20.04
 kernel_update_apt_fix: apt-get --fix-broken --yes install
 
 kernel_update_apt_package_22: linux-generic-hwe-22.04
+
+kernel_install_hwe: true

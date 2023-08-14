@@ -22,6 +22,7 @@
     - (ansible_distribution_version is version('20.04', '=='))
     - (ansible_kernel is version('5.8', '<'))
     - (not continuous_integration)
+    - kernel_install_hwe
 
 # Ubuntu 22.04 HWE Update
 - name: Update Tasks
@@ -31,6 +32,7 @@
     - (ansible_distribution_version is version('22.04', '=='))
     - (ansible_kernel is version('5.19', '<'))
     - (not continuous_integration)
+    - kernel_install_hwe
 
 - name: Restart Tasks
   ansible.builtin.include_tasks: "subtasks/05_restart.yml"
