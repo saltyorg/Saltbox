@@ -11,6 +11,9 @@
   ansible.builtin.shell: docker network ls --format '{{ '{{' }} .Name{{ '}}' }}'
   register: docker_networks_list
   changed_when: false
+  until: "docker_networks_list is not failed"
+  retries: 10
+  delay: 10
 
 - name: Network | Get saltbox docker network gateway
   ansible.builtin.shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
@@ -20,7 +23,7 @@
 - name: "Network | Create new IPv6 saltbox docker network block"
   when: ('saltbox' not in docker_networks_list.stdout_lines) and docker_ipv6
   block:
-    - name: Create saltbox network
+    - name: Network | Create saltbox network (IPv6)
       community.docker.docker_network:
         name: saltbox
         state: present
@@ -32,7 +35,7 @@
 - name: "Network | Create new IPv4 saltbox docker network block"
   when: ('saltbox' not in docker_networks_list.stdout_lines) and (not docker_ipv6)
   block:
-    - name: Create saltbox network
+    - name: Network | Create saltbox network
       community.docker.docker_network:
         name: saltbox
         state: present
@@ -123,7 +126,7 @@
     privileged: yes
   when: docker_ipv6
 
-- name: Unset variables
+- name: Network | Unset variables
   ansible.builtin.set_fact:
     docker_networks_list:
     docker_containers:
