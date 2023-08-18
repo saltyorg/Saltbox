@@ -34,4 +34,4 @@
 
 - name: "Tweak Settings when SSO is enabled"
   ansible.builtin.import_tasks: "subtasks/auth.yml"
-  when: (whisparr_traefik_sso_middleware | length > 0)
+  when: (lookup('vars', whisparr_name + '_traefik_sso_middleware', default=whisparr_traefik_sso_middleware) | length > 0) and lookup('vars', whisparr_name + '_external_auth', default=whisparr_external_auth)
