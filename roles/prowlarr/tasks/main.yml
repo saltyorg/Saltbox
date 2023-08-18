@@ -38,4 +38,4 @@
 
 - name: "Tweak Settings when SSO is enabled"
   ansible.builtin.import_tasks: "subtasks/auth.yml"
-  when: (prowlarr_traefik_sso_middleware | length > 0)
+  when: (prowlarr_traefik_sso_middleware | length > 0) and prowlarr_external_auth
