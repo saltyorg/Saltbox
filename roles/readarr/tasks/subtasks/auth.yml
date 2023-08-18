@@ -1,0 +1,36 @@
+#########################################################################
+# Title:         Saltbox: Readarr | Auth Tasks                          #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Auth | Wait for 'config.xml' to be created
+  ansible.builtin.wait_for:
+    path: "/opt/{{ readarr_name }}/config.xml"
+    state: present
+
+- name: Auth | Wait for 10 seconds
+  ansible.builtin.wait_for:
+    timeout: 10
+
+- name: Auth | Lookup AuthenticationMethod value
+  community.general.xml:
+    path: "/opt/{{ readarr_name }}/config.xml"
+    xpath: "/Config/AuthenticationMethod"
+    content: "text"
+  register: xmlresp
+
+- name: Auth | Toggle AuthenticationMethod to External
+  when: ((xmlresp.matches[0].AuthenticationMethod is defined) and (xmlresp.matches[0].AuthenticationMethod != 'External'))
+  block:
+    - name: Auth | Change the 'AuthenticationMethod' attribute to 'External'
+      community.general.xml:
+        path: "/opt/{{ readarr_name }}/config.xml"
+        xpath: "/Config/AuthenticationMethod"
+        value: "External"
+
+    - name: Auth | Restart Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
