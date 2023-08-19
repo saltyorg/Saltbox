@@ -70,7 +70,9 @@
     mounts: "{{ lookup('vars', _var_prefix + '_docker_mounts', default=omit) }}"
     name: "{{ lookup('vars', _var_prefix + '_docker_container', default=_var_prefix) }}"
     network_mode: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) }}"
-    networks: "{{ lookup('vars', _var_prefix + '_docker_networks') }}"
+    networks: "{{ omit
+               if (lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == 'host')
+               else lookup('vars', _var_prefix + '_docker_networks') }}"
     networks_cli_compatible: true
     oom_killer: "{{ lookup('vars', _var_prefix + '_docker_oom_killer', default=omit) }}"
     oom_score_adj: "{{ lookup('vars', _var_prefix + '_docker_oom_score_adj', default=omit) }}"
