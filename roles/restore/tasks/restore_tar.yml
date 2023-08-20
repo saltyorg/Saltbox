@@ -79,8 +79,7 @@
     /usr/bin/rclone copy \
       --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
       --transfers=8 \
-      --drive-chunk-size=128M \
-      --drive-acknowledge-abuse \
+      {{ lookup('vars', 'restore_' + backup.rclone.template + '_template', default='') }} \
       --exclude 'archived/**' \
       --stats=30s \
       -vv \
