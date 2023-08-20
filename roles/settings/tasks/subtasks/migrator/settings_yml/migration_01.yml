@@ -15,7 +15,7 @@
                       or
                       (downloads.torrents is undefined)) }}"
 
-- name: Migrator | 'settings.yml' | Migration 01 | Delete 'downloads' dict
+- name: Migrator | 'settings.yml' | Migration 01 | Rebuild 'downloads' dict
   ansible.builtin.shell: |
     yyq e -i 'del(.downloads)' {{ playbook_dir }}/{{ file }}
     yyq e -i '.downloads = "/mnt/unionfs/downloads"' {{ playbook_dir }}/{{ file }}
@@ -32,14 +32,14 @@
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "template": "google", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "template": "google", "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "google", "template": "google", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "google", "template": "google", "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and not rclone_old_remote_is_defined

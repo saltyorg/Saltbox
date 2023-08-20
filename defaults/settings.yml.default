@@ -8,6 +8,8 @@ rclone:
   remotes:
     - remote: google
       template: google
+      upload: true
+      upload_from: /mnt/local/Media
       vfs_cache:
         enabled: false
         max_age: 504h

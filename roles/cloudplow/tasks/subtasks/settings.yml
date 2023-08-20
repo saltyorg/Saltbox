@@ -26,6 +26,12 @@
     sabnzbd_apikey: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
 
+- name: Settings | Filter Rclone remotes
+  ansible.builtin.set_fact:
+    cloudplow_remotes: "{{ cloudplow_remotes | default([]) + [item] }}"
+  loop: "{{ rclone.remotes }}"
+  when: item.upload
+
 - name: Settings | Check if 'config.json' exists
   ansible.builtin.stat:
     path: "{{ cloudplow_config_path }}"

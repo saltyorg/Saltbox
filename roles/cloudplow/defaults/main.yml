@@ -58,3 +58,27 @@ cloudplow_service_name: "{{ cloudplow_name }}"
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
 
 rclone_binary_path: "/usr/bin/rclone"
+
+cloudplow_rclone_google_template: |-
+  "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
+  "--checkers": 16,
+  "--drive-chunk-size": "128M",
+  "--stats": "60s",
+  "--transfers": 8,
+  "--verbose": 1,
+  "--skip-links": null,
+  "--retries": 1,
+  "--low-level-retries": 2,
+  "--drive-stop-on-upload-limit": null
+
+cloudplow_rclone_dropbox_template: |-
+  "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
+  "--checkers": 16,
+  "--dropbox-chunk-size": "128M",
+  "--dropbox-pacer-min-sleep": "85ms",
+  "--stats": "60s",
+  "--transfers": 8,
+  "--verbose": 1,
+  "--skip-links": null,
+  "--retries": 1,
+  "--low-level-retries": 2

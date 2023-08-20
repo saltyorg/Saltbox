@@ -1,92 +1,89 @@
 {
-    "core": {
-        "dry_run": false,
-        "rclone_binary_path": "{{ rclone_binary_path }}",
-        "rclone_config_path": "{{ rclone_config_path }}"
+  "core": {
+    "dry_run": false,
+    "rclone_binary_path": "{{ rclone_binary_path }}",
+    "rclone_config_path": "{{ rclone_config_path }}"
+  },
+  "hidden": {},
+  "notifications": {},
+  "nzbget": {
+    "enabled": false,
+    "url": "{{ nzbget_web_local_url_web_login }}"
+  },
+  "plex": {
+    "enabled": false,
+    "ignore_local_streams": true,
+    "max_streams_before_throttle": 1,
+    "notifications": false,
+    "poll_interval": 60,
+    "rclone": {
+      "throttle_speeds": {
+        "0": "1000M",
+        "1": "50M",
+        "2": "40M",
+        "3": "30M",
+        "4": "20M",
+        "5": "10M"
+      },
+      "url": "http://localhost:7949"
     },
-    "hidden": {},
-    "notifications": {},
-    "nzbget": {
-        "enabled": false,
-        "url": "{{ nzbget_web_local_url_web_login }}"
-    },
-    "plex": {
-        "enabled": false,
-        "ignore_local_streams": true,
-        "max_streams_before_throttle": 1,
-        "notifications": false,
-        "poll_interval": 60,
-        "rclone": {
-            "throttle_speeds": {
-                "0": "1000M",
-                "1": "50M",
-                "2": "40M",
-                "3": "30M",
-                "4": "20M",
-                "5": "10M"
-            },
-            "url": "http://localhost:7949"
+    "token": "{{ plex_auth_token | default('') }}",
+    "url": "{{ plex_web_url }}"
+  },
+  "remotes": {
+{% for remote in cloudplow_remotes %}
+    "{{ remote.remote }}": {
+      "hidden_remote": "",
+      "rclone_command": "move",
+      "rclone_excludes": [
+        "**partial~",
+        "**_HIDDEN~",
+        "*.db"
+      ],
+      "rclone_extras": {
+        {{ lookup('vars', 'cloudplow_rclone_' + remote.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
+      },
+      "rclone_sleeps": {
+        "Failed to copy: googleapi: Error 403: User rate limit exceeded": {
+          "count": 10,
+          "sleep": 25,
+          "timeout": 7200
         },
-        "token": "{{ plex_auth_token | default('') }}",
-        "url": "{{ plex_web_url }}"
-    },
-    "remotes": {
-        "{{ rclone_first_remote_name }}": {
-            "hidden_remote": "",
-            "rclone_command": "move",
-            "rclone_excludes": [
-                "**partial~",
-                "**_HIDDEN~",
-                "*.db"
-            ],
-            "rclone_extras": {
-                "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
-                "--checkers": 16,
-                "--drive-chunk-size": "128M",
-                "--stats": "60s",
-                "--transfers": 8,
-                "--verbose": 1,
-                "--skip-links": null,
-                "--retries": 1,
-                "--low-level-retries": 2,
-                "--drive-stop-on-upload-limit": null
-            },
-            "rclone_sleeps": {
-                "Failed to copy: googleapi: Error 403: User rate limit exceeded": {
-                    "count": 10,
-                    "sleep": 25,
-                    "timeout": 7200
-                },
-                " 0/s,": {
-                    "count": 16,
-                    "sleep": 25,
-                    "timeout": 62
-                }
-            },
-            "remove_empty_dir_depth": 2,
-            "sync_remote": "{{ rclone_first_remote_name_with_path }}",
-            "upload_folder": "/mnt/local/Media",
-            "upload_remote": "{{ rclone_first_remote_name_with_path }}"
+        " 0/s,": {
+          "count": 16,
+          "sleep": 25,
+          "timeout": 62
         }
-    },
-    "sabnzbd": {
-        "apikey": "{{ sabnzbd_apikey | default('') }}",
-        "enabled": false,
-        "url": "{{ sabnzbd_web_local_url }}"
-    },
-    "syncer": {},
-    "uploader": {
-        "{{ rclone_first_remote_name }}": {
-            "check_interval": 30,
-            "exclude_open_files": false,
-            "max_size_gb": 200,
-            "opened_excludes": [
-                "/downloads/"
-            ],
-            "service_account_path": "",
-            "size_excludes": [
-                "downloads/*"
-            ]
-        }
-    }
+      },
+      "remove_empty_dir_depth": 2,
+      "sync_remote": "{{ remote.remote }}",
+      "upload_folder": "{{ remote.upload_from }}",
+      "upload_remote": "{{ remote.remote }}"
+    {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
+{% endfor %}
+
+  },
+  "sabnzbd": {
+    "apikey": "{{ sabnzbd_apikey | default('') }}",
+    "enabled": false,
+    "url": "{{ sabnzbd_web_local_url }}"
+  },
+  "syncer": {},
+  "uploader": {
+{% for remote in cloudplow_remotes %}
+    "{{ remote.remote }}": {
+      "check_interval": 30,
+      "exclude_open_files": false,
+      "max_size_gb": 200,
+      "opened_excludes": [
+        "/downloads/"
+      ],
+      "service_account_path": "",
+      "size_excludes": [
+        "downloads/*"
+      ]
+    {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
+{% endfor %}
+
+  }
 }
