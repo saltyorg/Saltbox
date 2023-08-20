@@ -88,7 +88,7 @@ lidarr_docker_container: "{{ lidarr_name }}"
 
 # Image
 lidarr_docker_image_pull: true
-lidarr_docker_image_repo: "cr.hotio.dev/hotio/lidarr"
+lidarr_docker_image_repo: "ghcr.io/hotio/lidarr"
 lidarr_docker_image_tag: "release"
 lidarr_docker_image: "{{ lookup('vars', lidarr_name + '_docker_image_repo', default=lidarr_docker_image_repo)
                          + ':' + lookup('vars', lidarr_name + '_docker_image_tag', default=lidarr_docker_image_tag) }}"

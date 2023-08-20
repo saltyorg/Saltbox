@@ -88,7 +88,7 @@ sonarr_docker_container: "{{ sonarr_name }}"
 
 # Image
 sonarr_docker_image_pull: true
-sonarr_docker_image_repo: "cr.hotio.dev/hotio/sonarr"
+sonarr_docker_image_repo: "ghcr.io/hotio/sonarr"
 sonarr_docker_image_tag: "release"
 sonarr_docker_image: "{{ lookup('vars', sonarr_name + '_docker_image_repo', default=sonarr_docker_image_repo)
                          + ':' + lookup('vars', sonarr_name + '_docker_image_tag', default=sonarr_docker_image_tag) }}"

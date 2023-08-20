@@ -102,7 +102,7 @@ jellyfin_docker_container: "{{ jellyfin_name }}"
 
 # Image
 jellyfin_docker_image_pull: true
-jellyfin_docker_image_repo: "cr.hotio.dev/hotio/jellyfin"
+jellyfin_docker_image_repo: "ghcr.io/hotio/jellyfin"
 jellyfin_docker_image_tag: "release"
 jellyfin_docker_image: "{{ lookup('vars', jellyfin_name + '_docker_image_repo', default=jellyfin_docker_image_repo)
                            + ':' + lookup('vars', jellyfin_name + '_docker_image_tag', default=jellyfin_docker_image_tag) }}"

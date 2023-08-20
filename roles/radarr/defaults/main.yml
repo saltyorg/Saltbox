@@ -89,7 +89,7 @@ radarr_docker_container: "{{ radarr_name }}"
 
 # Image
 radarr_docker_image_pull: true
-radarr_docker_image_repo: "cr.hotio.dev/hotio/radarr"
+radarr_docker_image_repo: "ghcr.io/hotio/radarr"
 radarr_docker_image_tag: "release"
 radarr_docker_image: "{{ lookup('vars', radarr_name + '_docker_image_repo', default=radarr_docker_image_repo)
                          + ':' + lookup('vars', radarr_name + '_docker_image_tag', default=radarr_docker_image_tag) }}"

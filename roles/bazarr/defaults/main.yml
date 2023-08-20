@@ -80,7 +80,7 @@ bazarr_docker_container: "{{ bazarr_name }}"
 
 # Image
 bazarr_docker_image_pull: true
-bazarr_docker_image_repo: "cr.hotio.dev/hotio/bazarr"
+bazarr_docker_image_repo: "ghcr.io/hotio/bazarr"
 bazarr_docker_image_tag: "latest"
 bazarr_docker_image: "{{ lookup('vars', bazarr_name + '_docker_image_repo', default=bazarr_docker_image_repo)
                          + ':' + lookup('vars', bazarr_name + '_docker_image_tag', default=bazarr_docker_image_tag) }}"

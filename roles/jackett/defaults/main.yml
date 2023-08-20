@@ -79,7 +79,7 @@ jackett_docker_container: "{{ jackett_name }}"
 # Image
 jackett_docker_image_pull: true
 jackett_docker_image_tag: "release"
-jackett_docker_image: "cr.hotio.dev/hotio/jackett:{{ jackett_docker_image_tag }}"
+jackett_docker_image: "ghcr.io/hotio/jackett:{{ jackett_docker_image_tag }}"
 
 # Ports
 jackett_docker_ports_defaults: []

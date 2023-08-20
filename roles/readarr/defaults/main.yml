@@ -89,7 +89,7 @@ readarr_docker_container: "{{ readarr_name }}"
 
 # Image
 readarr_docker_image_pull: true
-readarr_docker_image_repo: "cr.hotio.dev/hotio/readarr"
+readarr_docker_image_repo: "ghcr.io/hotio/readarr"
 readarr_docker_image_tag: "nightly"
 readarr_docker_image: "{{ lookup('vars', readarr_name + '_docker_image_repo', default=readarr_docker_image_repo)
                           + ':' + lookup('vars', readarr_name + '_docker_image_tag', default=readarr_docker_image_tag) }}"
