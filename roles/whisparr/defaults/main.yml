@@ -85,7 +85,7 @@ whisparr_docker_container: "{{ whisparr_name }}"
 
 # Image
 whisparr_docker_image_pull: true
-whisparr_docker_image_repo: "cr.hotio.dev/hotio/whisparr"
+whisparr_docker_image_repo: "ghcr.io/hotio/whisparr"
 whisparr_docker_image_tag: "nightly"
 whisparr_docker_image: "{{ lookup('vars', whisparr_name + '_docker_image_repo', default=whisparr_docker_image_repo)
                            + ':' + lookup('vars', whisparr_name + '_docker_image_tag', default=whisparr_docker_image_tag) }}"
