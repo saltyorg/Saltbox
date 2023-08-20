@@ -141,6 +141,13 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/FML128>
+            <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=Merlin Jehli/>
+            <br />
+            <sub style="font-size:14px"><b>Merlin Jehli</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Migz93>
             <img src=https://avatars.githubusercontent.com/u/33037112?v=4 width="100;"  alt=Migz93/>
             <br />
@@ -168,6 +175,8 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>powerdude</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/horjulf>
             <img src=https://avatars.githubusercontent.com/u/6215635?v=4 width="100;"  alt=Filipe/>
@@ -175,8 +184,6 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <sub style="font-size:14px"><b>Filipe</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Arcanemagus>
             <img src=https://avatars.githubusercontent.com/u/427137?v=4 width="100;"  alt=Landon Abney/>
@@ -189,13 +196,6 @@ Thank you to [<img src="https://resources.jetbrains.com/storage/products/company
             <img src=https://avatars.githubusercontent.com/u/3114081?v=4 width="100;"  alt=Lev Dubinets/>
             <br />
             <sub style="font-size:14px"><b>Lev Dubinets</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/FML128>
-            <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=Merlin Jehli/>
-            <br />
-            <sub style="font-size:14px"><b>Merlin Jehli</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
