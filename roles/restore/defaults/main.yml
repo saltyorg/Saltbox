@@ -8,4 +8,4 @@
 ##########################################################################
 ---
 restore_google_template: '--drive-chunk-size=128M --drive-acknowledge-abuse'
-restore_dropbox_template: '--dropbox-chunk-size=128M --disable-http2 --tpslimit 4 --tpslimit-burst 0'
+restore_dropbox_template: '--dropbox-chunk-size=128M --disable-http2 --dropbox-pacer-min-sleep=85ms'
