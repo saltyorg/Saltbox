@@ -41,7 +41,7 @@
     - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
     - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
     - { role: organizr, tags: ['saltbox', 'feederbox', 'organizr'] }
-    - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow'], when: ['use_cloudplow'] }
+    - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow', 'cloudplow-reset'], when: ['use_cloudplow'] }
     - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
     - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
     - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }

@@ -13,6 +13,12 @@
   tags:
     - "cloudplow-disable"
 
+- name: Reset Cloudplow directory
+  ansible.builtin.file:
+    path: "{{ cloudplow_path }}"
+    state: absent
+  when: ('cloudplow-reset' in ansible_run_tags)
+
 - name: Check if Plex instance is defined
   ansible.builtin.set_fact:
     plex_name: "{{ plex_name | default(plex_instances[0]) }}"
