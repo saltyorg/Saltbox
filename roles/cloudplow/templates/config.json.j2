@@ -32,7 +32,7 @@
   },
   "remotes": {
 {% for remote in cloudplow_remotes %}
-    "{{ remote.remote }}": {
+    "{{ remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}": {
       "hidden_remote": "",
       "rclone_command": "move",
       "rclone_excludes": [
@@ -56,9 +56,9 @@
         }
       },
       "remove_empty_dir_depth": 2,
-      "sync_remote": "{{ remote.remote }}",
+      "sync_remote": "{{ remote.remote if ':' in remote.remote else remote.remote + ':' }}",
       "upload_folder": "{{ remote.upload_from }}",
-      "upload_remote": "{{ remote.remote }}"
+      "upload_remote": "{{ remote.remote if ':' in remote.remote else remote.remote + ':' }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
 {% endfor %}
 
@@ -71,7 +71,7 @@
   "syncer": {},
   "uploader": {
 {% for remote in cloudplow_remotes %}
-    "{{ remote.remote }}": {
+    "{{ remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}": {
       "check_interval": 30,
       "exclude_open_files": false,
       "max_size_gb": 200,
