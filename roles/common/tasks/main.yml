@@ -31,6 +31,16 @@
     - /mnt
     - /mnt/local
     - /mnt/local/Media
+
+- name: Create common Media directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: common_create_media_subfolders
+  with_items:
     - /mnt/local/Media/Movies
     - /mnt/local/Media/Music
     - /mnt/local/Media/TV

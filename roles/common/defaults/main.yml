@@ -8,3 +8,4 @@
 #########################################################################
 ---
 nano_syntax_highlighting_enabled: true
+common_create_media_subfolders: true
