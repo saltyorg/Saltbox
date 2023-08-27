@@ -25,7 +25,7 @@
         attributes: '-i'
 
     - name: Mount Path | Legacy block
-      when: (not 'immutable' in mnt_unionfs.stat.attributes)
+      when: (not 'immutable' in mnt_unionfs_stat.stat.attributes)
       block:
         - name: "Mount Path | Remove empty directories in '/mnt/unionfs'"
           ansible.builtin.shell: "find '/mnt/unionfs' -type d -empty -delete"
