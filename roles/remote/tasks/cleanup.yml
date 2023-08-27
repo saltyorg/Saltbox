@@ -78,7 +78,6 @@
       ansible.builtin.stat:
         path: "{{ cleanup_mount_path }}"
       register: cleanup_mount_path_stat2
-      ignore_errors: true
 
     - name: "Cleanup | Recursively find '{{ cleanup_mount_path }}' files"
       ansible.builtin.find:
