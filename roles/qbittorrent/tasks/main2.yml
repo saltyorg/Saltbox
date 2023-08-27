@@ -100,6 +100,12 @@
 - name: Docker Install
   when: not qbittorrent_host_install
   block:
+    - name: Remove '{{ qbittorrent_name }}' from hosts
+      ansible.builtin.blockinfile:
+        path: "/etc/hosts"
+        marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
+        state: absent
+
     - name: Create Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
