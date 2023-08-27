@@ -10,6 +10,7 @@
 - name: "Cleanup | Set 'rclone_service_name'"
   ansible.builtin.set_fact:
     rclone_service_name: "{{ item.split('.')[0] }}"
+    rclone_refresh_service_name: "{{ item.split('.')[0] }}_refresh.service"
 
 - name: "Cleanup | Fail if 'rclone_service_name' is empty"
   ansible.builtin.fail:
@@ -21,26 +22,25 @@
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
-  ignore_errors: true
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ rclone_service_name }}.service"
     state: absent
 
-- name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.service'"
+- name: "Cleanup | Stop and disable existing '{{ rclone_refresh_service_name }}'"
   ansible.builtin.systemd:
-    name: "{{ rclone_service_name }}_refresh.service"
+    name: "{{ rclone_refresh_service_name }}"
     state: stopped
     enabled: false
-  ignore_errors: true
+  when: rclone_refresh_service_name in saltbox_managed_rclone_services
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
   ansible.builtin.systemd:
     name: "{{ rclone_service_name }}_refresh.timer"
     state: stopped
     enabled: false
-  ignore_errors: true
+  when: rclone_refresh_service_name in saltbox_managed_rclone_services
 
 - name: "Cleanup | Delete '{{ rclone_refresh_service }}_refresh' services"
   ansible.builtin.file:
@@ -51,6 +51,7 @@
   loop:
     - "{{ rclone_service_name }}_refresh.service"
     - "{{ rclone_service_name }}_refresh.timer"
+  when: rclone_refresh_service_name in saltbox_managed_rclone_services
 
 - name: "Cleanup | Set 'cleanup_mount_path'"
   ansible.builtin.set_fact:
@@ -65,7 +66,6 @@
   ansible.builtin.stat:
     path: "{{ cleanup_mount_path }}"
   register: cleanup_mount_path_stat
-  ignore_errors: true
 
 - name: "Cleanup | Tasks for '{{ cleanup_mount_path }}' path"
   when: (cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists)
@@ -74,18 +74,24 @@
       ansible.builtin.shell: "find '{{ cleanup_mount_path }}' -type d -empty -delete"
       ignore_errors: true
 
+    - name: "Cleanup | Check if '{{ cleanup_mount_path }}' still exists"
+      ansible.builtin.stat:
+        path: "{{ cleanup_mount_path }}"
+      register: cleanup_mount_path_stat2
+      ignore_errors: true
+
     - name: "Cleanup | Recursively find '{{ cleanup_mount_path }}' files"
       ansible.builtin.find:
         paths: '{{ cleanup_mount_path }}'
         hidden: true
         recurse: true
       register: cleanup_mount_path_stat_files
-      ignore_errors: true
+      when: cleanup_mount_path_stat2.stat.exists
 
     - name: "Cleanup | Backup non-empty '{{ cleanup_mount_path }}' path"
       ansible.builtin.shell: "mv {{ cleanup_mount_path }} {{ cleanup_mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
       ignore_errors: true
-      when: (cleanup_mount_path_stat_files.matched | int > 0)
+      when: cleanup_mount_path_stat2.stat.exists and (cleanup_mount_path_stat_files.matched | int > 0)
 
     - name: "Cleanup | Remove '{{ cleanup_mount_path }}'"
       ansible.builtin.file:

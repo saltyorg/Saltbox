@@ -120,12 +120,12 @@
   loop: "{{ services | dict2items }}"
   loop_control:
     loop_var: rclone_service
-  when: (rclone_service_template in rclone_service.key) and (not 'refresh' in rclone_service.key)
+  when: (rclone_service_template in rclone_service.key)
 
 - name: Cleanup Tasks
   ansible.builtin.include_tasks: "cleanup.yml"
   with_items: "{{ saltbox_managed_rclone_services }}"
-  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0)
+  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0) and (not 'refresh' in item)
 
 - name: Create '/mnt/remote' directory
   ansible.builtin.file:
