@@ -14,10 +14,10 @@
 - name: "Mount Path | Check if '/mnt/unionfs' exists"
   ansible.builtin.stat:
     path: "/mnt/unionfs"
-  register: mnt_unionfs
+  register: mnt_unionfs_stat
 
 - name: "Mount Path | Tasks for '/mnt/unionfs' path"
-  when: (mnt_unionfs is failed) or mnt_unionfs.stat.exists
+  when: (mnt_unionfs_stat is failed) or mnt_unionfs_stat.stat.exists
   block:
     - name: "Mount Path | Remove '/mnt/unionfs' immutable flag"
       ansible.builtin.file:
@@ -31,17 +31,23 @@
           ansible.builtin.shell: "find '/mnt/unionfs' -type d -empty -delete"
           ignore_errors: true
 
+        - name: "Mount Path | Check if '/mnt/unionfs' still exists"
+          ansible.builtin.stat:
+            path: "/mnt/unionfs"
+          register: mnt_unionfs_stat2
+
         - name: "Mount Path | Recursively find '/mnt/unionfs' files"
           ansible.builtin.find:
             paths: "/mnt/unionfs"
             hidden: true
             recurse: true
           register: mnt_unionfs_files
+          when: mnt_unionfs_stat2.stat.exists
 
         - name: "Mount Path | Backup non-empty '/mnt/unionfs' path"
           ansible.builtin.shell: "mv /mnt/unionfs /mnt/unionfs_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
           ignore_errors: true
-          when: (mnt_unionfs_files.matched | int > 0)
+          when: mnt_unionfs_stat2.stat.exists and (mnt_unionfs_files.matched | int > 0)
 
     - name: "Mount Path | Remove '/mnt/unionfs'"
       ansible.builtin.file:
