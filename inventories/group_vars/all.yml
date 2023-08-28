@@ -70,8 +70,6 @@ torrents_downloads_path_is_defined: "{{ (downloads is defined) and
                                         (downloads_torrents_path is not none) and
                                         (downloads_torrents_path | trim | length > 0) }}"
 
-feeder_mount_is_enabled: "{{ rclone.remotes | selectattr('remote', 'equalto', 'feeder') | list | count > 0 }}"
-
 rclone_remote_is_defined: "{{ (rclone is defined) and
                               (rclone is not none) and
                               (rclone | trim | length > 0) and

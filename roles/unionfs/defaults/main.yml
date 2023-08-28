@@ -11,7 +11,7 @@
 # Global
 ################################
 
-local_mount_branch: "{{ '/mnt/remote/feeder=RW:' if feeder_mount_is_enabled else '/mnt/local=RW:' }}"
+local_mount_branch: "/mnt/local=RW:"
 
 custom_mount_branch: "" # Format: "/mnt/remote/someremote=NC"
 
@@ -55,7 +55,7 @@ mergerfs_mount_start_command: |-
   /usr/bin/mergerfs \
     -o category.create=ff,async_read=true,cache.files=partial \
     -o dropcacheonclose=true,minfreespace=0,fsname=mergerfs \
-    -o xattr=nosys,statfs=full,statfs_ignore=nc,umask=002,noatime \
+    -o xattr=nosys,statfs=base,statfs_ignore=nc,umask=002,noatime \
     {{ mergerfs_mount_branches }} /mnt/unionfs
 
 mergerfs_mount_stop_command: /bin/fusermount3 -u /mnt/unionfs
