@@ -20,12 +20,20 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "{{ traefik_x_robots }}"
           server: ""
+          x-xss-protection: ""
         frameDeny: false
         contentTypeNosniff: true
     secureHeaders:
       headers:
         sslProxyHeaders:
           X-Forwarded-Proto: https
+    dropsecurityheaders:
+      headers:
+        customresponseheaders:
+          content-security-policy: ""
+          permissions-policy: ""
+          referrer-policy: ""
+          x-frame-options: ""
     hsts:
       headers:
         stsSeconds: 63072000
