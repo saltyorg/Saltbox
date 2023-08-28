@@ -15,7 +15,7 @@
   ansible.builtin.set_fact:
     _remotes_list: "{{ _remotes_list | default('') + '/mnt/remote/' + (item.remote.split(':')[0] if ':' in item.remote else item.remote) + '=NC:' }}"
   with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and use_remote and (item.remote != "feeder")
+  when: rclone_remote_is_defined and use_remote
 
 - name: Variables | Append 'custom_mount_branch' to '_remotes_list' variable
   ansible.builtin.set_fact:
