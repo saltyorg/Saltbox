@@ -10,6 +10,7 @@
 - name: "Cleanup | Set 'rclone_service_name'"
   ansible.builtin.set_fact:
     rclone_service_name: "{{ item.split('.')[0] }}"
+    rclone_service_name_full: "{{ item.split('.')[0] }}.service"
     rclone_refresh_service_name: "{{ item.split('.')[0] }}_refresh.service"
 
 - name: "Cleanup | Fail if 'rclone_service_name' is empty"
@@ -22,11 +23,13 @@
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
+  when: rclone_service_name_full in saltbox_managed_rclone_services
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ rclone_service_name }}.service"
     state: absent
+  when: rclone_service_name_full in saltbox_managed_rclone_services
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_refresh_service_name }}'"
   ansible.builtin.systemd:
