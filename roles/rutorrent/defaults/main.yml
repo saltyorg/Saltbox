@@ -72,6 +72,7 @@ rutorrent_traefik_api_endpoint: "PathPrefix(`/RPC2`)"
 ################################
 
 rutorrent_config_public_trackers: false
+rutorrent_config_diskspace_path: "/mnt"
 
 ## New Installs
 

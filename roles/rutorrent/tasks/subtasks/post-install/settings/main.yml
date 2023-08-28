@@ -9,3 +9,21 @@
 ---
 - name: Post-Install | Settings | Update settings For New Installs
   ansible.builtin.import_tasks: "new_installs.yml"
+  when: (not continuous_integration) and (not rutorrent_paths_rtorrent_rc_location_stat.stat.exists)
+
+- name: Post-Install | Settings | Create directory
+  ansible.builtin.file:
+    path: "{{ rutorrent_paths_location }}/plugins/diskspace"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: Post-Install | Settings | Import custom 'conf.php' for diskspace
+  ansible.builtin.template:
+    src: "diskspace_conf.php.j2"
+    dest: "{{ rutorrent_paths_location }}/plugins/diskspace/conf.php"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0644"
+    force: true
