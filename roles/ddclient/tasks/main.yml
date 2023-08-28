@@ -33,6 +33,8 @@
       - portainer
       - organizr
       - nzbget
+      - sabnzbd
+      - prowlarr
       - rutorrent
       - jackett
       - nzbhydra2
