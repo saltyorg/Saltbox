@@ -189,7 +189,7 @@
         or (not yyq_binary.stat.exists)
 
 - name: "Install Nano Syntax Highlighting"
-  ansible.builtin.shell: "curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh"
+  ansible.builtin.shell: "curl https://raw.githubusercontent.com/saltydk/nanorc/master/install.sh | sh"
   become: true
   become_user: "{{ user.name }}"
   when: nano_syntax_highlighting_enabled
