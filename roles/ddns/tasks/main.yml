@@ -14,6 +14,12 @@
       - "Check your 'adv_settings.yml' config."
   when: not (dns.ipv4 or dns.ipv6)
 
+- name: "Fail if not using Cloudflare"
+  ansible.builtin.fail:
+    msg:
+      - "You do not have Cloudflare enabled, this only works with Cloudflare."
+  when: not cloudflare_is_enabled
+
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
