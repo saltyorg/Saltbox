@@ -1,0 +1,60 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | DNS | Tasker              #
+# Author(s):     desimaniac, salty                                      #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Resources | Tasks | DNS | Tasker | Get FLD
+  ansible.builtin.shell: |
+    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
+  register: fld
+
+- name: Resources | Tasks | DNS | Tasker | Get subdomain
+  when: dns_record | length > 0
+  block:
+    - name: Resources | Tasks | DNS | Tasker | Set subdomain var
+      ansible.builtin.set_fact:
+        subdomain_block: 1
+
+    - name: Resources | Tasks | DNS | Tasker | Get subdomain
+      ansible.builtin.shell: |
+        {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_record }}.{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
+      register: subdomain_notempty
+
+- name: Resources | Tasks | DNS | Tasker | Get subdomain
+  when: dns_record | length == 0
+  block:
+    - name: Resources | Tasks | DNS | Tasker | Set subdomain var
+      ansible.builtin.set_fact:
+        subdomain_block: 0
+
+    - name: Resources | Tasks | DNS | Tasker | Get subdomain
+      ansible.builtin.shell: |
+        {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.subdomain)"
+      register: subdomain_empty
+
+- name: Resources | Tasks | DNS | Tasker | Set subdomain var
+  ansible.builtin.set_fact:
+    subdomain: "{{ subdomain_notempty.stdout
+                if (subdomain_block)
+                else subdomain_empty.stdout }}"
+
+- name: Resources | Tasks | DNS | Tasker | Set '_dns_*' variables
+  ansible.builtin.set_fact:
+    _dns_tasker_zone: "{{ fld.stdout }}"
+    _dns_tasker_record: "{{ subdomain if (subdomain | length > 0)
+                          else '@' }}"
+    _dns_tasker_action: "{{ dns_action | default('add') }}"
+    _dns_tasker_proxy: "{{ dns_proxy | default(dns.proxied) }}"
+
+- name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role
+  ansible.builtin.include_role:
+    name: dns
+  vars:
+    _dns_role_record: "{{ _dns_tasker_record }}"
+    _dns_role_zone: "{{ _dns_tasker_zone }}"
+    _dns_role_action: "{{ _dns_tasker_action }}"
+    _dns_role_proxy: "{{ _dns_tasker_proxy }}"
