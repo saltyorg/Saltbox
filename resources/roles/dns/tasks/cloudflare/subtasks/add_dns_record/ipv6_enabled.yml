@@ -9,7 +9,7 @@
 ---
 - name: Cloudflare | Add DNS Record | IPv6 | Validate IPv6 variable
   ansible.builtin.fail:
-    msg: "ipv6_address_public contains: '{{ ipv6_address_public }}' which is not a valid IP"
+    msg: "{{ ipv6_address_public_error }}"
   when: (not ipv6_address_public_is_valid)
 
 - name: Cloudflare | Add DNS Record | IPv6 | Add DNS Record

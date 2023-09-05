@@ -1,29 +1,75 @@
-#!/bin/bash
+#!/srv/ansible/venv/bin/python3
 
-# https://github.com/mtecer/terraform/blob/master/bmc/files/ansible/custom.fact
+import requests
+import json
+import ipaddress
 
-RES=$(curl -s -w "%{http_code}" --connect-timeout 2.37 -4 https://ipify.saltbox.dev)
-BODY=${RES::-3}
-STATUS=$(printf "%s" "$RES" | tail -c 3)
-if [[ "$STATUS" == 200 ]] && [ -n "${BODY-unset}" ]; then
-    # Server returned 200 response
-    PUBLIC_IP=$BODY
-else
-    # Server didn't return 200 response, so falling back to icanhazip.com
-    PUBLIC_IP=$(curl --connect-timeout 2.37 -s -4 https://ipv4.icanhazip.com)
-fi
+urls = {
+    "ipv4_primary": "https://ipify.saltbox.dev",
+    "ipv4_fallback": "https://ipv4.icanhazip.com",
+    "ipv6_primary": "https://ipify6.saltbox.dev",
+    "ipv6_fallback": "https://ipv6.icanhazip.com",
+}
 
-RES6=$(curl -s -w "%{http_code}" --connect-timeout 2.37 -6 https://ipify6.saltbox.dev)
-BODY6=${RES6::-3}
-STATUS6=$(printf "%s" "$RES6" | tail -c 3)
-if [[ "$STATUS6" == 200 ]] && [ -n "${BODY6-unset}" ]; then
-    # Server returned 200 response
-    PUBLIC_IPv6=$BODY6
-else
-    # Server didn't return 200 response, so falling back to icanhazip.com
-    PUBLIC_IPv6=$(curl --connect-timeout 2.37 -s -6 https://ipv6.icanhazip.com)
-fi
+MAX_RETRIES = 3
+TIMEOUT = 3  # in seconds
 
-echo "[ip]"
-echo "public_ip=${PUBLIC_IP}"
-echo "public_ipv6=${PUBLIC_IPv6}"
+def validate_ip(ip, version):
+    try:
+        if version == "ipv4":
+            ipaddress.IPv4Address(ip)
+        else:
+            ipaddress.IPv6Address(ip)
+        return True
+    except ipaddress.AddressValueError:
+        return False
+
+def get_ip(url, version):
+    retries = 0
+    error = None
+
+    while retries < MAX_RETRIES:
+        try:
+            response = requests.get(url, timeout=TIMEOUT)
+            if response.status_code == 200:
+                ip = response.text.strip()
+                if validate_ip(ip, version):
+                    return ip, None, False  # IP, error message, failed status
+                else:
+                    error = f"Invalid {version} address received."
+            else:
+                error = f"HTTP {response.status_code} received from {url}."
+
+        except requests.RequestException as e:
+            error = str(e)
+        retries += 1
+
+    return None, error, True  # IP, error message, failed status
+
+data = {
+    "ip": {
+        "public_ip": "",
+        "public_ipv6": "",
+        "error_ipv4": None,
+        "error_ipv6": None,
+        "failed_ipv4": False,
+        "failed_ipv6": False
+    }
+}
+
+public_ip, error_v4, failed_v4 = get_ip(urls["ipv4_primary"], "ipv4")
+if not public_ip:
+    public_ip, error_v4, failed_v4 = get_ip(urls["ipv4_fallback"], "ipv4")
+
+public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_primary"], "ipv6")
+if not public_ipv6:
+    public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_fallback"], "ipv6")
+
+data["ip"]["public_ip"] = public_ip or ""
+data["ip"]["public_ipv6"] = public_ipv6 or ""
+data["ip"]["error_ipv4"] = error_v4
+data["ip"]["error_ipv6"] = error_v6
+data["ip"]["failed_ipv4"] = failed_v4
+data["ip"]["failed_ipv6"] = failed_v6
+
+print(json.dumps(data, indent=4))

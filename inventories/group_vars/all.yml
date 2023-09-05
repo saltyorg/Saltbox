@@ -150,13 +150,17 @@ ip_address_host: "0.0.0.0"
 
 ip_address_localhost: "127.0.0.1"
 
-ip_address_public: "{{ ansible_local.network.ip.public_ip | default(ansible_default_ipv4.address) }}"
+ip_address_public: "{{ ansible_local.network.ip.public_ip }}"
 
-ip_address_public_is_valid: "{{ ip_address_public | ansible.utils.ipv4 }}"
+ip_address_public_is_valid: "{{ false if ansible_local.network.ip.failed_ipv4 else true }}"
 
-ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 | default(ansible_default_ipv6.address) }}"
+ip_address_public_error: "{{ ansible_local.network.ip.error_ipv4 }}"
 
-ipv6_address_public_is_valid: "{{ ipv6_address_public | ansible.utils.ipv6 }}"
+ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 }}"
+
+ipv6_address_public_is_valid: "{{ false if ansible_local.network.ip.failed_ipv6 else true }}"
+
+ipv6_address_public_error: "{{ ansible_local.network.ip.error_ipv6 }}"
 
 ################################
 # Theme
