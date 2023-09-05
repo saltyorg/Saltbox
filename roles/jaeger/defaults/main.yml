@@ -29,9 +29,9 @@ jaeger_paths_folders_list:
 jaeger_web_subdomain: "{{ traefik.subdomains.jaeger }}"
 jaeger_web_domain: "{{ user.domain }}"
 jaeger_web_port: "16686"
-jaeger_web_url: "{{ 'https://' + jaeger_web_subdomain + '.' + jaeger_web_domain
+jaeger_web_url: "{{ 'https://' + (jaeger_web_subdomain + '.' + jaeger_web_domain
                  if (jaeger_web_subdomain | length > 0)
-                 else jaeger_web_domain }}"
+                 else jaeger_web_domain) }}"
 
 ################################
 # DNS

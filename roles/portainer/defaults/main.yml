@@ -29,9 +29,9 @@ portainer_paths_folders_list:
 portainer_web_subdomain: "{{ portainer_name }}"
 portainer_web_domain: "{{ user.domain }}"
 portainer_web_port: "9000"
-portainer_web_url: "{{ 'https://' + portainer_web_subdomain + '.' + portainer_web_domain
+portainer_web_url: "{{ 'https://' + (portainer_web_subdomain + '.' + portainer_web_domain
                     if (portainer_web_subdomain | length > 0)
-                    else portainer_web_domain }}"
+                    else portainer_web_domain) }}"
 
 ################################
 # DNS

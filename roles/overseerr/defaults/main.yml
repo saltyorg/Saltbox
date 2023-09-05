@@ -31,9 +31,9 @@ overseerr_paths_folders_list:
 overseerr_web_subdomain: "{{ overseerr_name }}"
 overseerr_web_domain: "{{ user.domain }}"
 overseerr_web_port: "5055"
-overseerr_web_url: "{{ 'https://' + lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)
+overseerr_web_url: "{{ 'https://' + (lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)
                     if (lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) | length > 0)
-                    else lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain) }}"
+                    else lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)) }}"
 
 ################################
 # DNS

@@ -30,9 +30,9 @@ autoscan_paths_config_location: "{{ autoscan_paths_location }}/config.yml"
 autoscan_web_subdomain: "{{ autoscan_name }}"
 autoscan_web_domain: "{{ user.domain }}"
 autoscan_web_port: "3030"
-autoscan_web_url: "{{ 'https://' + lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)
+autoscan_web_url: "{{ 'https://' + (lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)
                    if (lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) | length > 0)
-                   else lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain) }}"
+                   else lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)) }}"
 
 ################################
 # DNS

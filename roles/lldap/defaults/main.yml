@@ -51,9 +51,9 @@ lldap_paths_folders_list:
 lldap_web_subdomain: "lldap"
 lldap_web_domain: "{{ user.domain }}"
 lldap_web_port: "17170"
-lldap_web_url: "{{ 'https://' + lldap_web_subdomain + '.' + lldap_web_domain
+lldap_web_url: "{{ 'https://' + (lldap_web_subdomain + '.' + lldap_web_domain
                 if (lldap_web_subdomain | length > 0)
-                else lldap_web_domain }}"
+                else lldap_web_domain) }}"
 
 ################################
 # DNS

@@ -31,9 +31,9 @@ nzbhydra2_paths_config_location: "{{ nzbhydra2_paths_location }}/nzbhydra.yml"
 nzbhydra2_web_subdomain: "{{ nzbhydra2_name }}"
 nzbhydra2_web_domain: "{{ user.domain }}"
 nzbhydra2_web_port: "5076"
-nzbhydra2_web_url: "{{ 'https://' + nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain
+nzbhydra2_web_url: "{{ 'https://' + (nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain
                     if (nzbhydra2_web_subdomain | length > 0)
-                    else nzbhydra2_web_domain }}"
+                    else nzbhydra2_web_domain) }}"
 
 ################################
 # DNS

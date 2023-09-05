@@ -35,9 +35,9 @@ prowlarr_paths_folders_list:
 prowlarr_web_subdomain: "{{ prowlarr_name }}"
 prowlarr_web_domain: "{{ user.domain }}"
 prowlarr_web_port: "9696"
-prowlarr_web_url: "{{ 'https://' + prowlarr_web_subdomain + '.' + prowlarr_web_domain
+prowlarr_web_url: "{{ 'https://' + (prowlarr_web_subdomain + '.' + prowlarr_web_domain
                    if (prowlarr_web_subdomain | length > 0)
-                   else prowlarr_web_domain }}"
+                   else prowlarr_web_domain) }}"
 
 ################################
 # DNS

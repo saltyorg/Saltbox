@@ -47,9 +47,9 @@ netdata_paths_folders_list:
 netdata_web_subdomain: "{{ netdata_name }}"
 netdata_web_domain: "{{ user.domain }}"
 netdata_web_port: "19999"
-netdata_web_url: "{{ 'https://' + netdata_web_subdomain + '.' + netdata_web_domain
+netdata_web_url: "{{ 'https://' + (netdata_web_subdomain + '.' + netdata_web_domain
                   if (netdata_web_subdomain | length > 0)
-                  else netdata_web_domain }}"
+                  else netdata_web_domain) }}"
 
 ################################
 # DNS

@@ -42,9 +42,9 @@ rutorrent_paths_plugins_ini_location: "{{ rutorrent_paths_location }}/rutorrent/
 rutorrent_web_subdomain: "{{ rutorrent_name }}"
 rutorrent_web_domain: "{{ user.domain }}"
 rutorrent_web_port: "80"
-rutorrent_web_url: "{{ 'https://' + rutorrent_web_subdomain + '.' + rutorrent_web_domain
+rutorrent_web_url: "{{ 'https://' + (rutorrent_web_subdomain + '.' + rutorrent_web_domain
                     if (rutorrent_web_subdomain | length > 0)
-                    else rutorrent_web_domain }}"
+                    else rutorrent_web_domain) }}"
 
 ################################
 # DNS

@@ -29,9 +29,9 @@ dozzle_paths_folders_list:
 dozzle_web_subdomain: "{{ dozzle_name }}"
 dozzle_web_domain: "{{ user.domain }}"
 dozzle_web_port: "8080"
-dozzle_web_url: "{{ 'https://' + dozzle_web_subdomain + '.' + dozzle_web_domain
+dozzle_web_url: "{{ 'https://' + (dozzle_web_subdomain + '.' + dozzle_web_domain
                  if (dozzle_web_subdomain | length > 0)
-                 else dozzle_web_domain }}"
+                 else dozzle_web_domain) }}"
 
 ################################
 # DNS

@@ -29,9 +29,9 @@ nginx_paths_folders_list:
 nginx_web_subdomain: "{{ nginx_name }}"
 nginx_web_domain: "{{ user.domain }}"
 nginx_web_port: "80"
-nginx_web_url: "{{ 'https://' + lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain) + '.' + lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain)
+nginx_web_url: "{{ 'https://' + (lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain) + '.' + lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain)
                 if (lookup('vars', nginx_name + '_web_subdomain', default=nginx_web_subdomain) | length > 0)
-                else lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain) }}"
+                else lookup('vars', nginx_name + '_web_domain', default=nginx_web_domain)) }}"
 
 ################################
 # DNS

@@ -36,9 +36,9 @@ deluge_paths_folders_list:
 deluge_web_subdomain: "{{ deluge_name }}"
 deluge_web_domain: "{{ user.domain }}"
 deluge_web_port: "8112"
-deluge_web_url: "{{ 'https://' + deluge_web_subdomain + '.' + deluge_web_domain
+deluge_web_url: "{{ 'https://' + (deluge_web_subdomain + '.' + deluge_web_domain
                  if (deluge_web_subdomain | length > 0)
-                 else deluge_web_domain }}"
+                 else deluge_web_domain) }}"
 
 ################################
 # DNS

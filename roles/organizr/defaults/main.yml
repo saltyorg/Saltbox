@@ -29,9 +29,9 @@ organizr_paths_folders_list:
 organizr_web_subdomain: "organizr"
 organizr_web_domain: "{{ user.domain }}"
 organizr_web_port: "80"
-organizr_web_url: "{{ 'https://' + organizr_web_subdomain + '.' + organizr_web_domain
+organizr_web_url: "{{ 'https://' + (organizr_web_subdomain + '.' + organizr_web_domain
                    if (organizr_web_subdomain | length > 0)
-                   else organizr_web_domain }}"
+                   else organizr_web_domain) }}"
 
 ################################
 # DNS
