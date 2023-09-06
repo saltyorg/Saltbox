@@ -40,7 +40,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install packages
-        run: pip install ansible>=7.0.0,<8.0.0 ansible-lint==6.19.0 jmespath
+        run: pip install "ansible>=7.0.0,<8.0.0" ansible-lint==6.19.0 jmespath
 
       - name: Run ansible linter
         run: ansible-lint
