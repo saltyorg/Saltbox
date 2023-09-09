@@ -82,7 +82,7 @@ docker_package_state: "{{ 'latest' if (docker_version is defined and docker_vers
 
 put_docker_dpkg_into_hold: true
 
-docker_containers_startup_delay: 60
+docker_containers_startup_delay: "{{ 30 if continuous_integration else 120 }}"
 
 docker_filesystem_path: "/media/docker-volume.img"
 
@@ -94,7 +94,7 @@ docker_ipv6: "{{ dns.ipv6 }}"
 
 docker_service_after: "{{ mergerfs_service_name }}"
 
-docker_service_sleep: 120
+docker_service_sleep: "{{ 0 if continuous_integration else 120 }}"
 
 docker_service_force: true
 
