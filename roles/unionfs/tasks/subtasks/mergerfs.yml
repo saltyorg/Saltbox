@@ -7,10 +7,16 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Check if 'saltbox_managed_mergerfs.service' exists"
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/mergerfs.service"
+  register: saltbox_managed_mergerfs_status
+
 - name: "MergerFS | Stop 'saltbox_managed_mergerfs.service'"
   ansible.builtin.systemd:
     name: saltbox_managed_mergerfs.service
     state: stopped
+  when: saltbox_managed_mergerfs_status.stat.exists
 
 - name: "MergerFS | Get URL for latest mergerfs release"
   ansible.builtin.shell: "{{ mergerfs_release_lookup_command }}"
