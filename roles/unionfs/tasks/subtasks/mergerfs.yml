@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "MergerFS | Stop 'saltbox_managed_mergerfs.service'"
+  ansible.builtin.systemd:
+    name: saltbox_managed_mergerfs.service
+    state: stopped
+
 - name: "MergerFS | Get URL for latest mergerfs release"
   ansible.builtin.shell: "{{ mergerfs_release_lookup_command }}"
   args:
@@ -35,6 +40,10 @@
     mode: "0755"
     force: "{{ mergerfs_override_service }}"
 
+- name: "MergerFS | Systemd reload daemon"
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: Mount Path Tasks
   ansible.builtin.import_tasks: "mount_path.yml"
 
@@ -43,4 +52,3 @@
     name: saltbox_managed_mergerfs.service
     state: started
     enabled: true
-    daemon_reload: true
