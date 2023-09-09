@@ -9,7 +9,7 @@
 ---
 - name: "Check if 'saltbox_managed_mergerfs.service' exists"
   ansible.builtin.stat:
-    path: "/etc/systemd/system/mergerfs.service"
+    path: "/etc/systemd/system/saltbox_managed_mergerfs.service"
   register: saltbox_managed_mergerfs_status
 
 - name: "MergerFS | Stop 'saltbox_managed_mergerfs.service'"
