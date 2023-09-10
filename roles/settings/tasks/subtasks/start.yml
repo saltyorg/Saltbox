@@ -31,6 +31,7 @@
       - "backup_config.yml"
       - "providers.yml"
       - "hetzner_nfs.yml"
+    traefik3_migration: "{{ true if (rclone.remotes is undefined) else false }}"
 
 - name: Start | Initialize vars with empty lists
   ansible.builtin.set_fact:
