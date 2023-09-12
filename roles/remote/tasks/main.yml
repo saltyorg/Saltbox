@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Import Rclone Role
+  ansible.builtin.include_role:
+    name: rclone
+  when: ('mounts' in ansible_run_tags) and remote_update_rclone
+
 - name: "Gather list of running Docker containers"
   ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
   register: saltbox_managed_containers

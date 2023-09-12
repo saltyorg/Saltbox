@@ -27,6 +27,8 @@ rclone_remote_with_path: "{{ item.remote if ':' in item.remote else item.remote 
 rclone_first_remote_name: "{{ rclone.remotes[0].remote.split(':')[0] if ':' in rclone.remotes[0].remote else rclone.remotes[0].remote }}"
 rclone_first_remote_name_with_path: "{{ rclone.remotes[0].remote if ':' in rclone.remotes[0].remote else rclone.remotes[0].remote + ':Media' }}"
 
+remote_update_rclone: true
+
 ################################
 # Rclone VFS Refresh
 ################################
