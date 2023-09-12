@@ -33,6 +33,7 @@ ExecStart=/usr/bin/rclone mount \
     --umask=002 \
     --user-agent='{{ user_agent }}' \
 {% if item.vfs_cache.enabled %}
+    --vfs-cache-min-free-space={{ rclone_vfs_cache_min_free_space }} \
     --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
     --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
