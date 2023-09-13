@@ -17,6 +17,7 @@ rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
 rclone_vfs_cache_dir: ""
 rclone_vfs_cache_dir_lookup: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_vfs_cache_dir', default=rclone_vfs_cache_dir) }}"
 rclone_vfs_cache_min_free_space: "off"
+rclone_vfs_cache_poll_interval: "1m0s"
 rclone_service_template: "saltbox_managed_rclone_"
 
 rclone_port_lookup: "{{ port_lookup_rclone.meta.port
