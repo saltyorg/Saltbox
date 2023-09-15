@@ -6,6 +6,9 @@ minimum-age: 10m
 # Override the delay between processed scans (Default 5s):
 scan-delay: 5s
 
+# override the interval scan stats are displayed (defaults to 1 hour / 0s to disable):
+scan-stats: 1h
+
 # Set anchor files for remote storage. If these are missing no scans will be sent to the target to avoid files being trashed when a mount fails
 anchors:
   - /mnt/unionfs/mounted.bin
