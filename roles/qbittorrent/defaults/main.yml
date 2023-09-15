@@ -39,6 +39,8 @@ qbittorrent_host_release_lookup: "{{ qbittorrent_host_lookup_libtorrent2
 qbittorrent_host_version: |
   curl -sL {{ qbittorrent_host_release_url }} | jq -r '. | "{{ qbittorrent_host_release_lookup }}"'
 
+qbittorent_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
+
 ################################
 # Paths
 ################################

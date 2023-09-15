@@ -21,20 +21,29 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Check if '{{ qbittorrent_name }}.service' exists
+- name: Check if legacy '{{ qbittorrent_name }}.service' exists
   ansible.builtin.stat:
     path: "/etc/systemd/system/{{ qbittorrent_name }}.service"
+  register: qbittorrent_legacy_service
+
+- name: "Execute legacy tasks"
+  ansible.builtin.include_tasks: subtasks/legacy.yml
+  when: qbittorrent_legacy_service.stat.exists
+
+- name: Check if '{{ qbittorent_service_name }}' exists
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ qbittorent_service_name }}"
   register: qbittorrent_service
 
-- name: Stop '{{ qbittorrent_name }}.service'
+- name: Stop '{{ qbittorent_service_name }}'
   ansible.builtin.systemd:
-    name: "{{ qbittorrent_name }}.service"
+    name: "{{ qbittorent_service_name }}"
     state: stopped
   when: qbittorrent_service.stat.exists
 
-- name: Remove '{{ qbittorrent_name }}.service' file
+- name: Remove '{{ qbittorent_service_name }}' file
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ qbittorrent_name }}.service"
+    path: "/etc/systemd/system/{{ qbittorent_service_name }}"
     state: absent
   when: qbittorrent_service.stat.exists and not qbittorrent_host_install
 
@@ -80,20 +89,20 @@
     - name: Import '{{ qbittorrent_name }}.service'
       ansible.builtin.template:
         src: "qbittorrent.service.j2"
-        dest: "/etc/systemd/system/{{ qbittorrent_name }}.service"
+        dest: "/etc/systemd/system/{{ qbittorent_service_name }}"
         mode: "0755"
         force: true
 
-    - name: Systemd daemon-reload '{{ qbittorrent_name }}.service'
+    - name: Systemd daemon-reload '{{ qbittorent_service_name }}'
       ansible.builtin.systemd:
-        name: "{{ qbittorrent_name }}.service"
+        name: "{{ qbittorent_service_name }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Start '{{ qbittorrent_name }}.service'
+    - name: Start '{{ qbittorent_service_name }}'
       ansible.builtin.systemd:
-        name: "{{ qbittorrent_name }}.service"
+        name: "{{ qbittorent_service_name }}"
         state: started
         enabled: true
 

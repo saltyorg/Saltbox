@@ -20,9 +20,9 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
   when: not qbittorrent_host_install
 
-- name: Post-Install | Stop '{{ qbittorrent_name }}.service'
+- name: Post-Install | Stop '{{ qbittorent_service_name }}'
   ansible.builtin.systemd:
-    name: "{{ qbittorrent_name }}.service"
+    name: "{{ qbittorent_service_name }}"
     state: stopped
     enabled: true
   when: qbittorrent_host_install
@@ -34,9 +34,9 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
   when: not qbittorrent_host_install
 
-- name: Post-Install | Start '{{ qbittorrent_name }}.service'
+- name: Post-Install | Start '{{ qbittorent_service_name }}'
   ansible.builtin.systemd:
-    name: "{{ qbittorrent_name }}.service"
+    name: "{{ qbittorent_service_name }}"
     state: started
     enabled: true
   when: qbittorrent_host_install
