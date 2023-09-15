@@ -71,7 +71,7 @@ autoscan_docker_container: "{{ autoscan_name }}"
 # Image
 autoscan_docker_image_pull: true
 autoscan_docker_image_tag: "latest"
-autoscan_docker_image: "cloudb0x/autoscan:{{ lookup('vars', autoscan_name + '_docker_image_tag', default=autoscan_docker_image_tag) }}"
+autoscan_docker_image: "saltydk/autoscan:{{ lookup('vars', autoscan_name + '_docker_image_tag', default=autoscan_docker_image_tag) }}"
 
 # Ports
 autoscan_docker_ports_defaults: []
