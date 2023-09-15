@@ -27,7 +27,7 @@
 
 - name: Wait until Plex instance returns expected status code
   ansible.builtin.uri:
-    url: "http://{{ plex_name }}:32400/web/index.html"
+    url: "http://{{ plex_extra_tasks_hostname }}:32400/web/index.html"
     method: GET
     status_code: [200]
   register: plex_status_result
