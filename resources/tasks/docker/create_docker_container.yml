@@ -44,7 +44,9 @@
     entrypoint: "{{ lookup('vars', _var_prefix + '_docker_entrypoint', default=omit) }}"
     env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     env_file: "{{ lookup('vars', _var_prefix + '_docker_env_file', default=omit) }}"
-    etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit) }}"
+    etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit)
+                if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
+                else {} }}"
     exposed_ports: "{{ (lookup('vars', _var_prefix + '_docker_exposed_ports', default=[]) | unique | reject('equalto', omit) | list)
                     if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
                     else [] }}"
