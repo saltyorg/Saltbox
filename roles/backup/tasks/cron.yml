@@ -11,11 +11,6 @@
   ansible.builtin.shell: "which ansible-playbook"
   register: playbook_binary
 
-- name: "Remove legacy cron backup task."
-  ansible.builtin.cron:
-    name: "Backup Saltbox"
-    state: absent
-
 - name: "Schedule cron backup." # noqa args[module]
   ansible.builtin.cron:
     name: "Saltbox Backup"
