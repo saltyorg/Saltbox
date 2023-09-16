@@ -29,6 +29,7 @@
         headers:
           Accept: "application/json"
         status_code: 200
+      environment: "{{ plex_proxy_dict }}"
       register: plex_claim
 
     - name: "Claim Server | Set 'plex_claim_code' variable"

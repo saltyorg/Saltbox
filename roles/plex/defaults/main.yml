@@ -26,6 +26,16 @@ plex_plugin_sub_zero: true
 plex_insecure: false
 
 ################################
+# Proxy
+################################
+
+plex_proxy: ""
+
+plex_proxy_dict:
+  http_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
+  https_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
+
+################################
 # Paths
 ################################
 

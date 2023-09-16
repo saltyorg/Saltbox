@@ -66,6 +66,7 @@
     headers:
       Accept: "application/json"
     status_code: [200, 401]
+  environment: "{{ plex_proxy_dict }}"
   register: plex_token
   when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
 
@@ -86,6 +87,7 @@
         headers:
           Accept: "application/json"
         status_code: 201
+      environment: "{{ plex_proxy_dict }}"
       register: plex_pin
 
     - name: "Auth Token | Prompt user to login"
@@ -103,6 +105,7 @@
         headers:
           Accept: "application/json"
         status_code: 200
+      environment: "{{ plex_proxy_dict }}"
       register: plex_token_new
 
     - name: "Auth Token | Add Client Identifier to '/opt/saltbox/plex.ini'"
