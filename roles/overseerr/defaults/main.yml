@@ -23,6 +23,7 @@ overseerr_paths_cache: "{{ overseerr_paths_location }}/cache"
 overseerr_paths_folders_list:
   - "{{ overseerr_paths_location }}"
   - "{{ overseerr_paths_cache }}"
+overseerr_paths_config_location: "{{ overseerr_paths_location }}/settings.json"
 
 ################################
 # Web

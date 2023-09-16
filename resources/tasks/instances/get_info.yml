@@ -41,3 +41,10 @@
     plex_name: "{{ item }}"
   with_items: "{{ plex_instances }}"
   when: "'plex' in get_info_list"
+
+- name: Resources | Tasks | Instances | Get Info | Run Overseerr Tasks
+  ansible.builtin.include_tasks: overseerr.yml
+  vars:
+    overseerr_name: "{{ item }}"
+  with_items: "{{ overseerr_instances }}"
+  when: "'overseerr' in get_info_list"
