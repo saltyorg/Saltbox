@@ -12,7 +12,7 @@
     msg:
       - "You cannot use CDN proxy with a nested subdomain with a free account."
       - "If you have paid for the feature set 'cloudflare_allow_nested_proxy: true' using the inventory."
-  when: (not cloudflare_allow_nested_proxy) and '"." in dns_record' and dns_proxy
+  when: (not cloudflare_allow_nested_proxy) and ("." in dns_record) and dns_proxy
 
 - name: Cloudflare | Add DNS Record | Fetch Record information
   ansible.builtin.shell: "{{ cloudflare_path }}/venv/bin/python3 {{ cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ dns_zone }}' --record '{{ dns_record }}.{{ dns_zone }}'"
