@@ -13,7 +13,7 @@
   register: sonarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Sonarr API Key tasks
-  when: (sonarr_paths_config_location_stat.stat.exists)
+  when: sonarr_paths_config_location_stat.stat.exists
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Sonarr API Key
       community.general.xml:

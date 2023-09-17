@@ -13,7 +13,7 @@
   register: readarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Readarr API Key tasks
-  when: (readarr_paths_config_location_stat.stat.exists)
+  when: readarr_paths_config_location_stat.stat.exists
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Readarr API Key
       community.general.xml:
