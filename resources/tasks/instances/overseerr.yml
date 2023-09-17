@@ -1,0 +1,29 @@
+##############################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get Overseerr Info #
+# Author(s):     salty, keldian                                              #
+# URL:           https://github.com/saltyorg/Saltbox                         #
+# --                                                                         #
+##############################################################################
+#                   GNU General Public License v3.0                          #
+##############################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Check if Overseerr exists
+  ansible.builtin.stat:
+    path: "{{ overseerr_paths_config_location }}"
+  register: overseerr_paths_config_location_stat
+
+- name: Resources | Tasks | Instances | Get Info | Overseerr API Key tasks
+  when: overseerr_paths_config_location_stat.stat.exists
+  block:
+    - name: Resources | Tasks | Instances | Get Info | Fetch Overseerr API Key
+      ansible.builtin.set_fact:
+        jsondata: "{{ lookup('ansible.builtin.file', overseerr_paths_config_location) }}"
+
+    - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
+      ansible.builtin.set_fact:
+        overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': overseerr_web_url, 'api_key': jsondata.main.apiKey}}) }}"
+
+- name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
+  ansible.builtin.set_fact:
+    overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': overseerr_web_url, 'api_key': 'not installed'}}) }}"
+  when: (not overseerr_paths_config_location_stat.stat.exists)
