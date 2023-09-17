@@ -21,7 +21,7 @@
   block:
     - name: Provide link to migration docs # Update to main docs page when docs are updated
       ansible.builtin.pause:
-        prompt: "Make sure you read the migration docs (press enter to continue): https://traefik3.docs-acq.pages.dev/saltbox/upgrade/traefik3/"
+        prompt: "Make sure you read the migration docs (press enter to continue): https://docs.saltbox.dev/saltbox/upgrade/traefik3/"
 
 # Exit playbook When necessary
 - name: Finish | Exit Tasks
