@@ -7,12 +7,19 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Fail if using network_mode 'container:' with multiple instances."
+- name: Filter Plex Network Modes
+  ansible.builtin.set_fact:
+    plex_network_modes: "{{ plex_network_modes + [plex_lookup] }}"
+  vars:
+    plex_name: "{{ item }}"
+    plex_lookup: "{{ lookup('vars', item + '_docker_network_mode_default', default=lookup('vars', item + '_docker_network_mode', default=plex_docker_network_mode)) }}"
+  loop: "{{ plex_instances }}"
+  when: (plex_instances | length > 1) and ('container:' in plex_lookup)
+
+- name: Fail if non-unique entries are present
   ansible.builtin.fail:
-    msg:
-      - "Using multiple instances of Plex with network_mode '{{ plex_docker_network_mode | default('') }}' is not supported"
-      - "You can override this failure by setting plex_proxy_instances_override to true but remember to use unique VPN containers for each instance."
-  when: not plex_proxy_instances_override and ('container:' in lookup('vars', 'plex_docker_network_mode', default=plex_docker_network_mode_default)) and (plex_instances | length > 1)
+    msg: "At least two of your Plex instances are using the same 'container:' network_mode and this will not work due to port collision."
+  when: (plex_instances | length > 1) and (plex_network_modes | length) != (plex_network_modes | unique | length)
 
 - name: "Execute Plex roles"
   ansible.builtin.include_tasks: main2.yml
