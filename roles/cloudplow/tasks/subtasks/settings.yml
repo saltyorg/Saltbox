@@ -28,7 +28,7 @@
 
 - name: Settings | Filter Rclone remotes
   ansible.builtin.set_fact:
-    cloudplow_remotes: "{{ cloudplow_remotes | default([]) + [item] }}"
+    cloudplow_remotes: "{{ cloudplow_remotes + [item] }}"
   loop: "{{ rclone.remotes }}"
   when: item.upload
 

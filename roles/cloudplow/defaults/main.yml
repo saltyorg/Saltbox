@@ -82,3 +82,10 @@ cloudplow_rclone_dropbox_template: |-
   "--skip-links": null,
   "--retries": 1,
   "--low-level-retries": 2
+
+################################
+# Filter variables
+################################
+
+cloudplow_remotes: []
+cloudplow_upload_paths_unique: []
