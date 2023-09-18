@@ -65,14 +65,22 @@
 # Block DLNA network spam
 ################################
 
-- name: Settings DLNA | New `{{ jellyfin_paths_dlna_location | basename }}` tasks
+- name: Import 'dlna.xml' config
+  ansible.builtin.copy:
+    src: "dlna.xml"
+    dest: "{{ jellyfin_paths_dlna_location }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: false
   when: (not jellyfin_dlna.stat.exists)
-  block:
-    - name: Import 'dlna.xml' config
-      ansible.builtin.copy:
-        src: "dlna.xml"
-        dest: "{{ jellyfin_paths_dlna_location }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0775"
-        force: false
+
+- name: Settings | Update 'network.xml' file
+  community.general.xml:
+    path: "{{ jellyfin_paths_net_xml_location }}"
+    xpath: "/NetworkConfiguration/{{ item.xpath }}"
+    value: "{{ item.value }}"
+  become: true
+  become_user: "{{ user.name }}"
+  loop: "{{ jellyfin_network_settings_list }}"
+  when: network_xml.stat.exists

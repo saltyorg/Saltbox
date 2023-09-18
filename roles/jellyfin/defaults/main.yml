@@ -82,7 +82,7 @@ jellyfin_system_settings_list: "{{ lookup('vars', jellyfin_name + '_system_setti
 jellyfin_network_settings_default:
   - { xpath: 'PublicPort', value: '80' }
   - { xpath: 'PublicHttpsPort', value: '443' }
-  - { xpath: 'PublishedServerUriBySubnet/string', value: '{{ lookup("vars", jellyfin_name + "_web_subdomain", default=jellyfin_web_subdomain) }}.{{ lookup("vars", jellyfin_name + "_web_domain", default=jellyfin_web_domain) }}' }
+  - { xpath: 'PublishedServerUriBySubnet/string', value: 'external={{ jellyfin_web_url }}:443' }
 jellyfin_network_settings_custom: []
 jellyfin_network_settings_list: "{{ lookup('vars', jellyfin_name + '_network_settings_default', default=jellyfin_network_settings_default) + lookup('vars', jellyfin_name + '_network_settings_custom', default=jellyfin_network_settings_custom) }}"
 
