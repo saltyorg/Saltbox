@@ -82,6 +82,16 @@
   become: true
   become_user: "{{ user.name }}"
 
+- name: Disable Relay in '{{ plex_paths_config_location | basename }}'
+  community.general.xml:
+    path: "{{ plex_paths_config_location }}"
+    xpath: /Preferences
+    attribute: RelayEnabled
+    value: "0"
+    state: present
+  become: true
+  become_user: "{{ user.name }}"
+
 - name: Reset permissions of '{{ plex_paths_config_location | basename }}'
   ansible.builtin.file:
     path: "{{ plex_paths_config_location }}"
