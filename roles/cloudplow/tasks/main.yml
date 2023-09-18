@@ -19,97 +19,117 @@
     state: absent
   when: ('cloudplow-reset' in ansible_run_tags)
 
-- name: Check if Plex instance is defined
+- name: Filter Rclone remotes
   ansible.builtin.set_fact:
-    plex_name: "{{ plex_name | default(plex_instances[0]) }}"
+    cloudplow_remotes: "{{ cloudplow_remotes + [item] }}"
+  loop: "{{ rclone.remotes }}"
+  when: item.upload
 
-- name: Stop Service
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
-  vars:
-    _service_name: "{{ cloudplow_service_name }}"
-
-- name: Create directory
-  ansible.builtin.file:
-    path: "{{ cloudplow_path }}"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    recurse: true
-
-- name: Clone project git repo
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
-
-- name: Set Python version
+- name: Filter Rclone upload_from on remotes
   ansible.builtin.set_fact:
-    cloudplow_python: "{{ 'python3'
-                       if ansible_distribution_version is version('20.04', '==')
-                       else 'python3.8' }}"
+    cloudplow_upload_paths_unique: "{{ cloudplow_upload_paths_unique + [item.upload_from] }}"
+  loop: "{{ rclone.remotes }}"
+  when: item.upload and (item.upload_from not in cloudplow_upload_paths_unique)
 
-- name: "Execute Python role"
-  ansible.builtin.include_role:
-    name: "python"
-  vars:
-    python_version: "3.8"
-  when: ansible_distribution_version is version('22.04', '==')
+- name: Cloudplow tasks
+  when: (cloudplow_remotes | length > 0)
+  block:
+    - name: Check if Plex instance is defined
+      ansible.builtin.set_fact:
+        plex_name: "{{ plex_name | default(plex_instances[0]) }}"
 
-- name: Check if venv folder exists
-  ansible.builtin.stat:
-    path: "{{ cloudplow_venv_path }}"
-  register: cloudplow_venv_folder
+    - name: Stop Service
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
+      vars:
+        _service_name: "{{ cloudplow_service_name }}"
 
-- name: Delete venv folder
-  ansible.builtin.file:
-    path: "{{ cloudplow_venv_path }}"
-    state: absent
-  when: cloudplow_venv_folder.stat.exists
+    - name: Create directory
+      ansible.builtin.file:
+        path: "{{ cloudplow_path }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+        recurse: true
 
-- name: Install pip requirements
-  ansible.builtin.pip:
-    requirements: "{{ cloudplow_requirements_path }}"
-    virtualenv_python: "{{ cloudplow_python }}"
-    virtualenv: "{{ cloudplow_venv_path }}"
-  become: true
-  become_user: "{{ user.name }}"
+    - name: Clone project git repo
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
 
-- name: Find pip3 path
-  ansible.builtin.find:
-    paths: "{{ cloudplow_path }}/venv"
-    recurse: true
-    patterns: 'pip3'
-  register: files
+    - name: Set Python version
+      ansible.builtin.set_fact:
+        cloudplow_python: "{{ 'python3'
+                          if ansible_distribution_version is version('20.04', '==')
+                          else 'python3.8' }}"
 
-- name: Path
-  ansible.builtin.set_fact:
-    cloudplow_bin_folder: "{{ files.files[0].path | dirname }}"
+    - name: "Execute Python role"
+      ansible.builtin.include_role:
+        name: "python"
+      vars:
+        python_version: "3.8"
+      when: ansible_distribution_version is version('22.04', '==')
 
-- name: Set script as executable
-  ansible.builtin.file:
-    path: "{{ cloudplow_script_path }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: a+x
+    - name: Check if venv folder exists
+      ansible.builtin.stat:
+        path: "{{ cloudplow_venv_path }}"
+      register: cloudplow_venv_folder
 
-- name: Create script alias
-  ansible.builtin.template:
-    src: cloudplow.sh.j2
-    dest: "{{ cloudplow_alias_path }}"
-    mode: "0755"
-    force: true
+    - name: Delete venv folder
+      ansible.builtin.file:
+        path: "{{ cloudplow_venv_path }}"
+        state: absent
+      when: cloudplow_venv_folder.stat.exists
 
-- name: Import Settings Task
-  ansible.builtin.import_tasks: "subtasks/settings.yml"
+    - name: Install pip requirements
+      ansible.builtin.pip:
+        requirements: "{{ cloudplow_requirements_path }}"
+        virtualenv_python: "{{ cloudplow_python }}"
+        virtualenv: "{{ cloudplow_venv_path }}"
+      become: true
+      become_user: "{{ user.name }}"
 
-- name: Import '{{ cloudplow_service_name }}.service'
-  ansible.builtin.template:
-    src: cloudplow.service.j2
-    dest: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
-    mode: "0644"
-    force: true
+    - name: Find pip3 path
+      ansible.builtin.find:
+        paths: "{{ cloudplow_path }}/venv"
+        recurse: true
+        patterns: 'pip3'
+      register: files
 
-- name: Start service
-  ansible.builtin.systemd:
-    name: "{{ cloudplow_service_name }}"
-    state: started
-    enabled: true
-    daemon_reload: true
+    - name: Path
+      ansible.builtin.set_fact:
+        cloudplow_bin_folder: "{{ files.files[0].path | dirname }}"
+
+    - name: Set script as executable
+      ansible.builtin.file:
+        path: "{{ cloudplow_script_path }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: a+x
+
+    - name: Create script alias
+      ansible.builtin.template:
+        src: cloudplow.sh.j2
+        dest: "{{ cloudplow_alias_path }}"
+        mode: "0755"
+        force: true
+
+    - name: Import Settings Task
+      ansible.builtin.import_tasks: "subtasks/settings.yml"
+
+    - name: Import '{{ cloudplow_service_name }}.service'
+      ansible.builtin.template:
+        src: cloudplow.service.j2
+        dest: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
+        mode: "0644"
+        force: true
+
+    - name: Start service
+      ansible.builtin.systemd:
+        name: "{{ cloudplow_service_name }}"
+        state: started
+        enabled: true
+        daemon_reload: true
+
+- name: Cloudplow Skipped
+  ansible.builtin.debug:
+    msg: "Cloudplow was skipped due to no remotes having upload enabled."
+  when: not (cloudplow_remotes | length > 0)

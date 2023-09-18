@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: Cloudplow | Settings Task                     #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -25,18 +25,6 @@
   ansible.builtin.set_fact:
     sabnzbd_apikey: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
-
-- name: Settings | Filter Rclone remotes
-  ansible.builtin.set_fact:
-    cloudplow_remotes: "{{ cloudplow_remotes + [item] }}"
-  loop: "{{ rclone.remotes }}"
-  when: item.upload
-
-- name: Settings | Filter Rclone upload_from on remotes
-  ansible.builtin.set_fact:
-    cloudplow_upload_paths_unique: "{{ cloudplow_upload_paths_unique + [item.upload_from] }}"
-  loop: "{{ rclone.remotes }}"
-  when: item.upload and (item.upload_from not in cloudplow_upload_paths_unique)
 
 - name: Settings | Fail if duplicate folders where found.
   ansible.builtin.fail:
