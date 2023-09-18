@@ -35,6 +35,8 @@ plex_proxy_dict:
   http_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
   https_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
 
+plex_proxy_instances_override: false
+
 ################################
 # Paths
 ################################

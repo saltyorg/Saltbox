@@ -9,8 +9,10 @@
 ---
 - name: "Fail if using network_mode 'container:' with multiple instances."
   ansible.builtin.fail:
-    msg: "Using multiple instances of Plex with network_mode '{{ plex_docker_network_mode | default('') }}' is not supported"
-  when: ('container:' in lookup('vars', 'plex_docker_network_mode', default=plex_docker_network_mode_default)) and (plex_instances | length > 1)
+    msg:
+      - "Using multiple instances of Plex with network_mode '{{ plex_docker_network_mode | default('') }}' is not supported"
+      - "You can override this failure by setting plex_proxy_instances_override to true but remember to use unique VPN containers for each instance."
+  when: not plex_proxy_instances_override and ('container:' in lookup('vars', 'plex_docker_network_mode', default=plex_docker_network_mode_default)) and (plex_instances | length > 1)
 
 - name: "Execute Plex roles"
   ansible.builtin.include_tasks: main2.yml
