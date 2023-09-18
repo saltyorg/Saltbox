@@ -7,6 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Settings | Fail if duplicate folders where found.
+  ansible.builtin.fail:
+    msg:
+      - "Duplicate upload folders found. This is likely an error on your part."
+      - "If not then supply your own configuration file at '{{ cloudplow_config_path }}' and rerun the previous tag."
+  when: (cloudplow_remotes | length) != (cloudplow_upload_paths_unique | length)
+
 - name: Check if Plex instance is defined
   ansible.builtin.set_fact:
     plex_name: "{{ plex_name | default(plex_instances[0]) }}"
@@ -25,13 +32,6 @@
   ansible.builtin.set_fact:
     sabnzbd_apikey: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
-
-- name: Settings | Fail if duplicate folders where found.
-  ansible.builtin.fail:
-    msg:
-      - "Duplicate upload folders found. This is likely an error on your part."
-      - "If not then supply your own configuration file at '{{ cloudplow_config_path }}' and rerun the previous tag."
-  when: (cloudplow_remotes | length) != (cloudplow_upload_paths_unique | length)
 
 - name: Settings | Check if 'config.json' exists
   ansible.builtin.stat:
