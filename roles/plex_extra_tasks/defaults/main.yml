@@ -8,5 +8,5 @@
 #########################################################################
 ---
 plex_extra_tasks_hostname: "{{ plex_name
-                            if not ('container:' in lookup('vars', 'plex_docker_network_mode', default=docker_networks_name_common))
-                            else (lookup('vars', 'plex_docker_network_mode', default=docker_networks_name_common).split(':')[1]) }}"
+                            if not ('container:' in lookup('vars', plex_name + '_docker_network_mode_default', default=docker_networks_name_common))
+                            else (lookup('vars', plex_name + '_docker_network_mode_default', default=docker_networks_name_common).split(':')[1]) }}"
