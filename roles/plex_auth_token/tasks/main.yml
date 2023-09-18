@@ -29,7 +29,7 @@
   block:
     - name: "Auth Token | Lookup plex_auth_client_identifier"
       ansible.builtin.set_fact:
-        plex_auth_client_identifier: "Saltbox{{ lookup('ini', 'client_identifier section=' + plex_name + ' file=/opt/saltbox/plex.ini') }}"
+        plex_auth_client_identifier: "{{ lookup('ini', 'client_identifier section=' + plex_name + ' file=/opt/saltbox/plex.ini') }}"
         plex_auth_client_identifier_missing: false
 
   rescue:
