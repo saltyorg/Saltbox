@@ -136,7 +136,7 @@ jobs:
     name: 'webhook'
     runs-on: self-hosted
     needs: install
-    if: always() && github.event_name != 'pull_request'
+    if: always() && github.event_name != 'pull_request' && github.event.repository.fork == false
     steps:
       - uses: technote-space/workflow-conclusion-action@v3
       - uses: sarisia/actions-status-discord@v1
