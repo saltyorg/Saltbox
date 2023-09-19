@@ -29,13 +29,15 @@ plex_insecure: false
 # Proxy
 ################################
 
-plex_proxy: ""
+# For instances this works the same as usual plex2_auth_token_proxy for an instance named plex2.
+plex_auth_token_proxy: ""
 
 plex_proxy_dict:
-  http_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
-  https_proxy: "{{ plex_proxy if (plex_proxy | length > 0) else '' }}"
+  http_proxy: "{{ plex_proxy_lookup if (plex_proxy_lookup | length > 0) else '' }}"
+  https_proxy: "{{ plex_proxy_lookup if (plex_proxy_lookup | length > 0) else '' }}"
 
 # Do not edit or override using the inventory
+plex_proxy_lookup: "{{ lookup('vars', plex_name + '_auth_token_proxy', default=plex_auth_token_proxy) }}"
 plex_network_modes: []
 
 ################################
