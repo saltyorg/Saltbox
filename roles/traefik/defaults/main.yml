@@ -43,7 +43,7 @@ traefik_entrypoint_custom: {}
 #     type: both
 traefik_dns_resolvers: "1.1.1.1:53,1.0.0.1:53"
 traefik_disable_propagation_check: false
-traefik_enable_http_validation: "{{ traefik.cert.http_validation | default(false) }}"
+traefik_enable_http_validation: "{{ traefik_http or traefik.cert.http_validation }}"
 
 ################################
 # Templates

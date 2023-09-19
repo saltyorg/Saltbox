@@ -301,7 +301,7 @@ traefik_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_enabled', 
 traefik_role_api_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_api_enabled', default=lookup('vars', role_name + '_traefik_api_enabled', default=false)) }}"
 
 traefik_http: "{{ false
-               if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled) and (not traefik.cert.http_validation)
+               if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled)
                else true }}"
 
 traefik_subdomain: "{{ lookup('vars', traefik_role_var + '_web_subdomain', default=lookup('vars', role_name + '_web_subdomain', default=omit)) }}"
