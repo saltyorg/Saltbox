@@ -58,7 +58,7 @@ mergerfs_mount_start_command: |-
     -o category.create=ff,async_read=true,cache.files=partial \
     -o dropcacheonclose=true,minfreespace=0,fsname=mergerfs \
     -o xattr=nosys,statfs=base,statfs_ignore=nc,umask=002,noatime \
-    -o fuse.readdir={{ mergerfs_mount_readdir_policy }} \
+    -o func.readdir={{ mergerfs_mount_readdir_policy }} \
     {{ mergerfs_mount_branches }} /mnt/unionfs
 
 mergerfs_mount_stop_command: /bin/fusermount3 -uz /mnt/unionfs
