@@ -23,7 +23,7 @@
   ansible.builtin.template:
     src: "roles/docker/templates/override.conf.j2"
     dest: "/etc/systemd/system/docker.service.d/override.conf"
-    mode: "0775"
+    mode: "0644"
     force: "{{ docker_service_force }}"
 
 - name: "Docker | Daemon | Systemd daemon-reload"

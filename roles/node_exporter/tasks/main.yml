@@ -53,7 +53,7 @@
     force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0644"
 
 - name: Systemd daemon-reload 'node_exporter.service'
   ansible.builtin.systemd:

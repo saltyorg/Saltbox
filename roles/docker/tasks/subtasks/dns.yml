@@ -39,7 +39,7 @@
   ansible.builtin.template:
     src: docker-update-hosts.service.j2
     dest: /etc/systemd/system/saltbox_managed_docker_update_hosts.service
-    mode: "0755"
+    mode: "0644"
     force: true
 
 - name: DNS | Start 'saltbox_managed_docker_update_hosts.service'

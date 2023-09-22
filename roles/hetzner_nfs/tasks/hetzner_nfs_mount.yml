@@ -63,7 +63,7 @@
     dest: /etc/systemd/system/nfs_vlan.service
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
-    mode: "0775"
+    mode: "0644"
     force: true
   when: (not nfs_vlan_service.stat.exists)
 
