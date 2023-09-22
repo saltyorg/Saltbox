@@ -11,7 +11,7 @@
   ansible.builtin.include_role:
     name: mongodb
   vars:
-    mongodb_instances: ["{{ petio_name }}_mongo"]
+    mongodb_instances: ["{{ petio_name }}-mongo"]
     mongodb_docker_env_db: "{{ petio_name }}"
     mongodb_docker_image_tag: "{{ petio_mongodb_version }}"
     mongodb_paths_folder: "{{ petio_name }}"
