@@ -410,10 +410,12 @@ docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
 
 docker_networks_name_common: saltbox
 
+docker_networks_alias_template: "{{ (lookup('vars', role_name + '_docker_networks_alias') | split(' '))
+                                    + (lookup('vars', lookup('vars', role_name + '_name', default=role_name) + '_docker_networks_alias_custom', default=[])) }}"
+
 docker_networks_common:
   - name: "{{ docker_networks_name_common }}"
-    aliases:
-      - "{{ lookup('vars', role_name + '_docker_networks_alias') }}"
+    aliases: "{{ docker_networks_alias_template }}"
 
 dockerhub_is_enabled: "{{ (dockerhub is defined) and
                           (dockerhub is not none) and
