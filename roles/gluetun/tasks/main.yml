@@ -1,0 +1,16 @@
+##########################################################################
+# Title:            Sandbox: Gluetun                                     #
+# Author(s):        owine                                                #
+# URL:              https://github.com/saltyorg/Sandbox                  #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: "Execute Gluetun roles"
+  ansible.builtin.include_tasks: main2.yml
+  vars:
+    gluetun_name: "{{ role }}"
+  with_items: "{{ gluetun_instances }}"
+  loop_control:
+    loop_var: role

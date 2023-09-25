@@ -65,6 +65,7 @@
     - { role: docker_socket_proxy, tags: ['docker-socket-proxy'] }
     - { role: dozzle, tags: ['dozzle'] }
     - { role: emby, tags: ['emby'] }
+    - { role: gluetun, tags: ['gluetun'] }
     - { role: grafana, tags: ['grafana'] }
     - { role: jackett, tags: ['jackett'] }
     - { role: jellyfin, tags: ['jellyfin'] }
