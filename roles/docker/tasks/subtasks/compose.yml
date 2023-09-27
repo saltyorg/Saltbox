@@ -7,27 +7,27 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cleanup Compose Switch
+- name: "Compose Switch | Cleanup Compose Switch"
   when: compose_cleanup_switch
   block:
-    - name: Check if '/usr/local/bin/compose-switch' exists
+    - name: "Compose Switch | Check if '/usr/local/bin/compose-switch' exists"
       ansible.builtin.stat:
         path: '/usr/local/bin/compose-switch'
       register: compose_switch_cleanup_path
 
-    - name: Run tasks if '/usr/local/bin/compose-switch' exists
+    - name: "Compose Switch | Run tasks if '/usr/local/bin/compose-switch' exists"
       when: compose_switch_cleanup_path.stat.exists
       block:
-        - name: Remove docker-compose alternatives
+        - name: "Compose Switch | Remove docker-compose alternatives"
           ansible.builtin.shell: update-alternatives --remove-all docker-compose
           ignore_errors: true
 
-        - name: Delete '/usr/local/bin/compose-switch'
+        - name: "Compose Switch | Delete '/usr/local/bin/compose-switch'"
           ansible.builtin.file:
             dest: "/usr/local/bin/compose-switch"
             state: absent
 
-        - name: Delete '/usr/local/bin/docker-compose-v1'
+        - name: "Compose Switch | Delete '/usr/local/bin/docker-compose-v1'"
           ansible.builtin.file:
             dest: "/usr/local/bin/docker-compose-v1"
             state: absent
