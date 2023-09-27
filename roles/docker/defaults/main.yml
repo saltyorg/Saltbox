@@ -76,6 +76,26 @@ containerd_io_filepath: "/usr/bin/containerd"
 
 containerd_io_dpkg: "containerd.io"
 
+# Docker Compose
+
+compose_cli_name: "Docker Compose"
+
+compose_cli_package: "docker-compose-plugin"
+
+compose_cli_filepath: "docker compose"
+
+compose_cli_dpkg: "docker-compose-plugin"
+
+# Docker Rootless Extras
+
+docker_rootless_name: "Docker Rootless Extras"
+
+docker_rootless_package: "docker-ce-rootless-extras"
+
+docker_rootless_filepath: "/usr/bin/rootlesskit"
+
+docker_rootless_dpkg: "docker-ce-rootless-extras"
+
 # Misc
 
 docker_package_state: "{{ 'latest' if (docker_version is defined and docker_version | lower == 'latest') else 'present' }}"
@@ -113,17 +133,4 @@ fuse_overlayfs_release_lookup_command: |
 # Docker Compose
 ################################
 
-compose_install_switch: true
-
-compose_switch_github_endpoint: "latest"
-
-compose_switch_releases_url: "{{ cvm }}https://api.github.com/repos/docker/compose-switch/releases/{{ compose_switch_github_endpoint }}"
-
-compose_switch_releases_download_url: https://github.com/docker/compose-switch/releases/download
-
-compose_switch_release_lookup_command: |
-  curl -s {{ compose_switch_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"docker-compose-linux-amd64\")) \
-    | .browser_download_url"
-
-compose_switch_download_backup_url: "https://github.com/docker/compose-switch/releases/download/v1.0.4/docker-compose-linux-amd64"
+compose_cleanup_switch: "{{ compose_install_switch | default(true) }}"

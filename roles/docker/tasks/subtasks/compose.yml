@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: Docker | Compose Tasks                        #
+# Title:         Saltbox: Docker | Compose Switch Tasks                 #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -7,36 +7,27 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Install Compose Switch
-  when: compose_install_switch
+- name: Cleanup Compose Switch
+  when: compose_cleanup_switch
   block:
-    - name: "Get URL for latest Compose release"
-      ansible.builtin.shell: "{{ compose_switch_release_lookup_command }}"
-      args:
-        executable: /bin/bash
-      register: compose_switch_download_url
-      ignore_errors: true
-
-    - name: Download Compose Switch
-      ansible.builtin.shell: curl -SL {{ compose_switch_download_url.stdout | default(compose_switch_download_backup_url, true) }} -o /usr/local/bin/compose-switch
-
-    - name: Make docker-compose executable
-      ansible.builtin.file:
-        dest: "/usr/local/bin/compose-switch"
-        mode: a+x
-
-    - name: Check if Docker Compose V1 is installed
+    - name: Check if '/usr/local/bin/compose-switch' exists
       ansible.builtin.stat:
-        path: "/usr/local/bin/docker-compose"
-      register: docker_compose_v1
+        path: '/usr/local/bin/compose-switch'
+      register: compose_switch_cleanup_path
 
-    - name: Rename Docker Compose V1 binary
-      ansible.builtin.command: mv /usr/local/bin/docker-compose /usr/local/bin/docker-compose-v1
-      when: docker_compose_v1.stat.exists
+    - name: Run tasks if '/usr/local/bin/compose-switch' exists
+      when: compose_switch_cleanup_path.stat.exists
+      block:
+        - name: Remove docker-compose alternatives
+          ansible.builtin.shell: update-alternatives --remove-all docker-compose
+          ignore_errors: true
 
-    - name: Define alternatives group for docker-compose command - Entry 1
-      ansible.builtin.shell: update-alternatives --install /usr/local/bin/docker-compose docker-compose /usr/local/bin/docker-compose-v1 1
-      when: docker_compose_v1.stat.exists
+        - name: Delete '/usr/local/bin/compose-switch'
+          ansible.builtin.file:
+            dest: "/usr/local/bin/compose-switch"
+            state: absent
 
-    - name: Define alternatives group for docker-compose command - Entry 2
-      ansible.builtin.shell: update-alternatives --install /usr/local/bin/docker-compose docker-compose /usr/local/bin/compose-switch 99
+        - name: Delete '/usr/local/bin/docker-compose-v1'
+          ansible.builtin.file:
+            dest: "/usr/local/bin/docker-compose-v1"
+            state: absent

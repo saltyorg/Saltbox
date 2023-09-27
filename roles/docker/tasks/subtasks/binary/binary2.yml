@@ -25,7 +25,7 @@
   when: put_docker_dpkg_into_hold
 
 - name: Binary | Get '{{ vars[item ~ '_name'] }}' version
-  ansible.builtin.shell: "{{ vars[item ~ '_filepath'] }} --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
+  ansible.builtin.shell: "{{ vars[item ~ '_filepath'] }} '{{ 'version' if item == 'compose_cli' else '--version' }}' | head -n 1 | awk '{ print {{ '$4' if item == 'compose_cli' else '$3' }} }' | sed 's/,$//' | sed 's/v//'"
   register: binary_version
   ignore_errors: true
   changed_when: false

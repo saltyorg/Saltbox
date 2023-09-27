@@ -18,7 +18,7 @@ ExecStart=/usr/local/bin/docker-update-hosts
 RuntimeMaxSec={{ docker_update_hosts_service_runtime_max }}
 Restart=always
 RestartSec=20s
-StartLimitIntervalSec=0
+StartLimitInterval=0
 
 [Install]
 WantedBy=docker.service

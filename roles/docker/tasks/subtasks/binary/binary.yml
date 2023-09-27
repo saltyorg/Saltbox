@@ -43,6 +43,8 @@
     - 'containerd_io'
     - 'docker_ce'
     - 'docker_ce_cli'
+    - 'compose_cli'
+    - 'docker_rootless'
 
 - name: Binary | Install apparmor
   ansible.builtin.apt:
