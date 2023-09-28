@@ -8,6 +8,7 @@
 # List of users
 users:
   {{ user.name }}:
+    disabled: false
     displayname: "{{ user.name }}"
     password: "{{ authelia_password.stdout }}"
     email: {{ user.email }}

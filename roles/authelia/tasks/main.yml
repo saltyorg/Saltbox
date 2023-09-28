@@ -68,15 +68,6 @@
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
-- name: Import default 'configuration.yml'
-  ansible.builtin.template:
-    src: configuration.yml.j2
-    dest: "{{ authelia_paths_location }}/configuration.yml"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-  when: (not authelia_config_stat.stat.exists)
-
 - name: Settings Task
   ansible.builtin.import_tasks: "subtasks/settings.yml"
   when: (authelia_config_stat.stat.exists)

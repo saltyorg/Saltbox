@@ -17,6 +17,15 @@
     {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ authelia_web_domain | default(user.domain) }}\", as_object=True); print(res.domain)"
   register: authelia_domain
 
+- name: LDAP | Import default 'configuration.yml'
+  ansible.builtin.template:
+    src: configuration.yml.j2
+    dest: "{{ authelia_paths_location }}/configuration.yml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+  when: (not authelia_config_stat.stat.exists)
+
 - name: LDAP | Import lldap Role
   ansible.builtin.include_role:
     name: lldap
