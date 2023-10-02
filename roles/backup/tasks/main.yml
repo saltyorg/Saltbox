@@ -273,7 +273,7 @@
       block:
         - name: Convert Docker containers string into a list
           ansible.builtin.set_fact:
-            docker_containers: "{{ (docker_containers).split() | sort }}"
+            docker_containers: "{{ docker_containers.split() | reject('in', gluetun_instances) | sort }}"
 
         - name: Filter out ignored apps from Docker containers list
           ansible.builtin.set_fact:
