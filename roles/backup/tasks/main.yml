@@ -704,7 +704,7 @@
       ignore_errors: true
 
 - name: Backup Cleanup Block
-  when: backup_cleanup_enabled and backup_success
+  when: backup.rclone.enable and backup_cleanup_enabled and backup_success
   block:
     - name: Determine number of existing backups
       ansible.builtin.shell: >

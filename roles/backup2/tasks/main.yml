@@ -576,7 +576,7 @@
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
 
 - name: Backup Cleanup Block
-  when: backup2_cleanup_enabled and backup2_success
+  when: backup.rclone.enable and backup2_cleanup_enabled and backup2_success
   block:
     - name: Determine number of existing backups
       ansible.builtin.shell: >
