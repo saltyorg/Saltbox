@@ -10,7 +10,7 @@
 - name: Import Rclone Role
   ansible.builtin.include_role:
     name: rclone
-  when: ('mounts' in ansible_run_tags) and remote_update_rclone
+  when: use_remote and ('mounts' in ansible_run_tags) and remote_update_rclone
 
 - name: "Gather list of running Docker containers"
   ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
@@ -140,12 +140,15 @@
     group: "{{ user.name }}"
     mode: "0775"
 
-- name: Remote Tasks
-  ansible.builtin.include_tasks: "remote.yml"
-  with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and item.template != "nfs"
+- name: Remote Enabled Block
+  when: use_remote
+  block:
+    - name: Remote Tasks
+      ansible.builtin.include_tasks: "remote.yml"
+      with_items: "{{ rclone.remotes }}"
+      when: rclone_remote_is_defined and item.template != "nfs"
 
-- name: Remote Tasks (NFS)
-  ansible.builtin.include_tasks: "nfs.yml"
-  with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and item.template == "nfs"
+    - name: Remote Tasks (NFS)
+      ansible.builtin.include_tasks: "nfs.yml"
+      with_items: "{{ rclone.remotes }}"
+      when: rclone_remote_is_defined and item.template == "nfs"

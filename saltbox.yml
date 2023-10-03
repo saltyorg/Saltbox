@@ -25,7 +25,7 @@
     - { role: system, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'system'] }
     - { role: common, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'common'] }
     - { role: motd, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'motd'] }
-    - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'], when: ['use_remote'] }
+    - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker', 'docker-filesystem-resize'] }
     - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
