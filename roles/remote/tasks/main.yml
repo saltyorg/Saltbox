@@ -37,7 +37,7 @@
       register: saltbox_managed_containers
       ignore_errors: true
 
-    - name: "Set 'containers_list' variable"
+    - name: "Set 'containers_list' and 'remote_stopped_docker' variables"
       ansible.builtin.set_fact:
         containers_list: "{{ saltbox_managed_containers.stdout }}"
         remote_stopped_docker: true

@@ -29,11 +29,18 @@ http:
           X-Forwarded-Proto: https
     dropsecurityheaders:
       headers:
+        accessControlAllowCredentials: "true"
+        accessControlAllowHeaders: "*"
+        accessControlAllowMethods: "*"
+        accessControlAllowOriginList: "*"
+        accessControlExposeHeaders: "*"
+        accessControlMaxAge: "100000"
         customresponseheaders:
           content-security-policy: ""
           permissions-policy: ""
           referrer-policy: ""
           x-frame-options: ""
+          cross-origin-opener-policy: ""
     hsts:
       headers:
         stsSeconds: 63072000
