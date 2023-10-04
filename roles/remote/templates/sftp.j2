@@ -24,7 +24,7 @@ ExecStart=/usr/bin/rclone mount \
 {% endif %}
     --config={{ rclone_config_path }} \
     --copy-links \
-    --dir-cache-time=1m \
+    --dir-cache-time={{ rclone_sftp_dir_cache_time }} \
     --max-read-ahead=200M \
     --rc \
     --rc-addr=localhost:{{ rclone_remort_port }} \

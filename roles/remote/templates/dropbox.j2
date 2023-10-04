@@ -27,7 +27,7 @@ ExecStart=/usr/bin/rclone mount \
 {% endif %}
     --config={{ rclone_config_path }} \
     --buffer-size=32M \
-    --dir-cache-time=8760h \
+    --dir-cache-time={{ rclone_dir_cache_time }} \
     --disable-http2 \
     --dropbox-pacer-min-sleep=85ms \
     --poll-interval=30s \
