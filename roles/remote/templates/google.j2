@@ -27,7 +27,7 @@ ExecStart=/usr/bin/rclone mount \
 {% endif %}
     --config={{ rclone_config_path }} \
     --buffer-size={{ '32M' if item.vfs_cache.enabled else '64M' }} \
-    --dir-cache-time={{ rclone_dir_cache_time }} \
+    --dir-cache-time={{ rclone_cloud_dir_cache_time }} \
 {% if not item.vfs_cache.enabled %}
     --drive-chunk-size=64M \
 {% endif %}
