@@ -26,17 +26,16 @@
     mode: "0644"
     force: "{{ docker_service_force }}"
 
-- name: "Docker | Daemon | Systemd daemon-reload"
-  ansible.builtin.systemd:
-    name: docker
-    state: reloaded
-    daemon_reload: true
+- name: "Docker | Daemon | Tasks for when Docker was stopped by Remote role"
+  when: remote_stopped_docker
+  block:
+    - name: "Docker | Daemon | Start docker service"
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+        daemon_reload: true
 
-- name: "Docker | Daemon | Restart docker service"
-  ansible.builtin.systemd:
-    name: docker
-    state: restarted
-
-- name: "Docker | Daemon | Wait for 30 seconds before commencing"
-  ansible.builtin.wait_for:
-    timeout: 30
+    - name: "Docker | Daemon | Wait for 30 seconds before commencing"
+      ansible.builtin.wait_for:
+        timeout: 30

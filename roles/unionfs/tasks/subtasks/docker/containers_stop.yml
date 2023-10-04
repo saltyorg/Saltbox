@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Saltbox: UnionFS | Docker | Container Stop Tasks       #
-# Author(s):     desimaniac                                             #
+# Author(s):     desimaniac, salty                                      #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -21,3 +21,9 @@
   ansible.builtin.shell: "docker stop {{ containers_list }}"
   ignore_errors: true
   when: (containers_list | trim | length > 0)
+
+- name: "Docker | Containers Stop | Stop docker service"
+  ansible.builtin.systemd:
+    name: docker
+    state: stopped
+  ignore_errors: true

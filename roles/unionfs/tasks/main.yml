@@ -23,9 +23,9 @@
 - name: Legacy Task
   ansible.builtin.import_tasks: "subtasks/legacy.yml"
 
-# Mount UnionFS
+# Mount Mergerfs
 
-- name: Mount UnionFS Tasks
+- name: MergerFS Tasks
   ansible.builtin.include_tasks: "subtasks/mergerfs.yml"
 
 - name: Docker Daemon Tasks

@@ -7,15 +7,16 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Check if 'saltbox_managed_mergerfs.service' exists"
+- name: "Check if '{{ mergerfs_service_name }}' exists"
   ansible.builtin.stat:
-    path: "/etc/systemd/system/saltbox_managed_mergerfs.service"
+    path: "/etc/systemd/system/{{ mergerfs_service_name }}"
   register: saltbox_managed_mergerfs_status
 
-- name: "MergerFS | Stop 'saltbox_managed_mergerfs.service'"
+- name: "MergerFS | Stop '{{ mergerfs_service_name }}'"
   ansible.builtin.systemd:
-    name: saltbox_managed_mergerfs.service
+    name: "{{ mergerfs_service_name }}"
     state: stopped
+  ignore_errors: true
   when: saltbox_managed_mergerfs_status.stat.exists
 
 - name: "MergerFS | Get URL for latest mergerfs release"
@@ -29,6 +30,7 @@
   ansible.builtin.apt:
     name: mergerfs
     state: absent
+  ignore_errors: true
 
 - name: "MergerFS | Install mergerfs"
   ansible.builtin.apt:
@@ -39,10 +41,10 @@
   retries: 5
   delay: 10
 
-- name: "MergerFS | Import 'saltbox_managed_mergerfs.service'"
+- name: "MergerFS | Import '{{ mergerfs_service_name }}'"
   ansible.builtin.template:
     src: mergerfs.service.j2
-    dest: /etc/systemd/system/saltbox_managed_mergerfs.service
+    dest: /etc/systemd/system/{{ mergerfs_service_name }}
     mode: "0644"
     force: "{{ mergerfs_override_service }}"
 
@@ -53,8 +55,8 @@
 - name: Mount Path Tasks
   ansible.builtin.import_tasks: "mount_path.yml"
 
-- name: "MergerFS | Start 'saltbox_managed_mergerfs.service'"
+- name: "MergerFS | Start '{{ mergerfs_service_name }}'"
   ansible.builtin.systemd:
-    name: saltbox_managed_mergerfs.service
+    name: "{{ mergerfs_service_name }}"
     state: started
     enabled: true

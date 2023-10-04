@@ -12,19 +12,41 @@
     name: rclone
   when: use_remote and ('mounts' in ansible_run_tags) and remote_update_rclone
 
-- name: "Gather list of running Docker containers"
-  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
-  register: saltbox_managed_containers
-  ignore_errors: true
+- name: Check to see if docker is installed
+  ansible.builtin.stat:
+    path: "/usr/bin/docker"
+  register: remote_docker_binary
 
-- name: "Set 'containers_list' variable"
+- name: Populate Service Facts
+  ansible.builtin.service_facts:
+
+- name: Get Docker service state
   ansible.builtin.set_fact:
-    containers_list: "{{ saltbox_managed_containers.stdout }}"
+    remote_docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
+  when: remote_docker_binary.stat.exists
 
-- name: "Stop all running Docker containers"
-  ansible.builtin.shell: "docker stop {{ containers_list }}"
-  ignore_errors: true
-  when: (containers_list | trim | length > 0)
+- name: Tasks for when Docker exists and is running
+  when: remote_docker_binary.stat.exists and remote_docker_service_running
+  block:
+    - name: "Gather list of running Docker containers"
+      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
+      register: saltbox_managed_containers
+      ignore_errors: true
+
+    - name: "Set 'containers_list' variable"
+      ansible.builtin.set_fact:
+        containers_list: "{{ saltbox_managed_containers.stdout }}"
+        remote_stopped_docker: true
+
+    - name: "Stop all running Docker containers"
+      ansible.builtin.shell: "docker stop {{ containers_list }}"
+      ignore_errors: true
+      when: (containers_list | trim | length > 0)
+
+    - name: Stop docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: stopped
 
 - name: "Check if 'rclone_vfs.service' exists"
   ansible.builtin.stat:
