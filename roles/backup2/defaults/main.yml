@@ -27,3 +27,4 @@ backup2_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_
 # Defines how many of the archived backups to keep, so current backup is not counted in this
 backup2_cleanup_number: 99
 backup2_cleanup_enabled: false
+backup_cleanup_custom_rclone_flags: ""

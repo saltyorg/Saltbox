@@ -597,7 +597,7 @@
 
     - name: Delete excess backups
       ansible.builtin.shell: >
-        rclone purge {{ backup.rclone.destination }}/archived/{{ item if item | length > 0 else 'non-existant-folder-name' }}
+        rclone purge {{ backup.rclone.destination }}/archived/{{ item if item | length > 0 else 'non-existant-folder-name' }}{{ (' ' + backup2_cleanup_custom_rclone_flags) if backup2_cleanup_custom_rclone_flags | length > 0 else '' }}
       loop: "{{ backup_list.stdout_lines[: (excess_backups | int)] }}"
       when:
         - excess_backups is defined
