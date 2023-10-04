@@ -12,6 +12,10 @@
     name: rclone
   when: use_remote and ('mounts' in ansible_run_tags) and remote_update_rclone
 
+- name: "Initialize 'remote_stopped_docker' variable"
+  ansible.builtin.set_fact:
+    remote_stopped_docker: false
+
 - name: Check to see if docker is installed
   ansible.builtin.stat:
     path: "/usr/bin/docker"
