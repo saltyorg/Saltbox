@@ -14,11 +14,12 @@
                       ((downloads.nzbs is undefined)
                       or
                       (downloads.torrents is undefined)) }}"
-    old_feeder_mount: "{{ not ((mounts.feeder is undefined)
+    old_feeder_mount: "{{ (not ((mounts.feeder is undefined)
                           or
                           (mounts.feeder is none)
                           or
-                          (mounts.feeder | trim | length == 0)) }}"
+                          (mounts.feeder | trim | length == 0)))
+                          and mounts.feeder }}"
 
 - name: Migrator | 'settings.yml' | Migration 01 | Rebuild 'downloads' dict
   ansible.builtin.shell: |
