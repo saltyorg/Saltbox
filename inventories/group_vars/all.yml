@@ -166,7 +166,7 @@ ipv6_address_public_error: "{{ ansible_local.network.ip.error_ipv6 }}"
 # Theme
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 global_themepark_theme: organizr
 global_themepark_domain: theme-park.dev
 global_themepark_plugin_enabled: false

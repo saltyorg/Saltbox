@@ -60,7 +60,7 @@ tautulli_traefik_gzip_enabled: false
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 tautulli_themepark_enabled: false
 tautulli_themepark_theme: "{{ global_themepark_theme }}"
 tautulli_themepark_domain: "{{ global_themepark_domain }}"

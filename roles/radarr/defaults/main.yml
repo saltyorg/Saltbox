@@ -71,7 +71,7 @@ radarr_api_key:
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 radarr_themepark_enabled: false
 radarr_themepark_theme: "{{ global_themepark_theme }}"
 radarr_themepark_domain: "{{ global_themepark_domain }}"

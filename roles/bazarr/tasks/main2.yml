@@ -22,7 +22,7 @@
 
 - name: Download 98-themepark
   ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/GilbN/theme.park/master/docker-mods/bazarr/root/etc/cont-init.d/98-themepark"
+    url: "https://raw.githubusercontent.com/themepark-dev/theme.park/master/docker-mods/bazarr/root/etc/cont-init.d/98-themepark"
     dest: "{{ bazarr_paths_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

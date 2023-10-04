@@ -139,7 +139,7 @@ rutorrent_config_existing_installs_rutorrent_rc_settings_list: "{{ rutorrent_con
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 rutorrent_themepark_enabled: false
 rutorrent_themepark_theme: "{{ global_themepark_theme }}"
 rutorrent_themepark_domain: "{{ global_themepark_domain }}"

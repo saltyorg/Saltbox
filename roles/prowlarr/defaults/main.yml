@@ -63,7 +63,7 @@ prowlarr_traefik_api_endpoint: "PathRegexp(`/[0-9]+/api`) || PathRegexp(`/[0-9]+
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 prowlarr_themepark_enabled: false
 prowlarr_themepark_theme: "{{ global_themepark_theme }}"
 prowlarr_themepark_domain: "{{ global_themepark_domain }}"

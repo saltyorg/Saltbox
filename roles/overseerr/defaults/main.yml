@@ -69,7 +69,7 @@ overseerr_traefik_api_endpoint: ""
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 overseerr_themepark_enabled: false
 overseerr_themepark_theme: "{{ global_themepark_theme }}"
 

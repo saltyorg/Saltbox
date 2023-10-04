@@ -72,7 +72,7 @@ readarr_api_key:
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 readarr_themepark_enabled: false
 readarr_themepark_theme: "{{ global_themepark_theme }}"
 readarr_themepark_domain: "{{ global_themepark_domain }}"

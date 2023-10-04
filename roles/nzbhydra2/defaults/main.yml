@@ -62,7 +62,7 @@ nzbhydra2_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/getnzb`) || 
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 nzbhydra2_themepark_enabled: false
 nzbhydra2_themepark_theme: "{{ global_themepark_theme }}"
 

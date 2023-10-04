@@ -57,7 +57,7 @@ bazarr_traefik_api_endpoint: "PathPrefix(`/api`)"
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 bazarr_themepark_enabled: false
 bazarr_themepark_theme: "{{ global_themepark_theme }}"
 bazarr_themepark_domain: "{{ global_themepark_domain }}"

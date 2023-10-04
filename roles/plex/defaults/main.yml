@@ -136,7 +136,7 @@ plex_webtools_traefik_router: "{{ lookup('vars', plex_name + '_webtools_web_subd
 # THEME
 ################################
 
-# Options can be found at https://github.com/gilbN/theme.park
+# Options can be found at https://github.com/themepark-dev/theme.park
 plex_themepark_enabled: false
 plex_themepark_theme: "{{ global_themepark_theme }}"
 plex_themepark_domain: "{{ global_themepark_domain }}"
