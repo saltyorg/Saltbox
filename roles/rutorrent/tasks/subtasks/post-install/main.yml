@@ -16,9 +16,9 @@
     - "{{ rutorrent_paths_php_local_ini_location }}"
     - "{{ rutorrent_paths_plugins_ini_location }}"
 
-- name: Post-Install | Wait for 10 seconds
+- name: Post-Install | Wait for 60 seconds
   ansible.builtin.wait_for:
-    timeout: 10
+    timeout: 60
 
 - name: Post-Install | Stop container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
