@@ -8,6 +8,12 @@
 ##########################################################################
 ---
 ################################
+# Configuration
+################################
+
+portainer_business_edition: false
+
+################################
 # Basics
 ################################
 
@@ -74,7 +80,9 @@ portainer_docker_container: "{{ portainer_name }}"
 # Image
 portainer_docker_image_pull: true
 portainer_docker_image_tag: "latest"
-portainer_docker_image: "portainer/portainer-ce:{{ portainer_docker_image_tag }}"
+portainer_docker_image: "{{ ('portainer/portainer-ee:'
+                             if portainer_business_edition
+                             else 'portainer/portainer-ce:') + portainer_docker_image_tag }}"
 
 # Ports
 portainer_docker_ports_defaults: []
