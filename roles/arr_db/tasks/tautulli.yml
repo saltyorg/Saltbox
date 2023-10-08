@@ -1,0 +1,71 @@
+##########################################################################
+# Title:         Saltbox: Arr DB Role | Tautulli Tasks                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: "Tautulli | Check if '{{ arr_db_tautulli_database }}' exists"
+  ansible.builtin.stat:
+    path: "{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}"
+  register: arr_db
+
+- name: "Tautulli | Fail if database does not exist"
+  ansible.builtin.fail:
+    msg: "Tautulli databases are not present for {{ tautulli_name }} instance"
+  when: (not arr_db.stat.exists)
+
+- name: "Tautulli | Stop Docker container"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+  vars:
+    var_prefix: "tautulli"
+
+- name: "Tautulli | Check if database passes integrity_check"
+  ansible.builtin.shell: "sqlite3 '{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}' 'PRAGMA integrity_check(1)'"
+  register: arr_db_integrity_check
+  failed_when: (arr_db_integrity_check.stdout != 'ok')
+
+- name: "Tautulli | Database tasks"
+  block:
+    - name: "Tautulli | Create backup directory"
+      ansible.builtin.file:
+        path: "/tmp/{{ tautulli_name }}_backup"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: "Tautulli | Backup databases"
+      ansible.builtin.shell: "cp '{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}' /tmp/{{ tautulli_name }}_backup/"
+
+    - name: "Tautulli | Vacuum '{{ arr_db_tautulli_database | basename }}' database"
+      ansible.builtin.shell: "sqlite3 '{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}' 'VACUUM;'"
+      register: arr_db_vacuum
+      failed_when: (arr_db_vacuum.rc != 0)
+
+    - name: "Tautulli | Reindex '{{ arr_db_tautulli_database | basename }}' database"
+      ansible.builtin.shell: "sqlite3 '{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}' 'REINDEX;'"
+      register: arr_db_reindex
+      failed_when: (arr_db_reindex.rc != 0)
+
+  rescue:
+    - name: "Tautulli | Delete wal and shm files"
+      ansible.builtin.file:
+        path: "{{ tautulli_paths_location }}/{{ item }}"
+        state: absent
+      with_items: "{{ arr_db_tautulli_temp_files }}"
+
+    - name: "Tautulli | Restore database backup"
+      ansible.builtin.shell: "cp -f '/tmp/{{ tautulli_name }}_backup/{{ arr_db_tautulli_database }}' '{{ tautulli_paths_location }}/{{ arr_db_tautulli_database }}'"
+
+- name: "Tautulli | Start Docker container"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+  vars:
+    var_prefix: "tautulli"
+
+- name: "Tautulli | Delete backup directory"
+  ansible.builtin.file:
+    path: "/tmp/{{ tautulli_name }}_backup"
+    state: absent

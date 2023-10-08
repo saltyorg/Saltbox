@@ -16,6 +16,7 @@ arr_db_lidarr_enabled: false
 arr_db_readarr_enabled: false
 arr_db_whisparr_enabled: false
 arr_db_prowlarr_enabled: false
+arr_db_tautulli_enabled: false
 
 ################################
 # Variables
@@ -31,3 +32,8 @@ arr_db_temp_files:
   - "logs.db-shm"
   - "{{ arr_type }}.db-wal"
   - "{{ arr_type }}.db-shm"
+
+arr_db_tautulli_database: "tautulli.db"
+arr_db_tautulli_temp_files:
+  - "tautulli.db-wal"
+  - "tautulli.db-shm"
