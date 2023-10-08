@@ -56,9 +56,9 @@
         }
       },
       "remove_empty_dir_depth": 2,
-      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':/Media') if (remote.template != "nfs") else '/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}",
+      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':/Media') if (remote.template != "nfs") else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + ':/Media' }}",
       "upload_folder": "{{ remote.upload_from }}",
-      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':/Media') if (remote.template != "nfs") else '/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}"
+      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':/Media') if (remote.template != "nfs") else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + ':/Media' }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
 {% endfor %}
 
