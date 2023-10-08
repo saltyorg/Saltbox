@@ -12,6 +12,7 @@
     msg:
       - "You must enable at least one of the role variables to run this role."
       - "Use the Saltbox inventory to enable."
+  when: not (arr_db_sonarr_enabled or arr_db_lidarr_enabled or arr_db_readarr_enabled or arr_db_whisparr_enabled or arr_db_prowlarr_enabled)
 
 - name: Install SQLite3
   ansible.builtin.apt:
