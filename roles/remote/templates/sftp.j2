@@ -29,6 +29,9 @@ ExecStart=/usr/bin/rclone mount \
     --rc \
     --rc-addr=localhost:{{ rclone_remort_port }} \
     --rc-no-auth \
+{% if rclone_sftp_disable_hashcheck %}
+    --sftp-disable-hashcheck \
+{% endif %}
     --syslog \
     --umask=002 \
     --user-agent='{{ user_agent }}' \
