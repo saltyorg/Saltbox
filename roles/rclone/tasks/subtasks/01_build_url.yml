@@ -67,7 +67,7 @@
 
     - name: Build URL | Check if version '{{ rclone_version_specified0 }}' is available
       ansible.builtin.shell: |
-        curl -sL {{ cvm }}https://api.github.com/repos/ncw/rclone/git/refs/tags \
+        curl -sL {{ svm }}https://api.github.com/repos/ncw/rclone/git/refs/tags \
         | jq -r  '.[] | .ref' | sed 's/\/\?refs\/tags\/v//g' \
         | grep '{{ rclone_version_specified0 }}'
       register: rclone_version_specified0_check

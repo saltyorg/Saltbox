@@ -122,7 +122,7 @@ docker_update_hosts_service_runtime_max: "3600s"
 
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
 
-fuse_overlayfs_releases_url: "{{ cvm }}https://api.github.com/repos/containers/fuse-overlayfs/releases/latest"
+fuse_overlayfs_releases_url: "{{ svm }}https://api.github.com/repos/containers/fuse-overlayfs/releases/latest"
 
 fuse_overlayfs_release_lookup_command: |
   curl -s {{ fuse_overlayfs_releases_url }} \

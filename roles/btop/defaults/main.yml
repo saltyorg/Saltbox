@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-btop_releases_url: "{{ cvm }}https://api.github.com/repos/aristocratos/btop/releases/latest"
+btop_releases_url: "{{ svm }}https://api.github.com/repos/aristocratos/btop/releases/latest"
 
 btop_releases_download_url: https://github.com/aristocratos/btop/releases/download
 

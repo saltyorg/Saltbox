@@ -441,10 +441,10 @@ docker_log_options: "{{ docker_log_options_json
                      else 'default' }}"
 
 ################################
-# Cloudbox Version Manager
+# Saltbox Version Manager
 ################################
 
-cvm: https://cvm.saltbox.dev/version?url=
+svm: https://svm.saltbox.dev/version?url=
 
 ################################
 # Global Variables
