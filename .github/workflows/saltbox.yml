@@ -14,6 +14,7 @@ on:
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
+      - 'roles/arr_db/**'
   pull_request:
     paths-ignore:
       - '.github/**'
@@ -27,6 +28,7 @@ on:
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
+      - 'roles/arr_db/**'
   workflow_dispatch:
 
 jobs:
