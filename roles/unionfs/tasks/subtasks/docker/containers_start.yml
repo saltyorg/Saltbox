@@ -7,6 +7,25 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Docker | Containers Start | Initialize Gluetun variable"
+  ansible.builtin.set_fact:
+    docker_containers_gluetun: []
+
+- name: "Docker | Containers Start | Identify any Gluetun containers"
+  ansible.builtin.set_fact:
+    docker_containers_gluetun: "{{ docker_containers_gluetun + [item] }}"
+  loop: "{{ containers_list.split() }}"
+  when: item in (gluetun_instances | default(['gluetun']))
+
+- name: "Docker | Containers Start | Re-start all previously running Gluetun containers"
+  ansible.builtin.shell: "docker start {{ docker_containers_gluetun | join(' ') }}"
+  when: (docker_containers_gluetun | length > 0)
+  ignore_errors: true
+
+- name: "Docker | Containers Start | Wait for 5 seconds"
+  ansible.builtin.wait_for:
+    timeout: 5
+
 - name: "Docker | Containers Start | Start all previously running Docker containers"
   ansible.builtin.shell: "docker start {{ containers_list }}"
   ignore_errors: true

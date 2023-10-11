@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Binary | Remove old official repository entry
+- name: Docker | Remove old official repository entry
   ansible.builtin.apt_repository:
     repo: "{{ item }}"
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
@@ -75,7 +75,28 @@
     state: started
   when: docker_service_running
 
-- name: Docker | Re-start all previously running Docker containers
-  ansible.builtin.shell: 'docker start {{ docker_running_containers.stdout }}'
-  ignore_errors: true
+- name: Docker Service Running
   when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)
+  block:
+    - name: "Docker | Initialize Gluetun variable"
+      ansible.builtin.set_fact:
+        docker_containers_gluetun: []
+
+    - name: "Docker | Identify any Gluetun containers"
+      ansible.builtin.set_fact:
+        docker_containers_gluetun: "{{ docker_containers_gluetun + [item] }}"
+      loop: "{{ docker_running_containers.stdout.split() }}"
+      when: item in (gluetun_instances | default(['gluetun']))
+
+    - name: "Docker | Re-start all previously running Gluetun containers"
+      ansible.builtin.shell: "docker start {{ docker_containers_gluetun | join(' ') }}"
+      when: (docker_containers_gluetun | length > 0)
+      ignore_errors: true
+
+    - name: "Docker | Wait for 5 seconds"
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: "Docker | Re-start all previously running Docker containers"
+      ansible.builtin.shell: 'docker start {{ docker_running_containers.stdout }}'
+      ignore_errors: true

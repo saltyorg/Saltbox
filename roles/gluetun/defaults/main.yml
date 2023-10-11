@@ -108,6 +108,7 @@ gluetun_docker_commands: "{{ lookup('vars', gluetun_name + '_docker_commands_def
                              + lookup('vars', gluetun_name + '_docker_commands_custom', default=gluetun_docker_commands_custom) }}"
 
 # Volumes
+gluetun_docker_volumes_global: false
 gluetun_docker_volumes_default:
   - "{{ gluetun_paths_location }}:/gluetun"
 gluetun_docker_volumes_custom: []
