@@ -38,28 +38,58 @@
   delay: 10
   until: result is succeeded
 
-- name: "Install Python {{ python_version }}"
-  ansible.builtin.apt:
-    name: "python{{ python_version }}"
-    state: present
+- name: "Install Python Packages"
+  block:
+    - name: "Install Python {{ python_version }}"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}"
+        state: present
 
-- name: "Install Python {{ python_version }} dev"
-  ansible.builtin.apt:
-    name: "python{{ python_version }}-dev"
-    state: present
+    - name: "Install Python {{ python_version }} dev"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-dev"
+        state: present
 
-- name: "Install Python {{ python_version }} distutils"
-  ansible.builtin.apt:
-    name: "python{{ python_version }}-distutils"
-    state: present
+    - name: "Install Python {{ python_version }} distutils"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-distutils"
+        state: present
 
-- name: "Install Python {{ python_version }} venv"
-  ansible.builtin.apt:
-    name: "python{{ python_version }}-venv"
-    state: present
+    - name: "Install Python {{ python_version }} venv"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-venv"
+        state: present
 
-- name: "Install pip for Python {{ python_version }}"
-  ansible.builtin.command: "python{{ python_version }} -m ensurepip"
+    - name: "Install pip for Python {{ python_version }}"
+      ansible.builtin.command: "python{{ python_version }} -m ensurepip"
+
+  rescue:
+    - name: Update APT cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: "Install Python {{ python_version }}"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}"
+        state: present
+
+    - name: "Install Python {{ python_version }} dev"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-dev"
+        state: present
+
+    - name: "Install Python {{ python_version }} distutils"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-distutils"
+        state: present
+
+    - name: "Install Python {{ python_version }} venv"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-venv"
+        state: present
+
+    - name: "Install pip for Python {{ python_version }}"
+      ansible.builtin.command: "python{{ python_version }} -m ensurepip"
 
 - name: Fix System pip
   ansible.builtin.import_tasks: "subtasks/pip.yml"
