@@ -1,0 +1,42 @@
+#########################################################################
+# Title:         Saltbox: Mount Templates Role                          #
+# Author(s):     owine                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Create mount-templates directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+  with_items:
+    - /opt/mount-templates
+
+- name: Clone mount-templates repo 'HEAD'
+  ansible.builtin.git:
+    repo: https://github.com/saltyorg/mount-templates.git
+    dest: /opt/mount-templates
+    clone: true
+    version: HEAD
+    force: true
+  become: true
+  become_user: "{{ user.name }}"
+  ignore_errors: true
+  register: mount_templates_clone_status
+
+- name: Clone mount-templates repo 'main'
+  ansible.builtin.git:
+    repo: https://github.com/saltyorg/mount-templates.git
+    dest: /opt/mount-templates
+    clone: true
+    version: main
+    force: true
+  become: true
+  become_user: "{{ user.name }}"
+  when: (mount_templates_clone_status is failed)
