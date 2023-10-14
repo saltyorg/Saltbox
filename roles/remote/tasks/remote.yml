@@ -195,5 +195,5 @@
 - name: "Remote | Display error message when Rclone remote is not configured properly"
   ansible.builtin.fail:
     msg:
-      - "Rclone remote '{{ rclone_remote_with_path }}' is not configured properly."
+      - "Rclone remote '{{ rclone_remote_with_path }}' does not exist in 'rclone listremotes' for user: {{ user.name }}."
   when: (not rclone_remote_is_configured)
