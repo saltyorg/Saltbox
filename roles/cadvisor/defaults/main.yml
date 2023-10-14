@@ -34,7 +34,7 @@ cadvisor_docker_image: "gcr.io/cadvisor/cadvisor:{{ cadvisor_docker_image_tag }}
 cadvisor_docker_ports_defaults: []
 cadvisor_docker_ports_custom: []
 cadvisor_docker_ports: "{{ cadvisor_docker_ports_defaults
-                          + cadvisor_docker_ports_custom }}"
+                           + cadvisor_docker_ports_custom }}"
 
 # Envs
 cadvisor_docker_envs_default:
@@ -58,21 +58,21 @@ cadvisor_docker_volumes_default:
   - "/dev/disk/:/dev/disk:ro"
 cadvisor_docker_volumes_custom: []
 cadvisor_docker_volumes: "{{ cadvisor_docker_volumes_default
-                            + cadvisor_docker_volumes_custom }}"
+                             + cadvisor_docker_volumes_custom }}"
 
 # Devices
 cadvisor_docker_devices_default:
   - /dev/kmsg
 cadvisor_docker_devices_custom: []
 cadvisor_docker_devices: "{{ cadvisor_docker_devices_default
-                            + cadvisor_docker_devices_custom }}"
+                             + cadvisor_docker_devices_custom }}"
 
 # Hosts
 cadvisor_docker_hosts_default: []
 cadvisor_docker_hosts_custom: []
 cadvisor_docker_hosts: "{{ docker_hosts_common
-                          | combine(cadvisor_docker_hosts_default)
-                          | combine(cadvisor_docker_hosts_custom) }}"
+                           | combine(cadvisor_docker_hosts_default)
+                           | combine(cadvisor_docker_hosts_custom) }}"
 
 # Labels
 cadvisor_docker_labels_default: {}
@@ -102,7 +102,7 @@ cadvisor_docker_capabilities: "{{ cadvisor_docker_capabilities_default
 cadvisor_docker_security_opts_default: []
 cadvisor_docker_security_opts_custom: []
 cadvisor_docker_security_opts: "{{ cadvisor_docker_security_opts_default
-                                  + cadvisor_docker_security_opts_custom }}"
+                                   + cadvisor_docker_security_opts_custom }}"
 
 # Restart Policy
 cadvisor_docker_restart_policy: unless-stopped
