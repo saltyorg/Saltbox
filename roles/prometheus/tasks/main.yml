@@ -34,7 +34,7 @@
     dest: "{{ prometheus_config_path }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0644"
     force: false
 
 - name: Create Docker container
