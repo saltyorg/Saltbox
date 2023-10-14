@@ -14,6 +14,18 @@
 cloudplow_name: cloudplow
 
 ################################
+# Settings
+################################
+
+cloudplow_remote_default_folder: "{{ ('/' if (remote.template != 'sftp') else '') + 'Media' }}"
+
+################################
+# Lookup
+################################
+
+cloudplow_remote_folder_lookup: "{{ lookup('vars', 'cloudplow_remote_' + remote.remote + '_folder', default=cloudplow_remote_default_folder) }}"
+
+################################
 # Paths
 ################################
 
