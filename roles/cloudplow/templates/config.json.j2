@@ -56,9 +56,17 @@
         }
       },
       "remove_empty_dir_depth": 2,
-      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':' + cloudplow_remote_folder_lookup) if (remote.template != 'nfs') else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + cloudplow_remote_folder_lookup }}",
+      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
+                          + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
+                          if (remote.template != 'nfs')
+                          else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
+                          + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}",
       "upload_folder": "{{ remote.upload_from }}",
-      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':' + cloudplow_remote_folder_lookup) if (remote.template != 'nfs') else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + cloudplow_remote_folder_lookup }}"
+      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
+                            + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
+                            if (remote.template != 'nfs')
+                            else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
+                            + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
 {% endfor %}
 
