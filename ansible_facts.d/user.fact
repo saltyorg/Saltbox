@@ -3,7 +3,7 @@
 
 import json
 
-file = open("/etc/passwd", "r+")
+file = open("/etc/passwd", "r")
 
 user_list = {}
 while True:

@@ -3,7 +3,7 @@
 
 import json
 
-file = open("/etc/group", "r+")
+file = open("/etc/group", "r")
 
 list_groups = {}
 while True:
