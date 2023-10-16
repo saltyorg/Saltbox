@@ -11,7 +11,7 @@ case $TYPE in
     fi
 
     [ -z "$TZ" ] && TZ="Etc/UTC"
-    echo "{\"timezone\": \"$TZ\"}"
+    echo "{\"timezone\": "\"$TZ\""}"
     ;;
   *)
     echo "{\"error\": \"Invalid arguments\"}"
