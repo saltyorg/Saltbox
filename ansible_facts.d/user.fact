@@ -1,23 +1,42 @@
 #!/usr/bin/env python3
-# https://github.com/ifor2u/specbase
-
 import json
+import sys
 
-file = open("/etc/passwd", "r")
+def parse_passwd_file(file_path):
+    """
+    Parse the Unix passwd file and return data as a dictionary.
+    
+    :param file_path: Path to the passwd file.
+    :return: Dictionary containing user data.
+    """
+    user_list = {}
+    try:
+        with open(file_path, "r") as file:
+            for line in file:
+                tokens = line.rstrip().split(":")
+                if len(tokens) >= 7:
+                    user = {
+                        "uid": tokens[2],
+                        "gid": tokens[3],
+                        "comment": tokens[4],
+                        "home": tokens[5],
+                        "shell": tokens[6],
+                    }
+                    user_list[tokens[0]] = user
+                else:
+                    print(f"Skipping malformed line: {line.rstrip()}", file=sys.stderr)
+    except IOError as e:
+        print(f"Failed to open {file_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+    except IndexError:
+        print(f"Unexpected file format in {file_path}", file=sys.stderr)
+        sys.exit(1)
+    return user_list
 
-user_list = {}
-while True:
-    line = file.readline()
-    if not line:
-        break
-    tokens = line.rstrip().split(":")
-    user = {
-        "uid": tokens[2],
-        "gid": tokens[3],
-        "comment": tokens[4],
-        "home": tokens[5],
-        "shell": tokens[6]
-    }
-    user_list[tokens[0]] = user
+def main():
+    passwd_file_path = "/etc/passwd"
+    users_data = parse_passwd_file(passwd_file_path)
+    print(json.dumps(users_data))
 
-print(json.dumps(user_list))
+if __name__ == "__main__":
+    main()
