@@ -1,22 +1,35 @@
 #!/usr/bin/env python3
-# https://github.com/ifor2u/specbase
-
 import json
+import sys
 
-file = open("/etc/group", "r")
+def parse_group_file(file_path):
+    """
+    Parse the Unix group file and return data as a dictionary.
+    
+    :param file_path: Path to the group file.
+    :return: Dictionary containing group data.
+    """
+    list_groups = {}
+    try:
+        with open(file_path, "r+") as file:
+            for line in file:
+                tokens = line.rstrip().split(":")
+                group = {"gid": tokens[2], "group-list": []}
+                if len(tokens) == 4 and tokens[3]:
+                    group["group-list"] = tokens[3].split(",")
+                list_groups[tokens[0]] = group
+    except IOError as e:
+        print(f"Failed to open {file_path}: {e}", file=sys.stderr)
+        sys.exit(1)
+    except IndexError:
+        print(f"Unexpected file format in {file_path}", file=sys.stderr)
+        sys.exit(1)
+    return list_groups
 
-list_groups = {}
-while True:
-    line = file.readline()
-    if not line:
-        break
-    tokens = line.rstrip().split(":")
-    group = {"gid": tokens[2], "group-list": []}
-    if len(tokens) == 4:
-        for token in tokens[3].split(","):
-            if token == "":
-                break
-            group["group-list"].append(token)
-    list_groups[tokens[0]] = group
+def main():
+    group_file_path = "/etc/group"
+    groups_data = parse_group_file(group_file_path)
+    print(json.dumps(groups_data))
 
-print(json.dumps(list_groups))
+if __name__ == "__main__":
+    main()
