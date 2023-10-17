@@ -1,0 +1,48 @@
+########################################################################################
+# Title:         Saltbox: Settings | Migrator | 'providers.yml' | Migration 01         #
+# Author(s):     salty                                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                                   #
+# --                                                                                   #
+########################################################################################
+#                            GNU General Public License v3.0                           #
+########################################################################################
+---
+- name: "Migrator | 'backup_config.yml' | Migration 01 | Set variables"
+  ansible.builtin.set_fact:
+    old_godaddy: "{{ (goddady is defined) }}"
+    old_godaddy_filled: "{{ (goddady is defined) and
+                            (goddady is not none) and
+                            (goddady | trim | length > 0) and
+                            (goddady.api_key is defined) and
+                            (goddady.api_key is not none) and
+                            (goddady.api_key | length > 0) and
+                            (goddady.api_secret is defined) and
+                            (goddady.api_secret is not none) and
+                            (goddady.api_secret | length > 0) }}"
+
+- name: Migrator | 'backup_config.yml' | Migration 01 | Delete 'goddady' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.goddady)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_godaddy
+
+- name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'godaddy' dict
+  ansible.builtin.shell: |
+    yyq e -i '.godaddy.api_key = "{{ goddady.api_key }}"' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.godaddy.api_secret = "{{ goddady.api_secret }}"' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: old_godaddy_filled
+
+- name: Migrator | 'backup_config.yml' | Migration 01 | Remove 'null' values
+  ansible.builtin.replace:
+    path: "{{ playbook_dir }}/{{ file }}"
+    regexp: '(?<=: )\bnull\s*$'
+    replace: ''
+    owner: "{{ saltbox_yml.stat.uid }}"
+    group: "{{ saltbox_yml.stat.gid }}"
+    mode: "0664"
+
+- name: Migrator | 'backup_config.yml' | Migration 01 | Re-import Variables
+  ansible.builtin.include_vars: "{{ playbook_dir }}/{{ file }}"

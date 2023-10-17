@@ -38,6 +38,12 @@
     - name: Migrator | 'backup_config.yml' | Migration 01
       ansible.builtin.include_tasks: "migrator/backup_config_yml/migration_01.yml"
 
+- name: Migrator | Migrations for 'providers.yml'
+  when: (file == "providers.yml")
+  block:
+    - name: Migrator | 'providers.yml' | Migration 01
+      ansible.builtin.include_tasks: "migrator/providers_yml/migration_01.yml"
+
 - name: Migrator | Migrations for 'settings.yml'
   when: (file == "settings.yml")
   block:

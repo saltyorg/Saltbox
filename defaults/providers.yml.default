@@ -5,7 +5,7 @@ cloudns:
   password:
 duckdns:
   token:
-goddady:
+godaddy:
   api_key:
   api_secret:
 hetzner:

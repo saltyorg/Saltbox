@@ -6,7 +6,6 @@
 ########################################################################################
 #                            GNU General Public License v3.0                           #
 ########################################################################################
-
 ---
 - name: "Migrator | 'backup_config.yml' | Migration 01 | Set variables"
   ansible.builtin.set_fact:
