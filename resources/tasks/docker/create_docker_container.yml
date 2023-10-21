@@ -13,6 +13,10 @@
                   if (var_prefix is defined)
                   else role_name }}"
 
+- name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
+  when: ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
+
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container # noqa args[module]
   community.docker.docker_container:
     auto_remove: "{{ lookup('vars', _var_prefix + '_docker_auto_remove', default=omit) }}"
