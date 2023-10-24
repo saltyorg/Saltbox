@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Remote (NFS) | Install NFS requirements"
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+
 - name: "Remote (NFS) | Set Variables"
   ansible.builtin.set_fact:
     mount_path: "/mnt/remote/{{ rclone_remote_name }}"
