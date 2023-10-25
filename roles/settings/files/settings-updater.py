@@ -3,7 +3,7 @@
 
     #########################################################################
     # Title:         Settings Updater Script                                #
-    # Author(s):     l3uddz, chazlarson                                     #
+    # Author(s):     l3uddz, chazlarson, salty                              #
     # URL:           https://github.com/saltyorg/Saltbox                    #
     # Description:   Adds variables to settings.yml.                        #
     # --                                                                    #
@@ -17,7 +17,7 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
-from ruamel import yaml
+from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
 ############################################################
@@ -65,20 +65,24 @@ def init_logging(playbook_path):
 ############################################################
 
 def load_settings(file_to_load):
+    yaml_instance = YAML()
+    yaml_instance.preserve_quotes = True
+
     settings = None
     try:
-        settings = yaml.round_trip_load(open(file_to_load, "r"), preserve_quotes=True)
+        with open(file_to_load, "r") as f:
+            settings = yaml_instance.load(f)
     except Exception:
         log.exception("Exception loading %s: ", file_to_load)
     return settings
 
-
 def dump_settings(settings, file_to_dump):
     dumped = False
     try:
+        yaml_instance = YAML()
+        yaml_instance.preserve_quotes = True
         with open(file_to_dump, 'w') as fp:
-            yaml.round_trip_dump(settings, fp)
-            # yaml.round_trip_dump(settings, fp, indent=2, block_seq_indent=2, explicit_start=True, default_flow_style=False)
+            yaml_instance.dump(settings, fp)
         dumped = True
     except Exception:
         log.exception("Exception dumping upgraded %s: ", file_to_dump)
@@ -86,7 +90,7 @@ def dump_settings(settings, file_to_dump):
 
 def is_remote_entry(thing):
     ret_val = False
-    if type(thing) == yaml.comments.CommentedMap:
+    if type(thing) == CommentedMap:
         rem_set = {'port', 'remote', 'template', 'cache'}
         for k in thing.keys():
             ret_val = ret_val or (k in rem_set)
