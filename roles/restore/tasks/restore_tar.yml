@@ -9,11 +9,11 @@
 ---
 # Checks
 
-- name: Fail when no backup method is enabled or when no local backup exists
+- name: Fail when rclone backup method is disabled
   ansible.builtin.fail:
     msg:
-      - "Rclone is not enabled and no local backup exists."
-      - "You must either enable rclone, in the backup settings, or provide backup tarball files locally, to perform a restore."
+      - "Rclone backup is not enabled."
+      - "You must enable rclone, in the backup settings, to perform a with a specific tar file restore."
   when: (not backup.rclone.enable)
 
 # Folder
