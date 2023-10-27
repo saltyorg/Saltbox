@@ -28,11 +28,13 @@
 - name: MergerFS Tasks
   ansible.builtin.include_tasks: "subtasks/mergerfs.yml"
 
-- name: Docker Daemon Tasks
-  ansible.builtin.import_tasks: "subtasks/docker/daemon.yml"
+- name: Mounts block
   when: ('mounts' in ansible_run_tags)
+  block:
+    - name: Docker Daemon Tasks
+      ansible.builtin.import_tasks: "subtasks/docker/daemon.yml"
 
-# Start Docker Containers
+    # Start Docker Containers
 
-- name: Docker Containers Start Tasks
-  ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"
+    - name: Docker Containers Start Tasks
+      ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"

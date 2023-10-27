@@ -12,10 +12,6 @@
     name: rclone
   when: use_remote and ('mounts' in ansible_run_tags) and remote_update_rclone
 
-- name: "Initialize 'remote_stopped_docker' variable"
-  ansible.builtin.set_fact:
-    remote_stopped_docker: false
-
 - name: Check to see if docker is installed
   ansible.builtin.stat:
     path: "/usr/bin/docker"
@@ -37,10 +33,9 @@
       register: saltbox_managed_containers
       ignore_errors: true
 
-    - name: "Set 'containers_list' and 'remote_stopped_docker' variables"
+    - name: "Set 'containers_list' variable"
       ansible.builtin.set_fact:
         containers_list: "{{ saltbox_managed_containers.stdout }}"
-        remote_stopped_docker: true
 
     - name: "Stop all running Docker containers"
       ansible.builtin.shell: "docker stop {{ containers_list }}"
