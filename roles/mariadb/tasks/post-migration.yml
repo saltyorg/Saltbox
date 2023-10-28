@@ -15,9 +15,9 @@
 - name: Import databases
   when: subfolder.stat.exists and dump.stat.exists
   block:
-    - name: Wait for 15 seconds
+    - name: Wait for 60 seconds
       ansible.builtin.wait_for:
-        timeout: 15
+        timeout: 60
 
     - name: Restore data from dump file
       ansible.builtin.shell: |
