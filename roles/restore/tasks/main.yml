@@ -14,6 +14,12 @@
       - "You must enable rclone, in the backup settings, to perform a with a specific tar file restore."
   when: (not backup.rclone.enable) and (restore_tar is defined)
 
+- name: Fail when local backup method is enabled and using restore_tar
+  ansible.builtin.fail:
+    msg:
+      - "The restore_tar setting does not work with a local backup enabled."
+  when: backup.local.enable and (restore_tar is defined)
+
 - name: "Check if user '{{ user.name }}' exists"
   ansible.builtin.shell: "id -un {{ user.name }} >/dev/null 2>&1;"
   register: user_check
