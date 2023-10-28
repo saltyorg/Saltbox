@@ -32,18 +32,23 @@
   when: rclone_remote_is_defined and use_remote and item.template != "nfs"
 
 - name: Tasks for when Docker exists and is running
-  when: docker_binary.stat.exists and docker_service_running
+  when: docker_service_check
   block:
     - name: Gather list of running Docker containers
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-      register: docker_running_containers
+      register: docker_running_containers_ps
       ignore_errors: true
       changed_when: false
+      when: (not docker_service_check_mounts)
+
+    - name: Get Docker service state
+      ansible.builtin.set_fact:
+        docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
 
     - name: Stop all running Docker containers
-      ansible.builtin.shell: "docker stop {{ docker_running_containers.stdout }} &> /dev/null || true"
+      ansible.builtin.shell: "docker stop {{ docker_running_containers }} &> /dev/null || true"
       ignore_errors: true
-      when: (docker_running_containers.stdout | trim | length > 0)
+      when: (not docker_service_check_mounts) and (docker_running_containers | trim | length > 0)
 
     - name: Import BTRFS Cleanup Tasks
       ansible.builtin.include_tasks: "subtasks/btrfs/cleanup.yml"
@@ -53,6 +58,7 @@
       ansible.builtin.systemd:
         name: docker
         state: stopped
+      when: (not docker_service_check_mounts)
 
 - name: Check if overlay can be loaded
   block:
@@ -98,7 +104,7 @@
   tags: docker-housekeeping
 
 - name: Docker Service Running
-  when: docker_binary.stat.exists and docker_service_running and (docker_running_containers.stdout | trim | length > 0)
+  when: docker_service_check and (docker_running_containers | trim | length > 0)
   block:
     - name: "Initialize Gluetun variable"
       ansible.builtin.set_fact:
@@ -107,7 +113,7 @@
     - name: "Identify any Gluetun containers"
       ansible.builtin.set_fact:
         docker_containers_gluetun: "{{ docker_containers_gluetun + [item] }}"
-      loop: "{{ docker_running_containers.stdout.split() }}"
+      loop: "{{ docker_running_containers.split() }}"
       when: item in (gluetun_instances | default(['gluetun']))
 
     - name: "Re-start all previously running Gluetun containers"
@@ -115,12 +121,12 @@
       when: (docker_containers_gluetun | length > 0)
       ignore_errors: true
 
-    - name: "Wait for 5 seconds"
+    - name: "Wait for {{ docker_network_container_health_delay }} seconds"
       ansible.builtin.wait_for:
-        timeout: 5
+        timeout: "{{ docker_network_container_health_delay }}"
 
     - name: "Re-start all previously running Docker containers"
-      ansible.builtin.shell: "docker start {{ docker_running_containers.stdout }}"
+      ansible.builtin.shell: "docker start {{ docker_running_containers }}"
       ignore_errors: true
 
 - name: "Import Docker Hub tasks"

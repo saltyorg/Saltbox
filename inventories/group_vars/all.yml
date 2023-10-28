@@ -436,6 +436,8 @@ docker_log_options: "{{ docker_log_options_json
                      if docker.json_driver
                      else 'default' }}"
 
+docker_network_container_health_delay: 5
+
 ################################
 # Saltbox Version Manager
 ################################

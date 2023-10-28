@@ -118,6 +118,10 @@ docker_service_sleep: "{{ 0 if continuous_integration else 120 }}"
 
 docker_service_force: true
 
+docker_service_check: "{{ docker_binary.stat.exists and (docker_service_running or ((remote_docker_service_running is defined) and remote_docker_service_running) or ((unionfs_docker_service_running is defined) and unionfs_docker_service_running)) }}"
+
+docker_service_check_mounts: "{{ docker_binary.stat.exists and (((remote_docker_service_running is defined) and remote_docker_service_running) or ((unionfs_docker_service_running is defined) and unionfs_docker_service_running)) }}"
+
 docker_update_hosts_service_runtime_max: "3600s"
 
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"

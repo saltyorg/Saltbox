@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                                        #
 ############################################################################################
 ---
+- name: "Resources | Tasks | Docker | Network Container Health Status | Wait for {{ docker_network_container_health_delay }} seconds before checking status"
+  ansible.builtin.wait_for:
+    timeout: "{{ docker_network_container_health_delay }}"
+
 - name: Resources | Tasks | Docker | Network Container Health Status | Check health of network linked container
   community.docker.docker_container_info:
     name: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }}"
