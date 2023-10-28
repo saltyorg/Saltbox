@@ -7,15 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Checks
-
-- name: Fail when rclone backup method is disabled
-  ansible.builtin.fail:
-    msg:
-      - "Rclone backup is not enabled."
-      - "You must enable rclone, in the backup settings, to perform a with a specific tar file restore."
-  when: (not backup.rclone.enable)
-
 # Folder
 
 - name: Cleanup backup location
