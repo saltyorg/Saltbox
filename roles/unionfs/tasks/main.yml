@@ -38,3 +38,4 @@
 
     - name: Docker Containers Start Tasks
       ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"
+      when: (containers_list is defined)
