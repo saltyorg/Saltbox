@@ -86,7 +86,7 @@ rclone_old_remote_is_defined: "{{ (rclone is defined) and
 
 use_cloudplow: "{{ rclone_remote_is_defined and use_remote }}"
 
-use_remote: "{{ rclone.enabled and not continuous_integration }}"
+use_remote: "{{ (rclone.enabled | bool) and not continuous_integration }}"
 
 use_nvidia: "{{ gpu.nvidia | bool }}"
 
@@ -188,16 +188,16 @@ traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) | r
 # Replaces powerdns with pdns for config sanity reasons.
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
 traefik_default_certprovider: "{{ 'cfdns'
-                               if (not traefik.cert.zerossl)
+                               if (not (traefik.cert.zerossl | bool))
                                else 'zerossl' }}"
 traefik_default_zerossl_resolver: "zerosslhttp"
 traefik_default_resolver: "httpresolver"
 traefik_default_certresolver: "{{ traefik_default_certprovider
-                               if (not traefik_http)
+                               if (not (traefik_http | bool))
                                else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
 
-traefik_error_pages_enabled: "{{ traefik.error_pages }}"
-traefik_error_pages_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_error_pages_enabled', default=lookup('vars', role_name + '_traefik_error_pages_enabled', default=false)) }}"
+traefik_error_pages_enabled: "{{ traefik.error_pages | bool }}"
+traefik_error_pages_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_error_pages_enabled', default=lookup('vars', role_name + '_traefik_error_pages_enabled', default=false)) | bool }}"
 traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
@@ -208,13 +208,13 @@ traefik_default_autodetect: false
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file'
                                         + (',autodetect'
-                                          if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)))
+                                          if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                           else '')
                                         + (',gzip'
-                                          if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
+                                          if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                           else '')
                                         + (',hsts@file'
-                                          if (traefik.hsts)
+                                          if (traefik.hsts | bool)
                                           else '')
                                         + (',cloudflarewarp'
                                           if (cloudflare_is_enabled)
@@ -244,10 +244,10 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                        if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
                                        else traefik_default_middleware_custom_http)
                                      + (',autodetect'
-                                       if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)))
+                                       if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                        else '')
                                      + (',gzip'
-                                       if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
+                                       if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                        else '')
                                      + (',cloudflarewarp'
                                        if (cloudflare_is_enabled)
@@ -263,10 +263,10 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                            if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
                                            else traefik_default_middleware_custom_http_api)
                                          + (',autodetect'
-                                           if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)))
+                                           if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                            else '')
                                          + (',gzip'
-                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
+                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                            else '')
                                          + (',cloudflarewarp'
                                            if (cloudflare_is_enabled)
@@ -274,10 +274,10 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
                                             + (',autodetect'
-                                              if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)))
+                                              if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                               else '')
                                             + (',gzip'
-                                              if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)))
+                                              if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                               else '')
                                             + (',hsts@file'
                                               if (traefik.hsts)
@@ -293,8 +293,8 @@ traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
 
 traefik_default_sso_middleware: "authelia"
 
-traefik_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_enabled', default=lookup('vars', role_name + '_traefik_enabled', default=false)) }}"
-traefik_role_api_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_api_enabled', default=lookup('vars', role_name + '_traefik_api_enabled', default=false)) }}"
+traefik_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_enabled', default=lookup('vars', role_name + '_traefik_enabled', default=false)) | bool }}"
+traefik_role_api_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_api_enabled', default=lookup('vars', role_name + '_traefik_api_enabled', default=false)) | bool }}"
 
 traefik_http: "{{ false
                if ((traefik_challenge_provider != 'cloudflare') or cloudflare_is_enabled)
@@ -316,9 +316,9 @@ traefik_host_template: "{{ lookup('vars', traefik_role_var + '_web_host_override
                         if traefik_host_override
                         else 'Host(`' + traefik_host + '`)' }}"
 
-traefik_entrypoint_web_default: "{{ 'web' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-web' }}"
+traefik_entrypoint_web_default: "{{ 'web' if not (lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) | bool) else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_web', default=traefik_entrypoint_web_default) }}"
-traefik_entrypoint_websecure_default: "{{ 'websecure' if not lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) else 'tailscale-websecure' }}"
+traefik_entrypoint_websecure_default: "{{ 'websecure' if not (lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) | bool) else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_websecure', default=traefik_entrypoint_websecure_default) }}"
 
 ################################
@@ -356,8 +356,8 @@ docker_labels_autoheal_template:
 
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
-  - "{{ docker_labels_diun_template if lookup('vars', role_name + '_diun_enabled', default=true) else omit }}"
-  - "{{ docker_labels_autoheal_template if lookup('vars', role_name + '_autoheal_enabled', default=true) else omit }}"
+  - "{{ docker_labels_diun_template if (lookup('vars', role_name + '_diun_enabled', default=true) | bool) else omit }}"
+  - "{{ docker_labels_autoheal_template if (lookup('vars', role_name + '_autoheal_enabled', default=true) | bool) else omit }}"
 
 docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | reject('equalto', omit) | list }}"
 
@@ -450,7 +450,7 @@ svm: https://svm.saltbox.dev/version?url=
 
 reboot_is_necessary: false
 skip_dns: "{{ not (dns.ipv4 or dns.ipv6) }}"
-role_dns_enabled: "{{ lookup('vars', role_name + '_dns_enabled', default=true) }}"
+role_dns_enabled: "{{ lookup('vars', role_name + '_dns_enabled', default=true) | bool }}"
 docker_legacy_volume: false
 
 ################################
