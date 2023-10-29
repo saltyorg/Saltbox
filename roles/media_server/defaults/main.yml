@@ -8,3 +8,4 @@
 ##########################################################################
 ---
 media_servers_enabled: ["plex"]
+media_server_autoscan_enabled: true

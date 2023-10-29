@@ -17,3 +17,4 @@
 - name: "Execute Autoscan role"
   ansible.builtin.include_role:
     name: "autoscan"
+  when: media_server_autoscan_enabled
