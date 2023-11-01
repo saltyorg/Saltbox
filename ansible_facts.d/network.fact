@@ -3,6 +3,7 @@
 import requests
 import json
 import ipaddress
+import subprocess
 
 urls = {
     "ipv4_primary": "https://ipify.saltbox.dev",
@@ -13,6 +14,19 @@ urls = {
 
 MAX_RETRIES = 3
 TIMEOUT = 3  # in seconds
+
+def has_valid_ipv6():
+    try:
+        output = subprocess.check_output(['ip', '-6', 'addr']).decode()
+        lines = output.splitlines()
+        for line in lines:
+            line = line.strip()
+            if line.startswith("inet6") and not line.startswith("inet6 fe80"):
+                return True
+        return False
+    except Exception as e:
+        print(f"Error checking for IPv6 addresses: {e}")
+        return False
 
 def validate_ip(ip, version):
     try:
@@ -61,15 +75,17 @@ public_ip, error_v4, failed_v4 = get_ip(urls["ipv4_primary"], "ipv4")
 if not public_ip:
     public_ip, error_v4, failed_v4 = get_ip(urls["ipv4_fallback"], "ipv4")
 
-public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_primary"], "ipv6")
-if not public_ipv6:
-    public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_fallback"], "ipv6")
+# Only fetch IPv6 data if a valid IPv6 address is present on the system
+if has_valid_ipv6():
+    public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_primary"], "ipv6")
+    if not public_ipv6:
+        public_ipv6, error_v6, failed_v6 = get_ip(urls["ipv6_fallback"], "ipv6")
+    data["ip"]["public_ipv6"] = public_ipv6 or ""
+    data["ip"]["error_ipv6"] = error_v6
+    data["ip"]["failed_ipv6"] = failed_v6
 
 data["ip"]["public_ip"] = public_ip or ""
-data["ip"]["public_ipv6"] = public_ipv6 or ""
 data["ip"]["error_ipv4"] = error_v4
-data["ip"]["error_ipv6"] = error_v6
 data["ip"]["failed_ipv4"] = failed_v4
-data["ip"]["failed_ipv6"] = failed_v6
 
 print(json.dumps(data, indent=4))
