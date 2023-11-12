@@ -124,7 +124,8 @@ password_policy:
 #
 access_control:
   default_policy: {{ authelia_access_control_default_policy }}
-  rules: {{ authelia_access_control_rules }}
+  rules:
+    {{ (authelia_access_control_whitelist_rules_lookup + authelia_access_control_rules) | to_nice_yaml | indent(4) }}
 
 session:
   name: {{ authelia_web_subdomain + '.' + authelia_web_domain | lower }}

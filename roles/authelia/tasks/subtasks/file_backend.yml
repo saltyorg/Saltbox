@@ -21,6 +21,10 @@
     mode: "0775"
   when: (not authelia_config_stat.stat.exists)
 
+- name: File | Format 'configuration.yml'
+  ansible.builtin.shell: "yyq -i {{ authelia_paths_location }}/configuration.yml"
+  when: (not authelia_config_stat.stat.exists)
+
 - name: File | Generate Password Hash
   community.docker.docker_container:
     name: authelia-password-hash
