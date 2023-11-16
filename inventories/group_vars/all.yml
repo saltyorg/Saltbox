@@ -90,6 +90,8 @@ use_remote: "{{ (rclone.enabled | bool) and not continuous_integration }}"
 
 use_nvidia: "{{ gpu.nvidia | bool }}"
 
+use_motd: "{{ motd_install | bool }}"
+
 ################################
 # System
 ################################

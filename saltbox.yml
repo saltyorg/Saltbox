@@ -24,7 +24,7 @@
     - { role: rclone, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'preinstall', 'rclone'] }
     - { role: system, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'system'] }
     - { role: common, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'common'] }
-    - { role: motd, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'motd'] }
+    - { role: motd, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'motd'], when: ['use_motd'] }
     - { role: mount_templates, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mount-templates'] }
     - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
