@@ -10,6 +10,7 @@
 backup2_ignore_containers: "{{ backup_ignore_containers }}"
 backup2_user_defined_files: "{{ backup_user_defined_files }}"
 backup2_async_batch_size: "{{ lookup('vars', 'backup2_async_batch_size_' + backup.rclone.template, default='1') }}"
+backup2_async_batch_size_sftp: "8"
 backup2_async_batch_size_google: "8"
 backup2_async_batch_size_dropbox: "2"
 backup2_rclone_env: "{{ backup_rclone_env }}"
@@ -19,6 +20,7 @@ backup2_rclone_upload_speed_limit: "{{ backup_rclone_upload_speed_limit }}"
 
 backup2_google_template: '--drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" --drive-stop-on-upload-limit'
 backup2_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_size }}" --disable-http2 --dropbox-pacer-min-sleep=1000ms'
+backup2_sftp_template: ""
 
 ################################
 # Cleanup
