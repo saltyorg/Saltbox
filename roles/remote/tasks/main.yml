@@ -167,9 +167,9 @@
     - name: Remote Tasks
       ansible.builtin.include_tasks: "remote.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and item.template != "nfs"
+      when: rclone_remote_is_defined and item.settings.template != "nfs" and item.settings.mount
 
     - name: Remote Tasks (NFS)
       ansible.builtin.include_tasks: "nfs.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and item.template == "nfs"
+      when: rclone_remote_is_defined and item.settings.template == "nfs" and item.settings.mount

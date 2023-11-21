@@ -4,16 +4,19 @@ authelia:
   subdomain: login
 downloads: /mnt/unionfs/downloads
 rclone:
-  enabled: true
+  enabled: yes
   remotes:
     - remote: google
-      template: google
-      upload: true
-      upload_from: /mnt/local/Media
-      vfs_cache:
-        enabled: false
-        max_age: 504h
-        size: 50G
+      settings:
+        mount: yes
+        template: google
+        union: yes
+        upload: yes
+        upload_from: /mnt/local/Media
+        vfs_cache:
+          enabled: no
+          max_age: 504h
+          size: 50G
   version: latest
 shell: bash
 transcodes: /mnt/local/transcodes

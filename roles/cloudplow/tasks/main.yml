@@ -23,13 +23,13 @@
   ansible.builtin.set_fact:
     cloudplow_remotes: "{{ cloudplow_remotes + [item] }}"
   loop: "{{ rclone.remotes }}"
-  when: item.upload
+  when: item.settings.upload
 
 - name: Filter Rclone upload_from on remotes
   ansible.builtin.set_fact:
-    cloudplow_upload_paths_unique: "{{ cloudplow_upload_paths_unique + [item.upload_from] }}"
+    cloudplow_upload_paths_unique: "{{ cloudplow_upload_paths_unique + [item.settings.upload_from] }}"
   loop: "{{ rclone.remotes }}"
-  when: item.upload and (item.upload_from not in cloudplow_upload_paths_unique)
+  when: item.settings.upload and (item.settings.upload_from not in cloudplow_upload_paths_unique)
 
 - name: Cloudplow tasks
   when: (cloudplow_remotes | length > 0)
@@ -58,8 +58,8 @@
     - name: Set Python version
       ansible.builtin.set_fact:
         cloudplow_python: "{{ 'python3'
-                          if ansible_distribution_version is version('20.04', '==')
-                          else 'python3.8' }}"
+                           if ansible_distribution_version is version('20.04', '==')
+                           else 'python3.8' }}"
 
     - name: "Execute Python role"
       ansible.builtin.include_role:

@@ -38,21 +38,21 @@
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "template": "google", "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "settings": {"mounts": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "google", "template": "google", "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "google", "settings": {"mounts": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and not rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Add feeder to remotes
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "feeder", "template": "sftp", "upload": false, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "feeder", "settings": {"mounts": true, "template": "sftp", "union": true, "upload": false, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_feeder_mount
@@ -63,6 +63,50 @@
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.enabled is undefined)
+
+- name: Migrator | 'settings.yml' | Migration 01 | Upgrade to new settings format
+  when: (rclone.remotes is defined)
+  block:
+    - name: Migrator | 'settings.yml' | Migration 01 | Read current config file
+      ansible.builtin.slurp:
+        src: /srv/git/saltbox/settings.yml
+      register: settings_config_content
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Parse the configuration
+      ansible.builtin.set_fact:
+        settings_config: "{{ settings_config_content['content'] | b64decode | from_yaml }}"
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Transform the data structure
+      ansible.builtin.set_fact:
+        new_remotes: "{{ new_remotes | default([]) + [{'remote': item.remote, 'settings': {'mount': true, 'template': item.template, 'union': true, 'upload': item.upload, 'upload_from': item.upload_from, 'vfs_cache': {'enabled': item.vfs_cache.enabled, 'max_age': item.vfs_cache.max_age, 'size': item.vfs_cache.size}}}] }}"
+      loop: "{{ settings_config.rclone.remotes }}"
+      when: item.template is defined
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Combine new structure with original config
+      ansible.builtin.set_fact:
+        new_config: "{{ (settings_config | combine({'rclone': {'remotes': new_remotes}}, recursive=True)) }}"
+      when: new_remotes is defined
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Write the new configuration file
+      ansible.builtin.copy:
+        dest: /srv/git/saltbox/settings.yml
+        content: "{{ new_config | to_nice_yaml }}"
+        owner: "{{ saltbox_yml.stat.uid }}"
+        group: "{{ saltbox_yml.stat.gid }}"
+        mode: "0664"
+      when: new_remotes is defined
+
+- name: Migrator | 'settings.yml' | Migration 01 | Convert 'true' to 'yes'
+  ansible.builtin.command: >
+    yyq eval '
+      (.. | select(tag == "!!bool" and . == true)) |= "yes"
+    ' /srv/git/saltbox/settings.yml -i
+
+- name: Migrator | 'settings.yml' | Migration 01 | Convert 'false' to 'no'
+  ansible.builtin.command: >
+    yyq eval '
+      (.. | select(tag == "!!bool" and . == false)) |= "no"
+    ' /srv/git/saltbox/settings.yml -i
 
 - name: Migrator | 'settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:

@@ -19,7 +19,7 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
-{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.vfs_cache.enabled %}
+{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.settings.vfs_cache.enabled %}
     --cache-dir={{ rclone_vfs_cache_dir_lookup }} \
 {% endif %}
     --config={{ rclone_config_path }} \
@@ -35,10 +35,10 @@ ExecStart=/usr/bin/rclone mount \
     --syslog \
     --umask=002 \
     --user-agent='{{ user_agent }}' \
-{% if item.vfs_cache.enabled %}
+{% if item.settings.vfs_cache.enabled %}
     --vfs-cache-min-free-space={{ rclone_vfs_cache_min_free_space }} \
-    --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
-    --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
+    --vfs-cache-max-age={{ item.settings.vfs_cache.max_age | default('504h') }} \
+    --vfs-cache-max-size={{ item.settings.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
     --vfs-cache-poll-interval={{ rclone_vfs_cache_poll_interval }} \
     --vfs-fast-fingerprint \

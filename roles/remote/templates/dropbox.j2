@@ -22,7 +22,7 @@ ExecStart=/usr/bin/rclone mount \
 {% if mounts.ipv4_only %}
     --bind={{ ansible_default_ipv4.address }} \
 {% endif %}
-{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.vfs_cache.enabled %}
+{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.settings.vfs_cache.enabled %}
     --cache-dir={{ rclone_vfs_cache_dir_lookup }} \
 {% endif %}
     --config={{ rclone_config_path }} \
@@ -39,17 +39,17 @@ ExecStart=/usr/bin/rclone mount \
     --umask=002 \
     --use-mmap \
     --user-agent='{{ user_agent }}' \
-{% if item.vfs_cache.enabled %}
+{% if item.settings.vfs_cache.enabled %}
     --vfs-cache-min-free-space={{ rclone_vfs_cache_min_free_space }} \
-    --vfs-cache-max-age={{ item.vfs_cache.max_age | default('504h') }} \
-    --vfs-cache-max-size={{ item.vfs_cache.size | default('50G') }} \
+    --vfs-cache-max-age={{ item.settings.vfs_cache.max_age | default('504h') }} \
+    --vfs-cache-max-size={{ item.settings.vfs_cache.size | default('50G') }} \
     --vfs-cache-mode=full \
     --vfs-cache-poll-interval={{ rclone_vfs_cache_poll_interval }} \
     --vfs-fast-fingerprint \
     --vfs-read-ahead=128M \
 {% endif %}
     --vfs-read-chunk-size-limit=2G \
-    --vfs-read-chunk-size={{ '32M' if item.vfs_cache.enabled else '64M' }} \
+    --vfs-read-chunk-size={{ '32M' if item.settings.vfs_cache.enabled else '64M' }} \
     -v \
     "{{ rclone_remote_with_path }}" "/mnt/remote/{{ rclone_remote_name }}"
 ExecStop=/bin/fusermount3 -uz "/mnt/remote/{{ rclone_remote_name }}"
@@ -57,7 +57,7 @@ Restart=on-abort
 RestartSec=5
 StartLimitInterval=60s
 StartLimitBurst=3
-{% if item.vfs_cache.enabled %}
+{% if item.settings.vfs_cache.enabled %}
 TimeoutSec=21600
 LimitNOFILE=infinity
 LimitMEMLOCK=infinity

@@ -41,7 +41,7 @@
         "*.db"
       ],
       "rclone_extras": {
-        {{ lookup('vars', 'cloudplow_rclone_' + remote.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
+        {{ lookup('vars', 'cloudplow_rclone_' + remote.settings.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
       },
       "rclone_sleeps": {
         "Failed to copy: googleapi: Error 403: User rate limit exceeded": {
@@ -58,13 +58,13 @@
       "remove_empty_dir_depth": 2,
       "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
                           + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
-                          if (remote.template != 'nfs')
+                          if (remote.settings.template != 'nfs')
                           else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
                           + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}",
-      "upload_folder": "{{ remote.upload_from }}",
+      "upload_folder": "{{ remote.settings.upload_from }}",
       "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
                             + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
-                            if (remote.template != 'nfs')
+                            if (remote.settings.template != 'nfs')
                             else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
                             + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}

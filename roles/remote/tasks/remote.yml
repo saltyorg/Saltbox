@@ -83,7 +83,7 @@
 
 - name: Remote | Import '{{ _service_file }}'
   ansible.builtin.template:
-    src: "{{ item.template }}{{ '' if item.template is regex('^/.*') else '.j2' }}"
+    src: "{{ item.settings.template }}{{ '' if item.settings.template is regex('^/.*') else '.j2' }}"
     dest: "/etc/systemd/system/{{ _service_file }}"
     mode: "0644"
     force: true
@@ -101,7 +101,7 @@
     dest: "/etc/systemd/system/{{ _service_refresh }}.timer"
     force: true
     mode: "0644"
-  when: (item.template != "sftp")
+  when: (item.settings.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.timer'
   ansible.builtin.systemd:
@@ -109,7 +109,7 @@
     state: stopped
     enabled: false
     daemon_reload: true
-  when: (item.template != "sftp")
+  when: (item.settings.template != "sftp")
 
 - name: Remote | Import '{{ _service_refresh }}.service'
   ansible.builtin.template:
@@ -117,7 +117,7 @@
     dest: "/etc/systemd/system/{{ _service_refresh }}.service"
     force: true
     mode: "0644"
-  when: (item.template != "sftp")
+  when: (item.settings.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.service'
   ansible.builtin.systemd:
@@ -125,7 +125,7 @@
     state: stopped
     enabled: false
     daemon_reload: true
-  when: (item.template != "sftp")
+  when: (item.settings.template != "sftp")
 
 - name: Remote | Get list of Rclone remotes in config
   ansible.builtin.shell: rclone listremotes
@@ -175,7 +175,7 @@
             name: "{{ _service_refresh }}.timer"
             state: started
             enabled: true
-          when: (item.template != "sftp")
+          when: (item.settings.template != "sftp")
 
         - name: Remote | Start '{{ _service_refresh }}.service'
           ansible.builtin.systemd:
@@ -183,7 +183,7 @@
             state: started
             enabled: true
             no_block: true
-          when: (item.template != "sftp")
+          when: (item.settings.template != "sftp")
 
     - name: "Remote | Display error message when Rclone remote is not working properly"
       ansible.builtin.fail:
