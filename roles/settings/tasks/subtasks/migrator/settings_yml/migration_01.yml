@@ -78,7 +78,7 @@
 
     - name: Migrator | 'settings.yml' | Migration 01 | Transform the data structure
       ansible.builtin.set_fact:
-        new_remotes: "{{ new_remotes | default([]) + [{'remote': item.remote, 'settings': {'mount': true, 'template': item.template, 'union': true, 'upload': item.upload, 'upload_from': item.upload_from, 'vfs_cache': {'enabled': item.vfs_cache.enabled, 'max_age': item.vfs_cache.max_age, 'size': item.vfs_cache.size}}}] }}"
+        new_remotes: "{{ new_remotes | default([]) + [{'remote': item.remote, 'settings': {'mount': true, 'template': item.template, 'union': true, 'upload': (item.upload | default(false)), 'upload_from': item.upload_from, 'vfs_cache': {'enabled': item.vfs_cache.enabled, 'max_age': item.vfs_cache.max_age, 'size': item.vfs_cache.size}}}] }}"
       loop: "{{ settings_config.rclone.remotes }}"
       when: item.template is defined
 
