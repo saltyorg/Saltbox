@@ -138,3 +138,33 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
+
+- name: Post-Install | Settings | Generate Password Hash
+  when: not qbittorrent_paths_conf_stat.stat.exists
+  block:
+    - name: Post-Install | Settings | Generate Password Hash
+      qbittorrent_passwd:
+        password: "{{ user.pass }}"
+      register: qbittorrent_hashed_passwd
+
+    - name: Post-Install | Settings | Set qBittorrent 'WebUI\Username'
+      community.general.ini_file:
+        section: Preferences
+        option: WebUI\Username
+        value: '{{ user.name }}'
+        path: "{{ qbittorrent_paths_conf }}"
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
+
+    - name: Post-Install | Settings | Set qBittorrent 'WebUI\Password_PBKDF2'
+      community.general.ini_file:
+        section: Preferences
+        option: WebUI\Password_PBKDF2
+        value: '{{ qbittorrent_hashed_passwd.msg }}'
+        path: "{{ qbittorrent_paths_conf }}"
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0775"
