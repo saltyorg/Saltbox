@@ -38,21 +38,21 @@
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "settings": {"mounts": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "{{ rclone.remote }}", "settings": {"mount": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Create 'rclone.remotes' dict
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "google", "settings": {"mounts": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "google", "settings": {"mount": true, "template": "google", "union": true, "upload": true, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (rclone.remotes is undefined) and not rclone_old_remote_is_defined
 
 - name: Migrator | 'settings.yml' | Migration 01 | Add feeder to remotes
   ansible.builtin.shell: |
-    yyq e -i '.rclone.remotes += [{"remote": "feeder", "settings": {"mounts": true, "template": "sftp", "union": true, "upload": false, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
+    yyq e -i '.rclone.remotes += [{"remote": "feeder", "settings": {"mount": true, "template": "sftp", "union": true, "upload": false, "upload_from": "/mnt/local/Media", "vfs_cache": {"enabled": false, "size": "50G", "max_age": "504h"}}}]' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_feeder_mount
