@@ -137,6 +137,10 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
+- name: Wait for 10 seconds
+  ansible.builtin.wait_for:
+    timeout: 10
+
 - name: Populate Service Facts
   ansible.builtin.service_facts:
 
