@@ -1,0 +1,30 @@
+##########################################################################
+# Title:         Saltbox: Traefik Template Generator | Default Variables #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Settings
+################################
+
+traefik_template_file: "/tmp/docker-compose.yml"
+
+################################
+# Template Variables
+################################
+
+traefik_template_name: "{{ service_name.user_input }}"
+
+traefik_template_web_subdomain: "{{ service_name.user_input }}"
+traefik_template_web_domain: "{{ user.domain }}"
+traefik_template_web_port: "{{ service_port.user_input }}"
+
+traefik_template_traefik_enabled: "true"
+traefik_template_traefik_sso_middleware: "{{ traefik_default_sso_middleware if (service_authelia_enabled.user_input | bool) else '' }}"
+traefik_template_traefik_middleware_default: "{{ traefik_default_middleware }}"
+traefik_template_traefik_api_enabled: "{{ (service_api_enabled.user_input | bool) | default(false) }}"
+traefik_template_traefik_api_endpoint: "PathPrefix(`/api`)"

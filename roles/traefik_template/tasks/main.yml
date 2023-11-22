@@ -1,0 +1,84 @@
+#########################################################################
+# Title:         Saltbox: Traefik Template Generator Role               #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Prompt for user input
+  ansible.builtin.pause:
+    prompt: "Please enter a unique name for your application (must not match a router/service that already exists on the Traefik dashboard)"
+  register: service_name
+
+- name: Prompt for user input
+  ansible.builtin.pause:
+    prompt: "Please enter the port used for the application's WEB UI"
+  register: service_port
+
+- name: Prompt for user input
+  ansible.builtin.pause:
+    prompt: "Do you want the application to be behind Authelia? (yes/no)"
+  register: service_authelia_enabled
+
+- name: Validate boolean input
+  ansible.builtin.fail:
+    msg: "You must enter a boolean value (yes/no)"
+  when: service_authelia_enabled.user_input | lower not in ['true', 'false', 'yes', 'no']
+
+- name: API Router
+  when: (service_authelia_enabled.user_input | bool)
+  block:
+    - name: Prompt for user input
+      ansible.builtin.pause:
+        prompt: "Do you want the application to have an API router? (yes/no)"
+      register: service_api_enabled
+
+    - name: Validate boolean input
+      ansible.builtin.fail:
+        msg: "You must enter a boolean value (yes/no)"
+      when: service_api_enabled.user_input | lower not in ['true', 'false', 'yes', 'no']
+
+- name: Remove keys with omit values or empty values from docker_labels_common
+  ansible.builtin.set_fact:
+    docker_labels_common: "{{ docker_labels_common | dict2items |
+                              rejectattr('value', 'equalto', '') |
+                              rejectattr('value', 'search', '__omit_place_holder__') |
+                              items2dict }}"
+
+- name: Generate Docker Compose template
+  ansible.builtin.copy:
+    dest: "{{ traefik_template_file }}"
+    content: |
+      version: '3.8'
+      services:
+        {{ traefik_template_name }}:
+          container_name: {{ traefik_template_name }}
+          environment: # Change this as needed for your image
+            PUID: "{{ uid }}"
+            PGID: "{{ gid }}"
+            TZ: "{{ tz }}"
+          hostname: {{ traefik_template_name }}
+          image: your_image:your_tag
+          labels:
+      {% for key, value in docker_labels_common.items() %}
+            {{ key }}: {{ value }}
+      {% endfor %}
+          networks:
+            - saltbox
+          restart: unless-stopped
+          volumes: # Change this as needed for your image
+            - /opt/{{ traefik_template_name }}:/config
+            - /etc/localtime:/etc/localtime:ro
+
+      networks:
+        saltbox:
+          external: true
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0644"
+
+- name: Print output information
+  ansible.builtin.debug:
+    msg: "You can find the generated template at '{{ traefik_template_file }}'"
