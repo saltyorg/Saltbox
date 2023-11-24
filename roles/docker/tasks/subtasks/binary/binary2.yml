@@ -11,6 +11,7 @@
   ansible.builtin.dpkg_selections:
     name: "{{ vars[item ~ '_dpkg'] }}"
     selection: install
+  when: (vars[item ~ '_dpkg'] in ansible_facts.packages)
 
 - name: Binary | Install '{{ lookup('vars', item + '_package') }}' # noqa args[module]
   ansible.builtin.apt:

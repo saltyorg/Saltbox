@@ -37,6 +37,9 @@
   delay: 10
   until: result is succeeded
 
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
 - name: Binary | Install Docker binaries
   ansible.builtin.include_tasks: "binary2.yml"
   loop:
