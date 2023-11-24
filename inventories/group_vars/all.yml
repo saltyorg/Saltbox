@@ -200,7 +200,7 @@ traefik_default_certresolver: "{{ traefik_default_certprovider
 
 traefik_error_pages_enabled: "{{ traefik.error_pages | bool }}"
 traefik_error_pages_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_error_pages_enabled', default=lookup('vars', role_name + '_traefik_error_pages_enabled', default=false)) | bool }}"
-traefik_error_pages_middleware: "{{ 'error-pages-middleware,'
+traefik_error_pages_middleware: "{{ 'error-pages-middleware@docker,'
                                  if traefik_error_pages_enabled and traefik_error_pages_role_enabled
                                  else '' }}"
 
@@ -209,16 +209,16 @@ traefik_default_autodetect: false
 
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file'
-                                        + (',autodetect'
+                                        + (',autodetect@docker'
                                           if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                           else '')
-                                        + (',gzip'
+                                        + (',gzip@docker'
                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                           else '')
-                                        + (',hsts@file'
+                                        + (',hsts@file@docker'
                                           if (traefik.hsts | bool)
                                           else '')
-                                        + (',cloudflarewarp'
+                                        + (',cloudflarewarp@docker'
                                           if (cloudflare_is_enabled)
                                           else '')
                                         + (',' if (traefik_role_middleware_sso | length > 0)
@@ -239,26 +239,26 @@ traefik_middleware: "{{ traefik_role_middleware_default
                           if (not traefik_role_middleware_custom.startswith(',') and traefik_role_middleware_custom | length > 0)
                           else traefik_role_middleware_custom) }}"
 
-traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https"
+traefik_default_middleware_default_http: "{{ traefik_error_pages_middleware }}globalHeaders@file,redirect-to-https@docker"
 traefik_default_middleware_custom_http: ""
 traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                      + (',' + traefik_default_middleware_custom_http
                                        if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
                                        else traefik_default_middleware_custom_http)
-                                     + (',autodetect'
+                                     + (',autodetect@docker'
                                        if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                        else '')
-                                     + (',gzip'
+                                     + (',gzip@docker'
                                        if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                        else '')
-                                     + (',cloudflarewarp'
+                                     + (',cloudflarewarp@docker'
                                        if (cloudflare_is_enabled)
                                        else '')
                                      + (',' if (traefik_role_middleware_sso | length > 0)
                                        else '')
                                      + traefik_role_middleware_sso }}"
 
-traefik_default_middleware_default_http_api: "globalHeaders@file,redirect-to-https"
+traefik_default_middleware_default_http_api: "globalHeaders@file,redirect-to-https@docker"
 traefik_default_middleware_custom_http_api: ""
 traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http_api
                                          + (',' + traefik_default_middleware_custom_http_api
@@ -275,16 +275,16 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                            else '') }}"
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
-                                            + (',autodetect'
+                                            + (',autodetect@docker'
                                               if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                               else '')
-                                            + (',gzip'
+                                            + (',gzip@docker'
                                               if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                               else '')
                                             + (',hsts@file'
                                               if (traefik.hsts)
                                               else '')
-                                            + (',cloudflarewarp'
+                                            + (',cloudflarewarp@docker'
                                               if (cloudflare_is_enabled)
                                               else '') }}"
 traefik_default_middleware_custom_api: ""
