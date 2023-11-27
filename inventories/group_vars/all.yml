@@ -215,7 +215,7 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + (',gzip@docker'
                                           if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                           else '')
-                                        + (',hsts@file@docker'
+                                        + (',hsts@file'
                                           if (traefik.hsts | bool)
                                           else '')
                                         + (',cloudflarewarp@docker'
