@@ -264,13 +264,13 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                          + (',' + traefik_default_middleware_custom_http_api
                                            if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
                                            else traefik_default_middleware_custom_http_api)
-                                         + (',autodetect'
+                                         + (',autodetect@docker'
                                            if (lookup('vars', traefik_role_var + '_traefik_autodetect_enabled', default=lookup('vars', role_name + '_traefik_autodetect_enabled', default=traefik_default_autodetect)) | bool)
                                            else '')
-                                         + (',gzip'
+                                         + (',gzip@docker'
                                            if (lookup('vars', traefik_role_var + '_traefik_gzip_enabled', default=lookup('vars', role_name + '_traefik_gzip_enabled', default=traefik_default_gzip)) | bool)
                                            else '')
-                                         + (',cloudflarewarp'
+                                         + (',cloudflarewarp@docker'
                                            if (cloudflare_is_enabled)
                                            else '') }}"
 
@@ -293,7 +293,7 @@ traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
                                       if (not traefik_default_middleware_custom_api.startswith(',') and traefik_default_middleware_custom_api | length > 0)
                                       else traefik_default_middleware_custom_api) }}"
 
-traefik_default_sso_middleware: "authelia"
+traefik_default_sso_middleware: "authelia@docker"
 
 traefik_role_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_enabled', default=lookup('vars', role_name + '_traefik_enabled', default=false)) | bool }}"
 traefik_role_api_enabled: "{{ lookup('vars', traefik_role_var + '_traefik_api_enabled', default=lookup('vars', role_name + '_traefik_api_enabled', default=false)) | bool }}"
