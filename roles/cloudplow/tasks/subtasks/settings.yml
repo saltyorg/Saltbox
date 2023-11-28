@@ -34,6 +34,14 @@
 - name: Settings | New 'config.json' tasks
   when: (not cloudplow_config.stat.exists)
   block:
+    - name: Filter Rclone upload_from on remotes
+      ansible.builtin.set_fact:
+        cloudplow_upload_paths_unique: "{{ rclone.remotes
+                                           | selectattr('settings.upload', 'defined')
+                                           | selectattr('settings.upload', 'equalto', true)
+                                           | map(attribute='settings.upload_from')
+                                           | unique }}"
+
     - name: Settings | Fail if duplicate folders where found.
       ansible.builtin.fail:
         msg:
