@@ -42,7 +42,7 @@ postgres_docker_image_pull: true
 postgres_docker_image_tag: "12-alpine"
 postgres_docker_image_repo: "postgres"
 postgres_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_docker_image_repo)
-                         + ':' + lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
+                           + ':' + lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
 
 # Ports
 postgres_docker_ports_defaults: []
