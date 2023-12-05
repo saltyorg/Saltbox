@@ -35,7 +35,7 @@ mongodb_docker_image_pull: true
 mongodb_docker_image_tag: "6"
 mongodb_docker_image_repo: "mongo"
 mongodb_docker_image: "{{ lookup('vars', mongodb_name + '_docker_image_repo', default=mongodb_docker_image_repo)
-                         + ':' + lookup('vars', mongodb_name + '_docker_image_tag', default=mongodb_docker_image_tag) }}"
+                          + ':' + lookup('vars', mongodb_name + '_docker_image_tag', default=mongodb_docker_image_tag) }}"
 
 # Ports
 mongodb_docker_ports_defaults: []
