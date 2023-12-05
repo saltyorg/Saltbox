@@ -48,8 +48,10 @@ mariadb_docker_container: "{{ mariadb_name }}"
 
 # Image
 mariadb_docker_image_pull: true
+mariadb_docker_image_repo: "mariadb"
 mariadb_docker_image_tag: "10"
-mariadb_docker_image: "mariadb:{{ lookup('vars', mariadb_name + '_docker_image_tag', default=mariadb_docker_image_tag) }}"
+mariadb_docker_image: "{{ lookup('vars', mariadb_name + '_docker_image_repo', default=mariadb_docker_image_repo)
+                         + ':' + lookup('vars', mariadb_name + '_docker_image_tag', default=mariadb_docker_image_tag) }}"
 
 # Ports
 mariadb_docker_ports_defaults: []
