@@ -52,9 +52,9 @@
 - name: Claim Server | Assert {{ plex_name | title }} claim code exists
   ansible.builtin.assert:
     that:
-      - "plex_claim_code is defined"
-      - "plex_claim_code is not none"
-      - "plex_claim_code | trim | length > 0"
+      - plex_claim_code is defined
+      - plex_claim_code is not none
+      - plex_claim_code | trim | length > 0
     quiet: true
 
 - name: "Claim Server | Display {{ plex_name | title }} claim code"

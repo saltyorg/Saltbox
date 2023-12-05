@@ -18,7 +18,7 @@
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
   ansible.builtin.assert:
     that:
-      - '"{{ item }}" in available_ansible_tags.stdout_lines'
+      - item in available_ansible_tags.stdout_lines
     msg: >-
       You must supply valid tag(s)
       (get a list of valid tags by running 'sb list')
