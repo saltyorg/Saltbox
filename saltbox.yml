@@ -102,7 +102,7 @@
     - { role: hetzner_nfs, tags: ['hetzner-nfs-server', 'hetzner-nfs-server-uninstall', 'hetzner-nfs-client-mount', 'hetzner-nfs-client-unmount'] }
     - { role: plex_auth_token, tags: ['plex-auth-token'] }
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
-    - { role: saltbox_mod, tags: ['saltbox_mod'] }
+    - { role: saltbox_mod, tags: ['saltbox-mod'] }
     - { role: sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: traefik_template, tags: ['generate-traefik-template'] }
     - { role: webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
