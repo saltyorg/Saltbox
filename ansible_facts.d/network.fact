@@ -17,15 +17,24 @@ TIMEOUT = 3  # in seconds
 
 def has_valid_ipv6():
     try:
-        output = subprocess.check_output(['ip', '-6', 'addr']).decode()
-        lines = output.splitlines()
-        for line in lines:
-            line = line.strip()
-            if line.startswith("inet6") and not line.startswith("inet6 fe80"):
-                return True, None  # Valid IPv6 found, no error
-        return False, None  # No valid IPv6 found, no error
+        # Check for global IPv6 addresses (exclude link-local which start with 'fe80')
+        output = subprocess.check_output(
+            ["ip", "-6", "addr", "show", "scope", "global"]
+        ).decode()
+
+        # If output is non-empty, global IPv6 addresses are present
+        if output.strip():
+            return True, None
+        else:
+            return False, None
+
+    except subprocess.CalledProcessError as e:
+        # Handle the specific subprocess error
+        return False, f"Subprocess error during IPv6 check: {e}"
     except Exception as e:
-        return False, f"Error checking for IPv6 addresses: {e}"  # Error occurred
+        # Handle any other exceptions
+        return False, f"General error during IPv6 check: {e}"
+
 
 def validate_ip(ip, version):
     try:
