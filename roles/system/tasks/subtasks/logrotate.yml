@@ -60,7 +60,7 @@
         content: |
           /opt/traefik/access.log {
               rotate {{ traefik_log_max_backups }}
-              size {{ traefik_max_log_size }}
+              size {{ traefik_log_max_size }}
               missingok
               notifempty
               postrotate
