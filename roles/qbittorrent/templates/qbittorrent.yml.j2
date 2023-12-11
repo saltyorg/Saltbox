@@ -1,14 +1,18 @@
 http:
   routers:
     {{ qbittorrent_name }}-http:
-      entryPoints: ["web"]
+      entryPoints:
+        - "web"
       rule: "Host(`{{ lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}`)"
-      middlewares: [{% for item in (traefik_default_middleware_http | split(',')) %}'{{ item }}{% if not '@' in item %}@docker{% endif %}'{% if not loop.last %}, {% endif %}{% endfor %}]
+      middlewares:
+        {{ traefik_default_middleware_http.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
     {{ qbittorrent_name }}:
-      entryPoints: ["websecure"]
+      entryPoints:
+        - "websecure"
       rule: "Host(`{{ lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}`)"
-      middlewares: [{% for item in (traefik_middleware | split(',')) %}'{{ item }}{% if (not '@' in item) and (not 'themepark' in item) %}@docker{% endif %}'{% if not loop.last %}, {% endif %}{% endfor %}]
+      middlewares:
+        {{ traefik_middleware.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
       tls:
         options: securetls@file
