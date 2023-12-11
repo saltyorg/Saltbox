@@ -29,6 +29,7 @@
       - path: "saltbox"
         content: |
           /srv/git/saltbox/*.log {
+              su {{ user.name }} {{ user.name }}
               weekly
               rotate 5
               size {{ saltbox_max_log_size }}
@@ -39,6 +40,7 @@
       - path: "sandbox"
         content: |
           /opt/sandbox/sandbox.log {
+              su {{ user.name }} {{ user.name }}
               weekly
               rotate 5
               size {{ saltbox_max_log_size }}
@@ -49,6 +51,7 @@
       - path: "saltbox_mod"
         content: |
           /opt/saltbox_mod/saltbox_mod.log {
+              su {{ user.name }} {{ user.name }}
               weekly
               rotate 5
               size {{ saltbox_max_log_size }}
@@ -59,6 +62,7 @@
       - path: "traefik"
         content: |
           /opt/traefik/access.log {
+              su {{ user.name }} {{ user.name }}
               rotate {{ traefik_log_max_backups }}
               size {{ traefik_log_max_size }}
               missingok

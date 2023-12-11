@@ -76,7 +76,7 @@
     recurse: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0664"
+    mode: "0775"
   when: (not continuous_integration)
 
 - name: Chown '{{ traefik_paths_acme_config_location }}'
