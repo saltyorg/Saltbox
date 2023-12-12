@@ -17,7 +17,7 @@ lidarr_instances: ["lidarr"]
 # Configuration
 ################################
 
-lidarr_external_auth: false
+lidarr_external_auth: true
 
 ################################
 # Paths
