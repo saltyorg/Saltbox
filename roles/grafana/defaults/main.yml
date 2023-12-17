@@ -56,7 +56,7 @@ grafana_traefik_api_endpoint: ""
 # Plugins
 ################################
 
-grafana_plugins: "grafana-piechart-panel,grafana-worldmap-panel"
+grafana_plugins: "grafana-worldmap-panel"
 
 ################################
 # Docker
