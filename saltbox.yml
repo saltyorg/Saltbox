@@ -35,21 +35,21 @@
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik-reset-certs'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
     # Apps Start
-    - { role: media_server, tags: ['saltbox', 'mediabox', 'media-server'] }
-    - { role: download_clients, tags: ['saltbox', 'feederbox', 'download-clients'] }
-    - { role: download_indexers, tags: ['saltbox', 'feederbox', 'download-indexers'] }
-    - { role: tautulli, tags: ['saltbox', 'mediabox', 'tautulli'] }
-    - { role: overseerr, tags: ['saltbox', 'mediabox', 'overseerr'] }
-    - { role: portainer, tags: ['saltbox', 'feederbox', 'portainer'] }
-    - { role: organizr, tags: ['saltbox', 'feederbox', 'organizr'] }
+    - { role: media_server, tags: ['media-server'] }
+    - { role: download_clients, tags: ['download-clients'] }
+    - { role: download_indexers, tags: ['download-indexers'] }
+    - { role: tautulli, tags: ['tautulli'] }
+    - { role: overseerr, tags: ['overseerr'] }
+    - { role: portainer, tags: ['portainer'] }
+    - { role: organizr, tags: ['organizr'] }
     - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow', 'cloudplow-reset'], when: ['use_cloudplow'] }
-    - { role: sonarr, tags: ['saltbox', 'feederbox', 'sonarr'] }
-    - { role: radarr, tags: ['saltbox', 'feederbox', 'radarr'] }
-    - { role: lidarr, tags: ['saltbox', 'feederbox', 'lidarr'] }
-    - { role: iperf3, tags: ['saltbox', 'mediabox', 'feederbox', 'iperf3'] }
-    - { role: nethogs, tags: ['saltbox', 'mediabox', 'feederbox', 'nethogs'] }
-    - { role: glances, tags: ['saltbox', 'mediabox', 'feederbox', 'glances'] }
-    - { role: btop, tags: ['saltbox', 'mediabox', 'feederbox', 'btop'] }
+    - { role: sonarr, tags: ['sonarr'] }
+    - { role: radarr, tags: ['radarr'] }
+    - { role: lidarr, tags: ['lidarr'] }
+    - { role: iperf3, tags: ['iperf3'] }
+    - { role: nethogs, tags: ['nethogs'] }
+    - { role: glances, tags: ['glances'] }
+    - { role: btop, tags: ['btop'] }
     - { role: asshama, tags: ['asshama'] }
     - { role: arr_db, tags: ['arr-db'] }
     - { role: authelia, tags: ['authelia', 'authelia-reset', 'lldap-reset'] }
