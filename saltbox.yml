@@ -34,6 +34,7 @@
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik-reset-certs'] }
     - { role: cloudflare, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'cloudflare'], when: ['cloudflare_is_enabled'] }
+    - { role: main_tags, tags: ['saltbox', 'mediabox', 'feederbox'] }
     # Apps Start
     - { role: media_server, tags: ['media-server'] }
     - { role: download_clients, tags: ['download-clients'] }
