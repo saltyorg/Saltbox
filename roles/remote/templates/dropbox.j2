@@ -32,8 +32,11 @@ ExecStart=/usr/bin/rclone mount \
     --dropbox-pacer-min-sleep=85ms \
     --poll-interval=30s \
     --rc \
-    --rc-no-auth \
     --rc-addr=localhost:{{ rclone_remort_port }} \
+{% if rclone_enable_metrics %}
+    --rc-enable-metrics \
+{% endif %}
+    --rc-no-auth \
     --syslog \
     --timeout=10m \
     --umask=002 \

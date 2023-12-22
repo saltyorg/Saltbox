@@ -28,6 +28,9 @@ ExecStart=/usr/bin/rclone mount \
     --max-read-ahead=200M \
     --rc \
     --rc-addr=localhost:{{ rclone_remort_port }} \
+{% if rclone_enable_metrics %}
+    --rc-enable-metrics \
+{% endif %}
     --rc-no-auth \
 {% if rclone_sftp_disable_hashcheck %}
     --sftp-disable-hashcheck \

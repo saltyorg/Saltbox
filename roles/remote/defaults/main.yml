@@ -33,6 +33,7 @@ rclone_first_remote_name: "{{ rclone.remotes[0].remote.split(':')[0] if ':' in r
 rclone_first_remote_name_with_path: "{{ rclone.remotes[0].remote if ':' in rclone.remotes[0].remote else rclone.remotes[0].remote + ':Media' }}"
 
 remote_update_rclone: true
+rclone_enable_metrics: false
 
 ################################
 # Rclone VFS Refresh
