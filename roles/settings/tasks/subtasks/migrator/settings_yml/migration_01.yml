@@ -65,7 +65,7 @@
   when: (rclone.enabled is undefined)
 
 - name: Migrator | 'settings.yml' | Migration 01 | Upgrade to new settings format
-  when: (rclone.remotes is defined) and (rclone.remotes | length > 0)
+  when: (rclone.remotes is defined) and (rclone.remotes | default([]) | length > 0)
   block:
     - name: Migrator | 'settings.yml' | Migration 01 | Read current config file
       ansible.builtin.slurp:
