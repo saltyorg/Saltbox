@@ -9,7 +9,8 @@
 ---
 - name: GRUB Edits | Set parameters to remove
   ansible.builtin.set_fact:
-    grub_item_to_remove: "nomodeset"
+    grub_item_to_remove:
+      - "nomodeset"
 
 - name: GRUB Edits | Get default kernel parameters
   ansible.builtin.shell: grep "^GRUB_CMDLINE_LINUX_DEFAULT" {{ outer_item.item }} | awk -F"GRUB_CMDLINE_LINUX_DEFAULT=" '{print $2}' | sed 's/"//g'
