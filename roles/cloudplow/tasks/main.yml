@@ -115,7 +115,7 @@
         force: true
 
     - name: Start service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ cloudplow_service_name }}"
         state: started
         enabled: true

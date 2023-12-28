@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: DNS | Cleanup 'docker-update-hosts.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: docker-update-hosts
     state: stopped
     enabled: false
@@ -43,7 +43,7 @@
     force: true
 
 - name: DNS | Start 'saltbox_managed_docker_update_hosts.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: saltbox_managed_docker_update_hosts
     state: restarted
     enabled: true

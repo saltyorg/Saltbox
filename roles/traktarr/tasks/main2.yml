@@ -13,7 +13,7 @@
   register: traktarr_service
 
 - name: "Stop existing {{ traktarr_name }} service"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     state: stopped
     name: traktarr
   when: traktarr_service.stat.exists
@@ -170,7 +170,7 @@
   when: (not traktarr_service.stat.exists)
 
 - name: Load traktarr service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ traktarr_name }}"
     state: "{{ traktarr_config.stat.exists | ternary('started', 'stopped') }}"
     enabled: "{{ traktarr_config.stat.exists | ternary('yes', 'no') }}"

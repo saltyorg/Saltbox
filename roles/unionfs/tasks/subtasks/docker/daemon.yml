@@ -27,11 +27,11 @@
     force: "{{ docker_service_force }}"
 
 - name: "Docker | Daemon | Run systemd daemon-reload"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     daemon_reload: true
 
 - name: "Docker | Daemon | Start docker service"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: docker
     state: restarted
     enabled: true

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Start '{{ mergerfs_service_name }}'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     state: started
     name: "{{ mergerfs_service_name }}"
     daemon_reload: true

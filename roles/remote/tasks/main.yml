@@ -43,7 +43,7 @@
       when: (containers_list | trim | length > 0)
 
     - name: Stop docker service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: docker
         state: stopped
 
@@ -92,7 +92,7 @@
         recurse: true
 
     - name: "Stop and disable existing 'rclone_vfs.service'"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "rclone_vfs.service"
         state: stopped
         enabled: false
@@ -112,14 +112,14 @@
   when: rclone_refresh_status.stat.exists
   block:
     - name: "Stop and disable existing 'rclone_refresh.service'"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "rclone_refresh.service"
         state: stopped
         enabled: false
       ignore_errors: true
 
     - name: "Stop and disable existing 'rclone_refresh.timer'"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "rclone_refresh.timer"
         state: stopped
         enabled: false
@@ -134,7 +134,7 @@
         - "rclone_refresh.timer"
 
 - name: Run systemd daemon-reload
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     daemon_reload: true
 
 - name: Wait for 10 seconds

@@ -328,7 +328,7 @@
             cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
 
         - name: Stop 'cloudplow' service
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: cloudplow
             state: stopped
           when: cloudplow_service_running
@@ -618,7 +618,7 @@
         message: "{{ backup_instance }} Backup: Finished Saltbox {{ use_snapshot | ternary('(snapshot-enabled) ', '') }}backup task in {{ total_time }} minutes."
 
     - name: "Start 'cloudplow' service"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: cloudplow
         state: started
       when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
@@ -678,7 +678,7 @@
           when: (docker_containers | trim | length > 0)
 
     - name: "Start 'cloudplow' service"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: cloudplow
         state: started
       when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running

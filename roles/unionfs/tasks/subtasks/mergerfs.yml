@@ -13,7 +13,7 @@
   register: saltbox_managed_mergerfs_status
 
 - name: "MergerFS | Stop '{{ mergerfs_service_name }}'"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ mergerfs_service_name }}"
     state: stopped
   ignore_errors: true
@@ -49,14 +49,14 @@
     force: "{{ mergerfs_override_service }}"
 
 - name: "MergerFS | Systemd reload daemon"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     daemon_reload: true
 
 - name: Mount Path Tasks
   ansible.builtin.import_tasks: "mount_path.yml"
 
 - name: "MergerFS | Start '{{ mergerfs_service_name }}'"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ mergerfs_service_name }}"
     state: started
     enabled: true

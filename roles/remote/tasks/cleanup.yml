@@ -19,7 +19,7 @@
   when: rclone_service_name | length == 0
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}.service'"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
@@ -32,14 +32,14 @@
   when: rclone_service_name_full in saltbox_managed_rclone_services
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_refresh_service_name }}'"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ rclone_refresh_service_name }}"
     state: stopped
     enabled: false
   when: rclone_refresh_service_name in saltbox_managed_rclone_services
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}_refresh.timer"
     state: stopped
     enabled: false

@@ -52,7 +52,7 @@
   when: mergerfs_service.stat.exists
 
 - name: Stop existing '{{ mergerfs_service_name }}'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     state: stopped
     name: "{{ mergerfs_service_name }}"
   when: mergerfs_service.stat.exists and mergerfs_service_running

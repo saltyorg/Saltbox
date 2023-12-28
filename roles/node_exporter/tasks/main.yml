@@ -56,14 +56,14 @@
     mode: "0644"
 
 - name: Systemd daemon-reload 'node_exporter.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: node_exporter.service
     state: stopped
     enabled: false
     daemon_reload: true
 
 - name: Systemd start 'node_exporter.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: node_exporter.service
     state: started
     enabled: true

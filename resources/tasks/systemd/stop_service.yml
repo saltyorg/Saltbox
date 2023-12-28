@@ -31,7 +31,7 @@
         service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
     - name: Resources | Tasks | systemd | Stop Service | stop '{{ _service_file }}'
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ _service_name }}"
         state: stopped
       when: service_running

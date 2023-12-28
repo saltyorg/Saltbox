@@ -31,14 +31,14 @@
         service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
 
     - name: Resources | Tasks | systemd | Delete Service | stop '{{ _service_file }}'
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ _service_name }}"
         state: stopped
         enabled: false
       when: service_running
 
     - name: Resources | Tasks | systemd | Delete Service | disable '{{ _service_file }}'
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ _service_name }}"
         enabled: false
 
@@ -49,5 +49,5 @@
         force: true
 
     - name: Resources | Tasks | systemd | Delete Service | systemd daemon-reload
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         daemon_reload: yes

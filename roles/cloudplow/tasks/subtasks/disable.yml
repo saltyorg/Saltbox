@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Stop and disable service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ cloudplow_service_name }}"
     state: stopped
     enabled: false

@@ -16,7 +16,7 @@
   when: mergerfs_status.stat.exists
   block:
     - name: "Stop and disable existing 'mergerfs.service'"
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "mergerfs.service"
         state: stopped
         enabled: false

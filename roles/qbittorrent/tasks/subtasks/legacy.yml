@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Stop '{{ qbittorrent_name }}.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ qbittorrent_name }}.service"
     state: stopped
 

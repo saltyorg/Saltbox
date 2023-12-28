@@ -38,6 +38,6 @@
       when: (containers_list | trim | length > 0)
 
     - name: Stop docker service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: docker
         state: stopped

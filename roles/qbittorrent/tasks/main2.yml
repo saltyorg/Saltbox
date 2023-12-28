@@ -36,7 +36,7 @@
   register: qbittorrent_service
 
 - name: Stop '{{ qbittorent_service_name }}'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ qbittorent_service_name }}"
     state: stopped
   when: qbittorrent_service.stat.exists
@@ -94,14 +94,14 @@
         force: true
 
     - name: Systemd daemon-reload '{{ qbittorent_service_name }}'
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ qbittorent_service_name }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
     - name: Start '{{ qbittorent_service_name }}'
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: "{{ qbittorent_service_name }}"
         state: started
         enabled: true

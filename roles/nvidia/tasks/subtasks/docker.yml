@@ -60,7 +60,7 @@
   when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)
 
 - name: Docker | Stop docker service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: docker
     state: stopped
   when: docker_service_running
@@ -70,7 +70,7 @@
   ansible.builtin.shell: "{{ nvidia_docker_runtime_docker_daemon_json_jq_command }}"
 
 - name: Docker | Start docker service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: docker
     state: started
   when: docker_service_running

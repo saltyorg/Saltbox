@@ -62,7 +62,7 @@
   ansible.builtin.service_facts:
 
 - name: Remove ondemand | Stop and disable 'ondemand.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: ondemand
     state: stopped
     enabled: false

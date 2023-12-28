@@ -70,7 +70,7 @@
   when: (not nfs_vlan_service.stat.exists)
 
 - name: Start 'nfs_vlan.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     state: started
     name: nfs_vlan
     daemon_reload: true

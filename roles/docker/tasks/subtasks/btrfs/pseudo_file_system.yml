@@ -34,7 +34,7 @@
         dev: "{{ docker_filesystem_path }}"
 
     - name: BTRFS | Psuedo-File-System | Stop docker service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: docker
         state: stopped
 
@@ -60,7 +60,7 @@
   block:
 
     - name: BTRFS | Psuedo-File-System | Stop docker service
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         name: docker
         state: stopped
 

@@ -89,7 +89,7 @@
     force: true
 
 - name: Remote | Systemd daemon-reload '{{ _service_file }}'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ _service_file }}"
     state: stopped
     enabled: false
@@ -104,7 +104,7 @@
   when: (item.settings.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.timer'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ _service_refresh }}.timer"
     state: stopped
     enabled: false
@@ -120,7 +120,7 @@
   when: (item.settings.template != "sftp")
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: "{{ _service_refresh }}.service"
     state: stopped
     enabled: false
@@ -161,7 +161,7 @@
       when: rclone_remote_is_working
       block:
         - name: Remote | Start '{{ _service_file }}'
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ _service_file }}"
             state: started
             enabled: true
@@ -171,14 +171,14 @@
             timeout: 5
 
         - name: Remote | Start '{{ _service_refresh }}.timer'
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ _service_refresh }}.timer"
             state: started
             enabled: true
           when: (item.settings.template != "sftp")
 
         - name: Remote | Start '{{ _service_refresh }}.service'
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ _service_refresh }}.service"
             state: started
             enabled: true

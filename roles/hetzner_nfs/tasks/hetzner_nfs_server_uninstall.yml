@@ -13,7 +13,7 @@
   register: nfs_vlan_service
 
 - name: Stop 'nfs_vlan.service'
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     state: stopped
     name: nfs_vlan
     daemon_reload: true

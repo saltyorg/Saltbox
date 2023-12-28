@@ -62,13 +62,13 @@
   when: motd_news.stat.exists
 
 - name: Disable MOTD news service
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: motd-news.service
     state: stopped
     enabled: no
 
 - name: Disable MOTD news timer
-  ansible.builtin.systemd:
+  ansible.builtin.systemd_service:
     name: motd-news.timer
     state: stopped
     enabled: no
