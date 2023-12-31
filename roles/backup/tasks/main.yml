@@ -283,6 +283,13 @@
           ansible.builtin.set_fact:
             docker_containers: "{{ docker_containers | join(' ') }}"
 
+        - name: Stop Saltbox Containers
+          ansible.builtin.uri:
+            url: "{{ docker_controller_url }}/stop"
+            method: POST
+            timeout: 600
+          ignore_errors: true
+
         - name: "Stop all running Docker containers"
           ansible.builtin.shell: "docker stop {{ docker_containers }}"
           ignore_errors: true
@@ -362,6 +369,14 @@
         - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
+
+        - name: Start Saltbox Containers
+          ansible.builtin.uri:
+            url: "{{ docker_controller_url }}/start"
+            method: POST
+            timeout: 600
+          ignore_errors: true
+          when: (docker_containers | trim | length > 0)
 
         - name: "Snapshot | Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers }}'
@@ -477,6 +492,14 @@
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
+
+        - name: Start Saltbox Containers
+          ansible.builtin.uri:
+            url: "{{ docker_controller_url }}/start"
+            method: POST
+            timeout: 600
+          ignore_errors: true
+          when: (docker_containers | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers }}'
@@ -671,6 +694,14 @@
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
             timeout: 5
+
+        - name: Start Saltbox Containers
+          ansible.builtin.uri:
+            url: "{{ docker_controller_url }}/start"
+            method: POST
+            timeout: 600
+          ignore_errors: true
+          when: (docker_containers | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers }}'

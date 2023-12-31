@@ -1,0 +1,76 @@
+#########################################################################
+# Title:         Saltbox: Docker | Controller Tasks                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Controller | Set Python version
+  ansible.builtin.set_fact:
+    docker_controller_python_version: "{{ 'python3'
+                                       if ansible_distribution_version is version('22.04', '==')
+                                       else 'python3.10' }}"
+
+- name: Controller | Check if venv folder exists
+  ansible.builtin.stat:
+    path: "/srv/docker-controller/venv"
+  register: docker_controller_venv
+
+- name: Controller | Delete venv folder
+  ansible.builtin.file:
+    path: "/srv/docker-controller/venv"
+    state: absent
+  when: docker_controller_venv.stat.exists
+
+- name: Controller | Install pip requirements
+  ansible.builtin.pip:
+    requirements: "/srv/git/saltbox/scripts/saltbox_docker_controller_requirements.txt"
+    virtualenv_python: "{{ docker_controller_python_version }}"
+    virtualenv: "/srv/docker-controller/venv"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Controller | Find pip3 path
+  ansible.builtin.find:
+    paths: "/srv/docker-controller/venv"
+    recurse: yes
+    patterns: 'uvicorn'
+  register: docker_controller_venv_files
+
+- name: Controller | Path
+  ansible.builtin.set_fact:
+    docker_controller_uvicorn_path: "{{ docker_controller_venv_files.files[0].path }}"
+
+- name: Controller | Import 'saltbox_managed_docker_controller.service'
+  ansible.builtin.template:
+    src: docker-controller.service.j2
+    dest: /etc/systemd/system/saltbox_managed_docker_controller.service
+    mode: "0644"
+    force: true
+
+- name: Controller | Enable 'saltbox_managed_docker_controller.service'
+  ansible.builtin.systemd_service:
+    name: saltbox_managed_docker_controller
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: "Controller | Wait for 10 seconds"
+  ansible.builtin.wait_for:
+    timeout: "10"
+
+- name: Controller | Import 'saltbox_managed_docker_controller.service'
+  ansible.builtin.template:
+    src: docker-controller-helper.service.j2
+    dest: /etc/systemd/system/saltbox_managed_docker_controller_helper.service
+    mode: "0644"
+    force: true
+
+- name: Controller | Enable 'saltbox_managed_docker_controller_helper.service'
+  ansible.builtin.systemd_service:
+    name: saltbox_managed_docker_controller_helper.service
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -56,10 +56,7 @@
     mode: "0775"
   when: (not authelia_user_config_stat.stat.exists)
 
-- name: File | Remove LDAP Containers
+- name: File | Remove LLDAP Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
-    var_prefix: "{{ item }}"
-  loop:
-    - "openldap"
-    - "phpldapadmin"
+    var_prefix: "lldap"

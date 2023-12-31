@@ -349,6 +349,15 @@ docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downlo
 
 docker_hosts_common: []
 
+docker_labels_docker_depends_on_template:
+  com.github.saltbox.depends_on: "{{ lookup('vars', role_name + '_depends_on') }}"
+
+docker_labels_docker_depends_on_delay_template:
+  com.github.saltbox.depends_on.delay: "{{ lookup('vars', role_name + '_depends_on_delay') }}"
+
+docker_labels_docker_depends_on_healthchecks_template:
+  com.github.saltbox.depends_on.healthchecks: "{{ lookup('vars', role_name + '_depends_on_healthchecks') }}"
+
 docker_labels_diun_template:
   diun.enable: "true"
 
@@ -360,6 +369,9 @@ docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
   - "{{ docker_labels_diun_template if (lookup('vars', role_name + '_diun_enabled', default=true) | bool) else omit }}"
   - "{{ docker_labels_autoheal_template if (lookup('vars', role_name + '_autoheal_enabled', default=true) | bool) else omit }}"
+  - "{{ docker_labels_docker_depends_on_template if (lookup('vars', role_name + '_depends_on', default='') | length > 0) else omit }}"
+  - "{{ docker_labels_docker_depends_on_delay_template if (lookup('vars', role_name + '_depends_on_delay', default='') | length > 0) else omit }}"
+  - "{{ docker_labels_docker_depends_on_healthchecks_template if (lookup('vars', role_name + '_depends_on_healthchecks', default='') | length > 0) else omit }}"
 
 docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | reject('equalto', omit) | list }}"
 
@@ -439,6 +451,8 @@ docker_log_options: "{{ docker_log_options_json
                      else 'default' }}"
 
 docker_network_container_health_delay: 5
+
+docker_controller_url: "http://127.0.0.1:3377"
 
 ################################
 # Saltbox Version Manager

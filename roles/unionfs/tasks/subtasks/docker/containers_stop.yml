@@ -23,6 +23,13 @@
 - name: Tasks for when Docker exists and is running
   when: unionfs_docker_binary.stat.exists and unionfs_docker_service_running
   block:
+    - name: Block Docker Controller
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/block/20"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+
     - name: "Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
       register: saltbox_managed_containers
@@ -31,6 +38,14 @@
     - name: "Set 'containers_list' variable"
       ansible.builtin.set_fact:
         containers_list: "{{ saltbox_managed_containers.stdout }}"
+
+    - name: Stop Saltbox Containers
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/stop"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+      when: (containers_list | trim | length > 0)
 
     - name: "Stop all running Docker containers"
       ansible.builtin.shell: "docker stop {{ containers_list }}"

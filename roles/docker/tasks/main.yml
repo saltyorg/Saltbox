@@ -34,6 +34,9 @@
 - name: Tasks for when Docker exists and is running
   when: docker_service_check
   block:
+    - name: "Import Controller tasks"
+      ansible.builtin.import_tasks: "subtasks/controller.yml"
+
     - name: Gather list of running Docker containers
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
       register: docker_running_containers_ps
@@ -45,6 +48,13 @@
       ansible.builtin.set_fact:
         docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
 
+    - name: Stop Saltbox Containers
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/stop"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+
     - name: Stop all running Docker containers
       ansible.builtin.shell: "docker stop {{ docker_running_containers }} &> /dev/null || true"
       ignore_errors: true
@@ -53,6 +63,13 @@
     - name: Import BTRFS Cleanup Tasks
       ansible.builtin.include_tasks: "subtasks/btrfs/cleanup.yml"
       when: ('btrfs' in var_lib_file_system.stdout)
+
+    - name: Block Docker Controller
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/block/20"
+        method: POST
+        timeout: 600
+      ignore_errors: true
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
@@ -93,6 +110,17 @@
   ansible.builtin.wait_for:
     timeout: "{{ docker_containers_startup_delay }}"
 
+- name: "Import Controller tasks"
+  ansible.builtin.import_tasks: "subtasks/controller.yml"
+  when: not docker_service_check
+
+- name: Stop Saltbox Containers
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/stop"
+    method: POST
+    timeout: 600
+  ignore_errors: true
+
 - name: "Stop all Docker containers"
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
 
@@ -125,6 +153,13 @@
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
 
+    - name: Start Saltbox Containers
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/start"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.shell: "docker start {{ docker_running_containers }}"
       ignore_errors: true
@@ -145,3 +180,10 @@
   ansible.builtin.include_role:
     name: ctop
   tags: ctop
+
+- name: Unblock Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/unblock"
+    method: POST
+    timeout: 600
+  ignore_errors: true

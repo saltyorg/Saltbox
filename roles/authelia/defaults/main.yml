@@ -279,3 +279,8 @@ authelia_docker_restart_policy: always
 
 # State
 authelia_docker_state: started
+
+# Dependencies
+authelia_depends_on: "{{ 'authelia_redis,lldap' if (authelia_authentication_backend == 'ldap') else 'authelia_redis' }}"
+authelia_depends_on_delay: "0"
+authelia_depends_on_healthchecks: "{{ 'true' if (authelia_authentication_backend == 'ldap') else 'false' }}"

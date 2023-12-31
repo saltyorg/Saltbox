@@ -1,6 +1,6 @@
-# /etc/systemd/system/saltbox_managed_docker_update_hosts.service
+# /etc/systemd/system/saltbox_managed_docker_controller_helper.service
 #########################################################################
-# Title:         Saltbox: Docker Host DNS Resolution                    #
+# Title:         Saltbox: Docker Controller Helper                      #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -8,17 +8,17 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 [Unit]
-Description=Update Docker containers in /etc/hosts
+Description=Saltbox Docker Controller Helper
 Requires=docker.service
 After=docker.service
 PartOf=docker.service
 
 [Service]
-ExecStart=/usr/local/bin/docker-update-hosts
-RuntimeMaxSec={{ docker_update_hosts_service_runtime_max }}
-Restart=always
-RestartSec=20s
-StartLimitInterval=0
+Type=simple
+ExecStart=/srv/git/saltbox/scripts/saltbox_docker_controller_helper.sh
+ExecStop=/bin/kill $MAINPID
+TimeoutStartSec=360
+TimeoutStopSec=360
 
 [Install]
-WantedBy=docker.service
+WantedBy=multi-user.target

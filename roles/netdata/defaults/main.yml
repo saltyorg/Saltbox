@@ -177,3 +177,8 @@ netdata_docker_state: started
 
 # PID Mode
 netdata_docker_pid_mode: "host"
+
+# Dependencies
+netdata_depends_on: "netdata-docker-socket-proxy"
+netdata_depends_on_delay: "0"
+netdata_depends_on_healthchecks: "false"
