@@ -9,9 +9,8 @@
 #########################################################################
 [Unit]
 Description=Saltbox Docker Controller Helper
-Requires=docker.service
+BindsTo=docker.service
 After=docker.service
-PartOf=docker.service
 
 [Service]
 Type=simple

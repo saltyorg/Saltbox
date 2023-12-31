@@ -160,12 +160,12 @@
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
 
-    - name: Start Saltbox Containers
-      ansible.builtin.uri:
-        url: "{{ docker_controller_url }}/start"
-        method: POST
-        timeout: 600
-      ignore_errors: true
+    - name: Start 'saltbox_managed_docker_controller_helper.service'
+      ansible.builtin.systemd_service:
+        name: saltbox_managed_docker_controller_helper.service
+        enabled: true
+        state: started
+        daemon_reload: true
 
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.shell: "docker start {{ docker_running_containers }}"

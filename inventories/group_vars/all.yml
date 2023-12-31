@@ -137,8 +137,8 @@ dockergid: "{{ ansible_local.group.docker.gid }}"
 tz: "{{ system.timezone
      if system is defined and system.timezone is defined and 'auto' not in system.timezone | lower
      else ansible_local.timezone.timezone
-     if ansible_local is defined and ansible_local.timezone is defined and ansible_local.timezone.timezone is defined and ansible_local.timezone.timezone | trim | length > 0
-     else 'Etc/UTC' }}"
+          if ansible_local is defined and ansible_local.timezone is defined and ansible_local.timezone.timezone is defined and ansible_local.timezone.timezone | trim | length > 0
+          else 'Etc/UTC' }}"
 
 ################################
 # Network
