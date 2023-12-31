@@ -466,7 +466,7 @@ traefik_docker_security_opts: "{{ traefik_docker_security_opts_default
                                   + traefik_docker_security_opts_custom }}"
 
 # Restart Policy
-traefik_docker_restart_policy: always
+traefik_docker_restart_policy: unless-stopped
 
 # State
 traefik_docker_state: started

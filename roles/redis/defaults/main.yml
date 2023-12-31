@@ -108,7 +108,7 @@ redis_docker_security_opts: "{{ lookup('vars', redis_name + '_docker_security_op
                                 + lookup('vars', redis_name + '_docker_security_opts_custom', default=redis_docker_security_opts_custom) }}"
 
 # Restart Policy
-redis_docker_restart_policy: always
+redis_docker_restart_policy: unless-stopped
 
 # State
 redis_docker_state: started

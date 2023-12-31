@@ -114,6 +114,13 @@
   ansible.builtin.import_tasks: "subtasks/controller.yml"
   when: not docker_service_check
 
+- name: Unblock Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/unblock"
+    method: POST
+    timeout: 600
+  ignore_errors: true
+
 - name: Stop Saltbox Containers
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/stop"
@@ -180,10 +187,3 @@
   ansible.builtin.include_role:
     name: ctop
   tags: ctop
-
-- name: Unblock Docker Controller
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/unblock"
-    method: POST
-    timeout: 600
-  ignore_errors: true

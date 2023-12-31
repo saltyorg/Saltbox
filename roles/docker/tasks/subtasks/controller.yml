@@ -61,6 +61,13 @@
   ansible.builtin.wait_for:
     timeout: "10"
 
+- name: Block Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/block/20"
+    method: POST
+    timeout: 600
+  ignore_errors: true
+
 - name: Controller | Import 'saltbox_managed_docker_controller.service'
   ansible.builtin.template:
     src: docker-controller-helper.service.j2
@@ -74,3 +81,10 @@
     enabled: true
     state: started
     daemon_reload: true
+
+- name: Unblock Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/unblock"
+    method: POST
+    timeout: 600
+  ignore_errors: true

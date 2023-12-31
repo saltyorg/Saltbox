@@ -161,7 +161,7 @@ lldap_docker_security_opts: "{{ lldap_docker_security_opts_default
                                 + lldap_docker_security_opts_custom }}"
 
 # Restart Policy
-lldap_docker_restart_policy: always
+lldap_docker_restart_policy: unless-stopped
 
 # State
 lldap_docker_state: started
