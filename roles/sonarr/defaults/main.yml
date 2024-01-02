@@ -17,7 +17,7 @@ sonarr_instances: ["sonarr"]
 # Configuration
 ################################
 
-sonarr_external_auth: false
+sonarr_external_auth: true
 
 ################################
 # Paths
