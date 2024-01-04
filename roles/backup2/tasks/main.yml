@@ -623,8 +623,8 @@
 
     - name: Set excess backups
       ansible.builtin.set_fact:
-        excess_backups: "{{ backup_list.stdout_lines | length - backup_cleanup_number2 }}"
-      when: backup_list.stdout_lines | length > backup_cleanup_number2
+        excess_backups: "{{ backup_list.stdout_lines | length - backup2_cleanup_number }}"
+      when: backup_list.stdout_lines | length > backup2_cleanup_number
 
     - name: Delete excess backups
       ansible.builtin.shell: >
