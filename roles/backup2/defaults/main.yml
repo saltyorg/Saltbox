@@ -29,4 +29,4 @@ backup2_sftp_template: ""
 # Defines how many of the archived backups to keep, so current backup is not counted in this
 backup2_cleanup_number: 99
 backup2_cleanup_enabled: false
-backup_cleanup_custom_rclone_flags: ""
+backup2_cleanup_custom_rclone_flags: ""
