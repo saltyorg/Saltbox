@@ -26,7 +26,7 @@
 
 - name: Settings | Change session.redis.host value to 'authelia_redis'
   ansible.builtin.shell: |
-    yyq e -i '.session.redis.host = "authelia_redis"' {{ authelia_paths_location }}/configuration.yml
+    yyq e -i '.session.redis.host = "authelia-redis"' {{ authelia_paths_location }}/configuration.yml
   become: true
   become_user: "{{ user.name }}"
-  when: authelia_session_redis_host.stdout == "redis"
+  when: (authelia_session_redis_host.stdout == "redis") or (authelia_session_redis_host.stdout == "authelia_redis")
