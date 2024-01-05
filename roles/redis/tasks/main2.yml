@@ -10,17 +10,6 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Remove legacy Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-  vars:
-    var_prefix: "{{ item }}"
-  when: (redis_name == "authelia-redis")
-  with_items:
-    - "authelia_redis"
-    - "redis"
-  loop_control:
-    loop_var: item
-
 - name: Reset Redis directory
   ansible.builtin.file:
     path: "{{ redis_paths_location }}"
