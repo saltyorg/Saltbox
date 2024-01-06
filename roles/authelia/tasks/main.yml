@@ -63,6 +63,11 @@
     - "authelia_redis"
     - "redis"
 
+- name: Cleanup legacy Redis directory
+  ansible.builtin.file:
+    path: "/opt/authelia_redis"
+    state: absent
+
 - name: "Import Redis Role"
   ansible.builtin.include_role:
     name: redis
