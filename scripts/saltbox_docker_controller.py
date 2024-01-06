@@ -1,6 +1,3 @@
-# TODO
-# Use shell docker commands to batch start/stop
-
 import docker
 import asyncio
 import time
