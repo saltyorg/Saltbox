@@ -37,18 +37,21 @@
     - "{{ plex_paths_location }}/99-modify-binary"
     - "{{ server_appdata_path }}/scripts/bbe"
 
-- name: Get contents of Plex Codecs Folder
-  ansible.builtin.find:
-    path: "{{ plex_paths_application_support_location }}/Codecs"
-    excludes: '.device-id'
-  register: plex_codecs_removal
-
-- name: Delete Plex Codecs Folder
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: absent
-  with_items: "{{ plex_codecs_removal.files }}"
+- name: Plex Reset Codecs tasks
   when: ('plex-reset-codecs' in ansible_run_tags)
+  block:
+ 
+    - name: Get contents of Plex Codecs Folder
+      ansible.builtin.find:
+        path: "{{ plex_paths_application_support_location }}/Codecs"
+        excludes: '.device-id'
+      register: plex_codecs_removal
+
+    - name: Delete Plex Codecs Folder
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ plex_codecs_removal.files }}"
 
 - name: Pre-Install Tasks
   ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
