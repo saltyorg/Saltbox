@@ -40,7 +40,6 @@
 - name: Plex Reset Codecs tasks
   when: ('plex-reset-codecs' in ansible_run_tags)
   block:
- 
     - name: Get contents of Plex Codecs Folder
       ansible.builtin.find:
         path: "{{ plex_paths_application_support_location }}/Codecs"
