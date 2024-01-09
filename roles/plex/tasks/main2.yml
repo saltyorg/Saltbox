@@ -42,8 +42,9 @@
   block:
     - name: Get contents of Plex Codecs Folder
       ansible.builtin.find:
-        path: "{{ plex_paths_application_support_location }}/Codecs"
-        excludes: '.device-id'
+        paths: "{{ plex_paths_application_support_location }}/Codecs"
+        file_type: directory
+        recurse: no
       register: plex_codecs_removal
 
     - name: Delete Plex Codecs Folder
