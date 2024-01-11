@@ -185,7 +185,7 @@ zerossl_is_enabled: "{{ traefik.cert.zerossl | bool }}"
 # Traefik
 ################################
 
-traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) | replace('-', '_') }}"
+traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
 
 # Replaces powerdns with pdns for config sanity reasons.
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
