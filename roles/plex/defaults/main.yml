@@ -21,8 +21,8 @@ plex_username: "{{ plex.user }}"
 plex_password: "{{ plex.pass }}"
 plex_open_main_ports: false
 plex_open_local_ports: false
-plex_plugin_webtools: true
-plex_plugin_sub_zero: true
+plex_plugin_webtools: false
+plex_plugin_sub_zero: false
 plex_insecure: false
 plex_lan_ip: ""
 
