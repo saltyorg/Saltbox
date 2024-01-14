@@ -51,7 +51,7 @@
 - name: Install Sub-Zero Plugin
   when: (not plex_plugin_subzero_bundle_status.stat.exists) or
         (plex_plugin_subzero_bundle_status.stat.exists and plex_plugin_subzero_is_outdated) or
-        ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
+        ('plex-plugin-sub-zero-reinstall' in ansible_run_tags) or ('plex-plugin-sub-zero' in ansible_run_tags)
   block:
     - name: Check to see if {{ plex_name | title }} is running
       when: ('plex-plugin-sub-zero' in ansible_run_tags) or ('plex-plugin-sub-zero-reinstall' in ansible_run_tags)
