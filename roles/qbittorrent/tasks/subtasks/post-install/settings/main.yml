@@ -19,6 +19,18 @@
     group: "{{ user.name }}"
     mode: "0775"
 
+- name: Post-Install | Settings | Update Connection\PortRangeMin in 'qBittorrent.conf' config settings (legacy)
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: Connection\PortRangeMin
+    value: "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
 - name: Post-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
