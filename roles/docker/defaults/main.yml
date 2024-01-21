@@ -49,7 +49,7 @@ docker_version: "latest"
 docker_ce_name: "Docker CE"
 
 docker_ce_package: "{{ 'docker-ce' if (docker_version is defined and docker_version | lower == 'latest')
-                    else 'docker-ce=*' + docker_version + '*~' + ansible_distribution | lower + '-' + ansible_distribution_release | lower }}"
+                    else 'docker-ce=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
 
 docker_ce_filepath: "/usr/bin/dockerd"
 
@@ -60,7 +60,7 @@ docker_ce_dpkg: "docker-ce"
 docker_ce_cli_name: "Docker CE CLI"
 
 docker_ce_cli_package: "{{ 'docker-ce-cli' if (docker_version is defined and docker_version | lower == 'latest')
-                        else 'docker-ce-cli=*' + docker_version + '*~' + ansible_distribution | lower + '-' + ansible_distribution_release | lower }}"
+                        else 'docker-ce-cli=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
 
 docker_ce_cli_filepath: "/usr/bin/docker"
 
