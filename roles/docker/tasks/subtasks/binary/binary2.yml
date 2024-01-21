@@ -18,6 +18,7 @@
     name: "{{ lookup('vars', item + '_package') }}"
     state: "{{ docker_package_state }}"
     update_cache: true
+    allow_downgrade: true
 
 - name: Binary | Put '{{ vars[item ~ '_dpkg'] }}' into hold
   ansible.builtin.dpkg_selections:
