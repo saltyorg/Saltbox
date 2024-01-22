@@ -7,7 +7,19 @@ from typing import List, Dict
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 import subprocess
+import signal
 
+# Global flag to indicate shutdown
+shutdown_flag = False
+
+# Signal handler
+def signal_handler(signum, frame):
+    global shutdown_flag
+    shutdown_flag = True
+
+# Register the signal handler
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 class ColorLogFormatter(logging.Formatter):
     """ Custom formatter to add colors to log level names. """
@@ -80,6 +92,21 @@ class ContainerNode:
 class DependencyGraph:
     def __init__(self):
         self.nodes: Dict[str, ContainerNode] = {}
+        self.blacklisted_containers = set()
+        self.health_status = {}
+        self.healthcheck_config_cache = {}
+
+    def set_healthcheck_configured(self, container_name: str, is_configured: bool):
+        self.healthcheck_config_cache[container_name] = is_configured
+
+    def is_healthcheck_configured(self, container_name: str) -> bool:
+        return self.healthcheck_config_cache.get(container_name, False)
+
+    def update_health_status(self, container_name: str, status: str):
+        self.health_status[container_name] = status
+
+    def get_health_status(self, container_name: str) -> str:
+        return self.health_status.get(container_name, "unknown")
 
     def add_container(self, container: ContainerNode):
         self.nodes[container.name] = container
@@ -114,7 +141,6 @@ class DependencyGraph:
 # Function to parse Docker container labels and populate the graph
 def parse_container_labels(client):
     graph = DependencyGraph()
-    # Refreshing the container list
     containers = client.containers.list(all=True)
     for container in containers:
         labels = container.labels
@@ -122,25 +148,55 @@ def parse_container_labels(client):
             name = container.name
             delay = int(labels.get("com.github.saltbox.depends_on.delay", 0))
             healthchecks = labels.get("com.github.saltbox.depends_on.healthchecks", "false") == "true"
-            graph.add_container(ContainerNode(name, delay, healthchecks))
+            node = ContainerNode(name, delay, healthchecks)
+            graph.add_container(node)
+
+            # Initialize health status
+            try:
+                health_status = container.attrs['State']['Health']['Status']
+            except KeyError:
+                health_status = "unknown"  # If health status is not available
+            graph.update_health_status(name, health_status)
+
     graph.set_dependencies()
     return graph
 
 
-def has_healthcheck_configured(client, container_name: str) -> bool:
+def has_healthcheck_configured(client, container_name: str, graph: DependencyGraph) -> bool:
+    if container_name in graph.healthcheck_config_cache:
+        return graph.is_healthcheck_configured(container_name)
+
     try:
         container = client.containers.get(container_name)
-        return 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck']['Test'] != [
-            'NONE']
+        is_configured = 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck']['Test'] != ['NONE']
+        graph.set_healthcheck_configured(container_name, is_configured)
+        return is_configured
+    except docker.errors.NotFound:
+        graph.blacklisted_containers.add(container_name)
+        logging.warning(f"Container {container_name} not found. Adding to healthcheck blacklist.")
+        return False
     except Exception as e:
         logging.error(f"Error checking healthcheck configuration for container {container_name}: {e}")
         return False
 
 
-def is_container_healthy(client, container_name: str) -> bool:
+def is_container_healthy(client, container_name: str, graph: DependencyGraph) -> bool:
+    if container_name in graph.blacklisted_containers:
+        logging.debug(f"Container {container_name} is blacklisted.")
+        return False
+
+    # Add a delay before checking the container health
+    wait_for_delay(1)
+
     try:
         container = client.containers.get(container_name)
-        return container.attrs['State']['Health']['Status'] == 'healthy'
+        health_status = container.attrs['State']['Health']['Status']
+        logging.debug(f"Container {container_name} health status: '{health_status}'")
+        return health_status == 'healthy'
+    except docker.errors.NotFound:
+        graph.blacklisted_containers.add(container_name)
+        logging.warning(f"Container {container_name} not found. Adding to healthcheck blacklist.")
+        return False
     except Exception as e:
         logging.error(f"Error checking health for container {container_name}: {e}")
         return False
@@ -167,7 +223,11 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
     containers_to_start = set(graph.nodes.keys())
     logged_health_check_waiting = set()  # To track health check waiting log messages
 
-    while containers_to_start:
+    while containers_to_start and not shutdown_flag:
+        if shutdown_flag:
+            logging.info("Shutdown signal received. Exiting start containers loop.")
+            break
+
         ready_to_start = []
 
         for container_name in list(containers_to_start):
@@ -179,8 +239,8 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
 
             dependencies_ready = True
             for parent in container.parents:
-                if has_healthcheck_configured(client, parent.name):
-                    if not is_container_healthy(client, parent.name):
+                if has_healthcheck_configured(client, parent.name, graph):
+                    if not is_container_healthy(client, parent.name, graph):
                         if container_name not in logged_health_check_waiting:
                             logging.info(
                                 f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'")
@@ -254,9 +314,14 @@ def stop_containers_in_dependency_order(graph: DependencyGraph):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
+        # Initialization
         client = docker.from_env()
         docker_version = client.version()
         logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
+
+        # Initialize DependencyGraph
+        global graph  # Declare graph as global if it's used elsewhere outside this context
+        graph = DependencyGraph()
 
     except Exception as e:
         logging.error(f"An error occurred during application initialization: {e}")
