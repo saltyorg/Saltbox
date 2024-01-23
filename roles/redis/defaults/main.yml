@@ -32,7 +32,8 @@ redis_docker_container: "{{ redis_name }}"
 # Image
 redis_docker_image_pull: true
 redis_docker_image_tag: "alpine"
-redis_docker_image: "redis:{{ lookup('vars', redis_name + '_docker_image_tag', default=redis_docker_image_tag) }}"
+redis_docker_image_repo: "redis"
+redis_docker_image: "{{ lookup('vars', redis_name + '_docker_image_repo', default=redis_docker_image_repo) }}:{{ lookup('vars', redis_name + '_docker_image_tag', default=redis_docker_image_tag) }}"
 
 # Ports
 redis_docker_ports_defaults: []
