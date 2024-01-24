@@ -10,12 +10,13 @@
 
 [Unit]
 Description=Node Exporter
-After=network-online.target
+After=network-online.target docker
 
 [Service]
 User={{ user.name }}
 Group={{ user.name }}
 Type=simple
+ExecStartPre=/bin/sleep 60
 ExecStart={{ node_exporter_path }}/node_exporter --collector.systemd --collector.processes --web.listen-address="172.19.0.1:9100"
 Restart=always
 RestartSec=10
