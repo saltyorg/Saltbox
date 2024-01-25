@@ -101,6 +101,7 @@
     # Apps End
     - { role: custom, tags: ['custom'] }
     - { role: hetzner_nfs, tags: ['hetzner-nfs-server', 'hetzner-nfs-server-uninstall', 'hetzner-nfs-client-mount', 'hetzner-nfs-client-unmount'] }
+    - { role: permissions, tags: ['fix-permissions'] }
     - { role: plex_auth_token, tags: ['plex-auth-token'] }
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: saltbox_mod, tags: ['saltbox-mod'] }
