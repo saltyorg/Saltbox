@@ -28,3 +28,10 @@ sanity_check_backup_lockfile_path: "{{ playbook_dir }}/backup.lock"
 sanity_check_logs_playbook_path: "{{ playbook_dir }}/saltbox.yml"
 
 sanity_check_logs_logfile_path: "{{ playbook_dir }}/saltbox.log"
+
+################################
+# Update Status
+################################
+
+sanity_check_up_to_date: "Saltbox is running the latest commit for branch: {{ git_branch.stdout }}"
+sanity_check_not_up_to_date: "Saltbox is not using the newest commit for branch: {{ git_branch.stdout }} - {{ git_origin_version.stdout }}"

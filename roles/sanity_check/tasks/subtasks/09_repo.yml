@@ -24,12 +24,6 @@
   ansible.builtin.debug:
     msg: "Commit: {{ git_version.stdout }}"
 
-- name: Repository | Saltbox Up to Date
+- name: Repository | Saltbox Update Status
   ansible.builtin.debug:
-    msg: "Saltbox is running the latest commit for branch: {{ git_branch.stdout }}"
-  when: (git_origin_version.stdout | length > 0) and (git_version.stdout == git_origin_version.stdout)
-
-- name: Repository | Saltbox Outdated
-  ansible.builtin.debug:
-    msg: "Saltbox is not using the newest commit for branch: {{ git_branch.stdout }} - {{ git_origin_version.stdout }}"
-  when: (git_origin_version.stdout | length > 0) and (git_version.stdout != git_origin_version.stdout)
+    msg: "{{ sanity_check_up_to_date if ((git_origin_version.stdout | length > 0) and (git_version.stdout == git_origin_version.stdout)) else sanity_check_not_up_to_date }}"
