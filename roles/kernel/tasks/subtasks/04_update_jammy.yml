@@ -14,6 +14,17 @@
     state: latest
   register: r
 
+- name: Update | Install gcc-12 and g++-12
+  ansible.builtin.apt:
+    name:
+      - gcc-12
+      - g++-12
+    state: present
+    update_cache: yes
+
+- name: Update | Set gcc-12 and g++-12 as the default compilers
+  ansible.builtin.shell: update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12
+
 - name: Update | Fix broken APT install
   ansible.builtin.shell: "{{ kernel_update_apt_fix }}"
   when: r.changed
