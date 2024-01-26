@@ -127,6 +127,18 @@
     group: "{{ user.name }}"
     mode: "0775"
 
+- name: Post-Install | Settings | Update WebUI\ReverseProxySupportEnabled 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ qbittorrent_paths_conf }}"
+    section: Preferences
+    option: WebUI\ReverseProxySupportEnabled
+    value: "true"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
 - name: Post-Install | Settings | Update FileLogger\Enabled 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ qbittorrent_paths_conf }}"
