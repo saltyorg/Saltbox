@@ -68,7 +68,6 @@
     links: "{{ lookup('vars', _var_prefix + '_docker_links', default=omit) }}"
     log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('vars', _var_prefix + '_docker_log_driver', default=omit)) }}"
     log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('vars', _var_prefix + '_docker_log_options', default=omit)) }}"
-    mac_address: "{{ lookup('vars', _var_prefix + '_docker_mac_address', default=omit) }}"
     memory: "{{ (docker_memory_default is defined) | ternary(docker_memory_default, lookup('vars', _var_prefix + '_docker_memory', default=omit)) }}"
     memory_reservation: "{{ lookup('vars', _var_prefix + '_docker_memory_reservation', default=omit) }}"
     memory_swap: "{{ lookup('vars', _var_prefix + '_docker_memory_swap', default=omit) }}"
