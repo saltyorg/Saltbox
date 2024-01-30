@@ -35,9 +35,9 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: BobAnkh/add-contributors@master
         with:
@@ -70,7 +70,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: echo "matrix={\"roles\":[$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\).,//g")]}" >> $GITHUB_OUTPUT
 
@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Create /srv/ansible
         run: sudo mkdir /srv/ansible
