@@ -13,11 +13,24 @@
     update_cache: true
     state: present
 
-- name: Install 'dkms'
+- name: Driver | Install 'dkms'
   ansible.builtin.apt:
     name: dkms
     update_cache: true
     state: present
+
+- name: Driver | Install gcc12 if kernel is 6.5>= on Jammy
+  when: (ansible_kernel_version is version('6.5', '>=')) and (ansible_distribution_version is version('22.04', '=='))
+  block:
+    - name: Driver | Install GCC and G++
+      ansible.builtin.apt:
+        name:
+          - gcc-12
+          - g++-12
+        state: present
+
+    - name: Driver | Update alternatives for GCC and G++
+      ansible.builtin.shell: update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
 - name: Driver | Download Nvidia drivers
   ansible.builtin.get_url:
