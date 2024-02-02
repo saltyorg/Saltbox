@@ -18,6 +18,7 @@
   ansible.builtin.fail:
     msg:
       - "The restore_tar setting does not work with a local backup enabled."
+      - "Remember to empty the local backup folder if you disable the setting."
   when: backup.local.enable and (restore_tar is defined)
 
 - name: "Check if user '{{ user.name }}' exists"
