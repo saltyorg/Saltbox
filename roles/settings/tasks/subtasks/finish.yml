@@ -11,10 +11,10 @@
   ansible.builtin.debug: # noqa jinja[invalid]
     msg:
       - "The 'settings_updater.py' script updated the following
-          file{{ 's' if (files_updated_successfully | length > 1) else '' }}: '{{ files_updated_successfully | difference(['ansible.cfg']) | join(', ') | trim }}'"
+          file{{ 's' if (files_updated_successfully | length > 1) else '' }}: '{{ files_updated_successfully | join(', ') | trim }}'"
       - "Please check {{ 'these files' if (files_updated_successfully | length > 1) else 'this file' }} for the newly added settings"
       - "You can also review the log file: 'settings-updater.log'"
-  when: (files_updated_successfully | difference(['ansible.cfg']) | length > 0)
+  when: (files_updated_successfully | length > 0)
 
 - name: Traefik 3.0 Migration block
   when: traefik3_migration
@@ -22,32 +22,6 @@
     - name: Provide link to migration docs # Update to main docs page when docs are updated
       ansible.builtin.pause:
         prompt: "Make sure you read the migration docs (press enter to continue): https://docs.saltbox.dev/saltbox/upgrade/traefik3/"
-
-# Exit playbook When necessary
-- name: Finish | Exit Tasks
-  when: exit_is_necessary
-  block:
-    - name: "Finish | Check 'settings-updater.py' run status for errors"
-      ansible.builtin.debug:
-        msg:
-          - "The 'settings_updater.py' script exited with an error when updating the following
-              file{{ 's' if (files_updated_unsuccessfully | length > 1) else '' }}: '{{ files_updated_unsuccessfully | join(', ') | trim }}'"
-          - "Please check 'settings-updater.log' for details"
-      when: (files_updated_unsuccessfully | length > 0)
-
-    - name: "Finish | 'ansible.cfg' was updated."
-      ansible.builtin.debug:
-        msg:
-          - "Settings Role updated 'ansible.cfg'"
-          - "You will need to re-run your previous tag."
-      when: ('ansible.cfg' in files_updated_successfully)
-
-    - name: "Finish | Exit so that user can check updated config files"
-      ansible.builtin.debug:
-        msg: "Saltbox Installer will now exit."
-
-    - name: "Finish | Exit"
-      ansible.builtin.meta: end_play
 
 # Make sure accounts.yml has been filled in by user
 - name: "Finish | Get stats on 'accounts.yml' for hash check"
@@ -68,3 +42,22 @@
       - accounts_yml.stat.checksum != accounts_yml_default.stat.checksum
       - user.domain != "testsaltbox.ml"
     msg: "You must configure 'accounts.yml' before running the Saltbox installer"
+
+# Exit playbook When necessary
+- name: Finish | Exit Tasks
+  when: exit_is_necessary
+  block:
+    - name: "Finish | Check 'settings-updater.py' run status for errors"
+      ansible.builtin.debug:
+        msg:
+          - "The 'settings_updater.py' script exited with an error when updating the following
+              file{{ 's' if (files_updated_unsuccessfully | length > 1) else '' }}: '{{ files_updated_unsuccessfully | join(', ') | trim }}'"
+          - "Please check 'settings-updater.log' for details"
+      when: (files_updated_unsuccessfully | length > 0)
+
+    - name: "Finish | Exit so that user can check updated config files"
+      ansible.builtin.debug:
+        msg: "Saltbox Installer will now exit."
+
+    - name: "Finish | Exit"
+      ansible.builtin.meta: end_play

@@ -24,7 +24,6 @@
 - name: "Start | Create list of config files"
   ansible.builtin.set_fact:
     config_files:
-      - "ansible.cfg"
       - "accounts.yml"
       - "settings.yml"
       - "adv_settings.yml"

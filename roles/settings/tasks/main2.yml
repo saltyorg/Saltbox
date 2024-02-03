@@ -21,4 +21,3 @@
   ansible.builtin.include_tasks: "subtasks/updater.yml"
   vars:
     file: "{{ outer_item }}"
-  when: (outer_item != "ansible.cfg")
