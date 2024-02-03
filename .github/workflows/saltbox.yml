@@ -47,6 +47,9 @@ jobs:
       - name: Run ansible linter
         run: ansible-lint
 
+      - name: Run salty linter
+        run: python3 ./scripts/salty-linter.py ./roles
+
   add-contributors:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/master'
