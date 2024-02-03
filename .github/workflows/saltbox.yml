@@ -92,7 +92,7 @@ jobs:
         run: sudo mkdir /srv/ansible
 
       - name: Install Dependencies
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -121,7 +121,7 @@ jobs:
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
 
       - name: Install Saltbox Core
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           timeout_minutes: 30
           max_attempts: 3
@@ -130,7 +130,7 @@ jobs:
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox') || contains(matrix.roles, 'core')) }}
 
       - name: Install ${{ matrix.roles }}
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           timeout_minutes: 30
           max_attempts: 3
