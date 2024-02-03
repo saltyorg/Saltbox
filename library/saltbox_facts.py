@@ -10,7 +10,7 @@ def get_file_path(role):
 def load_facts(file_path, instance, keys):
     config = configparser.ConfigParser()
     config.read(file_path)
-    facts = {key: config[instance].get(key) if config.has_option(instance, key) else "saltbox_fact_missing" for key in keys}
+    facts = {key: config[instance].get(key) for key in keys if config.has_option(instance, key)}
     return facts
 
 def save_facts(file_path, instance, keys):
@@ -23,7 +23,7 @@ def save_facts(file_path, instance, keys):
     with open(file_path, 'w') as configfile:
         config.write(configfile)
 
-def delete_facts(file_path, delete_type, role, instance, keys):
+def delete_facts(file_path, delete_type, instance, keys):
     config = configparser.ConfigParser()
     config.read(file_path)
     if delete_type == 'role':
@@ -85,7 +85,7 @@ def run_module():
             module.fail_json(msg="Instance is required for delete_type 'instance'.")
         elif delete_type == 'key' and (not keys):
             module.fail_json(msg="Keys are required for delete_type 'key'.")
-        result['changed'] = delete_facts(file_path, delete_type, role, instance, keys)
+        result['changed'] = delete_facts(file_path, delete_type, instance, keys)
     elif method == 'load':
         if not instance:
             module.fail_json(msg="Instance is required for method 'load'.")
