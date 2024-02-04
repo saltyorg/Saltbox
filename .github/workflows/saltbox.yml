@@ -160,6 +160,7 @@ jobs:
               sleep $((attempt * 2))
             fi
           done
+
           if [ $attempt -eq $max_attempts ]; then
             echo "API requests failed after $max_attempts attempts, defaulting to failure."
             echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
@@ -172,13 +173,8 @@ jobs:
               echo "Some jobs failed."
               echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
             elif echo "$conclusions" | grep -q "success"; then
-              if echo "$conclusions" | grep -qv "failure"; then
-                echo "All jobs succeeded."
-                echo "WORKFLOW_CONCLUSION=success" >> $GITHUB_ENV
-              else
-                echo "Some jobs failed."
-                echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
-              fi
+              echo "All jobs succeeded or were skipped."
+              echo "WORKFLOW_CONCLUSION=success" >> $GITHUB_ENV
             else
               echo "Defaulting to failure due to uncertain job conclusions."
               echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
