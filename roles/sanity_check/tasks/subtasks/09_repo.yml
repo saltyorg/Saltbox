@@ -24,6 +24,6 @@
   ansible.builtin.debug:
     msg: "Commit: {{ git_version.stdout }}"
 
-- name: Repository | Saltbox Update Status
+- name: Repository | Saltbox Status
   ansible.builtin.debug:
     msg: "{{ sanity_check_up_to_date if ((git_origin_version.stdout | length > 0) and (git_version.stdout == git_origin_version.stdout)) else sanity_check_not_up_to_date }}"
