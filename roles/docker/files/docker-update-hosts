@@ -8,7 +8,8 @@ monitor_interval=${1:-3600}  # Use the first argument as the interval, with a de
 
 # Cleanup function to execute upon receiving a signal
 cleanup() {
-    echo "Caught signal, exiting..."
+    echo "Caught signal, cleaning up..."
+    # If you have any specific cleanup logic, add it here before exiting
     exit 0  # Exit cleanly
 }
 
@@ -35,8 +36,8 @@ monitor_docker_events() {
     # Immediately update the hosts file at the start
     update_hosts_file
 
-    # Listen for Docker events and update hosts file accordingly
-    docker events --format '{{json .}}' | while read event; do
+    # Listen for Docker start and stop events and update hosts file accordingly
+    docker events --format '{{json .}}' --filter 'event=start' --filter 'event=stop' | while read event; do
         update_hosts_file
     done
 }
