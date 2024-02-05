@@ -7,19 +7,19 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Add DNS record
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
-  vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
-
 - name: Create Docker Socket Proxy container
   ansible.builtin.include_role:
     name: docker_socket_proxy
   vars:
     docker_socket_proxy_name: "{{ dozzle_name }}-docker-socket-proxy"
     docker_socket_proxy_docker_envs_custom: "{{ dozzle_docker_socket_proxy_envs }}"
+
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
