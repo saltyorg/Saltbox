@@ -19,21 +19,10 @@
     path: /etc/systemd/system/docker-update-hosts.service
     state: absent
 
-- name: DNS | Import 'docker-update-hosts'
-  ansible.builtin.copy:
-    src: docker-update-hosts
-    force: true
-    dest: "/usr/local/bin/docker-update-hosts"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-
-- name: DNS | Set 'docker-update-hosts' as executable
+- name: DNS | Delete 'docker-update-hosts'
   ansible.builtin.file:
-    path: /usr/local/bin/docker-update-hosts
-    owner: "root"
-    group: "root"
-    mode: a+x
+    path: "/usr/local/bin/docker-update-hosts"
+    state: absent
 
 - name: DNS | Import 'saltbox_managed_docker_update_hosts.service'
   ansible.builtin.template:
