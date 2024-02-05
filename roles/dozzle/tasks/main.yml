@@ -18,7 +18,7 @@
   ansible.builtin.include_role:
     name: docker_socket_proxy
   vars:
-    docker_socket_proxy_name: "dozzle-docker-socket-proxy"
+    docker_socket_proxy_name: "{{ dozzle_name }}-docker-socket-proxy"
     docker_socket_proxy_docker_envs_custom: "{{ dozzle_docker_socket_proxy_envs }}"
 
 - name: Remove existing Docker container
