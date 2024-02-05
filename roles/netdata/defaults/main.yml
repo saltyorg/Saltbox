@@ -93,7 +93,7 @@ netdata_docker_ports: "{{ netdata_docker_ports_defaults
 netdata_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  DOCKER_HOST: "netdata-docker-socket-proxy:2375"
+  DOCKER_HOST: "{{ netdata_name }}-docker-socket-proxy:2375"
   NETDATA_CLAIM_TOKEN: "{{ netdata_claim_token }}"
   NETDATA_CLAIM_URL: "{{ netdata_claim_url }}"
   NETDATA_CLAIM_ROOMS: "{{ netdata_claim_room }}"
