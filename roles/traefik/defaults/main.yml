@@ -207,11 +207,10 @@ traefik_docker_ports_tailscale_ipv6_defaults:
 traefik_docker_ports_custom: []
 traefik_docker_ports: "{{ (traefik_docker_ports_defaults
                           if not traefik_tailscale_enabled
-                          else
-                          traefik_docker_ports_tailscale_ipv4_defaults
-                          + (traefik_docker_ports_tailscale_ipv6_defaults
-                            if dns.ipv6
-                            else []))
+                          else traefik_docker_ports_tailscale_ipv4_defaults
+                               + (traefik_docker_ports_tailscale_ipv6_defaults
+                                 if dns.ipv6
+                                 else []))
                           + traefik_docker_ports_custom }}"
 
 # Envs
@@ -366,7 +365,7 @@ traefik_docker_hosts_default:
   host.docker.internal: "172.19.0.1"
 traefik_docker_hosts_custom: []
 traefik_docker_hosts: "{{ docker_hosts_common
-                          | combine(traefik_docker_hosts_default)
+                           | combine(traefik_docker_hosts_default)
                           | combine(traefik_docker_hosts_custom) }}"
 
 # Labels
