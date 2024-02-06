@@ -323,6 +323,12 @@ traefik_entrypoint_web: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoi
 traefik_entrypoint_websecure_default: "{{ 'websecure' if not (lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) | bool) else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_websecure', default=traefik_entrypoint_websecure_default) }}"
 
+traefik_url: "{{ 'https://'
+                 + (lookup('vars', traefik_role_var + '_web_subdomain', default=lookup('vars', role_name + '_web_subdomain', default='')) + '.'
+                 + lookup('vars', traefik_role_var + '_web_domain', default=lookup('vars', role_name + '_web_domain', default=''))
+              if (lookup('vars', traefik_role_var + '_web_subdomain', default=lookup('vars', role_name + '_web_subdomain', default='')) | length > 0)
+              else lookup('vars', traefik_role_var + '_web_domain', default=lookup('vars', role_name + '_web_domain', default=''))) }}"
+
 ################################
 # Docker
 ################################
