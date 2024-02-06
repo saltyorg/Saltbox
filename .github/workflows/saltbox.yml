@@ -143,43 +143,10 @@ jobs:
     needs: install
     if: always() && github.event_name != 'pull_request' && github.event.repository.fork == false
     steps:
+      - uses: actions/checkout@v4
       - name: Determine Workflow Conclusion
-        run: |
-          max_attempts=5
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            attempt=$((attempt + 1))
-            echo "Attempt $attempt of $max_attempts"
-            response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs")
-            if [ "$?" -eq 0 ]; then
-              echo "API Request successful."
-              break
-            else
-              echo "API Request failed, retrying in $((attempt * 2)) seconds..."
-              sleep $((attempt * 2))
-            fi
-          done
+        run: ./scripts/workflow-status.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.repository }} ${{ github.run_id }}
 
-          if [ $attempt -eq $max_attempts ]; then
-            echo "API requests failed after $max_attempts attempts, defaulting to failure."
-            echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
-          else
-            conclusions=$(echo "$response" | jq '[.jobs[].conclusion] | unique | .[]')
-            if echo "$conclusions" | grep -q "cancelled"; then
-              echo "Some jobs were cancelled."
-              echo "WORKFLOW_CONCLUSION=cancelled" >> $GITHUB_ENV
-            elif echo "$conclusions" | grep -q "failure"; then
-              echo "Some jobs failed."
-              echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
-            elif echo "$conclusions" | grep -q "success"; then
-              echo "All jobs succeeded or were skipped."
-              echo "WORKFLOW_CONCLUSION=success" >> $GITHUB_ENV
-            else
-              echo "Defaulting to failure due to uncertain job conclusions."
-              echo "WORKFLOW_CONCLUSION=failure" >> $GITHUB_ENV
-            fi
-          fi
       - uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
