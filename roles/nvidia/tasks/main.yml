@@ -102,11 +102,15 @@
     # Install Nvidia Driver
 
     - name: Nvidia Driver Tasks
-      when: (nvidia_installed_driver_version != nvidia_driver_version)
+      when: (nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_driver_version | lower != 'ignore')
       block:
         - name: "Nvidia Driver Task"
           ansible.builtin.include_tasks: "subtasks/driver.yml"
-          when: (nvidia_driver_version | lower != 'ignore')
+
+        - name: "Cleanup Patch backup"
+          ansible.builtin.file:
+            path: "{{ nvidia_patch_backup_file_location }}"
+            state: absent
 
     # Install Nvidia Driver Patch to remove transcode limit
 
@@ -114,16 +118,13 @@
       when: ('GeForce' in lspci_resp.stdout)
       block:
         - name: Check to see if patch backup files exist
-          ansible.builtin.find:
-            paths: "{{ nvidia_patch_backup_file_location }}"
-            file_type: file
-            recurse: true
-            patterns: '*.so*'
-          register: nvidia_patch_backup_files
+          ansible.builtin.stat:
+            path: "{{ nvidia_patch_backup_file_location }}"
+          register: nvidia_patch_backup_folder
 
         - name: "Nvidia Driver Patch Task"
           ansible.builtin.include_tasks: "subtasks/patch.yml"
-          when: (nvidia_patch_backup_files.matched | int == 0)
+          when: (not nvidia_patch_backup_folder.stat.exists)
 
     # Install Nvidia Runtime Container
 
