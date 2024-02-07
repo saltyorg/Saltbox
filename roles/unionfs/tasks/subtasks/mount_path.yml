@@ -62,4 +62,3 @@
     group: "{{ user.name }}"
     mode: "0775"
     attributes: '+i'
-    recurse: true

@@ -164,7 +164,7 @@
   loop: "{{ services | dict2items }}"
   loop_control:
     loop_var: rclone_service
-  when: (rclone_service_template in rclone_service.key) and (rclone_service.value.status != 'not-found')
+  when: (rclone_service_template in rclone_service.key) and (rclone_service.value.status != 'not-found') and (rclone_service.value.status != 'failed')
 
 - name: Cleanup Tasks
   ansible.builtin.include_tasks: "cleanup.yml"
