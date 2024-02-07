@@ -9,6 +9,7 @@
     - ['adv_settings.yml', 'defaults/adv_settings.yml.default']
     - ['backup_config.yml', 'defaults/backup_config.yml.default']
     - ['providers.yml', 'defaults/providers.yml.default']
+    - ['hetzner_vlan.yml', 'defaults/hetzner_vlan.yml.default']
   roles:
     - { role: settings, tags: ['settings'] }
     - { role: pre_tasks, tags: ['always', 'pre-tasks'] }
@@ -100,7 +101,7 @@
     - { role: yyq, tags: ['yyq'] }
     # Apps End
     - { role: custom, tags: ['custom'] }
-    - { role: hetzner_nfs, tags: ['hetzner-nfs-server', 'hetzner-nfs-server-uninstall', 'hetzner-nfs-client-mount', 'hetzner-nfs-client-unmount'] }
+    - { role: hetzner_vlan, tags: ['hetzner-vlan-deploy', 'hetzner-vlan-remove'] }
     - { role: permissions, tags: ['fix-permissions'] }
     - { role: plex_auth_token, tags: ['plex-auth-token'] }
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }

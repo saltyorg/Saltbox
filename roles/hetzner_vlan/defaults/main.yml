@@ -1,0 +1,10 @@
+##########################################################################
+# Title:         Saltbox: Hetzner VLAN | Default Variables               #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+hetzner_vlan_netplan_apply: true

@@ -1,0 +1,4 @@
+---
+hetzner_vlan:
+  client_number: 2
+  vlan_id: 4000
