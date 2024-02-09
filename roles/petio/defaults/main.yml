@@ -148,3 +148,8 @@ petio_docker_state: started
 
 # User
 petio_docker_user: "{{ uid }}:{{ gid }}"
+
+# Dependencies
+petio_depends_on: "{{ petio_name }}-mongo"
+petio_depends_on_delay: "0"
+petio_depends_on_healthchecks: "false"
