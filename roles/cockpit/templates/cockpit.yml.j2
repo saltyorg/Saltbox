@@ -1,0 +1,20 @@
+http:
+  services:
+    cockpit:
+      loadBalancer:
+        servers:
+          - url: "http://172.19.0.1:1337/"
+  routers:
+    cockpit:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`cockpit.{{ user.domain }}`)"
+      middlewares:
+        - "globalHeaders@file"
+        - "secureHeaders@file"
+        - "authelia@docker"
+        - "gzip@docker"
+      tls:
+        certresolver: "cfdns"
+        options: "securetls@file"
+      service: "cockpit"

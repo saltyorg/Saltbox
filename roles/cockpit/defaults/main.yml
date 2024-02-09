@@ -1,0 +1,32 @@
+#########################################################################
+# Title:            Saltbox: cockpit | Default Variables                #
+# Author(s):        CHAIR/Raneydazed                                    #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+
+################################
+# Basics
+################################
+
+cockpit_name: cockpit
+
+################################
+# Paths
+################################
+
+# need to add a variable that creates the socket.d path
+cockpit_paths_listen_conf_location: "/etc/systemd/system/cockpit.socket.d/listen.conf"
+# just need this to verify that it exists.  It will be created in "tasks/main.yml"
+cockpit_paths_service_location: "/etc/systemd/system/cockpit.service"
+cockpit_paths_etc_conf_location: "/etc/cockpit/cockpit.conf"
+# need to add a variable that includes the traefik directory
+cockpit_paths_traefik_location: "/opt/traefik/cockpit.yml"
+cockpit_paths_folders_list:
+  - "{{ cockpit_paths_listen_conf_location }}"
+  - "{{ cockpit_paths_service_location }}"
+  - "{{ cockpit_paths_etc_conf_location }}"
+  - "{{ cockpit_paths_traefik_location }}"
