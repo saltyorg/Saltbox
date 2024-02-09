@@ -118,3 +118,8 @@ ddns_docker_state: started
 
 # Init
 ddns_docker_init: true
+
+# Dependencies
+ddns_depends_on: "traefik"
+ddns_depends_on_delay: "10"
+ddns_depends_on_healthchecks: "false"
