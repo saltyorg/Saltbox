@@ -146,3 +146,8 @@ dozzle_docker_restart_policy: unless-stopped
 
 # State
 dozzle_docker_state: started
+
+# Dependencies
+dozzle_depends_on: "{{ dozzle_name }}-docker-socket-proxy"
+dozzle_depends_on_delay: "0"
+dozzle_depends_on_healthchecks: "false"
