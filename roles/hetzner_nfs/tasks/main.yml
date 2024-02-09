@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Role Disabled
+  ansible.builtin.fail:
+    msg:
+      - "This role is temporarily disabled due to being incompatible with multiple remotes format."
+
 - name: Import vars
   ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
