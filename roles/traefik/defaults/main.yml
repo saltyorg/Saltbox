@@ -365,7 +365,7 @@ traefik_docker_hosts_default:
   host.docker.internal: "172.19.0.1"
 traefik_docker_hosts_custom: []
 traefik_docker_hosts: "{{ docker_hosts_common
-                           | combine(traefik_docker_hosts_default)
+                          | combine(traefik_docker_hosts_default)
                           | combine(traefik_docker_hosts_custom) }}"
 
 # Labels
