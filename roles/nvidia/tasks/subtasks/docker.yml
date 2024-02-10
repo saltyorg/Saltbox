@@ -50,7 +50,7 @@
     state: present
 
 - name: Docker | Create '/dev/char' symlinks
-  ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all
+  ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all --load-kernel-modules --create-device-nodes
 
 - name: Docker | Import '71-nvidia-dev-char.rules'
   ansible.builtin.copy:
@@ -99,6 +99,13 @@
     name: docker
     state: stopped
   when: docker_service_running
+
+- name: "Daemon | Import override file"
+  ansible.builtin.template:
+    src: "/srv/git/saltbox/roles/docker/templates/override.conf.j2"
+    dest: "/etc/systemd/system/docker.service.d/override.conf"
+    mode: "0644"
+    force: "{{ docker_service_force }}"
 
 # https://github.com/linkernetworks/vortex-installer/blob/master/roles/common/tasks/nvidia-docker.yml
 - name: Docker | Add runtime to '/etc/docker/daemon.json'

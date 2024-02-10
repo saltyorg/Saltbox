@@ -18,4 +18,8 @@ Requires={{ docker_service_after }}
 {% endif %}
 
 [Service]
+{% if gpu.nvidia %}
+ExecStartPre=/usr/bin/nvidia-ctk system create-dev-char-symlinks --create-all --load-kernel-modules --create-device-nodes
+{% else %}
 ExecStartPre=/bin/sleep {{ docker_service_sleep }}
+{% endif %}
