@@ -75,6 +75,27 @@
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
 
+- name: Nvidia task block
+  when: gpu.nvidia
+  block:
+    - name: Import 'nvidia-persistenced.service'
+      ansible.builtin.copy:
+        src: nvidia-persistenced.service
+        dest: "/etc/systemd/system/nvidia-persistenced.service"
+        owner: "root"
+        group: "root"
+        mode: "0644"
+
+    - name: Run systemd daemon-reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Start nvidia-persistenced service
+      ansible.builtin.systemd_service:
+        name: nvidia-persistenced.service
+        state: started
+        enabled: true
+
 - name: "Import Docker Binary tasks"
   ansible.builtin.include_tasks: "subtasks/binary/binary.yml"
 
