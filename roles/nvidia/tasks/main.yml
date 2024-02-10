@@ -143,7 +143,6 @@
 
     - name: "Nvidia Docker Task"
       ansible.builtin.include_tasks: "subtasks/docker.yml"
-      when: (docker_default_runtime != 'nvidia') or (not docker_runtime_binary.stat.exists)
 
     # Install Nvidia Nvtop Tool
 
