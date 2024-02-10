@@ -73,7 +73,7 @@
   ignore_errors: true
   when: docker_service_running
 
-- name: Stop Saltbox Containers
+- name: Docker | Stop Saltbox Containers
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/stop"
     method: POST
@@ -86,7 +86,7 @@
   ignore_errors: true
   when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)
 
-- name: Block Docker Controller
+- name: Docker | Block Docker Controller
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/block/20"
     method: POST
@@ -100,12 +100,23 @@
     state: stopped
   when: docker_service_running
 
-- name: "Daemon | Import override file"
-  ansible.builtin.template:
-    src: "/srv/git/saltbox/roles/docker/templates/override.conf.j2"
-    dest: "/etc/systemd/system/docker.service.d/override.conf"
+- name: Docker | Import 'nvidia-persistenced.service'
+  ansible.builtin.copy:
+    src: nvidia-persistenced.service
+    dest: "/etc/systemd/system/nvidia-persistenced.service"
+    owner: "root"
+    group: "root"
     mode: "0644"
-    force: "{{ docker_service_force }}"
+
+- name: Docker | Run systemd daemon-reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Docker | Start nvidia-persistenced service
+  ansible.builtin.systemd_service:
+    name: nvidia-persistenced.service
+    state: started
+    enabled: true
 
 # https://github.com/linkernetworks/vortex-installer/blob/master/roles/common/tasks/nvidia-docker.yml
 - name: Docker | Add runtime to '/etc/docker/daemon.json'
@@ -117,10 +128,10 @@
     state: started
   when: docker_service_running
 
-- name: Docker Service Running
+- name: Docker | Docker Service Running
   when: docker_service_running and (docker_running_containers.stdout | trim | length > 0)
   block:
-    - name: Unblock Docker Controller
+    - name: Docker | Unblock Docker Controller
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/unblock"
         method: POST
@@ -146,7 +157,7 @@
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
 
-    - name: Start Saltbox Containers
+    - name: Docker | Start Saltbox Containers
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/start"
         method: POST
