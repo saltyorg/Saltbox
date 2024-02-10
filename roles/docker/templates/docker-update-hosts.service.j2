@@ -17,7 +17,6 @@ PartOf=docker.service
 ExecStart=/usr/bin/python3.10 /srv/git/saltbox/roles/docker/files/docker-update-hosts.py {{ docker_update_hosts_service_runtime_max }}
 Restart=always
 RestartSec=20s
-StartLimitInterval=0
 
 [Install]
 WantedBy=docker.service
