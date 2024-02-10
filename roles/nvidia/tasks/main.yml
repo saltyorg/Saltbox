@@ -128,19 +128,6 @@
 
     # Install Nvidia Runtime Container
 
-    - name: Get contents of 'daemon.json'
-      ansible.builtin.shell: cat /etc/docker/daemon.json
-      register: docker_daemon_json
-
-    - name: Check if '/usr/bin/nvidia-container-runtime' exists
-      ansible.builtin.stat:
-        path: "/usr/bin/nvidia-container-runtime"
-      register: docker_runtime_binary
-
-    - name: Set 'docker_default_runtime'
-      ansible.builtin.set_fact:
-        docker_default_runtime: "{{ docker_daemon_json.stdout | from_json | json_query('\"default-runtime\"') }}"
-
     - name: "Nvidia Docker Task"
       ansible.builtin.include_tasks: "subtasks/docker.yml"
 
