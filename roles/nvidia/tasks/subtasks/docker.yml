@@ -7,39 +7,58 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Docker | Remove old official repository entry
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
-    update_cache: true
+- name: Docker | Remove old repository list
+  ansible.builtin.file:
+    path: "{{ nvidia_docker_runtime_apt_repo_file_old }}"
     state: absent
-  loop: "{{ nvidia_docker_runtime_apt_repo_url_list_old + nvidia_docker_runtime_apt_repo_url_list_old2 }}"
 
-- name: Docker | Add 'nvidia-container-runtime' APT Repo Key
+- name: Docker | Add 'nvidia-container-toolkit' APT Repo Key
   ansible.builtin.get_url:
     url: "{{ nvidia_docker_runtime_apt_key_url }}"
     dest: /etc/apt/trusted.gpg.d/nvidia.asc
     mode: "0644"
+    force: true
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
 
-- name: Docker | Add 'nvidia-container-runtime' APT list
+- name: Docker | Add 'nvidia-container-toolkit' APT list
   ansible.builtin.apt_repository:
     repo: "{{ item }}"
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
     state: present
     mode: "0644"
     update_cache: true
-  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | replace('deb', 'deb [signed-by=/etc/apt/trusted.gpg.d/nvidia.asc]') }}"
+  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | regex_replace('^deb https', 'deb [signed-by=/etc/apt/trusted.gpg.d/nvidia.asc] https') }}"
   when: not item.startswith('#')
 
-- name: Docker | Install 'nvidia-container-runtime'
+- name: Docker | Remove 'nvidia-container-runtime'
   ansible.builtin.apt:
-    name: "{{ nvidia_docker_runtime_apt_package }}"
+    name: "nvidia-container-runtime"
+    state: absent
+
+- name: Docker | Remove 'nvidia-container-toolkit'
+  ansible.builtin.apt:
+    name: "nvidia-container-toolkit"
+    state: absent
+
+- name: Docker | Install 'nvidia-container-toolkit'
+  ansible.builtin.apt:
+    name: "nvidia-container-toolkit"
     update_cache: true
     state: present
+
+- name: Docker | Create '/dev/char' symlinks
+  ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all
+
+- name: Docker | Import '71-nvidia-dev-char.rules'
+  ansible.builtin.copy:
+    src: 71-nvidia-dev-char.rules
+    dest: "/lib/udev/rules.d/71-nvidia-dev-char.rules"
+    owner: "root"
+    group: "root"
+    mode: "0644"
 
 - name: Docker | Populate Service Facts
   ansible.builtin.service_facts:
