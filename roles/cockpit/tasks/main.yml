@@ -18,6 +18,8 @@
     name: cockpit.socket
   when: cockpit_socket.stat.exists
 
+# Need to add a task to start the cockpit service as well
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
