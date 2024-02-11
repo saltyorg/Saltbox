@@ -7,15 +7,37 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if 'cockpit_socket' exists
+  ansible.builtin.stat:
+    path: "{{ cockpit_paths_socket_location }}"
+  register: cockpit_socket
+
+- name: Stop existing 'cockpit_socket'
+  ansible.builtin.systemd:
+    state: stopped
+    name: cockpit.socket
+  when: cockpit_socket.stat.exists
+
 - name: Install Cockpit from backports
   ansible.builtin.apt:
     name: cockpit
     default_release: "{{ ansible_distribution_release }}-backports"
     update_cache: yes
+  when: 
+    - not cockpit_socket.stat.exists
+    - not continuous_integration
 
-- name: Enable Cockpit service
+- name: Import 'cockpit_socket'
+  ansible.builtin.template:
+    src: listen.conf.j2
+    dest: "{{ cockpit_paths_socket_location }}"
+    mode: "0664"
+    force: true
+
+- name: Load 'cockpit_socket'
   ansible.builtin.systemd:
     name: cockpit.socket
     state: started
     enabled: yes
-    daemon_reload: yes
+    daemon_reload: true
+  when: not continuous_integration
