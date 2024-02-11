@@ -18,3 +18,31 @@ http:
         certresolver: "cfdns"
         options: "securetls@file"
       service: "cockpit"
+
+# actual jinja template for traefik, attempt num 1
+
+http:
+  routers:
+    {{ cockpit_name }}-http:
+      entryPoints:
+        - "web"
+      rule: "Host(`{{ dur }}`)"
+      middlewares:
+        {{ traefik_default_middleware_http.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ cockpit_name }}"
+    {{ cockpit_name }}:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`{{ cockpit_web_url }}`)"
+      middlewares:
+        {{ traefik_middleware.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ cockpit_name }}"
+      tls:
+        options: securetls@file
+        certResolver: {{ cockpit_traefik_certresolver}}
+
+  services:
+    {{ cockpit_name }}:
+      loadBalancer:
+        servers:
+          - url: "http://172.19.0.1:{{ cockpit_web_port }}"

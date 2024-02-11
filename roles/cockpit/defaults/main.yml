@@ -30,3 +30,33 @@ cockpit_paths_folders_list:
   - "{{ cockpit_paths_service_location }}"
   - "{{ cockpit_paths_etc_conf_location }}"
   - "{{ cockpit_paths_traefik_location }}"
+
+################################
+# Web
+################################
+
+cockpit_web_subdomain: "{{ cockpit_name }}"
+cockpit_web_domain: "{{ user.domain }}"
+cockpit_web_port: "1337"
+
+################################
+# DNS
+################################
+
+cockpit_dns_record: "{{ cockpit_web_subdomain }}"
+cockpit_dns_zone: "{{ cockpit_web_domain }}"
+cockpit_dns_proxy: "{{ dns.proxied }}"
+cockpit_web_url: "{{ 'https://' + (cockpit_web_subdomain + '.' + cockpit_web_domain
+                  if (cockpit_web_subdomain | length > 0)
+                  else cockpit_web_domain) }}"
+
+################################
+# Traefik
+################################
+
+cockpit_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+cockpit_traefik_middleware_default: "{{ traefik_default_middleware }}"
+cockpit_traefik_middleware_custom: ""
+cockpit_traefik_certresolver: "{{ traefik_default_certresolver }}"
+cockpit_traefik_enabled: true
+cockpit_traefik_api_enabled: true
