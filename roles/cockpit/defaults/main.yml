@@ -20,13 +20,10 @@ cockpit_name: cockpit
 cockpit_paths_socket_location: "/etc/systemd/system/cockpit.socket.d/listen.conf"
 cockpit_paths_config_location: "/etc/cockpit/cockpit.conf"
 cockpit_paths_traefik_location: "/opt/traefik/cockpit.yml"
+cockpit_paths_service_location: "/lib/systemd/system/cockpit.service"
 cockpit_paths_folders_list:
   - "/etc/systemd/system/cockpit.socket.d"
   - "/etc/cockpit"
-#   - "{{ cockpit_paths_listen_conf_location }}"
-#   - "{{ cockpit_paths_socket_location }}"
-#   - "{{ cockpit_paths_etc_conf_location }}"
-#   - "{{ cockpit_paths_traefik_location }}"
 
 ################################
 # Web

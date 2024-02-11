@@ -20,6 +20,19 @@
 
 # Need to add a task to start the cockpit service as well
 
+- name: Check if 'cockpit_service' exists
+  ansible.builtin.stat:
+    path: "{{ cockpit_paths_service_location }}"
+  register: cockpit_service
+
+- name: Stop existing 'cockpit_service'
+  ansible.builtin.systemd:
+    state: stopped
+    name: cockpit.service
+  when: cockpit_service.stat.exists
+
+# Also need to fix the traefik file to include the correct settings
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
@@ -65,6 +78,14 @@
 - name: Load 'cockpit_socket'
   ansible.builtin.systemd:
     name: cockpit.socket
+    state: started
+    enabled: yes
+    daemon_reload: true
+  when: not continuous_integration
+
+- name: Load 'cockpit_service'
+  ansible.builtin.systemd:
+    name: cockpit.service
     state: started
     enabled: yes
     daemon_reload: true

@@ -1,27 +1,24 @@
-{# http:
+http:
   services:
-    cockpit:
+    "{{ cockpit_name }}":
       loadBalancer:
         servers:
-          - url: "http://172.19.0.1:1337/"
+          - url: "http://172.19.0.1:{{ cockpit_web_port }}"
   routers:
-    cockpit:
+    {{ cockpit_name }}:
       entryPoints:
         - "websecure"
-      rule: "Host(`cockpit.{{ user.domain }}`)"
+      rule: "Host(`{{ cockpit_web_url }}`)"
       middlewares:
-        - "globalHeaders@file"
-        - "secureHeaders@file"
-        - "authelia@docker"
-        - "gzip@docker"
+        {{ traefik_middleware.split(',') | to_nice_yaml | trim | indent(8) }}
       tls:
-        certresolver: "cfdns"
+        certresolver: {{ cockpit_traefik_certresolver}}
         options: "securetls@file"
-      service: "cockpit" #}
+      service: "{{ cockpit_name }}"
 
 # actual jinja template for traefik, attempt num 1
 
-http:
+{# http:
   routers:
     {{ cockpit_name }}-http:
       entryPoints:
@@ -45,4 +42,4 @@ http:
     {{ cockpit_name }}:
       loadBalancer:
         servers:
-          - url: "http://172.19.0.1:{{ cockpit_web_port }}"
+          - url: "http://172.19.0.1:{{ cockpit_web_port }}" #}
