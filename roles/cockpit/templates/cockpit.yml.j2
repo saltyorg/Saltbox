@@ -26,7 +26,7 @@ http:
     {{ cockpit_name }}-http:
       entryPoints:
         - "web"
-      rule: "Host(`{{ dur }}`)"
+      rule: "Host(`{{ cockpit_web_url_http }}`)"
       middlewares:
         {{ traefik_default_middleware_http.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ cockpit_name }}"

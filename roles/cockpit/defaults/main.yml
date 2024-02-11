@@ -49,6 +49,9 @@ cockpit_dns_proxy: "{{ dns.proxied }}"
 cockpit_web_url: "{{ 'https://' + (cockpit_web_subdomain + '.' + cockpit_web_domain
                   if (cockpit_web_subdomain | length > 0)
                   else cockpit_web_domain) }}"
+cockpit_web_url_http: "{{ 'http://' + (cockpit_web_subdomain + '.' + cockpit_web_domain
+                       if (cockpit_web_subdomain | length > 0)
+                       else cockpit_web_domain) }}"
 
 ################################
 # Traefik
