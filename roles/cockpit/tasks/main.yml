@@ -7,6 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+
 - name: Check if 'cockpit_socket' exists
   ansible.builtin.stat:
     path: "{{ cockpit_paths_socket_location }}"
