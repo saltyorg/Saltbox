@@ -59,4 +59,4 @@ cockpit_traefik_middleware_default: "{{ traefik_default_middleware }}"
 cockpit_traefik_middleware_custom: ""
 cockpit_traefik_certresolver: "{{ traefik_default_certresolver }}"
 cockpit_traefik_enabled: true
-cockpit_traefik_api_enabled: true
+cockpit_traefik_api_enabled: false
