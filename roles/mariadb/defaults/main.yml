@@ -14,6 +14,14 @@
 mariadb_instances: ["mariadb"]
 
 ################################
+# Settings
+################################
+
+mariadb_docker_env_password: "password321"
+mariadb_docker_env_user: "{{ user.name }}"
+mariadb_docker_env_db: "saltbox"
+
+################################
 # Paths
 ################################
 
@@ -21,14 +29,6 @@ mariadb_paths_folder: "{{ mariadb_name }}"
 mariadb_paths_location: "{{ server_appdata_path }}/{{ mariadb_paths_folder }}"
 mariadb_paths_folders_list:
   - "{{ mariadb_paths_location }}"
-
-################################
-# Settings
-################################
-
-mariadb_docker_env_password: "password321"
-mariadb_docker_env_user: "{{ user.name }}"
-mariadb_docker_env_db: "saltbox"
 
 ################################
 # Migration Settings

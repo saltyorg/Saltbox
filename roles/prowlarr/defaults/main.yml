@@ -14,7 +14,7 @@
 prowlarr_name: prowlarr
 
 ################################
-# Configuration
+# Settings
 ################################
 
 prowlarr_external_auth: true

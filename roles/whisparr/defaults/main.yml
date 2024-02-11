@@ -14,7 +14,7 @@
 whisparr_instances: ["whisparr"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 whisparr_external_auth: true

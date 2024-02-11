@@ -14,7 +14,7 @@
 plex_instances: ["plex"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 plex_username: "{{ plex.user }}"

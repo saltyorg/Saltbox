@@ -14,6 +14,13 @@
 organizr_name: organizr
 
 ################################
+# Settings
+################################
+
+organizr_branch: "v2-master"
+organizr_fpm: "yes"
+
+################################
 # Paths
 ################################
 
@@ -40,13 +47,6 @@ organizr_web_url: "{{ 'https://' + (organizr_web_subdomain + '.' + organizr_web_
 organizr_dns_record: "{{ organizr_web_subdomain }}"
 organizr_dns_zone: "{{ organizr_web_domain }}"
 organizr_dns_proxy: "{{ dns.proxied }}"
-
-################################
-# Settings
-################################
-
-organizr_branch: "v2-master"
-organizr_fpm: "yes"
 
 ################################
 # Traefik

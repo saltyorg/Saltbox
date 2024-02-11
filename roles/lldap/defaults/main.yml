@@ -14,7 +14,7 @@
 lldap_name: "lldap"
 
 ################################
-# Configuration
+# Settings
 ################################
 
 # Toggles if the configuration template uses SMTP or not.

@@ -14,7 +14,7 @@
 lidarr_instances: ["lidarr"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 lidarr_external_auth: true

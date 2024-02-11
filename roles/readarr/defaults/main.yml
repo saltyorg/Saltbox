@@ -14,7 +14,7 @@
 readarr_instances: ["readarr"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 readarr_external_auth: false

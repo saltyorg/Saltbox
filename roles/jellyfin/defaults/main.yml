@@ -64,7 +64,7 @@ jellyfin_traefik_api_endpoint: ""
 jellyfin_traefik_gzip_enabled: false
 
 ################################
-# Settings
+# Config
 ################################
 
 # System

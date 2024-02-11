@@ -14,7 +14,7 @@ qbittorrent_instances: ["qbittorrent"]
 qbittorrent_host_install: false
 
 ################################
-# Configuration
+# Settings
 ################################
 
 qbittorrent_webui_custom_headers_enabled: "{{ 'true' if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else 'false' }}"

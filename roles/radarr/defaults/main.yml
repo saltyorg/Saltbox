@@ -14,7 +14,7 @@
 radarr_instances: ["radarr"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 radarr_external_auth: true

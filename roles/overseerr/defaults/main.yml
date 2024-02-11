@@ -14,6 +14,12 @@
 overseerr_instances: ["overseerr"]
 
 ################################
+# Settings
+################################
+
+overseerr_log_level: "info"
+
+################################
 # Paths
 ################################
 
@@ -43,12 +49,6 @@ overseerr_web_url: "{{ 'https://' + (lookup('vars', overseerr_name + '_web_subdo
 overseerr_dns_record: "{{ lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) }}"
 overseerr_dns_zone: "{{ lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain) }}"
 overseerr_dns_proxy: "{{ dns.proxied }}"
-
-################################
-# Settings
-################################
-
-overseerr_log_level: "info"
 
 ################################
 # Traefik

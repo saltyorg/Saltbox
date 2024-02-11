@@ -14,7 +14,7 @@
 sonarr_instances: ["sonarr"]
 
 ################################
-# Configuration
+# Settings
 ################################
 
 sonarr_external_auth: true

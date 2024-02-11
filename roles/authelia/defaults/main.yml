@@ -14,7 +14,7 @@
 authelia_name: authelia
 
 ################################
-# Configuration
+# Settings
 ################################
 
 # Options are light, dark, grey or auto.

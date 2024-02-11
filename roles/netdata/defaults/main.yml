@@ -8,13 +8,6 @@
 ##########################################################################
 ---
 ################################
-# Docker Socket Proxy
-################################
-
-netdata_docker_socket_proxy_envs:
-  CONTAINERS: "1"
-
-################################
 # Basics
 ################################
 
@@ -27,6 +20,13 @@ netdata_name: netdata
 netdata_claim_token: ""
 netdata_claim_url: ""
 netdata_claim_room: ""
+
+################################
+# Docker Socket Proxy
+################################
+
+netdata_docker_socket_proxy_envs:
+  CONTAINERS: "1"
 
 ################################
 # Paths

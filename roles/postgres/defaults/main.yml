@@ -14,6 +14,14 @@
 postgres_instances: ["postgres"]
 
 ################################
+# Settings
+################################
+
+postgres_docker_env_password: "password4321"
+postgres_docker_env_user: "{{ user.name }}"
+postgres_docker_env_db: "saltbox"
+
+################################
 # Paths
 ################################
 
@@ -21,14 +29,6 @@ postgres_paths_folder: "{{ postgres_name }}"
 postgres_paths_location: "{{ server_appdata_path }}/{{ postgres_paths_folder }}"
 postgres_paths_folders_list:
   - "{{ postgres_paths_location }}"
-
-################################
-# Settings
-################################
-
-postgres_docker_env_password: "password4321"
-postgres_docker_env_user: "{{ user.name }}"
-postgres_docker_env_db: "saltbox"
 
 ################################
 # Docker
