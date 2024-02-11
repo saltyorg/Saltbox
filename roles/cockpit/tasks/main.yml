@@ -18,6 +18,39 @@
     name: cockpit.socket
   when: cockpit_socket.stat.exists
 
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: Import 'cockpit_socket'
+  ansible.builtin.template:
+    src: listen.conf.j2
+    dest: "{{ cockpit_paths_socket_location }}"
+    mode: "0664"
+    force: true
+
+- name: Import 'cockpit_config'
+  ansible.builtin.template:
+    src: cockpit.conf.j2
+    dest: "{{ cockpit_paths_config_location }}"
+    mode: "0664"
+    force: true
+
+- name: Import 'cockpit_traefik'
+  ansible.builtin.template:
+    src: cockpit.yml.j2
+    dest: "{{ cockpit_paths_traefik_location }}"
+    mode: "0775"
+    force: true
+
+- name: Change traefik file ownership
+  ansible.builtin.file:
+    path: "{{ cockpit_paths_traefik_location }}"
+    owner: "{{ uid }}"
+    group: "{{ gid }}"
+  when:
+    - not continuous_integration
+    # - not cockpit_socket.stat.exists
+
 - name: Install Cockpit from backports
   ansible.builtin.apt:
     name: cockpit
@@ -26,13 +59,6 @@
   when: 
     - not cockpit_socket.stat.exists
     - not continuous_integration
-
-- name: Import 'cockpit_socket'
-  ansible.builtin.template:
-    src: listen.conf.j2
-    dest: "{{ cockpit_paths_socket_location }}"
-    mode: "0664"
-    force: true
 
 - name: Load 'cockpit_socket'
   ansible.builtin.systemd:
