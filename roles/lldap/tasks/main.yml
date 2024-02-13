@@ -37,7 +37,7 @@
     dest: "{{ lldap_paths_location }}/lldap_config.toml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   when: (not lldap_config_stat.stat.exists)
 
 - name: Create Docker container

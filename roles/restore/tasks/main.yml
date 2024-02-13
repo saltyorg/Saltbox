@@ -58,7 +58,7 @@
         dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml.bak"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
         force: true
       when: localhost_yml_default_path.stat.exists
 
@@ -74,7 +74,7 @@
         dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
         force: true
 
     - name: "Remove imported 'localhost.yml' from '{{ playbook_dir }}'"
@@ -153,7 +153,7 @@
     dest: "{{ playbook_dir }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
     force: true
   when: backup_excludes_list.stat.exists and (not restore_tar is defined)
 

@@ -132,7 +132,7 @@
     dest: "/opt/{{ traktarr_name }}/config.json"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
     force: true
   when: (not traktarr_config.stat.exists)
 

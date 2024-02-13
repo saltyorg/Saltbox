@@ -17,7 +17,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   loop: "{{ rutorrent_config_new_installs_rutorrent_rc_settings_list }}"
 
 - name: Post-Install | Settings | New Installs | Update 'php-local.ini' config settings
@@ -30,7 +30,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   loop: "{{ rutorrent_config_new_installs_php_local_ini_settings_list }}"
 
 - name: Post-Install | Settings | New Installs | Import custom 'plugins.ini'
@@ -40,4 +40,4 @@
     dest: "{{ rutorrent_paths_plugins_ini_location }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"

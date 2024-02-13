@@ -18,7 +18,7 @@
     dest: "{{ authelia_paths_location }}/configuration.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   when: (not authelia_config_stat.stat.exists)
 
 - name: File | Format 'configuration.yml'
@@ -53,7 +53,7 @@
     dest: "{{ authelia_paths_location }}/users_database.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: File | Remove LLDAP Container

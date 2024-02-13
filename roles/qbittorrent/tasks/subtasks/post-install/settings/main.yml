@@ -17,7 +17,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update Connection\PortRangeMin in 'qBittorrent.conf' config settings (legacy)
   community.general.ini_file:
@@ -29,7 +29,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -41,7 +41,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\CSRFProtection 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -53,7 +53,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeaders 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -65,7 +65,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -77,7 +77,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update LegalNotice.Accepted 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -89,7 +89,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -101,7 +101,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -113,7 +113,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\TrustedReverseProxiesList 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -125,7 +125,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update WebUI\ReverseProxySupportEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -137,7 +137,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update FileLogger\Enabled 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -149,7 +149,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Update FileLogger\Path 'qBittorrent.conf' config settings
   community.general.ini_file:
@@ -161,7 +161,7 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Post-Install | Settings | Generate Password Hash
   when: not qbittorrent_paths_conf_stat.stat.exists
@@ -180,7 +180,7 @@
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
 
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Password_PBKDF2'
       community.general.ini_file:
@@ -191,4 +191,4 @@
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"

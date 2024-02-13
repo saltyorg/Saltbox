@@ -17,5 +17,5 @@
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   loop: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_list }}"

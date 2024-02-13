@@ -104,7 +104,7 @@
     dest: /opt/motd/config.json
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
     force: false
   when: (not motd_config.stat.exists)
 
@@ -138,7 +138,7 @@
     state: touch
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
 
 - name: Set 'saltbox-motd.py' as executable
   ansible.builtin.file:

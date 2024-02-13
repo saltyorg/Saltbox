@@ -56,7 +56,7 @@
     dest: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
   when: (not localhost_yml.stat.exists)
 
 - name: Install required packages
@@ -179,7 +179,7 @@
     dest: "/home/{{ user.name }}/.config/pip/pip.conf"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
     force: true
 
 - name: "Install yyq"

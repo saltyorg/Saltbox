@@ -47,7 +47,7 @@
     dest: "/opt/sandbox/{{ (item | basename | splitext)[0] }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    mode: "0775"
+    mode: "0664"
     force: false
   with_fileglob:
     - /opt/sandbox/defaults/*.*

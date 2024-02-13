@@ -76,7 +76,7 @@
         state: touch
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
 
     - name: Check if previous backup folder exists
       ansible.builtin.stat:
@@ -179,7 +179,7 @@
         dest: "{{ backup.local.destination }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
         force: true
       with_items:
         - "{{ playbook_dir }}/ansible.cfg"
@@ -205,7 +205,7 @@
         dest: "{{ backup.local.destination }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
         force: true
       when: backup_excludes_list.stat.exists
 
