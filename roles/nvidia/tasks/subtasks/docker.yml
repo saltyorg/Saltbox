@@ -51,6 +51,7 @@
 
 - name: Docker | Create '/dev/char' symlinks
   ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all
+  when: nvidia_docker_enable_nvidia_ctk
 
 - name: Docker | Populate Service Facts
   ansible.builtin.service_facts:
