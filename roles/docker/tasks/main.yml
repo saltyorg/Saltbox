@@ -87,12 +87,11 @@
       when: nvidia_ctk.stat.exists
       block:
         - name: Import 'nvidia-persistenced.service'
-          ansible.builtin.copy:
-            src: nvidia-persistenced.service
-            dest: "/etc/systemd/system/nvidia-persistenced.service"
-            owner: "root"
-            group: "root"
+          ansible.builtin.template:
+            src: nvidia-persistenced.service.j2
+            dest: /etc/systemd/system/nvidia-persistenced.service
             mode: "0644"
+            force: true
 
         - name: Run systemd daemon-reload
           ansible.builtin.systemd_service:
