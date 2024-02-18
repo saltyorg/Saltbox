@@ -5,7 +5,7 @@ Wants=syslog.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/nvidia-persistenced
-ExecStartPre=/usr/bin/nvidia-ctk system create-dev-char-symlinks --create-all --load-kernel-modules --create-device-nodes
+ExecStartPre=/usr/bin/nvidia-ctk system create-dev-char-symlinks --create-all
 ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
 
 [Install]
