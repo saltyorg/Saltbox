@@ -112,7 +112,7 @@ docker_ipv6: "{{ dns.ipv6 }}"
 
 # Service
 
-docker_service_after: "{{ mergerfs_service_name + (' nvidia-persistenced.service' if gpu.nvidia else '') }}"
+docker_service_after: "{{ mergerfs_service_name + (' nvidia-persistenced.service' if (gpu.nvidia and nvidia_ctk is defined and nvidia_ctk.stat.exists) else '') }}"
 
 docker_service_sleep: "{{ 0 if continuous_integration else 120 }}"
 

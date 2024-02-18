@@ -50,15 +50,7 @@
     state: present
 
 - name: Docker | Create '/dev/char' symlinks
-  ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all --load-kernel-modules --create-device-nodes
-
-- name: Docker | Import '71-nvidia-dev-char.rules'
-  ansible.builtin.copy:
-    src: 71-nvidia-dev-char.rules
-    dest: "/lib/udev/rules.d/71-nvidia-dev-char.rules"
-    owner: "root"
-    group: "root"
-    mode: "0644"
+  ansible.builtin.shell: nvidia-ctk system create-dev-char-symlinks --create-all
 
 - name: Docker | Populate Service Facts
   ansible.builtin.service_facts:
@@ -101,6 +93,18 @@
     name: nvidia-persistenced.service
     state: started
     enabled: true
+
+- name: Docker | Check if '/usr/bin/nvidia-ctk' exists
+  ansible.builtin.stat:
+    path: "/usr/bin/nvidia-ctk"
+  register: nvidia_ctk
+
+- name: "Docker | Import override file"
+  ansible.builtin.template:
+    src: override.conf.j2
+    dest: /etc/systemd/system/docker.service.d/override.conf
+    mode: "0644"
+    force: "{{ docker_service_force }}"
 
 # https://github.com/linkernetworks/vortex-installer/blob/master/roles/common/tasks/nvidia-docker.yml
 - name: Docker | Add runtime to '/etc/docker/daemon.json'
