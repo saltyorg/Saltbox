@@ -16,7 +16,32 @@ cadvisor_name: cadvisor
 # Web
 ################################
 
+cadvisor_web_subdomain: "{{ cadvisor_name }}"
+cadvisor_web_domain: "{{ user.domain }}"
 cadvisor_web_port: "8080"
+cadvisor_web_url: "{{ 'https://' + (lookup('vars', cadvisor_name + '_web_subdomain', default=cadvisor_web_subdomain) + '.' + lookup('vars', cadvisor_name + '_web_domain', default=cadvisor_web_domain)
+                   if (lookup('vars', cadvisor_name + '_web_subdomain', default=cadvisor_web_subdomain) | length > 0)
+                   else lookup('vars', cadvisor_name + '_web_domain', default=cadvisor_web_domain)) }}"
+
+################################
+# DNS
+################################
+
+cadvisor_dns_record: "{{ lookup('vars', cadvisor_name + '_web_subdomain', default=cadvisor_web_subdomain) }}"
+cadvisor_dns_zone: "{{ lookup('vars', cadvisor_name + '_web_domain', default=cadvisor_web_domain) }}"
+cadvisor_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+cadvisor_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+cadvisor_traefik_middleware_default: "{{ traefik_default_middleware }}"
+cadvisor_traefik_middleware_custom: ""
+cadvisor_traefik_certresolver: "{{ traefik_default_certresolver }}"
+cadvisor_traefik_enabled: true
+cadvisor_traefik_api_enabled: false
+cadvisor_traefik_api_endpoint: ""
 
 ################################
 # Docker
