@@ -351,7 +351,9 @@ docker_volumes_downloads_common: "{{ docker_volumes_downloads_nzbs + docker_volu
 docker_volumes_common_folders:
   - "/mnt:/mnt"
 
-docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downloads_common }}"
+docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downloads_common
+                        if (lookup('vars', traefik_role_var + '_docker_volumes_download', default=true) | bool)
+                        else docker_volumes_common_folders }}"
 
 docker_hosts_common: []
 
