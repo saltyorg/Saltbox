@@ -35,6 +35,7 @@
     tls_hostname: localhost
     auto_remove: yes
     state: started
+    pull: true
   when: (not error_pages_folder.stat.exists)
 
 - name: Remove existing Docker container

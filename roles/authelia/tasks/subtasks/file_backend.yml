@@ -39,6 +39,7 @@
     state: started
     container_default_behavior: compatibility
     tls_hostname: localhost
+    pull: true
   register: authelia_password
   when: (not authelia_user_config_stat.stat.exists)
 

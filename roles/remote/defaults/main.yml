@@ -24,8 +24,8 @@ rclone_sftp_disable_hashcheck: false
 rclone_service_template: "saltbox_managed_rclone_"
 
 rclone_port_lookup: "{{ port_lookup_rclone.meta.port
-                        if (port_lookup_rclone.meta.port is defined) and (port_lookup_rclone.meta.port | trim | length > 0)
-                        else '5572' }}"
+                     if (port_lookup_rclone.meta.port is defined) and (port_lookup_rclone.meta.port | trim | length > 0)
+                     else '5572' }}"
 rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_port', default=rclone_port_lookup) }}"
 rclone_remote_name: "{{ item.remote.split(':')[0] if ':' in item.remote else item.remote }}"
 rclone_remote_with_path: "{{ item.remote if ':' in item.remote else item.remote + ':' }}"
