@@ -33,7 +33,7 @@
         network_mode: "{{ docker_networks_name_common }}"
         networks: "{{ lookup('vars', role_name + '_docker_networks') }}"
         networks_cli_compatible: true
-        pull: "{{ lookup('vars', role_name + '_docker_image_pull', default='yes') }}"
+        pull: "{{ lookup('vars', role_name + '_docker_image_pull', default=true) | bool }}"
         restart_policy: "{{ lookup('vars', role_name + '_docker_restart_policy', default='unless-stopped') }}"
         state: started
         stop_timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"

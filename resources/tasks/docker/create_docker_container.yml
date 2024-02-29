@@ -88,7 +88,7 @@
     published_ports: "{{ (lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
                       if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
                       else [] }}"
-    pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default='yes') }}"
+    pull: "{{ lookup('vars', _var_prefix + '_docker_image_pull', default=true) | bool }}"
     read_only: "{{ lookup('vars', _var_prefix + '_docker_read_only', default=omit) }}"
     recreate: "{{ lookup('vars', _var_prefix + '_docker_recreate', default=omit) }}"
     restart_policy: "{{ lookup('vars', _var_prefix + '_docker_restart_policy', default='unless-stopped') }}"
