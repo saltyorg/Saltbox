@@ -28,6 +28,10 @@
           - "Disabled nouveau driver. System will now reboot."
           - "You will need to re-run your previous tag after the system has rebooted."
 
+    - name: Kernel | Prompt user before continuing
+      ansible.builtin.pause:
+        prompt: "Read the instructions above and press enter when you have done so"
+
     - name: Kernel | Reboot command
       ansible.builtin.shell: reboot
 
