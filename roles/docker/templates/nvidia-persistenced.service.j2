@@ -4,9 +4,6 @@ Wants=syslog.target
 
 [Service]
 Type=forking
-{% if nvidia_docker_enable_nvidia_ctk %}
-ExecStartPre=/usr/bin/nvidia-ctk system create-dev-char-symlinks --create-all
-{% endif %}
 ExecStart=/usr/bin/nvidia-persistenced
 ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
 
