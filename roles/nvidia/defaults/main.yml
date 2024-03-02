@@ -51,8 +51,6 @@ nvidia_docker_runtime_docker_daemon_json_jq_command: |
       | .runtimes.nvidia.runtimeArgs = []' \
       /etc/docker/daemon.json | jq --sort-keys | sponge /etc/docker/daemon.json
 
-nvidia_docker_enable_nvidia_ctk: true
-
 ################################
 # Kernel
 ################################

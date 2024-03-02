@@ -131,6 +131,19 @@
           ansible.builtin.include_tasks: "subtasks/patch.yml"
           when: (not nvidia_patch_backup_folder.stat.exists)
 
+    # Install Nvidia udev rule
+
+    - name: Copy the NVIDIA udev rule file
+      ansible.builtin.copy:
+        src: 99-nvidia-udev.rules
+        dest: /etc/udev/rules.d/99-nvidia-udev.rules
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload udev rules
+      ansible.builtin.shell: udevadm control --reload-rules && udevadm trigger
+
     # Install Nvidia Runtime Container
 
     - name: "Nvidia Docker Task"
