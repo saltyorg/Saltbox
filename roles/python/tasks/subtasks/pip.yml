@@ -19,7 +19,7 @@
   when: system_pip.stdout_lines[0] == "#!/usr/bin/python3.8"
   block:
     - name: "Replace 'python3.8' with 'python3'"
-      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' /usr/local/bin/pip"
+      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' {{ system_pip_path.stdout }}"
 
 - name: "Find System pip3 path"
   ansible.builtin.command: "which pip3"
@@ -33,4 +33,4 @@
   when: system_pip3.stdout_lines[0] == "#!/usr/bin/python3.8"
   block:
     - name: "Replace 'python3.8' with 'python3'"
-      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' /usr/local/bin/pip3"
+      ansible.builtin.shell: "sed -i 's/python3.8/python3/g' {{ system_pip3_path.stdout }}"
