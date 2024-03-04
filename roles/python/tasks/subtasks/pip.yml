@@ -7,8 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Find System pip path"
+  ansible.builtin.command: "which pip"
+  register: system_pip_path
+
 - name: "Check System pip"
-  ansible.builtin.command: "cat /usr/local/bin/pip"
+  ansible.builtin.command: "cat {{ system_pip_path.stdout }}"
   register: system_pip
 
 - name: "Fix System pip"
