@@ -214,6 +214,21 @@
   ansible.builtin.include_role:
     name: authentik_worker
 
+- name: Override 'authentik_host' under CI
+  when: continuous_integration
+  block:
+    - name: Get authentik IP
+      ansible.builtin.shell: docker inspect authentik | jq -r '.[].NetworkSettings.Networks["saltbox"].IPAddress'
+      register: authentik_container_ip
+
+    - name: Set 'authentik_host'
+      ansible.builtin.set_fact:
+        authentik_host: "{{ authentik_container_ip.stdout }}"
+
+    - name: Print 'authentik_host'
+      ansible.builtin.debug:
+        var: authentik_host
+
 - name: Validate Saltbox token (retry until Authentik is ready)
   ansible.builtin.uri:
     url: "{{ authentik_host }}/api/v3/core/users/me/"
