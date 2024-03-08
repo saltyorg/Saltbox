@@ -46,3 +46,4 @@
     method: POST
     timeout: 600
   ignore_errors: true
+  when: saltbox_controller_service_remote.stat.exists
