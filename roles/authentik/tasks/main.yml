@@ -96,4 +96,4 @@
 
 - name: Setup Task
   ansible.builtin.import_tasks: "subtasks/setup.yml"
-  when: authentik_setup
+  when: authentik_setup and not continuous_integration
