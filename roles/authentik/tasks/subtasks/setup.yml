@@ -16,7 +16,7 @@
 
     - name: Set 'authentik_host'
       ansible.builtin.set_fact:
-        authentik_host: "{{ authentik_container_ip.stdout }}"
+        authentik_host: "http://{{ authentik_container_ip.stdout }}:9000"
 
     - name: Print 'authentik_host'
       ansible.builtin.debug:
@@ -223,7 +223,7 @@
 
     - name: Set 'authentik_host'
       ansible.builtin.set_fact:
-        authentik_host: "{{ authentik_container_ip.stdout }}"
+        authentik_host: "http://{{ authentik_container_ip.stdout }}:9000"
 
     - name: Print 'authentik_host'
       ansible.builtin.debug:
