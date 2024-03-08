@@ -55,6 +55,7 @@
     - { role: asshama, tags: ['asshama'] }
     - { role: arr_db, tags: ['arr-db'] }
     - { role: authelia, tags: ['authelia', 'authelia-reset', 'lldap-reset'] }
+    - { role: authentik, tags: ['authentik'] }
     - { role: autobrr, tags: ['autobrr'] }
     - { role: autoheal, tags: ['autoheal'] }
     - { role: autoscan, tags: ['autoscan'] }

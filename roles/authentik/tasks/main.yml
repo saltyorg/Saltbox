@@ -1,0 +1,99 @@
+#########################################################################
+# Title:         Saltbox: Authentik Role                                #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Remove existing Docker containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  vars:
+    var_prefix: "{{ item }}"
+  loop:
+    - "{{ authentik_name }}"
+    - "authentik-redis"
+    - "authentik-postgres"
+    - "authentik-worker"
+
+- name: Check if '{{ authentik_paths_location }}' exists
+  ansible.builtin.stat:
+    path: "{{ authentik_paths_location }}"
+  register: authentik_data_folder
+
+- name: Generate Bootstrap Token
+  ansible.builtin.set_fact:
+    authentik_bootstrap_token: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50) }}"
+
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: "Import Redis Role"
+  ansible.builtin.include_role:
+    name: redis
+  vars:
+    redis_instances: ["authentik-redis"]
+    redis_docker_image_tag: "alpine"
+    redis_paths_folder: "{{ authentik_paths_folder }}/redis"
+    redis_paths_location: "{{ server_appdata_path }}/{{ redis_paths_folder }}"
+    redis_docker_commands_default:
+      - "--save 60 1 --loglevel warning"
+
+- name: "Import Postgres Role"
+  ansible.builtin.include_role:
+    name: postgres
+  vars:
+    postgres_instances: ["authentik-postgres"]
+    postgres_docker_image_tag: "12-alpine"
+    postgres_paths_folder: "{{ authentik_paths_folder }}/postgres"
+    postgres_paths_location: "{{ server_appdata_path }}/{{ postgres_paths_folder }}"
+    postgres_docker_env_db: "authentik"
+
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
+    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+
+- name: "Load Authentik Saltbox facts"
+  saltbox_facts:
+    role: "authentik"
+    instance: "authentik"
+    method: "load"
+    keys:
+      secret_key: ""
+  register: authentik_saltbox_facts_tmp
+
+- name: "Save Authentik Saltbox facts"
+  saltbox_facts:
+    role: "authentik"
+    instance: "authentik"
+    method: "save"
+    keys:
+      secret_key: "{{ authentik_saltbox_facts_tmp.facts.secret_key | default(lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50)) }}"
+
+- name: "Load Authentik Saltbox facts"
+  saltbox_facts:
+    role: "authentik"
+    instance: "authentik"
+    method: "load"
+    keys:
+      secret_key: ""
+  register: authentik_saltbox_facts
+
+- name: Create Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+- name: "Import Authentik Worker Role"
+  ansible.builtin.include_role:
+    name: authentik_worker
+
+- name: Setup Toggle
+  ansible.builtin.set_fact:
+    authentik_setup: "{{ false if authentik_data_folder.stat.exists else true }}"
+
+- name: Setup Task
+  ansible.builtin.import_tasks: "subtasks/setup.yml"
+  when: authentik_setup

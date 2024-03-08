@@ -1,0 +1,249 @@
+#########################################################################
+# Title:         Saltbox: Authentik | Setup Tasks                       #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Validate bootstrap token (retry until Authentik is ready)
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/me/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Accept: "application/json"
+    status_code: 200
+  retries: 60
+  delay: 10
+
+- name: Create new admin user
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      username: "{{ user.name }}"
+      name: "{{ user.name }}"
+      email: "{{ user.email }}"
+      is_active: true
+    status_code: 201
+  register: new_user_response
+
+- name: Set new admin user's password
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/{{ new_user_response.json.pk }}/set_password/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      password: "{{ user.pass }}"
+    status_code: 204
+
+- name: Create new admin group
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/groups/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      name: "admins"
+      is_superuser: true
+      parent: null
+      users:
+        - "{{ new_user_response.json.pk }}"
+    status_code: 201
+
+- name: Create token for new admin user
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/tokens/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      user: "{{ new_user_response.json.pk }}"
+      identifier: "saltbox-api-token"
+      expiring: false
+      name: "Saltbox API Token"
+    status_code: 201
+
+- name: Get token for new admin user
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/tokens/saltbox-api-token/view_key/"
+    method: GET
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_bootstrap_token }}"
+      Accept: "application/json"
+    status_code: 200
+  register: view_token_response
+
+- name: Store Token in variable
+  ansible.builtin.set_fact:
+    authentik_admin_token: "{{ view_token_response.json.key }}"
+
+- name: "Save facts for a specific instance"
+  saltbox_facts:
+    role: "authentik"
+    instance: "authentik"
+    method: "save"
+    keys:
+      api_token: "{{ authentik_admin_token }}"
+
+- name: Retrieve flow instances
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/flows/instances/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Accept: "application/json"
+    status_code: 200
+  register: flow_instances
+
+- name: set_fact authorization flow
+  ansible.builtin.set_fact:
+    authentik_authorization_flow_uuid: "{{ item.pk }}"
+  loop: "{{ flow_instances.json.results }}"
+  when: item.slug == "default-provider-authorization-explicit-consent"
+
+- name: Create Traefik Forward Auth provider
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/providers/proxy/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      name: "Traefik Forward Auth"
+      authorization_flow: "{{ authentik_authorization_flow_uuid }}"
+      cookie_domain: "{{ authentik_web_domain }}"
+      external_host: "{{ authentik_web_url }}"
+      mode: "forward_domain"
+      access_token_validity: "hours=24"
+    status_code: 201
+  register: proxy_providers
+
+- name: Create Traefik Forward Auth application
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/applications/"
+    method: POST
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      name: "Traefik Forward Auth"
+      slug: "traefik-forward-auth"
+      provider: "{{ proxy_providers.json.pk }}"
+    status_code: 201
+  register: forward_auth_application
+
+- name: Retrieve Outposts
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/outposts/instances/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Accept: "application/json"
+    status_code: 200
+  register: outposts
+
+- name: Edit Embedded Outpost
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/outposts/instances/{{ outposts.json.results[0].pk }}/"
+    method: PATCH
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      providers:
+        - "{{ proxy_providers.json.pk }}"
+    status_code: 200
+
+- name: Remove existing Docker containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  vars:
+    var_prefix: "{{ item }}"
+  loop:
+    - "authentik"
+    - "authentik-worker"
+
+- name: Check if '{{ authentik_paths_location }}' exists
+  ansible.builtin.stat:
+    path: "{{ authentik_paths_location }}"
+  register: authentik_data_folder
+
+- name: Create Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+- name: "Import Authentik Worker Role"
+  ansible.builtin.include_role:
+    name: authentik_worker
+
+- name: Validate Saltbox token (retry until Authentik is ready)
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/me/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Accept: "application/json"
+    status_code: 200
+  retries: 30
+  delay: 10
+
+- name: Delete authentik-bootstrap-token
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/tokens/authentik-bootstrap-token/"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Accept: "application/json"
+    status_code: 204
+
+- name: Get Users
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Accept: "application/json"
+    status_code: 200
+  register: get_users_response
+
+- name: fact
+  ansible.builtin.set_fact:
+    akadmin_id: "{{ item.pk }}"
+  loop: "{{ get_users_response.json.results }}"
+  when: item.username == authentik_default_user
+
+- name: Disable akadmin user
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/users/{{ akadmin_id }}/"
+    method: PATCH
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      is_active: false
+    status_code: 200

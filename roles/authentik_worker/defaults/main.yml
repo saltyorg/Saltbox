@@ -1,0 +1,115 @@
+##########################################################################
+# Title:         Saltbox: Authentik Worker | Default Variables           #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+authentik_worker_name: authentik-worker
+
+################################
+# Docker
+################################
+
+# Container
+authentik_worker_docker_container: "{{ authentik_worker_name }}"
+
+# Image
+authentik_worker_docker_image_pull: true
+authentik_worker_docker_image_tag: "2024.2.2"
+authentik_worker_docker_image: "ghcr.io/goauthentik/server:{{ authentik_worker_docker_image_tag }}"
+
+# Ports
+authentik_worker_docker_ports_defaults: []
+authentik_worker_docker_ports_custom: []
+authentik_worker_docker_ports: "{{ authentik_worker_docker_ports_defaults
+                                   + authentik_worker_docker_ports_custom }}"
+
+# Envs
+authentik_worker_docker_envs_default:
+  AUTHENTIK_REDIS__HOST: authentik-redis
+  AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+  AUTHENTIK_POSTGRESQL__USER: "{{ postgres_docker_env_user }}"
+  AUTHENTIK_POSTGRESQL__NAME: "authentik"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ postgres_docker_env_password }}"
+  AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
+  AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit if authentik_data_folder.stat.exists else authentik_bootstrap_token }}"
+authentik_worker_docker_envs_custom: {}
+authentik_worker_docker_envs: "{{ authentik_worker_docker_envs_default
+                                  | combine(authentik_worker_docker_envs_custom) }}"
+
+# Commands
+authentik_worker_docker_commands_default:
+  - "worker"
+authentik_worker_docker_commands_custom: []
+authentik_worker_docker_commands: "{{ authentik_worker_docker_commands_default
+                                      + authentik_worker_docker_commands_custom }}"
+
+# Volumes
+authentik_worker_docker_volumes_default:
+  - "{{ server_appdata_path }}/authentik/media:/media"
+  - "{{ server_appdata_path }}/authentik/custom-templates:/templates"
+  - "{{ server_appdata_path }}/authentik/certs:/certs"
+authentik_worker_docker_volumes_custom: []
+authentik_worker_docker_volumes: "{{ authentik_worker_docker_volumes_default
+                                     + authentik_worker_docker_volumes_custom }}"
+
+# Devices
+authentik_worker_docker_devices_default: []
+authentik_worker_docker_devices_custom: []
+authentik_worker_docker_devices: "{{ authentik_worker_docker_devices_default
+                                     + authentik_worker_docker_devices_custom }}"
+
+# Hosts
+authentik_worker_docker_hosts_default: []
+authentik_worker_docker_hosts_custom: []
+authentik_worker_docker_hosts: "{{ docker_hosts_common
+                                   | combine(authentik_worker_docker_hosts_default)
+                                   | combine(authentik_worker_docker_hosts_custom) }}"
+
+# Labels
+authentik_worker_docker_labels_default: {}
+authentik_worker_docker_labels_custom: {}
+authentik_worker_docker_labels: "{{ docker_labels_common
+                                    | combine(authentik_worker_docker_labels_default)
+                                    | combine(authentik_worker_docker_labels_custom) }}"
+
+# Hostname
+authentik_worker_docker_hostname: "{{ authentik_worker_name }}"
+
+# Networks
+authentik_worker_docker_networks_alias: "{{ authentik_worker_name }}"
+authentik_worker_docker_networks_default: []
+authentik_worker_docker_networks_custom: []
+authentik_worker_docker_networks: "{{ docker_networks_common
+                                      + authentik_worker_docker_networks_default
+                                      + authentik_worker_docker_networks_custom }}"
+
+# Capabilities
+authentik_worker_docker_capabilities_default: []
+authentik_worker_docker_capabilities_custom: []
+authentik_worker_docker_capabilities: "{{ authentik_worker_docker_capabilities_default
+                                          + authentik_worker_docker_capabilities_custom }}"
+
+# Security Opts
+authentik_worker_docker_security_opts_default: []
+authentik_worker_docker_security_opts_custom: []
+authentik_worker_docker_security_opts: "{{ authentik_worker_docker_security_opts_default
+                                           + authentik_worker_docker_security_opts_custom }}"
+
+# Restart Policy
+authentik_worker_docker_restart_policy: unless-stopped
+
+# State
+authentik_worker_docker_state: started
+
+# Dependencies
+authentik_worker_depends_on: "authentik-redis,authentik-postgres"
+authentik_worker_depends_on_delay: "0"
+authentik_worker_depends_on_healthchecks: "false"
