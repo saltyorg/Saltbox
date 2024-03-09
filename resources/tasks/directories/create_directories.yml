@@ -11,9 +11,9 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
+    owner: "{{ lookup('vars', role_name + '_paths_owner', default=user.name) }}"
+    group: "{{ lookup('vars', role_name + '_paths_group', default=user.name) }}"
+    mode: "{{ lookup('vars', role_name + '_paths_permissions', default='0775') }}"
     recurse: "{{ lookup('vars', role_name + '_paths_recursive', default=false) }}"
   with_items: "{{ lookup('vars', role_name + '_paths_folders_list')
                   + lookup('vars', role_name + '_paths_folders_list_custom', default=[]) }}"
