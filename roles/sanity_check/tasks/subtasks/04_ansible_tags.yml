@@ -7,23 +7,34 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Ansible Tags | Get all available Ansible tags
+- name: Check for tags cache file
+  ansible.builtin.stat:
+    path: /srv/git/sb/cache.json
+  register: cache_file_stat
+
+- name: Load tags from cache if available
+  ansible.builtin.set_fact:
+    loaded_tags: "{{ (lookup('file', '/srv/git/sb/cache.json') | from_json)['/srv/git/saltbox']['tags'] + sanity_check_ansible_tags_extra }}"
+  when: cache_file_stat.stat.exists and sanity_check_use_cache
+
+- name: Get all available Ansible tags if cache is not available
   ansible.builtin.shell: "{{ sanity_check_ansible_tags_lookup_command }}"
   register: available_ansible_tags
   changed_when: false
-  when: (not continuous_integration)
-        and ('saltbox_mod' not in playbook_dir)
-        and ('sandbox' not in playbook_dir)
+  when: not cache_file_stat.stat.exists
+
+- name: Set loaded tags from command if cache is not available
+  ansible.builtin.set_fact:
+    loaded_tags: "{{ available_ansible_tags.stdout_lines }}"
+  when: not cache_file_stat.stat.exists
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
   ansible.builtin.assert:
     that:
-      - item in available_ansible_tags.stdout_lines
+      - item in loaded_tags
     msg: >-
       You must supply valid tag(s)
-      (get a list of valid tags by running 'sb list')
+      (get a list of valid tags by running 'sb list' or check the meta tags)
     quiet: true
   with_items: "{{ ansible_run_tags }}"
-  when: (not continuous_integration)
-        and ('saltbox_mod' not in playbook_dir)
-        and ('sandbox' not in playbook_dir)
+  when: (not continuous_integration) and ('saltbox_mod' not in playbook_dir) and ('sandbox' not in playbook_dir)

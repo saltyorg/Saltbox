@@ -42,3 +42,7 @@
 - name: Repository Check
   ansible.builtin.import_tasks: "subtasks/09_repo.yml"
   tags: always
+
+- name: CPU Check
+  ansible.builtin.import_tasks: "subtasks/10_cpu.yml"
+  tags: always
