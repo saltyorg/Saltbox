@@ -79,7 +79,7 @@ authentik_docker_image: "ghcr.io/goauthentik/server:{{ authentik_docker_image_ta
 authentik_docker_ports_defaults: []
 authentik_docker_ports_custom: []
 authentik_docker_ports: "{{ authentik_docker_ports_defaults
-                          + authentik_docker_ports_custom }}"
+                            + authentik_docker_ports_custom }}"
 
 # Envs
 authentik_docker_envs_default:

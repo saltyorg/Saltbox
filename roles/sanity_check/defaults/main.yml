@@ -15,6 +15,12 @@ sanity_check_ansible_tags_lookup_command: |
     ansible-playbook saltbox.yml --list-tags 2>&1 | grep "TASK TAGS" \
       | cut -d":" -f2 | awk '{sub(/\[/, "")sub(/\]/, "")}1' | sed -e 's/,//g' | xargs -n 1 | sort -u
 
+sanity_check_ansible_tags_extra:
+  - "sanity-check"
+  - "pre-tasks"
+
+sanity_check_use_cache: true
+
 ################################
 # Backup
 ################################
@@ -35,3 +41,14 @@ sanity_check_logs_logfile_path: "{{ playbook_dir }}/saltbox.log"
 
 sanity_check_up_to_date: "Saltbox is running the latest commit for branch: {{ git_branch.stdout }}"
 sanity_check_not_up_to_date: "Saltbox is not using the newest commit for branch: {{ git_branch.stdout }} - {{ git_origin_version.stdout }}"
+
+################################
+# CPU Check
+################################
+
+x86_64_versions:
+  x86_64v2: ['sse4_2', 'popcnt']
+  x86_64v3: ['avx', 'f16c', 'rdrand']
+  x86_64v4: ['avx2', 'bmi1', 'bmi2', 'movbe', 'hle', 'rtm']
+
+supported_versions: []

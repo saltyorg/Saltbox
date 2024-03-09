@@ -1,0 +1,23 @@
+#########################################################################
+# Title:         Saltbox: Sanity Check | CPU Check                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: CPU Check | Get CPU details from /proc/cpuinfo
+  ansible.builtin.shell:
+    cmd: "grep flags /proc/cpuinfo | uniq | sed 's/flags.*: //'"
+  register: cpu_flags
+
+- name: CPU Check | Determine supported x86-64 versions based on CPU flags
+  ansible.builtin.set_fact:
+    supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
+  loop: "{{ lookup('dict', x86_64_versions) }}"
+  when: "item.value | difference(cpu_flags.stdout.split()) | length == 0"
+
+- name: CPU Check | Print the supported x86-64 versions
+  ansible.builtin.debug:
+    msg: "Supported x86-64 versions: {{ supported_versions | join(', ') }}"
