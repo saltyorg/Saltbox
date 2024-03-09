@@ -56,6 +56,7 @@ authentik_worker_docker_volumes_default:
   - "{{ server_appdata_path }}/authentik/media:/media"
   - "{{ server_appdata_path }}/authentik/custom-templates:/templates"
   - "{{ server_appdata_path }}/authentik/certs:/certs"
+  - "/var/run/docker.sock:/var/run/docker.sock"
 authentik_worker_docker_volumes_custom: []
 authentik_worker_docker_volumes: "{{ authentik_worker_docker_volumes_default
                                      + authentik_worker_docker_volumes_custom }}"
@@ -113,3 +114,6 @@ authentik_worker_docker_state: started
 authentik_worker_depends_on: "authentik-redis,authentik-postgres"
 authentik_worker_depends_on_delay: "0"
 authentik_worker_depends_on_healthchecks: "false"
+
+# User
+authentik_worker_docker_user: "root"
