@@ -476,6 +476,8 @@ reboot_is_necessary: false
 skip_dns: "{{ not (dns.ipv4 or dns.ipv6) }}"
 role_dns_enabled: "{{ lookup('vars', role_name + '_dns_enabled', default=true) | bool }}"
 docker_legacy_volume: false
+ansible_retry_count: "2"
+ansible_retry_count_ci: "5"
 
 ################################
 # Backup

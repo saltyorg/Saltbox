@@ -18,7 +18,7 @@
     dest: /etc/apt/trusted.gpg.d/deadsnakes.asc
     mode: "0644"
   register: result
-  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 
@@ -34,7 +34,7 @@
     repo: "{{ python_apt_repo_url }}"
     filename: "deadsnakes"
   register: result
-  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 
