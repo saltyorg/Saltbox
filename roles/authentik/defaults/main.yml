@@ -135,7 +135,7 @@ authentik_docker_hosts: "{{ docker_hosts_common
 authentik_docker_labels_default:
   traefik.http.routers.authentik-outpost.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
   traefik.http.routers.authentik-outpost.priority: "99"
-  traefik.http.routers.authentik.service: "authentik-outpost"
+  traefik.http.routers.authentik-outpost.service: "authentik-outpost"
   traefik.http.services.authentik-outpost.loadbalancer.server.port: "9000"
 authentik_docker_labels_custom: {}
 authentik_docker_labels: "{{ docker_labels_common
