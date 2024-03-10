@@ -44,11 +44,12 @@
   ansible.builtin.include_role:
     name: postgres
   vars:
-    postgres_instances: ["authentik-postgres"]
-    postgres_docker_image_tag: "12-alpine"
+    postgres_instances: ["{{ authentik_postgres_name }}"]
+    postgres_docker_image_tag: "{{ authentik_postgres_image_tag }}"
+    postgres_docker_image_repo: "{{ authentik_postgres_image_repo }}"
     postgres_paths_folder: "{{ authentik_paths_folder }}/postgres"
     postgres_paths_location: "{{ server_appdata_path }}/{{ postgres_paths_folder }}"
-    postgres_docker_env_db: "authentik"
+    postgres_docker_env_db: "{{ authentik_postgres_docker_env_db }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"

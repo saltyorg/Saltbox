@@ -14,6 +14,15 @@
 authentik_name: authentik
 
 ################################
+# Settings
+################################
+
+authentik_postgres_name: "{{ authentik_name }}-postgres"
+authentik_postgres_docker_env_db: "authentik"
+authentik_postgres_docker_image_tag: "12-alpine"
+authentik_postgres_docker_image_repo: "postgres"
+
+################################
 # Paths
 ################################
 
