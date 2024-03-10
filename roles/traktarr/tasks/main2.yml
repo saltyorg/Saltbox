@@ -62,11 +62,19 @@
     state: absent
   when: traktarr_venv_folder.stat.exists
 
+- name: Create venv
+  ansible.builtin.command:
+    cmd: "{{ traktarr_python }} -m venv /opt/{{ traktarr_name }}/venv"
+  args:
+    creates: "/opt/{{ traktarr_name }}/venv"
+  become: true
+  become_user: "{{ user.name }}"
+
 - name: Install pip requirements
   ansible.builtin.pip:
-    requirements: /opt/{{ traktarr_name }}/requirements.txt
-    virtualenv_python: "{{ traktarr_python }}"
+    requirements: "/opt/{{ traktarr_name }}/requirements.txt"
     virtualenv: "/opt/{{ traktarr_name }}/venv"
+    virtualenv_command: "/opt/{{ traktarr_name }}/venv/bin/python3 -m pip"
   become: true
   become_user: "{{ user.name }}"
 

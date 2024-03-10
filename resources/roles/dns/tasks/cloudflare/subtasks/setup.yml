@@ -60,11 +60,19 @@
         state: absent
       when: cloudflare_venv_folder.stat.exists
 
-    - name: Cloudflare | Setup | Install pip requirements
+    - name: Cloudflare | Create venv
+      ansible.builtin.command:
+        cmd: "{{ cloudflare_python }} -m venv {{ cloudflare_venv_path }}"
+      args:
+        creates: "{{ cloudflare_venv_path }}"
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: Cloudflare | Install pip requirements
       ansible.builtin.pip:
         requirements: "{{ cloudflare_requirements_path }}"
-        virtualenv_python: "{{ cloudflare_python }}"
         virtualenv: "{{ cloudflare_venv_path }}"
+        virtualenv_command: "{{ cloudflare_venv_path }}/bin/python3 -m pip"
       become: true
       become_user: "{{ user.name }}"
 
