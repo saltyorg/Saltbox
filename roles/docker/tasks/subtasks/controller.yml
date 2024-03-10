@@ -24,11 +24,19 @@
     state: absent
   when: docker_controller_venv.stat.exists
 
+- name: Controller | Create venv
+  ansible.builtin.command:
+    cmd: "{{ docker_controller_python_version }} -m venv /srv/docker-controller/venv"
+  args:
+    creates: /srv/docker-controller/venv
+  become: true
+  become_user: "{{ user.name }}"
+
 - name: Controller | Install pip requirements
   ansible.builtin.pip:
     requirements: "/srv/git/saltbox/scripts/saltbox_docker_controller_requirements.txt"
-    virtualenv_python: "{{ docker_controller_python_version }}"
     virtualenv: "/srv/docker-controller/venv"
+    virtualenv_command: "/srv/docker-controller/venv/bin/python3 -m pip"
   become: true
   become_user: "{{ user.name }}"
 
