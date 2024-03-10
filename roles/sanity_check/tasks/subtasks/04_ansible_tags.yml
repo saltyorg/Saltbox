@@ -15,18 +15,18 @@
 - name: Ansible Tags | Load tags from cache if available
   ansible.builtin.set_fact:
     loaded_tags: "{{ (lookup('file', '/srv/git/sb/cache.json') | from_json)['/srv/git/saltbox']['tags'] + sanity_check_ansible_tags_extra }}"
-  when: cache_file_stat.stat.exists and sanity_check_use_cache
+  when: cache_file_stat.stat.exists and (sanity_check_use_cache | bool)
 
 - name: Ansible Tags | Get all available Ansible tags if cache is not available
   ansible.builtin.shell: "{{ sanity_check_ansible_tags_lookup_command }}"
   register: available_ansible_tags
   changed_when: false
-  when: (not cache_file_stat.stat.exists) or (not sanity_check_use_cache)
+  when: loaded_tags is undefined
 
 - name: Ansible Tags | Set loaded tags from command if cache is not available
   ansible.builtin.set_fact:
     loaded_tags: "{{ available_ansible_tags.stdout_lines }}"
-  when: (not cache_file_stat.stat.exists) or (not sanity_check_use_cache)
+  when: loaded_tags is undefined
 
 - name: Ansible Tags | Ensure valid Ansible tag(s) were provided
   ansible.builtin.assert:
