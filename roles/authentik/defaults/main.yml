@@ -133,9 +133,19 @@ authentik_docker_hosts: "{{ docker_hosts_common
 
 # Labels
 authentik_docker_labels_default:
-  traefik.http.routers.authentik-outpost.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
-  traefik.http.routers.authentik-outpost.priority: "99"
+  traefik.http.routers.authentik-outpost-http.entrypoints: "web"
+  traefik.http.routers.authentik-outpost-http.service: "authentik-outpost-http"
+  traefik.http.routers.authentik-outpost-http.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
+  traefik.http.routers.authentik-outpost-http.middlewares: "{{ traefik_default_middleware_http }}"
+  traefik.http.routers.authentik-outpost-http.priority: "99"
+  traefik.http.routers.authentik-outpost.entrypoints: "websecure"
   traefik.http.routers.authentik-outpost.service: "authentik-outpost"
+  traefik.http.routers.authentik-outpost.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
+  traefik.http.routers.authentik-outpost.tls.options: "securetls@file"
+  traefik.http.routers.authentik-outpost.tls.certresolver: "{{ authentik_traefik_certresolver }}"
+  traefik.http.routers.authentik-outpost.middlewares: "{{ traefik_default_middleware }}"
+  traefik.http.routers.authentik-outpost.priority: "99"
+  traefik.http.services.authentik-outpost-http.loadbalancer.server.port: "9000"
   traefik.http.services.authentik-outpost.loadbalancer.server.port: "9000"
 authentik_docker_labels_custom: {}
 authentik_docker_labels: "{{ docker_labels_common
