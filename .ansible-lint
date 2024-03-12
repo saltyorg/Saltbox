@@ -15,6 +15,7 @@ offline: false
 mock_modules:
   - find_open_port
   - saltbox_facts
+  - qbittorrent_passwd
 
 skip_list:
   - braces
