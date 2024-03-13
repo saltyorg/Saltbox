@@ -7,12 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Snapshot | Set default variables
-  ansible.builtin.set_fact:
-    snapshot_type: ""
-    backup_opt_path: "/opt/"
-    use_snapshot: false
-
 - name: "Snapshot | Determine '/' filesystem type"
   ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
