@@ -38,3 +38,11 @@ backup_sftp_template: ""
 backup_cleanup_number: 99
 backup_cleanup_enabled: false
 backup_cleanup_custom_rclone_flags: ""
+
+################################
+# Snapshot Defaults
+################################
+
+snapshot_type: ""
+backup_opt_path: "/opt/"
+use_snapshot: false
