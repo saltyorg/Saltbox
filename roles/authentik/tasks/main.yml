@@ -58,30 +58,12 @@
     dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
     dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
 
-- name: "Load Authentik Saltbox facts"
-  saltbox_facts:
-    role: "authentik"
-    instance: "authentik"
-    method: "load"
-    keys:
-      secret_key: ""
-  register: authentik_saltbox_facts_tmp
-
 - name: "Save Authentik Saltbox facts"
   saltbox_facts:
     role: "authentik"
     instance: "authentik"
-    method: "save"
     keys:
-      secret_key: "{{ authentik_saltbox_facts_tmp.facts.secret_key | default(lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50)) }}"
-
-- name: "Load Authentik Saltbox facts"
-  saltbox_facts:
-    role: "authentik"
-    instance: "authentik"
-    method: "load"
-    keys:
-      secret_key: ""
+      secret_key: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50) }}"
   register: authentik_saltbox_facts
 
 - name: Create Docker container

@@ -100,7 +100,6 @@
   saltbox_facts:
     role: "authentik"
     instance: "authentik"
-    method: "save"
     keys:
       api_token: "{{ authentik_admin_token }}"
 
