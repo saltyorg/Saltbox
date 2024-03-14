@@ -3,7 +3,9 @@
 #                   Authelia configuration                    #
 ###############################################################
 
-jwt_secret: {{ authelia_jwt_secret }}
+identity_validation:
+  reset_password:
+    jwt_secret: {{ authelia_jwt_secret }}
 
 # Options are light, dark, grey or auto
 theme: {{ authelia_theme }}
@@ -15,17 +17,16 @@ default_redirection_url: {{ authelia_default_redirection_url }}
 default_2fa_method: "{{ authelia_default_2fa_method }}"
 
 server:
-  host: {{ authelia_server_host }}
-  port: {{ authelia_server_port }}
-  path: "{{ authelia_server_path }}"
+  address: {{ authelia_server_address }}
   buffers:
     read: {{ authelia_server_buffers_read }}
     write: {{ authelia_server_buffers_write }}
-  enable_pprof: {{ authelia_server_enable_pprof }}
-  enable_expvars: {{ authelia_server_enable_expvars }}
   disable_healthcheck: {{ authelia_server_disable_healthcheck }}
   headers:
     csp_template: "{{ authelia_server_headers_csp_template }}"
+  endpoints:
+    enable_pprof: {{ authelia_server_enable_pprof }}
+    enable_expvars: {{ authelia_server_enable_expvars }}
 
 log:
   level: {{ authelia_log_level }}
@@ -89,7 +90,7 @@ authentication_backend:
 {% if authelia_authentication_backend == 'ldap' %}
   ldap:
     implementation: custom
-    url: ldap://lldap:3890
+    address: ldap://lldap:3890
     start_tls: false
     tls:
       skip_verify: true
@@ -99,11 +100,14 @@ authentication_backend:
     users_filter: "(&({username_attribute}={input})(objectClass=person))"
     additional_groups_dn: ou=groups
     groups_filter: "(member={dn})"
-    group_name_attribute: cn
-    mail_attribute: mail
-    display_name_attribute: displayName
+    
     user: uid={{ user.name }},ou=people,dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}
     password: {{ user.pass }}
+    attributes:
+      group_name: cn
+      display_name: displayName
+      mail: mail
+
 {% endif %}
 
 password_policy:
@@ -132,12 +136,19 @@ session:
   secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
   expiration: 1h
   inactivity: 5m
-  remember_me_duration: 1M
+  remember_me: 1M
   same_site: lax
-  domain: {{ user.domain | lower }}
   redis:
     host: authelia-redis
     port: 6379
+  cookies:
+    - domain: {{ authelia_web_domain | lower }}
+      authelia_url: {{ authelia_web_url | lower }}
+      name: authelia_{{ authelia_web_domain | lower }}
+      same_site: lax
+      inactivity: 5m
+      expiration: 1h
+      remember_me: 1M
 
 regulation:
   max_retries: 3

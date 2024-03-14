@@ -78,9 +78,7 @@ authelia_notifier_smtp_tls_minimum_version: ""
 # Settings for Authelia's server
 # Reference: https://www.authelia.com/configuration/miscellaneous/server/
 # https://www.authelia.com/c/server#buffer-sizes
-authelia_server_host: "0.0.0.0"
-authelia_server_port: "9091"
-authelia_server_path: ""
+authelia_server_address: "0.0.0.0:9091"
 authelia_server_buffers_read: "10485760"
 authelia_server_buffers_write: "10485760"
 authelia_server_enable_pprof: "false"
@@ -200,7 +198,7 @@ authelia_docker_container: "{{ authelia_name }}"
 
 # Image
 authelia_docker_image_pull: true
-authelia_docker_image_tag: "4.37"
+authelia_docker_image_tag: "4.38"
 authelia_docker_image: "authelia/authelia:{{ authelia_docker_image_tag }}"
 
 # Ports
