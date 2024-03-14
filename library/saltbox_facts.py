@@ -7,60 +7,66 @@ import os
 def get_file_path(role):
     return f"/opt/saltbox/{role}.ini"
 
-def load_facts(file_path, instance, keys):
+def load_and_save_facts(file_path, instance, keys):
     config = configparser.ConfigParser()
     config.read(file_path)
-    facts = {key: config[instance].get(key) for key in keys if config.has_option(instance, key)}
-    return facts
 
-def save_facts(file_path, instance, keys):
-    config = configparser.ConfigParser()
-    config.read(file_path)
+    facts = {}
+    changed = False
     if not config.has_section(instance):
         config.add_section(instance)
-    for key, value in keys.items():
-        config.set(instance, key, value)
-    with open(file_path, 'w') as configfile:
-        config.write(configfile)
+        changed = True
+
+    for key, default_value in keys.items():
+        if config.has_option(instance, key):
+            facts[key] = config[instance].get(key)
+        else:
+            facts[key] = default_value
+            config.set(instance, key, default_value)
+            changed = True
+
+    if changed:
+        with open(file_path, 'w') as configfile:
+            config.write(configfile)
+
+    return facts, changed
 
 def delete_facts(file_path, delete_type, instance, keys):
     config = configparser.ConfigParser()
     config.read(file_path)
-    if delete_type == 'role':
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return True
-    elif delete_type == 'instance':
-        if config.has_section(instance):
-            config.remove_section(instance)
-            with open(file_path, 'w') as configfile:
-                config.write(configfile)
-            return True
-    elif delete_type == 'key':
-        if config.has_section(instance):
-            changed = False
-            for key in keys:
-                if config.has_option(instance, key):
-                    config.remove_option(instance, key)
-                    changed = True
-            if changed:
-                with open(file_path, 'w') as configfile:
-                    config.write(configfile)
-            return changed
-    return False
+    changed = False
+
+    if delete_type == 'role' and os.path.exists(file_path):
+        os.remove(file_path)
+        changed = True
+    elif delete_type == 'instance' and config.has_section(instance):
+        config.remove_section(instance)
+        changed = True
+    elif delete_type == 'key' and config.has_section(instance):
+        for key in keys:
+            if config.has_option(instance, key):
+                config.remove_option(instance, key)
+                changed = True
+
+    if changed:
+        with open(file_path, 'w') as configfile:
+            config.write(configfile)
+
+    return changed
 
 def run_module():
     module_args = dict(
         role=dict(type='str', required=True),
-        instance=dict(type='str', required=False, default=''),
-        method=dict(type='str', choices=['load', 'save', 'delete'], required=True),
+        instance=dict(type='str', required=True),
+        method=dict(type='str', choices=['load', 'save', 'delete'], required=False, default='save'),
         keys=dict(type='dict', required=False, default={}),
         delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False)
     )
 
     result = dict(
         changed=False,
-        message=''
+        message='',
+        facts={}
     )
 
     module = AnsibleModule(
@@ -78,27 +84,10 @@ def run_module():
 
     if method == 'delete':
         if not delete_type:
-            module.fail_json(msg="delete_type is required for method 'delete'.")
-        elif delete_type == 'role' and not role:
-            module.fail_json(msg="Role is required for delete_type 'role'.")
-        elif delete_type == 'instance' and not instance:
-            module.fail_json(msg="Instance is required for delete_type 'instance'.")
-        elif delete_type == 'key' and (not keys):
-            module.fail_json(msg="Keys are required for delete_type 'key'.")
+            module.fail_json(msg="delete_type is required for delete method.")
         result['changed'] = delete_facts(file_path, delete_type, instance, keys)
-    elif method == 'load':
-        if not instance:
-            module.fail_json(msg="Instance is required for method 'load'.")
-        if not keys:
-            module.fail_json(msg="Keys are required for method 'load'.")
-        result['facts'] = load_facts(file_path, instance, list(keys.keys()))
-    elif method == 'save':
-        if not instance:
-            module.fail_json(msg="Instance is required for method 'save'.")
-        save_facts(file_path, instance, keys)
-        result['changed'] = True
-    else:
-        module.fail_json(msg=f"Unsupported method: {method}")
+    else:  # Default to combined load/save functionality
+        result['facts'], result['changed'] = load_and_save_facts(file_path, instance, keys)
 
     module.exit_json(**result)
 
