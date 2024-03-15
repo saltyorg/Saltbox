@@ -87,9 +87,9 @@ dozzle_docker_ports: "{{ dozzle_docker_ports_defaults
 # Envs
 dozzle_docker_envs_default:
   DOZZLE_AUTH_PROVIDER: "{{ 'forward-proxy' if (dozzle_traefik_sso_middleware | length > 0) else omit }}"
-  DOZZLE_REMOTE_HOST: "('tcp://' + {{ dozzle_name }} + '-docker-socket-proxy:2375|' + {{ traefik_host }} + ',' + {{ dozzle_additional_hosts }})
+  DOZZLE_REMOTE_HOST: "{{ 'tcp://' + {{ dozzle_name }} + '-docker-socket-proxy:2375|' + {{ traefik_host }} + ',' + {{ dozzle_additional_hosts }}
                           if (dozzle_additional_hosts | length > 0)
-                          else ('tcp://' + {{ dozzle_name }} + '-docker-socket-proxy:2375|' + {{ traefik_host }})"
+                          else 'tcp://' + {{ dozzle_name }} + '-docker-socket-proxy:2375|' + {{ traefik_host }}"
 dozzle_docker_envs_custom: {}
 dozzle_docker_envs: "{{ dozzle_docker_envs_default
                         | combine(dozzle_docker_envs_custom) }}"
