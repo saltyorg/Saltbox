@@ -29,7 +29,7 @@
   community.docker.docker_container:
     name: authelia-password-hash
     image: "{{ authelia_docker_image }}"
-    command: "authelia crypto hash generate --config /config/configuration.yml --password '{{ user.pass }}'"
+    command: "authelia crypto hash generate --config /config/configuration.yml --password {{ user.pass | quote }}"
     detach: no
     volumes:
       - "{{ authelia_paths_location }}:/config"
