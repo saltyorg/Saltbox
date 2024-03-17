@@ -160,9 +160,9 @@ nzbhydra2_docker_labels_themepark:
 nzbhydra2_docker_labels: "{{ docker_labels_common
                              | combine(nzbhydra2_docker_labels_default)
                              | combine((lookup('vars', nzbhydra2_name + '_docker_labels_themepark', default=nzbhydra2_docker_labels_themepark)
-                          if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                          else {}),
-                          lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
+                                       if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
+                                       else {}),
+                                       lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
 
 # Hostname
 nzbhydra2_docker_hostname: "{{ nzbhydra2_name }}"

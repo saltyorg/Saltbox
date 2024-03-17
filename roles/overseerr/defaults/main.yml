@@ -137,9 +137,9 @@ overseerr_docker_labels_themepark:
 overseerr_docker_labels: "{{ docker_labels_common
                              | combine(lookup('vars', overseerr_name + '_docker_labels_default', default=overseerr_docker_labels_default))
                              | combine((lookup('vars', overseerr_name + '_docker_labels_themepark', default=overseerr_docker_labels_themepark)
-                          if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
-                          else {}),
-                          lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
+                                       if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
+                                       else {}),
+                                       lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
 
 # Hostname
 overseerr_docker_hostname: "{{ overseerr_name }}"

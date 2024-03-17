@@ -177,9 +177,9 @@ emby_docker_labels_themepark:
 emby_docker_labels: "{{ docker_labels_common
                         | combine(lookup('vars', emby_name + '_docker_labels_default', default=emby_docker_labels_default))
                         | combine((lookup('vars', emby_name + '_docker_labels_themepark', default=emby_docker_labels_themepark)
-                          if (emby_themepark_enabled and global_themepark_plugin_enabled)
-                          else {}),
-                          lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
+                                  if (emby_themepark_enabled and global_themepark_plugin_enabled)
+                                  else {}),
+                                  lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
 
 # Hostname
 emby_docker_hostname: "{{ emby_name }}"

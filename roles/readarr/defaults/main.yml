@@ -54,7 +54,10 @@ readarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 readarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-readarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
+readarr_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', readarr_name + '_name', default=readarr_name)
+                                          if (readarr_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 readarr_traefik_middleware_custom: ""
 readarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 readarr_traefik_enabled: true
@@ -76,6 +79,7 @@ readarr_api_key:
 readarr_themepark_enabled: false
 readarr_themepark_theme: "{{ global_themepark_theme }}"
 readarr_themepark_domain: "{{ global_themepark_domain }}"
+readarr_themepark_addons: ""
 
 ################################
 # Docker
@@ -103,9 +107,6 @@ readarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ lookup('vars', readarr_name + '_themepark_domain', default=readarr_themepark_domain) }}"
-  TP_THEME: "{{ lookup('vars', readarr_name + '_themepark_theme', default=readarr_themepark_theme) }}"
-  TP_HOTIO: "true"
 readarr_docker_envs_custom: {}
 readarr_docker_envs: "{{ lookup('vars', readarr_name + '_docker_envs_default', default=readarr_docker_envs_default)
                          | combine(lookup('vars', readarr_name + '_docker_envs_custom', default=readarr_docker_envs_custom)) }}"
@@ -121,14 +122,8 @@ readarr_docker_volumes_default:
   - "{{ readarr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 readarr_docker_volumes_custom: []
-readarr_docker_volumes_theme:
-  - "{{ readarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
 readarr_docker_volumes: "{{ lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
-                            + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
-                         if not (lookup('vars', readarr_name + '_themepark_enabled', default=readarr_themepark_enabled))
-                         else lookup('vars', readarr_name + '_docker_volumes_default', default=readarr_docker_volumes_default)
-                            + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom)
-                            + lookup('vars', readarr_name + '_docker_volumes_theme', default=readarr_docker_volumes_theme) }}"
+                            + lookup('vars', readarr_name + '_docker_volumes_custom', default=readarr_docker_volumes_custom) }}"
 
 # Devices
 readarr_docker_devices_default: []
@@ -146,9 +141,18 @@ readarr_docker_hosts: "{{ docker_hosts_common
 # Labels
 readarr_docker_labels_default: {}
 readarr_docker_labels_custom: {}
+readarr_docker_labels_themepark:
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", readarr_name + "_name", default=readarr_name) }}.plugin.themepark.app": "readarr" }'
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", readarr_name + "_name", default=readarr_name) }}.plugin.themepark.theme": "{{ lookup("vars", readarr_name + "_themepark_theme", default=readarr_themepark_theme) }}" }'
+  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", readarr_name + "_name", default=readarr_name) }}.plugin.themepark.addons": "{{ (lookup("vars", readarr_name + "_themepark_addons", default=readarr_themepark_addons) | join(","))
+                                                                                                                                         if lookup("vars", readarr_name + "_themepark_addons", default=readarr_themepark_addons) | length > 0
+                                                                                                                                         else omit }}" }'
 readarr_docker_labels: "{{ docker_labels_common
                            | combine(lookup('vars', readarr_name + '_docker_labels_default', default=readarr_docker_labels_default))
-                           | combine(lookup('vars', readarr_name + '_docker_labels_custom', default=readarr_docker_labels_custom)) }}"
+                           | combine((lookup('vars', readarr_name + '_docker_labels_themepark', default=readarr_docker_labels_themepark)
+                                     if (readarr_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', readarr_name + '_docker_labels_custom', default=readarr_docker_labels_custom)) }}"
 
 # Hostname
 readarr_docker_hostname: "{{ readarr_name }}"
