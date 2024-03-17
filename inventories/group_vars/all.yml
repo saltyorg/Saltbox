@@ -329,6 +329,13 @@ traefik_url: "{{ 'https://'
               if (lookup('vars', traefik_role_var + '_web_subdomain', default=lookup('vars', role_name + '_web_subdomain', default='')) | length > 0)
               else lookup('vars', traefik_role_var + '_web_domain', default=lookup('vars', role_name + '_web_domain', default=''))) }}"
 
+traefik_themepark_labels:
+  - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.app": "{{ lookup("vars", traefik_role_var + "_themepark_app", default=role_name) }}" }'
+  - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.theme": "{{ lookup("vars", traefik_role_var + "_themepark_theme", default=lookup("vars", role_name + "_themepark_theme", default="")) }}" }'
+  - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.addons": "{{ (lookup("vars", traefik_role_var + "_themepark_addons", default=lookup("vars", role_name + "_themepark_addons", default="")) | join(","))
+                                                                                           if lookup("vars", traefik_role_var + "_themepark_addons", default=lookup("vars", role_name + "_themepark_addons", default="")) | length > 0
+                                                                                           else omit }}" }'
+
 ################################
 # Docker
 ################################
