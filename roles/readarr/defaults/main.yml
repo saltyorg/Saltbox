@@ -80,7 +80,7 @@ readarr_themepark_enabled: false
 readarr_themepark_app: "readarr"
 readarr_themepark_theme: "{{ global_themepark_theme }}"
 readarr_themepark_domain: "{{ global_themepark_domain }}"
-readarr_themepark_addons: ""
+readarr_themepark_addons: []
 
 ################################
 # Docker
