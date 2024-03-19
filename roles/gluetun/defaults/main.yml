@@ -59,7 +59,7 @@ gluetun_docker_container: "{{ gluetun_name }}"
 # Image
 gluetun_docker_image_pull: true
 gluetun_docker_image_repo: "qmcgaw/gluetun"
-gluetun_docker_image_tag: "latest"
+gluetun_docker_image_tag: "v3"
 gluetun_docker_image: "{{ lookup('vars', gluetun_name + '_docker_image_repo', default=gluetun_docker_image_repo)
                           + ':' + lookup('vars', gluetun_name + '_docker_image_tag', default=gluetun_docker_image_tag) }}"
 
