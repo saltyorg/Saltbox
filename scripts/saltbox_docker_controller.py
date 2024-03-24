@@ -11,6 +11,7 @@ import signal
 
 # Global flag to indicate shutdown
 shutdown_flag = False
+app_ready = False
 
 # Signal handler
 def signal_handler(signum, frame):
@@ -313,6 +314,7 @@ def stop_containers_in_dependency_order(graph: DependencyGraph):
 # FastAPI Application and API Endpoints
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global app_ready
     try:
         # Initialization
         client = docker.from_env()
@@ -322,6 +324,7 @@ async def lifespan(app: FastAPI):
         # Initialize DependencyGraph
         global graph  # Declare graph as global if it's used elsewhere outside this context
         graph = DependencyGraph()
+        app_ready = True  # Indicate that the app is now ready
 
     except Exception as e:
         logging.error(f"An error occurred during application initialization: {e}")
@@ -333,6 +336,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 is_blocked = False
 unblock_task = None
+
+
+@app.get("/ping")
+async def ping():
+    if app_ready:
+        return {"message": "pong"}
+    raise HTTPException(status_code=503, detail="Application not ready")
 
 
 @app.post("/start")

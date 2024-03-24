@@ -40,7 +40,7 @@
   ansible.builtin.wait_for:
     timeout: 30
 
-- name: Unblock Docker Controller
+- name: Docker | Daemon | Unblock Docker Controller
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/unblock"
     method: POST
