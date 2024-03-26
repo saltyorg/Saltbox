@@ -282,6 +282,7 @@ traefik_docker_commands_google_acme:
   - "--certificatesresolvers.google.acme.storage=/etc/traefik/acme.json"
   - "{{ '--certificatesresolvers.google.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
   - "{{ '--certificatesresolvers.google.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
+traefik_docker_commands_google_acme_http:
   - "--certificatesresolvers.googlehttp.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.googlehttp.acme.email={{ user.email }}"
   - "--certificatesresolvers.googlehttp.acme.caserver=https://dv.acme-v02.api.pki.goog/directory"
@@ -337,6 +338,9 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                                else [])
                              + (traefik_docker_commands_google_acme
                                if (traefik_google_kid is defined) and (traefik_google_hmacencoded is defined)
+                               else [])
+                             + (traefik_docker_commands_google_acme_http
+                               if (traefik_google_kid is defined) and (traefik_google_hmacencoded is defined) and (traefik_enable_http_validation)
                                else [])
                              + (traefik_docker_commands_http3
                                if traefik_http3
