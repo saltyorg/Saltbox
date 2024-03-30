@@ -300,7 +300,7 @@ traefik_docker_commands_cloudflarewarp_plugin:
   - "--experimental.plugins.cloudflarewarp.version=v1.3.3"
 traefik_docker_commands_themepark_plugin:
   - "--experimental.plugins.themepark.modulename=github.com/packruler/traefik-themepark"
-  - "--experimental.plugins.themepark.version=v1.3.3"
+  - "--experimental.plugins.themepark.version=v1.4.0"
 traefik_docker_commands_tracing:
   - "--tracing.serviceName=traefik"
   - "--tracing.spanNameLimit=250"
