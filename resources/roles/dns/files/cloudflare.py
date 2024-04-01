@@ -42,7 +42,13 @@ def main():
         while True:
             page_number += 1
             raw_results = cf.zones.dns_records.get(zone_id, params={'name': args.record, 'per_page': 100, 'page': page_number})
-            dns_records = dns_records + raw_results['result']
+
+            if not isinstance(raw_results.get('result'), list):
+                result_list = []
+            else:
+                result_list = raw_results['result']
+
+            dns_records = dns_records + result_list
 
             total_pages = raw_results['result_info']['total_pages']
 
