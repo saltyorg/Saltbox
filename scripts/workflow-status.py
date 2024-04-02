@@ -12,7 +12,7 @@ GITHUB_TOKEN = sys.argv[1]
 GITHUB_REPOSITORY = sys.argv[2]
 GITHUB_RUN_ID = sys.argv[3]
 
-max_attempts = 5
+max_attempts = 10
 page = 1
 conclusion_counts = {status: 0 for status in ["success", "failure", "cancelled", "skipped", "unknown"]}
 
@@ -79,4 +79,4 @@ if 'WORKFLOW_CONCLUSION' not in globals() or WORKFLOW_CONCLUSION != "failure":
     else:
         WORKFLOW_CONCLUSION = "failure"
 
-subprocess.run(f"echo \"WORKFLOW_CONCLUSION={WORKFLOW_CONCLUSION}\" >> $GITHUB_OUTPUT", shell=True, check=True)
+subprocess.run(f"echo \"WORKFLOW_CONCLUSION={WORKFLOW_CONCLUSION}\" >> $GITHUB_ENV", shell=True, check=True)
