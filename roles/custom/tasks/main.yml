@@ -7,19 +7,22 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Install custom apt packages
+- name: Custom | Update apt cache
   ansible.builtin.apt:
-    state: present
-    name: "{{ item }}"
     update_cache: true
+  ignore_errors: true
+
+- name: Custom | Install custom apt packages
+  ansible.builtin.apt:
+    state: latest
+    name: "{{ item }}"
   ignore_errors: true
   loop: "{{ custom_apt }}"
 
-- name: Install custom deb packages
+- name: Custom | Install custom deb packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     deb: "{{ item }}"
-    update_cache: true
   ignore_errors: true
   loop: "{{ custom_deb }}"
 
