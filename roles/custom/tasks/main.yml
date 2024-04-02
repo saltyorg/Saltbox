@@ -11,6 +11,7 @@
   ansible.builtin.apt:
     state: present
     name: "{{ item }}"
+    update_cache: true
   ignore_errors: true
   loop: "{{ custom_apt }}"
 
@@ -18,6 +19,7 @@
   ansible.builtin.apt:
     state: present
     deb: "{{ item }}"
+    update_cache: true
   ignore_errors: true
   loop: "{{ custom_deb }}"
 
