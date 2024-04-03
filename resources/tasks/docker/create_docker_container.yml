@@ -8,7 +8,7 @@
 ##################################################################################
 ---
 - name: Resources | Tasks | Docker | Create Docker Container | Set '_var_prefix' variable
-  ansible.builtin.set_factoid:
+  ansible.builtin.set_fact:
     _var_prefix: "{{ var_prefix
                   if (var_prefix is defined)
                   else role_name }}"
