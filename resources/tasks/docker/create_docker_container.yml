@@ -19,7 +19,7 @@
 
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container # noqa args[module]
   community.docker.docker_container:
-    auto_remove: "{{ lookup('vars', _var_prefix + '_docker_auto_remove', default=omit) }}"
+    auto_removal: "{{ lookup('vars', _var_prefix + '_docker_auto_remove', default=omit) }}"
     blkio_weight: "{{ lookup('vars', _var_prefix + '_docker_blkio_weight', default=omit) }}"
     cap_drop: "{{ lookup('vars', _var_prefix + '_docker_cap_drop', default=omit) }}"
     capabilities: "{{ lookup('vars', _var_prefix + '_docker_capabilities', default=omit) }}"
