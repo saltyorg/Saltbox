@@ -7,6 +7,6 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-saltbox_roles: ["media_server", "download_clients", "download_indexers", "tautulli", "overseerr", "portainer", "organizr", "sonarr", "radarr", "lidarr", "iperf3", "nethogs", "glances", "btop"]
-mediabox_roles: ["media_server", "tautulli", "overseerr", "iperf3", "nethogs", "glances", "btop"]
+saltbox_roles: ["media_server", "download_clients", "download_indexers", "autoscan", "tautulli", "overseerr", "portainer", "organizr", "sonarr", "radarr", "lidarr", "iperf3", "nethogs", "glances", "btop"]
+mediabox_roles: ["media_server", "autoscan", "tautulli", "overseerr", "iperf3", "nethogs", "glances", "btop"]
 feederbox_roles: ["download_clients", "download_indexers", "portainer", "organizr", "sonarr", "radarr", "lidarr", "iperf3", "nethogs", "glances", "btop"]
