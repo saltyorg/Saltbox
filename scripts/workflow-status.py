@@ -1,6 +1,5 @@
 import json
 import sys
-import os
 import subprocess
 
 def analyze_job_context(job_context_str):
