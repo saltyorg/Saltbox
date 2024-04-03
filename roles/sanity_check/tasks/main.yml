@@ -7,10 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: fail
-  ansible.builtin.fail:
-  
-
 - name: System Check
   ansible.builtin.import_tasks: "subtasks/01_system.yml"
   tags: always
