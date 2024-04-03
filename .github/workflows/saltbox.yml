@@ -124,7 +124,7 @@ jobs:
   webhook:
     name: 'webhook'
     runs-on: ubuntu-22.04
-    needs: install
+    needs: [ansible-lint, find-roles, install]
     if: always() && github.event_name != 'pull_request' && github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
