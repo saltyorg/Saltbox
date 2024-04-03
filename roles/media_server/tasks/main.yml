@@ -13,7 +13,3 @@
   with_items: "{{ media_servers_enabled }}"
   loop_control:
     loop_var: media_server_role
-
-- name: "Execute Autoscan role"
-  ansible.builtin.include_role:
-    name: "autoscan"
