@@ -3,32 +3,57 @@ http:
     {{ qbittorrent_name }}-http:
       entryPoints:
         - "web"
-      rule: "Host(`{{ lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}`)"
+      rule: "{{ traefik_host_template }}"
       middlewares:
         {{ traefik_default_middleware_http.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
+
     {{ qbittorrent_name }}:
       entryPoints:
         - "websecure"
-      rule: "Host(`{{ lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}`)"
+      rule: "{{ traefik_host_template }}"
       middlewares:
         {{ traefik_middleware.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
       tls:
         options: securetls@file
-        certResolver: {{ qbittorrent_traefik_certresolver}}
+        certResolver: {{ qbittorrent_traefik_certresolver }}
+{% if lookup('vars', qbittorrent_name + '_traefik_api_enabled', default=qbittorrent_traefik_api_enabled) %}
+
+    {{ qbittorrent_name }}-api-http:
+      entryPoints:
+        - "web"
+      rule: "({{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }}))"
+      middlewares:
+        {{ traefik_default_middleware_http_api.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ qbittorrent_name }}"
+
+    {{ qbittorrent_name }}-api:
+      entryPoints:
+        - "websecure"
+      rule: "({{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }}))"
+      middlewares:
+        {{ traefik_default_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ qbittorrent_name }}"
+      tls:
+        options: securetls@file
+        certResolver: {{ qbittorrent_traefik_certresolver }}
+{% endif %}
 
   services:
     {{ qbittorrent_name }}:
       loadBalancer:
         servers:
           - url: "http://172.19.0.1:{{ qbittorrent_docker_ports_8080 }}"
-
 {% if qbittorrent_themepark_enabled and global_themepark_plugin_enabled %}
+
   middlewares:
     themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}:
       plugin:
         themepark:
-          app: "qbittorrent"
+          app: "{{ qbittorrent_themepark_app }}"
           theme: "{{ lookup("vars", qbittorrent_name + "_themepark_theme", default=qbittorrent_themepark_theme) }}"
+{% if lookup("vars", qbittorrent_name + "_themepark_addons", default=_themepark_addons) | length > 0 %}
+          addons: "{{ lookup("vars", qbittorrent_name + "_themepark_addons", default=_themepark_addons) }}"
+{% endif %}
 {% endif %}

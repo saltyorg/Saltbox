@@ -108,7 +108,10 @@ qbittorrent_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) 
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 qbittorrent_themepark_enabled: false
+qbittorrent_themepark_app: "qbittorrent"
 qbittorrent_themepark_theme: "{{ global_themepark_theme }}"
+qbittorrent_themepark_domain: "{{ global_themepark_domain }}"
+qbittorrent_themepark_addons: []
 qbittorrent_themepark_headers: "\"content-security-policy: default-src 'self'; style-src 'self' 'unsafe-inline' theme-park.dev raw.githubusercontent.com use.fontawesome.com; img-src 'self' theme-park.dev raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; font-src use.fontawesome.com;\""
 
 ################################
@@ -181,12 +184,9 @@ qbittorrent_docker_hosts: "{{ docker_hosts_common
 # Labels
 qbittorrent_docker_labels_default: {}
 qbittorrent_docker_labels_custom: {}
-qbittorrent_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}.plugin.themepark.app": "qbittorrent" }'
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}.plugin.themepark.theme": "{{ lookup("vars", qbittorrent_name + "_themepark_theme", default=qbittorrent_themepark_theme) }}" }'
 qbittorrent_docker_labels: "{{ docker_labels_common
                                | combine(lookup('vars', qbittorrent_name + '_docker_labels_default', default=qbittorrent_docker_labels_default))
-                               | combine((lookup('vars', qbittorrent_name + '_docker_labels_themepark', default=qbittorrent_docker_labels_themepark)
+                               | combine((traefik_themepark_labels
                                          if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
                                          else {}),
                                          lookup('vars', qbittorrent_name + '_docker_labels_custom', default=qbittorrent_docker_labels_custom)) }}"
