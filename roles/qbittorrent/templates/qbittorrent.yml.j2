@@ -23,7 +23,7 @@ http:
     {{ qbittorrent_name }}-api-http:
       entryPoints:
         - "web"
-      rule: "({{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }}))"
+      rule: "{{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }})"
       middlewares:
         {{ traefik_default_middleware_http_api.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
@@ -31,7 +31,7 @@ http:
     {{ qbittorrent_name }}-api:
       entryPoints:
         - "websecure"
-      rule: "({{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }}))"
+      rule: "{{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }})"
       middlewares:
         {{ traefik_default_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
