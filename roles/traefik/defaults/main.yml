@@ -71,6 +71,13 @@ traefik_entrypoint_ports_both_template:
   - "{{ item.value.port }}:{{ item.value.port }}/udp"
 
 ################################
+# Booleans
+################################
+
+traefik_authelia_enabled: "{{ 'authelia' in traefik_default_sso_middleware }}"
+traefik_authentik_enabled: "{{ 'authentik' in traefik_default_sso_middleware }}"
+
+################################
 # Paths
 ################################
 

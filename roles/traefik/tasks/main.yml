@@ -91,7 +91,12 @@
 - name: "Import Authelia Role"
   ansible.builtin.include_role:
     name: authelia
-  when: authelia_is_master
+  when: traefik_authelia_enabled and authelia_is_master
+
+- name: "Import Authentik Role"
+  ansible.builtin.include_role:
+    name: authentik
+  when: traefik_authentik_enabled
 
 - name: "Import Jaeger Role"
   ansible.builtin.include_role:
