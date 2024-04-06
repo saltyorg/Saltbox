@@ -62,6 +62,10 @@
       X-Plex-Version: "{{ plex_auth_token_version }}"
       X-Plex-Product: "{{ plex_auth_token_product }}"
       X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
+      X-Plex-Platform: "{{ plex_auth_token_platform }}"
+      X-Plex-Platform-Version: "{{ plex_auth_token_platform_version }}"
+      X-Plex-Device: "{{ plex_auth_token_device }}"
+      X-Plex-Device-Name: "{{ plex_auth_token_device_name }}"
     body_format: form-urlencoded
     headers:
       Accept: "application/json"
@@ -83,6 +87,10 @@
           X-Plex-Version: "{{ plex_auth_token_version }}"
           X-Plex-Product: "{{ plex_auth_token_product }}"
           X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
+          X-Plex-Platform: "{{ plex_auth_token_platform }}"
+          X-Plex-Platform-Version: "{{ plex_auth_token_platform_version }}"
+          X-Plex-Device: "{{ plex_auth_token_device }}"
+          X-Plex-Device-Name: "{{ plex_auth_token_device_name }}"
         body_format: form-urlencoded
         headers:
           Accept: "application/json"
