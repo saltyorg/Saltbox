@@ -47,13 +47,12 @@ def update_hosts_file():
     
     # Build and execute the shell command
     shell_command = (
-        f"docker container ls -q | xargs -r docker container inspect | "
-        f"jq -r '.[] | if (.NetworkSettings.Networks[].IPAddress | length > 0) then "
-        f"\"\\(.NetworkSettings.Networks[].IPAddress) \\(.NetworkSettings.Networks[].Aliases | select(length > 0) | join(\" \")) "
-        f"\\(.Name | sub(\"^/\"; \"\") | sub(\"_1$\"; \"\") | sub(\"-1$\"; \"\")).saltbox\" else "
-        f"\"# no ip address: \\(.Name | sub(\"^/\"; \"\"))\" end' | "
-        f"sed -ne \"/^{begin_block}$/ {{p; r /dev/stdin\" -e \":a; n; /^{end_block}$/ {{p; b}}; ba}}; p\" {hosts_file} "
-        f"> {hosts_file_tmp}"
+        "docker container ls -q | xargs -r docker container inspect | "
+        "jq -r '.[] | select(.NetworkSettings.Networks[].IPAddress | length > 0) | "
+        "select(.NetworkSettings.Networks[].Aliases != null) | select(.NetworkSettings.Networks[].Aliases | length > 0) | "
+        ".NetworkSettings.Networks[].IPAddress as $ip | .NetworkSettings.Networks[].Aliases | map(select(length > 0)) | "
+        "unique | map(. + \" \" + . + \".saltbox\") | join(\" \") | \"\($ip) \(.)\"' | "
+        f"sed -ne \"/^{begin_block}$/ {{p; r /dev/stdin\" -e \":a; n; /^{end_block}$/ {{p; b}}; ba}}; p\" {hosts_file} > {hosts_file_tmp}"
     )
     
     subprocess.run(shell_command, shell=True, check=True)
