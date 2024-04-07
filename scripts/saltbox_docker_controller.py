@@ -196,7 +196,7 @@ def is_container_healthy(client, container_name: str, graph: DependencyGraph) ->
         return health_status == 'healthy'
     except docker.errors.NotFound:
         graph.blacklisted_containers.add(container_name)
-        logging.warning(f"Container {container_name} not found. Adding to healthcheck blacklist.")
+        logging.warning(f"Container {container_name} not found. Adding to blacklist.")
         return False
     except Exception as e:
         logging.error(f"Error checking health for container {container_name}: {e}")
@@ -222,7 +222,7 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
     client = docker.from_env()
     started_containers = set()
     containers_to_start = set(graph.nodes.keys())
-    logged_health_check_waiting = set()  # To track health check waiting log messages
+    logged_health_check_waiting = set()
 
     while containers_to_start and not shutdown_flag:
         if shutdown_flag:
@@ -240,13 +240,18 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
 
             dependencies_ready = True
             for parent in container.parents:
+                # Dependency health check and blacklisting logic
+                if parent.name in graph.blacklisted_containers:
+                    dependencies_ready = False
+                    logging.warning(f"Skipping start of '{container_name}' due to blacklisted dependency '{parent.name}'.")
+                    break  # Break from checking other dependencies as one is already failing
+
                 if has_healthcheck_configured(client, parent.name, graph):
                     if not is_container_healthy(client, parent.name, graph):
-                        if container_name not in logged_health_check_waiting:
-                            logging.info(
-                                f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'")
-                            logged_health_check_waiting.add(container_name)
                         dependencies_ready = False
+                        if container_name not in logged_health_check_waiting:
+                            logging.info(f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
+                            logged_health_check_waiting.add(container_name)
                         break
                 elif parent.name not in started_containers:
                     dependencies_ready = False
@@ -258,14 +263,19 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
                     wait_for_delay(container.delay)
                 ready_to_start.append(container_name)
 
+        if not ready_to_start:
+            logging.info("No containers ready to start in this iteration.")
+            break
+
         start_containers_with_shell(ready_to_start)
         for container_name in ready_to_start:
             started_containers.add(container_name)
             containers_to_start.remove(container_name)
+            if container_name in logged_health_check_waiting:
+                logged_health_check_waiting.remove(container_name)
 
     if containers_to_start:
-        logging.warning(
-            f"The following containers were not started due to unresolved dependencies: {containers_to_start}")
+        logging.warning(f"The following containers were not started due to unresolved dependencies or being blacklisted: {containers_to_start}")
 
 
 def stop_containers_with_shell(containers: List[str]):
