@@ -1,8 +1,7 @@
 ##########################################################################
-# Title:            Sandbox: docker_socket_proxy | Default Variables     #
+# Title:            Saltbox: Docker Socket Proxy | Default Variables     #
 # Author(s):        salty, JigSawFr                                      #
-# URL:              https://github.com/saltyorg/Sandbox                  #
-# URL:              https://github.com/Tecnativa/docker-socket-proxy     #
+# URL:              https://github.com/saltyorg/Saltbox                  #
 # --                                                                     #
 ##########################################################################
 #                   GNU General Public License v3.0                      #
@@ -24,7 +23,7 @@ docker_socket_proxy_docker_container: "{{ docker_socket_proxy_name }}"
 # Image
 docker_socket_proxy_docker_image_pull: true
 docker_socket_proxy_docker_image_tag: "latest"
-docker_socket_proxy_docker_image: "tecnativa/docker-socket-proxy:{{ docker_socket_proxy_docker_image_tag }}"
+docker_socket_proxy_docker_image: "lscr.io/linuxserver/socket-proxy:{{ docker_socket_proxy_docker_image_tag }}"
 
 # Ports
 docker_socket_proxy_docker_ports_defaults: []
@@ -47,10 +46,18 @@ docker_socket_proxy_docker_commands: "{{ docker_socket_proxy_docker_commands_def
 
 # Volumes
 docker_socket_proxy_docker_volumes_default:
-  - "/var/run/docker.sock:/var/run/docker.sock"
+  - "/var/run/docker.sock:/var/run/docker.sock:ro"
 docker_socket_proxy_docker_volumes_custom: []
 docker_socket_proxy_docker_volumes: "{{ docker_socket_proxy_docker_volumes_default
                                         + docker_socket_proxy_docker_volumes_custom }}"
+
+# Mounts
+docker_socket_proxy_docker_mounts_default:
+  - target: /run
+    type: tmpfs
+docker_socket_proxy_docker_mounts_custom: []
+docker_socket_proxy_docker_mounts: "{{ docker_socket_proxy_docker_mounts_default
+                                       + docker_socket_proxy_docker_mounts_custom }}"
 
 # Devices
 docker_socket_proxy_docker_devices_default: []
@@ -101,5 +108,5 @@ docker_socket_proxy_docker_restart_policy: unless-stopped
 # State
 docker_socket_proxy_docker_state: started
 
-# Privileged
-docker_socket_proxy_docker_privileged: true
+# Read Only Filesystem
+docker_socket_proxy_docker_read_only: true
