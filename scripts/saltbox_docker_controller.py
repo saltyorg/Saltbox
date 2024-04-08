@@ -174,7 +174,7 @@ def has_healthcheck_configured(client, container_name: str, graph: DependencyGra
         return is_configured
     except docker.errors.NotFound:
         graph.blacklisted_containers.add(container_name)
-        logging.warning(f"Container {container_name} not found. Adding to healthcheck blacklist.")
+        logging.warning(f"Container {container_name} not found. Adding to blacklist.")
         return False
     except Exception as e:
         logging.error(f"Error checking healthcheck configuration for container {container_name}: {e}")
