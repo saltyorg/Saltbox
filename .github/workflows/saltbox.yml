@@ -72,14 +72,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create /srv/ansible
-        run: sudo mkdir /srv/ansible
+      - name: Create Directories
+        run: sudo mkdir -p /srv/ansible /srv/git/sb
 
-      - name: Create /srv/git
-        run: sudo mkdir /srv/git
-
-      - name: Create /srv/git/sb and copy requirements.txt
-        run: sudo mkdir /srv/git/sb && sudo cp ./requirements/requirements-saltbox.txt /srv/git/sb/requirements-saltbox.txt
+      - name: Copy requirements.txt
+        run: sudo cp ./requirements/requirements-saltbox.txt /srv/git/sb/requirements-saltbox.txt
 
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git

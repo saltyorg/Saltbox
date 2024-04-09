@@ -4,3 +4,5 @@ updates:
     directory: "/requirements"
     schedule:
       interval: "daily"
+    versioning-strategy: auto
+    rebase-strategy: auto
