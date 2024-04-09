@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - requirements/requirements-saltbox.txt
+  workflow_dispatch:
 
 jobs:
   requirements:

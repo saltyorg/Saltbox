@@ -84,8 +84,8 @@ jobs:
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
 
-      - name: Run Tree on /srv/git/sb
-        run: tree -a /srv/git/sb
+      - name: Print pip dependencies
+        run: cat /srv/git/sb/requirements-saltbox.txt
 
       - name: Install Dependencies
         uses: nick-fields/retry@v3
