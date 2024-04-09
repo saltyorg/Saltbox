@@ -24,13 +24,13 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Copy requirements-saltbox.txt
-        run: cp -f ./saltbox/requirements/requirements-saltbox.txt ./sb/requirements.txt
+        run: cp -f ./saltbox/requirements/requirements-saltbox.txt ./sb/requirements-saltbox.txt
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
           author_name: Continuous Integration
           author_email: username@users.noreply.github.com
-          message: 'Continuous Integration Updated requirements.txt'
-          add: 'requirements.txt'
+          message: 'Continuous Integration Updated requirements-saltbox.txt'
+          add: 'requirements-saltbox.txt'
           cwd: './sb/'
