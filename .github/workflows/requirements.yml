@@ -1,0 +1,36 @@
+name: Requirements
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - requirements/requirements-saltbox.txt
+
+jobs:
+  requirements:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: saltbox
+
+      - name: Checkout tools repo
+        uses: actions/checkout@v4
+        with:
+          repository: saltyorg/sb
+          path: sb
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Copy requirements-saltbox.txt
+        run: cp -f ./saltbox/requirements/requirements-saltbox.txt ./sb/requirements.txt
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: Continuous Integration
+          author_email: username@users.noreply.github.com
+          message: 'Continuous Integration Updated requirements.txt'
+          add: 'requirements.txt'
+          cwd: './sb/'

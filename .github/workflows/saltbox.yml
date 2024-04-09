@@ -75,6 +75,15 @@ jobs:
       - name: Create /srv/ansible
         run: sudo mkdir /srv/ansible
 
+      - name: Create /srv/git
+        run: sudo mkdir /srv/git
+
+      - name: Create /srv/git/sb and copy requirements.txt
+        run: sudo mkdir /srv/git/sb && cp ./requirements/requirements-saltbox.txt /srv/git/sb/requirements.txt
+
+      - name: Run Tree on /srv/git/sb
+        run: tree -a /srv/git/sb
+
       - name: Install Dependencies
         uses: nick-fields/retry@v3
         with:
@@ -82,9 +91,6 @@ jobs:
           max_attempts: 3
           shell: bash
           command: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && /srv/ansible/venv/bin/ansible --version
-
-      - name: Create /srv/git
-        run: sudo mkdir /srv/git
 
       - name: Symlink cloned repository to /srv/git/saltbox
         run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
@@ -98,7 +104,7 @@ jobs:
       - name: Edit accounts.yml
         run: sed -i 's/seed/runner/g' accounts.yml
 
-      - name: Run Tree
+      - name: Run Tree on Saltbox repository
         run: tree -a
 
       - name: Syntax Check
