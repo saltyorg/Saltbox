@@ -79,7 +79,10 @@ jobs:
         run: sudo mkdir /srv/git
 
       - name: Create /srv/git/sb and copy requirements.txt
-        run: sudo mkdir /srv/git/sb && cp ./requirements/requirements-saltbox.txt /srv/git/sb/requirements.txt
+        run: sudo mkdir /srv/git/sb && sudo cp ./requirements/requirements-saltbox.txt /srv/git/sb/requirements-saltbox.txt
+
+      - name: Chown /srv/git
+        run: sudo chown -R runner:runner /srv/git
 
       - name: Run Tree on /srv/git/sb
         run: tree -a /srv/git/sb
