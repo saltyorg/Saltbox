@@ -7,9 +7,14 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+- name: Post-Install | Check if SABnzbd config exists
+  ansible.builtin.stat:
+    path: "{{ sabnzbd_paths_config_location }}"
+  register: nzbhydra2_sabnzbd_yml_stat
+
 - name: Post-Install | SABnzbd tasks
   ansible.builtin.import_tasks: "sabnzbd.yml"
-  when: (not nzbhydra2_yml_stat.stat.exists)
+  when: (not nzbhydra2_yml_stat.stat.exists) and nzbhydra2_sabnzbd_yml_stat.stat.exists
 
 - name: Post-Install | Settings Tweaks
   ansible.builtin.import_tasks: "settings.yml"
