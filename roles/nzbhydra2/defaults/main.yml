@@ -77,7 +77,7 @@ nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
 nzbhydra2_config_settings_default:
   # NZBGet
   - del(.downloading.downloaders)
-  - .downloading.downloaders[0].apiKey = "{{ nzbhydra2_sabnzbd_api_lookup }}"
+  - .downloading.downloaders[0].apiKey = "{{ nzbhydra2_sabnzbd_api_lookup | default('not-found') }}"
   - .downloading.downloaders[0].defaultCategory = null
   - .downloading.downloaders[0].downloadType = "NZB" | .downloading.downloaders[0].downloadType style="double"
   - .downloading.downloaders[0].enabled = true
