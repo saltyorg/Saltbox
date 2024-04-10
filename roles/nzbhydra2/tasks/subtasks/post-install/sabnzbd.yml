@@ -1,0 +1,25 @@
+##########################################################################
+# Title:         Saltbox: NZBHydra2 | SABnzbd Tasks                      #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Slurp the INI file
+  ansible.builtin.slurp:
+    src: "{{ sabnzbd_paths_config_location }}"
+  register: nzbhydra2_sabnzbd_slurped_file
+
+- name: Decode the file content
+  ansible.builtin.set_fact:
+    nzbhydra2_sabnzbd_file_content: "{{ nzbhydra2_sabnzbd_slurped_file['content'] | b64decode }}"
+
+- name: Extract INI section
+  ansible.builtin.set_fact:
+    nzbhydra2_sabnzbd_ini_content: "{{ nzbhydra2_sabnzbd_file_content.split('[misc]')[1] | default('') }}"
+
+- name: Find api_key value
+  ansible.builtin.set_fact:
+    nzbhydra2_sabnzbd_api_lookup: "{{ nzbhydra2_sabnzbd_ini_content | regex_search('api_key\\s*=\\s*([\\w\\d]+)', '\\1') | first }}"
