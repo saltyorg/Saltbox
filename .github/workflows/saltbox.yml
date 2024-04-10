@@ -16,7 +16,7 @@ on:
       - 'roles/plex_db/**'
       - 'roles/arr_db/**'
     branches-ignore:
-      - 'dependabot/*'
+      - 'dependabot/**'
   pull_request:
     paths-ignore:
       - '.github/**'
