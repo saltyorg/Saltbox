@@ -93,7 +93,6 @@ class ContainerNode:
 class DependencyGraph:
     def __init__(self):
         self.nodes: Dict[str, ContainerNode] = {}
-        self.blacklisted_containers = set()
         self.health_status = {}
         self.healthcheck_config_cache = {}
 
@@ -164,28 +163,17 @@ def parse_container_labels(client):
 
 
 def has_healthcheck_configured(client, container_name: str, graph: DependencyGraph) -> bool:
-    if container_name in graph.healthcheck_config_cache:
-        return graph.is_healthcheck_configured(container_name)
-
     try:
         container = client.containers.get(container_name)
         is_configured = 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck']['Test'] != ['NONE']
         graph.set_healthcheck_configured(container_name, is_configured)
         return is_configured
-    except docker.errors.NotFound:
-        graph.blacklisted_containers.add(container_name)
-        logging.warning(f"Container {container_name} not found. Adding to blacklist.")
-        return False
     except Exception as e:
         logging.error(f"Error checking healthcheck configuration for container {container_name}: {e}")
         return False
 
 
 def is_container_healthy(client, container_name: str, graph: DependencyGraph) -> bool:
-    if container_name in graph.blacklisted_containers:
-        logging.debug(f"Container {container_name} is blacklisted.")
-        return False
-
     # Add a delay before checking the container health
     wait_for_delay(1)
 
@@ -194,10 +182,6 @@ def is_container_healthy(client, container_name: str, graph: DependencyGraph) ->
         health_status = container.attrs['State']['Health']['Status']
         logging.debug(f"Container {container_name} health status: '{health_status}'")
         return health_status == 'healthy'
-    except docker.errors.NotFound:
-        graph.blacklisted_containers.add(container_name)
-        logging.warning(f"Container {container_name} not found. Adding to blacklist.")
-        return False
     except Exception as e:
         logging.error(f"Error checking health for container {container_name}: {e}")
         return False
@@ -223,36 +207,39 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
     started_containers = set()
     containers_to_start = set(graph.nodes.keys())
     logged_health_check_waiting = set()
+    skip_start_due_to_placeholder = set()
 
     while containers_to_start and not shutdown_flag:
-        if shutdown_flag:
-            logging.info("Shutdown signal received. Exiting start containers loop.")
-            break
-
         ready_to_start = []
 
         for container_name in list(containers_to_start):
             container = graph.nodes[container_name]
 
-            if container.is_placeholder or container_name in started_containers:
+            if container_name in skip_start_due_to_placeholder:
                 containers_to_start.remove(container_name)
+                continue
+
+            if container.is_placeholder:
+                logging.info(f"Skipping start of '{container_name}' because it is a placeholder.")
+                containers_to_start.remove(container_name)
+                skip_start_due_to_placeholder.add(container_name)
                 continue
 
             dependencies_ready = True
             for parent in container.parents:
-                # Dependency health check and blacklisting logic
-                if parent.name in graph.blacklisted_containers:
+                if parent.is_placeholder:
                     dependencies_ready = False
-                    logging.warning(f"Skipping start of '{container_name}' due to blacklisted dependency '{parent.name}'.")
-                    break  # Break from checking other dependencies as one is already failing
+                    if container_name not in skip_start_due_to_placeholder:
+                        logging.warning(f"Skipping start of '{container_name}' due to placeholder dependency '{parent.name}'.")
+                        skip_start_due_to_placeholder.add(container_name)
+                    break
 
-                if has_healthcheck_configured(client, parent.name, graph):
-                    if not is_container_healthy(client, parent.name, graph):
-                        dependencies_ready = False
-                        if container_name not in logged_health_check_waiting:
-                            logging.info(f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
-                            logged_health_check_waiting.add(container_name)
-                        break
+                if has_healthcheck_configured(client, parent.name, graph) and not is_container_healthy(client, parent.name, graph):
+                    dependencies_ready = False
+                    if container_name not in logged_health_check_waiting:
+                        logging.info(f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
+                        logged_health_check_waiting.add(container_name)
+                    break
                 elif parent.name not in started_containers:
                     dependencies_ready = False
                     break
@@ -263,19 +250,12 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
                     wait_for_delay(container.delay)
                 ready_to_start.append(container_name)
 
-        if not ready_to_start:
-            logging.info("No containers ready to start in this iteration.")
-            break
-
         start_containers_with_shell(ready_to_start)
         for container_name in ready_to_start:
             started_containers.add(container_name)
             containers_to_start.remove(container_name)
             if container_name in logged_health_check_waiting:
                 logged_health_check_waiting.remove(container_name)
-
-    if containers_to_start:
-        logging.warning(f"The following containers were not started due to unresolved dependencies or being blacklisted: {containers_to_start}")
 
 
 def stop_containers_with_shell(containers: List[str]):
@@ -306,19 +286,10 @@ def stop_containers_in_dependency_order(graph: DependencyGraph):
             if all(child.name in stopped_containers for child in container.children):
                 ready_to_stop.append(container_name)
 
-        if not ready_to_stop:
-            # If no containers are ready to stop, it means we have a circular dependency or an error in configuration
-            logging.warning(f"No containers ready to stop, remaining: {containers_to_stop}")
-            break
-
         stop_containers_with_shell(ready_to_stop)
         for container_name in ready_to_stop:
             stopped_containers.add(container_name)
             containers_to_stop.remove(container_name)
-
-    if containers_to_stop:
-        # Log any containers that were not stopped due to unresolved dependencies
-        logging.warning(f"The following containers were not stopped due to dependent containers: {containers_to_stop}")
 
 
 # FastAPI Application and API Endpoints
