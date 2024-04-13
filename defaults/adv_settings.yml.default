@@ -7,7 +7,6 @@ docker:
   json_driver: no
 gpu:
   intel: yes
-  nvidia: no
 mounts:
   ipv4_only: no
 system:

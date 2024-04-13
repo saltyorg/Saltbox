@@ -30,7 +30,6 @@
     - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker', 'docker-filesystem-resize'] }
-    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'nvidia'], when: ['use_nvidia'] }
     - { role: scripts, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }
     - { role: traefik, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'traefik', 'traefik-reset-certs'] }

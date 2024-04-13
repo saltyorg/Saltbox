@@ -145,6 +145,13 @@
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_remote_mount
 
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'gpu.nvidia' dict
+  ansible.builtin.shell: |
+    yyq e -i 'del(.gpu.nvidia)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: gpu is defined and gpu.nvidia is defined
+
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/{{ file }}"

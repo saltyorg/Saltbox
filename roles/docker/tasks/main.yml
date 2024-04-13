@@ -99,34 +99,6 @@
 - name: "Import Daemon Tasks"
   ansible.builtin.import_tasks: "subtasks/daemon.yml"
 
-- name: Nvidia task block
-  when: gpu.nvidia
-  block:
-    - name: Check if '/usr/bin/nvidia-ctk' exists
-      ansible.builtin.stat:
-        path: "/usr/bin/nvidia-ctk"
-      register: nvidia_ctk
-
-    - name: Tasks for when nvidia drivers are installed
-      when: nvidia_ctk.stat.exists
-      block:
-        - name: Import 'nvidia-persistenced.service'
-          ansible.builtin.template:
-            src: nvidia-persistenced.service.j2
-            dest: /etc/systemd/system/nvidia-persistenced.service
-            mode: "0644"
-            force: true
-
-        - name: Run systemd daemon-reload
-          ansible.builtin.systemd_service:
-            daemon_reload: true
-
-        - name: Start nvidia-persistenced service
-          ansible.builtin.systemd_service:
-            name: nvidia-persistenced.service
-            state: started
-            enabled: true
-
 - name: "Import Docker Binary tasks"
   ansible.builtin.include_tasks: "subtasks/binary/binary.yml"
 

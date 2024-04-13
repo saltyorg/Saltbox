@@ -22,7 +22,7 @@
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
     mode: "0664"
-    force: true
+    force: "{{ docker_daemon_template_force }}"
 
 - name: "Daemon | Create override directory"
   ansible.builtin.file:

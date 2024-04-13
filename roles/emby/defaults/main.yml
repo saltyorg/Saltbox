@@ -119,8 +119,6 @@ emby_docker_ports: "{{ lookup('vars', emby_name + '_docker_ports_defaults', defa
 emby_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
-  NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
-  NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   TZ: "{{ tz }}"
 emby_docker_envs_custom: {}
 emby_docker_envs: "{{ lookup('vars', emby_name + '_docker_envs_default', default=emby_docker_envs_default)

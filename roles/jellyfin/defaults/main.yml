@@ -111,8 +111,6 @@ jellyfin_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if (gpu.nvidia) | default(false) else omit }}"
-  NVIDIA_VISIBLE_DEVICES: "{{ 'all' if (gpu.nvidia) | default(false) else omit }}"
   DOTNET_USE_POLLING_FILE_WATCHER: "1"
 jellyfin_docker_envs_custom: {}
 jellyfin_docker_envs: "{{ lookup('vars', jellyfin_name + '_docker_envs_default', default=jellyfin_docker_envs_default)

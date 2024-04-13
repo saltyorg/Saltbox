@@ -112,7 +112,7 @@ docker_ipv6: "{{ dns.ipv6 }}"
 
 # Service
 
-docker_service_after: "{{ mergerfs_service_name + (' nvidia-persistenced.service' if (gpu.nvidia and nvidia_ctk is defined and nvidia_ctk.stat.exists) else '') }}"
+docker_service_after: "{{ mergerfs_service_name }}"
 
 docker_service_sleep: "{{ 0 if continuous_integration or (not use_remote) else 120 }}"
 
@@ -125,6 +125,8 @@ docker_service_check_mounts: "{{ docker_binary.stat.exists and (((remote_docker_
 docker_update_hosts_service_runtime_max: "3600s"
 
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
+
+docker_daemon_template_force: true
 
 ################################
 # Docker Compose
