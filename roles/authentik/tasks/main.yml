@@ -13,9 +13,15 @@
     var_prefix: "{{ item }}"
   loop:
     - "{{ authentik_name }}"
+    - "authentik-worker"
     - "authentik-redis"
     - "authentik-postgres"
-    - "authentik-worker"
+
+- name: Reset Authentik directory
+  ansible.builtin.file:
+    path: "{{ authentik_paths_location }}"
+    state: absent
+  when: ('authentik-reset' in ansible_run_tags)
 
 - name: Check if '{{ authentik_paths_location }}' exists
   ansible.builtin.stat:

@@ -17,6 +17,19 @@ authentik_name: authentik
 # Settings
 ################################
 
+authentik_email_host: "localhost"
+authentik_email_port: "25"
+authentik_email_username: ""
+authentik_email_password: ""
+authentik_email_tls: "false"
+authentik_email_ssl: "false"
+authentik_email_timeout: "10"
+authentik_email_from: "authentik@localhost"
+
+################################
+# Postgres
+################################
+
 authentik_postgres_name: "{{ authentik_name }}-postgres"
 authentik_postgres_docker_env_db: "authentik"
 authentik_postgres_docker_image_tag: "12-alpine"
@@ -99,6 +112,14 @@ authentik_docker_envs_default:
   AUTHENTIK_POSTGRESQL__PASSWORD: "{{ postgres_docker_env_password }}"
   AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
   AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit if authentik_data_folder.stat.exists else authentik_bootstrap_token }}"
+  AUTHENTIK_EMAIL__HOST: "{{ authentik_email_host }}"
+  AUTHENTIK_EMAIL__PORT: "{{ authentik_email_port }}"
+  AUTHENTIK_EMAIL__USERNAME: "{{ authentik_email_username }}"
+  AUTHENTIK_EMAIL__PASSWORD: "{{ authentik_email_password }}"
+  AUTHENTIK_EMAIL__USE_TLS: "{{ authentik_email_tls }}"
+  AUTHENTIK_EMAIL__USE_SSL: "{{ authentik_email_ssl }}"
+  AUTHENTIK_EMAIL__TIMEOUT: "{{ authentik_email_timeout }}"
+  AUTHENTIK_EMAIL__FROM: "{{ authentik_email_from }}"
 authentik_docker_envs_custom: {}
 authentik_docker_envs: "{{ authentik_docker_envs_default
                            | combine(authentik_docker_envs_custom) }}"
