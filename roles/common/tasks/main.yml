@@ -188,7 +188,7 @@
     name: yyq
 
 - name: "Install Nano Syntax Highlighting"
-  ansible.builtin.shell: "curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh"
+  ansible.builtin.shell: "curl https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh | sh"
   become: true
   become_user: "{{ user.name }}"
   when: nano_syntax_highlighting_enabled
