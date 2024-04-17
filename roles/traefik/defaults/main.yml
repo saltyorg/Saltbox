@@ -26,7 +26,13 @@ traefik_tailscale_enabled: false
 # traefik_tailscale_bind_ip: "" # Set to override the WANIP port binding when server is not connected directly to the Internet.
 # traefik_tailscale_bind_ipv6: "" # Same but IPv6
 traefik_entrypoint_web_port: "80"
+traefik_entrypoint_web_readtimeout: "600"
+traefik_entrypoint_web_writetimeout: "0"
+traefik_entrypoint_web_idletimeout: "180"
 traefik_entrypoint_websecure_port: "443"
+traefik_entrypoint_websecure_readtimeout: "600"
+traefik_entrypoint_websecure_writetimeout: "0"
+traefik_entrypoint_websecure_idletimeout: "180"
 traefik_entrypoint_custom: {}
 # Format is as follows (address can be empty string "" to bind on every interface):
 # Type options are tcp, udp or both.
@@ -239,9 +245,15 @@ traefik_docker_commands_default:
   - "--entrypoints.web.address=:{{ traefik_entrypoint_web_port }}"
   - "{{ '--entrypoints.web.forwardedheaders.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
   - "{{ '--entrypoints.web.proxyprotocol.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
+  - "--entrypoints.web.transport.respondingTimeouts.readTimeout={{ traefik_entrypoint_web_readtimeout }}"
+  - "--entrypoints.web.transport.respondingTimeouts.writeTimeout={{ traefik_entrypoint_web_writetimeout }}"
+  - "--entrypoints.web.transport.respondingTimeouts.idleTimeout={{ traefik_entrypoint_web_idletimeout }}"
   - "--entrypoints.websecure.address=:{{ traefik_entrypoint_websecure_port }}"
   - "{{ '--entrypoints.websecure.forwardedheaders.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
   - "{{ '--entrypoints.websecure.proxyprotocol.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
+  - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout={{ traefik_entrypoint_websecure_readtimeout }}"
+  - "--entrypoints.websecure.transport.respondingTimeouts.writeTimeout={{ traefik_entrypoint_websecure_writetimeout }}"
+  - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout={{ traefik_entrypoint_websecure_idletimeout }}"
   - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
   - "--api.dashboard=true"
   - "--api=true"
