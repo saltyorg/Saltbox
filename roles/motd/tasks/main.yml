@@ -89,10 +89,6 @@
   become: true
   become_user: "{{ user.name }}"
 
-- name: Install pip requirements
-  ansible.builtin.pip:
-    requirements: /opt/motd/requirements.txt
-
 - name: Check if 'config.json' exists
   ansible.builtin.stat:
     path: "/opt/motd/config.json"
