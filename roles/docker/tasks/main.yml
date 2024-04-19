@@ -175,7 +175,7 @@
         daemon_reload: true
 
     - name: "Re-start all previously running Docker containers"
-      ansible.builtin.shell: "docker start {{ docker_running_containers }}"
+      ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
       ignore_errors: true
 
 - name: Docker Service Running
