@@ -9,12 +9,6 @@
 ---
 - name: Cloudflare | Setup | Setup venv block
   block:
-    - name: Cloudflare | Setup | Install 'tld' Python package (Ansible venv)
-      ansible.builtin.pip:
-        name:
-          - "tld"
-        state: "latest"
-
     - name: Cloudflare | Setup | Create directory
       ansible.builtin.file:
         path: "{{ cloudflare_path }}"
