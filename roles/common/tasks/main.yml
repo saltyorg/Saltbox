@@ -121,24 +121,6 @@
       - "run-one"
   ignore_errors: true
 
-- name: Install common Python packages (Ansible venv)
-  ansible.builtin.pip:
-    name:
-      - "tld"
-      - "argon2_cffi"
-      - "ndg-httpsclient"
-      - "dnspython"
-      - "lxml"
-      - "jmespath"
-      - "passlib"
-      - "PyMySQL"
-      - "docker"
-      - "pyOpenSSL"
-      - "requests"
-      - "netaddr"
-      - "jinja2"
-    state: "latest"
-
 - name: Install common Python packages (System Python)
   ansible.builtin.pip:
     name:
