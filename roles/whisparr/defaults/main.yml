@@ -54,9 +54,9 @@ whisparr_dns_proxy: "{{ dns.proxied }}"
 
 whisparr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 whisparr_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', whisparr_name + '_name', default=whisparr_name)
-                                          if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                         + (',themepark-' + lookup('vars', whisparr_name + '_name', default=whisparr_name)
+                                           if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
+                                           else '') }}"
 whisparr_traefik_middleware_custom: ""
 whisparr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 whisparr_traefik_enabled: true
@@ -122,13 +122,8 @@ whisparr_docker_volumes_default:
   - "{{ whisparr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 whisparr_docker_volumes_custom: []
-whisparr_docker_volumes_theme: []
 whisparr_docker_volumes: "{{ lookup('vars', whisparr_name + '_docker_volumes_default', default=whisparr_docker_volumes_default)
-                             + lookup('vars', whisparr_name + '_docker_volumes_custom', default=whisparr_docker_volumes_custom)
-                          if not (lookup('vars', whisparr_name + '_themepark_enabled', default=whisparr_themepark_enabled))
-                          else lookup('vars', whisparr_name + '_docker_volumes_default', default=whisparr_docker_volumes_default)
-                             + lookup('vars', whisparr_name + '_docker_volumes_custom', default=whisparr_docker_volumes_custom)
-                             + lookup('vars', whisparr_name + '_docker_volumes_theme', default=whisparr_docker_volumes_theme) }}"
+                             + lookup('vars', whisparr_name + '_docker_volumes_custom', default=whisparr_docker_volumes_custom) }}"
 
 # Devices
 whisparr_docker_devices_default: []

@@ -105,13 +105,8 @@ jackett_docker_commands: "{{ jackett_docker_commands_default
 jackett_docker_volumes_default:
   - "{{ jackett_paths_location }}:/config"
 jackett_docker_volumes_custom: []
-jackett_docker_volumes_theme: []
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
-                            + jackett_docker_volumes_custom
-                         if not (jackett_themepark_enabled)
-                         else jackett_docker_volumes_default
-                            + jackett_docker_volumes_custom
-                            + jackett_docker_volumes_theme }}"
+                            + jackett_docker_volumes_custom }}"
 
 # Devices
 jackett_docker_devices_default: []

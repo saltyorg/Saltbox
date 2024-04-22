@@ -91,8 +91,10 @@ sabnzbd_config_settings_list: "{{ sabnzbd_config_settings_default
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 sabnzbd_themepark_enabled: false
+sabnzbd_themepark_app: "sabnzbd"
 sabnzbd_themepark_theme: "{{ global_themepark_theme }}"
 sabnzbd_themepark_domain: "{{ global_themepark_domain }}"
+sabnzbd_themepark_addons: []
 
 ################################
 # Docker
@@ -133,13 +135,8 @@ sabnzbd_docker_volumes_default:
   - "{{ sabnzbd_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 sabnzbd_docker_volumes_custom: []
-sabnzbd_docker_volumes_theme: []
 sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
-                            + sabnzbd_docker_volumes_custom
-                         if not (sabnzbd_themepark_enabled)
-                         else sabnzbd_docker_volumes_default
-                            + sabnzbd_docker_volumes_custom
-                            + sabnzbd_docker_volumes_theme }}"
+                            + sabnzbd_docker_volumes_custom }}"
 
 # Devices
 sabnzbd_docker_devices_default: []
@@ -152,7 +149,10 @@ sabnzbd_docker_hosts_default: []
 sabnzbd_docker_hosts_custom: []
 sabnzbd_docker_hosts: "{{ docker_hosts_common
                           | combine(sabnzbd_docker_hosts_default)
-                          | combine(sabnzbd_docker_hosts_custom) }}"
+                          | combine((traefik_themepark_labels
+                                    if (sabnzbd_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    sabnzbd_docker_labels_custom) }}"
 
 # Labels
 sabnzbd_docker_labels_default: {}

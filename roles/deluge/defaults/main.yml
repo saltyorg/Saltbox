@@ -54,9 +54,9 @@ deluge_dns_proxy: "{{ dns.proxied }}"
 
 deluge_traefik_sso_middleware: ""
 deluge_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', deluge_name + '_name', default=deluge_name)
-                                          if (deluge_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                       + (',themepark-' + lookup('vars', deluge_name + '_name', default=deluge_name)
+                                         if (deluge_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '') }}"
 deluge_traefik_middleware_custom: ""
 deluge_traefik_certresolver: "{{ traefik_default_certresolver }}"
 deluge_traefik_enabled: true
@@ -69,8 +69,10 @@ deluge_traefik_api_endpoint: ""
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 deluge_themepark_enabled: false
+deluge_themepark_app: "deluge"
 deluge_themepark_theme: "{{ global_themepark_theme }}"
 deluge_themepark_domain: "{{ global_themepark_domain }}"
+deluge_themepark_addons: []
 
 ################################
 # Docker
@@ -139,11 +141,11 @@ deluge_docker_hosts: "{{ docker_hosts_common
 deluge_docker_labels_default: {}
 deluge_docker_labels_custom: {}
 deluge_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', deluge_name + '_docker_labels_default', default=deluge_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (deluge_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', deluge_name + '_docker_labels_custom', default=deluge_docker_labels_custom)) }}"
+                          | combine(lookup('vars', deluge_name + '_docker_labels_default', default=deluge_docker_labels_default))
+                          | combine((traefik_themepark_labels
+                                    if (deluge_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    lookup('vars', deluge_name + '_docker_labels_custom', default=deluge_docker_labels_custom)) }}"
 
 # Hostname
 deluge_docker_hostname: "{{ deluge_name }}"

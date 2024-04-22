@@ -54,9 +54,9 @@ radarr_dns_proxy: "{{ dns.proxied }}"
 
 radarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 radarr_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', radarr_name + '_name', default=radarr_name)
-                                          if (radarr_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                       + (',themepark-' + lookup('vars', radarr_name + '_name', default=radarr_name)
+                                         if (radarr_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '') }}"
 radarr_traefik_middleware_custom: ""
 radarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_traefik_enabled: true
@@ -124,14 +124,10 @@ radarr_docker_volumes_default:
 radarr_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"
 radarr_docker_volumes_custom: []
-radarr_docker_volumes_theme: []
 radarr_docker_volumes: "{{ lookup('vars', radarr_name + '_docker_volumes_default', default=radarr_docker_volumes_default)
                            + lookup('vars', radarr_name + '_docker_volumes_custom', default=radarr_docker_volumes_custom)
                            + (lookup('vars', radarr_name + '_docker_volumes_legacy', default=radarr_docker_volumes_legacy)
                              if docker_legacy_volume
-                             else [])
-                           + (lookup('vars', radarr_name + '_docker_volumes_theme', default=radarr_docker_volumes_theme)
-                             if lookup('vars', radarr_name + '_themepark_enabled', default=radarr_themepark_enabled)
                              else []) }}"
 
 # Devices
@@ -151,11 +147,11 @@ radarr_docker_hosts: "{{ docker_hosts_common
 radarr_docker_labels_default: {}
 radarr_docker_labels_custom: {}
 radarr_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', radarr_name + '_docker_labels_default', default=radarr_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (radarr_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', radarr_name + '_docker_labels_custom', default=radarr_docker_labels_custom)) }}"
+                          | combine(lookup('vars', radarr_name + '_docker_labels_default', default=radarr_docker_labels_default))
+                          | combine((traefik_themepark_labels
+                                    if (radarr_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    lookup('vars', radarr_name + '_docker_labels_custom', default=radarr_docker_labels_custom)) }}"
 
 # Hostname
 radarr_docker_hostname: "{{ radarr_name }}"

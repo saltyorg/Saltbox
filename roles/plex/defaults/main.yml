@@ -104,9 +104,9 @@ plex_webtools_dns_proxy: "{{ dns.proxied }}"
 
 plex_traefik_sso_middleware: ""
 plex_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
-                                          if (plex_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                     + (',themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
+                                       if (plex_themepark_enabled and global_themepark_plugin_enabled)
+                                       else '') }}"
 plex_traefik_middleware_custom: ""
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
@@ -266,9 +266,6 @@ plex_docker_labels_custom: {}
 plex_docker_labels: "{{ docker_labels_common
                         | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default)
                                   if plex_plugin_webtools
-                                  else {}),
-                                  (lookup('vars', plex_name + '_docker_labels_themepark', default=plex_docker_labels_themepark)
-                                  if (plex_themepark_enabled and global_themepark_plugin_enabled)
                                   else {}),
                                   lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom)) }}"
 

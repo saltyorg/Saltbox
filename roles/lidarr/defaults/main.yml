@@ -54,9 +54,9 @@ lidarr_dns_proxy: "{{ dns.proxied }}"
 
 lidarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 lidarr_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', lidarr_name + '_name', default=lidarr_name)
-                                          if (lidarr_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                       + (',themepark-' + lookup('vars', lidarr_name + '_name', default=lidarr_name)
+                                         if (lidarr_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '') }}"
 lidarr_traefik_middleware_custom: ""
 lidarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_traefik_enabled: true
@@ -123,13 +123,8 @@ lidarr_docker_volumes_default:
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/mnt/unionfs/Media/Music:/music"
 lidarr_docker_volumes_custom: []
-lidarr_docker_volumes_theme: []
 lidarr_docker_volumes: "{{ lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
-                           + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
-                        if not (lookup('vars', lidarr_name + '_themepark_enabled', default=lidarr_themepark_enabled))
-                        else lookup('vars', lidarr_name + '_docker_volumes_default', default=lidarr_docker_volumes_default)
-                           + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom)
-                           + lookup('vars', lidarr_name + '_docker_volumes_theme', default=lidarr_docker_volumes_theme) }}"
+                           + lookup('vars', lidarr_name + '_docker_volumes_custom', default=lidarr_docker_volumes_custom) }}"
 
 # Devices
 lidarr_docker_devices_default: []
@@ -148,11 +143,11 @@ lidarr_docker_hosts: "{{ docker_hosts_common
 lidarr_docker_labels_default: {}
 lidarr_docker_labels_custom: {}
 lidarr_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', lidarr_name + '_docker_labels_default', default=lidarr_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (lidarr_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', lidarr_name + '_docker_labels_custom', default=lidarr_docker_labels_custom)) }}"
+                          | combine(lookup('vars', lidarr_name + '_docker_labels_default', default=lidarr_docker_labels_default))
+                          | combine((traefik_themepark_labels
+                                    if (lidarr_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    lookup('vars', lidarr_name + '_docker_labels_custom', default=lidarr_docker_labels_custom)) }}"
 
 # Hostname
 lidarr_docker_hostname: "{{ lidarr_name }}"

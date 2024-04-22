@@ -47,9 +47,9 @@ bazarr_dns_proxy: "{{ dns.proxied }}"
 
 bazarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 bazarr_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', bazarr_name + '_name', default=bazarr_name)
-                                          if (bazarr_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                       + (',themepark-' + lookup('vars', bazarr_name + '_name', default=bazarr_name)
+                                         if (bazarr_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '') }}"
 bazarr_traefik_middleware_custom: ""
 bazarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 bazarr_traefik_enabled: true
@@ -111,14 +111,10 @@ bazarr_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"
   - "/mnt/unionfs/Media/TV:/tv"
 bazarr_docker_volumes_custom: []
-bazarr_docker_volumes_theme: []
 bazarr_docker_volumes: "{{ lookup('vars', bazarr_name + '_docker_volumes_default', default=bazarr_docker_volumes_default)
                            + lookup('vars', bazarr_name + '_docker_volumes_custom', default=bazarr_docker_volumes_custom)
                            + (lookup('vars', bazarr_name + '_docker_volumes_legacy', default=bazarr_docker_volumes_legacy)
                              if docker_legacy_volume
-                             else [])
-                           + (lookup('vars', bazarr_name + '_docker_volumes_theme', default=bazarr_docker_volumes_theme)
-                             if lookup('vars', bazarr_name + '_themepark_enabled', default=bazarr_themepark_enabled)
                              else []) }}"
 
 # Devices

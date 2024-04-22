@@ -111,13 +111,8 @@ prowlarr_docker_commands: "{{ prowlarr_docker_commands_default
 prowlarr_docker_volumes_default:
   - "{{ prowlarr_paths_location }}:/config"
 prowlarr_docker_volumes_custom: []
-prowlarr_docker_volumes_theme: []
 prowlarr_docker_volumes: "{{ prowlarr_docker_volumes_default
-                             + prowlarr_docker_volumes_custom
-                          if not (prowlarr_themepark_enabled)
-                          else prowlarr_docker_volumes_default
-                             + prowlarr_docker_volumes_custom
-                             + prowlarr_docker_volumes_theme }}"
+                             + prowlarr_docker_volumes_custom }}"
 
 # Devices
 prowlarr_docker_devices_default: []
@@ -136,11 +131,11 @@ prowlarr_docker_hosts: "{{ docker_hosts_common
 prowlarr_docker_labels_default: {}
 prowlarr_docker_labels_custom: {}
 prowlarr_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', prowlarr_name + '_docker_labels_default', default=prowlarr_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (prowlarr_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', prowlarr_name + '_docker_labels_custom', default=prowlarr_docker_labels_custom)) }}"
+                            | combine(lookup('vars', prowlarr_name + '_docker_labels_default', default=prowlarr_docker_labels_default))
+                            | combine((traefik_themepark_labels
+                                      if (prowlarr_themepark_enabled and global_themepark_plugin_enabled)
+                                      else {}),
+                                      lookup('vars', prowlarr_name + '_docker_labels_custom', default=prowlarr_docker_labels_custom)) }}"
 
 # Hostname
 prowlarr_docker_hostname: "{{ prowlarr_name }}"

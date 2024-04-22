@@ -158,11 +158,11 @@ nzbhydra2_docker_hosts: "{{ docker_hosts_common
 nzbhydra2_docker_labels_default: {}
 nzbhydra2_docker_labels_custom: {}
 nzbhydra2_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', nzbhydra2_name + '_docker_labels_default', default=nzbhydra2_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
+                             | combine(lookup('vars', nzbhydra2_name + '_docker_labels_default', default=nzbhydra2_docker_labels_default))
+                             | combine((traefik_themepark_labels
+                                       if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
+                                       else {}),
+                                       lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
 
 # Hostname
 nzbhydra2_docker_hostname: "{{ nzbhydra2_name }}"

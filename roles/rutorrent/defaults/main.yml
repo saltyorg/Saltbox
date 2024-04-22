@@ -60,9 +60,9 @@ rutorrent_dns_proxy: "{{ dns.proxied }}"
 
 rutorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 rutorrent_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', rutorrent_name + '_name', default=rutorrent_name)
-                                          if (rutorrent_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
+                                          + (',themepark-' + lookup('vars', rutorrent_name + '_name', default=rutorrent_name)
+                                            if (rutorrent_themepark_enabled and global_themepark_plugin_enabled)
+                                            else '') }}"
 rutorrent_traefik_middleware_custom: ""
 rutorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_traefik_enabled: true
@@ -198,13 +198,8 @@ rutorrent_docker_volumes_default:
   - "{{ rutorrent_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 rutorrent_docker_volumes_custom: []
-rutorrent_docker_volumes_theme: []
 rutorrent_docker_volumes: "{{ rutorrent_docker_volumes_default
-                              + rutorrent_docker_volumes_custom
-                           if not (rutorrent_themepark_enabled)
-                           else rutorrent_docker_volumes_default
-                              + rutorrent_docker_volumes_custom
-                              + rutorrent_docker_volumes_theme }}"
+                              + rutorrent_docker_volumes_custom }}"
 
 # Devices
 rutorrent_docker_devices_default: []
