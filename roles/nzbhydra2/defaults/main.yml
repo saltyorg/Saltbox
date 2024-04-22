@@ -49,9 +49,9 @@ nzbhydra2_dns_proxy: "{{ dns.proxied }}"
 
 nzbhydra2_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 nzbhydra2_traefik_middleware_default: "{{ traefik_default_middleware
-                                          + (',themepark-' + lookup('vars', nzbhydra2_name + '_name', default=nzbhydra2_name)
-                                            if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                            else '') }}"
+                                        + (',themepark-' + lookup('vars', nzbhydra2_name + '_name', default=nzbhydra2_name)
+                                          if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 nzbhydra2_traefik_middleware_custom: ""
 nzbhydra2_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbhydra2_traefik_enabled: true
@@ -64,7 +64,10 @@ nzbhydra2_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/getnzb`) || 
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 nzbhydra2_themepark_enabled: false
+nzbhydra2_themepark_app: "nzbhydra2"
 nzbhydra2_themepark_theme: "{{ global_themepark_theme }}"
+nzbhydra2_themepark_domain: "{{ global_themepark_domain }}"
+nzbhydra2_themepark_addons: []
 
 ################################
 # Config
@@ -154,15 +157,12 @@ nzbhydra2_docker_hosts: "{{ docker_hosts_common
 # Labels
 nzbhydra2_docker_labels_default: {}
 nzbhydra2_docker_labels_custom: {}
-nzbhydra2_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", nzbhydra2_name + "_name", default=nzbhydra2_name) }}.plugin.themepark.app": "nzbhydra2" }'
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", nzbhydra2_name + "_name", default=nzbhydra2_name) }}.plugin.themepark.theme": "{{ lookup("vars", nzbhydra2_name + "_themepark_theme", default=nzbhydra2_themepark_theme) }}" }'
 nzbhydra2_docker_labels: "{{ docker_labels_common
-                             | combine(nzbhydra2_docker_labels_default)
-                             | combine((lookup('vars', nzbhydra2_name + '_docker_labels_themepark', default=nzbhydra2_docker_labels_themepark)
-                                       if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                       else {}),
-                                       lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
+                           | combine(lookup('vars', nzbhydra2_name + '_docker_labels_default', default=nzbhydra2_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
 
 # Hostname
 nzbhydra2_docker_hostname: "{{ nzbhydra2_name }}"

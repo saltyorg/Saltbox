@@ -52,7 +52,10 @@ prowlarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 prowlarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-prowlarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
+prowlarr_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', prowlarr_name + '_name', default=prowlarr_name)
+                                          if (prowlarr_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 prowlarr_traefik_middleware_custom: ""
 prowlarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prowlarr_traefik_enabled: true
@@ -65,8 +68,10 @@ prowlarr_traefik_api_endpoint: "PathRegexp(`/[0-9]+/api`) || PathRegexp(`/[0-9]+
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 prowlarr_themepark_enabled: false
+prowlarr_themepark_app: "prowlarr"
 prowlarr_themepark_theme: "{{ global_themepark_theme }}"
 prowlarr_themepark_domain: "{{ global_themepark_domain }}"
+prowlarr_themepark_addons: []
 
 ################################
 # Docker
@@ -92,9 +97,6 @@ prowlarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ prowlarr_themepark_domain }}"
-  TP_THEME: "{{ prowlarr_themepark_theme }}"
-  TP_HOTIO: "true"
 prowlarr_docker_envs_custom: {}
 prowlarr_docker_envs: "{{ prowlarr_docker_envs_default
                           | combine(prowlarr_docker_envs_custom) }}"
@@ -109,8 +111,7 @@ prowlarr_docker_commands: "{{ prowlarr_docker_commands_default
 prowlarr_docker_volumes_default:
   - "{{ prowlarr_paths_location }}:/config"
 prowlarr_docker_volumes_custom: []
-prowlarr_docker_volumes_theme:
-  - "{{ prowlarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
+prowlarr_docker_volumes_theme: []
 prowlarr_docker_volumes: "{{ prowlarr_docker_volumes_default
                              + prowlarr_docker_volumes_custom
                           if not (prowlarr_themepark_enabled)
@@ -135,8 +136,11 @@ prowlarr_docker_hosts: "{{ docker_hosts_common
 prowlarr_docker_labels_default: {}
 prowlarr_docker_labels_custom: {}
 prowlarr_docker_labels: "{{ docker_labels_common
-                            | combine(prowlarr_docker_labels_default)
-                            | combine(prowlarr_docker_labels_custom) }}"
+                           | combine(lookup('vars', prowlarr_name + '_docker_labels_default', default=prowlarr_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (prowlarr_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', prowlarr_name + '_docker_labels_custom', default=prowlarr_docker_labels_custom)) }}"
 
 # Hostname
 prowlarr_docker_hostname: "{{ prowlarr_name }}"

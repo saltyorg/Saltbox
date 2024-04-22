@@ -46,7 +46,10 @@ jackett_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-jackett_traefik_middleware_default: "{{ traefik_default_middleware }}"
+jackett_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', jackett_name + '_name', default=jackett_name)
+                                          if (jackett_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 jackett_traefik_middleware_custom: ""
 jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_traefik_enabled: true
@@ -59,8 +62,10 @@ jackett_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/dl`)"
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 jackett_themepark_enabled: false
+jackett_themepark_app: "jackett"
 jackett_themepark_theme: "{{ global_themepark_theme }}"
 jackett_themepark_domain: "{{ global_themepark_domain }}"
+jackett_themepark_addons: []
 
 ################################
 # Docker
@@ -86,9 +91,6 @@ jackett_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ jackett_themepark_domain }}"
-  TP_THEME: "{{ jackett_themepark_theme }}"
-  TP_HOTIO: "true"
 jackett_docker_envs_custom: {}
 jackett_docker_envs: "{{ jackett_docker_envs_default
                          | combine(jackett_docker_envs_custom) }}"
@@ -103,8 +105,7 @@ jackett_docker_commands: "{{ jackett_docker_commands_default
 jackett_docker_volumes_default:
   - "{{ jackett_paths_location }}:/config"
 jackett_docker_volumes_custom: []
-jackett_docker_volumes_theme:
-  - "{{ jackett_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
+jackett_docker_volumes_theme: []
 jackett_docker_volumes: "{{ jackett_docker_volumes_default
                             + jackett_docker_volumes_custom
                          if not (jackett_themepark_enabled)
@@ -129,8 +130,11 @@ jackett_docker_hosts: "{{ docker_hosts_common
 jackett_docker_labels_default: {}
 jackett_docker_labels_custom: {}
 jackett_docker_labels: "{{ docker_labels_common
-                           | combine(jackett_docker_labels_default)
-                           | combine(jackett_docker_labels_custom) }}"
+                           | combine(lookup('vars', jackett_name + '_docker_labels_default', default=jackett_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (jackett_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', jackett_name + '_docker_labels_custom', default=jackett_docker_labels_custom)) }}"
 
 # Hostname
 jackett_docker_hostname: "{{ jackett_name }}"

@@ -59,9 +59,9 @@ emby_dns_proxy: "{{ dns.proxied }}"
 
 emby_traefik_sso_middleware: ""
 emby_traefik_middleware_default: "{{ traefik_default_middleware
-                                     + (',themepark-' + lookup('vars', emby_name + '_name', default=emby_name)
-                                       if (emby_themepark_enabled and global_themepark_plugin_enabled)
-                                       else '') }}"
+                                        + (',themepark-' + lookup('vars', emby_name + '_name', default=emby_name)
+                                          if (emby_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 emby_traefik_middleware_custom: ""
 emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
 emby_traefik_enabled: true
@@ -75,7 +75,10 @@ emby_traefik_api_endpoint: ""
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 emby_themepark_enabled: false
+emby_themepark_app: "emby"
 emby_themepark_theme: "{{ global_themepark_theme }}"
+emby_themepark_domain: "{{ global_themepark_domain }}"
+emby_themepark_addons: []
 
 ################################
 # Config
@@ -169,15 +172,12 @@ emby_docker_hosts: "{{ docker_hosts_common
 # Labels
 emby_docker_labels_default: {}
 emby_docker_labels_custom: {}
-emby_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", emby_name + "_name", default=emby_name) }}.plugin.themepark.app": "emby" }'
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", emby_name + "_name", default=emby_name) }}.plugin.themepark.theme": "{{ lookup("vars", emby_name + "_themepark_theme", default=emby_themepark_theme) }}" }'
 emby_docker_labels: "{{ docker_labels_common
-                        | combine(lookup('vars', emby_name + '_docker_labels_default', default=emby_docker_labels_default))
-                        | combine((lookup('vars', emby_name + '_docker_labels_themepark', default=emby_docker_labels_themepark)
-                                  if (emby_themepark_enabled and global_themepark_plugin_enabled)
-                                  else {}),
-                                  lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
+                           | combine(lookup('vars', emby_name + '_docker_labels_default', default=emby_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (emby_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
 
 # Hostname
 emby_docker_hostname: "{{ emby_name }}"

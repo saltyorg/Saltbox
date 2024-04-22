@@ -104,9 +104,9 @@ plex_webtools_dns_proxy: "{{ dns.proxied }}"
 
 plex_traefik_sso_middleware: ""
 plex_traefik_middleware_default: "{{ traefik_default_middleware
-                                     + (',themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
-                                       if (plex_themepark_enabled and global_themepark_plugin_enabled)
-                                       else '') }}"
+                                        + (',themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
+                                          if (plex_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 plex_traefik_middleware_custom: ""
 plex_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_traefik_enabled: true
@@ -139,8 +139,10 @@ plex_webtools_traefik_router: "{{ lookup('vars', plex_name + '_webtools_web_subd
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 plex_themepark_enabled: false
+plex_themepark_app: "plex"
 plex_themepark_theme: "{{ global_themepark_theme }}"
 plex_themepark_domain: "{{ global_themepark_domain }}"
+plex_themepark_addons: []
 
 ################################
 # Docker
@@ -261,9 +263,6 @@ plex_docker_labels_default:
   - '{ "traefik.http.routers.{{ plex_webtools_traefik_router }}.priority": "20" }'
   - '{ "traefik.http.services.{{ plex_webtools_traefik_router }}.loadbalancer.server.port": "{{ plex_webtools_web_port }}" }'
 plex_docker_labels_custom: {}
-plex_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", plex_name + "_name", default=plex_name) }}.plugin.themepark.app": "plex" }'
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", plex_name + "_name", default=plex_name) }}.plugin.themepark.theme": "{{ lookup("vars", plex_name + "_themepark_theme", default=plex_themepark_theme) }}" }'
 plex_docker_labels: "{{ docker_labels_common
                         | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default)
                                   if plex_plugin_webtools

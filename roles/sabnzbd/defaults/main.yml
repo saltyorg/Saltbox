@@ -118,9 +118,6 @@ sabnzbd_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ sabnzbd_themepark_domain }}"
-  TP_THEME: "{{ sabnzbd_themepark_theme }}"
-  TP_HOTIO: "true"
 sabnzbd_docker_envs_custom: {}
 sabnzbd_docker_envs: "{{ sabnzbd_docker_envs_default
                          | combine(sabnzbd_docker_envs_custom) }}"
@@ -136,8 +133,7 @@ sabnzbd_docker_volumes_default:
   - "{{ sabnzbd_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 sabnzbd_docker_volumes_custom: []
-sabnzbd_docker_volumes_theme:
-  - "{{ sabnzbd_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
+sabnzbd_docker_volumes_theme: []
 sabnzbd_docker_volumes: "{{ sabnzbd_docker_volumes_default
                             + sabnzbd_docker_volumes_custom
                          if not (sabnzbd_themepark_enabled)

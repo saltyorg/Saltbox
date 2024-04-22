@@ -20,19 +20,6 @@
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-- name: Download 98-themepark
-  ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/themepark-dev/theme.park/master/docker-mods/sonarr/root/etc/cont-init.d/98-themepark"
-    dest: "{{ sonarr_paths_location }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0770"
-    force: true
-  register: x
-  until: "x is not failed"
-  retries: 5
-  delay: 10
-
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 

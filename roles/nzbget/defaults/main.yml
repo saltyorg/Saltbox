@@ -53,7 +53,10 @@ nzbget_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 nzbget_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-nzbget_traefik_middleware_default: "{{ traefik_default_middleware }}"
+nzbget_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', nzbget_name + '_name', default=nzbget_name)
+                                          if (nzbget_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 nzbget_traefik_middleware_custom: ""
 nzbget_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbget_traefik_enabled: true
@@ -175,8 +178,10 @@ nzbget_scripts_local_copy_list: "{{ nzbget_scripts_local_copy_default
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 nzbget_themepark_enabled: false
+nzbget_themepark_app: "nzbget"
 nzbget_themepark_theme: "{{ global_themepark_theme }}"
 nzbget_themepark_domain: "{{ global_themepark_domain }}"
+nzbget_themepark_addons: []
 
 ################################
 # Docker
@@ -203,9 +208,6 @@ nzbget_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
   LC_ALL: "C"
-  TP_DOMAIN: "{{ nzbget_themepark_domain }}"
-  TP_THEME: "{{ nzbget_themepark_theme }}"
-  TP_HOTIO: "true"
 nzbget_docker_envs_custom: {}
 nzbget_docker_envs: "{{ nzbget_docker_envs_default
                         | combine(nzbget_docker_envs_custom) }}"
@@ -221,8 +223,7 @@ nzbget_docker_volumes_default:
   - "{{ nzbget_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 nzbget_docker_volumes_custom: []
-nzbget_docker_volumes_theme:
-  - "{{ nzbget_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
+nzbget_docker_volumes_theme: []
 nzbget_docker_volumes: "{{ nzbget_docker_volumes_default
                            + nzbget_docker_volumes_custom
                         if not (nzbget_themepark_enabled)
@@ -247,8 +248,11 @@ nzbget_docker_hosts: "{{ docker_hosts_common
 nzbget_docker_labels_default: {}
 nzbget_docker_labels_custom: {}
 nzbget_docker_labels: "{{ docker_labels_common
-                          | combine(nzbget_docker_labels_default)
-                          | combine(nzbget_docker_labels_custom) }}"
+                           | combine(lookup('vars', nzbget_name + '_docker_labels_default', default=nzbget_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (nzbget_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', nzbget_name + '_docker_labels_custom', default=nzbget_docker_labels_custom)) }}"
 
 # Hostname
 nzbget_docker_hostname: "{{ nzbget_name }}"

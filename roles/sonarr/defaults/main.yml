@@ -53,7 +53,10 @@ sonarr_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 sonarr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-sonarr_traefik_middleware_default: "{{ traefik_default_middleware }}"
+sonarr_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', sonarr_name + '_name', default=sonarr_name)
+                                          if (sonarr_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 sonarr_traefik_middleware_custom: ""
 sonarr_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_traefik_enabled: true
@@ -73,8 +76,10 @@ sonarr_api_key:
 
 # Options can be found at https://github.com/themepark-dev/theme.park
 sonarr_themepark_enabled: false
+sonarr_themepark_app: "sonarr"
 sonarr_themepark_theme: "{{ global_themepark_theme }}"
 sonarr_themepark_domain: "{{ global_themepark_domain }}"
+sonarr_themepark_addons: []
 
 ################################
 # Docker
@@ -102,9 +107,6 @@ sonarr_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-  TP_DOMAIN: "{{ lookup('vars', sonarr_name + '_themepark_domain', default=sonarr_themepark_domain) }}"
-  TP_THEME: "{{ lookup('vars', sonarr_name + '_themepark_theme', default=sonarr_themepark_theme) }}"
-  TP_HOTIO: "true"
 sonarr_docker_envs_custom: {}
 sonarr_docker_envs: "{{ lookup('vars', sonarr_name + '_docker_envs_default', default=sonarr_docker_envs_default)
                         | combine(lookup('vars', sonarr_name + '_docker_envs_custom', default=sonarr_docker_envs_custom)) }}"
@@ -122,8 +124,7 @@ sonarr_docker_volumes_default:
 sonarr_docker_volumes_legacy:
   - "/mnt/unionfs/Media/TV:/tv"
 sonarr_docker_volumes_custom: []
-sonarr_docker_volumes_theme:
-  - "{{ sonarr_paths_location }}/98-themepark:/etc/cont-init.d/98-themepark"
+sonarr_docker_volumes_theme: []
 sonarr_docker_volumes: "{{ lookup('vars', sonarr_name + '_docker_volumes_default', default=sonarr_docker_volumes_default)
                            + lookup('vars', sonarr_name + '_docker_volumes_custom', default=sonarr_docker_volumes_custom)
                            + (lookup('vars', sonarr_name + '_docker_volumes_legacy', default=sonarr_docker_volumes_legacy)
@@ -150,8 +151,11 @@ sonarr_docker_hosts: "{{ docker_hosts_common
 sonarr_docker_labels_default: {}
 sonarr_docker_labels_custom: {}
 sonarr_docker_labels: "{{ docker_labels_common
-                          | combine(lookup('vars', sonarr_name + '_docker_labels_default', default=sonarr_docker_labels_default))
-                          | combine(lookup('vars', sonarr_name + '_docker_labels_custom', default=sonarr_docker_labels_custom)) }}"
+                           | combine(lookup('vars', sonarr_name + '_docker_labels_default', default=sonarr_docker_labels_default))
+                           | combine((traefik_themepark_labels
+                                     if (sonarr_themepark_enabled and global_themepark_plugin_enabled)
+                                     else {}),
+                                     lookup('vars', sonarr_name + '_docker_labels_custom', default=sonarr_docker_labels_custom)) }}"
 
 # Hostname
 sonarr_docker_hostname: "{{ sonarr_name }}"
