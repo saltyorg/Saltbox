@@ -67,6 +67,14 @@ ddns_docker_volumes_custom: []
 ddns_docker_volumes: "{{ ddns_docker_volumes_default
                          + ddns_docker_volumes_custom }}"
 
+# Mounts
+ddns_docker_mounts_default:
+  - target: /tmp
+    type: tmpfs
+ddns_docker_mounts_custom: []
+ddns_docker_mounts: "{{ lookup('vars', ddns_name + '_docker_mounts_default', default=ddns_docker_mounts_default)
+                        + lookup('vars', ddns_name + '_docker_mounts_custom', default=ddns_docker_mounts_custom) }}"
+
 # Devices
 ddns_docker_devices_default: []
 ddns_docker_devices_custom: []
