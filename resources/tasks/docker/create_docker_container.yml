@@ -114,6 +114,7 @@
     working_dir: "{{ lookup('vars', _var_prefix + '_docker_working_dir', default=omit) }}"
   register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  timeout: "{{ 300 if continuous_integration else omit }}"
   delay: 10
   until: result is succeeded
 
