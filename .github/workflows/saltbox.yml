@@ -87,12 +87,7 @@ jobs:
         run: cat /srv/git/sb/requirements-saltbox.txt
 
       - name: Install Dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          shell: bash
-          command: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && /srv/ansible/venv/bin/ansible --version
+        run: curl https://raw.githubusercontent.com/saltyorg/sb/master/sb_dep.sh --output sb_dep.sh && sudo bash sb_dep.sh -v && /srv/ansible/venv/bin/ansible --version
 
       - name: Symlink cloned repository to /srv/git/saltbox
         run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
@@ -113,21 +108,11 @@ jobs:
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
 
       - name: Install Saltbox Core
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          shell: bash
-          command: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox') || contains(matrix.roles, 'core')) }}
 
       - name: Install ${{ matrix.roles }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 30
-          max_attempts: 3
-          shell: bash
-          command: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}'
 
   webhook:
     name: 'webhook'
@@ -148,3 +133,13 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ env.WORKFLOW_CONCLUSION }}
+
+  retry-on-failure:
+    if: failure() && fromJSON(github.run_attempt) < 3
+    needs: [install, webhook]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run retry.yml -F run_id=${{ github.run_id }}
