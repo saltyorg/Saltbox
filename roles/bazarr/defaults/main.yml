@@ -134,11 +134,11 @@ bazarr_docker_hosts: "{{ docker_hosts_common
 bazarr_docker_labels_default: {}
 bazarr_docker_labels_custom: {}
 bazarr_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', bazarr_name + '_docker_labels_default', default=bazarr_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (bazarr_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', bazarr_name + '_docker_labels_custom', default=bazarr_docker_labels_custom)) }}"
+                          | combine(lookup('vars', bazarr_name + '_docker_labels_default', default=bazarr_docker_labels_default))
+                          | combine((traefik_themepark_labels
+                                    if (bazarr_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    lookup('vars', bazarr_name + '_docker_labels_custom', default=bazarr_docker_labels_custom)) }}"
 
 # Hostname
 bazarr_docker_hostname: "{{ bazarr_name }}"
