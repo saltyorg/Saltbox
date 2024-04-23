@@ -113,9 +113,9 @@
     enabled: true
     daemon_reload: true
 
-- name: "Wait for {{ docker_containers_startup_delay }} seconds before commencing"
+- name: "Wait for {{ (docker_service_sleep | int) + 30 }} seconds before commencing"
   ansible.builtin.wait_for:
-    timeout: "{{ docker_containers_startup_delay }}"
+    timeout: "{{ (docker_service_sleep | int) + 30 }}"
 
 - name: "Import Controller tasks"
   ansible.builtin.import_tasks: "subtasks/controller.yml"

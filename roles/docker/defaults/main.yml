@@ -102,8 +102,6 @@ docker_package_state: "{{ 'latest' if (docker_version is defined and docker_vers
 
 put_docker_dpkg_into_hold: true
 
-docker_containers_startup_delay: "{{ 30 if continuous_integration or (not use_remote) else 120 }}"
-
 docker_filesystem_path: "/media/docker-volume.img"
 
 docker_filesystem_size: "20G"
