@@ -131,6 +131,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ env.WORKFLOW_CONCLUSION }}
+          description: "Run attempt: ${{ github.run_attempt }}"
 
   retry-on-failure:
     if: failure() && fromJSON(github.run_attempt) < 3
