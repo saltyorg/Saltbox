@@ -1,4 +1,4 @@
-ansible==9.4.0
+ansible==9.5.1
 ansible-lint==24.2.2
 argon2_cffi==23.1.0
 dnspython==2.6.1
