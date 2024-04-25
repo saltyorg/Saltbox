@@ -81,6 +81,9 @@ jobs:
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
 
+      - name: Tune GitHub-hosted runner network
+        run: sudo ethtool -K eth0 tx off rx off
+
       - name: Print pip dependencies
         run: cat /srv/git/sb/requirements-saltbox.txt
 
