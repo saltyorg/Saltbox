@@ -59,12 +59,26 @@ dozzle_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 dozzle_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-dozzle_traefik_middleware_default: "{{ traefik_default_middleware }}"
+dozzle_traefik_middleware_default: "{{ traefik_default_middleware
+                                       + (',dropsecurityheaders@file,themepark-' + lookup('vars', dozzle_name + '_name', default=dozzle_name)
+                                         if (dozzle_themepark_enabled and global_themepark_plugin_enabled)
+                                         else '') }}"
 dozzle_traefik_middleware_custom: ""
 dozzle_traefik_certresolver: "{{ traefik_default_certresolver }}"
 dozzle_traefik_enabled: true
 dozzle_traefik_api_enabled: false
 dozzle_traefik_api_endpoint: ""
+
+################################
+# THEME
+################################
+
+# Options can be found at https://github.com/themepark-dev/theme.park
+dozzle_themepark_enabled: false
+dozzle_themepark_app: "dozzle"
+dozzle_themepark_theme: "{{ global_themepark_theme }}"
+dozzle_themepark_domain: "{{ global_themepark_domain }}"
+dozzle_themepark_addons: []
 
 ################################
 # Docker
@@ -124,7 +138,10 @@ dozzle_docker_labels_default: {}
 dozzle_docker_labels_custom: {}
 dozzle_docker_labels: "{{ docker_labels_common
                           | combine(dozzle_docker_labels_default)
-                          | combine(dozzle_docker_labels_custom) }}"
+                          | combine((traefik_themepark_labels
+                                    if (dozzle_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    dozzle_docker_labels_custom) }}"
 
 # Hostname
 dozzle_docker_hostname: "{{ dozzle_name }}"
