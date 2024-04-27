@@ -7,6 +7,19 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Cleanup tmp folder"
+  ansible.builtin.file:
+    path: "/tmp/node_exporter"
+    state: absent
+
+- name: "Create tmp folder"
+  ansible.builtin.file:
+    path: "/tmp/node_exporter"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
 - name: "Get URL for latest Node Exporter release"
   ansible.builtin.shell: "{{ node_exporter_latest_release_lookup_command }}"
   args:
@@ -17,7 +30,7 @@
 - name: "Download and unarchive Node Exporter from Github"
   ansible.builtin.unarchive:
     src: "{{ node_exporter_latest_download_url.stdout }}"
-    dest: /tmp
+    dest: /tmp/node_exporter
     copy: false
     validate_certs: false
   register: x
@@ -34,7 +47,7 @@
     mode: "0775"
 
 - name: Find Node Exporter tmp dir
-  ansible.builtin.shell: ls -d /tmp/node_exporter-*.linux-amd64
+  ansible.builtin.shell: ls -d /tmp/node_exporter/node_exporter-*.linux-amd64
   register: node_exporter_tmp_dir
 
 - name: "Copy binary to {{ node_exporter_path }}/node_exporter"
@@ -67,3 +80,8 @@
     name: node_exporter.service
     state: started
     enabled: true
+
+- name: "Cleanup tmp folder"
+  ansible.builtin.file:
+    path: "/tmp/node_exporter"
+    state: absent

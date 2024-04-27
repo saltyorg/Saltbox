@@ -10,7 +10,7 @@
 
 [Unit]
 Description=Node Exporter
-After=network-online.target docker
+After=network-online.target docker.service
 
 [Service]
 User={{ user.name }}
