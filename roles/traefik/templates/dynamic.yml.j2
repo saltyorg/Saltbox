@@ -37,10 +37,11 @@ http:
         accessControlMaxAge: "100000"
         customresponseheaders:
           content-security-policy: ""
+          cross-origin-opener-policy: ""
           permissions-policy: ""
           referrer-policy: ""
           x-frame-options: ""
-          cross-origin-opener-policy: ""
+          x-webkit-csp: ""
     hsts:
       headers:
         stsSeconds: 63072000
