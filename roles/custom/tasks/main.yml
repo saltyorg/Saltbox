@@ -10,22 +10,19 @@
 - name: Custom | Update apt cache
   ansible.builtin.apt:
     update_cache: true
-  ignore_errors: true
 
 - name: Custom | Install custom apt packages
   ansible.builtin.apt:
     state: latest
     name: "{{ custom_apt }}"
-  ignore_errors: true
 
 - name: Custom | Install custom deb packages
   ansible.builtin.apt:
     state: present
     deb: "{{ item }}"
-  ignore_errors: true
   loop: "{{ custom_deb }}"
 
 - name: Install custom pip modules
   ansible.builtin.shell: "pip install {{ item }}"
-  ignore_errors: true
   loop: "{{ custom_pip }}"
+  when: ansible_distribution_version is version('22.04', '<=')
