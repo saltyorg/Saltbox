@@ -9,9 +9,14 @@
 ---
 - name: Misc | Install argcomplete
   ansible.builtin.shell: "pip install {{ shell_misc_argcomplete_pip_package }}"
-  ignore_errors: true
+  when: ansible_distribution_version is version('22.04', '<=')
+
+- name: Misc | Install argcomplete
+  ansible.builtin.apt:
+    name: python3-argcomplete
+    state: present
+  when: ansible_distribution_version is version('24.04', '>=')
 
 # For Ansible command line utilities
 - name: Misc | Activate argcomplete
   ansible.builtin.shell: "{{ shell_misc_argcomplete_command }}"
-  ignore_errors: true
