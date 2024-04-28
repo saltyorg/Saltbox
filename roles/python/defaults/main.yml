@@ -10,7 +10,5 @@
 python_apt_repo_url_old: "deb [arch=amd64 signed-by=/usr/share/keyrings/deadsnakes.gpg] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
 python_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/deadsnakes.asc] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
 
-python_get_pip_url: "https://bootstrap.pypa.io/get-pip.py"
-
 python_version: "3.8"
 python_valid_distro: "22.04"

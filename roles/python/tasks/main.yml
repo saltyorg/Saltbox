@@ -10,7 +10,7 @@
 - name: "Fail if not running {{ python_valid_distro }}"
   ansible.builtin.fail:
     msg: "This role is only for {{ python_valid_distro }}"
-  when: (ansible_distribution_version is version(python_valid_distro, '!='))
+  when: (ansible_distribution_version is version(python_valid_distro, '<'))
 
 - name: Add gpg signing key to trusted.gpg.d
   ansible.builtin.get_url:
@@ -24,15 +24,16 @@
 
 - name: Remove old repository entry
   ansible.builtin.apt_repository:
-    repo: "{{ python_apt_repo_url_old }}"
+    repo: "{{ item }}"
     filename: "deadsnakes"
     update_cache: true
     state: absent
+  loop:
+    - "{{ python_apt_repo_url_old }}"
+    - "{{ python_apt_repo_url }}"
 
 - name: Add deadsnakes/ppa
-  ansible.builtin.apt_repository:
-    repo: "{{ python_apt_repo_url }}"
-    filename: "deadsnakes"
+  ansible.builtin.shell: add-apt-repository ppa:deadsnakes/ppa --yes
   register: result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
