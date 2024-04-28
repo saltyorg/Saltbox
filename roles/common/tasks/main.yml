@@ -68,18 +68,6 @@
       - ca-certificates
       - software-properties-common
 
-- name: Add Ubuntu repositories
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    state: present
-    update_cache: true
-  with_items:
-    - 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse'
-    - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse'
-    - 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates multiverse'
-    - 'deb-src http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates multiverse'
-  when: (ansible_distribution == 'Ubuntu') and (not continuous_integration)
-
 - name: Install common packages
   ansible.builtin.apt:
     state: present
@@ -113,14 +101,12 @@
       - "moreutils"
       - "unrar"
       - "python3-virtualenv"
-  ignore_errors: true
 
 - name: Install extra packages
   ansible.builtin.apt:
     state: present
     name:
       - "run-one"
-  ignore_errors: true
 
 - name: Install common Python packages (System Python)
   ansible.builtin.pip:
@@ -129,6 +115,15 @@
       - "certbot"
     executable: pip3
     state: "latest"
+  when: ansible_distribution_version is version('22.04', '<=')
+
+- name: Install common Python apt packages (System Python)
+  ansible.builtin.apt:
+    state: present
+    name:
+      - "apprise"
+      - "certbot"
+  when: ansible_distribution_version is version('24.04', '>=')
 
 - name: Fetch PCI Info
   ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
@@ -153,7 +148,6 @@
   ansible.builtin.apt:
     name: unrar-free
     state: present
-  ignore_errors: true
   when: (not unrar_binary.stat.exists)
 
 - name: "Import 'pip.conf'"
