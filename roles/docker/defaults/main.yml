@@ -14,6 +14,19 @@
 # Format is ["8.8.8.8", "8.8.4.4"]
 docker_dns: []
 
+# YAML Dictionary that gets combined with the defaults and later converted to json
+# Example of how to remove an option:
+# docker_config_custom:
+#   log-opts: "{{ omit }}"
+# Example of how to add options:
+# docker_config_custom:
+#   default-runtime: "nvidia"
+#   runtimes:
+#     nvidia:
+#       path: "/usr/bin/nvidia-container-runtime"
+#       runtimeArgs: []
+docker_config_custom: {}
+
 ################################
 # Docker APT Key
 ################################

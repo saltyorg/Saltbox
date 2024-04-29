@@ -17,10 +17,27 @@
   with_items:
     - /etc/docker
 
+- name: "Daemon | Define the 'docker_config' variable"
+  ansible.builtin.set_fact:
+    docker_config:
+      dns: "{{ docker_dns if docker_dns | length > 0 else omit }}"
+      fixed-cidr-v6: "2001:db8::/64"
+      ipv6: "{{ true if docker_ipv6 else false }}"
+      log-driver: "json-file"
+      log-opts:
+        max-size: "10m"
+        max-file: "3"
+      storage-driver: "{{ docker_daemon_storage_driver }}"
+      userland-proxy: false
+
+- name: "Daemon | Combine 'docker_config' and 'docker_config_custom' and convert to JSON"
+  ansible.builtin.set_fact:
+    docker_config_json: "{{ docker_config | combine(docker_config_custom) | to_json(indent=2, sort_keys=True) }}"
+
 - name: "Daemon | Import 'daemon.json'"
-  ansible.builtin.template:
-    src: daemon.json.j2
-    dest: /etc/docker/daemon.json
+  ansible.builtin.copy:
+    content: "{{ docker_config_json }}\n"
+    dest: "/etc/docker/daemon.json"
     mode: "0664"
     force: "{{ docker_daemon_template_force }}"
 
@@ -36,6 +53,3 @@
     dest: /etc/systemd/system/docker.service.d/override.conf
     mode: "0644"
     force: "{{ docker_service_force }}"
-
-- name: "Daemon | Remove old init entry from '/etc/docker/daemon.json'"
-  ansible.builtin.shell: jq 'del(."init")' /etc/docker/daemon.json | sponge /etc/docker/daemon.json
