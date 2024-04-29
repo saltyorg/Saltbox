@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Docker | Daemon | Set '_remotes_list' variable
+- name: "Docker | Daemon | Set '_remotes_list' variable"
   ansible.builtin.set_fact:
     _remotes_services_list: "{{ _remotes_services_list | default('') + (rclone_service_template + rclone_remote_name + '.service ') }}"
   with_items: "{{ rclone.remotes }}"
@@ -30,6 +30,12 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
 
+- name: "Docker | Daemon | Start docker socket"
+  ansible.builtin.systemd_service:
+    name: docker.socket
+    state: restarted
+    enabled: true
+
 - name: "Docker | Daemon | Start docker service"
   ansible.builtin.systemd_service:
     name: docker
@@ -40,7 +46,7 @@
   ansible.builtin.wait_for:
     timeout: 30
 
-- name: Docker | Daemon | Unblock Docker Controller
+- name: "Docker | Daemon | Unblock Docker Controller"
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/unblock"
     method: POST

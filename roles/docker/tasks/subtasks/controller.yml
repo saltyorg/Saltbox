@@ -99,7 +99,7 @@
   ansible.builtin.systemd_service:
     name: saltbox_managed_docker_controller_helper.service
     enabled: true
-    state: started
+    state: restarted
     daemon_reload: true
 
 - name: Unblock Docker Controller

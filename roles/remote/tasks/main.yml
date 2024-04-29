@@ -68,6 +68,11 @@
         name: docker
         state: stopped
 
+    - name: Stop docker socket
+      ansible.builtin.systemd_service:
+        name: docker.socket
+        state: stopped
+
 - name: "Check if 'rclone_vfs.service' exists"
   ansible.builtin.stat:
     path: "/etc/systemd/system/rclone_vfs.service"
@@ -167,16 +172,16 @@
 
 - name: Get list of existing remote services
   ansible.builtin.set_fact:
-    saltbox_managed_rclone_services: "{{ (saltbox_managed_rclone_services | default([])) + [rclone_service.key] }}"
+    saltbox_managed_rclone_services: "{{ (saltbox_managed_rclone_services | default({})) | combine({rclone_service.key: rclone_service.value.status}) }}"
   loop: "{{ services | dict2items }}"
   loop_control:
     loop_var: rclone_service
-  when: (rclone_service_template in rclone_service.key) and (rclone_service.value.status != 'not-found') and (rclone_service.value.status != 'failed')
+  when: (rclone_service_template in rclone_service.key)
 
 - name: Cleanup Tasks
   ansible.builtin.include_tasks: "cleanup.yml"
-  with_items: "{{ saltbox_managed_rclone_services }}"
-  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0) and (not 'refresh' in item)
+  loop: "{{ saltbox_managed_rclone_services | dict2items }}"
+  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0) and (not 'refresh' in item.key)
 
 - name: Create '/mnt/remote' directory
   ansible.builtin.file:

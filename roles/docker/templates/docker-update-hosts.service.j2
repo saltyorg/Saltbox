@@ -9,14 +9,11 @@
 #########################################################################
 [Unit]
 Description=Update Docker containers in /etc/hosts
-Requires=docker.service
+BindsTo=docker.service
 After=docker.service
-PartOf=docker.service
 
 [Service]
 ExecStart=/usr/bin/python3.10 /srv/git/saltbox/roles/docker/files/docker-update-hosts.py {{ docker_update_hosts_service_runtime_max }}
-Restart=always
-RestartSec=20s
 
 [Install]
-WantedBy=docker.service
+WantedBy=multi-user.target

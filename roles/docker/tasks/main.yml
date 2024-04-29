@@ -50,9 +50,6 @@
       ansible.builtin.set_fact:
         docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
 
-    - name: "Import Controller tasks"
-      ansible.builtin.import_tasks: "subtasks/controller.yml"
-
     - name: Stop Saltbox Containers
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/stop"
@@ -84,6 +81,12 @@
         state: stopped
       when: (not docker_service_check_mounts)
 
+    - name: Stop docker socket
+      ansible.builtin.systemd_service:
+        name: docker.socket
+        state: stopped
+      when: (not docker_service_check_mounts)
+
 - name: Check if overlay can be loaded
   block:
     - name: Add the overlay module
@@ -106,6 +109,13 @@
   ansible.builtin.include_tasks: "subtasks/btrfs/pseudo_file_system.yml"
   when: ('btrfs' in var_lib_file_system.stdout)
 
+- name: Start docker socket
+  ansible.builtin.systemd_service:
+    name: docker.socket
+    state: started
+    enabled: true
+    daemon_reload: true
+
 - name: Start docker service
   ansible.builtin.systemd_service:
     name: docker
@@ -113,13 +123,12 @@
     enabled: true
     daemon_reload: true
 
-- name: "Wait for {{ (docker_service_sleep | int) + 30 }} seconds before commencing"
+- name: "Wait for 30 seconds before commencing"
   ansible.builtin.wait_for:
-    timeout: "{{ (docker_service_sleep | int) + 30 }}"
+    timeout: "30"
 
 - name: "Import Controller tasks"
   ansible.builtin.import_tasks: "subtasks/controller.yml"
-  when: not docker_service_check
 
 - name: Unblock Docker Controller
   ansible.builtin.uri:
@@ -167,26 +176,9 @@
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
 
-    - name: Start 'saltbox_managed_docker_controller_helper.service'
-      ansible.builtin.systemd_service:
-        name: saltbox_managed_docker_controller_helper.service
-        enabled: true
-        state: started
-        daemon_reload: true
-
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
       ignore_errors: true
-
-- name: Docker Service Running
-  when: docker_service_check and not (docker_running_containers | trim | length > 0)
-  block:
-    - name: Start 'saltbox_managed_docker_controller_helper.service'
-      ansible.builtin.systemd_service:
-        name: saltbox_managed_docker_controller_helper.service
-        enabled: true
-        state: started
-        daemon_reload: true
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"

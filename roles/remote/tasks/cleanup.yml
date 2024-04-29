@@ -9,9 +9,10 @@
 ---
 - name: "Cleanup | Set 'rclone_service_name'"
   ansible.builtin.set_fact:
-    rclone_service_name: "{{ item.split('.')[0] }}"
-    rclone_service_name_full: "{{ item.split('.')[0] }}.service"
-    rclone_refresh_service_name: "{{ item.split('.')[0] }}_refresh.service"
+    rclone_service_name: "{{ item.key.split('.')[0] }}"
+    rclone_service_name_full: "{{ item.key.split('.')[0] }}.service"
+    rclone_refresh_service_name: "{{ item.key.split('.')[0] }}_refresh.service"
+    rclone_service_status: "{{ item.value }}"
 
 - name: "Cleanup | Fail if 'rclone_service_name' is empty"
   ansible.builtin.fail:
@@ -23,7 +24,7 @@
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
-  when: rclone_service_name_full in saltbox_managed_rclone_services
+  when: rclone_service_name_full in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
   ansible.builtin.file:
@@ -36,14 +37,14 @@
     name: "{{ rclone_refresh_service_name }}"
     state: stopped
     enabled: false
-  when: rclone_refresh_service_name in saltbox_managed_rclone_services
+  when: rclone_refresh_service_name in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}_refresh.timer"
     state: stopped
     enabled: false
-  when: rclone_refresh_service_name in saltbox_managed_rclone_services
+  when: rclone_refresh_service_name in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
 
 - name: "Cleanup | Delete '{{ rclone_refresh_service }}_refresh' services"
   ansible.builtin.file:
@@ -58,7 +59,7 @@
 
 - name: "Cleanup | Set 'cleanup_mount_path'"
   ansible.builtin.set_fact:
-    cleanup_mount_path: "/mnt/remote/{{ item.split('.')[0].split('_')[-1] }}"
+    cleanup_mount_path: "/mnt/remote/{{ item.key.split('.')[0].split('_')[-1] }}"
 
 - name: "Cleanup | Fail if 'cleanup_mount_path' is empty"
   ansible.builtin.fail:

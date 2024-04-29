@@ -38,6 +38,11 @@
             name: docker
             state: stopped
 
+        - name: BTRFS | Cleanup | Stop docker socket
+          ansible.builtin.systemd_service:
+            name: docker.socket
+            state: stopped
+
         - name: BTRFS | Cleanup | Wait for 30 seconds before commencing
           ansible.builtin.wait_for:
             timeout: 30

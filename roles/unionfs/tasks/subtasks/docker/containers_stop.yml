@@ -7,23 +7,23 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Populate Service Facts
+- name: "UnionFS | Docker | Container Stop | Populate Service Facts"
   ansible.builtin.service_facts:
 
-- name: Check to see if docker is installed
+- name: "UnionFS | Docker | Container Stop | Check to see if docker is installed"
   ansible.builtin.stat:
     path: "/usr/bin/docker"
   register: unionfs_docker_binary
 
-- name: Get Docker service state
+- name: "UnionFS | Docker | Container Stop | Get Docker service state"
   ansible.builtin.set_fact:
     unionfs_docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
   when: unionfs_docker_binary.stat.exists
 
-- name: Tasks for when Docker exists and is running
+- name: "UnionFS | Docker | Container Stop | Tasks for when Docker exists and is running"
   when: unionfs_docker_binary.stat.exists and unionfs_docker_service_running
   block:
-    - name: Block Docker Controller
+    - name: "UnionFS | Docker | Container Stop | Block Docker Controller"
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/block/20"
         method: POST
@@ -31,16 +31,16 @@
       ignore_errors: true
       when: saltbox_controller_service_remote.stat.exists
 
-    - name: "Gather list of running Docker containers"
+    - name: "UnionFS | Docker | Container Stop | Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
       register: unionfs_docker_running_containers_ps
       ignore_errors: true
 
-    - name: "Set 'containers_list' variable"
+    - name: "UnionFS | Docker | Container Stop | Set 'containers_list' variable"
       ansible.builtin.set_fact:
         containers_list: "{{ unionfs_docker_running_containers_ps.stdout }}"
 
-    - name: Stop Saltbox Containers
+    - name: "UnionFS | Docker | Container Stop | Stop Saltbox Containers"
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/stop"
         method: POST
@@ -48,12 +48,17 @@
       ignore_errors: true
       when: (containers_list | trim | length > 0) and saltbox_controller_service_remote.stat.exists
 
-    - name: "Stop all running Docker containers"
+    - name: "UnionFS | Docker | Container Stop | Stop all running Docker containers"
       ansible.builtin.shell: "docker stop {{ containers_list }}"
       ignore_errors: true
       when: (containers_list | trim | length > 0)
 
-    - name: Stop docker service
+    - name: "UnionFS | Docker | Container Stop | Stop docker service"
       ansible.builtin.systemd_service:
         name: docker
+        state: stopped
+
+    - name: "UnionFS | Docker | Container Stop | Stop docker socket"
+      ansible.builtin.systemd_service:
+        name: docker.socket
         state: stopped

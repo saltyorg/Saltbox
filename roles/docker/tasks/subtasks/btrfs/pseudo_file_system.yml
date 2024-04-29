@@ -38,6 +38,11 @@
         name: docker
         state: stopped
 
+    - name: BTRFS | Psuedo-File-System | Stop docker socket
+      ansible.builtin.systemd_service:
+        name: docker.socket
+        state: stopped
+
     - name: BTRFS | Psuedo-File-System | Wait for 30 seconds before commencing
       ansible.builtin.wait_for:
         timeout: 30
@@ -62,6 +67,11 @@
     - name: BTRFS | Psuedo-File-System | Stop docker service
       ansible.builtin.systemd_service:
         name: docker
+        state: stopped
+
+    - name: BTRFS | Psuedo-File-System | Stop docker socket
+      ansible.builtin.systemd_service:
+        name: docker.socket
         state: stopped
 
     - name: BTRFS | Psuedo-File-System | Unmount pseudo-file-system

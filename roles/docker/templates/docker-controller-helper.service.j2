@@ -13,11 +13,7 @@ BindsTo=docker.service
 After=docker.service
 
 [Service]
-Type=simple
-ExecStart=/srv/git/saltbox/scripts/saltbox_docker_controller_helper.sh
-ExecStop=/bin/kill $MAINPID
-TimeoutStartSec=360
-TimeoutStopSec=360
+ExecStart=/srv/ansible/venv/bin/python3 /srv/git/saltbox/scripts/saltbox_docker_controller_helper.py
 
 [Install]
 WantedBy=multi-user.target
