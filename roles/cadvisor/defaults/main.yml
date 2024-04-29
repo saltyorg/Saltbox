@@ -52,7 +52,7 @@ cadvisor_docker_container: "{{ cadvisor_name }}"
 
 # Image
 cadvisor_docker_image_pull: true
-cadvisor_docker_image_tag: "latest"
+cadvisor_docker_image_tag: "v0.49.1"
 cadvisor_docker_image: "gcr.io/cadvisor/cadvisor:{{ cadvisor_docker_image_tag }}"
 
 # Ports
@@ -86,8 +86,7 @@ cadvisor_docker_volumes: "{{ cadvisor_docker_volumes_default
                              + cadvisor_docker_volumes_custom }}"
 
 # Devices
-cadvisor_docker_devices_default:
-  - /dev/kmsg
+cadvisor_docker_devices_default: []
 cadvisor_docker_devices_custom: []
 cadvisor_docker_devices: "{{ cadvisor_docker_devices_default
                              + cadvisor_docker_devices_custom }}"
