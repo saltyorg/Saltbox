@@ -11,29 +11,22 @@
   ansible.builtin.apt:
     name: dirmngr
 
-- name: Add gpg signing key to trusted.gpg.d
-  ansible.builtin.get_url:
-    url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3AE27527713D2479DCAFFD58A89D7C1B2F76304D
-    dest: /etc/apt/trusted.gpg.d/cappelikan.asc
-    mode: "0644"
-  register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
-  delay: 10
-  until: result is succeeded
-
 - name: Remove old repository entry
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/cappelikan.gpg] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
     filename: "cappelikan"
     update_cache: true
     state: absent
+  loop:
+    - "deb [arch=amd64 signed-by=/usr/share/keyrings/cappelikan.gpg] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    - "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cappelikan.asc] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
 
-- name: Add cappelikan/ppa repository
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cappelikan.asc] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
-    filename: "cappelikan"
-    state: present
-    update_cache: true
+- name: Add deadsnakes/ppa
+  ansible.builtin.shell: add-apt-repository ppa:cappelikan/ppa --yes
+  register: result
+  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  delay: 10
+  until: result is succeeded
 
 - name: Install mainline
   ansible.builtin.apt:
