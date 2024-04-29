@@ -12,9 +12,14 @@
     path: "{{ cloudflare_path }}"
   register: cloudflare_folder
 
+- name: Cloudflare | Check if Python 3.10 symlink exists
+  ansible.builtin.stat:
+    path: "{{ cloudflare_path }}/venv/bin/python3.10"
+  register: cloudflare_folder_symlink
+
 - name: Cloudflare | Setup
   ansible.builtin.include_tasks: "subtasks/setup.yml"
-  when: (not cloudflare_folder.stat.exists) or cloudflare_reinstall
+  when: (not cloudflare_folder.stat.exists) or (not cloudflare_folder_symlink.stat.exists) or cloudflare_reinstall
 
 - name: Cloudflare | Tailscale block
   when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=false)

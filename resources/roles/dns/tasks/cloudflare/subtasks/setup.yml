@@ -33,15 +33,15 @@
     - name: Cloudflare | Setup | Set Python version
       ansible.builtin.set_fact:
         cloudflare_python: "{{ 'python3'
-                            if ansible_distribution_version is version('20.04', '==')
-                            else 'python3.8' }}"
+                            if ansible_distribution_version is version('22.04', '==')
+                            else 'python3.10' }}"
 
     - name: Cloudflare | Setup | Execute Python role
       ansible.builtin.include_role:
         name: "python"
       vars:
-        python_version: "3.8"
-      when: ansible_distribution_version is version('22.04', '==')
+        python_version: "3.10"
+      when: ansible_distribution_version is version('22.04', '!=')
 
     - name: Cloudflare | Setup | Check if venv folder exists
       ansible.builtin.stat:
