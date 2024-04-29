@@ -12,16 +12,6 @@
     msg: "This role is only for {{ python_valid_distro }}"
   when: (ansible_distribution_version is version(python_valid_distro, '<'))
 
-- name: Add gpg signing key to trusted.gpg.d
-  ansible.builtin.get_url:
-    url: http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
-    dest: /etc/apt/trusted.gpg.d/deadsnakes.asc
-    mode: "0644"
-  register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
-  delay: 10
-  until: result is succeeded
-
 - name: Remove old repository entry
   ansible.builtin.apt_repository:
     repo: "{{ item }}"
