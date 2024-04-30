@@ -149,17 +149,17 @@ sabnzbd_docker_hosts_default: []
 sabnzbd_docker_hosts_custom: []
 sabnzbd_docker_hosts: "{{ docker_hosts_common
                           | combine(sabnzbd_docker_hosts_default)
-                          | combine((traefik_themepark_labels
-                                    if (sabnzbd_themepark_enabled and global_themepark_plugin_enabled)
-                                    else {}),
-                                    sabnzbd_docker_labels_custom) }}"
+                          | combine(sabnzbd_docker_hosts_custom) }}"
 
 # Labels
 sabnzbd_docker_labels_default: {}
 sabnzbd_docker_labels_custom: {}
 sabnzbd_docker_labels: "{{ docker_labels_common
                            | combine(sabnzbd_docker_labels_default)
-                           | combine(sabnzbd_docker_labels_custom) }}"
+                           | combine((traefik_themepark_labels
+                                    if (sabnzbd_themepark_enabled and global_themepark_plugin_enabled)
+                                    else {}),
+                                    sabnzbd_docker_labels_custom) }}"
 
 # Hostname
 sabnzbd_docker_hostname: "{{ sabnzbd_name }}"
