@@ -137,8 +137,8 @@ sonarr_docker_devices: "{{ lookup('vars', sonarr_name + '_docker_devices_default
                            + lookup('vars', sonarr_name + '_docker_devices_custom', default=sonarr_docker_devices_custom) }}"
 
 # Hosts
-sonarr_docker_hosts_default: []
-sonarr_docker_hosts_custom: []
+sonarr_docker_hosts_default: {}
+sonarr_docker_hosts_custom: {}
 sonarr_docker_hosts: "{{ docker_hosts_common
                          | combine(lookup('vars', sonarr_name + '_docker_hosts_default', default=sonarr_docker_hosts_default))
                          | combine(lookup('vars', sonarr_name + '_docker_hosts_custom', default=sonarr_docker_hosts_custom)) }}"

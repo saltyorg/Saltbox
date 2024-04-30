@@ -71,8 +71,8 @@ unpackerr_docker_devices: "{{ unpackerr_docker_devices_default
                               + unpackerr_docker_devices_custom }}"
 
 # Hosts
-unpackerr_docker_hosts_default: []
-unpackerr_docker_hosts_custom: []
+unpackerr_docker_hosts_default: {}
+unpackerr_docker_hosts_custom: {}
 unpackerr_docker_hosts: "{{ docker_hosts_common
                             | combine(unpackerr_docker_hosts_default)
                             | combine(unpackerr_docker_hosts_custom) }}"

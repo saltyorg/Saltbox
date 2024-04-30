@@ -175,8 +175,8 @@ qbittorrent_docker_devices: "{{ lookup('vars', qbittorrent_name + '_docker_devic
                                 + lookup('vars', qbittorrent_name + '_docker_devices_custom', default=qbittorrent_docker_devices_custom) }}"
 
 # Hosts
-qbittorrent_docker_hosts_default: []
-qbittorrent_docker_hosts_custom: []
+qbittorrent_docker_hosts_default: {}
+qbittorrent_docker_hosts_custom: {}
 qbittorrent_docker_hosts: "{{ docker_hosts_common
                               | combine(lookup('vars', qbittorrent_name + '_docker_hosts_default', default=qbittorrent_docker_hosts_default))
                               | combine(lookup('vars', qbittorrent_name + '_docker_hosts_custom', default=qbittorrent_docker_hosts_custom)) }}"

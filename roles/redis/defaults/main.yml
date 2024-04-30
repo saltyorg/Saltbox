@@ -68,8 +68,8 @@ redis_docker_devices: "{{ lookup('vars', redis_name + '_docker_devices_default',
                           + lookup('vars', redis_name + '_docker_devices_custom', default=redis_docker_devices_custom) }}"
 
 # Hosts
-redis_docker_hosts_default: []
-redis_docker_hosts_custom: []
+redis_docker_hosts_default: {}
+redis_docker_hosts_custom: {}
 redis_docker_hosts: "{{ docker_hosts_common
                         | combine(lookup('vars', redis_name + '_docker_hosts_default', default=redis_docker_hosts_default))
                         | combine(lookup('vars', redis_name + '_docker_hosts_custom', default=redis_docker_hosts_custom)) }}"

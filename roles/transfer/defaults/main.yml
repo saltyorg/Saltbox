@@ -108,8 +108,8 @@ transfer_docker_devices: "{{ transfer_docker_devices_default
                               + transfer_docker_devices_custom }}"
 
 # Hosts
-transfer_docker_hosts_default: []
-transfer_docker_hosts_custom: []
+transfer_docker_hosts_default: {}
+transfer_docker_hosts_custom: {}
 transfer_docker_hosts: "{{ docker_hosts_common
                            | combine(transfer_docker_hosts_default)
                            | combine(transfer_docker_hosts_custom) }}"

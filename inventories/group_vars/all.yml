@@ -360,7 +360,7 @@ docker_volumes_common: "{{ docker_volumes_common_folders + docker_volumes_downlo
                         if (lookup('vars', traefik_role_var + '_docker_volumes_download', default=true) | bool)
                         else docker_volumes_common_folders }}"
 
-docker_hosts_common: []
+docker_hosts_common: {}
 
 docker_labels_docker_depends_on_template:
   com.github.saltbox.depends_on: "{{ lookup('vars', traefik_role_var + '_depends_on', default=lookup('vars', role_name + '_depends_on', default=docker_container_network_mode_lookup))

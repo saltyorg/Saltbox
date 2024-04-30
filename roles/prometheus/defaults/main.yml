@@ -113,8 +113,8 @@ prometheus_docker_devices: "{{ prometheus_docker_devices_default
                                + prometheus_docker_devices_custom }}"
 
 # Hosts
-prometheus_docker_hosts_default: []
-prometheus_docker_hosts_custom: []
+prometheus_docker_hosts_default: {}
+prometheus_docker_hosts_custom: {}
 prometheus_docker_hosts: "{{ docker_hosts_common
                              | combine(prometheus_docker_hosts_default)
                              | combine(prometheus_docker_hosts_custom) }}"

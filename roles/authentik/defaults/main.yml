@@ -146,8 +146,8 @@ authentik_docker_devices: "{{ authentik_docker_devices_default
                               + authentik_docker_devices_custom }}"
 
 # Hosts
-authentik_docker_hosts_default: []
-authentik_docker_hosts_custom: []
+authentik_docker_hosts_default: {}
+authentik_docker_hosts_custom: {}
 authentik_docker_hosts: "{{ docker_hosts_common
                             | combine(authentik_docker_hosts_default)
                             | combine(authentik_docker_hosts_custom) }}"

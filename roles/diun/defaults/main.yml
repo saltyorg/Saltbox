@@ -72,8 +72,8 @@ diun_docker_devices: "{{ diun_docker_devices_default
                          + diun_docker_devices_custom }}"
 
 # Hosts
-diun_docker_hosts_default: []
-diun_docker_hosts_custom: []
+diun_docker_hosts_default: {}
+diun_docker_hosts_custom: {}
 diun_docker_hosts: "{{ docker_hosts_common
                        | combine(diun_docker_hosts_default)
                        | combine(diun_docker_hosts_custom) }}"

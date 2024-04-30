@@ -148,8 +148,8 @@ nzbhydra2_docker_devices: "{{ nzbhydra2_docker_devices_default
                               + nzbhydra2_docker_devices_custom }}"
 
 # Hosts
-nzbhydra2_docker_hosts_default: []
-nzbhydra2_docker_hosts_custom: []
+nzbhydra2_docker_hosts_default: {}
+nzbhydra2_docker_hosts_custom: {}
 nzbhydra2_docker_hosts: "{{ docker_hosts_common
                             | combine(nzbhydra2_docker_hosts_default)
                             | combine(nzbhydra2_docker_hosts_custom) }}"

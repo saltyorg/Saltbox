@@ -125,8 +125,8 @@ overseerr_docker_devices: "{{ lookup('vars', overseerr_name + '_docker_devices_d
                               + lookup('vars', overseerr_name + '_docker_devices_custom', default=overseerr_docker_devices_custom) }}"
 
 # Hosts
-overseerr_docker_hosts_default: []
-overseerr_docker_hosts_custom: []
+overseerr_docker_hosts_default: {}
+overseerr_docker_hosts_custom: {}
 overseerr_docker_hosts: "{{ docker_hosts_common
                             | combine(lookup('vars', overseerr_name + '_docker_hosts_default', default=overseerr_docker_hosts_default))
                             | combine(lookup('vars', overseerr_name + '_docker_hosts_custom', default=overseerr_docker_hosts_custom)) }}"

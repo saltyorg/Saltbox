@@ -68,8 +68,8 @@ nzbthrottle_docker_devices: "{{ nzbthrottle_docker_devices_default
                                 + nzbthrottle_docker_devices_custom }}"
 
 # Hosts
-nzbthrottle_docker_hosts_default: []
-nzbthrottle_docker_hosts_custom: []
+nzbthrottle_docker_hosts_default: {}
+nzbthrottle_docker_hosts_custom: {}
 nzbthrottle_docker_hosts: "{{ docker_hosts_common
                               | combine(nzbthrottle_docker_hosts_default)
                               | combine(nzbthrottle_docker_hosts_custom) }}"

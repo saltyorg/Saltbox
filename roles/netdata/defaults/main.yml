@@ -130,8 +130,8 @@ netdata_docker_devices: "{{ netdata_docker_devices_default
                             + netdata_docker_devices_custom }}"
 
 # Hosts
-netdata_docker_hosts_default: []
-netdata_docker_hosts_custom: []
+netdata_docker_hosts_default: {}
+netdata_docker_hosts_custom: {}
 netdata_docker_hosts: "{{ docker_hosts_common
                           | combine(netdata_docker_hosts_default)
                           | combine(netdata_docker_hosts_custom) }}"

@@ -118,8 +118,8 @@ portainer_docker_devices: "{{ portainer_docker_devices_default
                               + portainer_docker_devices_custom }}"
 
 # Hosts
-portainer_docker_hosts_default: []
-portainer_docker_hosts_custom: []
+portainer_docker_hosts_default: {}
+portainer_docker_hosts_custom: {}
 portainer_docker_hosts: "{{ docker_hosts_common
                             | combine(portainer_docker_hosts_default)
                             | combine(portainer_docker_hosts_custom) }}"

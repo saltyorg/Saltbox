@@ -92,8 +92,8 @@ cadvisor_docker_devices: "{{ cadvisor_docker_devices_default
                              + cadvisor_docker_devices_custom }}"
 
 # Hosts
-cadvisor_docker_hosts_default: []
-cadvisor_docker_hosts_custom: []
+cadvisor_docker_hosts_default: {}
+cadvisor_docker_hosts_custom: {}
 cadvisor_docker_hosts: "{{ docker_hosts_common
                            | combine(cadvisor_docker_hosts_default)
                            | combine(cadvisor_docker_hosts_custom) }}"

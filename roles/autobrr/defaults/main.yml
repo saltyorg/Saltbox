@@ -101,8 +101,8 @@ autobrr_docker_devices: "{{ autobrr_docker_devices_default
                             + autobrr_docker_devices_custom }}"
 
 # Hosts
-autobrr_docker_hosts_default: []
-autobrr_docker_hosts_custom: []
+autobrr_docker_hosts_default: {}
+autobrr_docker_hosts_custom: {}
 autobrr_docker_hosts: "{{ docker_hosts_common
                           | combine(autobrr_docker_hosts_default)
                           | combine(autobrr_docker_hosts_custom) }}"

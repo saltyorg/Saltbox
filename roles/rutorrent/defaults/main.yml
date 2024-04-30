@@ -208,8 +208,8 @@ rutorrent_docker_devices: "{{ rutorrent_docker_devices_default
                               + rutorrent_docker_devices_custom }}"
 
 # Hosts
-rutorrent_docker_hosts_default: []
-rutorrent_docker_hosts_custom: []
+rutorrent_docker_hosts_default: {}
+rutorrent_docker_hosts_custom: {}
 rutorrent_docker_hosts: "{{ docker_hosts_common
                             | combine(rutorrent_docker_hosts_default)
                             | combine(rutorrent_docker_hosts_custom) }}"

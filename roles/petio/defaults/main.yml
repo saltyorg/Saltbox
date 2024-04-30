@@ -104,8 +104,8 @@ petio_docker_devices: "{{ petio_docker_devices_default
                           + petio_docker_devices_custom }}"
 
 # Hosts
-petio_docker_hosts_default: []
-petio_docker_hosts_custom: []
+petio_docker_hosts_default: {}
+petio_docker_hosts_custom: {}
 petio_docker_hosts: "{{ docker_hosts_common
                         | combine(petio_docker_hosts_default)
                         | combine(petio_docker_hosts_custom) }}"

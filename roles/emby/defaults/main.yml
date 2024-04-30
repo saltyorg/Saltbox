@@ -163,8 +163,8 @@ emby_docker_devices: "{{ lookup('vars', emby_name + '_docker_devices_default', d
                          + lookup('vars', emby_name + '_docker_devices_custom', default=emby_docker_devices_custom) }}"
 
 # Hosts
-emby_docker_hosts_default: []
-emby_docker_hosts_custom: []
+emby_docker_hosts_default: {}
+emby_docker_hosts_custom: {}
 emby_docker_hosts: "{{ docker_hosts_common
                        | combine(lookup('vars', emby_name + '_docker_hosts_default', default=emby_docker_hosts_default))
                        | combine(lookup('vars', emby_name + '_docker_hosts_custom', default=emby_docker_hosts_custom)) }}"

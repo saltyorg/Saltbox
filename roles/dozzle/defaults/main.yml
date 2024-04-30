@@ -127,8 +127,8 @@ dozzle_docker_devices: "{{ dozzle_docker_devices_default
                            + dozzle_docker_devices_custom }}"
 
 # Hosts
-dozzle_docker_hosts_default: []
-dozzle_docker_hosts_custom: []
+dozzle_docker_hosts_default: {}
+dozzle_docker_hosts_custom: {}
 dozzle_docker_hosts: "{{ docker_hosts_common
                          | combine(dozzle_docker_hosts_default)
                          | combine(dozzle_docker_hosts_custom) }}"

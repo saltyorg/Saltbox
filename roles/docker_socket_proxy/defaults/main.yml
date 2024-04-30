@@ -66,8 +66,8 @@ docker_socket_proxy_docker_devices: "{{ docker_socket_proxy_docker_devices_defau
                                         + docker_socket_proxy_docker_devices_custom }}"
 
 # Hosts
-docker_socket_proxy_docker_hosts_default: []
-docker_socket_proxy_docker_hosts_custom: []
+docker_socket_proxy_docker_hosts_default: {}
+docker_socket_proxy_docker_hosts_custom: {}
 docker_socket_proxy_docker_hosts: "{{ docker_hosts_common
                                       | combine(docker_socket_proxy_docker_hosts_default)
                                       | combine(docker_socket_proxy_docker_hosts_custom) }}"

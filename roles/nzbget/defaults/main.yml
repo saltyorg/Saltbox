@@ -233,8 +233,8 @@ nzbget_docker_devices: "{{ nzbget_docker_devices_default
                            + nzbget_docker_devices_custom }}"
 
 # Hosts
-nzbget_docker_hosts_default: []
-nzbget_docker_hosts_custom: []
+nzbget_docker_hosts_default: {}
+nzbget_docker_hosts_custom: {}
 nzbget_docker_hosts: "{{ docker_hosts_common
                          | combine(nzbget_docker_hosts_default)
                          | combine(nzbget_docker_hosts_custom) }}"

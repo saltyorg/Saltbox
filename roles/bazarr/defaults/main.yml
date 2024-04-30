@@ -124,8 +124,8 @@ bazarr_docker_devices: "{{ lookup('vars', bazarr_name + '_docker_devices_default
                            + lookup('vars', bazarr_name + '_docker_devices_custom', default=bazarr_docker_devices_custom) }}"
 
 # Hosts
-bazarr_docker_hosts_default: []
-bazarr_docker_hosts_custom: []
+bazarr_docker_hosts_default: {}
+bazarr_docker_hosts_custom: {}
 bazarr_docker_hosts: "{{ docker_hosts_common
                          | combine(lookup('vars', bazarr_name + '_docker_hosts_default', default=bazarr_docker_hosts_default))
                          | combine(lookup('vars', bazarr_name + '_docker_hosts_custom', default=bazarr_docker_hosts_custom)) }}"

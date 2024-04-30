@@ -133,8 +133,8 @@ readarr_docker_devices: "{{ lookup('vars', readarr_name + '_docker_devices_defau
                             + lookup('vars', readarr_name + '_docker_devices_custom', default=readarr_docker_devices_custom) }}"
 
 # Hosts
-readarr_docker_hosts_default: []
-readarr_docker_hosts_custom: []
+readarr_docker_hosts_default: {}
+readarr_docker_hosts_custom: {}
 readarr_docker_hosts: "{{ docker_hosts_common
                           | combine(lookup('vars', readarr_name + '_docker_hosts_default', default=readarr_docker_hosts_default))
                           | combine(lookup('vars', readarr_name + '_docker_hosts_custom', default=readarr_docker_hosts_custom)) }}"

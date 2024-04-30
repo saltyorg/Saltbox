@@ -239,10 +239,10 @@ plex_docker_devices: "{{ lookup('vars', plex_name + '_docker_devices_default', d
 
 # Hosts
 plex_docker_hosts_default:
-  "metric.plex.tv": "{{ ip_address_localhost }}"
-  "metrics.plex.tv": "{{ ip_address_localhost }}"
-  "analytics.plex.tv": "{{ ip_address_localhost }}"
-plex_docker_hosts_custom: []
+  metric.plex.tv: "{{ ip_address_localhost }}"
+  metrics.plex.tv: "{{ ip_address_localhost }}"
+  analytics.plex.tv: "{{ ip_address_localhost }}"
+plex_docker_hosts_custom: {}
 plex_docker_hosts: "{{ docker_hosts_common
                        | combine(lookup('vars', plex_name + '_docker_hosts_default', default=plex_docker_hosts_default))
                        | combine(lookup('vars', plex_name + '_docker_hosts_custom', default=plex_docker_hosts_custom)) }}"

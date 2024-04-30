@@ -121,8 +121,8 @@ tautulli_docker_devices: "{{ lookup('vars', tautulli_name + '_docker_devices_def
                              + lookup('vars', tautulli_name + '_docker_devices_custom', default=tautulli_docker_devices_custom) }}"
 
 # Hosts
-tautulli_docker_hosts_default: []
-tautulli_docker_hosts_custom: []
+tautulli_docker_hosts_default: {}
+tautulli_docker_hosts_custom: {}
 tautulli_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', tautulli_name + '_docker_hosts_default', default=tautulli_docker_hosts_default))
                            | combine(lookup('vars', tautulli_name + '_docker_hosts_custom', default=tautulli_docker_hosts_custom)) }}"

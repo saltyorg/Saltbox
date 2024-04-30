@@ -61,8 +61,8 @@ authentik_worker_docker_devices: "{{ authentik_worker_docker_devices_default
                                      + authentik_worker_docker_devices_custom }}"
 
 # Hosts
-authentik_worker_docker_hosts_default: []
-authentik_worker_docker_hosts_custom: []
+authentik_worker_docker_hosts_default: {}
+authentik_worker_docker_hosts_custom: {}
 authentik_worker_docker_hosts: "{{ docker_hosts_common
                                    | combine(authentik_worker_docker_hosts_default)
                                    | combine(authentik_worker_docker_hosts_custom) }}"

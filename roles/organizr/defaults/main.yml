@@ -109,8 +109,8 @@ organizr_docker_devices: "{{ organizr_docker_devices_default
                              + organizr_docker_devices_custom }}"
 
 # Hosts
-organizr_docker_hosts_default: []
-organizr_docker_hosts_custom: []
+organizr_docker_hosts_default: {}
+organizr_docker_hosts_custom: {}
 organizr_docker_hosts: "{{ docker_hosts_common
                            | combine(organizr_docker_hosts_default)
                            | combine(organizr_docker_hosts_custom) }}"

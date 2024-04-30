@@ -115,8 +115,8 @@ jackett_docker_devices: "{{ jackett_docker_devices_default
                             + jackett_docker_devices_custom }}"
 
 # Hosts
-jackett_docker_hosts_default: []
-jackett_docker_hosts_custom: []
+jackett_docker_hosts_default: {}
+jackett_docker_hosts_custom: {}
 jackett_docker_hosts: "{{ docker_hosts_common
                           | combine(jackett_docker_hosts_default)
                           | combine(jackett_docker_hosts_custom) }}"

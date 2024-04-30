@@ -59,8 +59,8 @@ autoheal_docker_devices: "{{ autoheal_docker_devices_default
                              + autoheal_docker_devices_custom }}"
 
 # Hosts
-autoheal_docker_hosts_default: []
-autoheal_docker_hosts_custom: []
+autoheal_docker_hosts_default: {}
+autoheal_docker_hosts_custom: {}
 autoheal_docker_hosts: "{{ docker_hosts_common
                            | combine(autoheal_docker_hosts_default)
                            | combine(autoheal_docker_hosts_custom) }}"

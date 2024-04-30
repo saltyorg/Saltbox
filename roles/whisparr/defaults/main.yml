@@ -132,8 +132,8 @@ whisparr_docker_devices: "{{ lookup('vars', whisparr_name + '_docker_devices_def
                              + lookup('vars', whisparr_name + '_docker_devices_custom', default=whisparr_docker_devices_custom) }}"
 
 # Hosts
-whisparr_docker_hosts_default: []
-whisparr_docker_hosts_custom: []
+whisparr_docker_hosts_default: {}
+whisparr_docker_hosts_custom: {}
 whisparr_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', whisparr_name + '_docker_hosts_default', default=whisparr_docker_hosts_default))
                            | combine(lookup('vars', whisparr_name + '_docker_hosts_custom', default=whisparr_docker_hosts_custom)) }}"

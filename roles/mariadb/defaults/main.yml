@@ -91,8 +91,8 @@ mariadb_docker_devices: "{{ lookup('vars', mariadb_name + '_docker_devices_defau
                             + lookup('vars', mariadb_name + '_docker_devices_custom', default=mariadb_docker_devices_custom) }}"
 
 # Hosts
-mariadb_docker_hosts_default: []
-mariadb_docker_hosts_custom: []
+mariadb_docker_hosts_default: {}
+mariadb_docker_hosts_custom: {}
 mariadb_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', mariadb_name + '_docker_hosts_default', default=mariadb_docker_hosts_default))
                            | combine(lookup('vars', mariadb_name + '_docker_hosts_custom', default=mariadb_docker_hosts_custom)) }}"

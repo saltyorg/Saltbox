@@ -109,8 +109,8 @@ grafana_docker_devices: "{{ grafana_docker_devices_default
                             + grafana_docker_devices_custom }}"
 
 # Hosts
-grafana_docker_hosts_default: []
-grafana_docker_hosts_custom: []
+grafana_docker_hosts_default: {}
+grafana_docker_hosts_custom: {}
 grafana_docker_hosts: "{{ docker_hosts_common
                           | combine(grafana_docker_hosts_default)
                           | combine(grafana_docker_hosts_custom) }}"

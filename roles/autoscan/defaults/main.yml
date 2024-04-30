@@ -102,8 +102,8 @@ autoscan_docker_devices: "{{ lookup('vars', autoscan_name + '_docker_devices_def
                              + lookup('vars', autoscan_name + '_docker_devices_custom', default=autoscan_docker_devices_custom) }}"
 
 # Hosts
-autoscan_docker_hosts_default: []
-autoscan_docker_hosts_custom: []
+autoscan_docker_hosts_default: {}
+autoscan_docker_hosts_custom: {}
 autoscan_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', autoscan_name + '_docker_hosts_default', default=autoscan_docker_hosts_default))
                            | combine(lookup('vars', autoscan_name + '_docker_hosts_custom', default=autoscan_docker_hosts_custom)) }}"

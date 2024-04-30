@@ -124,8 +124,8 @@ lldap_docker_devices: "{{ lldap_docker_devices_default
                           + lldap_docker_devices_custom }}"
 
 # Hosts
-lldap_docker_hosts_default: []
-lldap_docker_hosts_custom: []
+lldap_docker_hosts_default: {}
+lldap_docker_hosts_custom: {}
 lldap_docker_hosts: "{{ docker_hosts_common
                         | combine(lldap_docker_hosts_default)
                         | combine(lldap_docker_hosts_custom) }}"

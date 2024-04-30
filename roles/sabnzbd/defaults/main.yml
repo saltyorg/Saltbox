@@ -145,8 +145,8 @@ sabnzbd_docker_devices: "{{ sabnzbd_docker_devices_default
                             + sabnzbd_docker_devices_custom }}"
 
 # Hosts
-sabnzbd_docker_hosts_default: []
-sabnzbd_docker_hosts_custom: []
+sabnzbd_docker_hosts_default: {}
+sabnzbd_docker_hosts_custom: {}
 sabnzbd_docker_hosts: "{{ docker_hosts_common
                           | combine(sabnzbd_docker_hosts_default)
                           | combine(sabnzbd_docker_hosts_custom) }}"

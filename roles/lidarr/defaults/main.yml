@@ -133,8 +133,8 @@ lidarr_docker_devices: "{{ lookup('vars', lidarr_name + '_docker_devices_default
                            + lookup('vars', lidarr_name + '_docker_devices_custom', default=lidarr_docker_devices_custom) }}"
 
 # Hosts
-lidarr_docker_hosts_default: []
-lidarr_docker_hosts_custom: []
+lidarr_docker_hosts_default: {}
+lidarr_docker_hosts_custom: {}
 lidarr_docker_hosts: "{{ docker_hosts_common
                          | combine(lookup('vars', lidarr_name + '_docker_hosts_default', default=lidarr_docker_hosts_default))
                          | combine(lookup('vars', lidarr_name + '_docker_hosts_custom', default=lidarr_docker_hosts_custom)) }}"

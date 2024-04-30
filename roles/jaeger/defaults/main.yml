@@ -98,8 +98,8 @@ jaeger_docker_devices: "{{ jaeger_docker_devices_default
                            + jaeger_docker_devices_custom }}"
 
 # Hosts
-jaeger_docker_hosts_default: []
-jaeger_docker_hosts_custom: []
+jaeger_docker_hosts_default: {}
+jaeger_docker_hosts_custom: {}
 jaeger_docker_hosts: "{{ docker_hosts_common
                          | combine(jaeger_docker_hosts_default)
                          | combine(jaeger_docker_hosts_custom) }}"

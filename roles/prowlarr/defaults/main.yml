@@ -121,8 +121,8 @@ prowlarr_docker_devices: "{{ prowlarr_docker_devices_default
                              + prowlarr_docker_devices_custom }}"
 
 # Hosts
-prowlarr_docker_hosts_default: []
-prowlarr_docker_hosts_custom: []
+prowlarr_docker_hosts_default: {}
+prowlarr_docker_hosts_custom: {}
 prowlarr_docker_hosts: "{{ docker_hosts_common
                            | combine(prowlarr_docker_hosts_default)
                            | combine(prowlarr_docker_hosts_custom) }}"

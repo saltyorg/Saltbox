@@ -82,8 +82,8 @@ ddns_docker_devices: "{{ ddns_docker_devices_default
                          + ddns_docker_devices_custom }}"
 
 # Hosts
-ddns_docker_hosts_default: []
-ddns_docker_hosts_custom: []
+ddns_docker_hosts_default: {}
+ddns_docker_hosts_custom: {}
 ddns_docker_hosts: "{{ docker_hosts_common
                        | combine(ddns_docker_hosts_default)
                        | combine(ddns_docker_hosts_custom) }}"

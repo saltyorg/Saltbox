@@ -236,8 +236,8 @@ authelia_docker_devices: "{{ authelia_docker_devices_default
                              + authelia_docker_devices_custom }}"
 
 # Hosts
-authelia_docker_hosts_default: []
-authelia_docker_hosts_custom: []
+authelia_docker_hosts_default: {}
+authelia_docker_hosts_custom: {}
 authelia_docker_hosts: "{{ docker_hosts_common
                            | combine(authelia_docker_hosts_default)
                            | combine(authelia_docker_hosts_custom) }}"

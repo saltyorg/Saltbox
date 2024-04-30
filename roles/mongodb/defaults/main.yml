@@ -74,8 +74,8 @@ mongodb_docker_devices: "{{ lookup('vars', mongodb_name + '_docker_devices_defau
                             + lookup('vars', mongodb_name + '_docker_devices_custom', default=mongodb_docker_devices_custom) }}"
 
 # Hosts
-mongodb_docker_hosts_default: []
-mongodb_docker_hosts_custom: []
+mongodb_docker_hosts_default: {}
+mongodb_docker_hosts_custom: {}
 mongodb_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', mongodb_name + '_docker_hosts_default', default=mongodb_docker_hosts_default))
                            | combine(lookup('vars', mongodb_name + '_docker_hosts_custom', default=mongodb_docker_hosts_custom)) }}"

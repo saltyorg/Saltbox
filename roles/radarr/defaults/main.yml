@@ -137,8 +137,8 @@ radarr_docker_devices: "{{ lookup('vars', radarr_name + '_docker_devices_default
                            + lookup('vars', radarr_name + '_docker_devices_custom', default=radarr_docker_devices_custom) }}"
 
 # Hosts
-radarr_docker_hosts_default: []
-radarr_docker_hosts_custom: []
+radarr_docker_hosts_default: {}
+radarr_docker_hosts_custom: {}
 radarr_docker_hosts: "{{ docker_hosts_common
                          | combine(lookup('vars', radarr_name + '_docker_hosts_default', default=radarr_docker_hosts_default))
                          | combine(lookup('vars', radarr_name + '_docker_hosts_custom', default=radarr_docker_hosts_custom)) }}"

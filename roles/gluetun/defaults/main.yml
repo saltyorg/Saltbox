@@ -122,8 +122,8 @@ gluetun_docker_devices: "{{ lookup('vars', gluetun_name + '_docker_devices_defau
                             + lookup('vars', gluetun_name + '_docker_devices_custom', default=gluetun_docker_devices_custom) }}"
 
 # Hosts
-gluetun_docker_hosts_default: []
-gluetun_docker_hosts_custom: []
+gluetun_docker_hosts_default: {}
+gluetun_docker_hosts_custom: {}
 gluetun_docker_hosts: "{{ docker_hosts_common
                           | combine(lookup('vars', gluetun_name + '_docker_hosts_default', default=gluetun_docker_hosts_default))
                           | combine(lookup('vars', gluetun_name + '_docker_hosts_custom', default=gluetun_docker_hosts_custom)) }}"

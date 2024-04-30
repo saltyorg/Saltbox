@@ -81,8 +81,8 @@ postgres_docker_devices: "{{ lookup('vars', postgres_name + '_docker_devices_def
                              + lookup('vars', postgres_name + '_docker_devices_custom', default=postgres_docker_devices_custom) }}"
 
 # Hosts
-postgres_docker_hosts_default: []
-postgres_docker_hosts_custom: []
+postgres_docker_hosts_default: {}
+postgres_docker_hosts_custom: {}
 postgres_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', postgres_name + '_docker_hosts_default', default=postgres_docker_hosts_default))
                            | combine(lookup('vars', postgres_name + '_docker_hosts_custom', default=postgres_docker_hosts_custom)) }}"

@@ -65,8 +65,8 @@ error_pages_docker_devices: "{{ error_pages_docker_devices_default
                                 + error_pages_docker_devices_custom }}"
 
 # Hosts
-error_pages_docker_hosts_default: []
-error_pages_docker_hosts_custom: []
+error_pages_docker_hosts_default: {}
+error_pages_docker_hosts_custom: {}
 error_pages_docker_hosts: "{{ docker_hosts_common
                               | combine(error_pages_docker_hosts_default)
                               | combine(error_pages_docker_hosts_custom) }}"

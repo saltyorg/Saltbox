@@ -152,8 +152,8 @@ jellyfin_docker_devices: "{{ lookup('vars', jellyfin_name + '_docker_devices_def
                              + lookup('vars', jellyfin_name + '_docker_devices_custom', default=jellyfin_docker_devices_custom) }}"
 
 # Hosts
-jellyfin_docker_hosts_default: []
-jellyfin_docker_hosts_custom: []
+jellyfin_docker_hosts_default: {}
+jellyfin_docker_hosts_custom: {}
 jellyfin_docker_hosts: "{{ docker_hosts_common
                            | combine(lookup('vars', jellyfin_name + '_docker_hosts_default', default=jellyfin_docker_hosts_default))
                            | combine(lookup('vars', jellyfin_name + '_docker_hosts_custom', default=jellyfin_docker_hosts_custom)) }}"
