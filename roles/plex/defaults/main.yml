@@ -267,6 +267,9 @@ plex_docker_labels: "{{ docker_labels_common
                         | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_docker_labels_default)
                                   if plex_plugin_webtools
                                   else {}),
+                                  (traefik_themepark_labels
+                                  if (plex_themepark_enabled and global_themepark_plugin_enabled)
+                                  else {}),
                                   lookup('vars', plex_name + '_docker_labels_custom', default=plex_docker_labels_custom)) }}"
 
 # Hostname
