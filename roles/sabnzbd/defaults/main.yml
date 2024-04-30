@@ -53,7 +53,10 @@ sabnzbd_dns_proxy: "{{ dns.proxied }}"
 ################################
 
 sabnzbd_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-sabnzbd_traefik_middleware_default: "{{ traefik_default_middleware }}"
+sabnzbd_traefik_middleware_default: "{{ traefik_default_middleware
+                                        + (',themepark-' + lookup('vars', sabnzbd_name + '_name', default=sabnzbd_name)
+                                          if (sabnzbd_themepark_enabled and global_themepark_plugin_enabled)
+                                          else '') }}"
 sabnzbd_traefik_middleware_custom: ""
 sabnzbd_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sabnzbd_traefik_enabled: true
