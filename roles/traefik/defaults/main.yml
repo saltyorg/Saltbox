@@ -195,7 +195,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "v3.0.0-rc3" # Temporary tag lock - Remove when 3.0 releases
+traefik_docker_image_tag: "v3.0.0"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
@@ -320,18 +320,6 @@ traefik_docker_commands_cloudflarewarp_plugin:
 traefik_docker_commands_themepark_plugin:
   - "--experimental.plugins.themepark.modulename=github.com/packruler/traefik-themepark"
   - "--experimental.plugins.themepark.version=v1.4.0"
-traefik_docker_commands_tracing:
-  - "--tracing.serviceName=traefik"
-  - "--tracing.spanNameLimit=250"
-  - "--tracing.jaeger=true"
-  - "--tracing.jaeger.samplingServerURL=http://jaeger:5778/sampling"
-  - "--tracing.jaeger.samplingType=const"
-  - "--tracing.jaeger.samplingParam=1"
-  - "--tracing.jaeger.localAgentHostPort=jaeger:6831"
-  - "--tracing.jaeger.gen128Bit"
-  - "--tracing.jaeger.propagation=jaeger"
-  - "--tracing.jaeger.traceContextHeaderName=uber-trace-id"
-  - "--tracing.jaeger.collector.endpoint=http://jaeger:14268/api/traces?format=jaeger.thrift"
 traefik_docker_commands_http3:
   - "--entrypoints.websecure.http3.advertisedport={{ traefik_entrypoint_websecure_port }}"
 traefik_docker_commands_tailscale:
@@ -348,9 +336,6 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                                else [])
                              + (traefik_docker_commands_themepark_plugin
                                if global_themepark_plugin_enabled
-                               else [])
-                             + (traefik_docker_commands_tracing
-                               if traefik.tracing
                                else [])
                              + (traefik_docker_commands_http_validation_acme
                                if (traefik_enable_http_validation)

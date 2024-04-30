@@ -37,12 +37,6 @@
     var_prefix: "authelia"
   when: not authelia_is_master
 
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-  vars:
-    var_prefix: "jaeger"
-  when: not traefik.tracing
-
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
@@ -97,11 +91,6 @@
   ansible.builtin.include_role:
     name: authentik
   when: traefik_authentik_enabled
-
-- name: "Import Jaeger Role"
-  ansible.builtin.include_role:
-    name: jaeger
-  when: traefik.tracing
 
 - name: "Import Error Pages Role"
   ansible.builtin.include_role:

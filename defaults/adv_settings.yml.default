@@ -23,4 +23,3 @@ traefik:
     dash: dash
     jaeger: jaeger
     metrics: metrics
-  tracing: no
