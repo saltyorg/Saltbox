@@ -7,10 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Housekeeping | Remove all unused docker images
+- name: "Housekeeping | Remove all unused docker images"
   ansible.builtin.shell: docker image prune -af &> /dev/null || true
   ignore_errors: true
 
-- name: Housekeeping | Remove all unused docker volumes
+- name: "Housekeeping | Remove all unused docker volumes"
   ansible.builtin.shell: docker volume prune -f &> /dev/null || true
   ignore_errors: true

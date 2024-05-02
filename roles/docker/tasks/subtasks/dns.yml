@@ -7,31 +7,38 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: DNS | Cleanup 'docker-update-hosts.service'
+- name: "DNS | Cleanup 'docker-update-hosts.service'"
   ansible.builtin.systemd_service:
     name: docker-update-hosts
     state: stopped
     enabled: false
   when: (services['docker-update-hosts.service'] is defined)
 
-- name: DNS | Remove docker-update-hosts.service
+- name: "DNS | Remove docker-update-hosts.service"
   ansible.builtin.file:
     path: /etc/systemd/system/docker-update-hosts.service
     state: absent
 
-- name: DNS | Delete 'docker-update-hosts'
+- name: "DNS | Delete 'docker-update-hosts'"
   ansible.builtin.file:
     path: "/usr/local/bin/docker-update-hosts"
     state: absent
 
-- name: DNS | Import 'saltbox_managed_docker_update_hosts.service'
+- name: "DNS | Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "3.10"
+  when: ansible_distribution_version is version('22.04', '!=')
+
+- name: "DNS | Import 'saltbox_managed_docker_update_hosts.service'"
   ansible.builtin.template:
     src: docker-update-hosts.service.j2
     dest: /etc/systemd/system/saltbox_managed_docker_update_hosts.service
     mode: "0644"
     force: true
 
-- name: DNS | Start 'saltbox_managed_docker_update_hosts.service'
+- name: "DNS | Start 'saltbox_managed_docker_update_hosts.service'"
   ansible.builtin.systemd_service:
     name: saltbox_managed_docker_update_hosts
     state: restarted

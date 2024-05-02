@@ -7,12 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Docker Hub | Login
+- name: "Docker Hub | Login"
   community.docker.docker_login:
     username: "{{ dockerhub.user }}"
     password: "{{ dockerhub.token }}"
 
-- name: Docker Hub | Login
+- name: "Docker Hub | Login"
   community.docker.docker_login:
     username: "{{ dockerhub.user }}"
     password: "{{ dockerhub.token }}"
