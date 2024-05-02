@@ -17,13 +17,55 @@
     path: "/usr/bin/docker"
   register: docker_binary
 
-- name: Check if '/etc/systemd/system/saltbox_managed_docker_controller.service' exists
+- name: Check if 'saltbox_managed_docker_update_hosts.service' exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/saltbox_managed_docker_controller.service"
-  register: saltbox_controller_service
+    path: "/etc/systemd/system/saltbox_managed_docker_update_hosts.service"
+  register: saltbox_update_hosts
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Wait for 10 seconds
+  ansible.builtin.wait_for:
+    timeout: 10
 
 - name: Populate Service Facts
   ansible.builtin.service_facts:
+
+- name: Migration of saltbox_managed_docker_update_hosts
+  when: saltbox_update_hosts.stat.exists
+  block:
+    - name: Load contents of 'saltbox_managed_docker_update_hosts.service'
+      ansible.builtin.slurp:
+        src: "/etc/systemd/system/saltbox_managed_docker_update_hosts.service"
+      register: slurp
+
+    - name: Parse migration status of 'saltbox_managed_docker_update_hosts.service'
+      ansible.builtin.set_fact:
+        saltbox_update_hosts_migrated: "{{ '/srv/git/saltbox/roles/docker/files/docker-update-hosts.py' in (slurp['content'] | b64decode) }}"
+
+    - name: Migration block
+      when: not saltbox_update_hosts_migrated
+      block:
+        - name: "Cleanup 'saltbox_managed_docker_update_hosts.service'"
+          ansible.builtin.systemd_service:
+            name: saltbox_managed_docker_update_hosts
+            state: stopped
+            enabled: false
+          when: (services['saltbox_managed_docker_update_hosts.service'] is defined)
+
+        - name: "Remove 'saltbox_managed_docker_update_hosts.service'"
+          ansible.builtin.file:
+            path: /etc/systemd/system/saltbox_managed_docker_update_hosts.service
+            state: absent
+
+        - name: Reload systemd
+          ansible.builtin.systemd_service:
+            daemon_reload: true
+
+        - name: Populate Service Facts
+          ansible.builtin.service_facts:
 
 - name: Get Docker service state
   ansible.builtin.set_fact:
@@ -180,6 +222,14 @@
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
       ignore_errors: true
+
+- name: Start Saltbox Containers
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/start"
+    method: POST
+    timeout: 600
+  ignore_errors: true
+  when: not (docker_running_containers | trim | length > 0)
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
