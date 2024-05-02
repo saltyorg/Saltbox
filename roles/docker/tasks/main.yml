@@ -28,6 +28,7 @@
 - name: Get Docker service state
   ansible.builtin.set_fact:
     docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
+    docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
   when: docker_binary.stat.exists
 
 - name: Set '_remotes_list' variable
@@ -56,7 +57,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: saltbox_controller_service.stat.exists
+      when: docker_controller_service_running is defined and docker_controller_service_running
 
     - name: Stop all running Docker containers
       ansible.builtin.shell: "docker stop {{ docker_running_containers }} &> /dev/null || true"
@@ -73,7 +74,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: saltbox_controller_service.stat.exists
+      when: docker_controller_service_running is defined and docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
