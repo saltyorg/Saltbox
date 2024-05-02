@@ -7,22 +7,22 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Check if 'mergerfs.service' exists"
+- name: "Legacy | Check if 'mergerfs.service' exists"
   ansible.builtin.stat:
     path: "/etc/systemd/system/mergerfs.service"
   register: mergerfs_status
 
-- name: "Tasks for 'mergerfs.service'"
+- name: "Legacy | Tasks for 'mergerfs.service'"
   when: mergerfs_status.stat.exists
   block:
-    - name: "Stop and disable existing 'mergerfs.service'"
+    - name: "Legacy | Stop and disable existing 'mergerfs.service'"
       ansible.builtin.systemd_service:
         name: "mergerfs.service"
         state: stopped
         enabled: false
       ignore_errors: true
 
-    - name: Delete 'mergerfs.service'
+    - name: "Legacy | Delete 'mergerfs.service'"
       ansible.builtin.file:
         path: "/etc/systemd/system/mergerfs.service"
         state: absent

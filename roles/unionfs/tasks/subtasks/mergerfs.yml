@@ -16,7 +16,6 @@
   ansible.builtin.systemd_service:
     name: "{{ mergerfs_service_name }}"
     state: stopped
-  ignore_errors: true
   when: saltbox_managed_mergerfs_status.stat.exists
 
 - name: "MergerFS | Get URL for latest mergerfs release"
@@ -30,7 +29,6 @@
   ansible.builtin.apt:
     name: mergerfs
     state: absent
-  ignore_errors: true
 
 - name: "MergerFS | Install mergerfs"
   ansible.builtin.apt:

@@ -52,4 +52,5 @@
     method: POST
     timeout: 600
   ignore_errors: true
-  when: saltbox_controller_service_remote.stat.exists
+  when: (remote_docker_controller_service_running is defined and remote_docker_controller_service_running)
+        or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running)

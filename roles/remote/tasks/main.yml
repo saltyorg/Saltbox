@@ -17,17 +17,13 @@
     path: "/usr/bin/docker"
   register: remote_docker_binary
 
-- name: Check if '/etc/systemd/system/saltbox_managed_docker_controller.service' exists
-  ansible.builtin.stat:
-    path: "/etc/systemd/system/saltbox_managed_docker_controller.service"
-  register: saltbox_controller_service_remote
-
 - name: Populate Service Facts
   ansible.builtin.service_facts:
 
 - name: Get Docker service state
   ansible.builtin.set_fact:
     remote_docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
+    remote_docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
   when: remote_docker_binary.stat.exists
 
 - name: Tasks for when Docker exists and is running
@@ -39,7 +35,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: saltbox_controller_service_remote.stat.exists
+      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
 
     - name: "Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
@@ -56,7 +52,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: saltbox_controller_service_remote.stat.exists
+      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
 
     - name: "Stop all running Docker containers"
       ansible.builtin.shell: "docker stop {{ containers_list }}"
