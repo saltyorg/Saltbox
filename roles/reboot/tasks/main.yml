@@ -1,0 +1,21 @@
+#########################################################################
+# Title:         Saltbox: Reboot Checker Role                           #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Check if system needs to reboot
+  ansible.builtin.stat:
+    path: "/var/run/reboot-required"
+  register: reboot_required_file
+
+- name: Reboot required status
+  ansible.builtin.debug:
+    msg: "{{ 'Reboot is required.' if reboot_required_file.stat.exists else 'Reboot is not required.' }}"
+
+- name: Reboot
+  ansible.builtin.shell: reboot
+  when: reboot_required_file.stat.exists and saltbox_auto_reboot

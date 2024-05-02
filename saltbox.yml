@@ -110,3 +110,5 @@
     - { role: sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
     - { role: traefik_template, tags: ['generate-traefik-template'] }
     - { role: webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
+    # Reboot checker
+    - { role: reboot, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'system'] }
