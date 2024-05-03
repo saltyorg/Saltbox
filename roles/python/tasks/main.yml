@@ -30,7 +30,7 @@
     state: absent
   loop:
     - "{{ python_apt_repo_url_old }}"
-    - "{{ python_apt_repo_url }}"
+    - "{{ python_apt_repo_url_old2 }}"
 
 - name: Add deadsnakes/ppa
   ansible.builtin.shell: add-apt-repository ppa:deadsnakes/ppa --yes
