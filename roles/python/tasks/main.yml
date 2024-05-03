@@ -7,10 +7,20 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Fail if not running {{ python_valid_distro }}"
+- name: "Fail if not running Ubuntu 20.04 when installing Python 3.8"
   ansible.builtin.fail:
-    msg: "This role is only for {{ python_valid_distro }}"
-  when: (ansible_distribution_version is version(python_valid_distro, '!='))
+    msg: "This role is only for Ubuntu 22.04+ when installing Python 3.8"
+  when: ansible_distribution_version is version('20.04', '==') and python_version == "3.8"
+
+- name: "Fail if not running Ubuntu 22.04 when installing Python 3.10"
+  ansible.builtin.fail:
+    msg: "This role is only for Ubuntu 20.04 and 24.04+ when installing Python 3.10"
+  when: ansible_distribution_version is version('22.04', '==') and python_version == "3.10"
+
+- name: "Fail if running Ubuntu 24.04 when installing Python 3.12"
+  ansible.builtin.fail:
+    msg: "This role is only for Ubuntu 20.04 and 22.04 when installing Python 3.12"
+  when: ansible_distribution_version is version('24.04', '==') and python_version == "3.12"
 
 - name: Add gpg signing key to trusted.gpg.d
   ansible.builtin.get_url:
