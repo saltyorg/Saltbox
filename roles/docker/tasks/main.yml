@@ -17,11 +17,6 @@
     path: "/usr/bin/docker"
   register: docker_binary
 
-- name: Check if 'saltbox_managed_docker_update_hosts.service' exists
-  ansible.builtin.stat:
-    path: "/etc/systemd/system/saltbox_managed_docker_update_hosts.service"
-  register: saltbox_update_hosts
-
 - name: Reload systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
