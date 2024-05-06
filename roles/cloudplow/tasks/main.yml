@@ -60,35 +60,26 @@
         python_version: "3.8"
       when: ansible_distribution_version is version('20.04', '!=')
 
-    - name: Check if venv folder exists
-      ansible.builtin.stat:
-        path: "{{ cloudplow_venv_path }}"
-      register: cloudplow_venv_folder
-
     - name: Delete venv folder
       ansible.builtin.file:
         path: "{{ cloudplow_venv_path }}"
         state: absent
-      when: cloudplow_venv_folder.stat.exists
+
+    - name: Create venv
+      ansible.builtin.command:
+        cmd: "{{ cloudplow_python }} -m venv {{ cloudplow_venv_path }}"
+      args:
+        creates: "{{ cloudplow_venv_path }}"
+      become: true
+      become_user: "{{ user.name }}"
 
     - name: Install pip requirements
       ansible.builtin.pip:
         requirements: "{{ cloudplow_requirements_path }}"
-        virtualenv_python: "{{ cloudplow_python }}"
         virtualenv: "{{ cloudplow_venv_path }}"
+        virtualenv_command: "{{ cloudplow_venv_path }}/bin/python3 -m pip"
       become: true
       become_user: "{{ user.name }}"
-
-    - name: Find pip3 path
-      ansible.builtin.find:
-        paths: "{{ cloudplow_path }}/venv"
-        recurse: true
-        patterns: 'pip3'
-      register: files
-
-    - name: Path
-      ansible.builtin.set_fact:
-        cloudplow_bin_folder: "{{ files.files[0].path | dirname }}"
 
     - name: Set script as executable
       ansible.builtin.file:
