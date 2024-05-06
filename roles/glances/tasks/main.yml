@@ -41,13 +41,33 @@
     mode: "0775"
     recurse: true
 
+- name: Create venv
+  ansible.builtin.command:
+    cmd: "{{ glances_python }} -m venv {{ glances_venv_path }}"
+  args:
+    creates: "{{ glances_venv_path }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Install pip build requirements
+  ansible.builtin.pip:
+    name:
+      - pip
+      - setuptools
+      - wheel
+    state: latest
+    virtualenv: "{{ glances_venv_path }}"
+    virtualenv_command: "{{ glances_venv_path }}/bin/python3 -m pip"
+  become: true
+  become_user: "{{ user.name }}"
+
 - name: Install pip requirements
   ansible.builtin.pip:
     name:
       - docker
       - glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
-    virtualenv_python: "{{ glances_python }}"
     virtualenv: "{{ glances_venv_path }}"
+    virtualenv_command: "{{ glances_venv_path }}/bin/python3 -m pip"
   become: true
   become_user: "{{ user.name }}"
 
