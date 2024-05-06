@@ -91,7 +91,3 @@
 
     - name: "Install pip for Python {{ python_version }}"
       ansible.builtin.command: "python{{ python_version }} -m ensurepip"
-
-- name: Fix System pip
-  ansible.builtin.import_tasks: "subtasks/pip.yml"
-  when: (not continuous_integration)
