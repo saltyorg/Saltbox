@@ -11,12 +11,45 @@
   ansible.builtin.apt:
     name: glances
     state: absent
-  ignore_errors: true
-  tags: glances
 
-- name: Install pip 'glances'
-  ansible.builtin.shell: pip3 install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
-  ignore_errors: true
+- name: Set Python version
+  ansible.builtin.set_fact:
+    glances_python: "{{ 'python3'
+                     if ansible_distribution_version is version('22.04', '==')
+                     else 'python3.10' }}"
+    glances_path: "/srv/glances"
+    glances_venv_path: "/srv/glances/venv"
+
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "3.10"
+  when: ansible_distribution_version is version('22.04', '!=')
+
+- name: Delete venv folder
+  ansible.builtin.file:
+    path: "{{ glances_venv_path }}"
+    state: absent
+
+- name: Create directory
+  ansible.builtin.file:
+    path: "{{ glances_path }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    recurse: true
+
+- name: Install pip requirements
+  ansible.builtin.pip:
+    name:
+      - docker
+      - glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
+    virtualenv_python: "{{ glances_python }}"
+    virtualenv: "{{ glances_venv_path }}"
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Create glances directory
   ansible.builtin.file:
@@ -30,9 +63,18 @@
 
 - name: Copy glances.conf if it doesn't exist
   ansible.builtin.copy:
-    src: /usr/local/share/doc/glances/glances.conf
-    dest: /etc/glances/glances.conf
+    src: "{{ glances_venv_path }}/share/doc/glances/glances.conf"
+    dest: "/etc/glances/glances.conf"
     owner: root
     group: root
     mode: "0644"
     force: false
+
+- name: Copy glances to '/usr/local/bin'
+  ansible.builtin.copy:
+    src: "{{ glances_venv_path }}/bin/glances"
+    dest: "/usr/local/bin/glances"
+    owner: root
+    group: root
+    mode: "0755"
+    force: true
