@@ -93,6 +93,7 @@
     - { role: redis, tags: ['redis'] }
     - { role: rutorrent, tags: ['rutorrent'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
+    - { role: scrutiny, tags: ['scrutiny'] }
     - { role: subliminal, tags: ['subliminal'] }
     - { role: traktarr, tags: ['traktarr'] }
     - { role: transfer, tags: ['transfer'] }

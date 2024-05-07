@@ -1,0 +1,145 @@
+##########################################################################
+# Title:         Saltbox: Scrutiny | Default Variables                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+scrutiny_name: scrutiny
+
+################################
+# Paths
+################################
+
+scrutiny_paths_folder: "{{ scrutiny_name }}"
+scrutiny_paths_location: "{{ server_appdata_path }}/{{ scrutiny_paths_folder }}"
+scrutiny_paths_folders_list:
+  - "{{ scrutiny_paths_location }}"
+  - "{{ scrutiny_paths_location }}/scrutiny"
+  - "{{ scrutiny_paths_location }}/influxdb"
+
+################################
+# Web
+################################
+
+scrutiny_web_subdomain: "{{ scrutiny_name }}"
+scrutiny_web_domain: "{{ user.domain }}"
+scrutiny_web_port: "8080"
+scrutiny_web_url: "{{ 'https://' + (scrutiny_web_subdomain + '.' + scrutiny_web_domain
+                   if (scrutiny_web_subdomain | length > 0)
+                   else scrutiny_web_domain) }}"
+
+################################
+# DNS
+################################
+
+scrutiny_dns_record: "{{ scrutiny_web_subdomain }}"
+scrutiny_dns_zone: "{{ scrutiny_web_domain }}"
+scrutiny_dns_proxy: "{{ dns.proxied }}"
+
+################################
+# Traefik
+################################
+
+scrutiny_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+scrutiny_traefik_middleware_default: "{{ traefik_default_middleware }}"
+scrutiny_traefik_middleware_custom: ""
+scrutiny_traefik_certresolver: "{{ traefik_default_certresolver }}"
+scrutiny_traefik_enabled: true
+
+################################
+# Docker
+################################
+
+# Container
+scrutiny_docker_container: "{{ scrutiny_name }}"
+
+# Image
+scrutiny_docker_image_pull: true
+scrutiny_docker_image_tag: "master-omnibus"
+scrutiny_docker_image: "ghcr.io/analogj/scrutiny:{{ scrutiny_docker_image_tag }}"
+
+# Ports
+scrutiny_docker_ports_defaults: []
+scrutiny_docker_ports_custom: []
+scrutiny_docker_ports: "{{ scrutiny_docker_ports_defaults
+                           + scrutiny_docker_ports_custom }}"
+
+# Envs
+scrutiny_docker_envs_default:
+  TZ: "{{ tz }}"
+scrutiny_docker_envs_custom: {}
+scrutiny_docker_envs: "{{ scrutiny_docker_envs_default
+                          | combine(scrutiny_docker_envs_custom) }}"
+
+# Commands
+scrutiny_docker_commands_default: []
+scrutiny_docker_commands_custom: []
+scrutiny_docker_commands: "{{ scrutiny_docker_commands_default
+                              + scrutiny_docker_commands_custom }}"
+
+# Volumes
+scrutiny_docker_volumes_default:
+  - "{{ scrutiny_paths_location }}/scrutiny:/opt/scrutiny/config"
+  - "{{ scrutiny_paths_location }}/influxdb:/opt/scrutiny/influxdb"
+  - "/run/udev:/run/udev:ro"
+scrutiny_docker_volumes_custom: []
+scrutiny_docker_volumes: "{{ scrutiny_docker_volumes_default
+                             + scrutiny_docker_volumes_custom }}"
+
+# Devices
+scrutiny_docker_devices_default: "{{ storage_devices }}"
+scrutiny_docker_devices_custom: []
+scrutiny_docker_devices: "{{ scrutiny_docker_devices_default
+                             + scrutiny_docker_devices_custom }}"
+
+# Hosts
+scrutiny_docker_hosts_default: {}
+scrutiny_docker_hosts_custom: {}
+scrutiny_docker_hosts: "{{ docker_hosts_common
+                           | combine(scrutiny_docker_hosts_default)
+                           | combine(scrutiny_docker_hosts_custom) }}"
+
+# Labels
+scrutiny_docker_labels_default: {}
+scrutiny_docker_labels_custom: {}
+scrutiny_docker_labels: "{{ docker_labels_common
+                            | combine(scrutiny_docker_labels_default)
+                            | combine(scrutiny_docker_labels_custom) }}"
+
+# Hostname
+scrutiny_docker_hostname: "{{ scrutiny_name }}"
+
+# Networks
+scrutiny_docker_networks_alias: "{{ scrutiny_name }}"
+scrutiny_docker_networks_default: []
+scrutiny_docker_networks_custom: []
+scrutiny_docker_networks: "{{ docker_networks_common
+                              + scrutiny_docker_networks_default
+                              + scrutiny_docker_networks_custom }}"
+
+# Capabilities
+scrutiny_docker_capabilities_default:
+  - "SYS_RAWIO"
+  - "SYS_ADMIN"
+scrutiny_docker_capabilities_custom: []
+scrutiny_docker_capabilities: "{{ scrutiny_docker_capabilities_default
+                                  + scrutiny_docker_capabilities_custom }}"
+
+# Security Opts
+scrutiny_docker_security_opts_default: []
+scrutiny_docker_security_opts_custom: []
+scrutiny_docker_security_opts: "{{ scrutiny_docker_security_opts_default
+                                   + scrutiny_docker_security_opts_custom }}"
+
+# Restart Policy
+scrutiny_docker_restart_policy: unless-stopped
+
+# State
+scrutiny_docker_state: started
