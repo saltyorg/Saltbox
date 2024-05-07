@@ -125,9 +125,7 @@ scrutiny_docker_networks: "{{ docker_networks_common
                               + scrutiny_docker_networks_custom }}"
 
 # Capabilities
-scrutiny_docker_capabilities_default:
-  - "SYS_RAWIO"
-  - "SYS_ADMIN"
+scrutiny_docker_capabilities_default: []
 scrutiny_docker_capabilities_custom: []
 scrutiny_docker_capabilities: "{{ scrutiny_docker_capabilities_default
                                   + scrutiny_docker_capabilities_custom }}"
@@ -143,3 +141,6 @@ scrutiny_docker_restart_policy: unless-stopped
 
 # State
 scrutiny_docker_state: started
+
+# Privileged
+scrutiny_docker_privileged: true
