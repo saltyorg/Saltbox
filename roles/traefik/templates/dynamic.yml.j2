@@ -18,7 +18,6 @@ http:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
         customResponseHeaders:
-          X-Robots-Tag: "{{ traefik_x_robots }}"
           server: ""
           x-xss-protection: ""
         frameDeny: false
@@ -48,6 +47,10 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         forceSTSHeader: true
+    robotHeaders:
+      headers:
+        customResponseHeaders:
+          X-Robots-Tag: "{{ traefik_x_robots }}"
   serversTransports:
     skipverify:
       insecureSkipVerify: true
