@@ -114,7 +114,7 @@
     working_dir: "{{ lookup('vars', _var_prefix + '_docker_working_dir', default=omit) }}"
   register: create_docker_result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
-  timeout: "{{ 60 if continuous_integration else omit }}"
+  timeout: "{{ 120 if continuous_integration else omit }}"
   delay: 10
   until: create_docker_result is succeeded
 
