@@ -14,7 +14,6 @@ cpu_performance_mode: true
 
 system_inotify: "524288"
 pam_limit_nofile: "100000"
-fs_file_max: "100000"
 
 timezone: "{{ tz }}"
 timezone_string: "Time zone: {{ timezone }}"
@@ -26,7 +25,6 @@ system_language: "en_US.UTF-8"
 saltbox_max_log_size: 2M
 
 sysctl_settings:
-  fs.file-max: "{{ fs_file_max }}"
   fs.inotify.max_user_watches: "{{ system_inotify }}"
   net.core.default_qdisc: fq
   net.core.netdev_budget: 50000
@@ -55,3 +53,6 @@ sysctl_settings:
   vm.dirty_background_ratio: 10
   vm.dirty_ratio: 15
   vm.swappiness: 10
+
+sysctl_remove_settings:
+  - fs.file-max

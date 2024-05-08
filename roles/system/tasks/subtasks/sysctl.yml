@@ -30,3 +30,11 @@
     # Set netdev_budget_usecs
     - { name: net.core.netdev_budget_usecs, value: 5000 }
   when: netdev_budget_usecs.stat.exists
+
+- name: sysctl | Remove old settings
+  ignore_errors: true
+  ansible.posix.sysctl:
+    name: "{{ item }}"
+    state: absent
+    reload: true
+  loop: "{{ sysctl_remove_settings }}"
