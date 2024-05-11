@@ -66,12 +66,14 @@
     name: motd-news.service
     state: stopped
     enabled: no
+    masked: true
 
 - name: Disable MOTD news timer
   ansible.builtin.systemd_service:
     name: motd-news.timer
     state: stopped
     enabled: no
+    masked: true
 
 - name: Create dynamic motd directory
   ansible.builtin.file:
