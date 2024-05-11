@@ -190,7 +190,7 @@
     method: POST
     timeout: 600
   ignore_errors: true
-  when: not (docker_running_containers | trim | length > 0)
+  when: docker_running_containers is undefined or (docker_running_containers is defined and not (docker_running_containers | trim | length > 0))
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
