@@ -14,6 +14,10 @@
     path: "{{ jellyfin_paths_sys_xml_location }}"
     state: present
 
+- name: "Post-Install | Prompt user to complete the wizard"
+  ansible.builtin.pause:
+    prompt: "Please open {{ jellyfin_web_url }}/web/index.html#!/wizardstart.html. Hit enter after having finished the wizard"
+
 - name: Post-Install | Wait for 'network.xml' file to be created
   ansible.builtin.wait_for:
     path: "{{ jellyfin_paths_net_xml_location }}"
