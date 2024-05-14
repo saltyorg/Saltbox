@@ -111,8 +111,8 @@ nzbget_config_new_installs_settings_default:
   - { regexp: '^Extensions\s?=.*', line: 'Extensions=nzbgetpp/unzip.py, flatten.py, DeleteSamples.py, HashRenamer.py, reverse_name.py' }
   - { regexp: '^ScriptOrder\s?=.*', line: 'ScriptOrder=nzbgetpp/unzip.py, flatten.py, DeleteSamples.py, HashRenamer.py, reverse_name.py' }
   # Unpacking
-  - { regexp: '^UnrarCmd\s?=.*', line: 'UnrarCmd=ionice -c3 unrar' }
-  - { regexp: '^SevenZipCmd\s?=.*', line: 'SevenZipCmd=ionice -c3 7z' }
+  - { regexp: '^UnrarCmd\s?=.*', line: 'UnrarCmd=ionice -c3 /usr/bin/unrar' }
+  - { regexp: '^SevenZipCmd\s?=.*', line: 'SevenZipCmd=ionice -c3 /usr/bin/7z' }
   - { regexp: '^ParIgnoreExt\s?=.*', line: 'ParIgnoreExt=.sfv, .nzb, .nfo, .srr, .1.rar' }
   - { regexp: '^ExtCleanupDisk\s?=.*', line: 'ExtCleanupDisk=.nzb, .par2, .sfv, .sfv.*, .rar.*,
                                                               .htm, .html, _brokenlog.txt, .srr,
@@ -132,8 +132,8 @@ nzbget_config_existing_installs_settings_default:
   # Scripts
   - { regexp: '^ShellOverride\s?=.*', line: 'ShellOverride=.py=/usr/bin/python3' }
   # Unpacking
-  - { regexp: '^UnrarCmd\s?=.*', line: 'UnrarCmd=ionice -c3 unrar' }
-  - { regexp: '^SevenZipCmd\s?=.*', line: 'SevenZipCmd=ionice -c3 7z' }
+  - { regexp: '^UnrarCmd\s?=.*', line: 'UnrarCmd=ionice -c3 /usr/bin/unrar' }
+  - { regexp: '^SevenZipCmd\s?=.*', line: 'SevenZipCmd=ionice -c3 /usr/bin/7z' }
 nzbget_config_existing_installs_settings_custom: []
 nzbget_config_existing_installs_settings_list: "{{ nzbget_config_existing_installs_settings_default
                                                    + nzbget_config_existing_installs_settings_custom }}"
