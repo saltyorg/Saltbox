@@ -133,7 +133,7 @@ access_control:
 
 session:
   name: {{ authelia_web_subdomain + '.' + authelia_web_domain | lower }}
-  secret: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}
+  secret: {{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}
   expiration: 1h
   inactivity: 5m
   remember_me: 1M
@@ -156,7 +156,7 @@ regulation:
   ban_time: 5m
 
 storage:
-  encryption_key: {{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}
+  encryption_key: {{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=64) }}
   local:
     path: /config/db.sqlite3
 

@@ -94,7 +94,7 @@ authelia_log_file_path: "/config/authelia.log"
 authelia_log_keep_stdout: "true"
 
 # JWT
-authelia_jwt_secret: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=32') }}"
+authelia_jwt_secret: "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
 
 # TOTP
 authelia_totp_issuer: "authelia.com"

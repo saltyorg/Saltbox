@@ -40,7 +40,7 @@
 
 - name: "Auth Token | Generate new plex_auth_client_identifier"
   ansible.builtin.set_fact:
-    plex_auth_client_identifier: "Saltbox{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
+    plex_auth_client_identifier: "Saltbox{{ lookup('password', '/dev/null', chars=['ascii_lowercase', 'digits'], length=8) }}"
   when: (not plex_ini.stat.exists) or plex_auth_client_identifier_missing
 
 - name: "Auth Token | Set plex_auth_token variable if previously saved"

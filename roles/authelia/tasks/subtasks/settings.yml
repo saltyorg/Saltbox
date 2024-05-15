@@ -14,7 +14,7 @@
 
 - name: Settings | Add encryption_key to config file
   ansible.builtin.shell: |
-    yyq e -i '.storage.encryption_key = "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=64') }}"' {{ authelia_paths_location }}/configuration.yml
+    yyq e -i '.storage.encryption_key = "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=64) }}"' {{ authelia_paths_location }}/configuration.yml
   become: true
   become_user: "{{ user.name }}"
   when: authelia_encryption_key.stdout == "null"
