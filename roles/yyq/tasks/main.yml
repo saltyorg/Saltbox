@@ -47,7 +47,6 @@
         group: root
         force: true
         validate_certs: false
-      ignore_errors: true
       register: x
       until: "x is not failed"
       retries: 5
@@ -56,7 +55,6 @@
     - name: "Get yyq version"
       ansible.builtin.shell: "/usr/local/bin/yyq --version"
       register: yyq_version
-      ignore_errors: true
       when: (x is success)
 
     - name: "Display yyq version"
