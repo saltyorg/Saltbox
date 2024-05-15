@@ -96,7 +96,7 @@ function build_url() {
     SERVER_PASS=$(cat ${PAS_CONFIG} | jq -r .SERVER_PASS)
 
     # Get variables from Saltbox account settings
-    DOMAIN=$(yyq e '.user.domain' ${SB_ACCOUNTS} )
+    DOMAIN=$(yyq '.user.domain' ${SB_ACCOUNTS} )
 
     # If SERVER_IP is 0.0.0.0, assign public IP address to REAL_IP.
     if [[ ${SERVER_IP} = 0.0.0.0 ]]; then

@@ -22,15 +22,15 @@
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Delete 'goddady' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.goddady)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.goddady)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_godaddy
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'godaddy' dict
   ansible.builtin.shell: |
-    yyq e -i '.godaddy.api_key = "{{ goddady.api_key }}"' {{ playbook_dir }}/{{ file }}
-    yyq e -i '.godaddy.api_secret = "{{ goddady.api_secret }}"' {{ playbook_dir }}/{{ file }}
+    yyq -i '.godaddy.api_key = "{{ goddady.api_key }}"' {{ playbook_dir }}/{{ file }}
+    yyq -i '.godaddy.api_secret = "{{ goddady.api_secret }}"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_godaddy_filled

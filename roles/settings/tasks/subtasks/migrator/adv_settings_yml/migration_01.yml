@@ -77,84 +77,84 @@
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.tls' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.traefik.tls)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.traefik.tls)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_traefik_tls_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.cert.http_validation' dict
   ansible.builtin.shell: |
-    yyq e -i '.traefik.cert.http_validation = "{{ 'yes' if (traefik.http | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
+    yyq -i '.traefik.cert.http_validation = "{{ 'yes' if (traefik.http | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_traefik_http_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.http' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.traefik.http)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.traefik.http)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_traefik_http_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.cert.zerossl' dict
   ansible.builtin.shell: |
-    yyq e -i '.traefik.cert.zerossl = "{{ 'yes' if (dns.zerossl | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
+    yyq -i '.traefik.cert.zerossl = "{{ 'yes' if (dns.zerossl | default(false)) else 'no' }}"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_zerossl_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dns.zerossl' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.dns.zerossl)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.dns.zerossl)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_zerossl_settings
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Rebuild 'traefik.metrics' dict
   ansible.builtin.shell: |
-    yyq e -i '.traefik.metrics = "no"' {{ playbook_dir }}/{{ file }}
+    yyq -i '.traefik.metrics = "no"' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: (not traefik_metrics_settings)
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dockerhub' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.dockerhub)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.dockerhub)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_dockerhub
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'dns.enabled' key-pair
   ansible.builtin.shell: |
-    yyq e -i 'del(.dns.enabled)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.dns.enabled)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_dns_enabled
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'mounts.feeder' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.mounts.feeder)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.mounts.feeder)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_feeder_mount
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'mounts.remote' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.mounts.remote)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.mounts.remote)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_remote_mount
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'gpu.nvidia' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.gpu.nvidia)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.gpu.nvidia)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: gpu is defined and gpu.nvidia is defined
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.tracing' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.traefik.tracing)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.traefik.tracing)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: traefik is defined and traefik.tracing is defined

@@ -36,7 +36,7 @@
 
 - name: Load authentication_backend value
   ansible.builtin.shell: |
-    yyq e '.authentication_backend' {{ authelia_paths_location }}/configuration.yml
+    yyq '.authentication_backend' {{ authelia_paths_location }}/configuration.yml
   register: authentication_backend_key
   when: authelia_config_stat.stat.exists and (not 'authelia-reset' in ansible_run_tags)
 

@@ -23,7 +23,7 @@
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'plex.tfa' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.plex.tfa)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.plex.tfa)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: plex_tfa_settings

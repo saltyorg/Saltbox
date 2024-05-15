@@ -9,12 +9,12 @@
 ---
 - name: Setup Netplan VLAN
   ansible.builtin.shell: |
-    yyq e -i '.network.vlans += {"{{ ansible_default_ipv4.interface }}.{{ hetzner_vlan.vlan_id }}": {"id": {{ hetzner_vlan.vlan_id }}, "link": "{{ ansible_default_ipv4.interface }}", "mtu": 1400, "addresses": ["192.168.100.{{ hetzner_vlan.client_number }}/24"]}}' /etc/netplan/01-netcfg.yaml
+    yyq -i '.network.vlans += {"{{ ansible_default_ipv4.interface }}.{{ hetzner_vlan.vlan_id }}": {"id": {{ hetzner_vlan.vlan_id }}, "link": "{{ ansible_default_ipv4.interface }}", "mtu": 1400, "addresses": ["192.168.100.{{ hetzner_vlan.client_number }}/24"]}}' /etc/netplan/01-netcfg.yaml
   when: ('hetzner-vlan-deploy' in ansible_run_tags)
 
 - name: Remove Netplan VLAN
   ansible.builtin.shell: |
-    yyq e -i 'del(.network.vlans)' /etc/netplan/01-netcfg.yaml
+    yyq -i 'del(.network.vlans)' /etc/netplan/01-netcfg.yaml
   when: ('hetzner-vlan-remove' in ansible_run_tags)
 
 - name: Apply Netplan changes

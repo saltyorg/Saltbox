@@ -15,8 +15,8 @@
 
 - name: Migrator | 'backup_config.yml' | Migration 01 | Rebuild 'backup.cron' dict
   ansible.builtin.shell: |
-    yyq e -i 'del(.backup.cron.cron_state)' {{ playbook_dir }}/{{ file }}
-    yyq e -i 'del(.backup.cron.enable)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.backup.cron.cron_state)' {{ playbook_dir }}/{{ file }}
+    yyq -i 'del(.backup.cron.enable)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: old_settings
