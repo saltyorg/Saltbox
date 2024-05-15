@@ -46,7 +46,6 @@
         owner: root
         group: root
         force: true
-        validate_certs: false
       timeout: 20
       register: x
       until: "x is not failed"
