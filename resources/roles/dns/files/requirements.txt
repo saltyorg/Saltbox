@@ -1,2 +1,2 @@
 argparse
-cloudflare
+cloudflare==2.19.*
