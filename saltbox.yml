@@ -102,6 +102,7 @@
     - { role: yyq, tags: ['yyq'] }
     # Apps End
     - { role: custom, tags: ['custom'] }
+    - { role: diag, tags: ['diag'] }
     - { role: hetzner_nfs, tags: ['hetzner-nfs-server', 'hetzner-nfs-server-uninstall', 'hetzner-nfs-client-mount', 'hetzner-nfs-client-unmount'] }
     - { role: hetzner_vlan, tags: ['hetzner-vlan-deploy', 'hetzner-vlan-remove'] }
     - { role: permissions, tags: ['fix-permissions'] }

@@ -1,0 +1,12 @@
+#########################################################################
+# Title:            Saltbox: Diagnose                                   #
+# Author(s):        salty                                               #
+# URL:              https://github.com/saltyorg/Saltbox                 #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Diagnose variables"
+  ansible.builtin.debug:
+    msg: "{{ diagnose_vars.rstrip('\n').split('\n') }}"
