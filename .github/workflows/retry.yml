@@ -8,7 +8,7 @@ on:
 
 jobs:
   rerun:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: rerun ${{ inputs.run_id }}
         env:
