@@ -14,6 +14,7 @@ on:
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
       - 'roles/arr_db/**'
+      - 'roles/diag/**'
     branches-ignore:
       - 'dependabot/**'
   pull_request:
@@ -29,6 +30,7 @@ on:
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
       - 'roles/arr_db/**'
+      - 'roles/diag/**'
   workflow_dispatch:
 
 jobs:
