@@ -7,18 +7,21 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-diagnose_vars: |
-  Saltbox repo commit: {{ git_version.stdout }}
-  Saltbox upstream commit: {{ git_origin_version.stdout }}
-  cloudflare_is_enabled: {{ cloudflare_is_enabled }}
-  plex_account_is_enabled: {{ plex_account_is_enabled }}
-  rclone_remote_is_defined: {{ rclone_remote_is_defined }}
-  use_cloudplow: {{ use_cloudplow }}
-  use_remote: {{ use_remote }}
-  authelia_is_master: {{ authelia_is_master }}
-  zerossl_is_enabled: {{ zerossl_is_enabled }}
-  traefik_challenge_provider: {{ traefik_challenge_provider }}
-  traefik_default_certprovider: {{ traefik_default_certprovider }}
-  traefik_default_certresolver: {{ traefik_default_certresolver }}
-  docker_legacy_volume: {{ docker_legacy_volume }}
-  skip_dns: {{ skip_dns }}
+diagnose_cloudflare_script_path: "/srv/git/saltbox/roles/diag/files/cloudflare_ssl.py"
+
+diagnose_vars:
+  - "Saltbox repo commit: {{ git_version.stdout | default('Failed retrieving') }}"
+  - "Saltbox upstream commit: {{ git_origin_version.stdout | default('Failed retrieving') }}"
+  - "cloudflare_is_enabled: {{ cloudflare_is_enabled }}"
+  - "{{ 'Cloudflare SSL Mode: ' + cloudflare_ssl.stdout if cloudflare_is_enabled and cloudflare_ssl is defined else '' }}"
+  - "plex_account_is_enabled: {{ plex_account_is_enabled }}"
+  - "rclone_remote_is_defined: {{ rclone_remote_is_defined }}"
+  - "use_cloudplow: {{ use_cloudplow }}"
+  - "use_remote: {{ use_remote }}"
+  - "authelia_is_master: {{ authelia_is_master }}"
+  - "zerossl_is_enabled: {{ zerossl_is_enabled }}"
+  - "traefik_challenge_provider: {{ traefik_challenge_provider }}"
+  - "traefik_default_certprovider: {{ traefik_default_certprovider }}"
+  - "traefik_default_certresolver: {{ traefik_default_certresolver }}"
+  - "docker_legacy_volume: {{ docker_legacy_volume }}"
+  - "skip_dns: {{ skip_dns }}"

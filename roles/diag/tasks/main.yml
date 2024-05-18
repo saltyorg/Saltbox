@@ -7,6 +7,35 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Cloudflare API lookup
+  when: cloudflare_is_enabled
+  block:
+    - name: Check if Cloudflare venv exists
+      ansible.builtin.stat:
+        path: "/srv/cloudflare/venv/bin/python3"
+      register: diagnose_cloudflare_venv
+
+    - name: Cloudflare Tasks
+      when: diagnose_cloudflare_venv.stat.exists
+      block:
+        - name: Get FLD
+          ansible.builtin.shell: |
+            {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
+          register: diagnose_fld
+
+        - name: Fetch Record information
+          ansible.builtin.shell: "/srv/cloudflare/venv/bin/python3 {{ diagnose_cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ diagnose_fld.stdout }}'"
+          register: cloudflare_ssl
+
+        - name: Print Failure Output
+          ansible.builtin.fail:
+            msg: "{{ cloudflare_ssl.stderr }}"
+          when: cloudflare_ssl.rc != 0
+
 - name: "Diagnose variables"
   ansible.builtin.debug:
-    msg: "{{ diagnose_vars.rstrip('\n').split('\n') }}"
+    msg: >
+      {{
+        diagnose_vars | map('regex_replace', '^', '') |
+        select('match', '^(?!$)') | list
+      }}
