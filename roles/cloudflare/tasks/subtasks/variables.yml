@@ -49,7 +49,7 @@
     cloudflare_ruleset_id: "{{ cf_rules_response.json.result.id }}"
     cloudflare_rule_ids: >-
       {{
-        cf_rules_response.json.result.rules
+        cf_rules_response.json.result.rules | default([])
         | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
         | map(attribute='id')
         | list
