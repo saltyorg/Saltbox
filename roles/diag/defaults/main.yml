@@ -10,6 +10,7 @@
 diagnose_cloudflare_script_path: "/srv/git/saltbox/roles/diag/files/cloudflare_ssl.py"
 
 diagnose_vars:
+  - "Saltbox repo branch: {{ git_branch.stdout | default('Failed retrieving') }}"
   - "Saltbox repo commit: {{ git_version.stdout | default('Failed retrieving') }}"
   - "Saltbox upstream commit: {{ git_origin_version.stdout | default('Failed retrieving') }}"
   - "cloudflare_is_enabled: {{ cloudflare_is_enabled }}"
