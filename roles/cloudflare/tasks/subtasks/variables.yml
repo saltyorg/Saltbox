@@ -33,24 +33,3 @@
 - name: Variables | Set 'cloudflare_zone' Variable
   ansible.builtin.set_fact:
     cloudflare_zone: "{{ cf_zones.json.result[0].id }}"
-
-- name: Variables | Fetch Cloudflare Rulesets
-  ansible.builtin.uri:
-    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/phases/http_config_settings/entrypoint"
-    method: GET
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
-  register: cf_rules_response
-
-- name: Variables | Extract Ruleset ID and Rule IDs
-  ansible.builtin.set_fact:
-    cloudflare_ruleset_id: "{{ cf_rules_response.json.result.id }}"
-    cloudflare_rule_ids: >-
-      {{
-        cf_rules_response.json.result.rules | default([])
-        | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
-        | map(attribute='id')
-        | list
-      }}

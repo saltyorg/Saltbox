@@ -7,13 +7,134 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Delete any existing CF Configuration Rules for Lets Encrypt
+- name: Configuration Rules | Fetch Cloudflare Rulesets
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets"
+    method: GET
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+      Content-Type: "application/json"
+    status_code: 200
+  register: cf_rules_response
+
+- name: Configuration Rules | Check if Ruleset Exists
+  ansible.builtin.set_fact:
+    ruleset_exists: >-
+      {{
+        cf_rules_response.json.result | selectattr('phase', 'equalto', 'http_config_settings') | map(attribute='id') | list | length > 0
+      }}
+
+- name: Configuration Rules | Set Ruleset ID if Exists
+  ansible.builtin.set_fact:
+    cloudflare_ruleset_id: >-
+      {{
+        (cf_rules_response.json.result | selectattr('phase', 'equalto', 'http_config_settings') | map(attribute='id') | list).0
+      }}
+  when: ruleset_exists
+
+- name: Configuration Rules | Fetch Ruleset Details if Exists
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}"
+    method: GET
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+      Content-Type: "application/json"
+    status_code: 200
+  register: ruleset_details_response
+  when: ruleset_exists
+
+- name: Configuration Rules | Check if Specific Rule Exists
+  ansible.builtin.set_fact:
+    rule_exists: >-
+      {{
+        ruleset_details_response.json.result.rules
+        | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
+        | map(attribute='id')
+        | list | length > 0
+      }}
+  when: ruleset_exists
+
+- name: Configuration Rules | Set Rule IDs
+  ansible.builtin.set_fact:
+    cloudflare_rule_ids: >-
+      {{
+        ruleset_details_response.json.result.rules
+        | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
+        | map(attribute='id')
+        | list
+      }}
+  when: ruleset_exists and rule_exists
+
+- name: Configuration Rules | Create Ruleset and Rule if Not Exists
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets"
+    method: POST
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+      Content-Type: "application/json"
+    body:
+      name: "default"
+      description: ""
+      kind: "zone"
+      phase: "http_config_settings"
+      rules:
+        - action: "set_config"
+          expression: "(http.request.uri.path contains \"/.well-known/acme-challenge\")"
+          description: "Saltbox - Let's Encrypt HTTP-01 challenge rule"
+          enabled: true
+          action_parameters:
+            bic: false
+    body_format: json
+    status_code: 200
+  register: create_ruleset_response
+  when: not ruleset_exists
+
+- name: Configuration Rules | Set Ruleset ID if Created
+  ansible.builtin.set_fact:
+    cloudflare_ruleset_id: "{{ create_ruleset_response.json.result.id }}"
+  when: not ruleset_exists
+
+- name: Configuration Rules | Add Rule if Not Exists
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}/rules"
+    method: POST
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+      Content-Type: "application/json"
+    body:
+      action: "set_config"
+      expression: "(http.request.uri.path contains \"/.well-known/acme-challenge\")"
+      description: "Saltbox - Let's Encrypt HTTP-01 challenge rule"
+      enabled: true
+      action_parameters:
+        bic: false
+    body_format: json
+    status_code: 200
+  register: add_rule_response
+  when: ruleset_exists and not rule_exists
+
+- name: Configuration Rules | Fetch Updated Ruleset Details if Rule Added
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}"
+    method: GET
+    headers:
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+      Content-Type: "application/json"
+    status_code: 200
+  register: ruleset_details_response
+  when: ruleset_exists and not rule_exists
 
 - name: Configuration Rules | Remove Configuration Rule Task
   ansible.builtin.import_tasks: "configuration_rules/remove_configuration_rule.yml"
-  when: (cloudflare_rule_ids | length > 0)
+  when: ruleset_exists and rule_exists
 
 # Create new CF Configuration Rule for Lets Encrypt
 
 - name: Configuration Rules | Add Configuration Rule Task
   ansible.builtin.import_tasks: "configuration_rules/add_configuration_rule.yml"
+  when: ruleset_exists and rule_exists
