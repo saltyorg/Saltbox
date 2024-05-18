@@ -1,0 +1,32 @@
+#######################################################################################
+# Title:         Saltbox: Cloudflare | Configuration Rules | Add Configuration Rule   #
+# Author(s):     salty                                                                #
+# URL:           https://github.com/saltyorg/Saltbox                                  #
+# --                                                                                  #
+#######################################################################################
+#                   GNU General Public License v3.0                                   #
+#######################################################################################
+---
+- name: Configuration Rules | Add Configuration Rule for Let's Encrypt
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}/rules"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+      X-Auth-Email: "{{ cloudflare.email }}"
+      X-Auth-Key: "{{ cloudflare.api }}"
+    body_format: json
+    body:
+      action: "set_config"
+      expression: "(http.request.uri.path contains \"/.well-known/acme-challenge\")"
+      description: "Saltbox - Let's Encrypt HTTP-01 challenge rule"
+      enabled: true
+      action_parameters:
+        bic: false
+    status_code: 200
+  register: cf_configuration_rule_creation
+
+- name: Configuration Rules | Print result of Cloudflare Configuration Rule Creation
+  ansible.builtin.debug:
+    msg: "Successfully created Let's Encrypt Cloudflare configuration rule for '{{ fld.stdout }}'"
+  when: cf_configuration_rule_creation.json.success is defined and cf_configuration_rule_creation.json.success
