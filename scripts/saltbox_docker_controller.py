@@ -296,19 +296,28 @@ def stop_containers_in_dependency_order(graph: DependencyGraph):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global app_ready
-    try:
-        # Initialization
-        client = docker.from_env()
-        docker_version = client.version()
-        logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
+    retry_attempts = 10
+    retry_delay = 5
 
-        # Initialize DependencyGraph
-        global graph  # Declare graph as global if it's used elsewhere outside this context
-        graph = DependencyGraph()
-        app_ready = True  # Indicate that the app is now ready
+    for attempt in range(1, retry_attempts + 1):
+        try:
+            client = docker.from_env()
+            docker_version = client.version()
+            logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
+            
+            # Initialize DependencyGraph
+            global graph  # Declare graph as global if it's used elsewhere outside this context
+            graph = DependencyGraph()
+            app_ready = True  # Indicate that the app is now ready
+            break  # Exit the loop if successful
 
-    except Exception as e:
-        logging.error(f"An error occurred during application initialization: {e}")
+        except Exception as e:
+            logging.error(f"Attempt {attempt} - An error occurred during Docker initialization: {e}")
+            if attempt < retry_attempts:
+                await asyncio.sleep(retry_delay)
+            else:
+                logging.critical("Failed to initialize Docker after multiple attempts. Exiting.")
+                raise SystemExit("Failed to initialize Docker. Exiting.")
 
     yield
     logging.info("Application shutdown complete")
