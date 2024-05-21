@@ -120,6 +120,7 @@ authentik_docker_envs_default:
   AUTHENTIK_EMAIL__USE_SSL: "{{ authentik_email_ssl }}"
   AUTHENTIK_EMAIL__TIMEOUT: "{{ authentik_email_timeout }}"
   AUTHENTIK_EMAIL__FROM: "{{ authentik_email_from }}"
+  AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS: "172.19.0.0/16"
 authentik_docker_envs_custom: {}
 authentik_docker_envs: "{{ authentik_docker_envs_default
                            | combine(authentik_docker_envs_custom) }}"
