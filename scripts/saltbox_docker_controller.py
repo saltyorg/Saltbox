@@ -345,7 +345,7 @@ async def start_containers():
     client = docker.from_env()
     _graph = parse_container_labels(client)
     start_containers_in_dependency_order(_graph)
-    return {"message": "Containers are starting"}
+    return {"message": "Containers started"}
 
 
 @app.post("/stop")
@@ -355,7 +355,7 @@ async def stop_containers():
     client = docker.from_env()
     _graph = parse_container_labels(client)
     stop_containers_in_dependency_order(_graph)
-    return {"message": "Containers are stopping"}
+    return {"message": "Containers stopped"}
 
 
 async def auto_unblock(delay: int):

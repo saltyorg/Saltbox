@@ -50,7 +50,7 @@
       changed_when: false
       when: (not docker_service_check_mounts)
 
-    - name: Get Docker service state
+    - name: Set 'docker_running_containers'
       ansible.builtin.set_fact:
         docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
 
@@ -179,9 +179,18 @@
     - name: "Wait for {{ docker_network_container_health_delay }} seconds"
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
+      when: (docker_containers_gluetun | length > 0)
+
+    - name: Start Saltbox Containers
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/start"
+        method: POST
+        timeout: 600
+      ignore_errors: true
 
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
+      when: docker_running_containers.split() | difference(['ipv6nat']) | join(' ') | length > 0
       ignore_errors: true
 
 - name: Start Saltbox Containers
@@ -190,7 +199,7 @@
     method: POST
     timeout: 600
   ignore_errors: true
-  when: (docker_running_containers is undefined) or ((docker_running_containers is defined) and (docker_running_containers | trim | length > 0))
+  when: docker_service_check and not (docker_running_containers | trim | length > 0)
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
