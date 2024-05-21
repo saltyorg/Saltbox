@@ -41,7 +41,7 @@
 
 - name: Controller | Install pip requirements
   ansible.builtin.pip:
-    requirements: "/srv/git/saltbox/scripts/saltbox_docker_controller_requirements.txt"
+    requirements: "/srv/git/saltbox/requirements/requirements-docker-controller.txt"
     virtualenv: "/srv/docker-controller/venv"
     virtualenv_command: "/srv/docker-controller/venv/bin/python3 -m pip"
   become: true
