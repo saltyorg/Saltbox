@@ -9,18 +9,10 @@ from contextlib import asynccontextmanager
 import subprocess
 import signal
 
-# Global flag to indicate shutdown
-shutdown_flag = False
+global graph
+running = True
 app_ready = False
 
-# Signal handler
-def signal_handler(signum, frame):
-    global shutdown_flag
-    shutdown_flag = True
-
-# Register the signal handler
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGINT, signal_handler)
 
 class ColorLogFormatter(logging.Formatter):
     """ Custom formatter to add colors to log level names. """
@@ -140,7 +132,7 @@ class DependencyGraph:
 
 # Function to parse Docker container labels and populate the graph
 def parse_container_labels(client):
-    graph = DependencyGraph()
+    _graph = DependencyGraph()
     containers = client.containers.list(all=True)
     for container in containers:
         labels = container.labels
@@ -149,31 +141,32 @@ def parse_container_labels(client):
             delay = int(labels.get("com.github.saltbox.depends_on.delay", 0))
             healthchecks = labels.get("com.github.saltbox.depends_on.healthchecks", "false") == "true"
             node = ContainerNode(name, delay, healthchecks)
-            graph.add_container(node)
+            _graph.add_container(node)
 
             # Initialize health status
             try:
                 health_status = container.attrs['State']['Health']['Status']
             except KeyError:
                 health_status = "unknown"  # If health status is not available
-            graph.update_health_status(name, health_status)
+            _graph.update_health_status(name, health_status)
 
-    graph.set_dependencies()
-    return graph
+    _graph.set_dependencies()
+    return _graph
 
 
-def has_healthcheck_configured(client, container_name: str, graph: DependencyGraph) -> bool:
+def has_healthcheck_configured(client, container_name: str, _graph: DependencyGraph) -> bool:
     try:
         container = client.containers.get(container_name)
-        is_configured = 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck']['Test'] != ['NONE']
-        graph.set_healthcheck_configured(container_name, is_configured)
+        is_configured = 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck'][
+            'Test'] != ['NONE']
+        _graph.set_healthcheck_configured(container_name, is_configured)
         return is_configured
     except Exception as e:
         logging.error(f"Error checking healthcheck configuration for container {container_name}: {e}")
         return False
 
 
-def is_container_healthy(client, container_name: str, graph: DependencyGraph) -> bool:
+def is_container_healthy(client, container_name: str) -> bool:
     # Add a delay before checking the container health
     wait_for_delay(1)
 
@@ -202,18 +195,18 @@ def start_containers_with_shell(containers: List[str]):
             logging.error(f"Failed to start containers with error: {err}")
 
 
-def start_containers_in_dependency_order(graph: DependencyGraph):
+def start_containers_in_dependency_order(_graph: DependencyGraph):
     client = docker.from_env()
     started_containers = set()
-    containers_to_start = set(graph.nodes.keys())
+    containers_to_start = set(_graph.nodes.keys())
     logged_health_check_waiting = set()
     skip_start_due_to_placeholder = set()
 
-    while containers_to_start and not shutdown_flag:
+    while containers_to_start and running:
         ready_to_start = []
 
         for container_name in list(containers_to_start):
-            container = graph.nodes[container_name]
+            container = _graph.nodes[container_name]
 
             if container_name in skip_start_due_to_placeholder:
                 containers_to_start.remove(container_name)
@@ -230,14 +223,17 @@ def start_containers_in_dependency_order(graph: DependencyGraph):
                 if parent.is_placeholder:
                     dependencies_ready = False
                     if container_name not in skip_start_due_to_placeholder:
-                        logging.warning(f"Skipping start of '{container_name}' due to placeholder dependency '{parent.name}'.")
+                        logging.warning(
+                            f"Skipping start of '{container_name}' due to placeholder dependency '{parent.name}'.")
                         skip_start_due_to_placeholder.add(container_name)
                     break
 
-                if has_healthcheck_configured(client, parent.name, graph) and not is_container_healthy(client, parent.name, graph):
+                if has_healthcheck_configured(client, parent.name, _graph) and not is_container_healthy(client,
+                                                                                                        parent.name):
                     dependencies_ready = False
                     if container_name not in logged_health_check_waiting:
-                        logging.info(f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
+                        logging.info(
+                            f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
                         logged_health_check_waiting.add(container_name)
                     break
                 elif parent.name not in started_containers:
@@ -269,15 +265,15 @@ def stop_containers_with_shell(containers: List[str]):
             logging.error(f"Failed to stop containers with error: {err}")
 
 
-def stop_containers_in_dependency_order(graph: DependencyGraph):
+def stop_containers_in_dependency_order(_graph: DependencyGraph):
     stopped_containers = set()
-    containers_to_stop = set(graph.nodes.keys())
+    containers_to_stop = set(_graph.nodes.keys())
 
     while containers_to_stop:
         ready_to_stop = []
 
         for container_name in list(containers_to_stop):
-            container = graph.nodes[container_name]
+            container = _graph.nodes[container_name]
             if container.is_placeholder or container_name in stopped_containers:
                 containers_to_stop.remove(container_name)
                 continue
@@ -292,6 +288,11 @@ def stop_containers_in_dependency_order(graph: DependencyGraph):
             containers_to_stop.remove(container_name)
 
 
+def stop_server(*args):
+    global running
+    running = False
+
+
 # FastAPI Application and API Endpoints
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -304,10 +305,7 @@ async def lifespan(app: FastAPI):
             client = docker.from_env()
             docker_version = client.version()
             logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
-            
-            # Initialize DependencyGraph
-            global graph  # Declare graph as global if it's used elsewhere outside this context
-            graph = DependencyGraph()
+
             app_ready = True  # Indicate that the app is now ready
             break  # Exit the loop if successful
 
@@ -328,6 +326,11 @@ is_blocked = False
 unblock_task = None
 
 
+@app.on_event("startup")
+def startup_event():
+    signal.signal(signal.SIGINT, stop_server)
+
+
 @app.get("/ping")
 async def ping():
     if app_ready:
@@ -340,8 +343,8 @@ async def start_containers():
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
     client = docker.from_env()
-    graph = parse_container_labels(client)
-    start_containers_in_dependency_order(graph)
+    _graph = parse_container_labels(client)
+    start_containers_in_dependency_order(_graph)
     return {"message": "Containers are starting"}
 
 
@@ -350,8 +353,8 @@ async def stop_containers():
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
     client = docker.from_env()
-    graph = parse_container_labels(client)
-    stop_containers_in_dependency_order(graph)
+    _graph = parse_container_labels(client)
+    stop_containers_in_dependency_order(_graph)
     return {"message": "Containers are stopping"}
 
 
@@ -382,9 +385,3 @@ async def unblock_operations():
         unblock_task = None
     logging.info("Operations are now unblocked")
     return {"message": "Operations are now unblocked"}
-
-
-# if __name__ == "__main__":
-#     import uvicorn
-
-#     uvicorn.run(app, host="127.0.0.1", port=8000, log_config=LOGGING_CONFIG)
