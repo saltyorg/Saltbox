@@ -9,40 +9,30 @@
 ---
 - name: System Check
   ansible.builtin.import_tasks: "subtasks/01_system.yml"
-  tags: always
 
 - name: Ansible Version Check
   ansible.builtin.import_tasks: "subtasks/02_ansible_version.yml"
-  tags: always
 
 - name: Python Version Check
   ansible.builtin.import_tasks: "subtasks/03_python_version.yml"
-  tags: always
 
 - name: Tags Check
   ansible.builtin.import_tasks: "subtasks/04_ansible_tags.yml"
-  tags: always
 
 - name: Backup Lock Check
   ansible.builtin.import_tasks: "subtasks/05_backup.yml"
-  tags: always
 
 - name: Touch Logs
   ansible.builtin.import_tasks: "subtasks/06_logs.yml"
-  tags: always
 
 - name: Create Temp Folder
   ansible.builtin.import_tasks: "subtasks/07_tmp.yml"
-  tags: always
 
 - name: Skipped Tags Check
   ansible.builtin.import_tasks: "subtasks/08_skipped_tags.yml"
-  tags: always
 
 - name: Repository Check
   ansible.builtin.import_tasks: "subtasks/09_repo.yml"
-  tags: always
 
 - name: CPU Check
   ansible.builtin.import_tasks: "subtasks/10_cpu.yml"
-  tags: always
