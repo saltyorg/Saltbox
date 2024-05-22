@@ -1,7 +1,4 @@
 ansible==9.5.1
-ansible-compat==24.5.1
-ansible-core==2.16.6
-ansible-lint==24.5.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 attrs==23.2.0
