@@ -42,7 +42,7 @@ rich==13.7.1
 rpds-py==0.18.1
 ruamel.yaml==0.18.6
 ruamel.yaml.clib==0.2.8
-setuptools==69.5.1
+setuptools==70.0.0
 subprocess-tee==0.4.1
 tld==0.13
 urllib3==2.2.1
