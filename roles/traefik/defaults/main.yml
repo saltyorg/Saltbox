@@ -18,6 +18,29 @@ traefik_name: traefik
 ################################
 
 traefik_trusted_ips: ""
+traefik_cloudflare_ips:
+  - 173.245.48.0/20
+  - 103.21.244.0/22
+  - 103.22.200.0/22
+  - 103.31.4.0/22
+  - 141.101.64.0/18
+  - 108.162.192.0/18
+  - 190.93.240.0/20
+  - 188.114.96.0/20
+  - 197.234.240.0/22
+  - 198.41.128.0/17
+  - 162.158.0.0/15
+  - 104.16.0.0/13
+  - 104.24.0.0/14
+  - 172.64.0.0/13
+  - 131.0.72.0/22
+  - 2400:cb00::/32
+  - 2606:4700::/32
+  - 2803:f800::/32
+  - 2405:b500::/32
+  - 2405:8100::/32
+  - 2a06:98c0::/29
+  - 2c0f:f248::/32
 traefik_file_watch: "true"
 traefik_x_robots: "none,noarchive,nosnippet,notranslate,noimageindex"
 # HTTP3 can cause issues with some apps
@@ -243,14 +266,14 @@ traefik_docker_commands_default:
   - "--providers.docker.exposedbydefault=false"
   - "--entrypoints.internal.address=:8080"
   - "--entrypoints.web.address=:{{ traefik_entrypoint_web_port }}"
-  - "{{ '--entrypoints.web.forwardedheaders.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
-  - "{{ '--entrypoints.web.proxyprotocol.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
+  - "{{ '--entrypoints.web.forwardedheaders.trustedIPs=' + (traefik_cloudflare_ips | join(',')) + (',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '') }}"
+  - "{{ '--entrypoints.web.proxyprotocol.trustedIPs=' + (traefik_cloudflare_ips | join(',')) + (',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '') }}"
   - "--entrypoints.web.transport.respondingTimeouts.readTimeout={{ traefik_entrypoint_web_readtimeout }}"
   - "--entrypoints.web.transport.respondingTimeouts.writeTimeout={{ traefik_entrypoint_web_writetimeout }}"
   - "--entrypoints.web.transport.respondingTimeouts.idleTimeout={{ traefik_entrypoint_web_idletimeout }}"
   - "--entrypoints.websecure.address=:{{ traefik_entrypoint_websecure_port }}"
-  - "{{ '--entrypoints.websecure.forwardedheaders.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
-  - "{{ '--entrypoints.websecure.proxyprotocol.trustedIPs=' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else omit }}"
+  - "{{ '--entrypoints.websecure.forwardedheaders.trustedIPs=' + (traefik_cloudflare_ips | join(',')) + (',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '') }}"
+  - "{{ '--entrypoints.websecure.proxyprotocol.trustedIPs=' + (traefik_cloudflare_ips | join(',')) + (',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '') }}"
   - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout={{ traefik_entrypoint_websecure_readtimeout }}"
   - "--entrypoints.websecure.transport.respondingTimeouts.writeTimeout={{ traefik_entrypoint_websecure_writetimeout }}"
   - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout={{ traefik_entrypoint_websecure_idletimeout }}"
