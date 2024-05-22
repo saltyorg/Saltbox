@@ -1,4 +1,4 @@
-ansible==9.5.1
+ansible==9.6.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 attrs==23.2.0
