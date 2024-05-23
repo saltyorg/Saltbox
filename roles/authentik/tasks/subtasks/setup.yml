@@ -176,6 +176,8 @@
     body:
       providers:
         - "{{ proxy_providers.json.pk }}"
+      config:
+        authentik_host: "{{ authentik_web_url }}"
     status_code: 200
 
 - name: Remove existing Docker containers
@@ -246,7 +248,3 @@
     body:
       is_active: false
     status_code: 200
-
-- name: "Prompt user to login"
-  ansible.builtin.pause:
-    prompt: "Please open {{ authentik_web_url }} and login (just wait a bit if you get a 404 error). Hit enter after having logged in and having clicked into the admin interface. Authentik should be ready shortly after that."
