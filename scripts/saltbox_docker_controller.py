@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 import subprocess
 import signal
+from collections import defaultdict
 
 global graph
 running = True
@@ -201,8 +202,10 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
     containers_to_start = set(_graph.nodes.keys())
     logged_health_check_waiting = set()
     skip_start_due_to_placeholder = set()
+    container_start_times = defaultdict(lambda: 0.0)
 
     while containers_to_start and running:
+        current_time = time.time()
         ready_to_start = []
 
         for container_name in list(containers_to_start):
@@ -228,8 +231,7 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
                         skip_start_due_to_placeholder.add(container_name)
                     break
 
-                if has_healthcheck_configured(client, parent.name, _graph) and not is_container_healthy(client,
-                                                                                                        parent.name):
+                if has_healthcheck_configured(client, parent.name, _graph) and not is_container_healthy(client, parent.name):
                     dependencies_ready = False
                     if container_name not in logged_health_check_waiting:
                         logging.info(
@@ -242,9 +244,13 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
 
             if dependencies_ready:
                 if container.delay > 0:
-                    logging.info(f"Container '{container_name}' is waiting for delay: {container.delay} seconds")
-                    wait_for_delay(container.delay)
-                ready_to_start.append(container_name)
+                    if container_start_times[container_name] == 0.0:
+                        container_start_times[container_name] = current_time + float(container.delay)
+                        logging.info(f"Container '{container_name}' is scheduled to start in {container.delay} seconds")
+                    elif current_time >= container_start_times[container_name]:
+                        ready_to_start.append(container_name)
+                else:
+                    ready_to_start.append(container_name)
 
         start_containers_with_shell(ready_to_start)
         for container_name in ready_to_start:
@@ -252,6 +258,8 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
             containers_to_start.remove(container_name)
             if container_name in logged_health_check_waiting:
                 logged_health_check_waiting.remove(container_name)
+            if container_name in container_start_times:
+                del container_start_times[container_name]
 
 
 def stop_containers_with_shell(containers: List[str]):
