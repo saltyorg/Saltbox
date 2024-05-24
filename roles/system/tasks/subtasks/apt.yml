@@ -23,7 +23,7 @@
     dest: "/etc/needrestart/conf.d/saltbox.conf"
     mode: "0644"
     force: true
-  when: ('needrestart' in ansible_facts.packages) and (ansible_distribution_version is version('22.04', '=='))
+  when: ('needrestart' in ansible_facts.packages) and (ansible_distribution_version is version('22.04', '>='))
 
 - name: APT | Fix any potential dpkg issues
   block:
