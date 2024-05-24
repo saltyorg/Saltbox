@@ -4,7 +4,7 @@ certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.7
 dnspython==2.6.1
-docker==7.0.0
+docker==7.1.0
 email_validator==2.1.1
 exceptiongroup==1.2.1
 fastapi==0.111.0
