@@ -110,6 +110,7 @@
     - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: saltbox_mod, tags: ['saltbox-mod'] }
     - { role: sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
+    - { role: traefik_file_template, tags: ['generate-traefik-file-template'] }
     - { role: traefik_template, tags: ['generate-traefik-template'] }
     - { role: webtools, tags: ['plex-plugins-webtools', 'plex-plugins-webtools-reinstall'] }
     # Reboot checker

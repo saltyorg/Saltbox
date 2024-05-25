@@ -1,0 +1,32 @@
+###############################################################################
+# Title:         Saltbox: Traefik File Template Generator | Default Variables #
+# Author(s):     salty                                                        #
+# URL:           https://github.com/saltyorg/Saltbox                          #
+# --                                                                          #
+###############################################################################
+#                   GNU General Public License v3.0                           #
+###############################################################################
+---
+################################
+# Settings
+################################
+
+traefik_file_template_file: "/tmp/traefik-app.yml"
+
+################################
+# Template Variables
+################################
+
+traefik_file_template_name: "{{ service_name.user_input | lower }}"
+
+traefik_file_template_web_subdomain: "{{ service_name.user_input | lower }}"
+traefik_file_template_web_domain: "{{ user.domain }}"
+traefik_file_template_web_port: "{{ service_port.user_input }}"
+traefik_file_template_web_ip: "{{ service_ip.user_input }}"
+traefik_file_template_web_scheme: "{{ service_scheme.user_input | lower }}"
+
+traefik_file_template_traefik_enabled: "true"
+traefik_file_template_traefik_sso_middleware: "{{ traefik_default_sso_middleware if (service_sso_enabled.user_input | bool) else '' }}"
+traefik_file_template_traefik_middleware_default: "{{ traefik_default_middleware }}"
+traefik_file_template_traefik_api_enabled: "{{ (service_api_enabled.user_input | default(false) | bool) | default(false) }}"
+traefik_file_template_traefik_api_endpoint: "PathPrefix(`/api`)"
