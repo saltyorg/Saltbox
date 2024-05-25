@@ -51,7 +51,6 @@
   ansible.builtin.copy:
     dest: "{{ traefik_template_file }}"
     content: |
-      version: '3.8'
       services:
         {{ traefik_template_name }}:
           container_name: {{ traefik_template_name }}
