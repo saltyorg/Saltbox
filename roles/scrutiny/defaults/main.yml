@@ -94,7 +94,7 @@ scrutiny_docker_volumes: "{{ scrutiny_docker_volumes_default
                              + scrutiny_docker_volumes_custom }}"
 
 # Devices
-scrutiny_docker_devices_default: "{{ storage_devices }}"
+scrutiny_docker_devices_default: []
 scrutiny_docker_devices_custom: []
 scrutiny_docker_devices: "{{ scrutiny_docker_devices_default
                              + scrutiny_docker_devices_custom }}"
