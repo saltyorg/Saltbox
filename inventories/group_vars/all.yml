@@ -177,7 +177,7 @@ authelia_is_master: "{{ authelia.master | bool }}"
 # ZeroSSL
 ################################
 
-zerossl_is_enabled: "{{ traefik.cert.zerossl | bool }}"
+zerossl_is_enabled: "{{ (traefik_enable_zerossl | bool) and (traefik.cert.zerossl | bool) }}"
 
 ################################
 # Traefik
@@ -188,7 +188,7 @@ traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
 # Replaces powerdns with pdns for config sanity reasons.
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
 traefik_default_certprovider: "{{ 'cfdns'
-                               if (not (traefik.cert.zerossl | bool))
+                               if (not zerossl_is_enabled)
                                else 'zerossl' }}"
 traefik_default_zerossl_resolver: "zerosslhttp"
 traefik_default_resolver: "httpresolver"
