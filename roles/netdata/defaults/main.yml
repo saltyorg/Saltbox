@@ -119,6 +119,7 @@ netdata_docker_volumes_default:
   - "/sys:/host/sys:ro"
   - "/etc/os-release:/host/etc/os-release:ro"
   - "/var/log:/host/var/log:ro"
+  - "/run/dbus:/run/dbus:ro"
 netdata_docker_volumes_custom: []
 netdata_docker_volumes: "{{ netdata_docker_volumes_default
                             + netdata_docker_volumes_custom }}"
