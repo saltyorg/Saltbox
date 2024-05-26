@@ -218,7 +218,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "v3.0.0"
+traefik_docker_image_tag: "v3.0.1"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
