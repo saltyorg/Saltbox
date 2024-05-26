@@ -34,6 +34,7 @@ docker_socket_proxy_docker_ports: "{{ docker_socket_proxy_docker_ports_defaults
 # Envs
 docker_socket_proxy_docker_envs_default:
   TZ: "{{ tz }}"
+  DISABLE_IPV6: "{{ '0' if dns.ipv6 else '1' }}"
 docker_socket_proxy_docker_envs_custom: {}
 docker_socket_proxy_docker_envs: "{{ docker_socket_proxy_docker_envs_default
                                      | combine(docker_socket_proxy_docker_envs_custom) }}"
