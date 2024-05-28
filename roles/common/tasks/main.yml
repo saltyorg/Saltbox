@@ -108,23 +108,6 @@
     name:
       - "run-one"
 
-- name: Install common Python packages (System Python)
-  ansible.builtin.pip:
-    name:
-      - "apprise"
-      - "certbot"
-    executable: pip3
-    state: "latest"
-  when: ansible_distribution_version is version('22.04', '<=')
-
-- name: Install common Python apt packages (System Python)
-  ansible.builtin.apt:
-    state: present
-    name:
-      - "apprise"
-      - "certbot"
-  when: ansible_distribution_version is version('24.04', '>=')
-
 - name: Fetch PCI Info
   ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
   register: lscpi_resp

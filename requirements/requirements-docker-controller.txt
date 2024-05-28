@@ -7,8 +7,8 @@ dnspython==2.6.1
 docker==7.1.0
 email_validator==2.1.1
 exceptiongroup==1.2.1
-fastapi==0.111.0
 fastapi-cli==0.0.4
+fastapi==0.111.0
 h11==0.14.0
 httpcore==1.0.5
 httptools==0.6.1
