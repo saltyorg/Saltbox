@@ -117,7 +117,7 @@
   ansible.builtin.set_fact:
     authentik_authorization_flow_uuid: "{{ item.pk }}"
   loop: "{{ flow_instances.json.results }}"
-  when: item.slug == "default-provider-authorization-explicit-consent"
+  when: item.slug == "default-provider-authorization-implicit-consent"
 
 - name: Create Traefik Forward Auth provider
   ansible.builtin.uri:
