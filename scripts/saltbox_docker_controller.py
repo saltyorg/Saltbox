@@ -3,8 +3,8 @@ import asyncio
 import time
 import logging
 import logging.config
-from typing import List, Dict
-from fastapi import FastAPI, HTTPException
+from typing import List, Dict, Set
+from fastapi import FastAPI, HTTPException, Query
 from contextlib import asynccontextmanager
 import subprocess
 import signal
@@ -262,20 +262,26 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
                 del container_start_times[container_name]
 
 
-def stop_containers_with_shell(containers: List[str]):
+def stop_containers_with_shell(containers: List[str], ignore_containers: Set[str] = None):
+    if ignore_containers is None:
+        ignore_containers = set()
     if containers:
-        try:
-            logging.info(f"Stopping containers: {', '.join(containers)}")
-            subprocess.run(['docker', 'stop', *containers], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           check=True)
-            logging.info(f"Stopped containers: {', '.join(containers)}")
-        except subprocess.CalledProcessError as err:
-            logging.error(f"Failed to stop containers with error: {err}")
+        containers_to_stop = [c for c in containers if c not in ignore_containers]
+        if containers_to_stop:
+            try:
+                logging.info(f"Stopping containers: {', '.join(containers_to_stop)}")
+                subprocess.run(['docker', 'stop', *containers_to_stop], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                               check=True)
+                logging.info(f"Stopped containers: {', '.join(containers_to_stop)}")
+            except subprocess.CalledProcessError as err:
+                logging.error(f"Failed to stop containers with error: {err}")
 
 
-def stop_containers_in_dependency_order(_graph: DependencyGraph):
+def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None):
+    if ignore_containers is None:
+        ignore_containers = set()
     stopped_containers = set()
-    containers_to_stop = set(_graph.nodes.keys())
+    containers_to_stop = set(_graph.nodes.keys()) - ignore_containers
 
     while containers_to_stop:
         ready_to_stop = []
@@ -290,7 +296,7 @@ def stop_containers_in_dependency_order(_graph: DependencyGraph):
             if all(child.name in stopped_containers for child in container.children):
                 ready_to_stop.append(container_name)
 
-        stop_containers_with_shell(ready_to_stop)
+        stop_containers_with_shell(ready_to_stop, ignore_containers)
         for container_name in ready_to_stop:
             stopped_containers.add(container_name)
             containers_to_stop.remove(container_name)
@@ -357,13 +363,14 @@ async def start_containers():
 
 
 @app.post("/stop")
-async def stop_containers():
+async def stop_containers(ignore: List[str] = Query(None)):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
     client = docker.from_env()
     _graph = parse_container_labels(client)
-    stop_containers_in_dependency_order(_graph)
-    return {"message": "Containers stopped"}
+    ignore_containers = set(ignore) if ignore else set()
+    stop_containers_in_dependency_order(_graph, ignore_containers)
+    return {"message": "Containers stopped", "ignored": list(ignore_containers)}
 
 
 async def auto_unblock(delay: int):
