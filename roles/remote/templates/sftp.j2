@@ -32,6 +32,8 @@ ExecStart=/usr/bin/rclone mount \
     --rc-enable-metrics \
 {% endif %}
     --rc-no-auth \
+    --sftp-chunk-size={{ rclone_sftp_chunk_size }} \
+    --sftp-concurrency={{ rclone_sftp_concurrency }} \
 {% if rclone_sftp_disable_hashcheck %}
     --sftp-disable-hashcheck \
 {% endif %}

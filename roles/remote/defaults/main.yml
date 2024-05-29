@@ -20,6 +20,9 @@ rclone_vfs_cache_min_free_space: "off"
 rclone_vfs_cache_poll_interval: "1m0s"
 rclone_cloud_dir_cache_time: "8760h"
 rclone_sftp_dir_cache_time: "1m"
+# Read https://rclone.org/sftp/#sftp-chunk-size if you want to change the chunk size
+rclone_sftp_chunk_size: "32Ki"
+rclone_sftp_concurrency: "64"
 rclone_sftp_disable_hashcheck: false
 rclone_service_template: "saltbox_managed_rclone_"
 
