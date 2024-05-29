@@ -278,20 +278,30 @@
         - name: Filter out ignored apps from Docker containers list
           ansible.builtin.set_fact:
             docker_containers: "{{ docker_containers | difference(reverse_proxy_apps + torrent_apps + backup_ignore_containers) }}"
+            ignore_containers: "{{ reverse_proxy_apps + torrent_apps + backup_ignore_containers }}"
 
         - name: Convert Docker containers list back to string
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers | join(' ') }}"
+            docker_containers_string: "{{ docker_containers | join(' ') }}"
+            ignore_query_string: >-
+              {% if docker_containers | length > 0 and ignore_containers | length > 0 %}
+                {%- set ignore_params = [] -%}
+                {% for container in ignore_containers %}
+                  {%- set _ = ignore_params.append('ignore=' ~ container) -%}
+                {%- endfor -%}
+                {{ ignore_params | join('&') }}
+              {%- else -%}
+              {% endif %}
 
         - name: Stop Saltbox Containers
           ansible.builtin.uri:
-            url: "{{ docker_controller_url }}/stop"
+            url: "{{ docker_controller_url }}/stop{{ '?' + ignore_query_string if (ignore_query_string | length > 0) else '' }}"
             method: POST
             timeout: 600
           ignore_errors: true
 
         - name: "Stop all running Docker containers"
-          ansible.builtin.shell: "docker stop {{ docker_containers }}"
+          ansible.builtin.shell: "docker stop {{ docker_containers_string }}"
           ignore_errors: true
 
         - name: "Notify | Saltbox Backup: Stopped Docker containers"
@@ -376,19 +386,19 @@
             method: POST
             timeout: 600
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Start all previously running Docker containers"
-          ansible.builtin.shell: 'docker start {{ docker_containers }}'
+          ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
           ansible.builtin.include_role:
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers | trim | length > 0) and backup_notify_start_docker_containers
+          when: (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -499,19 +509,19 @@
             method: POST
             timeout: 600
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
-          ansible.builtin.shell: 'docker start {{ docker_containers }}'
+          ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Notify | Saltbox Backup: Started Docker containers"
           ansible.builtin.include_role:
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers | trim | length > 0) and backup_notify_start_docker_containers
+          when: (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Wait for 10 seconds before uploads"
       ansible.builtin.wait_for:
@@ -701,12 +711,12 @@
             method: POST
             timeout: 600
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
-          ansible.builtin.shell: 'docker start {{ docker_containers }}'
+          ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers | trim | length > 0)
+          when: (docker_containers_string | trim | length > 0)
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd_service:
