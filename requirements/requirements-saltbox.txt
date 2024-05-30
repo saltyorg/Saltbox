@@ -9,7 +9,7 @@ lxml==5.2.2
 ndg-httpsclient==0.5.1
 netaddr==1.3.0
 passlib==1.7.4
-PyMySQL==1.1.0
+PyMySQL==1.1.1
 pyOpenSSL==24.1.0
 requests==2.31.0
 ruamel.yaml==0.18.6
