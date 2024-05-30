@@ -96,6 +96,39 @@
         mode: "0664"
       when: new_remotes is defined
 
+- name: Migrator | 'settings.yml' | Migration 01 | Ensure enable_refresh is set correctly for each remote
+  when: (settings_config.rclone.remotes is defined) and (settings_config.rclone.remotes is not none) and (settings_config.rclone.remotes | length > 0)
+  block:
+    - name: Migrator | 'settings.yml' | Migration 01 | Read current config file
+      ansible.builtin.slurp:
+        src: /srv/git/saltbox/settings.yml
+      register: settings_config_content
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Parse the configuration
+      ansible.builtin.set_fact:
+        settings_config: "{{ settings_config_content['content'] | b64decode | from_yaml }}"
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Ensure enable_refresh is set
+      ansible.builtin.set_fact:
+        updated_remotes: "{{ settings_config.rclone.remotes
+                             | map('combine', [{'settings': (item.settings | combine({'enable_refresh': (item.settings.template != 'sftp')}, recursive=True)
+                                              if 'enable_refresh' not in item.settings else item.settings)}]) }}"
+      loop: "{{ settings_config.rclone.remotes }}"
+      loop_control:
+        loop_var: item
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Update configuration with new remotes
+      ansible.builtin.set_fact:
+        updated_config: "{{ settings_config | combine({'rclone': {'remotes': updated_remotes}}, recursive=True) }}"
+
+    - name: Migrator | 'settings.yml' | Migration 01 | Write updated configuration to file
+      ansible.builtin.copy:
+        dest: /srv/git/saltbox/settings.yml
+        content: "{{ updated_config | to_nice_yaml }}"
+        owner: "{{ saltbox_yml.stat.uid }}"
+        group: "{{ saltbox_yml.stat.gid }}"
+        mode: "0664"
+
 - name: Migrator | 'settings.yml' | Migration 01 | Convert 'true' to 'yes'
   ansible.builtin.command: >
     yyq '
