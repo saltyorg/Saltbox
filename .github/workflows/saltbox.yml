@@ -138,7 +138,7 @@ jobs:
           description: "Run attempt: ${{ github.run_attempt }}"
 
   retry-on-failure:
-    if: failure() && fromJSON(github.run_attempt) < 3
+    if: failure() && github.actor != 'dependabot[bot]' && fromJSON(github.run_attempt) < 3
     needs: [install, webhook]
     runs-on: ubuntu-latest
     steps:
