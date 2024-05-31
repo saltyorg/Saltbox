@@ -8,6 +8,7 @@ rclone:
   remotes:
     - remote: google
       settings:
+        enable_refresh: yes
         mount: yes
         template: google
         union: yes
