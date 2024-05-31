@@ -56,14 +56,14 @@
         }
       },
       "remove_empty_dir_depth": 2,
-      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
-                          + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
+      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':')
+                          + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder)
                           if (remote.settings.template != 'nfs')
                           else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
                           + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}",
       "upload_folder": "{{ remote.settings.upload_from }}",
-      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote
-                            + ':' + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder))
+      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':')
+                            + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder)
                             if (remote.settings.template != 'nfs')
                             else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
                             + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}"
