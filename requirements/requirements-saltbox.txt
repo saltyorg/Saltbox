@@ -1,5 +1,5 @@
 ansible==10.0.0
-ansible-lint==24.5.0
+ansible-lint==24.6.0
 argon2_cffi==23.1.0
 dnspython==2.6.1
 docker==7.1.0
