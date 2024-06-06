@@ -21,5 +21,4 @@ traefik:
   provider: cloudflare
   subdomains:
     dash: dash
-    jaeger: jaeger
     metrics: metrics

@@ -159,6 +159,13 @@
   become_user: "{{ saltbox_yml.stat.pw_name }}"
   when: traefik is defined and traefik.tracing is defined
 
+- name: Migrator | 'adv_settings.yml' | Migration 01 | Delete 'traefik.subdomains.jaeger' dict
+  ansible.builtin.shell: |
+    yyq -i 'del(.traefik.subdomains.jaeger)' {{ playbook_dir }}/{{ file }}
+  become: true
+  become_user: "{{ saltbox_yml.stat.pw_name }}"
+  when: traefik is defined and traefik.subdomains is defined and traefik.subdomains.jaeger
+
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
     path: "{{ playbook_dir }}/{{ file }}"
