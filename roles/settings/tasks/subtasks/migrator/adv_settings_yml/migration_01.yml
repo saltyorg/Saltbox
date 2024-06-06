@@ -164,7 +164,7 @@
     yyq -i 'del(.traefik.subdomains.jaeger)' {{ playbook_dir }}/{{ file }}
   become: true
   become_user: "{{ saltbox_yml.stat.pw_name }}"
-  when: traefik is defined and traefik.subdomains is defined and traefik.subdomains.jaeger
+  when: traefik is defined and traefik.subdomains is defined and traefik.subdomains.jaeger is defined
 
 - name: Migrator | 'adv_settings.yml' | Migration 01 | Remove 'null' values
   ansible.builtin.replace:
