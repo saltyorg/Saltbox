@@ -146,6 +146,12 @@
   ansible.builtin.include_role:
     name: yyq
 
+- name: "Cleanup Nano tool folder"
+  ansible.builtin.file:
+    path: "/home/{{ user.name }}/.nano/tool/"
+    state: absent
+  when: nano_syntax_highlighting_enabled
+
 - name: "Install Nano Syntax Highlighting"
   ansible.builtin.shell: "curl https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh | bash"
   become: true
