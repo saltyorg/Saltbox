@@ -8,7 +8,7 @@
       --exclude-from '{{ backup_excludes_list_path }}' \
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
       | /usr/bin/rclone rcat \
-      --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+      {{ "--user-agent='" + backup2_user_agent + "'" if (backup2_user_agent | length > 0) else "" }} \
       {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} \
       --stats=30s \
       {{ '--bind=' + ansible_default_ipv4.address if mounts.ipv4_only else '' }} \

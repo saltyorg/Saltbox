@@ -9,3 +9,4 @@
 ---
 restore_google_template: '--drive-chunk-size=128M --drive-acknowledge-abuse'
 restore_dropbox_template: '--dropbox-chunk-size=128M --disable-http2 --dropbox-pacer-min-sleep=85ms'
+restore_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' if backup.rclone.template != 'sftp' else '' }}"

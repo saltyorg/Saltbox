@@ -45,7 +45,7 @@
 - name: Test rclone remote destination
   ansible.builtin.shell: |
     /usr/bin/rclone lsd {{ backup.rclone.destination }} \
-      --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
+      {{ "--user-agent='" + restore_user_agent + "'" if (restore_user_agent | length > 0) else "" }}
   become: true
   become_user: "{{ user.name }}"
   register: rclone_test
@@ -77,7 +77,7 @@
 - name: "Fetch backup from '{{ backup.rclone.destination }}'"
   ansible.builtin.shell: |
     /usr/bin/rclone copy \
-      --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+      {{ "--user-agent='" + restore_user_agent + "'" if (restore_user_agent | length > 0) else "" }} \
       --transfers=8 \
       {{ lookup('vars', 'restore_' + backup.rclone.template + '_template', default='') }} \
       --exclude 'archived/**' \

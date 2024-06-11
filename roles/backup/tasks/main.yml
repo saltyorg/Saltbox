@@ -544,7 +544,7 @@
       ansible.builtin.shell: |
         /usr/bin/rclone lsl \
           {{ backup.rclone.destination }}/settings.yml \
-          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          {{ "--user-agent='" + backup_user_agent + "'" if (backup_user_agent | length > 0) else "" }} \
           | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2,3 | cut -d '.' -f 1 | sed s/' '/_/g | sed s/':'/./g
       environment: "{{ backup_rclone_env }}"
       become: true
@@ -573,7 +573,7 @@
     - name: "Archive previous files in '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
         /usr/bin/rclone moveto \
-          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          {{ "--user-agent='" + backup_user_agent + "'" if (backup_user_agent | length > 0) else "" }} \
           '{{ backup.rclone.destination }}/{{ item }}' \
           '{{ backup.rclone.destination }}/archived/{{ (rclone_timestamp.stdout) if (rclone_timestamp is defined) else 'old' }}/{{ item }}' \
           2>/dev/null
@@ -593,7 +593,7 @@
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
         /usr/bin/rclone copy \
-          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
+          {{ "--user-agent='" + backup_user_agent + "'" if (backup_user_agent | length > 0) else "" }} \
           --transfers="{{ backup_rclone_transfers }}" \
           {{ lookup('vars', 'backup_' + backup.rclone.template + '_template', default='') }} \
           --stats=30s \
