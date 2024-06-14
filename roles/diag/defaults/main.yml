@@ -26,3 +26,4 @@ diagnose_vars:
   - "traefik_default_certresolver: {{ traefik_default_certresolver }}"
   - "docker_legacy_volume: {{ docker_legacy_volume }}"
   - "skip_dns: {{ skip_dns }}"
+  - "filesystems: {{ host_mounts }}"

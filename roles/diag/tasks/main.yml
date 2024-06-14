@@ -32,6 +32,16 @@
             msg: "{{ cloudflare_ssl.stderr }}"
           when: cloudflare_ssl.rc != 0
 
+- name: Gather mount information
+  ansible.builtin.setup:
+    gather_subset:
+      - mounts
+
+- name: Filter mount information
+  ansible.builtin.set_fact:
+    host_mounts: "{{ host_mounts | default({}) | combine({item.mount: item.fstype}) }}"
+  loop: "{{ ansible_mounts }}"
+
 - name: "Diagnose variables"
   ansible.builtin.debug:
     msg: >
