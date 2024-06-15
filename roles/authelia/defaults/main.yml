@@ -136,7 +136,7 @@ authelia_access_control_rules:
       - "{{ user.domain | lower }}"
     policy: "{{ authelia_access_control_policy }}"
 
-authelia_access_control_whitelist_rules_lookup: "{{ authelia_access_control_whitelist_rules if authelia_access_control_whitelist_host and (dns.ipv4 or dns.ipv6) else [] }}"
+authelia_access_control_whitelist_rules_lookup: "{{ authelia_access_control_whitelist_rules if authelia_access_control_whitelist_host and ((dns.ipv4 | default(true)) or (dns.ipv6 | default(false))) else [] }}"
 
 authelia_access_control_whitelist_rules:
   - domain:
@@ -146,8 +146,8 @@ authelia_access_control_whitelist_rules:
     networks: "{{ authelia_access_control_whitelist_networks | unique | reject('equalto', omit) | list }}"
 
 authelia_access_control_whitelist_networks:
-  - "{{ (ip_address_public + '/32') if dns.ipv4 else omit }}"
-  - "{{ (ipv6_address_public + '/128') if dns.ipv6 else omit }}"
+  - "{{ (ip_address_public + '/32') if (dns.ipv4 | default(true)) else omit }}"
+  - "{{ (ipv6_address_public + '/128') if (dns.ipv6 | default(false)) else omit }}"
 
 ################################
 # Paths
