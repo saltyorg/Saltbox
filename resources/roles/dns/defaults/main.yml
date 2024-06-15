@@ -20,3 +20,7 @@ cloudflare_python_path: "{{ cloudflare_bin_folder }}/python3"
 cloudflare_script_path: "{{ cloudflare_path }}/cloudflare.py"
 
 cloudflare_requirements_path: "{{ cloudflare_path }}/requirements.txt"
+
+cloudflare_files:
+  - "cloudflare.py"
+  - "requirements.txt"

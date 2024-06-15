@@ -22,13 +22,11 @@
       ansible.builtin.copy:
         src: "{{ item }}"
         force: true
-        dest: "{{ cloudflare_path }}/{{ item }}"
+        dest: "{{ cloudflare_path }}/{{ item | basename }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
-      with_items:
-        - "cloudflare.py"
-        - "requirements.txt"
+      with_items: "{{ cloudflare_files }}"
 
     - name: Cloudflare | Setup | Set Python version
       ansible.builtin.set_fact:

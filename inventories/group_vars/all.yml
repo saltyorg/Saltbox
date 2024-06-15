@@ -19,6 +19,7 @@ saltbox_venv_path: "/srv/ansible/venv"
 ################################
 
 resources_tasks_path: "/srv/git/saltbox/resources/tasks"
+resources_path: "/srv/git/saltbox/resources"
 
 ################################
 # Continuous Integration
