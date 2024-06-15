@@ -10,11 +10,11 @@
 diagnose_cloudflare_script_path: "/srv/git/saltbox/roles/diag/files/cloudflare_ssl.py"
 
 diagnose_vars:
-  - "Saltbox repo branch: {{ git_branch.stdout | default('Failed retrieving') }}"
-  - "Saltbox repo commit: {{ git_version.stdout | default('Failed retrieving') }}"
-  - "Saltbox upstream commit: {{ git_origin_version.stdout | default('Failed retrieving') }}"
+  - "Saltbox repo branch: {{ git_branch.stdout if (git_branch is defined and git_branch.stdout is defined) else 'Failed retrieving' }}"
+  - "Saltbox repo commit: {{ git_version.stdout if (git_version is defined and git_version.stdout is defined) else 'Failed retrieving' }}"
+  - "Saltbox upstream commit: {{ git_origin_version.stdout if (git_origin_version is defined and git_origin_version.stdout is defined) else 'Failed retrieving' }}"
   - "cloudflare_is_enabled: {{ cloudflare_is_enabled }}"
-  - "{{ 'Cloudflare SSL Mode: ' + cloudflare_ssl.stdout if cloudflare_is_enabled and cloudflare_ssl is defined else '' }}"
+  - "{{ 'Cloudflare SSL Mode: ' + cloudflare_ssl.stdout if (cloudflare_is_enabled and cloudflare_ssl is defined and cloudflare_ssl.stdout is defined) else '' }}"
   - "plex_account_is_enabled: {{ plex_account_is_enabled }}"
   - "rclone_remote_is_defined: {{ rclone_remote_is_defined }}"
   - "use_cloudplow: {{ use_cloudplow }}"
@@ -27,4 +27,4 @@ diagnose_vars:
   - "docker_legacy_volume: {{ docker_legacy_volume }}"
   - "skip_dns: {{ skip_dns }}"
   - "filesystems: {{ host_mounts }}"
-  - "skipped tags: {{ ansible_skip_tags | join(', ') if ansible_skip_tags | length > 0 else 'No skipped tags' }}"
+  - "skipped tags: {{ ansible_skip_tags | join(', ') if (ansible_skip_tags | length > 0) else 'No skipped tags' }}"
