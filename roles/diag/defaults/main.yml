@@ -27,3 +27,4 @@ diagnose_vars:
   - "docker_legacy_volume: {{ docker_legacy_volume }}"
   - "skip_dns: {{ skip_dns }}"
   - "filesystems: {{ host_mounts }}"
+  - "skipped tags: {{ ansible_skip_tags | join(', ') if ansible_skip_tags | length > 0 else 'No skipped tags' }}"
