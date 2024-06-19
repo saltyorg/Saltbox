@@ -1,4 +1,4 @@
-ansible==10.0.1
+ansible==10.1.0
 ansible-lint==24.6.0
 apprise==1.8.0
 argon2_cffi==23.1.0
