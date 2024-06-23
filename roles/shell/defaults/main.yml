@@ -12,13 +12,13 @@
 ################################
 
 shell_type: "{{ shell | default('zsh') }}"
+shell_editor: "nano"
 
 ################################
 # Misc
 ################################
 
 shell_misc_argcomplete_pip_package: argcomplete
-
 shell_misc_argcomplete_command: "activate-global-python-argcomplete"
 
 ################################
@@ -26,7 +26,6 @@ shell_misc_argcomplete_command: "activate-global-python-argcomplete"
 ################################
 
 shell_z_git_repo_url: "https://github.com/rupa/z.git"
-
 shell_z_git_repo_dest: "/opt/z"
 
 ################################
@@ -37,7 +36,7 @@ shell_bash_bashrc_path: "/home/{{ user.name }}/.bashrc"
 
 shell_bash_bashrc_block_content: |
   # Editor
-  export EDITOR=nano
+  export EDITOR={{ shell_editor }}
   # Include Z
   . /opt/z/z.sh
   # Aliases
@@ -46,7 +45,6 @@ shell_bash_bashrc_block_content: |
   export PS1="$PS1\[\e]1337;CurrentDir="'$(pwd)\a\]'
 
 shell_bash_bashrc_block_custom: ""
-
 shell_bash_binary_path: "/bin/bash"
 
 ################################
@@ -57,11 +55,8 @@ shell_zsh_apt_packages_list:
   - zsh
 
 shell_zsh_omzsh_git_repo_url: https://github.com/robbyrussell/oh-my-zsh.git
-
 shell_zsh_omzsh_git_repo_dest: "/home/{{ user.name }}/.oh-my-zsh"
-
 shell_zsh_zshrc_template_path: "/home/{{ user.name }}/.oh-my-zsh/templates/zshrc.zsh-template"
-
 shell_zsh_zshrc_path: "/home/{{ user.name }}/.zshrc"
 
 shell_zsh_zshrc_block_content1: |
@@ -77,7 +72,7 @@ shell_zsh_zshrc_block_content2: |
   user	%U
   sys	%S'
   # Editor
-  export EDITOR=nano
+  export EDITOR={{ shell_editor }}
   # Include Z
   . /opt/z/z.sh
   # Aliases
@@ -89,9 +84,6 @@ shell_zsh_zshrc_block_content2: |
   precmd () { echo -n "\x1b]1337;CurrentDir=$(pwd)\x07" }
 
 shell_zsh_zshrc_block_custom: ""
-
 shell_zsh_plugins: "(git docker docker-compose ansible)"
-
 shell_zsh_binary_previous_path: "/bin/zsh5"
-
 shell_zsh_binary_path: "/bin/zsh"
