@@ -31,8 +31,8 @@
     "url": "{{ plex_web_url }}"
   },
   "remotes": {
-{% for remote in cloudplow_remotes %}
-    "{{ remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}": {
+{% for item in cloudplow_remotes %}
+    "{{ item | filter_rclone_remote_name }}": {
       "hidden_remote": "",
       "rclone_command": "move",
       "rclone_excludes": [
@@ -41,7 +41,7 @@
         "*.db"
       ],
       "rclone_extras": {
-        {{ lookup('vars', 'cloudplow_rclone_' + remote.settings.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
+        {{ lookup('vars', 'cloudplow_rclone_' + item.settings.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
       },
       "rclone_sleeps": {
         "Failed to copy: googleapi: Error 403: User rate limit exceeded": {
@@ -56,17 +56,17 @@
         }
       },
       "remove_empty_dir_depth": 2,
-      "sync_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':')
-                          + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder)
-                          if (remote.settings.template != 'nfs')
-                          else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
-                          + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}",
-      "upload_folder": "{{ remote.settings.upload_from }}",
-      "upload_remote": "{{ (remote.remote if ':' in remote.remote else remote.remote + ':')
-                            + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder)
-                            if (remote.settings.template != 'nfs')
-                            else ('/mnt/remote/' + remote.remote.split(':')[0] if ':' in remote.remote else remote.remote)
-                            + lookup('vars', 'cloudplow_remote_' + (remote.remote.split(':')[0] if ':' in remote.remote else remote.remote) + '_folder', default=cloudplow_remote_default_folder) }}"
+      "sync_remote": "{{ (item | filter_rclone_remote_with_path)
+                          + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
+                          if (item.settings.template != 'nfs')
+                          else ('/mnt/remote/' + (item | filter_rclone_remote_name))
+                          + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}",
+      "upload_folder": "{{ item.settings.upload_from }}",
+      "upload_remote": "{{ (item | filter_rclone_remote_with_path)
+                            + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
+                            if (item.settings.template != 'nfs')
+                            else ('/mnt/remote/' + (item | filter_rclone_remote_name))
+                            + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
 {% endfor %}
 
@@ -78,8 +78,8 @@
   },
   "syncer": {},
   "uploader": {
-{% for remote in cloudplow_remotes %}
-    "{{ remote.remote.split(':')[0] if ':' in remote.remote else remote.remote }}": {
+{% for item in cloudplow_remotes %}
+    "{{ item | filter_rclone_remote_name }}": {
       "check_interval": 30,
       "exclude_open_files": false,
       "max_size_gb": 200,

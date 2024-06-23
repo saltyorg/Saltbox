@@ -30,10 +30,12 @@ rclone_port_lookup: "{{ port_lookup_rclone.meta.port
                      if (port_lookup_rclone.meta.port is defined) and (port_lookup_rclone.meta.port | trim | length > 0)
                      else '5572' }}"
 rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_port', default=rclone_port_lookup) }}"
-rclone_remote_name: "{{ item.remote.split(':')[0] if ':' in item.remote else item.remote }}"
-rclone_remote_with_path: "{{ item.remote if ':' in item.remote else item.remote + ':' }}"
-rclone_first_remote_name: "{{ rclone.remotes[0].remote.split(':')[0] if ':' in rclone.remotes[0].remote else rclone.remotes[0].remote }}"
-rclone_first_remote_name_with_path: "{{ rclone.remotes[0].remote if ':' in rclone.remotes[0].remote else rclone.remotes[0].remote + ':Media' }}"
+
+rclone_remote_name: "{{ item | filter_rclone_remote_name }}"
+rclone_remote_with_path: "{{ item | filter_rclone_remote_with_path }}"
+
+rclone_first_remote_name: "{{ rclone | filter_rclone_first_remote_name }}"
+rclone_first_remote_name_with_path: "{{ rclone | filter_rclone_first_remote_name_with_path }}"
 
 remote_update_rclone: true
 rclone_enable_metrics: false
