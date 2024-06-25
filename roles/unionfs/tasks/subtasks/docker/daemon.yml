@@ -7,7 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Docker | Daemon | Set '_remotes_list' variable"
+- name: "Docker | Daemon | Initialize '_remotes_services_list' variable"
+  ansible.builtin.set_fact:
+    _remotes_services_list: ""
+
+- name: "Docker | Daemon | Set '_remotes_services_list' variable"
   ansible.builtin.set_fact:
     _remotes_services_list: "{{ _remotes_services_list | default('') + (rclone_service_template + rclone_remote_name + '.service ') }}"
   with_items: "{{ rclone.remotes }}"
