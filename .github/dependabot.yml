@@ -6,3 +6,9 @@ updates:
       interval: "daily"
     versioning-strategy: auto
     rebase-strategy: auto
+  - package-ecosystem: "pip"
+    directory: "/resources/role/dns/files"
+    schedule:
+      interval: "daily"
+    versioning-strategy: auto
+    rebase-strategy: auto
