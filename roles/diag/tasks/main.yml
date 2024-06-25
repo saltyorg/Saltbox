@@ -12,7 +12,7 @@
   block:
     - name: Check if Cloudflare venv exists
       ansible.builtin.stat:
-        path: "/srv/cloudflare/venv/bin/python3"
+        path: "/srv/cloudflare-helper/venv/bin/python3"
       register: diagnose_cloudflare_venv
 
     - name: Include Cloudflare Setup venv role default vars
@@ -24,7 +24,7 @@
       when: not diagnose_cloudflare_venv.stat.exists
       vars:
         cloudflare_files:
-          - "{{ resources_path }}/roles/dns/files/cloudflare.py"
+          - "{{ resources_path }}/roles/dns/files/fetch_cloudflare_records.py"
           - "{{ resources_path }}/roles/dns/files/requirements.txt"
 
     - name: Get FLD
@@ -33,7 +33,7 @@
       register: diagnose_fld
 
     - name: Fetch Record information
-      ansible.builtin.shell: "/srv/cloudflare/venv/bin/python3 {{ diagnose_cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ diagnose_fld.stdout }}'"
+      ansible.builtin.shell: "/srv/cloudflare-helper/venv/bin/python3 {{ diagnose_cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ diagnose_fld.stdout }}'"
       register: cloudflare_ssl
 
     - name: Print Failure Output

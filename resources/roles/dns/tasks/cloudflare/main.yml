@@ -7,7 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | Check if Cloudflare folder exists
+- name: Cloudflare | Cleanup legacy folder
+  ansible.builtin.file:
+    path: "/srv/cloudflare"
+    state: absent
+
+- name: Cloudflare | Check if '{{ cloudflare_path }}' folder exists
   ansible.builtin.stat:
     path: "{{ cloudflare_path }}"
   register: cloudflare_folder
@@ -16,6 +21,9 @@
   ansible.builtin.stat:
     path: "{{ cloudflare_path }}/venv/bin/python3.10"
   register: cloudflare_folder_symlink
+
+- name: Cloudflare | Checksum
+  ansible.builtin.include_tasks: "subtasks/checksum.yml"
 
 - name: Cloudflare | Setup
   ansible.builtin.include_tasks: "subtasks/setup.yml"

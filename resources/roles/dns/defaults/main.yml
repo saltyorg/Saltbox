@@ -8,19 +8,12 @@
 #########################################################################
 ---
 cloudflare_allow_nested_proxy: false
-
 cloudflare_reinstall: false
-
-cloudflare_path: "/srv/cloudflare"
-
+cloudflare_path: "/srv/cloudflare-helper"
 cloudflare_venv_path: "{{ cloudflare_path }}/venv"
-
 cloudflare_python_path: "{{ cloudflare_bin_folder }}/python3"
-
-cloudflare_script_path: "{{ cloudflare_path }}/cloudflare.py"
-
+cloudflare_script_path: "{{ cloudflare_path }}/fetch_cloudflare_records.py"
 cloudflare_requirements_path: "{{ cloudflare_path }}/requirements.txt"
-
 cloudflare_files:
-  - "cloudflare.py"
+  - "fetch_cloudflare_records.py"
   - "requirements.txt"

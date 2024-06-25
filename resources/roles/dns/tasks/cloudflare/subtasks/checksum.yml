@@ -1,0 +1,40 @@
+#########################################################################
+# Title:         Saltbox: DNS | Cloudflare | Checksum                   #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Cloudflare | Checksum | Get 'fetch_cloudflare_records.py' checksum
+  ansible.builtin.stat:
+    path: "{{ resources_path }}/roles/dns/files/fetch_cloudflare_records.py"
+    checksum_algorithm: sha256
+  register: repo_fetch_cloudflare_records_py_checksum
+
+- name: Cloudflare | Checksum | Get 'requirements.txt' checksum
+  ansible.builtin.stat:
+    path: "{{ resources_path }}/roles/dns/files/requirements.txt"
+    checksum_algorithm: sha256
+  register: repo_requirements_txt_checksum
+
+- name: Cloudflare | Checksum | Get installed 'fetch_cloudflare_records.py' checksum
+  ansible.builtin.stat:
+    path: "{{ cloudflare_path }}/fetch_cloudflare_records.py"
+    checksum_algorithm: sha256
+  register: installed_fetch_cloudflare_records_py_checksum
+
+- name: Cloudflare | Checksum | Get installed 'requirements.txt' checksum
+  ansible.builtin.stat:
+    path: "{{ cloudflare_path }}/requirements.txt"
+    checksum_algorithm: sha256
+  register: installed_requirements_txt_checksum
+
+- name: Cloudflare | Checksum | Check for updates
+  ansible.builtin.set_fact:
+    cloudflare_reinstall: true
+  when: (not installed_fetch_cloudflare_records_py_checksum.stat.exists) or
+        (not installed_requirements_txt_checksum.stat.exists) or
+        (repo_fetch_cloudflare_records_py_checksum.stat.checksum != installed_fetch_cloudflare_records_py_checksum.stat.checksum) or
+        (repo_requirements_txt_checksum.stat.checksum != installed_requirements_txt_checksum.stat.checksum)

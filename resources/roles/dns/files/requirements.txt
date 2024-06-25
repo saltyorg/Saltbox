@@ -1,2 +1,2 @@
-argparse
-cloudflare==2.19.*
+requests==2.32.3
+cloudflare==3.0.1

@@ -25,7 +25,7 @@
         dest: "{{ cloudflare_path }}/{{ item | basename }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        mode: "0664"
       with_items: "{{ cloudflare_files }}"
 
     - name: Cloudflare | Setup | Set Python version

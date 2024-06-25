@@ -1,32 +1,32 @@
 import argparse
-import CloudFlare
+import cloudflare
+from cloudflare import Cloudflare
+
+
+def get_zone_id(client: Cloudflare, zone_name: str) -> str:
+    try:
+        zone = client.zones.list(name=zone_name)
+        if len(zone.result) == 0:
+            raise ValueError(f'Specified zone: {zone_name} was not found')
+        return zone.result[0].id
+    except cloudflare.APIConnectionError as e:
+        exit(f'Error fetching zone ID: {e}')
+    except Exception as e:
+        exit(f'Unexpected error: {e}')
 
 
 def get_ssl_tls_mode(auth_email, auth_key, zone_name):
-    cf = CloudFlare.CloudFlare(email=auth_email, key=auth_key)
+    cf = Cloudflare(api_email=auth_email, api_key=auth_key)
 
-    # Query for the zone name and expect only one value back
-    try:
-        zones = cf.zones.get(params={'name': zone_name, 'per_page': 1})
-    except CloudFlare.exceptions.CloudFlareAPIError as e:
-        exit(f'/zones.get {e.code} {e} - API call failed')
-    except Exception as e:
-        exit(f'/zones.get - {e} - API call failed')
-
-    if len(zones) == 0:
-        exit('No zones found')
-
-    # Extract the zone_id which is needed to process that zone
-    zone = zones[0]
-    zone_id = zone['id']
+    zone_id = get_zone_id(cf, zone_name)
 
     # Get the SSL/TLS settings for the zone
     try:
-        ssl_settings = cf.zones.settings.ssl.get(zone_id)
+        ssl_settings = cf.zones.settings.ssl.get(zone_id=zone_id).to_dict()
         ssl_mode = ssl_settings['value']
         print(f"{ssl_mode}")
-    except CloudFlare.exceptions.CloudFlareAPIError as e:
-        exit(f'/zones/settings/ssl.get {e.code} {e} - API call failed')
+    except cloudflare.APIConnectionError as e:
+        exit(f'/zones/settings/ssl.get - {e} - API call failed')
     except Exception as e:
         exit(f'/zones/settings/ssl.get - {e} - API call failed')
 
