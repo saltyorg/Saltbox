@@ -49,10 +49,10 @@
   ansible.builtin.set_fact:
     rule_exists: >-
       {{
-        ruleset_details_response.json.result.rules
+        (ruleset_details_response.json.result.rules
         | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
         | map(attribute='id')
-        | list | length > 0
+        | list | length > 0) if ruleset_details_response.json.result.rules is defined else false
       }}
   when: ruleset_exists
 
