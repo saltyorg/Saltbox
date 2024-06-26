@@ -111,9 +111,9 @@
         services:
           {{ traefik_file_template_name }}:
             loadBalancer:
-        {% if traefik_file_template_web_scheme == "https" %}
+      {% if traefik_file_template_web_scheme == "https" %}
               serversTransport: skipverify@file
-        {% endif %}
+      {% endif %}
               servers:
                 - url: "{{ traefik_file_template_web_scheme }}://{{ traefik_file_template_web_ip }}:{{ traefik_file_template_web_port }}"
     owner: "{{ user.name }}"
