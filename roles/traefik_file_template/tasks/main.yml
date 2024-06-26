@@ -108,14 +108,14 @@
               certResolver: "{{ traefik_default_certresolver }}"
       {% endif %}
 
-      services:
-        {{ traefik_file_template_name }}:
-          loadBalancer:
-      {% if traefik_file_template_web_scheme == "https" %}
-            serversTransport: skipverify@file
-      {% endif %}
-            servers:
-              - url: "{{ traefik_file_template_web_scheme }}://{{ traefik_file_template_web_ip }}:{{ traefik_file_template_web_port }}"
+        services:
+          {{ traefik_file_template_name }}:
+            loadBalancer:
+        {% if traefik_file_template_web_scheme == "https" %}
+              serversTransport: skipverify@file
+        {% endif %}
+              servers:
+                - url: "{{ traefik_file_template_web_scheme }}://{{ traefik_file_template_web_ip }}:{{ traefik_file_template_web_port }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"
