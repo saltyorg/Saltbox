@@ -17,7 +17,7 @@ readarr_instances: ["readarr"]
 # Settings
 ################################
 
-readarr_external_auth: false
+readarr_external_auth: true
 
 ################################
 # Paths
