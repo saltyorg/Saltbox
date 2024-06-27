@@ -11,6 +11,7 @@
     - ['providers.yml', 'defaults/providers.yml.default']
     - ['hetzner_vlan.yml', 'defaults/hetzner_vlan.yml.default']
   roles:
+    - { role: user_check, tags: ['always'] }
     - { role: settings, tags: ['settings'] }
     - { role: pre_tasks, tags: ['always', 'pre-tasks'] }
     - { role: sanity_check, tags: ['always', 'sanity-check'] }
