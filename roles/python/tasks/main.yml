@@ -22,18 +22,32 @@
     msg: "This role is only for Ubuntu 20.04 and 22.04 when installing Python 3.12"
   when: ansible_distribution_version is version('24.04', '==') and python_version == "3.12"
 
-- name: Remove old repository entry
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    filename: "deadsnakes"
-    update_cache: true
+- name: Identify apt source files
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d/
+    recurse: no
+  register: apt_source_files
+
+- name: Check if file contains 'deadsnakes'
+  ansible.builtin.slurp:
+    path: "{{ item.path }}"
+  register: file_contents
+  loop: "{{ apt_source_files.files }}"
+
+- name: Remove apt source files containing 'deadsnakes'
+  ansible.builtin.file:
+    path: "{{ item.item.path }}"
     state: absent
-  loop:
-    - "{{ python_apt_repo_url_old }}"
-    - "{{ python_apt_repo_url_old2 }}"
+  loop: "{{ file_contents.results }}"
+  when: "'deadsnakes' in item.content | b64decode"
+
+- name: Update APT package index
+  ansible.builtin.apt:
+    update_cache: yes
 
 - name: Add deadsnakes/ppa
-  ansible.builtin.shell: add-apt-repository ppa:deadsnakes/ppa --yes
+  ansible.builtin.apt_repository:
+    repo: ppa:deadsnakes/ppa
   register: result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
