@@ -54,10 +54,3 @@ http:
   serversTransports:
     skipverify:
       insecureSkipVerify: true
-
-log:
-  noColor: true
-  maxSize: {{ traefik_log_max_size }}
-  maxBackups: "{{ traefik_log_max_backups }}"
-  maxAge: "{{ traefik_log_max_age }}"
-  compress: "{{ traefik_log_compress }}"
