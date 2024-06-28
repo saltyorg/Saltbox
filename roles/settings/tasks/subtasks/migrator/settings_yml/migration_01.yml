@@ -108,11 +108,11 @@
       ansible.builtin.set_fact:
         settings_config: "{{ settings_config_content['content'] | b64decode | from_yaml }}"
 
-    - name: Migrator | 'settings.yml' | Migration 01 | Ensure enable_refresh is set
+    - name: Migrator | 'settings.yml' | Migration 01 | Process each remote
       ansible.builtin.set_fact:
-        updated_remotes: "{{ settings_config.rclone.remotes
-                             | map('combine', [{'settings': (item.settings | combine({'enable_refresh': (item.settings.template != 'sftp')}, recursive=True)
-                                              if 'enable_refresh' not in item.settings else item.settings)}]) }}"
+        updated_remotes: "{{ updated_remotes | default([]) + [item | combine({'settings': item.settings | combine({'enable_refresh': (item.settings.template != 'sftp')}, recursive=True)}, recursive=True)
+                                                             if 'enable_refresh' not in item.settings
+                                                             else item] }}"
       loop: "{{ settings_config.rclone.remotes }}"
       loop_control:
         loop_var: item
