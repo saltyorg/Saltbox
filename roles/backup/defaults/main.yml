@@ -17,6 +17,14 @@ backup_rclone_upload_speed_limit: "off"
 backup_instance: "Saltbox"
 
 ################################
+# Size Check
+################################
+
+backup_size_exclude_folders:
+  - "/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder"
+  - "/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode"
+
+################################
 # Notifications
 ################################
 

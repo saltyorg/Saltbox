@@ -125,30 +125,49 @@
 
     # Check if there is enough space in the local backup destination
     - name: Get size of opt folder
-      ansible.builtin.command: "du -sk /opt"
+      ansible.builtin.shell: "du -sk /opt || true"
       register: estimated_backup_size
 
-    - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder' folder
-      ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder'"
-      register: estimated_backup_size_exclude_phototranscoder
-      ignore_errors: true
+    - name: Check existence of exclude folders
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ backup_size_exclude_folders }}"
+      register: exclude_folders_stat
 
-    - name: Get size of '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode' folder
-      ansible.builtin.command: "du -sk '/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode'"
-      register: estimated_backup_size_exclude_transcode
-      ignore_errors: true
+    - name: Create dictionary with folder paths and existence status
+      ansible.builtin.set_fact:
+        exclude_folders_info: "{{ dict(backup_size_exclude_folders | zip(exclude_folders_stat.results | map(attribute='stat.exists'))) }}"
+
+    - name: Filter existing folders from exclude list
+      ansible.builtin.set_fact:
+        exclude_folders_existing: "{{ exclude_folders_info | dict2items | selectattr('value', 'eq', true) | map(attribute='key') | list }}"
+
+    - name: Get size of existing excluded folders
+      ansible.builtin.shell:
+        cmd: "du -sk '{{ item }}' || true"
+      loop: "{{ exclude_folders_existing }}"
+      register: estimated_backup_size_excluded
 
     - name: Get amount of free disk space
       ansible.builtin.shell: "df '{{ backup.local.destination }}' --output=avail | tail -1"
       register: local_backup_destination_free_space
 
-    - name: Set backup_estimated_size
+    - name: Calculate total estimated backup size
       ansible.builtin.set_fact:
-        backup_estimated_size: "{{ ((estimated_backup_size.stdout.split()[0] | int) - (estimated_backup_size_exclude_phototranscoder.stdout.split()[0] | default(0) | int) - (estimated_backup_size_exclude_transcode.stdout.split()[0] | default(0) | int)) }}"
+        total_backup_size: "{{ estimated_backup_size.stdout.split()[0] }}"
+        total_free_space: "{{ local_backup_destination_free_space.stdout }}"
 
-    - name: Set backup_enough_disk_space boolean
+    - name: Calculate excluded sizes
       ansible.builtin.set_fact:
-        backup_enough_disk_space: "{{ (local_backup_destination_free_space.stdout | int) > (backup_estimated_size | int) }}"
+        excluded_sizes: "{{ estimated_backup_size_excluded.results | map(attribute='stdout_lines') | map('first') | map('regex_replace', '^([0-9]+).*', '\\1') | map('int') | list }}"
+
+    - name: Calculate backup_estimated_size
+      ansible.builtin.set_fact:
+        backup_estimated_size: "{{ (total_backup_size | int) - (excluded_sizes | default([]) | sum) }}"
+
+    - name: Check if enough disk space is available
+      ansible.builtin.set_fact:
+        backup_enough_disk_space: "{{ (total_free_space | int) > (backup_estimated_size | int) }}"
 
     - name: "Notify | Saltbox Backup: Not enough disk space. Aborting."
       ansible.builtin.include_role:
@@ -162,15 +181,15 @@
         msg:
           - "Not enough disk space left in {{ backup.local.destination }}."
           - "Estimated Backup size: {{ backup_estimated_size | int }}"
-          - "Free space: {{ local_backup_destination_free_space.stdout | int }}"
+          - "Free space: {{ total_free_space | int }}"
       when: (not backup_enough_disk_space)
 
     - name: "There is enough space to run the backup"
       ansible.builtin.debug:
         msg:
           - "There is enough disk space left in {{ backup.local.destination }}."
-          - "Estimated Backup size: {{ estimated_backup_size.stdout.split()[0] | int }}"
-          - "Free space: {{ local_backup_destination_free_space.stdout | int }}"
+          - "Estimated Backup size: {{ backup_estimated_size | int }}"
+          - "Free space: {{ total_free_space | int }}"
 
     # Backup config files
     - name: "Copy files to '{{ backup.local.destination }}'"
