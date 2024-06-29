@@ -730,12 +730,12 @@
             method: POST
             timeout: 600
           ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd_service:
