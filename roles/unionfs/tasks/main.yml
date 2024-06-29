@@ -39,3 +39,10 @@
     - name: Docker Containers Start Tasks
       ansible.builtin.import_tasks: "subtasks/docker/containers_start.yml"
       when: (containers_list is defined)
+
+    - name: Docker Containers Start Tasks (no running containers)
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/start"
+        method: POST
+        timeout: 600
+      when: (not containers_list is defined) and unionfs_docker_binary.stat.exists and unionfs_docker_service_running

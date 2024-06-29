@@ -29,6 +29,17 @@
 - name: Tasks for when Docker exists and is running
   when: remote_docker_binary.stat.exists and remote_docker_service_running
   block:
+    - name: Restart 'saltbox_managed_docker_controller.service'
+      ansible.builtin.systemd_service:
+        name: saltbox_managed_docker_controller
+        state: restarted
+      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+
+    - name: Wait 5 seconds
+      ansible.builtin.wait_for:
+        timeout: 5
+      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+
     - name: Block Docker Controller
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/block/20"

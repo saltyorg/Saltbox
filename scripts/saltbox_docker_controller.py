@@ -343,6 +343,7 @@ unblock_task = None
 @app.on_event("startup")
 def startup_event():
     signal.signal(signal.SIGINT, stop_server)
+    signal.signal(signal.SIGTERM, stop_server)
 
 
 @app.get("/ping")
