@@ -7,6 +7,29 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Binary | Identify apt source files
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d/
+    recurse: no
+  register: apt_source_files
+
+- name: Binary | Check if file contains 'download.docker.com'
+  ansible.builtin.slurp:
+    path: "{{ item.path }}"
+  register: file_contents
+  loop: "{{ apt_source_files.files }}"
+
+- name: Binary | Remove apt source files containing 'download.docker.com'
+  ansible.builtin.file:
+    path: "{{ item.item.path }}"
+    state: absent
+  loop: "{{ file_contents.results }}"
+  when: "'download.docker.com' in item.content | b64decode"
+
+- name: Binary | Update APT package index
+  ansible.builtin.apt:
+    update_cache: yes
+
 - name: Binary | Add official gpg signing key to trusted.gpg.d
   ansible.builtin.get_url:
     url: "{{ docker_apt_key_url }}"
@@ -16,16 +39,6 @@
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
-
-- name: Binary | Remove old official repository entries
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    filename: "{{ docker_apt_repo_filename }}"
-    update_cache: true
-    state: absent
-  loop:
-    - "{{ docker_apt_repo_url_old }}"
-    - "{{ docker_apt_repo_url_old2 }}"
 
 - name: Binary | Add official repository
   ansible.builtin.apt_repository:
