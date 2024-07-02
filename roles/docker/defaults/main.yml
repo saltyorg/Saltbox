@@ -41,7 +41,7 @@ docker_apt_key_url: https://download.docker.com/linux/ubuntu/gpg
 
 docker_apt_repo_version: stable
 
-docker_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_repo_version }}"  # noqa line-length
+docker_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_repo_version }}"  # noqa line-length
 
 docker_apt_repo_filename: docker
 

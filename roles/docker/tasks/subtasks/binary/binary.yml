@@ -33,7 +33,7 @@
 - name: Binary | Add official gpg signing key to trusted.gpg.d
   ansible.builtin.get_url:
     url: "{{ docker_apt_key_url }}"
-    dest: /etc/apt/trusted.gpg.d/docker.asc
+    dest: /etc/apt/keyrings/docker.asc
     mode: "0644"
   register: result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"

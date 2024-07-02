@@ -50,6 +50,7 @@
     url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
     dest: /etc/apt/keyrings/deadsnakes.asc
     mode: "0644"
+  register: result
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
   until: result is succeeded
