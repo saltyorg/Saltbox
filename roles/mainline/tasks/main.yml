@@ -11,18 +11,43 @@
   ansible.builtin.apt:
     name: dirmngr
 
-- name: Remove old repository entry
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/cappelikan.gpg] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
-    filename: "cappelikan"
-    update_cache: true
-    state: absent
-  loop:
-    - "deb [arch=amd64 signed-by=/usr/share/keyrings/cappelikan.gpg] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
-    - "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cappelikan.asc] http://ppa.launchpad.net/cappelikan/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+- name: Identify apt source files
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d/
+    recurse: no
+  register: apt_source_files
 
-- name: Add deadsnakes/ppa
-  ansible.builtin.shell: add-apt-repository ppa:cappelikan/ppa --yes
+- name: Check if file contains 'cappelikan'
+  ansible.builtin.slurp:
+    path: "{{ item.path }}"
+  register: file_contents
+  loop: "{{ apt_source_files.files }}"
+
+- name: Remove apt source files containing 'cappelikan'
+  ansible.builtin.file:
+    path: "{{ item.item.path }}"
+    state: absent
+  loop: "{{ file_contents.results }}"
+  when: "'cappelikan' in item.content | b64decode"
+
+- name: Update APT package index
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Add gpg signing key to '/etc/apt/keyrings'
+  ansible.builtin.get_url:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3AE27527713D2479DCAFFD58A89D7C1B2F76304D
+    dest: /etc/apt/keyrings/cappelikan.asc
+    mode: "0644"
+  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  delay: 10
+  until: result is succeeded
+
+- name: Add cappelikan/ppa
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+    update_cache: true
   register: result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
