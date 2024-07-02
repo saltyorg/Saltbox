@@ -45,10 +45,10 @@
   ansible.builtin.apt:
     update_cache: yes
 
-- name: Add gpg signing key to trusted.gpg.d
+- name: Add gpg signing key to '/etc/apt/keyrings'
   ansible.builtin.get_url:
     url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
-    dest: /etc/apt/trusted.gpg.d/deadsnakes.asc
+    dest: /etc/apt/keyrings/deadsnakes.asc
     mode: "0644"
   retries: "{{ '0' if (not continuous_integration) else '5' }}"
   delay: 10
@@ -56,7 +56,7 @@
 
 - name: Add deadsnakes/ppa
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {{ ansible_distribution_release }} main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {{ ansible_distribution_release }} main"
     state: present
     update_cache: true
   register: result

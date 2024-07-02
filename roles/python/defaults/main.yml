@@ -7,7 +7,4 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-python_apt_repo_url_old: "deb [arch=amd64 signed-by=/usr/share/keyrings/deadsnakes.gpg] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
-python_apt_repo_url_old2: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/deadsnakes.asc] http://ppa.launchpad.net/deadsnakes/ppa/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
-
 python_version: "3.8"
