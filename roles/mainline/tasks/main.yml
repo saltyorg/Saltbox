@@ -34,6 +34,14 @@
   ansible.builtin.apt:
     update_cache: yes
 
+- name: Ensure '/etc/apt/keyrings' exists
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+
 - name: Add gpg signing key to '/etc/apt/keyrings'
   ansible.builtin.get_url:
     url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3AE27527713D2479DCAFFD58A89D7C1B2F76304D

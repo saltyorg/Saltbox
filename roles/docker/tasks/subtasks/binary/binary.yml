@@ -30,7 +30,15 @@
   ansible.builtin.apt:
     update_cache: yes
 
-- name: Binary | Add official gpg signing key to trusted.gpg.d
+- name: Binary | Ensure '/etc/apt/keyrings' exists
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+
+- name: Binary | Add official gpg signing key to '/etc/apt/keyrings'
   ansible.builtin.get_url:
     url: "{{ docker_apt_key_url }}"
     dest: /etc/apt/keyrings/docker.asc
