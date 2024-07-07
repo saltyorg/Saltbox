@@ -132,29 +132,10 @@
       failed_when: q.rc > 1
       ignore_errors: true
 
-- name: "Network | Remove IPv6 NAT Container"
+- name: "Network | Remove IPv6 NAT Container (Legacy)"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
     var_prefix: "ipv6nat"
-
-- name: "Network | Create IPv6 NAT Container"
-  community.docker.docker_container:
-    name: "ipv6nat"
-    image: "robbertkl/ipv6nat"
-    pull: true
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/lib/modules:/lib/modules:ro"
-    hostname: "ipv6nat"
-    networks_cli_compatible: true
-    comparisons:
-      '*': ignore
-    network_mode: "host"
-    container_default_behavior: compatibility
-    tls_hostname: localhost
-    restart_policy: "always"
-    privileged: yes
-  when: docker_ipv6
 
 - name: "Network | Unset variables"
   ansible.builtin.set_fact:

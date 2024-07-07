@@ -22,6 +22,7 @@
     docker_config:
       dns: "{{ docker_dns if docker_dns | length > 0 else omit }}"
       fixed-cidr-v6: "{{ '2001:db8::/64' if docker_ipv6 else omit }}"
+      ip6tables: "{{ true if docker_ipv6 else false }}"
       ipv6: "{{ true if docker_ipv6 else false }}"
       log-driver: "json-file"
       log-opts:
