@@ -25,6 +25,8 @@
     comparisons:
       '*': ignore
   register: stop_docker_result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: stop_docker_result is succeeded

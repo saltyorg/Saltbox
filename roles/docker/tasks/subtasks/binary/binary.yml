@@ -44,7 +44,9 @@
     dest: /etc/apt/keyrings/docker.asc
     mode: "0644"
   register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 
@@ -54,7 +56,9 @@
     filename: "{{ docker_apt_repo_filename }}"
     update_cache: true
   register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 

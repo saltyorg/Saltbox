@@ -26,7 +26,9 @@
   ignore_errors: true
   register: ctop_download_status
   until: "ctop_download_status is not failed"
-  retries: 5
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
 
 - name: Tasks to do when ctop download is successful

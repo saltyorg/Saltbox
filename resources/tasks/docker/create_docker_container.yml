@@ -113,8 +113,12 @@
     volumes_from: "{{ lookup('vars', _var_prefix + '_docker_volumes_from', default=omit) }}"
     working_dir: "{{ lookup('vars', _var_prefix + '_docker_working_dir', default=omit) }}"
   register: create_docker_result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
-  timeout: "{{ 120 if continuous_integration else omit }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
+  timeout: "{{ 120
+            if continuous_integration
+            else omit }}"
   delay: 10
   until: create_docker_result is succeeded
 
@@ -125,6 +129,8 @@
       dangling: true
   when: docker_create_image_prune
   register: prune_images_result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: prune_images_result is succeeded

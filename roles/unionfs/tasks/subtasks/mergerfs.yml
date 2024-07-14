@@ -36,7 +36,9 @@
     state: present
   register: mergerfs_install_result
   until: "mergerfs_install_result is not failed"
-  retries: 5
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
 
 - name: "MergerFS | Import '{{ mergerfs_service_name }}'"

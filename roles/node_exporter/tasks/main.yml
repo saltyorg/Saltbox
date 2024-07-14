@@ -35,7 +35,9 @@
     validate_certs: false
   register: x
   until: "x is not failed"
-  retries: 5
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
 
 - name: Create directories

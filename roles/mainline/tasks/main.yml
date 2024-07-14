@@ -48,7 +48,9 @@
     dest: /etc/apt/keyrings/cappelikan.asc
     mode: "0644"
   register: result
-  retries: "{{ '0' if (not continuous_integration) else '5' }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 
@@ -58,7 +60,9 @@
     state: present
     update_cache: true
   register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
 
