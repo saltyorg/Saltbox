@@ -123,6 +123,7 @@ sabnzbd_docker_envs_default:
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
+  HAS_IPV6: "{{ omit if docker_ipv6 else 'false' }}"
 sabnzbd_docker_envs_custom: {}
 sabnzbd_docker_envs: "{{ sabnzbd_docker_envs_default
                          | combine(sabnzbd_docker_envs_custom) }}"

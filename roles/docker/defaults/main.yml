@@ -115,7 +115,7 @@ docker_filesystem_path: "/media/docker-volume.img"
 
 docker_filesystem_size: "20G"
 
-docker_ipv6: "{{ dns.ipv6 }}"
+docker_ipv6: "{{ dns.ipv6 | bool }}"
 
 # Service
 
