@@ -113,13 +113,20 @@ jobs:
 
       - name: Syntax Check
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
-        
+
+      - name: Create CI vars file
+        run: |
+          echo "continuous_integration: true" > vars.yml
+          echo "dockerhub:" >> vars.yml
+          echo "  token: ${{ secrets.DOCKERHUB_TOKEN }}" >> vars.yml
+          echo "  user: ${{ secrets.DOCKERHUB_USERNAME }}" >> vars.yml
+
       - name: Install Saltbox Core
-        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings"  --extra-vars '{"continuous_integration":true}' --extra-vars '{"dockerhub":{"user":"{{ secrets.DOCKERHUB_USERNAME }}","token":"{{ secrets.DOCKERHUB_TOKEN }}"}}'
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars "@vars.yml"
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox') || contains(matrix.roles, 'core')) }}
 
       - name: Install ${{ matrix.roles }}
-        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars '{"continuous_integration":true}' --extra-vars '{"dockerhub":{"user":"{{ secrets.DOCKERHUB_USERNAME }}","token":"{{ secrets.DOCKERHUB_TOKEN }}"}}'
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars "@vars.yml"
 
   webhook:
     name: 'webhook'
