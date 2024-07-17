@@ -107,12 +107,30 @@
 
 - name: ZSH | Set ZSH as default shell
   ansible.builtin.debug:
-    msg:
-      - "Set ZSH as default shell"
+    msg: "Set ZSH as default shell"
   when: (shell_update_task is changed)
+
+- name: "Oh My Posh Block"
+  when: shell_ohmyposh_enabled
+  block:
+    - name: "Install Oh My Posh"
+      ansible.builtin.shell: "curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin/"
+
+    - name: "Install Meslo Nerd Font"
+      ansible.builtin.shell: "oh-my-posh font install meslo"
+
+    - name: ZSH | Add Oh My Posh to '{{ shell_zsh_zshrc_path }}'
+      ansible.builtin.blockinfile:
+        path: "{{ shell_zsh_zshrc_path }}"
+        marker: "### SALTBOX MANAGED BLOCK 3 - {mark} ###"
+        block: "{{ shell_zsh_zshrc_oh_my_posh }}"
+        state: present
+        create: false
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
 
 - name: ZSH | Default shell set to ZSH
   ansible.builtin.debug:
-    msg:
-      - "Changes will apply on session restart."
+    msg: "Changes will apply on session restart."
   when: (shell_update_task is changed) and ('shell' in ansible_run_tags)

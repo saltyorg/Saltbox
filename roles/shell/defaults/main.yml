@@ -87,3 +87,15 @@ shell_zsh_zshrc_block_custom: ""
 shell_zsh_plugins: "(git docker docker-compose ansible)"
 shell_zsh_binary_previous_path: "/bin/zsh5"
 shell_zsh_binary_path: "/bin/zsh"
+
+################################
+# Oh My Posh
+################################
+
+shell_ohmyposh_enabled: false
+# Takes a file path or url to a config file
+shell_ohmyposh_config: ""
+
+shell_zsh_zshrc_oh_my_posh: |
+  # Oh My Posh
+  eval "$(oh-my-posh init zsh{{ ' --config ' + shell_ohmyposh_config if shell_ohmyposh_config | length > 0 else '' }})"
