@@ -15,8 +15,8 @@
 
 - name: Remote | Get next available port within the range of '5572-5672' # noqa fqcn[action]
   find_open_port:
-    low_bound: 5572
-    high_bound: 5672
+    low_bound: "{{ rclone_remort_port_low_bound }}"
+    high_bound: "{{ rclone_remort_port_high_bound }}"
     protocol: both
   register: port_lookup_rclone
 
