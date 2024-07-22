@@ -9,7 +9,7 @@
 ---
 - name: Start Saltbox Docker Containers
   ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/start{{ _query_var if _query_var is defined else '' }}"
+    url: "{{ docker_controller_url }}/start{{ query_var if query_var is defined else '' }}"
     method: POST
   register: start_docker_controller_job
   ignore_errors: true
@@ -22,11 +22,26 @@
   until: start_job_status.json.status in ['completed', 'failed']
   retries: 120
   delay: 5
-  when: start_docker_controller_job is success
-
-- name: Check job status
-  ansible.builtin.debug:
-    msg: "Failed starting Saltbox Docker containers"
   when:
     - start_docker_controller_job is success
-    - start_job_status.json.status == 'failed'
+    - start_docker_controller_job.json.job_id is defined
+  ignore_errors: true
+
+- name: Check job status (new version)
+  ansible.builtin.debug:
+    msg: "Status of starting Saltbox Docker containers: {{ start_job_status.json.status | default('unknown') }}"
+  when:
+    - start_docker_controller_job is success
+    - start_docker_controller_job.json.job_id is defined
+
+- name: Check operation status (old version)
+  ansible.builtin.debug:
+    msg: "Status of starting Saltbox Docker containers: {{ start_docker_controller_job.json.message | default('unknown') }}"
+  when:
+    - start_docker_controller_job is success
+    - start_docker_controller_job.json.job_id is not defined
+
+- name: Check for operation failure
+  ansible.builtin.debug:
+    msg: "Failed to start Saltbox Docker containers"
+  when: start_docker_controller_job is failed
