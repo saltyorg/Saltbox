@@ -27,14 +27,14 @@
     - start_docker_controller_job.json.job_id is defined
   ignore_errors: true
 
-- name: Check job status (new version)
+- name: Check job status
   ansible.builtin.debug:
     msg: "Status of starting Saltbox Docker containers: {{ start_job_status.json.status | default('unknown') }}"
   when:
     - start_docker_controller_job is success
     - start_docker_controller_job.json.job_id is defined
 
-- name: Check operation status (old version)
+- name: Check operation status (legacy)
   ansible.builtin.debug:
     msg: "Status of starting Saltbox Docker containers: {{ start_docker_controller_job.json.message | default('unknown') }}"
   when:
