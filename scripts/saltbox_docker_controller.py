@@ -3,12 +3,15 @@ import asyncio
 import time
 import logging
 import logging.config
-from typing import List, Dict, Set
-from fastapi import FastAPI, HTTPException, Query
+from typing import List, Dict, Set, Union, Optional
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import subprocess
 import signal
 from collections import defaultdict
+import uuid
+from enum import Enum
 
 global graph
 running = True
@@ -196,7 +199,7 @@ def start_containers_with_shell(containers: List[str]):
             logging.error(f"Failed to start containers with error: {err}")
 
 
-def start_containers_in_dependency_order(_graph: DependencyGraph):
+def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str):
     client = docker.from_env()
     started_containers = set()
     containers_to_start = set(_graph.nodes.keys())
@@ -260,6 +263,10 @@ def start_containers_in_dependency_order(_graph: DependencyGraph):
                 logged_health_check_waiting.remove(container_name)
             if container_name in container_start_times:
                 del container_start_times[container_name]
+    
+        time.sleep(1)
+
+    job_manager.update_job(job_id, JobStatus.COMPLETED)
 
 
 def stop_containers_with_shell(containers: List[str], ignore_containers: Set[str] = None):
@@ -277,7 +284,7 @@ def stop_containers_with_shell(containers: List[str], ignore_containers: Set[str
                 logging.error(f"Failed to stop containers with error: {err}")
 
 
-def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None):
+def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None, job_id: str = None):
     if ignore_containers is None:
         ignore_containers = set()
     stopped_containers = set()
@@ -301,10 +308,41 @@ def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containe
             stopped_containers.add(container_name)
             containers_to_stop.remove(container_name)
 
+        time.sleep(1)
+
+    if job_id:
+        job_manager.update_job(job_id, JobStatus.COMPLETED)
+
 
 def stop_server(*args):
     global running
     running = False
+
+
+# Job Manager Classes
+class JobStatus(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+class JobManager:
+    def __init__(self):
+        self.jobs: Dict[str, JobStatus] = {}
+
+    def create_job(self) -> str:
+        job_id = str(uuid.uuid4())
+        self.jobs[job_id] = JobStatus.PENDING
+        return job_id
+
+    def update_job(self, job_id: str, status: JobStatus):
+        if job_id in self.jobs:
+            self.jobs[job_id] = status
+
+    def get_job_status(self, job_id: str) -> Optional[JobStatus]:
+        return self.jobs.get(job_id)
+
+job_manager = JobManager()
 
 
 # FastAPI Application and API Endpoints
@@ -354,24 +392,57 @@ async def ping():
 
 
 @app.post("/start")
-async def start_containers():
+async def start_containers(background_tasks: BackgroundTasks):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
+    
+    job_id = job_manager.create_job()
     client = docker.from_env()
     _graph = parse_container_labels(client)
-    start_containers_in_dependency_order(_graph)
-    return {"message": "Containers started"}
+
+    def start_containers_task():
+        job_manager.update_job(job_id, JobStatus.RUNNING)
+        try:
+            start_containers_in_dependency_order(_graph, job_id)
+            job_manager.update_job(job_id, JobStatus.COMPLETED)
+        except Exception as e:
+            logging.error(f"Failed to start containers: {str(e)}")
+            job_manager.update_job(job_id, JobStatus.FAILED)
+    
+    background_tasks.add_task(start_containers_task)
+    return {"job_id": job_id}
 
 
 @app.post("/stop")
-async def stop_containers(ignore: List[str] = Query(None)):
+async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] = Query(None)):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
+
+    job_id = job_manager.create_job()
     client = docker.from_env()
     _graph = parse_container_labels(client)
     ignore_containers = set(ignore) if ignore else set()
-    stop_containers_in_dependency_order(_graph, ignore_containers)
-    return {"message": "Containers stopped", "ignored": list(ignore_containers)}
+
+    def stop_containers_task():
+        job_manager.update_job(job_id, JobStatus.RUNNING)
+        try:
+            stop_containers_in_dependency_order(_graph, ignore_containers, job_id)
+            job_manager.update_job(job_id, JobStatus.COMPLETED)
+        except Exception as e:
+            logging.error(f"Failed to stop containers: {str(e)}")
+            job_manager.update_job(job_id, JobStatus.FAILED)
+    
+    background_tasks.add_task(stop_containers_task)
+    return {"job_id": job_id}
+
+
+@app.get("/job_status/{job_id}")
+async def get_job_status(job_id: str):
+    status = job_manager.get_job_status(job_id)
+    if status:
+        return JSONResponse(status_code=200, content={"status": status})
+    else:
+        return JSONResponse(status_code=404, content={"status": "not_found"})
 
 
 async def auto_unblock(delay: int):
@@ -379,7 +450,6 @@ async def auto_unblock(delay: int):
     global is_blocked
     is_blocked = False
     logging.info("Auto unblock complete")
-
 
 @app.post("/block/{duration_minutes}")
 async def block_operations(duration_minutes: int = 10):
@@ -390,7 +460,6 @@ async def block_operations(duration_minutes: int = 10):
     unblock_task = asyncio.create_task(auto_unblock(duration_minutes * 60))
     logging.info(f"Operations are now blocked for {duration_minutes} minutes")
     return {"message": f"Operations are now blocked for {duration_minutes} minutes"}
-
 
 @app.post("/unblock")
 async def unblock_operations():

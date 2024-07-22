@@ -27,12 +27,8 @@
   ignore_errors: true
   when: docker_binary.stat.exists and docker_service_running
 
-- name: Stop Saltbox Containers
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/stop"
-    method: POST
-    timeout: 600
-  ignore_errors: true
+- name: Stop Saltbox Docker containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
   when: docker_binary.stat.exists and docker_service_running and not (docker_running_containers.stdout | trim | length == 0)
 
 - name: Stop all running Docker containers

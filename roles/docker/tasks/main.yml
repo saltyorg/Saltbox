@@ -58,12 +58,8 @@
       ansible.builtin.set_fact:
         docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
 
-    - name: Stop Saltbox Containers
-      ansible.builtin.uri:
-        url: "{{ docker_controller_url }}/stop"
-        method: POST
-        timeout: 600
-      ignore_errors: true
+    - name: Stop Saltbox Docker containers
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
       when: docker_controller_service_running is defined and docker_controller_service_running
 
     - name: Stop all running Docker containers
@@ -145,12 +141,8 @@
     timeout: 600
   ignore_errors: true
 
-- name: Stop Saltbox Containers
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/stop"
-    method: POST
-    timeout: 600
-  ignore_errors: true
+- name: Stop Saltbox Docker containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
 
 - name: "Stop all Docker containers"
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
@@ -185,12 +177,8 @@
         timeout: "{{ docker_network_container_health_delay }}"
       when: (docker_containers_gluetun | length > 0)
 
-- name: Start Saltbox Containers
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/start"
-    method: POST
-    timeout: 600
-  ignore_errors: true
+- name: Start Saltbox Docker containers
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
 
 - name: "Re-start all previously running Docker containers"
   ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
