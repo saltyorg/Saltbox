@@ -312,16 +312,15 @@
               {%- else -%}
               {% endif %}
 
-        - name: Stop Saltbox Containers
-          ansible.builtin.uri:
-            url: "{{ docker_controller_url }}/stop{{ '?' + ignore_query_string if (ignore_query_string | length > 0) else '' }}"
-            method: POST
-            timeout: 600
-          ignore_errors: true
+        - name: Stop Saltbox Docker containers
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
+          vars:
+            _query_var: "{{ '?' + ignore_query_string if (ignore_query_string | length > 0) else '' }}"
 
         - name: "Stop all running Docker containers"
           ansible.builtin.shell: "docker stop {{ docker_containers_string }}"
           ignore_errors: true
+          when: (docker_containers_string | trim | length > 0)
 
         - name: "Notify | Saltbox Backup: Stopped Docker containers"
           ansible.builtin.include_role:
@@ -399,12 +398,8 @@
           ansible.builtin.wait_for:
             timeout: 5
 
-        - name: Start Saltbox Containers
-          ansible.builtin.uri:
-            url: "{{ docker_controller_url }}/start"
-            method: POST
-            timeout: 600
-          ignore_errors: true
+        - name: Start Saltbox Docker containers
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
           when: (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Start all previously running Docker containers"
@@ -522,12 +517,8 @@
           ansible.builtin.wait_for:
             timeout: 5
 
-        - name: Start Saltbox Containers
-          ansible.builtin.uri:
-            url: "{{ docker_controller_url }}/start"
-            method: POST
-            timeout: 600
-          ignore_errors: true
+        - name: Start Saltbox Docker containers
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
           when: (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
@@ -724,12 +715,8 @@
           ansible.builtin.wait_for:
             timeout: 5
 
-        - name: Start Saltbox Containers
-          ansible.builtin.uri:
-            url: "{{ docker_controller_url }}/start"
-            method: POST
-            timeout: 600
-          ignore_errors: true
+        - name: Start Saltbox Docker containers
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
           when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"

@@ -1,0 +1,32 @@
+##########################################################################################
+# Title:         Saltbox: Resources | Tasks | Docker | Start Saltbox Docker Containers   #
+# Author(s):     salty                                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                                     #
+# --                                                                                     #
+##########################################################################################
+#                   GNU General Public License v3.0                                      #
+##########################################################################################
+---
+- name: Start Saltbox Docker Containers
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/start{{ _query_var if _query_var is defined else '' }}"
+    method: POST
+  register: start_docker_controller_job
+  ignore_errors: true
+
+- name: Poll for job completion
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/job_status/{{ start_docker_controller_job.json.job_id }}"
+    method: GET
+  register: start_job_status
+  until: start_job_status.json.status in ['completed', 'failed']
+  retries: 120
+  delay: 5
+  when: start_docker_controller_job is success
+
+- name: Check job status
+  ansible.builtin.debug:
+    msg: "Failed starting Saltbox Docker containers"
+  when:
+    - start_docker_controller_job is success
+    - start_job_status.json.status == 'failed'

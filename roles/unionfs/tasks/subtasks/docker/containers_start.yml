@@ -26,12 +26,8 @@
   ansible.builtin.wait_for:
     timeout: "{{ docker_network_container_health_delay }}"
 
-- name: "Docker | Containers Start | Start Saltbox Containers"
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/start"
-    method: POST
-    timeout: 600
-  ignore_errors: true
+- name: "Docker | Containers Start | Start Saltbox Docker containers"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
   when: (remote_docker_controller_service_running is defined and remote_docker_controller_service_running)
         or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running)
 

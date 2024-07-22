@@ -57,12 +57,8 @@
       ansible.builtin.set_fact:
         containers_list: "{{ remote_docker_running_containers_ps.stdout }}"
 
-    - name: Stop Saltbox Containers
-      ansible.builtin.uri:
-        url: "{{ docker_controller_url }}/stop"
-        method: POST
-        timeout: 600
-      ignore_errors: true
+    - name: Stop Saltbox Docker containers
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
       when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
 
     - name: "Stop all running Docker containers"
