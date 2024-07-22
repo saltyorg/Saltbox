@@ -3,7 +3,7 @@ import asyncio
 import time
 import logging
 import logging.config
-from typing import List, Dict, Set, Union, Optional
+from typing import List, Dict, Set, Optional
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
