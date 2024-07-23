@@ -119,15 +119,11 @@ downloads_custom_path: "{{ false
 # User
 ################################
 
-uid: "{{ ansible_local.user[user.name].uid }}"
-
-gid: "{{ ansible_local.user[user.name].gid }}"
-
-vgid: "{{ ansible_local.group.video.gid }}"
-
-rgid: "{{ ansible_local.group.render.gid }}"
-
-dockergid: "{{ ansible_local.group.docker.gid }}"
+uid: "{{ ansible_local.saltbox.users[user.name].uid }}"
+gid: "{{ ansible_local.saltbox.users[user.name].gid }}"
+vgid: "{{ ansible_local.saltbox.groups.video.gid }}"
+rgid: "{{ ansible_local.saltbox.groups.render.gid }}"
+dockergid: "{{ ansible_local.saltbox.groups.docker.gid }}"
 
 ################################
 # Timezone
@@ -135,8 +131,8 @@ dockergid: "{{ ansible_local.group.docker.gid }}"
 
 tz: "{{ system.timezone
      if system is defined and system.timezone is defined and 'auto' not in system.timezone | lower
-     else ansible_local.timezone.timezone
-          if ansible_local is defined and ansible_local.timezone is defined and ansible_local.timezone.timezone is defined and ansible_local.timezone.timezone | trim | length > 0
+     else ansible_local.saltbox.timezone.timezone
+          if ansible_local is defined and ansible_local.saltbox.timezone is defined and ansible_local.saltbox.timezone.timezone is defined and ansible_local.saltbox.timezone.timezone | trim | length > 0
           else 'Etc/UTC' }}"
 
 ################################
@@ -144,20 +140,13 @@ tz: "{{ system.timezone
 ################################
 
 ip_address_host: "0.0.0.0"
-
 ip_address_localhost: "127.0.0.1"
-
-ip_address_public: "{{ ansible_local.network.ip.public_ip }}"
-
-ip_address_public_is_valid: "{{ false if ansible_local.network.ip.failed_ipv4 else true }}"
-
-ip_address_public_error: "{{ ansible_local.network.ip.error_ipv4 }}"
-
-ipv6_address_public: "{{ ansible_local.network.ip.public_ipv6 }}"
-
-ipv6_address_public_is_valid: "{{ false if ansible_local.network.ip.failed_ipv6 else true }}"
-
-ipv6_address_public_error: "{{ ansible_local.network.ip.error_ipv6 }}"
+ip_address_public: "{{ ansible_local.saltbox.ip.public_ip }}"
+ip_address_public_is_valid: "{{ false if ansible_local.saltbox.ip.failed_ipv4 else true }}"
+ip_address_public_error: "{{ ansible_local.saltbox.ip.error_ipv4 }}"
+ipv6_address_public: "{{ ansible_local.saltbox.ip.public_ipv6 }}"
+ipv6_address_public_is_valid: "{{ false if ansible_local.saltbox.ip.failed_ipv6 else true }}"
+ipv6_address_public_error: "{{ ansible_local.saltbox.ip.error_ipv6 }}"
 
 ################################
 # Theme
