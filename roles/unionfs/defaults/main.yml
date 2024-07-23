@@ -38,11 +38,6 @@ mergerfs_release_lookup_command: |
     | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution | lower }}-{{ mergerfs_release_distribution }}_amd64\")) \
     | .browser_download_url"
 
-mergerfs_release_lookup_command_noble: |
-  curl -s {{ mergerfs_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution | lower }}-jammy_amd64\")) \
-    | .browser_download_url"
-
 mergerfs_download_backup_version: 2.40.2
 
 mergerfs_download_backup_url: "

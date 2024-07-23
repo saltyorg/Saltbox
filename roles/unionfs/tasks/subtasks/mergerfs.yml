@@ -19,7 +19,7 @@
   when: saltbox_managed_mergerfs_status.stat.exists
 
 - name: "MergerFS | Get URL for latest mergerfs release"
-  ansible.builtin.shell: "{{ mergerfs_release_lookup_command if ansible_distribution_version is version('22.04', '<=') else mergerfs_release_lookup_command_noble }}"
+  ansible.builtin.shell: "{{ mergerfs_release_lookup_command }}"
   args:
     executable: /bin/bash
   register: mergerfs_download_url
