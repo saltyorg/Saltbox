@@ -99,6 +99,11 @@ jobs:
       - name: Symlink cloned repository to /srv/git/saltbox
         run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
 
+      - name: Install saltbox.fact
+        run: |
+          curl -fsSL https://github.com/saltyorg/ansible-facts/releases/latest/download/saltbox-facts -o /srv/git/saltbox/ansible_facts.d/saltbox.fact
+          chmod +x /srv/git/saltbox/ansible_facts.d/saltbox.fact
+
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
 
