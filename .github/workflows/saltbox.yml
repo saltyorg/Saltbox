@@ -101,8 +101,9 @@ jobs:
 
       - name: Install saltbox.fact
         run: |
+          mkdir -p $GITHUB_WORKSPACE/ansible_facts.d
           curl -fsSL https://github.com/saltyorg/ansible-facts/releases/latest/download/saltbox-facts -o /srv/git/saltbox/ansible_facts.d/saltbox.fact
-          chmod +x /srv/git/saltbox/ansible_facts.d/saltbox.fact
+          chmod +x $GITHUB_WORKSPACE/ansible_facts.d/saltbox.fact
 
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
