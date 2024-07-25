@@ -43,15 +43,9 @@ cloudflare_is_enabled: "{{ (cloudflare is defined) and
 
 cloudflare_records_enabled: "{{ cloudflare_is_enabled }}"
 
-plex_account_is_enabled: "{{ (plex is defined) and
-                             (plex is not none) and
-                             (plex | trim | length > 0) and
-                             (plex.user is defined) and
-                             (plex.user is not none) and
-                             (plex.user | trim | length > 0) and
-                             (plex.pass is defined) and
-                             (plex.pass is not none) and
-                             (plex.pass | trim | length > 0) }}"
+plex_account_lookup: "{{ '/opt/saltbox/plex.ini' | check_plex_ini(plex_instances[0]) }}"
+
+plex_account_is_enabled: "{{ plex_account_lookup.exists and plex_account_lookup.identifier | length > 0 and plex_account_lookup.token | length > 0 }}"
 
 ################################
 # Role Conditionals

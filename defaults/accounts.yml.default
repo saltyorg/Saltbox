@@ -6,9 +6,6 @@ cloudflare:
 dockerhub:
   token:
   user:
-plex:
-  pass:
-  user:
 user:
   domain: testsaltbox.ml
   email: your@email.com

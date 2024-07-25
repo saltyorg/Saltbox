@@ -10,44 +10,27 @@
 - name: Claim Server | Import plex_auth_token
   ansible.builtin.include_role:
     name: plex_auth_token
-  when: plex_account_is_enabled
 
-- name: Claim Server | Get {{ plex_name | title }} claim code via API
-  when: plex_account_is_enabled
-  block:
-    - name: "Claim Server | Get {{ plex_name | title }} claim code"
-      ansible.builtin.uri:
-        url: https://plex.tv/api/claim/token.json
-        method: GET
-        return_content: yes
-        body:
-          X-Plex-Version: "{{ plex_auth_token_version }}"
-          X-Plex-Product: "{{ plex_auth_token_product }}"
-          X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
-          X-Plex-Token: "{{ plex_auth_token }}"
-        body_format: form-urlencoded
-        headers:
-          Accept: "application/json"
-        status_code: 200
-      environment: "{{ plex_proxy_dict }}"
-      register: plex_claim
+- name: "Claim Server | Get {{ plex_name | title }} claim code"
+  ansible.builtin.uri:
+    url: https://plex.tv/api/claim/token.json
+    method: GET
+    return_content: yes
+    body:
+      X-Plex-Version: "{{ plex_auth_token_version }}"
+      X-Plex-Product: "{{ plex_auth_token_product }}"
+      X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
+      X-Plex-Token: "{{ plex_auth_token }}"
+    body_format: form-urlencoded
+    headers:
+      Accept: "application/json"
+    status_code: 200
+  environment: "{{ plex_proxy_dict }}"
+  register: plex_claim
 
-    - name: "Claim Server | Set 'plex_claim_code' variable"
-      ansible.builtin.set_fact:
-        plex_claim_code: "{{ plex_claim.json.token }}"
-
-- name: Claim Server | Get {{ plex_name | title }} claim code via prompts
-  when: (not plex_account_is_enabled)
-  block:
-    - name: "Claim Server | Ask user for {{ plex_name | title }} claim code"
-      ansible.builtin.pause:
-        prompt: "Please visit 'https://plex.tv/claim', login with your Plex account,
-          copy the 'Claim Code', paste it below, and press ENTER."
-      register: plex_claim_code_prompt
-
-    - name: "Claim Server | Set 'plex_claim_code' variable"
-      ansible.builtin.set_fact:
-        plex_claim_code: "{{ plex_claim_code_prompt.user_input }}"
+- name: "Claim Server | Set 'plex_claim_code' variable"
+  ansible.builtin.set_fact:
+    plex_claim_code: "{{ plex_claim.json.token }}"
 
 - name: Claim Server | Assert {{ plex_name | title }} claim code exists
   ansible.builtin.assert:
@@ -59,4 +42,4 @@
 
 - name: "Claim Server | Display {{ plex_name | title }} claim code"
   ansible.builtin.debug:
-    msg: "Using Plex Claim Code{{ ':' }} {{ plex_claim_code }}"
+    msg: "Using Plex Claim Code {{ plex_claim_code }}"

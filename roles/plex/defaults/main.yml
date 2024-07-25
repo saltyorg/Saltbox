@@ -17,8 +17,6 @@ plex_instances: ["plex"]
 # Settings
 ################################
 
-plex_username: "{{ plex.user }}"
-plex_password: "{{ plex.pass }}"
 plex_open_main_ports: false
 plex_open_local_ports: false
 plex_plugin_webtools: false
