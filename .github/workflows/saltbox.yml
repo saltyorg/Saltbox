@@ -156,11 +156,11 @@ jobs:
           description: "Run attempt: ${{ github.run_attempt }}"
 
   retry-on-failure:
-    if: failure() && github.actor != 'dependabot[bot]' && fromJSON(github.run_attempt) < 3
+    if: failure() && fromJSON(github.run_attempt) < 3
     needs: [install, webhook]
     runs-on: ubuntu-latest
     steps:
       - env:
           GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh workflow run retry.yml -F run_id=${{ github.run_id }}
