@@ -71,18 +71,6 @@ mergerfs_mount_start_command: |-
     -o dropcacheonclose=true,minfreespace=0,fsname=mergerfs \
     -o xattr={{ mergerfs_mount_xattr }},statfs=base,statfs_ignore=nc,umask={{ mergerfs_mount_umask }},noatime \
     -o func.readdir={{ mergerfs_mount_readdir_policy }} \
-  {% set branches = mergerfs_mount_branches.split(':') %}
-  {%- for branch in branches %}
-  {% if loop.index0 is divisibleby 10 and not loop.first %}
-  \
-  {% endif %}
-  {% if loop.first %}
-  {% filter indent(2, first=True) -%}
-  {%- if loop.first -%}"{%- endif -%}{{ branch }}{%- if not loop.last -%}:{%- endif %}
-  {%- endfilter %}
-  {% else %}
-  {{ branch}}{%- if not loop.last -%}:{%- endif %}
-  {% endif %}
-  {%- endfor %}" /mnt/unionfs
+    "{{ mergerfs_mount_branches }}" /mnt/unionfs
 
 mergerfs_mount_stop_command: /bin/fusermount3 -uz /mnt/unionfs

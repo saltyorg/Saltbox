@@ -15,7 +15,7 @@ After={{ mergerfs_mount_service_after }}
 [Service]
 Type=forking
 GuessMainPID=no
-ExecStart={{ mergerfs_mount_start_command }}
+ExecStart=/srv/scripts/mergerfs.sh
 ExecStop={{ mergerfs_mount_stop_command }}
 
 [Install]

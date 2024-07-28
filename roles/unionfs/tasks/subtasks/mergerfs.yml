@@ -48,6 +48,21 @@
     mode: "0644"
     force: "{{ mergerfs_override_service }}"
 
+- name: "MergerFS | Create '/srv/scripts' directory"
+  ansible.builtin.file:
+    path: "/srv/scripts"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+
+- name: "MergerFS | Import 'mergerfs.sh'"
+  ansible.builtin.template:
+    src: mergerfs.sh.j2
+    dest: /srv/scripts/mergerfs.sh
+    mode: "0755"
+    force: "{{ mergerfs_override_service }}"
+
 - name: "MergerFS | Systemd reload daemon"
   ansible.builtin.systemd_service:
     daemon_reload: true
