@@ -15,7 +15,7 @@ user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
 rclone_vfs_cache_dir: ""
-rclone_vfs_cache_dir_lookup: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_vfs_cache_dir', default=rclone_vfs_cache_dir) }}"
+rclone_vfs_cache_dir_lookup: "{{ lookup('vars', 'rclone_remote_' + rclone_remote_name + '_vfs_cache_dir', default=rclone_vfs_cache_dir) }}"
 rclone_vfs_cache_min_free_space: "off"
 rclone_vfs_cache_poll_interval: "1m0s"
 rclone_cloud_dir_cache_time: "8760h"
@@ -29,7 +29,7 @@ rclone_service_template: "saltbox_managed_rclone_"
 rclone_port_lookup: "{{ port_lookup_rclone.meta.port
                      if (port_lookup_rclone.meta.port is defined) and (port_lookup_rclone.meta.port | trim | length > 0)
                      else '5572' }}"
-rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + item.remote + '_port', default=rclone_port_lookup) }}"
+rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + rclone_remote_name + '_port', default=rclone_port_lookup) }}"
 
 rclone_remort_port_low_bound: 5572
 rclone_remort_port_high_bound: 6072
