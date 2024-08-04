@@ -53,7 +53,7 @@ http:
         themepark:
           app: "{{ qbittorrent_themepark_app }}"
           theme: "{{ lookup("vars", qbittorrent_name + "_themepark_theme", default=qbittorrent_themepark_theme) }}"
-{% if lookup("vars", qbittorrent_name + "_themepark_addons", default=_themepark_addons) | length > 0 %}
-          addons: "{{ lookup("vars", qbittorrent_name + "_themepark_addons", default=_themepark_addons) }}"
+{% if lookup("vars", qbittorrent_name + "_themepark_addons", default=qbittorrent_themepark_addons) | length > 0 %}
+          addons: "{{ lookup("vars", qbittorrent_name + "_themepark_addons", default=qbittorrent_themepark_addons) }}"
 {% endif %}
 {% endif %}
