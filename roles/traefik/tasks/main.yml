@@ -90,7 +90,7 @@
 - name: "Import Authentik Role"
   ansible.builtin.include_role:
     name: authentik
-  when: traefik_authentik_enabled and authelia_is_master
+  when: traefik_authentik_enabled and authentik_is_master
 
 - name: "Import Error Pages Role"
   ansible.builtin.include_role:

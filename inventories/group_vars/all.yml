@@ -157,6 +157,13 @@ global_themepark_plugin_enabled: false
 
 authelia_is_master: "{{ authelia.master | bool }}"
 
+
+################################
+# Authentik
+################################
+
+authentik_is_master: "{{ authelia.master | bool }}"
+
 ################################
 # ZeroSSL
 ################################
