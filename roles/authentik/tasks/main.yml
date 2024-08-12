@@ -70,6 +70,8 @@
     instance: "authentik"
     keys:
       secret_key: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50) }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
   register: authentik_saltbox_facts
 
 - name: Create Docker container

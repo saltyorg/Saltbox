@@ -102,6 +102,8 @@
     instance: "authentik"
     keys:
       api_token: "{{ authentik_admin_token }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
 
 - name: Retrieve flow instances
   ansible.builtin.uri:
