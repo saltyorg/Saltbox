@@ -13,12 +13,15 @@
 
 dozzle_docker_socket_proxy_envs:
   CONTAINERS: "1"
+  INFO: "1"
 
 ################################
 # Settings
 ################################
 
 dozzle_additional_hosts: ""
+dozzle_agent_hosts: ""
+dozzle_agent_mode: false
 
 ################################
 # Basics
@@ -101,6 +104,7 @@ dozzle_docker_ports: "{{ dozzle_docker_ports_defaults
 # Envs
 dozzle_docker_envs_default:
   DOZZLE_AUTH_PROVIDER: "{{ 'forward-proxy' if (dozzle_traefik_sso_middleware | length > 0) else omit }}"
+  DOZZLE_REMOTE_AGENT: "{{ dozzle_agent_hosts if (dozzle_additional_hosts | length > 0) else omit}}"
   DOZZLE_REMOTE_HOST: "{{ 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host + ',' + dozzle_additional_hosts
                        if (dozzle_additional_hosts | length > 0)
                        else 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host }}"
@@ -109,9 +113,14 @@ dozzle_docker_envs: "{{ dozzle_docker_envs_default
                         | combine(dozzle_docker_envs_custom) }}"
 
 # Commands
+dozzle_docker_commands_agent: "agent"
 dozzle_docker_commands_default: []
 dozzle_docker_commands_custom: []
-dozzle_docker_commands: "{{ dozzle_docker_commands_default
+dozzle_docker_commands: "{{ dozzle_docker_commands_agent
+                            + dozzle_docker_commands_default
+                            + dozzle_docker_commands_custom
+                            if (dozzle_agent_mode)
+                            else dozzle_docker_commands_default
                             + dozzle_docker_commands_custom }}"
 
 # Volumes
