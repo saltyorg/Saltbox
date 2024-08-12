@@ -3,11 +3,13 @@
 from ansible.module_utils.basic import AnsibleModule
 import configparser
 import os
+import pwd
+import grp
 
 def get_file_path(role):
     return f"/opt/saltbox/{role}.ini"
 
-def load_and_save_facts(file_path, instance, keys):
+def load_and_save_facts(file_path, instance, keys, owner, group, mode):
     config = configparser.ConfigParser()
     config.read(file_path)
 
@@ -28,6 +30,9 @@ def load_and_save_facts(file_path, instance, keys):
     if changed:
         with open(file_path, 'w') as configfile:
             config.write(configfile)
+        
+        os.chmod(file_path, mode)
+        os.chown(file_path, pwd.getpwnam(owner).pw_uid, grp.getgrnam(group).gr_gid)
 
     return facts, changed
 
@@ -54,13 +59,28 @@ def delete_facts(file_path, delete_type, instance, keys):
 
     return changed
 
+def parse_mode(mode):
+    if not isinstance(mode, str):
+        raise ValueError("Mode must be a quoted string to comply with YAML best practices.")
+    mode = mode.strip()
+    if mode.startswith('0'):
+        try:
+            return int(mode, 8)
+        except ValueError:
+            raise ValueError(f"Invalid octal mode: {mode}")
+    else:
+        raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0644').")
+
 def run_module():
     module_args = dict(
         role=dict(type='str', required=True),
         instance=dict(type='str', required=True),
         method=dict(type='str', choices=['load', 'save', 'delete'], required=False, default='save'),
         keys=dict(type='dict', required=False, default={}),
-        delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False)
+        delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False),
+        owner=dict(type='str', required=False),
+        group=dict(type='str', required=False),
+        mode=dict(type='str', required=False, default='0644')
     )
 
     result = dict(
@@ -79,6 +99,13 @@ def run_module():
     method = module.params['method']
     keys = module.params['keys']
     delete_type = module.params.get('delete_type')
+    owner = module.params.get('owner') or module.params['ansible_user_id']
+    group = module.params.get('group') or module.params['ansible_user_id']
+
+    try:
+        mode = parse_mode(module.params['mode'])
+    except ValueError as e:
+        module.fail_json(msg=str(e))
 
     file_path = get_file_path(role)
 
@@ -86,8 +113,8 @@ def run_module():
         if not delete_type:
             module.fail_json(msg="delete_type is required for delete method.")
         result['changed'] = delete_facts(file_path, delete_type, instance, keys)
-    else:  # Default to combined load/save functionality
-        result['facts'], result['changed'] = load_and_save_facts(file_path, instance, keys)
+    else:
+        result['facts'], result['changed'] = load_and_save_facts(file_path, instance, keys, owner, group, mode)
 
     module.exit_json(**result)
 
