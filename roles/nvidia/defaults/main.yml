@@ -51,6 +51,7 @@ nvidia_docker_runtime_apt_key_url: https://nvidia.github.io/libnvidia-container/
 
 nvidia_docker_runtime_apt_repo_list_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
 
+nvidia_docker_apt_repo_url: "deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg] https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /"
 
 nvidia_docker_runtime_apt_repo_file_old: nvidia-container-runtime
 
