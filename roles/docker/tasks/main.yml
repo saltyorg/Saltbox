@@ -113,6 +113,10 @@
   ansible.builtin.include_tasks: "subtasks/btrfs/pseudo_file_system.yml"
   when: ('btrfs' in var_lib_file_system.stdout)
 
+- name: "Import Nvidia tasks"
+  ansible.builtin.import_tasks: "subtasks/nvidia.yml"
+  when: use_nvidia
+
 - name: Start docker socket
   ansible.builtin.systemd_service:
     name: docker.socket
