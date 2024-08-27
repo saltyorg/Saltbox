@@ -14,8 +14,8 @@
 # Set to true to enable Nvidia
 nvidia_enabled: false
 
-# Latest fetches the latest supported driver version supported by the keylase patch
-# If set to "ignore" then driver installation witl be ignored and only patching will run.
+# Fetches the latest supported driver version supported by the keylase patch when set to "latest"
+# If set to "ignore" then driver installation will be ignored and only patching will run.
 # Otherwise specify a valid driver like this (it being a quoted string is important):
 # nvidia_driver_version: "555.58.02"
 nvidia_driver_version: "latest"
