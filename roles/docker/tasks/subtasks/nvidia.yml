@@ -13,11 +13,7 @@
     state: absent
 
 - name: Nvidia | Add 'nvidia-container-toolkit' APT Repo Key
-  ansible.builtin.get_url:
-    url: "{{ nvidia_docker_runtime_apt_key_url }}"
-    dest: /etc/apt/keyrings/nvidia.asc
-    mode: "0644"
-    force: true
+  ansible.builtin.shell: "curl -fsSL {{ nvidia_docker_runtime_apt_key_url }} | sudo gpg --dearmor -o /etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg"
   register: result
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
@@ -30,7 +26,7 @@
     state: present
     mode: "0644"
     update_cache: true
-  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | regex_replace('^deb https', 'deb [signed-by=/etc/apt/keyrings/nvidia.asc] https') }}"
+  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | regex_replace('^deb https', 'deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg] https') }}"
   when: not item.startswith('#')
 
 - name: Nvidia | Remove 'nvidia-container-runtime'
