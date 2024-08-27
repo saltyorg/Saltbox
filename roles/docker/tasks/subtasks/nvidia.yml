@@ -21,13 +21,11 @@
 
 - name: Nvidia | Add 'nvidia-container-toolkit' APT list
   ansible.builtin.apt_repository:
-    repo: "{{ item }}"
+    repo: "{{ nvidia_docker_apt_repo_url }}"
     filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
     state: present
     mode: "0644"
     update_cache: true
-  loop: "{{ lookup('ansible.builtin.url', nvidia_docker_runtime_apt_repo_list_url, wantlist=True) | regex_replace('^deb https', 'deb [signed-by=/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg] https') }}"
-  when: not item.startswith('#')
 
 - name: Nvidia | Remove 'nvidia-container-runtime'
   ansible.builtin.apt:
