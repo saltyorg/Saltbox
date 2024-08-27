@@ -1,0 +1,36 @@
+#########################################################################
+# Title:         Saltbox: Nvidia | Kernel Tasks                         #
+# Author(s):     desimaniac, l3uddz                                     #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Kernel | Copy 'blacklist-nouveau.conf' # noqa template-instead-of-copy
+  ansible.builtin.copy:
+    content: "{{ nvidia_kernel_blacklist_nouveau_conf_content }}"
+    dest: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
+    owner: "root"
+    group: "root"
+    mode: "0664"
+  register: r
+
+- name: Kernel | Continue with tasks
+  when: r.changed
+  block:
+    - name: Kernel | Update initramfs
+      ansible.builtin.command: "update-initramfs -u"
+
+    - name: Kernel | Success message
+      ansible.builtin.debug:
+        msg:
+          - "Disabled nouveau driver. System will now reboot."
+          - "You will need to re-run your previous tag after the system has rebooted."
+
+    - name: Kernel | Prompt user before continuing
+      ansible.builtin.pause:
+        prompt: "Read the instructions above and press enter when you have done so."
+
+    - name: Kernel | Reboot command
+      ansible.builtin.shell: reboot

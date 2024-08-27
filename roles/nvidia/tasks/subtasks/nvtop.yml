@@ -1,0 +1,44 @@
+#########################################################################
+# Title:         Saltbox: Nvidia | nvtop Tasks                          #
+# Author(s):     desimaniac, l3uddz, salty                              #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: nvtop | Install gnupg Dependencies
+  ansible.builtin.apt:
+    name: dirmngr
+    state: latest
+
+- name: nvtop | Add gpg signing key to trusted.gpg.d
+  ansible.builtin.get_url:
+    url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x824A27DD09DEDA33BF7835962EA8F35793D8809A"
+    dest: "/etc/apt/keyrings/flexiondotorg.asc"
+    mode: "0644"
+  register: result
+  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  delay: 10
+  until: result is succeeded
+
+- name: nvtop | Add flexiondotorg/nvtop repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/flexiondotorg.asc] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    filename: "flexiondotorg"
+    state: present
+    update_cache: true
+
+- name: nvtop | Install nvtop
+  ansible.builtin.apt:
+    name: nvtop
+    state: latest
+
+- name: nvtop | Get nvtop binary version
+  ansible.builtin.shell: "{{ nvidia_nvtop_binary_version_lookup_command }}"
+  register: nvtop_binary_version
+  ignore_errors: true
+
+- name: nvtop | Display nvtop binary version
+  ansible.builtin.debug:
+    msg: "nvtop {{ nvtop_binary_version.stdout }} installed."

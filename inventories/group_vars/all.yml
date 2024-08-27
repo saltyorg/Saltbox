@@ -85,6 +85,8 @@ use_remote: "{{ (rclone.enabled | bool) and not continuous_integration }}"
 
 use_motd: "{{ motd_install | bool }}"
 
+use_nvidia: "{{ nvidia_enabled | bool }}"
+
 ################################
 # System
 ################################
@@ -156,7 +158,6 @@ global_themepark_plugin_enabled: false
 ################################
 
 authelia_is_master: "{{ authelia.master | bool }}"
-
 
 ################################
 # Authentik
