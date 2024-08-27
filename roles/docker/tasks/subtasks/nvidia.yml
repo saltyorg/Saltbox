@@ -12,6 +12,11 @@
     path: "{{ nvidia_docker_runtime_apt_repo_file_old }}"
     state: absent
 
+- name: Nvidia | Remove '/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg'
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg"
+    state: absent
+
 - name: Nvidia | Add 'nvidia-container-toolkit' APT Repo Key
   ansible.builtin.shell: "curl -fsSL {{ nvidia_docker_runtime_apt_key_url }} | sudo gpg --dearmor -o /etc/apt/keyrings/nvidia-container-toolkit-keyring.gpg"
   register: result
