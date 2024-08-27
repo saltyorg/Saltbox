@@ -9,21 +9,27 @@
 ---
 - name: "Daemon | Create docker directory"
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "/etc/docker"
     state: directory
     mode: "0775"
     owner: root
     group: root
-  with_items:
-    - /etc/docker
 
 - name: "Daemon | Define the 'docker_config' variable"
   ansible.builtin.set_fact:
     docker_config:
-      dns: "{{ docker_dns if docker_dns | length > 0 else omit }}"
-      fixed-cidr-v6: "{{ '2001:db8::/64' if docker_ipv6 else omit }}"
-      ip6tables: "{{ true if docker_ipv6 else false }}"
-      ipv6: "{{ true if docker_ipv6 else false }}"
+      dns: "{{ docker_dns
+            if docker_dns | length > 0
+            else omit }}"
+      fixed-cidr-v6: "{{ '2001:db8::/64'
+                      if docker_ipv6
+                      else omit }}"
+      ip6tables: "{{ true
+                  if docker_ipv6
+                  else false }}"
+      ipv6: "{{ true
+             if docker_ipv6
+             else false }}"
       log-driver: "json-file"
       log-opts:
         max-size: "10m"
@@ -33,7 +39,10 @@
 
 - name: "Daemon | Combine 'docker_config' and 'docker_config_custom' and convert to JSON"
   ansible.builtin.set_fact:
-    docker_config_json: "{{ docker_config | combine(docker_config_custom) | to_json(indent=2, sort_keys=True) }}"
+    docker_config_json: "{{ (nvidia_docker_config if use_nvidia else {})
+                            | combine(docker_config)
+                            | combine(docker_config_custom)
+                            | to_json(indent=2, sort_keys=True) }}"
 
 - name: "Daemon | Import 'daemon.json'"
   ansible.builtin.copy:

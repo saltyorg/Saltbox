@@ -10,6 +10,7 @@ on:
       - 'roles/backup2/**'
       - 'roles/restore/**'
       - 'roles/settings/**'
+      - 'roles/nvidia/**'
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
@@ -26,6 +27,7 @@ on:
       - 'roles/backup2/**'
       - 'roles/restore/**'
       - 'roles/settings/**'
+      - 'roles/nvidia/**'
       - 'roles/plex_extra_tasks/**'
       - 'roles/plex_auth_token/**'
       - 'roles/plex_db/**'
@@ -66,7 +68,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
-        run: echo "matrix={\"roles\":[$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\).,//g")]}" >> $GITHUB_OUTPUT
+        run: echo "matrix={\"roles\":[$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\).,//g")]}" >> $GITHUB_OUTPUT
 
   install:
     name: '${{ matrix.roles }}'

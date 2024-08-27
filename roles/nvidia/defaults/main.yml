@@ -1,0 +1,96 @@
+#########################################################################
+# Title:         Saltbox: Nvidia | Default Variables                    #
+# Author(s):     desimaniac, salty                                      #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Toggles
+################################
+
+# Set to true to enable Nvidia
+nvidia_enabled: false
+
+# Latest fetches the latest supported driver version supported by the keylase patch
+# If set to "ignore" then driver installation witl be ignored and only patching will run.
+# Otherwise specify a valid driver like this (it being a quoted string is important):
+# nvidia_driver_version: "555.58.02"
+nvidia_driver_version: "latest"
+
+################################
+# Driver
+################################
+
+nvidia_driver_download_url: "https://download.nvidia.com/XFree86/Linux-x86_64/{{ nvidia_driver_version }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_version }}.run"
+
+nvidia_driver_download_dest: "/tmp/NVIDIA-driver.run"
+
+nvidia_driver_uninstall_command: "{{ nvidia_driver_download_dest }} --uninstall --silent"
+
+nvidia_driver_install_command: "{{ nvidia_driver_download_dest }} --dkms --silent"
+
+################################
+# Patch
+################################
+
+nvidia_patch_download_url: "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
+
+nvidia_patch_download_dest: "/tmp/NVIDIA-patch.sh"
+
+# Harcoded in the patch script file
+nvidia_patch_backup_file_location: "/opt/nvidia/libnvidia-encode-backup"
+
+################################
+# Docker
+################################
+
+nvidia_docker_runtime_apt_key_url: https://nvidia.github.io/libnvidia-container/gpgkey
+
+nvidia_docker_runtime_apt_repo_list_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
+
+
+nvidia_docker_runtime_apt_repo_file_old: nvidia-container-runtime
+
+nvidia_docker_runtime_apt_repo_file: nvidia-container-toolkit
+
+################################
+# Kernel
+################################
+
+nvidia_kernel_blacklist_nouveau: true
+
+nvidia_kernel_blacklist_nouveau_conf_location: "/etc/modprobe.d/blacklist-nouveau.conf"
+
+nvidia_kernel_blacklist_nouveau_conf_content: |
+  # Saltbox - Nvidia Role
+  blacklist nouveau
+  options nouveau modeset=0
+
+################################
+# nvtop
+################################
+
+nvidia_nvtop_binary_path: /usr/bin/nvtop
+
+nvidia_nvtop_binary_version_lookup_command: |
+  {{ nvidia_nvtop_binary_path }} --version \
+      | head -n 1 | awk '{print $3}' | cut -f1,2 -d'-'
+
+################################
+# Docker
+################################
+
+nvidia_docker_env:
+  NVIDIA_DRIVER_CAPABILITIES: "compute,video,utility"
+  NVIDIA_VISIBLE_DEVICES: "all"
+
+nvidia_docker_config:
+  default-runtime: "nvidia"
+  exec-opts: ["native.cgroupdriver=cgroupfs"]
+  runtimes:
+    nvidia:
+      path: "/usr/bin/nvidia-container-runtime"
+      runtimeArgs: []
