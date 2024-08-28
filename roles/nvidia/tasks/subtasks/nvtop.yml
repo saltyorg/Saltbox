@@ -12,7 +12,7 @@
     name: dirmngr
     state: latest
 
-- name: nvtop | Add gpg signing key to trusted.gpg.d
+- name: nvtop | Add signing key to /etc/apt/keyrings
   ansible.builtin.get_url:
     url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x824A27DD09DEDA33BF7835962EA8F35793D8809A"
     dest: "/etc/apt/keyrings/flexiondotorg.asc"
@@ -21,6 +21,7 @@
   retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
+  when: ansible_distribution_release in ['jammy', 'focal']
 
 - name: Nvidia | Remove old repository list
   ansible.builtin.file:
