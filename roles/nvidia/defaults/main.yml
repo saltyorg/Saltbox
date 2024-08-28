@@ -80,6 +80,8 @@ nvidia_nvtop_binary_version_lookup_command: |
   {{ nvidia_nvtop_binary_path }} --version \
       | head -n 1 | awk '{print $3}' | cut -f1,2 -d'-'
 
+nvidia_nvtop_apt_repo_file: "/etc/apt/sources.list.d/flexiondotorg.list"
+
 ################################
 # Docker
 ################################

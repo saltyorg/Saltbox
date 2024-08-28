@@ -22,12 +22,18 @@
   delay: 10
   until: result is succeeded
 
+- name: Nvidia | Remove old repository list
+  ansible.builtin.file:
+    path: "{{ nvidia_nvtop_apt_repo_file }}"
+    state: absent
+
 - name: nvtop | Add flexiondotorg/nvtop repository
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/flexiondotorg.asc] http://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/flexiondotorg.asc] https://ppa.launchpad.net/flexiondotorg/nvtop/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main"
     filename: "flexiondotorg"
     state: present
     update_cache: true
+  when: ansible_distribution_release in ['jammy', 'focal']
 
 - name: nvtop | Install nvtop
   ansible.builtin.apt:
