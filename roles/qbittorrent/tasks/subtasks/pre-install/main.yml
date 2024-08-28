@@ -12,13 +12,21 @@
     path: "/opt/traefik/{{ qbittorrent_name }}.yml"
     state: absent
 
+- name: Pre-Install | Initialize or update port range low bound
+  ansible.builtin.set_fact:
+    port_range_low_bound: "{{ port_range_low_bound | default(56881) }}"
+
 - name: Pre-Install | Get next available port within the range of '56881-56901' # noqa fqcn[action]
   find_open_port:
-    low_bound: 56881
+    low_bound: "{{ port_range_low_bound }}"
     high_bound: 56901
     protocol: both
   register: port_lookup_56881
   ignore_errors: true
+
+- name: Pre-Install | Update port range low bound for next iteration
+  ansible.builtin.set_fact:
+    port_range_low_bound: "{{ (lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) | int) + 1 }}"
 
 - name: Pre-Install | Get next available port within the range of '8080-8090' # noqa fqcn[action]
   find_open_port:
