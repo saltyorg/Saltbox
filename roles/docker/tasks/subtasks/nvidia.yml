@@ -9,11 +9,11 @@
 ---
 - name: Nvidia | Remove old repository list
   ansible.builtin.file:
-    path: "{{ nvidia_docker_runtime_apt_repo_file_old }}"
+    path: "{{ item }}"
     state: absent
   loop:
     - "/etc/apt/sources.list.d/nvidia-container-toolkit.list"
-    - "{{ nvidia_docker_runtime_apt_repo_file_old }}"
+    - "/etc/apt/sources.list.d/nvidia-container-runtime.list"
 
 - name: Nvidia | Add 'nvidia-container-toolkit' APT Repo Key
   ansible.builtin.get_url:
