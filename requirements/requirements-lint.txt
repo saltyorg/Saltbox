@@ -1,3 +1,3 @@
-ansible==10.2.0
+ansible==10.3.0
 ansible-lint==24.7.0
 jmespath==1.0.1
