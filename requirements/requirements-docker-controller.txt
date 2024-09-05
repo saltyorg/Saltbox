@@ -1,4 +1,4 @@
 docker==7.1.0
-uvicorn==0.30.5
+uvicorn==0.30.6
 fastapi==0.112.2
 requests==2.32.3
