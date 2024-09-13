@@ -18,7 +18,7 @@ error_pages_name: error_pages
 ################################
 
 # Template options listed here https://github.com/tarampampam/error-pages
-error_pages_template: "l7-dark"
+error_pages_template: "l7"
 
 ################################
 # Docker
