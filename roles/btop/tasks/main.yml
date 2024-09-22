@@ -41,8 +41,13 @@
   args:
     chdir: "/tmp/btop"
 
+- name: "btop | Ensure executable bit on install.sh"
+  ansible.builtin.file:
+    path: "/tmp/btop/btop/install.sh"
+    mode: "0755"
+
 - name: "btop | Install btop"
-  ansible.builtin.shell: "/tmp/btop/btop/install.sh"
+  ansible.builtin.shell: "bash /tmp/btop/btop/install.sh"
   args:
     chdir: "/tmp/btop/btop"
   become: yes
