@@ -30,7 +30,7 @@
     - { role: mount_templates, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts', 'mount-templates'] }
     - { role: remote, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
     - { role: unionfs, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'mounts'] }
-    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker', 'nvidia'], when: ['use_nvidia'] }
+    - { role: nvidia, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker', 'nvidia', 'nvidia-purge'], when: ['use_nvidia'] }
     - { role: docker, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'docker', 'docker-filesystem-resize'] }
     - { role: scripts, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: sandbox, tags: ['core', 'saltbox', 'mediabox', 'feederbox', 'sandbox'] }

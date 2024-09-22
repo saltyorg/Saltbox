@@ -37,8 +37,13 @@
       fi
   register: lspci_resp
 
+- name: Fail if no GPU was detected
+  ansible.builtin.fail:
+    msg: "No Nvidia GPU could be detected."
+  when: not ('NVIDIA' in lspci_resp.stdout)
+
 - name: Nvidia Setup block
-  when: (ansible_distribution == 'Ubuntu') and ('NVIDIA' in lspci_resp.stdout)
+  when: ('NVIDIA' in lspci_resp.stdout)
   block:
     - name: Fetch NVIDIA driver patch script
       ansible.builtin.uri:
@@ -85,7 +90,7 @@
                                      else 'not installed' }}"
 
     - name: Nvidia Purge Drivers Tasks
-      when: (nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags) and (nvidia_driver_version | lower != 'ignore')
+      when: ('nvidia-purge' in ansible_run_tags) or ((nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags) and (nvidia_driver_version | lower != 'ignore'))
       block:
         - name: Purge Nvidia APT packages
           ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
