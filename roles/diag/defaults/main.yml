@@ -27,7 +27,7 @@ diagnose_vars:
   - "traefik_challenge_provider: {{ traefik_challenge_provider }}"
   - "traefik_default_certprovider: {{ traefik_default_certprovider }}"
   - "traefik_default_certresolver: {{ traefik_default_certresolver }}"
-  - "docker_legacy_volume: {{ docker_legacy_volume }}"
+  - "docker_legacy_volume: {{ docker_legacy_volume | lower }}"
   - "skip_dns: {{ skip_dns | lower }}"
   - "filesystems: {{ host_mounts }}"
   - "skipped tags: {{ ansible_skip_tags | join(', ') if (ansible_skip_tags | length > 0) else 'No skipped tags' }}"
