@@ -30,12 +30,13 @@
 
 - name: Fetch Nvidia card info
   ansible.builtin.shell: |
-      if [ `lspci | grep -c -E '.*VGA.*NVIDIA'` -eq 1 ]; then
-        lspci -s $(lspci | grep -E '.*VGA.*NVIDIA' | cut -d' ' -f 1)
-      else
-        echo ""
-      fi
+    if [ `lspci | grep -c -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA'` -eq 1 ]; then
+      lspci -s $(lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1)
+    else
+      echo ""
+    fi
   register: lspci_resp
+  changed_when: false
 
 - name: Fail if no GPU was detected
   ansible.builtin.fail:
