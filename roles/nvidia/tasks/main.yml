@@ -76,6 +76,14 @@
                                           if nvidia_smi_output.rc == 0
                                           else '' }}"
 
+    - name: Print driver state
+      ansible.builtin.debug:
+        msg:
+          - "Desired driver version: {{ nvidia_driver_version }}"
+          - "Current driver version: {{ nvidia_installed_driver_version
+                                     if (nvidia_installed_driver_version | length > 0)
+                                     else 'not installed' }}"
+
     - name: Nvidia Purge Drivers Tasks
       when: (nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags) and (nvidia_driver_version | lower != 'ignore')
       block:
