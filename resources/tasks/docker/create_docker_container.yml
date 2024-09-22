@@ -78,7 +78,7 @@
     name: "{{ lookup('vars', _var_prefix + '_docker_container', default=_var_prefix) }}"
     network_mode: "{{ lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) }}"
     networks: "{{ omit
-               if (lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == 'host')
+               if (lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common) == 'host') or ('container' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
                else lookup('vars', _var_prefix + '_docker_networks') }}"
     networks_cli_compatible: true
     oom_killer: "{{ lookup('vars', _var_prefix + '_docker_oom_killer', default=omit) }}"
