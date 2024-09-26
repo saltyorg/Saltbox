@@ -55,7 +55,7 @@
   ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
-    mode: "0644"
+    mode: "0755"
 
 - name: "Daemon | Import override file"
   ansible.builtin.template:
