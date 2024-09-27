@@ -1,0 +1,186 @@
+#########################################################################
+# Title:         Saltbox: Crowdsec                                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Fail if no Crowdsec Console Enrollment key defined
+  ansible.builtin.fail:
+    msg: "A Crowdsec Console Enrollment key is required, check documentation for the role."
+  when: not (crowdsec_console_enrollment_key | length > 0)
+
+- name: Add 'crowdsec' APT Repo Key
+  ansible.builtin.get_url:
+    url: "https://packagecloud.io/crowdsec/crowdsec/gpgkey"
+    dest: /etc/apt/keyrings/crowdsec.asc
+    mode: "0644"
+    force: true
+  register: result
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
+  delay: 10
+  until: result is succeeded
+
+- name: Add 'crowdsec' APT list
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/crowdsec.asc] https://packagecloud.io/crowdsec/crowdsec/any/ any main"
+    filename: "crowdsec"
+    state: present
+    mode: "0644"
+    update_cache: true
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+- name: Release 'crowdsec' from hold
+  ansible.builtin.dpkg_selections:
+    name: "crowdsec"
+    selection: install
+  when: ('crowdsec' in ansible_facts.packages)
+
+- name: Install crowdsec
+  ansible.builtin.apt:
+    name: crowdsec
+    state: latest
+
+- name: Put 'crowdsec' into hold
+  ansible.builtin.dpkg_selections:
+    name: crowdsec
+    selection: hold
+
+- name: Release 'crowdsec-firewall-bouncer-iptables' from hold
+  ansible.builtin.dpkg_selections:
+    name: "crowdsec-firewall-bouncer-iptables"
+    selection: install
+  when: ('crowdsec-firewall-bouncer-iptables' in ansible_facts.packages)
+
+- name: Manage iptables bouncer install
+  ansible.builtin.apt:
+    name: crowdsec-firewall-bouncer-iptables
+    state: latest
+
+- name: Put 'crowdsec-firewall-bouncer-iptables' into hold
+  ansible.builtin.dpkg_selections:
+    name: crowdsec-firewall-bouncer-iptables
+    selection: hold
+
+- name: Run cscli hub update
+  ansible.builtin.shell: "cscli hub update"
+  changed_when: false
+
+- name: Run cscli hub upgrade
+  ansible.builtin.shell: "cscli hub upgrade"
+  changed_when: false
+
+- name: Install collections
+  ansible.builtin.shell: "cscli collections install {{ item }}"
+  loop: "{{ crowdsec_collections_install }}"
+  when: (crowdsec_collections_install | length > 0)
+
+- name: Remove collections
+  ansible.builtin.shell: "cscli collections remove {{ item }}"
+  loop: "{{ crowdsec_collections_remove }}"
+  when: (crowdsec_collections_remove | length > 0)
+
+- name: Install scenarios
+  ansible.builtin.shell: "cscli scenarios install {{ item }}"
+  loop: "{{ crowdsec_scenarios_install }}"
+  when: (crowdsec_scenarios_install | length > 0)
+
+- name: Remove scenarios
+  ansible.builtin.shell: "cscli scenarios remove {{ item }}"
+  loop: "{{ crowdsec_scenarios_remove }}"
+  when: (crowdsec_scenarios_remove | length > 0)
+
+- name: Install parsers
+  ansible.builtin.shell: "cscli parsers install {{ item }}"
+  loop: "{{ crowdsec_parsers_install }}"
+  when: (crowdsec_parsers_install | length > 0)
+
+- name: Remove parsers
+  ansible.builtin.shell: "cscli parsers remove {{ item }}"
+  loop: "{{ crowdsec_parsers_remove }}"
+  when: (crowdsec_parsers_remove | length > 0)
+
+- name: Install postoverflows
+  ansible.builtin.shell: "cscli postoverflows install {{ item }}"
+  loop: "{{ crowdsec_postoverflows_install }}"
+  when: (crowdsec_postoverflows_install | length > 0)
+
+- name: Remove postoverflows
+  ansible.builtin.shell: "sudo cscli postoverflows remove {{ item }}"
+  loop: "{{ crowdsec_postoverflows_remove }}"
+  when: (crowdsec_postoverflows_remove | length > 0)
+
+- name: Stop 'crowdsec' service
+  ansible.builtin.systemd_service:
+    name: crowdsec
+    state: stopped
+
+- name: Stop 'crowdsec-firewall-bouncer' service
+  ansible.builtin.systemd_service:
+    name: crowdsec-firewall-bouncer
+    state: stopped
+
+- name: Get next available port within the range of '8080-8180' # noqa fqcn[action]
+  find_open_port:
+    low_bound: "8080"
+    high_bound: "8180"
+    protocol: both
+  register: port_lookup_8080
+  ignore_errors: true
+
+- name: Import 'config.yaml'
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "/etc/crowdsec/config.yaml"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
+- name: Import 'acquis.yaml'
+  ansible.builtin.template:
+    src: acquis.yaml.j2
+    dest: "/etc/crowdsec/acquis.yaml"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: Enable and restart 'crowdsec' service
+  ansible.builtin.systemd_service:
+    name: crowdsec
+    state: restarted
+    enabled: true
+
+- name: Enable and restart 'crowdsec-firewall-bouncer' service
+  ansible.builtin.systemd_service:
+    name: crowdsec-firewall-bouncer
+    state: restarted
+    enabled: true
+
+- name: Run cscli console enroll
+  ansible.builtin.shell: "cscli console enroll -e context {{ crowdsec_console_enrollment_key }}"
+  changed_when: false
+
+- name: Check if Traefik bouncer key file exists
+  ansible.builtin.stat:
+    path: "{{ crowdsec_bouncer_traefik_path }}"
+  register: crowdsec_bouncer_traefik_path_stat
+
+- name: Register CrowdSec Traefik bouncer if key doesn't exist
+  when: not crowdsec_bouncer_traefik_path_stat.stat.exists
+  block:
+    - name: Register new CrowdSec Traefik bouncer
+      ansible.builtin.shell: "cscli bouncers add {{ crowdsec_bouncer_traefik_name }} -o raw"
+      register: crowdsec_bouncer_traefik_key
+      changed_when: true
+
+    - name: Store bouncer key in a file
+      ansible.builtin.copy:
+        content: "{{ crowdsec_bouncer_traefik_key.stdout }}"
+        dest: "{{ crowdsec_bouncer_traefik_path }}"
+        mode: '0600'

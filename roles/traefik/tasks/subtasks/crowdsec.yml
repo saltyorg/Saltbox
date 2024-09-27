@@ -1,0 +1,44 @@
+#########################################################################
+# Title:         Saltbox: Traefik | Crowdsec Task                       #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Check if Traefik Crowdsec bouncer key file exists
+  ansible.builtin.stat:
+    path: "{{ crowdsec_bouncer_traefik_path }}"
+  register: traefik_crowdsec_bouncer_traefik_path_stat
+
+- name: Fail if Traefik Crowdsec bouncer key file does not exist
+  ansible.builtin.fail:
+    msg: "Crowdsec enabled but not yet installed. Run crowdsec install first."
+  when: not traefik_crowdsec_bouncer_traefik_path_stat.stat.exists
+
+- name: Load existing bouncer key
+  ansible.builtin.slurp:
+    src: "{{ crowdsec_bouncer_traefik_path }}"
+  register: crowdsec_bouncer_traefik_key
+
+- name: Load Crowdsec port value
+  ansible.builtin.shell: |
+    yyq '.api.server.listen_uri' /etc/crowdsec/config.yaml | awk -F':' '{print $NF}'
+  register: crowdsec_port_value
+  changed_when: false
+  failed_when: crowdsec_port_value.stdout == "null"
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    traefik_crowdsec_bouncer_key: "{{ crowdsec_bouncer_traefik_key['content'] | b64decode }}"
+    traefik_crowdsec_port: "{{ crowdsec_port_value.stdout }}"
+
+- name: Import ban html file
+  ansible.builtin.copy:
+    src: "ban.html"
+    force: true
+    dest: "{{ traefik_paths_location }}/ban.html"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"

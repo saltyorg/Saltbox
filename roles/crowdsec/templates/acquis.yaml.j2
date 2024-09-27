@@ -1,0 +1,16 @@
+filenames:
+  - /var/log/auth.log
+labels:
+  type: syslog
+---
+filenames:
+  - /var/log/syslog
+  - /var/log/kern.log
+labels:
+  type: syslog
+---
+filenames:
+  - /opt/traefik/*.log
+labels:
+  type: traefik
+---
