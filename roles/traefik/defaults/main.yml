@@ -74,6 +74,8 @@ traefik_dns_resolvers: "1.1.1.1:53,1.0.0.1:53"
 traefik_disable_propagation_check: false
 traefik_enable_http_validation: "{{ traefik_http or traefik.cert.http_validation }}"
 traefik_enable_zerossl: true
+# Path is internal to the container, so a host path of /opt/traefik/file.html becomes /etc/traefik/file.html
+traefik_crowdsec_ban_filepath: "/etc/traefik/ban.html"
 
 ################################
 # Templates
@@ -136,7 +138,7 @@ traefik_log_max_size: "10"
 traefik_log_max_backups: "3"
 traefik_log_max_age: "3"
 traefik_log_compress: "true"
-traefik_access_log: false
+traefik_access_log: true
 traefik_access_buffer: 100
 
 ################################
@@ -356,6 +358,9 @@ traefik_docker_commands_http3:
 traefik_docker_commands_tailscale:
   - "--entrypoints.tailscale-web.address=:81"
   - "--entrypoints.tailscale-websecure.address=:444"
+traefik_docker_commands_crowdsec:
+  - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+  - "--experimental.plugins.bouncer.version=v1.3.3"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
@@ -388,6 +393,9 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
                                else [])
                              + (traefik_docker_commands_tailscale
                                if traefik_tailscale_enabled
+                               else [])
+                             + (traefik_docker_commands_crowdsec
+                               if crowdsec_is_enabled
                                else [])
                              + custom_entrypoints }}"
 
@@ -477,6 +485,14 @@ traefik_docker_labels_metrics:
   traefik.http.routers.metrics.middlewares: "traefik-auth,{{ traefik_default_middleware_api }}"
   traefik.http.routers.metrics.priority: "20"
 
+traefik_docker_labels_crowdsec:
+  traefik.http.middlewares.crowdsec.plugin.bouncer.enabled: "true"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapikey: "{{ traefik_crowdsec_bouncer_key | default('') }}"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapischeme: "http"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapihost: "172.19.0.1:{{ traefik_crowdsec_port }}"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.forwardedheaderstrustedips: "{{ (traefik_cloudflare_ips | join(',')) + (',' + traefik_trusted_ips if (traefik_trusted_ips | length > 0) else '') }}"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.banhtmlfilepath: "{{ traefik_crowdsec_ban_filepath }}"
+
 traefik_docker_labels_custom: {}
 
 traefik_docker_labels: "{{ traefik_docker_labels_default
@@ -489,6 +505,9 @@ traefik_docker_labels: "{{ traefik_docker_labels_default
                                      else {}))
                            | combine((traefik_docker_labels_cloudflare
                                      if cloudflare_is_enabled
+                                     else {}))
+                           | combine((traefik_docker_labels_crowdsec
+                                     if crowdsec_is_enabled
                                      else {})) }}"
 
 # Hostname

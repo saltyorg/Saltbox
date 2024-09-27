@@ -47,6 +47,8 @@ plex_account_lookup: "{{ '/opt/saltbox/plex.ini' | check_plex_ini(plex_instances
 
 plex_account_is_enabled: "{{ plex_account_lookup.exists and plex_account_lookup.identifier | length > 0 and plex_account_lookup.token | length > 0 }}"
 
+crowdsec_is_enabled: "{{ crowdsec_enabled | bool }}"
+
 ################################
 # Role Conditionals
 ################################
@@ -215,6 +217,9 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + (',cloudflarewarp@docker'
                                           if (cloudflare_is_enabled)
                                           else '')
+                                        + (',crowdsec@docker'
+                                          if (crowdsec_is_enabled)
+                                          else '')
                                         + (',' if (traefik_role_middleware_sso | length > 0)
                                                else '')
                                         + traefik_role_middleware_sso }}"
@@ -251,6 +256,9 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                      + (',cloudflarewarp@docker'
                                        if (cloudflare_is_enabled)
                                        else '')
+                                     + (',crowdsec@docker'
+                                       if (crowdsec_is_enabled)
+                                       else '')
                                      + (',' if (traefik_role_middleware_sso | length > 0)
                                        else '')
                                      + traefik_role_middleware_sso }}"
@@ -272,6 +280,9 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                            else '')
                                          + (',cloudflarewarp@docker'
                                            if (cloudflare_is_enabled)
+                                           else '')
+                                         + (',crowdsec@docker'
+                                           if (crowdsec_is_enabled)
                                            else '') }}"
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
@@ -289,6 +300,9 @@ traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@fi
                                               else '')
                                             + (',cloudflarewarp@docker'
                                               if (cloudflare_is_enabled)
+                                              else '')
+                                            + (',crowdsec@docker'
+                                              if (crowdsec_is_enabled)
                                               else '') }}"
 traefik_default_middleware_custom_api: ""
 traefik_default_middleware_api: "{{ traefik_default_middleware_default_api

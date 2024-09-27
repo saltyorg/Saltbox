@@ -1,0 +1,59 @@
+#########################################################################
+# Title:         Saltbox: Crowdsec | Default Variables                  #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+################################
+# Toggle
+################################
+
+crowdsec_enabled: false
+
+################################
+# Configuration
+################################
+
+crowdsec_console_enrollment_key: ""
+
+crowdsec_collections_install:
+  - "crowdsecurity/linux"
+  - "crowdsecurity/iptables"
+  - "crowdsecurity/sshd"
+  - "crowdsecurity/whitelist-good-actors"
+  - "crowdsecurity/traefik"
+
+crowdsec_collections_remove:
+  - "crowdsecurity/nginx"
+
+crowdsec_scenarios_install: []
+crowdsec_scenarios_remove: []
+
+crowdsec_parsers_install: []
+crowdsec_parsers_remove: []
+
+crowdsec_postoverflows_install: []
+crowdsec_postoverflows_remove: []
+
+crowdsec_prometheus_enabled: false
+crowdsec_prometheus_level: "full"
+crowdsec_prometheus_listen_addr: "127.0.0.1"
+crowdsec_prometheus_listen_port: "6060"
+
+################################
+# Lookups
+################################
+
+crowdsec_docker_ports_8080: "{{ port_lookup_8080.meta.port
+                             if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
+                             else '8080' }}"
+
+################################
+# Bouncers
+################################
+
+crowdsec_bouncer_traefik_path: "/etc/crowdsec/bouncers/traefik.txt"
+crowdsec_bouncer_traefik_name: "traefik"

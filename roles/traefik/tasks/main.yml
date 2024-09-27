@@ -48,6 +48,10 @@
   ansible.builtin.import_tasks: "subtasks/config.yml"
   when: (not continuous_integration)
 
+- name: Traefik Crowdsec Tasks
+  ansible.builtin.import_tasks: "subtasks/crowdsec.yml"
+  when: crowdsec_is_enabled
+
 - name: Remove Certificates
   ansible.builtin.file:
     path: "{{ traefik_paths_location }}/acme.json"
