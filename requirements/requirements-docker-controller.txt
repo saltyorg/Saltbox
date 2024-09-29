@@ -1,4 +1,4 @@
 docker==7.1.0
 uvicorn==0.31.0
-fastapi==0.114.0
+fastapi==0.115.0
 requests==2.32.3
