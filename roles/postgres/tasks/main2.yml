@@ -101,7 +101,7 @@
 
     - name: Update user password for SCRAM authentication in new container
       ansible.builtin.shell: |
-        docker exec {{ postgres_name }}_new psql -U {{ postgres_docker_env_user }} -d {{ postgres_docker_env_db }} -c "ALTER USER {{ postgres_docker_env_user }} WITH PASSWORD '{{ postgres_docker_env_password }}';"
+        docker exec {{ postgres_name }}_new psql -U {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_docker_env_user) }} -d {{ lookup('vars', postgres_name + '_docker_env_db', default=postgres_docker_env_db) }} -c "ALTER USER {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_docker_env_user) }} WITH PASSWORD '{{ lookup('vars', postgres_name + '_docker_env_password', default=postgres_docker_env_password) }}';"
       when: (postgres_major_version | int < 14) and (postgres_docker_tag_major_version | int >= 14)
 
     - name: Remove temporary containers
