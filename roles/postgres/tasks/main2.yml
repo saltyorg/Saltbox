@@ -7,15 +7,130 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+- name: "Check if '{{ postgres_paths_location }}' exists"
+  ansible.builtin.stat:
+    path: "{{ postgres_paths_location }}"
+  register: stat_postgres_path
 
-- name: Create directories
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+- name: Check for upgrade
+  when: stat_postgres_path.stat.exists
+  block:
+    - name: Read PG_VERSION file
+      ansible.builtin.slurp:
+        src: "{{ postgres_paths_location }}/PG_VERSION"
+      register: pg_version_file
 
-- name: Create Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+    - name: Define installed and desired Postgres versions
+      ansible.builtin.set_fact:
+        postgres_major_version: "{{ pg_version_file['content'] | b64decode | trim }}"
+        postgres_docker_tag_major_version: "{{ postgres_docker_image_tag.split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
 
-- name: Sleep for 30 seconds
-  ansible.builtin.wait_for:
-    timeout: 30
+    - name: Display PostgreSQL version
+      ansible.builtin.debug:
+        msg: "The current PostgreSQL version is {{ postgres_major_version }}"
+
+- name: Validate Docker tag version
+  ansible.builtin.assert:
+    that:
+      - postgres_docker_tag_major_version is regex("^[0-9]+$")
+    fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
+    success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
+
+- name: Upgrade PostgreSQL
+  when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
+  block:
+    - name: Fail if downgrade
+      ansible.builtin.fail:
+        msg: "Downgrade of PostgreSQL is not supported."
+      when: postgres_major_version > postgres_docker_tag_major_version
+
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: "Check if '{{ postgres_paths_location }}_backup' exists"
+      ansible.builtin.stat:
+        path: "{{ postgres_paths_location }}_backup"
+      register: stat_postgres_backup_path
+
+    - name: Fail if backup location already exists
+      ansible.builtin.fail:
+        msg:
+          - "A backup of the postgres folder already exists, clean it up if it was from a previously successful upgrade. Otherwise ask for help on the discord."
+          - "Path is {{ postgres_paths_location }}_backup"
+      when: stat_postgres_backup_path.stat.exists
+
+    - name: Move Postgres data folder
+      ansible.builtin.shell: mv "{{ postgres_paths_location }}" "{{ postgres_paths_location }}_backup"
+
+    - name: Create directories
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+    - name: Create Docker container (Desired version)
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      vars:
+        postgres_docker_container: "{{ postgres_name + '_new' }}"
+        postgres_docker_networks_alias: "{{ postgres_name + '_new' }}"
+
+    - name: Create Docker container (Previous version)
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      vars:
+        postgres_docker_container: "{{ postgres_name + '_old' }}"
+        postgres_docker_networks_alias: "{{ postgres_name + '_old' }}"
+        postgres_docker_image_tag: "{{ postgres_major_version }}-alpine"
+        postgres_docker_volumes_default:
+          - "{{ postgres_paths_location }}_backup:/var/lib/postgresql/data"
+          - "/etc/passwd:/etc/passwd:ro"
+
+    - name: Sleep for 60 seconds
+      ansible.builtin.wait_for:
+        timeout: 60
+
+    - name: Perform database migration
+      ansible.builtin.shell: |
+        set -eo pipefail
+        docker exec {{ postgres_name }}_old pg_dumpall | docker exec -i {{ postgres_name }}_new psql -d postgres
+      args:
+        executable: /bin/bash
+      register: postgres_migration_result
+      failed_when: false
+
+    - name: Check migration result
+      ansible.builtin.fail:
+        msg: "Migration failed: {{ migration_result.stderr }}"
+      when: postgres_migration_result.rc != 0
+
+    - name: Update user password for SCRAM authentication in new container
+      ansible.builtin.shell: |
+        docker exec {{ postgres_name }}_new psql -U {{ postgres_docker_env_user }} -d {{ postgres_docker_env_db }} -c "ALTER USER {{ postgres_docker_env_user }} WITH PASSWORD '{{ postgres_docker_env_password }}';"
+      when: (postgres_major_version | int < 14) and (postgres_docker_tag_major_version | int >= 14)
+
+    - name: Remove temporary containers
+      community.docker.docker_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ postgres_name }}_old"
+        - "{{ postgres_name }}_new"
+
+    - name: Create Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+    - name: Sleep for 30 seconds
+      ansible.builtin.wait_for:
+        timeout: 30
+
+- name: Regular Postgres flow
+  when: (not stat_postgres_path.stat.exists) or (postgres_major_version == postgres_docker_tag_major_version)
+  block:
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Create directories
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+    - name: Create Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+    - name: Sleep for 30 seconds
+      ansible.builtin.wait_for:
+        timeout: 30
