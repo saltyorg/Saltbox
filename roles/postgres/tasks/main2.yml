@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Initialize variables
+  ansible.builtin.set_fact:
+    postgres_major_version: ""
+    postgres_docker_tag_major_version: ""
+
 - name: "Check if '{{ postgres_paths_location }}' exists"
   ansible.builtin.stat:
     path: "{{ postgres_paths_location }}"
@@ -65,13 +70,13 @@
     - name: Create directories
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-    - name: Create Docker container (Desired version)
+    - name: "Create Docker container (Desired tag: {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }})"
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
       vars:
         postgres_docker_container: "{{ postgres_name + '_new' }}"
         postgres_docker_networks_alias: "{{ postgres_name + '_new' }}"
 
-    - name: Create Docker container (Previous version)
+    - name: "Create Docker container (Previous tag: {{ postgres_major_version }}-alpine)"
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
       vars:
         postgres_docker_container: "{{ postgres_name + '_old' }}"
