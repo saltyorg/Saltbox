@@ -23,7 +23,7 @@
     - name: Define installed and desired Postgres versions
       ansible.builtin.set_fact:
         postgres_major_version: "{{ pg_version_file['content'] | b64decode | trim }}"
-        postgres_docker_tag_major_version: "{{ postgres_docker_image_tag.split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
+        postgres_docker_tag_major_version: "{{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag).split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
 
     - name: Display PostgreSQL version
       ansible.builtin.debug:
@@ -33,8 +33,8 @@
       ansible.builtin.assert:
         that:
           - postgres_docker_tag_major_version is regex("^[0-9]+$")
-        fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
-        success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
+        fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
+        success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
 
 - name: Upgrade PostgreSQL
   when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
