@@ -9,7 +9,7 @@
 ---
 - name: Fail if no Crowdsec Console Enrollment key defined
   ansible.builtin.fail:
-    msg: "A Crowdsec Console Enrollment key is required, check documentation for the role."
+    msg: "A Crowdsec Console Enrollment key is required, check the Saltbox documentation for Crowdsec."
   when: not (crowdsec_console_enrollment_key | length > 0)
 
 - name: Add 'crowdsec' APT Repo Key
