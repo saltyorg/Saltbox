@@ -96,7 +96,7 @@
 
     - name: Check migration result
       ansible.builtin.fail:
-        msg: "Migration failed: {{ migration_result.stderr }}"
+        msg: "Migration failed: {{ postgres_migration_result.stderr }}"
       when: postgres_migration_result.rc != 0
 
     - name: Update user password for SCRAM authentication in new container
