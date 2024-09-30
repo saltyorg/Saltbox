@@ -136,7 +136,7 @@ qbittorrent_docker_ports_56881: "{{ port_lookup_56881.meta.port
                                  else '56881' }}"
 qbittorrent_docker_ports_8080: "{{ port_lookup_8080.meta.port
                                 if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
-                                else '8080' }}"
+                                else '8090' }}"
 qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
 
 qbittorrent_docker_ports_defaults:
