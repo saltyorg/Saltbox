@@ -29,12 +29,12 @@
       ansible.builtin.debug:
         msg: "The current PostgreSQL version is {{ postgres_major_version }}"
 
-- name: Validate Docker tag version
-  ansible.builtin.assert:
-    that:
-      - postgres_docker_tag_major_version is regex("^[0-9]+$")
-    fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
-    success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
+    - name: Validate Docker tag version
+      ansible.builtin.assert:
+        that:
+          - postgres_docker_tag_major_version is regex("^[0-9]+$")
+        fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
+        success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ postgres_docker_image_tag }}"
 
 - name: Upgrade PostgreSQL
   when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
