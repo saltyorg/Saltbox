@@ -28,10 +28,10 @@
   ansible.builtin.set_fact:
     port_range_low_bound: "{{ (lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) | int) + 1 }}"
 
-- name: Pre-Install | Get next available port within the range of '8080-8090' # noqa fqcn[action]
+- name: Pre-Install | Get next available port within the range of '8090-8100' # noqa fqcn[action]
   find_open_port:
-    low_bound: 8080
-    high_bound: 8090
+    low_bound: 8090
+    high_bound: 8100
     protocol: tcp
   register: port_lookup_8080
   ignore_errors: true
