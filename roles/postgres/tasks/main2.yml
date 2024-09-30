@@ -81,7 +81,8 @@
       vars:
         postgres_docker_container: "{{ postgres_name + '_old' }}"
         postgres_docker_networks_alias: "{{ postgres_name + '_old' }}"
-        postgres_docker_image_tag: "{{ postgres_major_version }}-alpine"
+        postgres_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_docker_image_repo)
+                                   + ':' + postgres_major_version + '-alpine' }}"
         postgres_docker_volumes_default:
           - "{{ postgres_paths_location }}_backup:/var/lib/postgresql/data"
           - "/etc/passwd:/etc/passwd:ro"
