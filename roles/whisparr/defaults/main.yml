@@ -142,11 +142,11 @@ whisparr_docker_hosts: "{{ docker_hosts_common
 whisparr_docker_labels_default: {}
 whisparr_docker_labels_custom: {}
 whisparr_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', whisparr_name + '_docker_labels_default', default=whisparr_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', whisparr_name + '_docker_labels_custom', default=whisparr_docker_labels_custom)) }}"
+                            | combine(lookup('vars', whisparr_name + '_docker_labels_default', default=whisparr_docker_labels_default))
+                            | combine((traefik_themepark_labels
+                                      if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
+                                      else {}),
+                                      lookup('vars', whisparr_name + '_docker_labels_custom', default=whisparr_docker_labels_custom)) }}"
 
 # Hostname
 whisparr_docker_hostname: "{{ whisparr_name }}"
