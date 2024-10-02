@@ -9,9 +9,9 @@
 ---
 - name: "Cleanup | Set 'rclone_service_name'"
   ansible.builtin.set_fact:
-    rclone_service_name: "{{ item.key.split('.')[0] }}"
-    rclone_service_name_full: "{{ item.key.split('.')[0] }}.service"
-    rclone_refresh_service_name: "{{ item.key.split('.')[0] }}_refresh.service"
+    rclone_service_name: "{{ item.key | regex_replace('\\.service$', '') }}"
+    rclone_service_name_full: "{{ item.key }}"
+    rclone_refresh_service_name: "{{ (item.key | regex_replace('\\.service$', '')) + '_refresh.service' }}"
     rclone_service_status: "{{ item.value }}"
 
 - name: "Cleanup | Fail if 'rclone_service_name' is empty"
@@ -59,7 +59,7 @@
 
 - name: "Cleanup | Set 'cleanup_mount_path'"
   ansible.builtin.set_fact:
-    cleanup_mount_path: "/mnt/remote/{{ item.key.split('.')[0].split('_')[-1] }}"
+    cleanup_mount_path: "/mnt/remote/{{ rclone_service_name | regex_replace('^' + rclone_service_template, '') }}"
 
 - name: "Cleanup | Fail if 'cleanup_mount_path' is empty"
   ansible.builtin.fail:
