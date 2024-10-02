@@ -101,9 +101,3 @@
     enabled: true
     state: restarted
     daemon_reload: true
-
-- name: Unblock Docker Controller
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/unblock"
-    method: POST
-    timeout: 600

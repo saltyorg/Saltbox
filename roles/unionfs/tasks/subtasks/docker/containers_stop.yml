@@ -24,14 +24,6 @@
 - name: "UnionFS | Docker | Container Stop | Tasks for when Docker exists and is running"
   when: unionfs_docker_binary.stat.exists and unionfs_docker_service_running
   block:
-    - name: "UnionFS | Docker | Container Stop | Block Docker Controller"
-      ansible.builtin.uri:
-        url: "{{ docker_controller_url }}/block/20"
-        method: POST
-        timeout: 600
-      ignore_errors: true
-      when: unionfs_docker_controller_service_running
-
     - name: "UnionFS | Docker | Container Stop | Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
       register: unionfs_docker_running_containers_ps
@@ -49,6 +41,14 @@
       ansible.builtin.shell: "docker stop {{ containers_list }}"
       ignore_errors: true
       when: (containers_list | trim | length > 0)
+
+    - name: "UnionFS | Docker | Container Stop | Block Docker Controller"
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/block/20"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+      when: unionfs_docker_controller_service_running
 
     - name: "UnionFS | Docker | Container Stop | Stop docker service"
       ansible.builtin.systemd_service:

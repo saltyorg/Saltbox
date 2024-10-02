@@ -40,14 +40,6 @@
         timeout: 5
       when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
 
-    - name: Block Docker Controller
-      ansible.builtin.uri:
-        url: "{{ docker_controller_url }}/block/20"
-        method: POST
-        timeout: 600
-      ignore_errors: true
-      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
-
     - name: "Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
       register: remote_docker_running_containers_ps
@@ -65,6 +57,14 @@
       ansible.builtin.shell: "docker stop {{ containers_list }}"
       ignore_errors: true
       when: (containers_list | trim | length > 0)
+
+    - name: Block Docker Controller
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/block/20"
+        method: POST
+        timeout: 600
+      ignore_errors: true
+      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
