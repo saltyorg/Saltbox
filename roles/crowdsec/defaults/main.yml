@@ -25,9 +25,8 @@ crowdsec_collections_install:
   - "crowdsecurity/sshd"
   - "crowdsecurity/whitelist-good-actors"
   - "crowdsecurity/traefik"
-
-crowdsec_collections_remove:
-  - "crowdsecurity/nginx"
+  - "crowdsecurity/plex"
+crowdsec_collections_remove: []
 
 crowdsec_scenarios_install: []
 crowdsec_scenarios_remove: []
