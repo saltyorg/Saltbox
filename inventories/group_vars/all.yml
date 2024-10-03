@@ -218,7 +218,7 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                           if (cloudflare_is_enabled)
                                           else '')
                                         + (',crowdsec@docker'
-                                          if (crowdsec_is_enabled)
+                                          if (lookup('vars', traefik_role_var + '_traefik_crowdsec_enabled', default=lookup('vars', role_name + '_traefik_crowdsec_enabled', default=crowdsec_is_enabled)))
                                           else '')
                                         + (',' if (traefik_role_middleware_sso | length > 0)
                                                else '')
@@ -257,7 +257,7 @@ traefik_default_middleware_http: "{{ traefik_default_middleware_default_http
                                        if (cloudflare_is_enabled)
                                        else '')
                                      + (',crowdsec@docker'
-                                       if (crowdsec_is_enabled)
+                                       if (lookup('vars', traefik_role_var + '_traefik_crowdsec_enabled', default=lookup('vars', role_name + '_traefik_crowdsec_enabled', default=crowdsec_is_enabled)))
                                        else '')
                                      + (',' if (traefik_role_middleware_sso | length > 0)
                                        else '')
@@ -282,7 +282,7 @@ traefik_default_middleware_http_api: "{{ traefik_default_middleware_default_http
                                            if (cloudflare_is_enabled)
                                            else '')
                                          + (',crowdsec@docker'
-                                           if (crowdsec_is_enabled)
+                                           if (lookup('vars', traefik_role_var + '_traefik_crowdsec_enabled', default=lookup('vars', role_name + '_traefik_crowdsec_enabled', default=crowdsec_is_enabled)))
                                            else '') }}"
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
@@ -302,7 +302,7 @@ traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@fi
                                               if (cloudflare_is_enabled)
                                               else '')
                                             + (',crowdsec@docker'
-                                              if (crowdsec_is_enabled)
+                                              if (lookup('vars', traefik_role_var + '_traefik_crowdsec_enabled', default=lookup('vars', role_name + '_traefik_crowdsec_enabled', default=crowdsec_is_enabled)))
                                               else '') }}"
 traefik_default_middleware_custom_api: ""
 traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
