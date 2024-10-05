@@ -44,6 +44,10 @@ crowdsec_prometheus_listen_port: "6060"
 
 # Takes a list of exact router names to ignore when parsing Traefik access logs.
 crowdsec_whitelisted_routers: []
+# Takes list of specific IPs
+crowdsec_whitelisted_ips: []
+# Takes list of CIDR notation IP ranges
+crowdsec_whitelisted_cidrs: []
 
 ################################
 # Lookups

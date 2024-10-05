@@ -1,0 +1,16 @@
+name: saltbox/ip-whitelist
+description: "Whitelist events from my ip addresses"
+whitelist:
+  reason: "my ip ranges"
+{% if crowdsec_whitelisted_ips | length > 0 %}
+  ip:
+{% for item in crowdsec_whitelisted_ips %}
+   - "{{ item }}"
+{% endfor %}
+{% endif %}
+{% if crowdsec_whitelisted_cidrs | length > 0 %}
+  cidr:
+{% for item in crowdsec_whitelisted_cidrs %}
+   - "{{ item }}"
+{% endfor %}
+{% endif %}
