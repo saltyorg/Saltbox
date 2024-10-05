@@ -1,0 +1,22 @@
+name: saltbox/traefik-router-allowlist
+description: "Allowlist events from specific Traefik routers"
+filter: "evt.Meta.service == 'http' && evt.Meta.log_type in ['http_access-log', 'http_error-log']"
+whitelist:
+  reason: "Traefik Router Allowlist"
+  expression:
+{% for item in plex_instances %}
+   - evt.Meta.traefik_router_name == '{{ item }}'
+   - evt.Meta.traefik_router_name == '{{ item }}-http'
+{% endfor %}
+{% for item in jellyfin_instances %}
+   - evt.Meta.traefik_router_name == '{{ item }}'
+   - evt.Meta.traefik_router_name == '{{ item }}-http'
+{% endfor %}
+{% for item in emby_instances %}
+   - evt.Meta.traefik_router_name == '{{ item }}'
+   - evt.Meta.traefik_router_name == '{{ item }}-http'
+{% endfor %}
+{% for item in crowdsec_whitelisted_routers %}
+   - evt.Meta.traefik_router_name == '{{ item }}'
+   - evt.Meta.traefik_router_name == '{{ item }}-http'
+{% endfor %}

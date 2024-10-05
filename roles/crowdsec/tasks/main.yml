@@ -150,6 +150,14 @@
     group: "root"
     mode: "0644"
 
+- name: Import 'saltbox.yml'
+  ansible.builtin.template:
+    src: saltbox.yml.j2
+    dest: "/etc/crowdsec/parsers/s02-enrich/saltbox.yml"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+
 - name: Enable and restart 'crowdsec' service
   ansible.builtin.systemd_service:
     name: crowdsec
