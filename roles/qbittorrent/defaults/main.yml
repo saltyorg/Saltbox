@@ -21,6 +21,8 @@ qbittorrent_webui_custom_headers_enabled: "{{ 'true' if qbittorrent_themepark_en
 qbittorrent_webui_custom_headers_default: "{{ (qbittorrent_themepark_headers if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else '') + qbittorrent_webui_custom_headers_custom }}"
 qbittorrent_webui_custom_headers_custom: ""
 qbittorrent_webui_custom_headers: "{{ (qbittorrent_webui_custom_headers_default | trim + ' ' + qbittorrent_webui_custom_headers_custom | trim) | trim }}"
+# Options are: Delete or MoveToTrash
+qbittorrent_torrent_content_remove_option: "Delete"
 
 ################################
 # Host Install

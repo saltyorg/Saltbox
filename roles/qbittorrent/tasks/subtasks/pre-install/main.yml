@@ -51,6 +51,18 @@
         group: "{{ user.name }}"
         mode: "0664"
 
+    - name: Pre-Install | Settings | Update Session\TorrentContentRemoveOption in 'qBittorrent.conf' config settings
+      community.general.ini_file:
+        path: "{{ qbittorrent_paths_conf }}"
+        section: BitTorrent
+        option: Session\TorrentContentRemoveOption
+        value: "{{ lookup('vars', qbittorrent_name + '_torrent_content_remove_option', default=qbittorrent_torrent_content_remove_option) }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+
     - name: Pre-Install | Settings | Update Connection\PortRangeMin in 'qBittorrent.conf' config settings (legacy)
       community.general.ini_file:
         path: "{{ qbittorrent_paths_conf }}"
