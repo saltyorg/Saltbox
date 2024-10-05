@@ -9,7 +9,7 @@
 ---
 - name: Stop Saltbox Docker Containers
   ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/stop{{ query_var if query_var is defined else '' }}"
+    url: "{{ docker_controller_url }}/stop{{ _query_var if _query_var is defined else '' }}"
     method: POST
   register: stop_docker_controller_job
   ignore_errors: true

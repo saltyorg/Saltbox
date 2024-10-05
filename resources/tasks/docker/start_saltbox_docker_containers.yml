@@ -9,7 +9,7 @@
 ---
 - name: Start Saltbox Docker Containers
   ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/start{{ query_var if query_var is defined else '' }}"
+    url: "{{ docker_controller_url }}/start{{ _query_var if _query_var is defined else '' }}"
     method: POST
   register: start_docker_controller_job
   ignore_errors: true
