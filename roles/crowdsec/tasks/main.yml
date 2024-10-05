@@ -158,6 +158,15 @@
     group: "root"
     mode: "0600"
 
+- name: Import 'saltbox-ip-whitelist.yml'
+  ansible.builtin.template:
+    src: saltbox-ip-whitelist.yml.j2
+    dest: "/etc/crowdsec/parsers/s02-enrich/saltbox-ip-whitelist.yml"
+    owner: "root"
+    group: "root"
+    mode: "0600"
+  when: (crowdsec_whitelisted_ips | length > 0) or (crowdsec_whitelisted_cidrs | length > 0)
+
 - name: Enable and restart 'crowdsec' service
   ansible.builtin.systemd_service:
     name: crowdsec
