@@ -43,6 +43,7 @@ crowdsec_prometheus_listen_addr: "127.0.0.1"
 crowdsec_prometheus_listen_port: "6060"
 
 # Takes a list of exact router names to ignore when parsing Traefik access logs.
+# Include @file or @docker depending on the source of said router.
 crowdsec_whitelisted_routers: []
 # Takes list of specific IPs
 crowdsec_whitelisted_ips: []
