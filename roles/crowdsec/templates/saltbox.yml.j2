@@ -5,18 +5,18 @@ whitelist:
   reason: "Traefik Router Allowlist"
   expression:
 {% for item in plex_instances %}
-   - evt.Meta.traefik_router_name == '{{ item }}'
-   - evt.Meta.traefik_router_name == '{{ item }}-http'
+   - evt.Meta.traefik_router_name == '{{ item }}@docker'
+   - evt.Meta.traefik_router_name == '{{ item }}-http@docker'
 {% endfor %}
 {% for item in jellyfin_instances %}
-   - evt.Meta.traefik_router_name == '{{ item }}'
-   - evt.Meta.traefik_router_name == '{{ item }}-http'
+   - evt.Meta.traefik_router_name == '{{ item }}@docker'
+   - evt.Meta.traefik_router_name == '{{ item }}-http@docker'
 {% endfor %}
 {% for item in emby_instances %}
-   - evt.Meta.traefik_router_name == '{{ item }}'
-   - evt.Meta.traefik_router_name == '{{ item }}-http'
+   - evt.Meta.traefik_router_name == '{{ item }}@docker'
+   - evt.Meta.traefik_router_name == '{{ item }}-http@docker'
 {% endfor %}
 {% for item in crowdsec_whitelisted_routers %}
-   - evt.Meta.traefik_router_name == '{{ item }}'
-   - evt.Meta.traefik_router_name == '{{ item }}-http'
+   - evt.Meta.traefik_router_name == '{{ item }}@docker'
+   - evt.Meta.traefik_router_name == '{{ item }}-http@docker'
 {% endfor %}
