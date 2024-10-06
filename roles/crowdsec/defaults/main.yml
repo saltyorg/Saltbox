@@ -19,23 +19,51 @@ crowdsec_enabled: false
 
 crowdsec_console_enrollment_key: ""
 
-crowdsec_collections_install:
+crowdsec_collections_install_default:
   - "crowdsecurity/linux"
   - "crowdsecurity/iptables"
   - "crowdsecurity/sshd"
   - "crowdsecurity/whitelist-good-actors"
   - "crowdsecurity/traefik"
   - "crowdsecurity/plex"
-crowdsec_collections_remove: []
+crowdsec_collections_install_custom: []
+crowdsec_collections_install: "{{ crowdsec_collections_install_default
+                                  + crowdsec_collections_install_custom }}"
 
-crowdsec_scenarios_install: []
-crowdsec_scenarios_remove: []
+crowdsec_collections_remove_default: []
+crowdsec_collections_remove_custom: []
+crowdsec_collections_remove: "{{ crowdsec_collections_remove_default
+                                 + crowdsec_collections_remove_custom }}"
 
-crowdsec_parsers_install: []
-crowdsec_parsers_remove: []
+crowdsec_scenarios_install_default: []
+crowdsec_scenarios_install_custom: []
+crowdsec_scenarios_install: "{{ crowdsec_scenarios_install_default
+                                + crowdsec_scenarios_install_custom }}"
 
-crowdsec_postoverflows_install: []
-crowdsec_postoverflows_remove: []
+crowdsec_scenarios_remove_default: []
+crowdsec_scenarios_remove_custom: []
+crowdsec_scenarios_remove: "{{ crowdsec_scenarios_remove_default
+                               + crowdsec_scenarios_remove_custom }}"
+
+crowdsec_parsers_install_default: []
+crowdsec_parsers_install_custom: []
+crowdsec_parsers_install: "{{ crowdsec_parsers_install_default
+                              + crowdsec_parsers_install_custom }}"
+
+crowdsec_parsers_remove_default: []
+crowdsec_parsers_remove_custom: []
+crowdsec_parsers_remove: "{{ crowdsec_parsers_remove_default
+                             + crowdsec_parsers_remove_custom }}"
+
+crowdsec_postoverflows_install_default: []
+crowdsec_postoverflows_install_custom: []
+crowdsec_postoverflows_install: "{{ crowdsec_postoverflows_install_default
+                                    + crowdsec_postoverflows_install_custom }}"
+
+crowdsec_postoverflows_remove_default: []
+crowdsec_postoverflows_remove_custom: []
+crowdsec_postoverflows_remove: "{{ crowdsec_postoverflows_remove_default
+                                   + crowdsec_postoverflows_remove_custom }}"
 
 crowdsec_prometheus_enabled: false
 crowdsec_prometheus_level: "full"
