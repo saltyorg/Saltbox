@@ -35,10 +35,6 @@ on:
       - 'roles/diag/**'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   ansible-lint:
     runs-on: ubuntu-24.04
@@ -120,6 +116,7 @@ jobs:
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
 
       - name: Create CI vars file
+        if: github.repository == 'saltyorg/Saltbox' && github.event_name != 'pull_request'
         run: |
           echo "continuous_integration: true" > vars.yml
           echo "dockerhub:" >> vars.yml

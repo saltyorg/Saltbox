@@ -5,6 +5,10 @@ on:
     types:
       - completed
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   webhook:
     runs-on: ubuntu-24.04
