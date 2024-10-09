@@ -1,10 +1,10 @@
 name: Retry Workflow
 
 on:
-  workflow_dispatch:
-    inputs:
-      run_id:
-        required: true
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 permissions:
   contents: write
@@ -13,11 +13,28 @@ permissions:
 jobs:
   rerun:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
-      - name: rerun ${{ inputs.run_id }}
+      - name: Check attempt count
+        id: check_attempts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          attempt=$(gh run view ${{ github.event.workflow_run.id }} --json attempt -q ".attempt")
+          echo "Current attempt: $attempt"
+
+          if [ $attempt -lt 3 ]; then
+            echo "attempt_allowed=true" >> $GITHUB_OUTPUT
+          else
+            echo "attempt_allowed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: rerun ${{ github.event.workflow_run.id }}
+        if: steps.check_attempts.outputs.attempt_allowed == 'true'
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run watch ${{ inputs.run_id }} > /dev/null 2>&1
-          gh run rerun ${{ inputs.run_id }} --failed
+          gh run watch ${{ github.event.workflow_run.id }} > /dev/null 2>&1
+          gh run rerun ${{ github.event.workflow_run.id }} --failed
