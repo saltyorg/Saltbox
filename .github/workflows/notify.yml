@@ -1,0 +1,27 @@
+name: Notify
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  webhook:
+    runs-on: ubuntu-24.04
+    if: github.event_name != 'pull_request' && github.event.repository.fork == false
+    steps:
+      - name: Check attempt count
+        id: check_attempts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          attempt=$(gh run view ${{ github.event.workflow_run.id }} --json attempt -q ".attempt")
+          echo "Current attempt: $attempt"
+          echo "current_attempt=false" >> $GITHUB_OUTPUT
+
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ github.event.workflow_run.conclusion }}
+          description: "Run attempt: ${{ steps.check_attempts.outputs.current_attempt }}"

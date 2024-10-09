@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   rerun:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
       - name: Check attempt count
@@ -29,6 +29,11 @@ jobs:
           else
             echo "attempt_allowed=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Sleep for 60 seconds
+        if: steps.check_attempts.outputs.attempt_allowed == 'true'
+        run: sleep 60s
+        shell: bash
 
       - name: rerun ${{ github.event.workflow_run.id }}
         if: steps.check_attempts.outputs.attempt_allowed == 'true'
