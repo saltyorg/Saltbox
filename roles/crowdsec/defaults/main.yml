@@ -76,6 +76,7 @@ crowdsec_prometheus_listen_port: "6060"
 # Include @file or @docker depending on the source of said router:
 # authelia@docker
 # authelia-http@docker
+# Remember to include api/http routers as well if needed.
 crowdsec_whitelisted_routers: []
 # Takes list of specific IPs
 crowdsec_whitelisted_ips: []
