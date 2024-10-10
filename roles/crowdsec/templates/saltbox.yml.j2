@@ -6,5 +6,4 @@ whitelist:
   expression:
 {% for item in crowdsec_whitelisted_routers %}
    - evt.Meta.traefik_router_name == '{{ item }}'
-   - evt.Meta.traefik_router_name == '{{ item }}-http'
 {% endfor %}
