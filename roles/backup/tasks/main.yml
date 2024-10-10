@@ -207,7 +207,7 @@
         - "{{ playbook_dir }}/adv_settings.yml"
         - "{{ playbook_dir }}/backup_config.yml"
         - "{{ playbook_dir }}/providers.yml"
-        - "{{ playbook_dir }}/hetzner_nfs.yml"
+        - "{{ playbook_dir }}/hetzner_vlan.yml"
         - "{{ playbook_dir }}/inventories/host_vars/localhost.yml"
         - "/home/{{ user.name }}/.config/rclone/rclone.conf"
       ignore_errors: true
@@ -575,7 +575,7 @@
           - "providers.yml"
           - "rclone.conf"
           - "localhost.yml"
-          - "hetzner_nfs.yml"
+          - "hetzner_vlan.yml"
           - "backup_excludes.txt"
           - "backup_excludes_list.txt"
 

@@ -34,7 +34,7 @@ jobs:
           echo "head_sha=$(echo $workflow_run_info | jq -r '.head_sha')" >> $GITHUB_OUTPUT
           event_name=$(echo $workflow_run_info | jq -r '.event')
           echo "event_name=$event_name" >> $GITHUB_OUTPUT
-          
+
           if [ "$event_name" == "pull_request" ] || [ "$event_name" == "pull_request_target" ]; then
             pr_number=$(echo $workflow_run_info | jq -r '.pull_requests[0].number')
             if [ "$pr_number" != "null" ]; then
