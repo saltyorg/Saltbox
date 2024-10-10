@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event.repository.fork == false
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Get workflow information
         id: workflow_info
         env:
@@ -25,7 +30,7 @@ jobs:
           echo "workflow_url=$(echo $workflow_run_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
           echo "attempt=$(echo $workflow_run_info | jq -r '.run_attempt')" >> $GITHUB_OUTPUT
           echo "triggered_by=$(echo $workflow_run_info | jq -r '.triggering_actor.login')" >> $GITHUB_OUTPUT
-          echo "ref=$(echo $workflow_run_info | jq -r '.head_branch')" >> $GITHUB_OUTPUT
+          echo "ref=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
           echo "head_sha=$(echo $workflow_run_info | jq -r '.head_sha')" >> $GITHUB_OUTPUT
           event_name=$(echo $workflow_run_info | jq -r '.event')
           echo "event_name=$event_name" >> $GITHUB_OUTPUT
