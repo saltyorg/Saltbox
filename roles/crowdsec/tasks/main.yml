@@ -150,6 +150,11 @@
     group: "root"
     mode: "0644"
 
+- name: Cleanup 'saltbox.yml'
+  ansible.builtin.file:
+    path: "/etc/crowdsec/parsers/s02-enrich/saltbox.yml"
+    state: absent
+
 - name: Import 'saltbox.yml'
   ansible.builtin.template:
     src: saltbox.yml.j2
@@ -157,6 +162,12 @@
     owner: "root"
     group: "root"
     mode: "0600"
+  when: (crowdsec_whitelisted_routers | length > 0)
+
+- name: Cleanup 'saltbox-ip-whitelist.yml'
+  ansible.builtin.file:
+    path: "/etc/crowdsec/parsers/s02-enrich/saltbox-ip-whitelist.yml"
+    state: absent
 
 - name: Import 'saltbox-ip-whitelist.yml'
   ansible.builtin.template:
