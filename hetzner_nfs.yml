@@ -1,4 +1,0 @@
-hetzner_nfs:
-  mount_client: 3
-  server: 2
-  vlan_id: 4000
