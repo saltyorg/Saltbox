@@ -6,26 +6,136 @@ on:
       - completed
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
+  actions: read
 
 jobs:
-  webhook:
+  notify:
     runs-on: ubuntu-24.04
-    if: github.event_name != 'pull_request' && github.event.repository.fork == false
+    if: github.event.repository.fork == false
     steps:
-      - name: Check attempt count
-        id: check_attempts
+      - name: Get workflow information
+        id: workflow_info
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
         run: |
-          attempt=$(gh run view ${{ github.event.workflow_run.id }} --json attempt -q ".attempt")
-          echo "Current attempt: $attempt"
-          echo "current_attempt=false" >> $GITHUB_OUTPUT
+          workflow_run_info=$(gh api /repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})
+          echo "workflow_name=$(echo $workflow_run_info | jq -r '.name')" >> $GITHUB_OUTPUT
+          echo "workflow_conclusion=$(echo $workflow_run_info | jq -r '.conclusion')" >> $GITHUB_OUTPUT
+          echo "workflow_url=$(echo $workflow_run_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
+          echo "attempt=$(echo $workflow_run_info | jq -r '.run_attempt')" >> $GITHUB_OUTPUT
+          echo "triggered_by=$(echo $workflow_run_info | jq -r '.triggering_actor.login')" >> $GITHUB_OUTPUT
+          echo "ref=$(echo $workflow_run_info | jq -r '.head_branch')" >> $GITHUB_OUTPUT
+          echo "head_sha=$(echo $workflow_run_info | jq -r '.head_sha')" >> $GITHUB_OUTPUT
+          event_name=$(echo $workflow_run_info | jq -r '.event')
+          echo "event_name=$event_name" >> $GITHUB_OUTPUT
+          
+          if [ "$event_name" == "pull_request" ] || [ "$event_name" == "pull_request_target" ]; then
+            pr_number=$(echo $workflow_run_info | jq -r '.pull_requests[0].number')
+            if [ "$pr_number" != "null" ]; then
+              pr_info=$(gh api /repos/${{ github.repository }}/pulls/$pr_number)
+              echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+              echo "pr_title=$(echo $pr_info | jq -r '.title')" >> $GITHUB_OUTPUT
+              echo "pr_url=$(echo $pr_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
+            fi
+          elif [ "$event_name" == "push" ]; then
+            commit_info=$(gh api /repos/${{ github.repository }}/commits/$(echo $workflow_run_info | jq -r '.head_sha'))
+            echo "commit_message=$(echo $commit_info | jq -r '.commit.message' | head -n 1)" >> $GITHUB_OUTPUT
+            echo "commit_url=$(echo $commit_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
+          elif [ "$event_name" == "release" ]; then
+            release_info=$(gh api /repos/${{ github.repository }}/releases/latest)
+            echo "release_tag=$(echo $release_info | jq -r '.tag_name')" >> $GITHUB_OUTPUT
+            echo "release_name=$(echo $release_info | jq -r '.name')" >> $GITHUB_OUTPUT
+            echo "release_url=$(echo $release_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
+          elif [ "$event_name" == "workflow_dispatch" ]; then
+            echo "workflow_dispatch_user=$(echo $workflow_run_info | jq -r '.triggering_actor.login')" >> $GITHUB_OUTPUT
+          fi
 
-      - uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ github.event.workflow_run.conclusion }}
-          description: "Run attempt: ${{ steps.check_attempts.outputs.current_attempt }}"
+      - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          WORKFLOW_NAME: ${{ steps.workflow_info.outputs.workflow_name }}
+          WORKFLOW_CONCLUSION: ${{ steps.workflow_info.outputs.workflow_conclusion }}
+          WORKFLOW_URL: ${{ steps.workflow_info.outputs.workflow_url }}
+          ATTEMPT: ${{ steps.workflow_info.outputs.attempt }}
+          TRIGGERED_BY: ${{ steps.workflow_info.outputs.triggered_by }}
+          REF: ${{ steps.workflow_info.outputs.ref }}
+          EVENT_NAME: ${{ steps.workflow_info.outputs.event_name }}
+          HEAD_SHA: ${{ steps.workflow_info.outputs.head_sha }}
+        run: |
+          set_color() {
+            case $1 in
+              success) echo 2664261 ;; # 0x28A745 in decimal
+              failure) echo 13318193 ;; # 0xCB2431 in decimal
+              cancelled) echo 14390537 ;; # 0xDBAB09 in decimal
+              *) echo 15844367 ;; # Default color (0xF1C232) if status is unknown
+            esac
+          }
+          
+          COLOR=$(set_color "$WORKFLOW_CONCLUSION")
+          TITLE="$WORKFLOW_CONCLUSION: $WORKFLOW_NAME"
+          DESCRIPTION="Run attempt: $ATTEMPT"
+          
+          # Prepare event-specific fields
+          case $EVENT_NAME in
+            pull_request|pull_request_target)
+              if [ -n "${{ steps.workflow_info.outputs.pr_number }}" ]; then
+                EVENT_FIELD="{\"name\":\"Event - Pull Request\",\"value\":\"[#${{ steps.workflow_info.outputs.pr_number }}](${{ steps.workflow_info.outputs.pr_url }}) ${{ steps.workflow_info.outputs.pr_title }}\"}"
+              else
+                EVENT_FIELD="{\"name\":\"Event\",\"value\":\"$EVENT_NAME\"}"
+              fi
+              ;;
+            push)
+              SHORT_SHA="${HEAD_SHA:0:7}"
+              EVENT_FIELD="{\"name\":\"Event - Push\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) ${{ steps.workflow_info.outputs.commit_message }}\"}"
+              ;;
+            release)
+              EVENT_FIELD="{\"name\":\"Event - Release\",\"value\":\"[${{ steps.workflow_info.outputs.release_name }}](${{ steps.workflow_info.outputs.release_url }}) - ${{ steps.workflow_info.outputs.release_tag }}\"}"
+              ;;
+            workflow_dispatch)
+              EVENT_FIELD="{\"name\":\"Event - Manual Trigger\",\"value\":\"Workflow manually triggered by ${{ steps.workflow_info.outputs.workflow_dispatch_user }}\"}"
+              ;;
+            *)
+              EVENT_FIELD="{\"name\":\"Event\",\"value\":\"$EVENT_NAME\"}"
+              ;;
+          esac
+          
+          # Construct and send Discord webhook payload
+          payload=$(cat <<EOF
+          {
+            "embeds": [
+              {
+                "title": "$TITLE",
+                "description": "$DESCRIPTION",
+                "color": $COLOR,
+                "fields": [
+                  {
+                    "name": "Repository",
+                    "value": "[${{ github.repository }}](https://github.com/${{ github.repository }})",
+                    "inline": true
+                  },
+                  {
+                    "name": "Ref",
+                    "value": "$REF",
+                    "inline": true
+                  },
+                  $EVENT_FIELD,
+                  {
+                    "name": "Triggered by",
+                    "value": "$TRIGGERED_BY",
+                    "inline": true
+                  },
+                  {
+                    "name": "Workflow",
+                    "value": "[$WORKFLOW_NAME]($WORKFLOW_URL)",
+                    "inline": true
+                  }
+                ],
+                "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%S.000Z')"
+              }
+            ]
+          }
+          EOF
+          )
+          
+          curl -H "Content-Type: application/json" -d "$payload" $DISCORD_WEBHOOK
