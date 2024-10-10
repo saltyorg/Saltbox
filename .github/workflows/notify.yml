@@ -73,7 +73,7 @@ jobs:
           }
           
           COLOR=$(set_color "$WORKFLOW_CONCLUSION")
-          TITLE="$WORKFLOW_CONCLUSION: $WORKFLOW_NAME"
+          TITLE="${WORKFLOW_CONCLUSION^}: $WORKFLOW_NAME"
           DESCRIPTION="Run attempt: $ATTEMPT"
           
           # Prepare event-specific fields
