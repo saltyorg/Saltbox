@@ -40,7 +40,9 @@ crowdsec_scenarios_install_custom: []
 crowdsec_scenarios_install: "{{ crowdsec_scenarios_install_default
                                 + crowdsec_scenarios_install_custom }}"
 
-crowdsec_scenarios_remove_default: []
+crowdsec_scenarios_remove_default:
+  - "crowdsecurity/http-crawl-non_statics"
+  - "crowdsecurity/http-probing"
 crowdsec_scenarios_remove_custom: []
 crowdsec_scenarios_remove: "{{ crowdsec_scenarios_remove_default
                                + crowdsec_scenarios_remove_custom }}"
@@ -71,7 +73,9 @@ crowdsec_prometheus_listen_addr: "127.0.0.1"
 crowdsec_prometheus_listen_port: "6060"
 
 # Takes a list of exact router names to ignore when parsing Traefik access logs.
-# Include @file or @docker depending on the source of said router.
+# Include @file or @docker depending on the source of said router:
+# authelia@docker
+# authelia-http@docker
 crowdsec_whitelisted_routers: []
 # Takes list of specific IPs
 crowdsec_whitelisted_ips: []
