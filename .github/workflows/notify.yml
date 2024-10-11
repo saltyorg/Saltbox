@@ -57,6 +57,7 @@ jobs:
           fi
 
       - name: Send Discord Notification
+        if: steps.workflow_info.outputs.workflow_conclusion != 'failure' || (steps.workflow_info.outputs.workflow_conclusion == 'failure' && steps.workflow_info.outputs.attempt > 2)
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           WORKFLOW_NAME: ${{ steps.workflow_info.outputs.workflow_name }}
@@ -76,11 +77,11 @@ jobs:
               *) echo 15844367 ;; # Default color (0xF1C232) if status is unknown
             esac
           }
-          
+
           COLOR=$(set_color "$WORKFLOW_CONCLUSION")
           TITLE="${WORKFLOW_CONCLUSION^}: $WORKFLOW_NAME"
           DESCRIPTION="Run attempt: $ATTEMPT"
-          
+
           # Prepare event-specific fields
           case $EVENT_NAME in
             pull_request|pull_request_target)
@@ -104,7 +105,7 @@ jobs:
               EVENT_FIELD="{\"name\":\"Event\",\"value\":\"$EVENT_NAME\"}"
               ;;
           esac
-          
+
           # Construct and send Discord webhook payload
           payload=$(cat <<EOF
           {
@@ -142,5 +143,5 @@ jobs:
           }
           EOF
           )
-          
+
           curl -H "Content-Type: application/json" -d "$payload" $DISCORD_WEBHOOK
