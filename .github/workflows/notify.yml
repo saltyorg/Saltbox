@@ -86,20 +86,20 @@ jobs:
           case $EVENT_NAME in
             pull_request|pull_request_target)
               if [ -n "${{ steps.workflow_info.outputs.pr_number }}" ]; then
-                EVENT_FIELD="{\"name\":\"Event - Pull Request\",\"value\":\"[#${{ steps.workflow_info.outputs.pr_number }}](${{ steps.workflow_info.outputs.pr_url }}) ${{ steps.workflow_info.outputs.pr_title }}\"}"
+                EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[#${{ steps.workflow_info.outputs.pr_number }}](${{ steps.workflow_info.outputs.pr_url }}) ${{ steps.workflow_info.outputs.pr_title }}\"}"
               else
                 EVENT_FIELD="{\"name\":\"Event\",\"value\":\"$EVENT_NAME\"}"
               fi
               ;;
             push)
               SHORT_SHA="${HEAD_SHA:0:7}"
-              EVENT_FIELD="{\"name\":\"Event - Push\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) ${{ steps.workflow_info.outputs.commit_message }}\"}"
+              EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) ${{ steps.workflow_info.outputs.commit_message }}\"}"
               ;;
             release)
-              EVENT_FIELD="{\"name\":\"Event - Release\",\"value\":\"[${{ steps.workflow_info.outputs.release_name }}](${{ steps.workflow_info.outputs.release_url }}) - ${{ steps.workflow_info.outputs.release_tag }}\"}"
+              EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[${{ steps.workflow_info.outputs.release_name }}](${{ steps.workflow_info.outputs.release_url }}) - ${{ steps.workflow_info.outputs.release_tag }}\"}"
               ;;
             workflow_dispatch)
-              EVENT_FIELD="{\"name\":\"Event - Manual Trigger\",\"value\":\"Workflow manually triggered by ${{ steps.workflow_info.outputs.workflow_dispatch_user }}\"}"
+              EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"Workflow manually triggered by ${{ steps.workflow_info.outputs.workflow_dispatch_user }}\"}"
               ;;
             *)
               EVENT_FIELD="{\"name\":\"Event\",\"value\":\"$EVENT_NAME\"}"

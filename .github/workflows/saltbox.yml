@@ -115,18 +115,20 @@ jobs:
       - name: Syntax Check
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --syntax-check
 
-      - name: Create CI vars file
-        if: github.repository == 'saltyorg/Saltbox' && github.event_name != 'pull_request'
+      - name: Create basic vars file
         run: |
           echo "continuous_integration: true" > vars.yml
+
+      - name: Add Docker Hub info to vars file
+        if: github.repository == 'saltyorg/Saltbox' && github.event_name != 'pull_request'
+        run: |
           echo "dockerhub:" >> vars.yml
           echo "  token: ${{ secrets.DOCKERHUB_TOKEN }}" >> vars.yml
           echo "  user: ${{ secrets.DOCKERHUB_USERNAME }}" >> vars.yml
-          echo "EXTRA_VARS=--extra-vars \"@vars.yml\"" >> $GITHUB_ENV
 
       - name: Install Saltbox Core
-        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" ${{ env.EXTRA_VARS }}
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "core" --skip-tags "settings" --extra-vars "@vars.yml"
         if: ${{ !(contains(matrix.roles, 'saltbox') || contains(matrix.roles, 'feederbox') || contains(matrix.roles, 'mediabox') || contains(matrix.roles, 'core')) }}
 
       - name: Install ${{ matrix.roles }}
-        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" ${{ env.EXTRA_VARS }}
+        run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars "@vars.yml"
