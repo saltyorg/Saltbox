@@ -62,8 +62,9 @@
   delay: 10
   until: result is succeeded
 
-- name: Gather package facts
+- name: Binary | Gather package facts
   ansible.builtin.package_facts:
+    manager: apt
 
 - name: Binary | Install Docker binaries
   ansible.builtin.include_tasks: "binary2.yml"
