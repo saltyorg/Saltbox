@@ -2,7 +2,7 @@ name: Retry Workflow
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["CI", "CI - Every OS"]
     types:
       - completed
 
