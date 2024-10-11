@@ -124,7 +124,7 @@ rutorrent_config_new_installs_php_local_ini_settings_list: "{{ rutorrent_config_
 # rtorrent.rc
 rutorrent_config_existing_installs_rutorrent_rc_settings_default:
   # Execute - Initiate Plugins
-  - { option: "execute", value: "{sh,-c,/usr/bin/php81 /app/rutorrent/php/initplugins.php abc &}" }
+  - { option: "execute", value: "{sh,-c,/usr/bin/php83 /app/rutorrent/php/initplugins.php abc &}" }
   # IP address that is reported to the tracker
   - { option: "network.local_address.set", value: "{{ ip_address_public }}" }
   # Ports
