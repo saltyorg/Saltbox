@@ -52,6 +52,12 @@
   ansible.builtin.set_fact:
     plex_no_token: "{{ (not plex_ini.stat.exists) or plex_auth_client_identifier_missing | ternary(true, false) }}"
 
+- name: "Auth Token | Network Container Health Status"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
+  vars:
+    _var_prefix: "plex"
+  when: (plex_proxy_lookup | length > 0)
+
 - name: "Auth Token | Check if Token is valid"
   ansible.builtin.uri:
     url: "https://plex.tv/api/v2/user"
