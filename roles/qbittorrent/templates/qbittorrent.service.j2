@@ -12,6 +12,8 @@
 Description={{ qbittorrent_name }}
 After=network-online.target docker.service
 Requires=network-online.target docker.service
+StartLimitIntervalSec=500s
+StartLimitBurst=5
 
 [Service]
 User={{ user.name }}
@@ -22,6 +24,8 @@ ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ qbittorrent_docker_ports_8080 }}
 AmbientCapabilities=CAP_NET_RAW
 TimeoutStopSec=1800
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=default.target
