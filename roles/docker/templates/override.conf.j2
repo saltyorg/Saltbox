@@ -19,4 +19,5 @@ Requires={{ docker_service_after }}
 Wants=saltbox_managed_docker_controller_helper.service saltbox_managed_docker_update_hosts.service
 
 [Service]
+ExecStartPre=modprobe -va bridge br_netfilter
 ExecStartPre=/bin/sleep {{ docker_service_sleep }}

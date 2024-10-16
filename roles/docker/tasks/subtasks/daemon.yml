@@ -24,6 +24,7 @@
       fixed-cidr-v6: "{{ '2001:db8::/64'
                       if docker_ipv6
                       else omit }}"
+      iptables: true
       ip6tables: "{{ true
                   if docker_ipv6
                   else false }}"
