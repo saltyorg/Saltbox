@@ -55,7 +55,7 @@ jobs:
         run: ansible-lint
 
   find-roles:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -64,8 +64,8 @@ jobs:
         run: echo "matrix={\"roles\":[$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|nvidia\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\|crowdsec\).,//g")]}" >> $GITHUB_OUTPUT
 
   install:
-    name: '${{ matrix.roles }}-${{ matrix.os }}'
-    runs-on: ubuntu-${{ matrix.os }}
+    name: '${{ matrix.roles }}'
+    runs-on: ubuntu-24.04
     needs: [ansible-lint, find-roles]
     strategy:
       matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
