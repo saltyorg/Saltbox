@@ -81,35 +81,35 @@
   loop: "{{ crowdsec_collections_install }}"
   when: (crowdsec_collections_install | length > 0)
 
-- name: Remove collections
-  ansible.builtin.shell: "cscli collections remove {{ item }} --force"
-  loop: "{{ crowdsec_collections_remove }}"
-  when: (crowdsec_collections_remove | length > 0)
-
 - name: Install scenarios
   ansible.builtin.shell: "cscli scenarios install {{ item }} --force"
   loop: "{{ crowdsec_scenarios_install }}"
   when: (crowdsec_scenarios_install | length > 0)
-
-- name: Remove scenarios
-  ansible.builtin.shell: "cscli scenarios remove {{ item }} --force"
-  loop: "{{ crowdsec_scenarios_remove }}"
-  when: (crowdsec_scenarios_remove | length > 0)
 
 - name: Install parsers
   ansible.builtin.shell: "cscli parsers install {{ item }} --force"
   loop: "{{ crowdsec_parsers_install }}"
   when: (crowdsec_parsers_install | length > 0)
 
-- name: Remove parsers
-  ansible.builtin.shell: "cscli parsers remove {{ item }} --force"
-  loop: "{{ crowdsec_parsers_remove }}"
-  when: (crowdsec_parsers_remove | length > 0)
-
 - name: Install postoverflows
   ansible.builtin.shell: "cscli postoverflows install {{ item }} --force"
   loop: "{{ crowdsec_postoverflows_install }}"
   when: (crowdsec_postoverflows_install | length > 0)
+
+- name: Remove collections
+  ansible.builtin.shell: "cscli collections remove {{ item }} --force"
+  loop: "{{ crowdsec_collections_remove }}"
+  when: (crowdsec_collections_remove | length > 0)
+
+- name: Remove scenarios
+  ansible.builtin.shell: "cscli scenarios remove {{ item }} --force"
+  loop: "{{ crowdsec_scenarios_remove }}"
+  when: (crowdsec_scenarios_remove | length > 0)
+
+- name: Remove parsers
+  ansible.builtin.shell: "cscli parsers remove {{ item }} --force"
+  loop: "{{ crowdsec_parsers_remove }}"
+  when: (crowdsec_parsers_remove | length > 0)
 
 - name: Remove postoverflows
   ansible.builtin.shell: "sudo cscli postoverflows remove {{ item }} --force"
