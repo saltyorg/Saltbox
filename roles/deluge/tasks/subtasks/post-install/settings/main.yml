@@ -19,8 +19,29 @@
     regexp: '"listen_random_port": ([\d|\W]+),'
     replace: '"listen_random_port": null,'
 
-- name: Post-Install | Settings | Update 'core.conf' | Disable random ports
+- name: Post-Install | Settings | Update 'core.conf' | Disable random incoming port
   ansible.builtin.replace:
     path: "{{ deluge_paths_conf }}"
     regexp: '"random_port": ([\w]+),'
     replace: '"random_port": false,'
+
+- name: Post-Install | Settings | Update 'core.conf' | Enable random outgoing ports
+  ansible.builtin.replace:
+    path: "{{ deluge_paths_conf }}"
+    regexp: '"random_outgoing_ports": ([\w]+),'
+    replace: '"random_outgoing_ports": true,'
+
+- name: New Install
+  when: not deluge_paths_conf_stat.stat.exists
+  block:
+    - name: Post-Install | Settings | Update 'core.conf' | Disable Network Extras
+      ansible.builtin.replace:
+        path: "{{ deluge_paths_conf }}"
+        regexp: '"{{ item }}": ([\w]+){{ "," if item != "utpex" else "" }}'
+        replace: '"{{ item }}": false{{ "," if item != "utpex" else "" }}'
+      loop:
+        - "dht"
+        - "lsd"
+        - "natpmp"
+        - "upnp"
+        - "utpex"

@@ -14,3 +14,8 @@
     protocol: both
   register: port_lookup_58112
   ignore_errors: true
+
+- name: Pre-Install | Check if existing config file exists
+  ansible.builtin.stat:
+    path: "{{ deluge_paths_conf }}"
+  register: deluge_paths_conf_stat
