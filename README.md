@@ -46,6 +46,7 @@ If you find this project helpful, feel free to make a small [donation](https://g
 </picture>
 
 <br>
+<br>
 
 Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free licenses to their great tools.
 
