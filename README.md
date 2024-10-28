@@ -37,9 +37,18 @@ This project was designed for x64 machines running Ubuntu Server 20.04 or 22.04.
 - and more...
 
 If you find this project helpful, feel free to make a small [donation](https://github.com/sponsors/saltydk) to the developer.
+<br>
+<br>
 
-### JetBrains
-Thank you to [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains" width="32"> JetBrains](http://www.jetbrains.com/) for providing us with free licenses to their great tools.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./pictures/jetbrains-white.svg">
+  <img alt="JetBrains" src="./pictures/jetbrains.svg">
+</picture>
+
+<br>
+
+Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free licenses to their great tools.
+
 
 ### Contributors
 
