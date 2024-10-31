@@ -115,11 +115,17 @@
     status_code: 200
   register: flow_instances
 
-- name: set_fact authorization flow
+- name: Set authorization flow
   ansible.builtin.set_fact:
     authentik_authorization_flow_uuid: "{{ item.pk }}"
   loop: "{{ flow_instances.json.results }}"
   when: item.slug == "default-provider-authorization-implicit-consent"
+
+- name: Set invalidation flow
+  ansible.builtin.set_fact:
+    authentik_invalidation_flow_uuid: "{{ item.pk }}"
+  loop: "{{ flow_instances.json.results }}"
+  when: item.slug == "default-provider-invalidation-flow"
 
 - name: Create Traefik Forward Auth provider
   ansible.builtin.uri:
@@ -133,10 +139,11 @@
     body:
       name: "Traefik Forward Auth"
       authorization_flow: "{{ authentik_authorization_flow_uuid }}"
+      invalidation_flow: "{{ authentik_invalidation_flow_uuid }}"
       cookie_domain: "{{ authentik_web_domain }}"
       external_host: "{{ authentik_web_url }}"
       mode: "forward_domain"
-      access_token_validity: "hours=24"
+      access_token_validity: "hours={{ authentik_access_token_validity }}"
     status_code: 201
   register: proxy_providers
 
@@ -181,6 +188,42 @@
       config:
         authentik_host: "{{ authentik_web_url }}"
     status_code: 200
+
+- name: Get admins group ID
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/core/groups/?name=admins"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    status_code: 200
+  register: admin_group_response
+
+- name: Get all notification rules
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/events/rules/"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    status_code: 200
+  register: notification_rules
+
+- name: Update notification rules with admins group
+  ansible.builtin.uri:
+    url: "{{ authentik_host }}/api/v3/events/rules/{{ item.pk }}/"
+    method: PATCH
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ authentik_admin_token }}"
+      Content-Type: "application/json"
+      Accept: "application/json"
+    body:
+      group: "{{ admin_group_response.json.results[0].pk }}"
+    status_code: 200
+  loop: "{{ notification_rules.json.results }}"
 
 - name: Remove existing Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -249,4 +292,5 @@
       Accept: "application/json"
     body:
       is_active: false
+      groups: []
     status_code: 200
