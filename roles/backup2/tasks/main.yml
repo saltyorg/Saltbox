@@ -387,7 +387,7 @@
       failed_when: rclone_move.rc > 3
       ignore_errors: true
       when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
-      loop: "{{ backup_archive_list + backup_user_defined_files }}"
+      loop: "{{ backup_archive_list + (backup2_user_defined_files | map('basename') | list) }}"
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
