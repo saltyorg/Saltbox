@@ -10,7 +10,7 @@
 - name: "Execute Traktarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    traktarr_name: "{{ role }}"
+    traktarr_name: "{{ instance }}"
   with_items: "{{ traktarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

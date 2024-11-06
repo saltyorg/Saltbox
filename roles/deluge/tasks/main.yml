@@ -10,7 +10,7 @@
 - name: "Execute Deluge roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    deluge_name: "{{ role }}"
+    deluge_name: "{{ instance }}"
   with_items: "{{ deluge_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

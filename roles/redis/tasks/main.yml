@@ -10,7 +10,7 @@
 - name: "Execute Redis roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    redis_name: "{{ role }}"
+    redis_name: "{{ instance }}"
   with_items: "{{ redis_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

@@ -10,7 +10,7 @@
 - name: "Execute Gluetun roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    gluetun_name: "{{ role }}"
+    gluetun_name: "{{ instance }}"
   with_items: "{{ gluetun_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

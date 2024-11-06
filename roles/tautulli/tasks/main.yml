@@ -10,7 +10,7 @@
 - name: "Execute Tautulli roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    tautulli_name: "{{ role }}"
+    tautulli_name: "{{ instance }}"
   with_items: "{{ tautulli_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

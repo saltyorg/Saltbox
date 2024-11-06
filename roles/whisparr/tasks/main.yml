@@ -10,7 +10,7 @@
 - name: "Execute Whisparr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    whisparr_name: "{{ role }}"
+    whisparr_name: "{{ instance }}"
   with_items: "{{ whisparr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

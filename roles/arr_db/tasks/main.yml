@@ -25,51 +25,51 @@
   ansible.builtin.include_tasks: arr.yml
   when: arr_db_sonarr_enabled
   vars:
-    sonarr_name: "{{ role }}"
+    sonarr_name: "{{ instance }}"
     arr_type: "sonarr"
   with_items: "{{ sonarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: "Execute Radarr DB tasks"
   ansible.builtin.include_tasks: arr.yml
   when: arr_db_radarr_enabled
   vars:
-    radarr_name: "{{ role }}"
+    radarr_name: "{{ instance }}"
     arr_type: "radarr"
   with_items: "{{ radarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: "Execute Lidarr DB tasks"
   ansible.builtin.include_tasks: arr.yml
   when: arr_db_lidarr_enabled
   vars:
-    lidarr_name: "{{ role }}"
+    lidarr_name: "{{ instance }}"
     arr_type: "lidarr"
   with_items: "{{ lidarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: "Execute Readarr DB tasks"
   ansible.builtin.include_tasks: arr.yml
   when: arr_db_readarr_enabled
   vars:
-    readarr_name: "{{ role }}"
+    readarr_name: "{{ instance }}"
     arr_type: "readarr"
   with_items: "{{ readarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: "Execute Whisparr DB tasks"
   ansible.builtin.include_tasks: arr.yml
   when: arr_db_whisparr_enabled
   vars:
-    whisparr_name: "{{ role }}"
+    whisparr_name: "{{ instance }}"
     arr_type: "whisparr"
   with_items: "{{ whisparr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: "Execute Prowlarr DB tasks"
   ansible.builtin.include_tasks: arr.yml
@@ -81,7 +81,7 @@
   ansible.builtin.include_tasks: tautulli.yml
   when: arr_db_tautulli_enabled
   vars:
-    tautulli_name: "{{ role }}"
+    tautulli_name: "{{ instance }}"
   with_items: "{{ tautulli_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

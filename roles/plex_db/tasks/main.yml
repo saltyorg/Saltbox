@@ -26,10 +26,10 @@
 - name: "Execute Plex DB tasks"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    plex_name: "{{ role }}"
+    plex_name: "{{ instance }}"
   with_items: "{{ plex_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
 
 - name: A Plex instance failed the integrity check.
   ansible.builtin.fail:

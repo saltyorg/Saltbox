@@ -10,7 +10,7 @@
 - name: "Execute Lidarr roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    lidarr_name: "{{ role }}"
+    lidarr_name: "{{ instance }}"
   with_items: "{{ lidarr_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance

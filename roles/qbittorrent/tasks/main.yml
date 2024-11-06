@@ -10,7 +10,7 @@
 - name: "Execute qBittorrent roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
-    qbittorrent_name: "{{ role }}"
+    qbittorrent_name: "{{ instance }}"
   with_items: "{{ qbittorrent_instances }}"
   loop_control:
-    loop_var: role
+    loop_var: instance
