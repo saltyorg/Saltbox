@@ -28,6 +28,9 @@ def load_and_save_facts(file_path, instance, keys, owner, group, mode):
             changed = True
 
     if changed:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
         with open(file_path, 'w') as configfile:
             config.write(configfile)
         
@@ -53,7 +56,7 @@ def delete_facts(file_path, delete_type, instance, keys):
                 config.remove_option(instance, key)
                 changed = True
 
-    if changed:
+    if changed and delete_type != 'role':
         with open(file_path, 'w') as configfile:
             config.write(configfile)
 
@@ -70,6 +73,9 @@ def parse_mode(mode):
             raise ValueError(f"Invalid octal mode: {mode}")
     else:
         raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0644').")
+
+def get_current_user():
+    return pwd.getpwuid(os.getuid()).pw_name
 
 def run_module():
     module_args = dict(
@@ -99,8 +105,11 @@ def run_module():
     method = module.params['method']
     keys = module.params['keys']
     delete_type = module.params.get('delete_type')
-    owner = module.params.get('owner') or module.params['ansible_user_id']
-    group = module.params.get('group') or module.params['ansible_user_id']
+    
+    # Use current user as default if owner/group not specified
+    current_user = get_current_user()
+    owner = module.params.get('owner') or current_user
+    group = module.params.get('group') or current_user
 
     try:
         mode = parse_mode(module.params['mode'])
