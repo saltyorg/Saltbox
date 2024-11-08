@@ -1,0 +1,14 @@
+##########################################################################
+# Title:         Saltbox: Plex Fix Futures | Default Variables           #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+plex_type_mapping:
+  movie: 1
+  show: 2
+  season: 3
+  episode: 4

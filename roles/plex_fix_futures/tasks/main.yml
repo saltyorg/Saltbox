@@ -1,0 +1,16 @@
+##########################################################################
+# Title:         Saltbox: Plex Fix Futures Role                          #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: "Execute Plex DB tasks"
+  ansible.builtin.include_tasks: main2.yml
+  vars:
+    plex_name: "{{ instance }}"
+  with_items: "{{ plex_instances }}"
+  loop_control:
+    loop_var: instance

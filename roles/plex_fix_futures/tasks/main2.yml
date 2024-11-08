@@ -1,0 +1,47 @@
+##########################################################################
+# Title:         Saltbox: Plex Fix Futures Role                          #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: "Load facts for a specific instance"
+  saltbox_facts:
+    role: "plex"
+    instance: "{{ plex_name }}"
+    keys:
+      token: ""
+    method: "load"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+  register: plex_instance_token
+
+- name: Plex API Block
+  when: (plex_instance_token.facts.token | length > 0)
+  block:
+    - name: Get items that have a date set in the future
+      ansible.builtin.shell: |
+        curl -s '{{ plex_web_url }}/library/all?X-Plex-Token={{ plex_instance_token.facts.token }}' -H 'Accept: application/json' | jq -c --arg now '{{ ansible_date_time.epoch }}' '.MediaContainer.Metadata[] | select(.addedAt > ($now|tonumber)) | {id: .ratingKey, addedAt: .addedAt, updatedAt: .updatedAt, title: .title, librarySectionID: .librarySectionID, type: .type}'
+      register: plex_future_items_request
+
+    - name: Convert request output into a list of dictionaries
+      ansible.builtin.set_fact:
+        plex_future_items: "{{ plex_future_items_request.stdout_lines | map('from_json') }}"
+
+    - name: Add type_id to each item
+      ansible.builtin.set_fact:
+        plex_future_items_typed: "{{ plex_future_items_typed | default([]) + [item | combine({'type_id': plex_type_mapping[item.type]})] }}"
+      loop: "{{ plex_future_items }}"
+
+    - name: Fix future dates
+      ansible.builtin.shell: |
+        curl -X PUT '{{ plex_web_url }}/library/sections/{{ item.librarySectionID }}/all?type={{ item.type_id }}&id={{ item.id }}&addedAt.value={{ item.updatedAt }}&X-Plex-Token={{ plex_instance_token.facts.token }}'
+      loop: "{{ plex_future_items_typed }}"
+      register: plex_future_items_task
+      when: plex_future_items_typed is defined
+
+    - name: Status
+      ansible.builtin.debug:
+        msg: "All items {{ 'have been fixed' if not plex_future_items_task.skipped else 'were fine already' }}."
