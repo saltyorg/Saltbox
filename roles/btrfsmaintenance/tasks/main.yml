@@ -52,20 +52,6 @@
         name: "btrfsmaintenance-refresh.service"
         state: restarted
 
-    - name: "Enable systemd services and timers"
-      ansible.builtin.systemd_service:
-        name: "{{ item }}"
-        enabled: true
-      with_items:
-        - "btrfs-balance.service"
-        - "btrfs-defrag.service"
-        - "btrfs-scrub.service"
-        - "btrfs-trim.service"
-        - "btrfs-balance.timer"
-        - "btrfs-defrag.timer"
-        - "btrfs-scrub.timer"
-        - "btrfs-trim.timer"
-
 # Check for no btrfs and exit - not working
 - name: "Exit if no btrfs partitions found"
   ansible.builtin.debug:
