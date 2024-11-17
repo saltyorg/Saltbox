@@ -7,8 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Stop and disable service
-  ansible.builtin.systemd_service:
-    name: "{{ cloudplow_service_name }}"
-    state: stopped
-    enabled: false
+- name: Delete Service
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/delete_service.yml"
+  vars:
+    _service_name: "{{ cloudplow_service_name }}"

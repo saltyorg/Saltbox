@@ -61,7 +61,8 @@ cloudplow_git_repo_branch_secondary: "develop"
 # Systemd
 ################################
 
-cloudplow_service_name: "{{ cloudplow_name }}"
+cloudplow_service_name: "saltbox_managed_{{ cloudplow_name }}"
+cloudplow_service_name_old: "{{ cloudplow_name }}"
 
 ################################
 # Rclone
