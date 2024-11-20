@@ -40,6 +40,7 @@ import pwd
 import grp
 import tempfile
 import shutil
+from io import StringIO
 
 def validate_instance_name(instance):
     """
@@ -178,7 +179,7 @@ def load_and_save_facts(file_path, instance, keys, owner, group, mode):
                 changed = True
 
         if changed:
-            with tempfile.StringIO() as string_buffer:
+            with StringIO() as string_buffer:
                 config.write(string_buffer)
                 config_str = string_buffer.getvalue()
             
