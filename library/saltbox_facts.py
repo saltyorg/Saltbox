@@ -3,10 +3,10 @@
 Ansible module for managing Saltbox configuration facts.
 
 This module provides functionality to load, save, and delete configuration facts
-for Saltbox roles. It handles configuration file operations with atomic writes
-and proper error handling.
+for Saltbox roles.
 
 Example Usage:
+    # Save new facts otherwise loads existing facts
     - name: Save facts for role
       saltbox_facts:
         role: myapp
@@ -17,8 +17,32 @@ Example Usage:
           key2: value2
         owner: user1
         group: group1
-        mode: '0644'
+        mode: "0644"
+      register: register_var
 
+    # Load existing facts (keys parameter provides defaults for missing values)
+    - name: Load facts
+      saltbox_facts:
+        role: myapp
+        instance: instance1
+        method: load
+        keys:
+          key1: default1
+          key2: default2
+      register: register_var
+
+    # Delete specific keys from instance
+    - name: Delete specific keys
+      saltbox_facts:
+        role: myapp
+        instance: instance1
+        method: delete
+        delete_type: key
+        keys:
+          key1: ""
+          key2: ""
+
+    # Delete entire instance
     - name: Delete instance
       saltbox_facts:
         role: myapp
@@ -26,11 +50,52 @@ Example Usage:
         method: delete
         delete_type: instance
 
-    - name: Load facts
+    # Delete entire role (removes configuration file)
+    - name: Delete role
       saltbox_facts:
         role: myapp
         instance: instance1
-        method: load
+        method: delete
+        delete_type: role
+
+    # Save with default owner/group (current user)
+    - name: Save facts with defaults
+      saltbox_facts:
+        role: myapp
+        instance: instance1
+        method: save
+        keys:
+          key1: value1
+      register: register_var
+
+    # Save with specific file permissions
+    - name: Save facts with custom permissions
+      saltbox_facts:
+        role: myapp
+        instance: instance1
+        method: save
+        keys:
+          key1: value1
+        mode: "0600"
+      register: register_var
+
+Return Values:
+    facts:
+        description: Dictionary containing the loaded or saved facts
+        type: dict
+        returned: When method is 'load' or 'save'
+    changed:
+        description: Whether any changes were made
+        type: bool
+        returned: always
+    message:
+        description: Informational or error message
+        type: str
+        returned: when applicable
+    warnings:
+        description: List of warning messages
+        type: list
+        returned: when applicable
 """
 
 from ansible.module_utils.basic import AnsibleModule
