@@ -45,7 +45,7 @@ jobs:
             fi
           elif [ "$event_name" == "push" ]; then
             commit_info=$(gh api /repos/${{ github.repository }}/commits/$(echo $workflow_run_info | jq -r '.head_sha'))
-            echo "commit_message=$(echo $commit_info | jq -r '.commit.message' | head -n 1)" >> $GITHUB_OUTPUT
+            echo "commit_message=$(echo $commit_info | jq -r '.commit.message' | cut -c 1-4000)" >> $GITHUB_OUTPUT
             echo "commit_url=$(echo $commit_info | jq -r '.html_url')" >> $GITHUB_OUTPUT
           elif [ "$event_name" == "release" ]; then
             release_info=$(gh api /repos/${{ github.repository }}/releases/latest)
@@ -93,7 +93,7 @@ jobs:
               ;;
             push)
               SHORT_SHA="${HEAD_SHA:0:7}"
-              COMMIT_MSG=$(echo "${{ steps.workflow_info.outputs.commit_message }}" | jq -R .)
+              COMMIT_MSG=$(echo "${{ steps.workflow_info.outputs.commit_message }}" | jq -R -r '. | gsub("\\n"; "\n"))
               EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) $COMMIT_MSG\"}"
               ;;
             release)
