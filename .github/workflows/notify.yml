@@ -93,7 +93,8 @@ jobs:
               ;;
             push)
               SHORT_SHA="${HEAD_SHA:0:7}"
-              EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) ${{ steps.workflow_info.outputs.commit_message }}\"}"
+              COMMIT_MSG=$(echo "${{ steps.workflow_info.outputs.commit_message }}" | jq -R .)
+              EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) $COMMIT_MSG\"}"
               ;;
             release)
               EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[${{ steps.workflow_info.outputs.release_name }}](${{ steps.workflow_info.outputs.release_url }}) - ${{ steps.workflow_info.outputs.release_tag }}\"}"
