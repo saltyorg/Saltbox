@@ -93,7 +93,7 @@ jobs:
               ;;
             push)
               SHORT_SHA="${HEAD_SHA:0:7}"
-              COMMIT_MSG=$(echo "${{ steps.workflow_info.outputs.commit_message }}" | jq -R -r '. | gsub("\\n"; "\n"))
+              COMMIT_MSG=$(echo "${{ steps.workflow_info.outputs.commit_message }}" | jq -R -r '. | gsub("\\n"; "\\n")')
               EVENT_FIELD="{\"name\":\"Event - $EVENT_NAME\",\"value\":\"[\`$SHORT_SHA\`](${{ steps.workflow_info.outputs.commit_url }}) $COMMIT_MSG\"}"
               ;;
             release)
