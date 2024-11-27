@@ -16,6 +16,7 @@ mock_modules:
   - find_open_port
   - saltbox_facts
   - qbittorrent_passwd
+  - migrate_folder
 
 skip_list:
   - braces
