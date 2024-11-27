@@ -11,7 +11,7 @@
 # Basics
 ################################
 
-error_pages_name: error_pages
+error_pages_name: error-pages
 
 ################################
 # Config
@@ -53,7 +53,7 @@ error_pages_docker_commands: "{{ error_pages_docker_commands_default
 
 # Volumes
 error_pages_docker_volumes_default:
-  - "/opt/error_pages:/opt/html"
+  - "/opt/error-pages:/opt/html"
 error_pages_docker_volumes_custom: []
 error_pages_docker_volumes: "{{ error_pages_docker_volumes_default
                                 + error_pages_docker_volumes_custom }}"

@@ -7,14 +7,23 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Check if folder already exists
+- name: Check if legacy folder exists
   ansible.builtin.stat:
     path: "/opt/error_pages"
+  register: error_pages_legacy_folder
+
+- name: Migrate legacy folder if it exists
+  ansible.builtin.shell: "mv /opt/error_pages /opt/error-pages"
+  when: error_pages_legacy_folder.stat.exists
+
+- name: Check if folder already exists
+  ansible.builtin.stat:
+    path: "/opt/error-pages"
   register: error_pages_folder
 
 - name: Create directory
   ansible.builtin.file:
-    path: "/opt/error_pages"
+    path: "/opt/error-pages"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -23,12 +32,12 @@
 
 - name: Export error pages from container
   community.docker.docker_container:
-    name: error_pages-build
+    name: error-pages-build
     image: "tarampampam/error-pages"
     user: "{{ uid }}:{{ gid }}"
     command: "build --config-file ./error-pages.yml /out"
     volumes:
-      - "/opt/error_pages:/out:rw"
+      - "/opt/error-pages:/out:rw"
     networks:
       - name: saltbox
     container_default_behavior: compatibility
