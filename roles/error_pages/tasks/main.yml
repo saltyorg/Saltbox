@@ -12,8 +12,14 @@
     path: "/opt/error_pages"
   register: error_pages_legacy_folder
 
-- name: Migrate legacy folder if it exists
-  ansible.builtin.shell: "mv /opt/error_pages /opt/error-pages"
+- name: Migrate error pages directory
+  migrate_folder:
+    legacy_path: /opt/error_pages
+    new_path: /opt/error-pages
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0775'
+    recurse: false
   when: error_pages_legacy_folder.stat.exists
 
 - name: Check if folder already exists
