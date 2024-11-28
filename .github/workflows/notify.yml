@@ -16,11 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
       - name: Send notification
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          chmod +x .github/scripts/notify.sh
-          .github/scripts/notify.sh
+          python .github/scripts/notify.py
