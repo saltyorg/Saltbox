@@ -13,7 +13,7 @@ netaddr==1.3.0
 passlib==1.7.4
 pexpect==4.9.0
 PyMySQL==1.1.1
-pyOpenSSL==24.2.1
+pyOpenSSL==24.3.0
 requests==2.32.3
 ruamel.yaml==0.18.6
 tld==0.13
