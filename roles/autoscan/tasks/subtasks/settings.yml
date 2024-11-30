@@ -15,6 +15,12 @@
 - name: Settings | New `{{ autoscan_paths_config_location | basename }}` tasks
   when: (not autoscan_config.stat.exists)
   block:
+    - name: Settings | Get Instance Info
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
+      vars:
+        get_info_list:
+          - plex
+
     - name: Settings | Import default `{{ autoscan_paths_config_location | basename }}`
       ansible.builtin.template:
         src: config.yml.j2

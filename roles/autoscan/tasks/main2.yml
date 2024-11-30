@@ -7,12 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Get Instance Info
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
-  vars:
-    get_info_list:
-      - plex
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
