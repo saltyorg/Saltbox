@@ -199,15 +199,22 @@ def start_containers_with_shell(containers: List[str]):
             logging.error(f"Failed to start containers with error: {err}")
 
 
-def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str):
+def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, timeout: int = 600):
     client = docker.from_env()
     started_containers = set()
     containers_to_start = set(_graph.nodes.keys())
     logged_health_check_waiting = set()
     skip_start_due_to_placeholder = set()
     container_start_times = defaultdict(lambda: 0.0)
+    
+    start_time = time.time()
 
     while containers_to_start and running:
+        if time.time() - start_time > timeout:
+            logging.error(f"Container start operation timed out after {timeout} seconds")
+            job_manager.update_job(job_id, JobStatus.FAILED)
+            return
+
         current_time = time.time()
         ready_to_start = []
 
@@ -284,13 +291,22 @@ def stop_containers_with_shell(containers: List[str], ignore_containers: Set[str
                 logging.error(f"Failed to stop containers with error: {err}")
 
 
-def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None, job_id: str = None):
+def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None, job_id: str = None, timeout: int = 600):
     if ignore_containers is None:
         ignore_containers = set()
     stopped_containers = set()
     containers_to_stop = set(_graph.nodes.keys()) - ignore_containers
+    
+    start_time = time.time()
 
     while containers_to_stop:
+        # Check if we've exceeded the timeout
+        if time.time() - start_time > timeout:
+            logging.error(f"Container stop operation timed out after {timeout} seconds")
+            if job_id:
+                job_manager.update_job(job_id, JobStatus.FAILED)
+            return
+
         ready_to_stop = []
 
         for container_name in list(containers_to_stop):
@@ -392,7 +408,7 @@ async def ping():
 
 
 @app.post("/start")
-async def start_containers(background_tasks: BackgroundTasks):
+async def start_containers(background_tasks: BackgroundTasks, timeout: int = Query(default=600, description="Timeout in seconds")):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
     
@@ -403,8 +419,7 @@ async def start_containers(background_tasks: BackgroundTasks):
     def start_containers_task():
         job_manager.update_job(job_id, JobStatus.RUNNING)
         try:
-            start_containers_in_dependency_order(_graph, job_id)
-            job_manager.update_job(job_id, JobStatus.COMPLETED)
+            start_containers_in_dependency_order(_graph, job_id, timeout)
         except Exception as e:
             logging.error(f"Failed to start containers: {str(e)}")
             job_manager.update_job(job_id, JobStatus.FAILED)
@@ -414,7 +429,8 @@ async def start_containers(background_tasks: BackgroundTasks):
 
 
 @app.post("/stop")
-async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] = Query(None)):
+async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] = Query(None), timeout: int = Query(default=600, description="Timeout in seconds")
+):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
 
@@ -426,8 +442,7 @@ async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] =
     def stop_containers_task():
         job_manager.update_job(job_id, JobStatus.RUNNING)
         try:
-            stop_containers_in_dependency_order(_graph, ignore_containers, job_id)
-            job_manager.update_job(job_id, JobStatus.COMPLETED)
+            stop_containers_in_dependency_order(_graph, ignore_containers, job_id, timeout)
         except Exception as e:
             logging.error(f"Failed to stop containers: {str(e)}")
             job_manager.update_job(job_id, JobStatus.FAILED)
