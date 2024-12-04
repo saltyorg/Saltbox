@@ -1,4 +1,4 @@
 requests==2.32.3
-cloudflare==3.1.0
+cloudflare==3.1.1
 pydantic==2.9.2 # Temporary fix until 2.10 issues are resolved
 httpx==0.27.2 # Lock version per salty
