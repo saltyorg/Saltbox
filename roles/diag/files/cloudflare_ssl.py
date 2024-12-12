@@ -22,7 +22,7 @@ def get_ssl_tls_mode(auth_email, auth_key, zone_name):
 
     # Get the SSL/TLS settings for the zone
     try:
-        ssl_settings = cf.zones.settings.ssl.get(zone_id=zone_id).to_dict()
+        ssl_settings = cf.zones.settings.get(setting_id='ssl', zone_id=zone_id).to_dict()
         ssl_mode = ssl_settings['value']
         print(f"{ssl_mode}")
     except cloudflare.APIConnectionError as e:
