@@ -17,8 +17,17 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
+- name: "Check if config folder exists"
+  ansible.builtin.stat:
+    path: "{{ portainer_paths_location }}"
+  register: portainer_config_stat
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+- name: Setup Tasks
+  ansible.builtin.import_tasks: "subtasks/setup.yml"
+  when: not portainer_config_stat.stat.exists
