@@ -5,9 +5,12 @@ import sys
 import json
 from datetime import datetime, timezone
 import requests
+import time
 from typing import Dict, Any, Optional
 
 DISCORD_FIELD_VALUE_LIMIT = 1024  # Discord's limit for field values
+MAX_RETRIES = 10  # Maximum number of retries for fetching workflow data
+RETRY_DELAY = 30  # Delay between retries in seconds
 
 def check_required_vars() -> None:
     """Check if all required environment variables are set."""
@@ -26,6 +29,26 @@ def get_github_data(url: str) -> Dict[str, Any]:
     data = response.json()
     print(f"Received data: {json.dumps(data, indent=2)}")
     return data
+
+def get_workflow_data_with_retry(repo: str, run_id: str) -> Dict[str, Any]:
+    """
+    Fetch workflow data with retries if conclusion is null.
+    Returns workflow data once conclusion is available or after max retries.
+    """
+    for attempt in range(MAX_RETRIES):
+        workflow_data = get_github_data(
+            f"https://api.github.com/repos/{repo}/actions/runs/{run_id}"
+        )
+        
+        if workflow_data.get("conclusion") is not None:
+            print(f"Got conclusion after {attempt + 1} attempts: {workflow_data['conclusion']}")
+            return workflow_data
+            
+        print(f"Attempt {attempt + 1}/{MAX_RETRIES}: Conclusion is null, retrying in {RETRY_DELAY} seconds...")
+        time.sleep(RETRY_DELAY)
+    
+    print(f"Max retries ({MAX_RETRIES}) reached, proceeding with last received data")
+    return workflow_data
 
 def get_discord_color(conclusion: str) -> int:
     """Get Discord color code based on workflow conclusion."""
@@ -106,14 +129,12 @@ def main() -> None:
     run_id = os.getenv("WORKFLOW_RUN_ID", "")
     webhook_url = os.getenv("DISCORD_WEBHOOK", "")
     
-    # Fetch workflow data
-    workflow_data = get_github_data(
-        f"https://api.github.com/repos/{repo}/actions/runs/{run_id}"
-    )
+    # Fetch workflow data with retries
+    workflow_data = get_workflow_data_with_retry(repo, run_id)
     
     # Extract basic information
     workflow_name = workflow_data["name"]
-    conclusion = workflow_data["conclusion"]
+    conclusion = workflow_data.get("conclusion", "unknown")  # Default to "unknown" if still null
     attempt = workflow_data["run_attempt"]
     
     # Skip notification for early failure attempts
