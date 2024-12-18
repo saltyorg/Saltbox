@@ -131,9 +131,9 @@
     enabled: true
     daemon_reload: true
 
-- name: "Wait for 30 seconds before commencing"
+- name: "Wait for 60 seconds before commencing"
   ansible.builtin.wait_for:
-    timeout: "30"
+    timeout: "60"
 
 - name: "Import Controller tasks"
   ansible.builtin.import_tasks: "subtasks/controller.yml"
