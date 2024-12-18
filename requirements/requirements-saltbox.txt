@@ -1,6 +1,6 @@
 ansible==11.1.0
 ansible-lint==24.12.2
-apprise==1.9.0
+apprise==1.9.1
 argon2_cffi==23.1.0
 certbot==3.0.1
 dnspython==2.7.0
