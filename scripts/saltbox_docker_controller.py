@@ -370,7 +370,7 @@ async def lifespan(app: FastAPI):
 
     for attempt in range(1, retry_attempts + 1):
         try:
-            client = docker.from_env()
+            client = docker.from_env(timeout=10)
             docker_version = client.version()
             logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
 

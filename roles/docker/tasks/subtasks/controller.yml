@@ -80,7 +80,7 @@
     status_code: 200
   register: result
   retries: 12
-  delay: 5
+  delay: 10
 
 - name: Controller | Block Docker Controller
   ansible.builtin.uri:
