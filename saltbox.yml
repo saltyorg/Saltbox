@@ -110,7 +110,6 @@
     - { role: hetzner_vlan, tags: ['hetzner-vlan-deploy', 'hetzner-vlan-remove'] }
     - { role: permissions, tags: ['fix-permissions'] }
     - { role: plex_auth_token, tags: ['plex-auth-token'] }
-    - { role: plex_extra_tasks, tags: ['plex-extra-tasks'] }
     - { role: plex_fix_futures, tags: ['plex-fix-futures'] }
     - { role: saltbox_mod, tags: ['saltbox-mod'] }
     - { role: sub_zero, tags: ['plex-plugins-sub-zero', 'plex-plugins-sub-zero-reinstall'] }
