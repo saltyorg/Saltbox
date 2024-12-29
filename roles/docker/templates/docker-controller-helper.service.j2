@@ -11,7 +11,8 @@
 [Unit]
 Description=Saltbox Docker Controller Helper
 BindsTo=docker.service
-After=docker.service saltbox_managed_docker_controller_helper.service
+Requires=saltbox_managed_docker_controller.service
+After=docker.service saltbox_managed_docker_controller.service
 
 [Service]
 ExecStart=/srv/ansible/venv/bin/python3 /srv/git/saltbox/scripts/saltbox_docker_controller_helper.py
