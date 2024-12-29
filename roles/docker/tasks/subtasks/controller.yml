@@ -88,7 +88,7 @@
     method: POST
     timeout: 600
 
-- name: Controller | Import 'saltbox_managed_docker_controller.service'
+- name: Controller | Import 'saltbox_managed_docker_controller_helper.service'
   ansible.builtin.template:
     src: docker-controller-helper.service.j2
     dest: /etc/systemd/system/saltbox_managed_docker_controller_helper.service
