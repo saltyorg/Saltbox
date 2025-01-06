@@ -15,5 +15,5 @@ pexpect==4.9.0
 PyMySQL==1.1.1
 pyOpenSSL==24.3.0
 requests==2.32.3
-ruamel.yaml==0.18.6
+ruamel.yaml==0.18.10
 tld==0.13
