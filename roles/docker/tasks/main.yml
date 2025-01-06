@@ -34,16 +34,6 @@
     docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
   when: docker_binary.stat.exists
 
-- name: Initialize '_remotes_services_list' variable
-  ansible.builtin.set_fact:
-    _remotes_services_list: ""
-
-- name: Set '_remotes_services_list' variable
-  ansible.builtin.set_fact:
-    _remotes_services_list: "{{ _remotes_services_list | default('') + (rclone_service_template + rclone_remote_name + '.service ') }}"
-  with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and use_remote and item.settings.template != "nfs" and item.settings.mount
-
 - name: Tasks for when Docker exists and is running
   when: docker_service_check
   block:

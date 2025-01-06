@@ -9,13 +9,7 @@
 #########################################################################
 
 [Unit]
-{% if rclone_remote_is_defined and use_remote and not continuous_integration %}
-After={{ _remotes_services_list | default('') }}{{ docker_service_after }}
-Requires={{ _remotes_services_list | default('') }}{{ docker_service_after }}
-{% else %}
 After={{ docker_service_after }}
-Requires={{ docker_service_after }}
-{% endif %}
 Wants=saltbox_managed_docker_controller_helper.service saltbox_managed_docker_update_hosts.service
 
 [Service]
