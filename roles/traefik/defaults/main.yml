@@ -225,7 +225,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "v3.2"
+traefik_docker_image_tag: "v3.3"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
@@ -306,8 +306,8 @@ traefik_docker_commands_default:
   - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.resolvers=' + traefik_dns_resolvers if (traefik_dns_resolvers | length > 0) else omit }}"
   - "--certificatesresolvers.cfdns.acme.email={{ user.email }}"
   - "--certificatesresolvers.cfdns.acme.storage=/etc/traefik/acme.json"
-  - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
-  - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.propagation.delayBeforeChecks=60s' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.cfdns.acme.dnschallenge.propagation.disableChecks=true' if traefik_disable_propagation_check else omit }}"
 traefik_docker_commands_zerossl_acme:
   - "--certificatesresolvers.zerossl.acme.dnschallenge.provider={{ traefik_challenge_provider }}"
   - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.resolvers=' + traefik_dns_resolvers if (traefik_dns_resolvers | length > 0) else omit }}"
@@ -316,8 +316,8 @@ traefik_docker_commands_zerossl_acme:
   - "--certificatesresolvers.zerossl.acme.eab.kid={{ traefik_zerossl_kid | default('') }}"
   - "--certificatesresolvers.zerossl.acme.eab.hmacencoded={{ traefik_zerossl_hmacencoded | default('') }}"
   - "--certificatesresolvers.zerossl.acme.storage=/etc/traefik/acme.json"
-  - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
-  - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.propagation.delayBeforeChecks=60s' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.zerossl.acme.dnschallenge.propagation.disableChecks=true' if traefik_disable_propagation_check else omit }}"
 traefik_docker_commands_http_validation_acme:
   - "--certificatesresolvers.httpresolver.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.httpresolver.acme.email={{ user.email }}"
@@ -337,8 +337,8 @@ traefik_docker_commands_google_acme:
   - "--certificatesresolvers.google.acme.eab.kid={{ traefik_google_kid | default('') }}"
   - "--certificatesresolvers.google.acme.eab.hmacencoded={{ traefik_google_hmacencoded | default('') }}"
   - "--certificatesresolvers.google.acme.storage=/etc/traefik/acme.json"
-  - "{{ '--certificatesresolvers.google.acme.dnschallenge.delaybeforecheck=60s' if traefik_disable_propagation_check else omit }}"
-  - "{{ '--certificatesresolvers.google.acme.dnschallenge.disablepropagationcheck=true' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.google.acme.dnschallenge.propagation.delayBeforeChecks=60s' if traefik_disable_propagation_check else omit }}"
+  - "{{ '--certificatesresolvers.google.acme.dnschallenge.propagation.disableChecks=true' if traefik_disable_propagation_check else omit }}"
 traefik_docker_commands_google_acme_http:
   - "--certificatesresolvers.googlehttp.acme.httpchallenge.entrypoint=web"
   - "--certificatesresolvers.googlehttp.acme.email={{ user.email }}"
