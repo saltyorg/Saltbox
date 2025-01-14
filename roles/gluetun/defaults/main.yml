@@ -126,8 +126,7 @@ gluetun_docker_volumes: "{{ lookup('vars', gluetun_name + '_docker_volumes_defau
                             + lookup('vars', gluetun_name + '_docker_volumes_custom', default=gluetun_docker_volumes_custom) }}"
 
 # Devices
-gluetun_docker_devices_default:
-  - "/dev/net/tun:/dev/net/tun"
+gluetun_docker_devices_default: []
 gluetun_docker_devices_custom: []
 gluetun_docker_devices: "{{ lookup('vars', gluetun_name + '_docker_devices_default', default=gluetun_docker_devices_default)
                             + lookup('vars', gluetun_name + '_docker_devices_custom', default=gluetun_docker_devices_custom) }}"
