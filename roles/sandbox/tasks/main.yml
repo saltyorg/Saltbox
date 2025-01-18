@@ -9,14 +9,17 @@
 ---
 - name: Create Sandbox directory
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "/opt/sandbox"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
     recurse: true
-  with_items:
-    - /opt/sandbox
+
+- name: Check if git repository exists
+  ansible.builtin.stat:
+    path: "/opt/sandbox/.git"
+  register: git_repo_check
 
 - name: Clone Sandbox repo 'HEAD'
   ansible.builtin.git:
@@ -29,6 +32,7 @@
   become_user: "{{ user.name }}"
   ignore_errors: true
   register: sandbox_clone_status
+  when: not git_repo_check.stat.exists
 
 - name: Clone Sandbox repo 'master'
   ansible.builtin.git:
@@ -39,7 +43,9 @@
     force: true
   become: true
   become_user: "{{ user.name }}"
-  when: (sandbox_clone_status is failed)
+  when:
+    - not git_repo_check.stat.exists
+    - sandbox_clone_status is failed
 
 - name: Import default files when missing
   ansible.builtin.copy:
