@@ -51,6 +51,9 @@ sysctl_settings:
   vm.dirty_background_ratio: 10
   vm.dirty_ratio: 15
   vm.swappiness: 10
+  net.ipv4.neigh.default.gc_thresh1: 1024
+  net.ipv4.neigh.default.gc_thresh2: 2048
+  net.ipv4.neigh.default.gc_thresh3: 4096
 
 sysctl_remove_settings:
   - fs.file-max
