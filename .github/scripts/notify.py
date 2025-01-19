@@ -12,6 +12,13 @@ DISCORD_FIELD_VALUE_LIMIT = 1024  # Discord's limit for field values
 MAX_RETRIES = 10  # Maximum number of retries for fetching workflow data
 RETRY_DELAY = 30  # Delay between retries in seconds
 
+# Define valid conclusion states for a finished GitHub Actions run
+VALID_CONCLUSIONS: Set[str] = {
+    "success",
+    "failure",
+    "cancelled"
+}
+
 def check_required_vars() -> None:
     """Check if all required environment variables are set."""
     required = ["GITHUB_REPOSITORY", "GITHUB_TOKEN", "DISCORD_WEBHOOK", "WORKFLOW_RUN_ID"]
@@ -32,23 +39,23 @@ def get_github_data(url: str) -> Dict[str, Any]:
 
 def get_workflow_data_with_retry(repo: str, run_id: str) -> Dict[str, Any]:
     """
-    Fetch workflow data with retries if conclusion is null.
-    Returns workflow data once conclusion is available or after max retries.
+    Fetch workflow data with retries until we get a valid conclusion state.
+    Raises an error if no valid conclusion after max retries.
     """
     for attempt in range(MAX_RETRIES):
         workflow_data = get_github_data(
             f"https://api.github.com/repos/{repo}/actions/runs/{run_id}"
         )
         
-        if workflow_data.get("conclusion") is not None:
-            print(f"Got conclusion after {attempt + 1} attempts: {workflow_data['conclusion']}")
+        conclusion = workflow_data.get("conclusion")
+        if conclusion in VALID_CONCLUSIONS:
+            print(f"Got valid conclusion after {attempt + 1} attempts: {conclusion}")
             return workflow_data
             
-        print(f"Attempt {attempt + 1}/{MAX_RETRIES}: Conclusion is null, retrying in {RETRY_DELAY} seconds...")
+        print(f"Attempt {attempt + 1}/{MAX_RETRIES}: Conclusion '{conclusion}' not in expected states {VALID_CONCLUSIONS}, retrying in {RETRY_DELAY} seconds...")
         time.sleep(RETRY_DELAY)
     
-    print(f"Max retries ({MAX_RETRIES}) reached, proceeding with last received data")
-    return workflow_data
+    raise RuntimeError(f"Failed to get valid workflow conclusion after {MAX_RETRIES} retries. Last conclusion: {conclusion}")
 
 def get_discord_color(conclusion: str) -> int:
     """Get Discord color code based on workflow conclusion."""
@@ -130,11 +137,15 @@ def main() -> None:
     webhook_url = os.getenv("DISCORD_WEBHOOK", "")
     
     # Fetch workflow data with retries
-    workflow_data = get_workflow_data_with_retry(repo, run_id)
+    try:
+        workflow_data = get_workflow_data_with_retry(repo, run_id)
+    except RuntimeError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
     
     # Extract basic information
     workflow_name = workflow_data["name"]
-    conclusion = workflow_data.get("conclusion", "unknown")  # Default to "unknown" if still null
+    conclusion = workflow_data["conclusion"]
     attempt = workflow_data["run_attempt"]
     
     # Skip notification for early failure attempts
