@@ -12,24 +12,13 @@ permissions:
 jobs:
   notify:
     runs-on: ubuntu-24.04
-    if: github.event.repository.fork == false
+    if: github.event.repository.fork == false && (github.event.workflow_run.conclusion == 'success' || (github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.run_attempt >= 3) || github.event.workflow_run.conclusion == 'cancelled')
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/requirements-notify.txt'
-
-      - name: Install dependencies
-        run: pip install -r requirements/requirements-notify.txt
 
       - name: Send notification
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
-        run: |
-          python .github/scripts/notify.py
+        run: python .github/scripts/notify.py
