@@ -80,9 +80,13 @@
     - name: "Network (IPv6) | Connect containers to saltbox network"
       ansible.builtin.shell: >
         docker network connect saltbox {{ item.key }}
-        {% for alias in item.value %}
-        --alias {{ alias }}
-        {% endfor %}
+        {% if item.value is not none and item.value | length > 0 %}
+          {% for alias in item.value %}
+            --alias {{ alias }}
+          {% endfor %}
+        {% else %}
+          --alias {{ item.key }}
+        {% endif %}
       with_dict: "{{ parsed_docker_containers }}"
       register: q
       failed_when: q.rc > 1
@@ -124,9 +128,13 @@
     - name: "Network (IPv4) | Connect containers to saltbox network"
       ansible.builtin.shell: >
         docker network connect saltbox {{ item.key }}
-        {% for alias in item.value %}
-        --alias {{ alias }}
-        {% endfor %}
+        {% if item.value is not none and item.value | length > 0 %}
+          {% for alias in item.value %}
+            --alias {{ alias }}
+          {% endfor %}
+        {% else %}
+          --alias {{ item.key }}
+        {% endif %}
       with_dict: "{{ parsed_docker_containers }}"
       register: q
       failed_when: q.rc > 1
