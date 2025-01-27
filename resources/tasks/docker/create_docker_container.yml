@@ -37,7 +37,9 @@
     default_host_ip: ""
     device_read_bps: "{{ lookup('vars', _var_prefix + '_docker_device_read_bps', default=omit) }}"
     device_read_iops: "{{ lookup('vars', _var_prefix + '_docker_device_read_iops', default=omit) }}"
-    device_requests: "{{ lookup('vars', _var_prefix + '_docker_device_requests', default=omit) }}"
+    device_requests: "{{ nvidia_docker_device_requests
+                      if use_nvidia
+                      else lookup('vars', _var_prefix + '_docker_device_requests', default=omit) }}"
     device_write_bps: "{{ lookup('vars', _var_prefix + '_docker_device_write_bps', default=omit) }}"
     device_write_iops: "{{ lookup('vars', _var_prefix + '_docker_device_write_iops', default=omit) }}"
     devices: "{{ lookup('vars', _var_prefix + '_docker_devices', default=omit) }}"
@@ -46,9 +48,7 @@
     dns_servers: "{{ lookup('vars', _var_prefix + '_docker_dns_servers', default=omit) }}"
     domainname: "{{ lookup('vars', _var_prefix + '_docker_domainname', default=omit) }}"
     entrypoint: "{{ lookup('vars', _var_prefix + '_docker_entrypoint', default=omit) }}"
-    env: "{{ (nvidia_docker_env if use_nvidia else {})
-             | combine(lookup('vars', _var_prefix + '_docker_envs', default={}))
-             | default(omit) }}"
+    env: "{{ lookup('vars', _var_prefix + '_docker_envs', default=omit) }}"
     env_file: "{{ lookup('vars', _var_prefix + '_docker_env_file', default=omit) }}"
     etc_hosts: "{{ lookup('vars', _var_prefix + '_docker_hosts', default=omit)
                 if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
