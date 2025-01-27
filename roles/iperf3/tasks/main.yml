@@ -12,13 +12,16 @@
     name: iperf3
     state: absent
 
+- name: Cleanup tmp repo folder
+  ansible.builtin.file:
+    path: "{{ iperf3_git_repo_dest }}"
+    state: absent
+
 - name: Clone iperf3 repo
   ansible.builtin.git:
     repo: "{{ iperf3_git_repo_url }}"
     dest: "{{ iperf3_git_repo_dest }}"
     clone: true
-    version: HEAD
-    force: true
   register: iperf_clone_status
 
 - name: Tasks to do with git clone is a success
