@@ -86,14 +86,6 @@ nvidia_nvtop_apt_repo_file: "/etc/apt/sources.list.d/flexiondotorg.list"
 # Docker
 ################################
 
-nvidia_docker_device_requests:
-  - driver: nvidia
-    count: -1
-    capabilities:
-      - - gpu
-        - compute
-        - utility
-
 nvidia_docker_env:
   NVIDIA_DRIVER_CAPABILITIES: "compute,video,utility"
   NVIDIA_VISIBLE_DEVICES: "all"
