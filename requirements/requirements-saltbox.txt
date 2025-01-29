@@ -1,5 +1,5 @@
 ansible==11.2.0
-ansible-lint==25.1.0
+ansible-lint==25.1.1
 apprise==1.9.2
 argon2_cffi==23.1.0
 certbot==3.1.0
