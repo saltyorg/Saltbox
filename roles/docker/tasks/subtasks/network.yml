@@ -64,8 +64,8 @@
     - name: "Network (IPv6) | Disconnect containers from bridge network"
       ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
-      register: r
-      failed_when: r.rc > 1
+      register: disconnect_containers
+      failed_when: disconnect_containers.rc > 1
       ignore_errors: true
 
     - name: "Network (IPv6) | Rebuild saltbox network"
@@ -88,8 +88,8 @@
           --alias {{ item.key }}
         {% endif %}
       with_dict: "{{ parsed_docker_containers }}"
-      register: q
-      failed_when: q.rc > 1
+      register: connect_containers
+      failed_when: connect_containers.rc > 1
       ignore_errors: true
 
 - name: "Network (IPv4) | Migrating existing saltbox docker network block to IPv4"
@@ -113,8 +113,8 @@
     - name: "Network (IPv4) | Disconnect containers from bridge network"
       ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
       with_items: "{{ docker_containers.stdout_lines }}"
-      register: r
-      failed_when: r.rc > 1
+      register: disconnect_containers
+      failed_when: disconnect_containers.rc > 1
       ignore_errors: true
 
     - name: "Network (IPv4) | Rebuild saltbox network"
@@ -136,8 +136,8 @@
           --alias {{ item.key }}
         {% endif %}
       with_dict: "{{ parsed_docker_containers }}"
-      register: q
-      failed_when: q.rc > 1
+      register: connect_containers
+      failed_when: connect_containers.rc > 1
       ignore_errors: true
 
 - name: "Network | Remove IPv6 NAT Container (Legacy)"
