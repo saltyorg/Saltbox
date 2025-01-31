@@ -237,7 +237,12 @@ def load_and_save_facts(file_path, instance, keys, owner, group, mode):
 
         for key, default_value in keys.items():
             if config.has_option(instance, key):
-                facts[key] = config[instance].get(key)
+                current_value = config[instance].get(key)
+
+                if current_value == 'None':
+                    config.set(instance, key, str(default_value))
+                    facts[key] = default_value
+                    changed = True
             else:
                 facts[key] = str(default_value)
                 config.set(instance, key, str(default_value))
