@@ -122,19 +122,45 @@
       environment: "{{ plex_proxy_dict }}"
       register: plex_token_new
 
+    - name: "Auth Token | Set plex_auth_token variable"
+      ansible.builtin.set_fact:
+        plex_auth_token: "{{ plex_token_new.json.authToken | regex_replace('\n', '') }}"
+
+    - name: "Auth Token | Check if new Token is valid"
+      ansible.builtin.uri:
+        url: "https://plex.tv/api/v2/user"
+        method: GET
+        return_content: yes
+        body:
+          X-Plex-Token: "{{ plex_auth_token }}"
+          X-Plex-Version: "{{ plex_auth_token_version }}"
+          X-Plex-Product: "{{ plex_auth_token_product }}"
+          X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
+          X-Plex-Platform: "{{ plex_auth_token_platform }}"
+          X-Plex-Platform-Version: "{{ plex_auth_token_platform_version }}"
+          X-Plex-Device: "{{ plex_auth_token_device }}"
+          X-Plex-Device-Name: "{{ plex_auth_token_device_name }}"
+        body_format: form-urlencoded
+        headers:
+          Accept: "application/json"
+        status_code: [200, 401]
+      environment: "{{ plex_proxy_dict }}"
+      register: plex_new_token
+
+    - name: "Auth Token | Fail if new token is invalid"
+      ansible.builtin.fail:
+        msg: "Something went wrong with the creation of the new token"
+      when: (plex_new_token.status == 401)
+
     - name: "Auth Token | Save facts for a specific instance"
       saltbox_facts:
         role: "plex"
         instance: "{{ plex_name }}"
         keys:
           client_identifier: "{{ plex_auth_client_identifier }}"
-          token: "{{ plex_token_new.json.authToken | regex_replace('\n', '') }}"
+          token: "{{ plex_auth_token }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-
-    - name: "Auth Token | Set plex_auth_token variable"
-      ansible.builtin.set_fact:
-        plex_auth_token: "{{ plex_token_new.json.authToken | regex_replace('\n', '') }}"
 
 - name: "Auth Token | Display Plex Auth Token"
   ansible.builtin.debug:
