@@ -243,6 +243,10 @@ def load_and_save_facts(file_path, instance, keys, owner, group, mode):
                     config.set(instance, key, str(default_value))
                     facts[key] = default_value
                     changed = True
+
+                else:
+                    facts[key] = current_value
+
             else:
                 facts[key] = str(default_value)
                 config.set(instance, key, str(default_value))
