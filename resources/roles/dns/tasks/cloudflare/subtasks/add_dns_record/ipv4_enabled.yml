@@ -13,7 +13,7 @@
   when: (not ip_address_public_is_valid)
 
 - name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
-  community.general.cloudflare_dns:
+  cloudflare_dns_custom:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ dns_zone }}"

@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns.proxied | default('no') }}"
-  community.general.cloudflare_dns:
+  cloudflare_dns_custom:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ fld.stdout }}"
@@ -21,7 +21,7 @@
   when: dns.ipv4
 
 - name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns.proxied | default('no') }}"
-  community.general.cloudflare_dns:
+  cloudflare_dns_custom:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ fld.stdout }}"

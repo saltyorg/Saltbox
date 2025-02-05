@@ -31,7 +31,7 @@
     cloudflare_ipv6_record: []
 
 - name: Cloudflare | Add DNS Record | Remove DNS CNAME Record
-  community.general.cloudflare_dns:
+  cloudflare_dns_custom:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ dns_zone }}"
