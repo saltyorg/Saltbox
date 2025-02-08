@@ -7,6 +7,7 @@
 ### Ansible ###
 /backup.lock
 /ansible_facts.d/saltbox.fact
+/.ansible/*
 
 # Vars
 /inventories/host_vars/*
@@ -31,4 +32,3 @@
 /*.log
 /*.log.*
 .vscode/settings.json
-
