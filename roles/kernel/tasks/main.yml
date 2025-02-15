@@ -15,7 +15,7 @@
   ansible.builtin.include_tasks: "subtasks/02_cron.yml"
 
 # Ubuntu 20.04 HWE Update
-- name: Update Tasks
+- name: Ubuntu 20.04 HWE Update Tasks
   ansible.builtin.include_tasks: "subtasks/03_update_focal.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
@@ -25,7 +25,7 @@
     - kernel_install_hwe
 
 # Ubuntu 22.04 HWE Update
-- name: Update Tasks
+- name: Ubuntu 22.04 Update Tasks
   ansible.builtin.include_tasks: "subtasks/04_update_jammy.yml"
   when:
     - (ansible_distribution == 'Ubuntu')
@@ -34,8 +34,18 @@
     - (not continuous_integration)
     - kernel_install_hwe
 
+# Ubuntu 24.04 HWE Update
+- name: Ubuntu 24.04 Update Tasks
+  ansible.builtin.include_tasks: "subtasks/05_update_noble.yml"
+  when:
+    - (ansible_distribution == 'Ubuntu')
+    - (ansible_distribution_version is version('24.04', '=='))
+    - (ansible_kernel is version('6.11', '<'))
+    - (not continuous_integration)
+    - kernel_install_hwe
+
 - name: Restart Tasks
-  ansible.builtin.include_tasks: "subtasks/05_restart.yml"
+  ansible.builtin.include_tasks: "subtasks/06_restart.yml"
   when:
     - reboot_is_necessary
     - (not continuous_integration)
