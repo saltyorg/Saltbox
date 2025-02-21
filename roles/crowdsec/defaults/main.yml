@@ -69,7 +69,7 @@ crowdsec_postoverflows_remove: "{{ crowdsec_postoverflows_remove_default
 
 crowdsec_prometheus_enabled: false
 crowdsec_prometheus_level: "full"
-crowdsec_prometheus_listen_addr: "127.0.0.1"
+crowdsec_prometheus_listen_addr: "172.19.0.1"
 crowdsec_prometheus_listen_port: "6060"
 
 # Takes a list of exact router names to ignore when parsing Traefik access logs.
