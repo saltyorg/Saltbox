@@ -41,7 +41,7 @@ totp:
   digits: {{ authelia_totp_digits }}
   secret_size: {{ authelia_totp_secret_size }}
 
-{% if authelia_duo_enabled == 'true' %}
+{% if authelia_duo_enabled | bool %}
 duo_api:
   disable: false
   hostname: {{ authelia_duo_hostname }}
