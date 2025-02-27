@@ -400,19 +400,19 @@
 
         - name: Start Saltbox Docker containers
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
           ansible.builtin.include_role:
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
@@ -481,7 +481,7 @@
 
     - name: Abort backup when the creation of tarball files fails
       ansible.builtin.fail:
-        msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ local.destination }}/opt/'"
+        msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ backup.local.destination }}/opt/'"
       when: (dir_files2.matched | int == 0)
 
     - name: "Remove '{{ backup.local.destination }}.old'"
@@ -536,6 +536,7 @@
     - name: "Wait for 10 seconds before uploads"
       ansible.builtin.wait_for:
         timeout: 10
+      when: backup.rclone.enable or backup.rsync.enable
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
@@ -599,6 +600,7 @@
     - name: "Wait for 5 seconds before uploading"
       ansible.builtin.wait_for:
         timeout: 5
+      when: backup.rclone.enable or backup.rsync.enable
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
