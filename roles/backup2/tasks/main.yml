@@ -310,19 +310,19 @@
 
         - name: Start Saltbox Docker containers
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Snapshot | Notify | Saltbox Backup: Started Docker containers"
           ansible.builtin.include_role:
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Get list of all folders in '{{ backup_opt_path }}'"
       ansible.builtin.find:
