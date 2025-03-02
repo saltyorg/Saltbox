@@ -35,6 +35,7 @@ ExecStart=/usr/bin/rclone mount \
     --rc-addr=localhost:{{ rclone_remort_port }} \
 {% if rclone_enable_metrics %}
     --rc-enable-metrics \
+    --metrics-addr=172.19.0.1:{{ rclone_remort_port }} \
 {% endif %}
     --rc-no-auth \
     --syslog \
