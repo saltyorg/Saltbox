@@ -51,7 +51,7 @@ api:
     credentials_path: /etc/crowdsec/local_api_credentials.yaml
   server:
     log_level: info
-    listen_uri: 0.0.0.0:{{ crowdsec_docker_ports_8080 }}
+    listen_uri: 0.0.0.0:{{ crowdsec_ports_8080 }}
     profiles_path: /etc/crowdsec/profiles.yaml
     console_path: /etc/crowdsec/console.yaml
     online_client: # Central API credentials (to push signals and receive bad IPs)

@@ -87,9 +87,9 @@ crowdsec_whitelisted_cidrs: []
 # Lookups
 ################################
 
-crowdsec_docker_ports_8080: "{{ port_lookup_8080.meta.port
-                             if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
-                             else '8080' }}"
+crowdsec_ports_8080: "{{ port_lookup_8080.meta.port
+                      if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
+                      else '8080' }}"
 
 ################################
 # Bouncers
