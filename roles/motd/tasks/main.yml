@@ -33,6 +33,7 @@
     - /etc/update-motd.d
     - /etc/motd
     - /etc/motd.dynamic
+    - /run/motd
 
 - name: Create motd directories
   ansible.builtin.file:
