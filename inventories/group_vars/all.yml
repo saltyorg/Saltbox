@@ -333,10 +333,9 @@ traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                if (traefik_subdomain | length > 0)
                else traefik_domain }}"
 
-traefik_host_override: "{{ lookup('vars', traefik_role_var + '_web_host_override', default=lookup('vars', role_name + '_web_host_override', default='')) | length > 0 }}"
-traefik_host_template: "{{ lookup('vars', traefik_role_var + '_web_host_override', default=lookup('vars', role_name + '_web_host_override', default=''))
-                        if traefik_host_override
-                        else 'Host(`' + traefik_host + '`)' }}"
+traefik_host_override_lookup: "{{ lookup('vars', traefik_role_var + '_web_host_override', default=lookup('vars', role_name + '_web_host_override', default='')) }}"
+traefik_fqdn_override_lookup: "{{ lookup('vars', traefik_role_var + '_web_fqdn_override', default=lookup('vars', role_name + '_web_fqdn_override', default='')) }}"
+traefik_host_template: "{{ traefik_host | traefik_host_rule(traefik_host_override_lookup, traefik_fqdn_override_lookup) }}"
 
 traefik_entrypoint_web_default: "{{ 'web' if not (lookup('vars', traefik_role_var + '_traefik_tailscale_enabled', default=false) | bool) else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('vars', traefik_role_var + '_traefik_entrypoint_web', default=traefik_entrypoint_web_default) }}"
