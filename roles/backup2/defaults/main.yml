@@ -32,6 +32,6 @@ backup2_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 ################################
 
 # Defines how many of the archived backups to keep, so current backup is not counted in this
-backup2_cleanup_number: 99
-backup2_cleanup_enabled: false
-backup2_cleanup_custom_rclone_flags: ""
+backup2_cleanup_number: "{{ backup_cleanup_number }}" # Int
+backup2_cleanup_enabled: "{{ backup_cleanup_enabled }}" # Bool
+backup2_cleanup_custom_rclone_flags: "{{ backup_cleanup_custom_rclone_flags }}" # String
