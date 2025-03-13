@@ -15,6 +15,10 @@ Linux distributions other than Ubuntu are not supported.
 
 ARM processors are not supported.
 
+Primary functions are: the automatic acquisition of media, being able to play it back from anywhere and from any device, and to a lesser extent storing that media on the cloud.
+
+NOTE: Saltbox does not have a dashboard or GUI of its own. All Saltbox-specific setup and commands are done in text editors and on the command line.
+
 ### Documentation
 
 - [Docs](https://docs.saltbox.dev)
