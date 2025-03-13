@@ -10,6 +10,21 @@ begin_block = "# BEGIN DOCKER CONTAINERS"
 end_block = "# END DOCKER CONTAINERS"
 
 
+def fix_non_breaking_spaces():
+    """
+    Fix non-breaking spaces in the hosts file using a simple sed command.
+    This handles single-byte (A0) non-breaking spaces.
+    """
+    try:
+        # Direct in-place replacement with sed
+        sed_cmd = f"sed -i 's/\\xA0/ /g' {hosts_file}"
+        subprocess.run(sed_cmd, shell=True, check=True)
+        return True
+    except Exception as e:
+        print(f"Error fixing non-breaking spaces: {e}", flush=True)
+        return False
+
+
 def parse_time_interval(interval_str):
     """Parse the time interval string into seconds."""
     units = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400}
@@ -107,6 +122,9 @@ async def monitor_docker_events():
 async def main():
     # Ensure the managed section exists
     loop = asyncio.get_running_loop()
+    fix_non_breaking_spaces()
+
+    # Then ensure our section exists
     ensure_managed_section_exists()
 
     if len(sys.argv) < 2:
