@@ -6,13 +6,46 @@ updates:
       interval: "daily"
     versioning-strategy: auto
     rebase-strategy: auto
+    groups:
+      ansible:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      ansible-security:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "pip"
     directory: "/resources/roles/dns/files"
     schedule:
       interval: "daily"
     versioning-strategy: auto
     rebase-strategy: auto
+    groups:
+      dns:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      dns-security:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      gha:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      gha-security:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
