@@ -365,7 +365,7 @@ traefik_docker_commands_tailscale:
   - "--entrypoints.tailscale-websecure.address=:444"
 traefik_docker_commands_crowdsec:
   - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-  - "--experimental.plugins.bouncer.version=v1.3.3"
+  - "--experimental.plugins.bouncer.version=v1.4.1"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
