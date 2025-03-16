@@ -14,6 +14,9 @@
 !/inventories/host_vars/.gitkeep
 /roles/*/vars/*
 
+# Cache
+/cache.json
+
 # Settings
 /ansible.cfg
 /accounts.yml
