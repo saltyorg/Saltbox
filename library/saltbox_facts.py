@@ -17,7 +17,7 @@ Example Usage:
           key2: value2
         owner: user1
         group: group1
-        mode: "0644"
+        mode: "0640"
       register: register_var
 
     # Load existing facts (keys parameter provides defaults for missing values)
@@ -333,7 +333,7 @@ def parse_mode(mode):
     Parse and validate file mode.
 
     Args:
-        mode (str): File mode in octal string format (e.g., '0644')
+        mode (str): File mode in octal string format (e.g., '0640')
 
     Returns:
         int: Parsed mode as integer
@@ -350,7 +350,7 @@ def parse_mode(mode):
         except ValueError:
             raise ValueError(f"Invalid octal mode: {mode}")
     else:
-        raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0644').")
+        raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0640').")
 
 def get_current_user():
     """
@@ -377,7 +377,7 @@ def run_module():
     - delete_type (str): Type of deletion ('role', 'instance', 'key')
     - owner (str): File owner (default: current user)
     - group (str): File group (default: current user)
-    - mode (str): File mode in octal string format (default: '0644')
+    - mode (str): File mode in octal string format (default: '0640')
     """
     module_args = dict(
         role=dict(type='str', required=True),
@@ -387,7 +387,7 @@ def run_module():
         delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False),
         owner=dict(type='str', required=False),
         group=dict(type='str', required=False),
-        mode=dict(type='str', required=False, default='0644')
+        mode=dict(type='str', required=False, default='0640')
     )
 
     result = dict(
