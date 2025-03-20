@@ -51,7 +51,6 @@
     - { role: radarr, tags: ['radarr'] }
     - { role: lidarr, tags: ['lidarr'] }
     - { role: iperf3, tags: ['iperf3'] }
-    - { role: nethogs, tags: ['nethogs'] }
     - { role: glances, tags: ['glances'] }
     - { role: btop, tags: ['btop'] }
     - { role: asshama, tags: ['asshama'] }
