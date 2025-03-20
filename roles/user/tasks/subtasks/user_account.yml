@@ -42,6 +42,26 @@
     uid: "{{ user_id | default(omit) }}"
   register: user_info
 
+- name: Check for skeleton files in user home directory
+  ansible.builtin.stat:
+    path: "/home/{{ user.name }}/{{ item }}"
+  loop:
+    - ".bash_logout"
+    - ".bashrc"
+    - ".profile"
+  register: skel_files_check
+
+- name: Copy missing skeleton files to user home directory
+  ansible.builtin.copy:
+    src: "/etc/skel/{{ item.item }}"
+    dest: "/home/{{ user.name }}/{{ item.item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+    force: false
+  loop: "{{ skel_files_check.results }}"
+  when: not item.stat.exists
+
 - name: User Account | Get video group info
   ansible.builtin.shell: "getent group video | cut -d: -f3"
   register: vgid_lookup
