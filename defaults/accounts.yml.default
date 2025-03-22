@@ -10,5 +10,5 @@ user:
   domain: testsaltbox.ml
   email: your@email.com
   name: seed
-  pass: password123
+  pass: password1234
   ssh_key:
