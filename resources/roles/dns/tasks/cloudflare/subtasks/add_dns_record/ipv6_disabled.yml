@@ -8,7 +8,7 @@
 #############################################################################
 ---
 - name: Cloudflare | Add DNS Record | IPv6 | Remove unused AAAA DNS Record
-  cloudflare_dns_custom:
+  community.general.cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
     zone: "{{ dns_zone }}"
