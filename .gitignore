@@ -29,6 +29,7 @@
 /providers.yml
 /rclone.conf
 /settings.yml
+/motd.yml
 
 ### Misc ###
 /.idea
