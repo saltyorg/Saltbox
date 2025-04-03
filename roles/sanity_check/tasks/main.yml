@@ -16,9 +16,6 @@
 - name: Python Version Check
   ansible.builtin.import_tasks: "subtasks/03_python_version.yml"
 
-- name: Tags Check
-  ansible.builtin.import_tasks: "subtasks/04_ansible_tags.yml"
-
 - name: Backup Lock Check
   ansible.builtin.import_tasks: "subtasks/05_backup.yml"
 
