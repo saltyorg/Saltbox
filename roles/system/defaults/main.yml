@@ -55,5 +55,8 @@ sysctl_settings:
   net.ipv4.neigh.default.gc_thresh2: 2048
   net.ipv4.neigh.default.gc_thresh3: 4096
 
+# Reminder to change the conditional in sysctl.yml if defaults change
+sysctl_netdev_budget_usecs: "5000"
+
 sysctl_remove_settings:
   - fs.file-max

@@ -13,7 +13,7 @@
       DEBIAN_FRONTEND: noninteractive
       DEBIAN_PRIORITY: critical
 
-- name: Gather the package facts
+- name: APT | Gather the package facts
   ansible.builtin.package_facts:
     manager: apt
 

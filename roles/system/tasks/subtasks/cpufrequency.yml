@@ -58,10 +58,10 @@
   ansible.builtin.shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
   ignore_errors: true
 
-- name: Populate Service Facts
+- name: CPU Frequency | Populate Service Facts
   ansible.builtin.service_facts:
 
-- name: Remove ondemand | Stop and disable 'ondemand.service'
+- name: CPU Frequency | Stop and disable 'ondemand.service'
   ansible.builtin.systemd_service:
     name: ondemand
     state: stopped

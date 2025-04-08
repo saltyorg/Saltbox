@@ -7,34 +7,34 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Install locales
+- name: Locale | Install locales
   ansible.builtin.apt:
     name: locales
     state: present
 
-- name: Ensure localisation files for '{{ system_locale }}' are available
+- name: Locale | Ensure localisation files for '{{ system_locale }}' are available
   community.general.locale_gen:
     name: "{{ system_locale }}"
     state: present
 
-- name: Ensure localisation files for '{{ system_language }}' are available
+- name: Locale | Ensure localisation files for '{{ system_language }}' are available
   community.general.locale_gen:
     name: "{{ system_language }}"
     state: present
 
-- name: Get current locale and language configuration
+- name: Locale | Get current locale and language configuration
   ansible.builtin.command: localectl status
   register: locale_status
   changed_when: false
 
-- name: Parse 'LANG' from current locale and language configuration
+- name: Locale | Parse 'LANG' from current locale and language configuration
   ansible.builtin.set_fact:
     locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
 
-- name: Parse 'LANGUAGE' from current locale and language configuration
+- name: Locale | Parse 'LANGUAGE' from current locale and language configuration
   ansible.builtin.set_fact:
     locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
 
-- name: Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'
+- name: Locale | Configure locale to '{{ system_locale }}' and language to '{{ system_language }}'
   ansible.builtin.command: localectl set-locale LANG={{ system_locale }} LANGUAGE={{ system_language }}
   changed_when: (locale_lang != system_locale) or (locale_language != system_language)

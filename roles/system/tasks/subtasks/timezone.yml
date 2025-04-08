@@ -8,11 +8,11 @@
 #########################################################################
 # https://github.com/galexrt/ansible-timezone/blob/master/tasks/timedatectl.yml
 ---
-- name: Get timedatectl information
+- name: Time Zone | Get timedatectl information
   ansible.builtin.command: timedatectl
   register: timedatectl
 
-- name: Get timezone list
+- name: Time Zone | Get timezone list
   ansible.builtin.command: timedatectl list-timezones --no-pager
   register: timezone_list
   changed_when: false
@@ -23,7 +23,7 @@
     - (system.timezone is defined)
     - ('auto' in system.timezone | lower)
   block:
-    - name: Get IP geolocation data
+    - name: Time Zone | Get IP geolocation data
       community.general.ipinfoio_facts:
 
     - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
@@ -32,7 +32,7 @@
         timezone_string: "Time zone: {{ timezone }}"
 
   rescue:
-    - name: Get IP geolocation data (with curl)
+    - name: Time Zone | Get IP geolocation data (with curl)
       ansible.builtin.shell: "curl -s https://ipapi.co/timezone"
       register: system_curl_timezone
       failed_when: (system_curl_timezone.stdout | trim | length == 0)
@@ -42,18 +42,18 @@
         timezone: "{{ system_curl_timezone.stdout | trim }}"
         timezone_string: "Time zone: {{ timezone }}"
 
-- name: Check if timezone is valid
+- name: Time Zone | Check if timezone is valid
   ansible.builtin.fail:
     msg: "Invalid timezone given, given timezone was {{ timezone }}\"."
   when: (timezone_list.stdout is defined) and timezone not in timezone_list.stdout
 
-- name: Set timezone
+- name: Time Zone | Set timezone
   ansible.builtin.shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
   register: timedatectl_utc
   changed_when: "(timedatectl_utc.stdout is defined) and (timezone_string in timedatectl_utc.stdout)"
   when: (timedatectl.stdout is defined) and (timezone_string not in timedatectl.stdout)
 
-- name: Set hardware clock to use or not use local RTC
+- name: Time Zone | Set hardware clock to use or not use local RTC
   ansible.builtin.shell: "timedatectl set-local-rtc {% if timezone_use_local_rtc %}1{% else %}0{% endif %} && timedatectl || true"
   register: timedatectl_rtc
   changed_when: "(timedatectl_rtc.stdout is defined) and ('RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout)"
