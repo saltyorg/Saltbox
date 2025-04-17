@@ -3,8 +3,11 @@ import hashlib
 import json
 
 from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleError, AnsibleUndefinedVariable
+from ansible.errors import AnsibleError
+from ansible.utils.display import Display
 from ansible.module_utils.six import string_types
+
+display = Display()
 
 DOCUMENTATION = '''
     name: docker_var
@@ -40,21 +43,43 @@ class LookupModule(LookupBase):
         default = self.get_option('default')
 
         self._templar.available_variables = variables
-        myvars = getattr(self._templar, '_available_variables', {})
-        omit = myvars.get('omit')
+        omit = variables.get('omit')
 
-        playbook_dir = myvars.get('playbook_dir') or os.getcwd()
+        playbook_dir = variables.get('playbook_dir') or os.getcwd()
         foldername = os.path.basename(playbook_dir.rstrip('/'))
         cache_path = f'/srv/git/saltbox/cache-{foldername}.json'
 
-        try:
-            var_prefix = self._get_var('_var_prefix', myvars)
-            instance_name = self._get_var('_instance_name', myvars)
-        except AnsibleUndefinedVariable:
-            var_prefix = instance_name = None
+        var_prefix = variables.get('_var_prefix')
+        if isinstance(var_prefix, string_types):
+            try:
+                var_prefix = self._templar.template(var_prefix, fail_on_undefined=False)
+            except Exception:
+                var_prefix = None
+        else:
+            var_prefix = None
 
-        primary_var = (instance_name or '') + suffix
-        fallback_var = (var_prefix or '') + '_role' + suffix
+        instance_name = variables.get('_instance_name')
+        if isinstance(instance_name, string_types):
+            try:
+                instance_name = self._templar.template(instance_name, fail_on_undefined=False)
+            except Exception:
+                instance_name = None
+        else:
+            instance_name = None
+
+        if suffix == '_name':
+            primary_var = (instance_name or '') + suffix
+            fallback_var = (var_prefix or '') + suffix
+        else:
+            primary_var = (instance_name or '') + suffix
+            fallback_var = (var_prefix or '') + '_role' + suffix
+
+        display.vvv(f"[docker_var] Checking these keys: primary={primary_var}, fallback={fallback_var}")
+        debug_keys = sorted([
+            k for k in variables
+            if suffix in k or k.endswith(suffix) or k.startswith((instance_name or '', var_prefix or ''))
+        ])
+        display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
 
         watched_files = [
             '/srv/git/saltbox/accounts.yml',
@@ -72,45 +97,39 @@ class LookupModule(LookupBase):
             watched_files.append(os.path.join(role_base, 'defaults/main.yml'))
             watched_files.extend(self._find_task_files(os.path.join(role_base, 'tasks')))
 
-        extra_var_keys = myvars.get('__extra_var_keys__', [])
+        extra_var_keys = variables.get('__extra_var_keys__', [])
         skip_cache = primary_var in extra_var_keys or fallback_var in extra_var_keys
 
         if not skip_cache:
-            result = self._get_cached_result(cache_path, watched_files, primary_var, omit)
-            if result is not None:
-                return [result]
+            for var_name in [primary_var, fallback_var]:
+                result = self._get_cached_result(cache_path, watched_files, var_name, omit)
+                if result is not None:
+                    display.vvv(f"[docker_var] Returning cached value for {var_name}: {result}")
+                    return [result]
 
-            result = self._get_cached_result(cache_path, watched_files, fallback_var, omit)
-            if result is not None:
-                return [result]
+        for var_name in [primary_var, fallback_var]:
+            if var_name in variables:
+                raw_value = variables[var_name]
+                if raw_value is None:
+                    display.vvv(f"[docker_var] Skipping {var_name} (value is None)")
+                    continue
+                try:
+                    result = self._templar.template(raw_value, fail_on_undefined=False)
+                    if result is not None and not (isinstance(result, str) and "{{" in result):
+                        display.vvv(f"[docker_var] Returning templated value for {var_name}: {result}")
+                        if not skip_cache:
+                            self._save_cache_result(cache_path, watched_files, var_name, result, omit)
+                        return [result]
+                    else:
+                        display.vvv(f"[docker_var] {var_name} is unresolved or empty, skipping (value: {result})")
+                except Exception as e:
+                    display.vvv(f"[docker_var] Error templating {var_name}: {e}")
+            else:
+                display.vvv(f"[docker_var] {var_name} not found in variables — skipping")
 
-        try:
-            result = self._get_var(primary_var, myvars)
-            if not skip_cache:
-                self._save_cache_result(cache_path, watched_files, primary_var, result, omit)
-        except AnsibleUndefinedVariable:
-            try:
-                result = self._get_var(fallback_var, myvars)
-                if not skip_cache:
-                    self._save_cache_result(cache_path, watched_files, fallback_var, result, omit)
-            except AnsibleUndefinedVariable:
-                result = default if default is not None else omit
-
-        return [result]
-
-    def _get_var(self, var_name, myvars):
-        if not isinstance(var_name, string_types):
-            raise AnsibleError(f'Invalid variable name: {var_name}')
-
-        if var_name in myvars:
-            return self._templar.template(myvars[var_name], fail_on_undefined=False)
-
-        if 'hostvars' in myvars and 'inventory_hostname' in myvars:
-            hostvars = myvars['hostvars'].get(myvars['inventory_hostname'], {})
-            if var_name in hostvars:
-                return self._templar.template(hostvars[var_name], fail_on_undefined=False)
-
-        raise AnsibleUndefinedVariable(f'Variable "{var_name}" is undefined')
+        fallback_result = default if default is not None else omit
+        display.vvv(f"[docker_var] No usable variable found, returning default or omit: {fallback_result}")
+        return [fallback_result]
 
     def _get_file_hash(self, path):
         if path in _file_hash_cache:
@@ -142,6 +161,10 @@ class LookupModule(LookupBase):
         return None
 
     def _save_cache_result(self, cache_path, file_paths, key, value, omit):
+        if value is None:
+            display.vvv(f"[docker_var] Not caching {key} (value is None)")
+            return
+
         file_hashes = {path: self._get_file_hash(path) for path in file_paths}
         if value == omit:
             value = OMIT_PLACEHOLDER
@@ -157,7 +180,7 @@ class LookupModule(LookupBase):
             os.makedirs(os.path.dirname(cache_path), exist_ok=True)
             with open(cache_path, 'w') as f:
                 json.dump(cache, f, indent=2)
-
+            display.vvv(f"[docker_var] Cached value for {key}: {value}")
         except Exception as e:
             raise AnsibleError(f"Failed to write cache to {cache_path}: {e}")
 
