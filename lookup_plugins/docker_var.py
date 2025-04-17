@@ -49,35 +49,20 @@ class LookupModule(LookupBase):
         foldername = os.path.basename(playbook_dir.rstrip('/'))
         cache_path = f'/srv/git/saltbox/cache-{foldername}.json'
 
-        var_prefix = variables.get('_var_prefix')
-        if isinstance(var_prefix, string_types):
-            try:
-                var_prefix = self._templar.template(var_prefix, fail_on_undefined=False)
-            except Exception:
-                var_prefix = None
-        else:
-            var_prefix = None
-
-        instance_name = variables.get('_instance_name')
-        if isinstance(instance_name, string_types):
-            try:
-                instance_name = self._templar.template(instance_name, fail_on_undefined=False)
-            except Exception:
-                instance_name = None
-        else:
-            instance_name = None
+        var_prefix = self._templar.template(variables['_var_prefix'], fail_on_undefined=False)
+        instance_name = self._templar.template(variables['_instance_name'], fail_on_undefined=False)
 
         if suffix == '_name':
-            primary_var = (instance_name or '') + suffix
-            fallback_var = (var_prefix or '') + suffix
+            primary_var = instance_name + suffix
+            fallback_var = var_prefix + suffix
         else:
-            primary_var = (instance_name or '') + suffix
-            fallback_var = (var_prefix or '') + '_role' + suffix
+            primary_var = instance_name + suffix
+            fallback_var = var_prefix + '_role' + suffix
 
         display.vvv(f"[docker_var] Checking these keys: primary={primary_var}, fallback={fallback_var}")
         debug_keys = sorted([
             k for k in variables
-            if suffix in k or k.endswith(suffix) or k.startswith((instance_name or '', var_prefix or ''))
+            if suffix in k or k.endswith(suffix) or k.startswith((instance_name, var_prefix))
         ])
         display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
 
@@ -92,10 +77,9 @@ class LookupModule(LookupBase):
             '/srv/git/saltbox/inventories/group_vars/all.yml',
             '/srv/git/saltbox/inventories/host_vars/localhost.yml',
         ]
-        if var_prefix:
-            role_base = os.path.join(playbook_dir, f'roles/{var_prefix}')
-            watched_files.append(os.path.join(role_base, 'defaults/main.yml'))
-            watched_files.extend(self._find_task_files(os.path.join(role_base, 'tasks')))
+        role_base = os.path.join(playbook_dir, f'roles/{var_prefix}')
+        watched_files.append(os.path.join(role_base, 'defaults/main.yml'))
+        watched_files.extend(self._find_task_files(os.path.join(role_base, 'tasks')))
 
         extra_var_keys = variables.get('__extra_var_keys__', [])
         skip_cache = primary_var in extra_var_keys or fallback_var in extra_var_keys
@@ -109,9 +93,9 @@ class LookupModule(LookupBase):
 
         for var_name in [primary_var, fallback_var]:
             if var_name in variables:
-                raw_value = variables[var_name]
+                raw_value = variables.get(var_name)
                 if raw_value is None:
-                    display.vvv(f"[docker_var] Skipping {var_name} (value is None)")
+                    display.vvv(f"[plugin] Skipping {var_name} (value is None)")
                     continue
                 try:
                     result = self._templar.template(raw_value, fail_on_undefined=False)
@@ -146,7 +130,6 @@ class LookupModule(LookupBase):
     def _get_cached_result(self, cache_path, file_paths, key, omit):
         if not os.path.exists(cache_path):
             return None
-
         try:
             with open(cache_path, 'r') as f:
                 cache = json.load(f)
@@ -164,18 +147,15 @@ class LookupModule(LookupBase):
         if value is None:
             display.vvv(f"[docker_var] Not caching {key} (value is None)")
             return
-
         file_hashes = {path: self._get_file_hash(path) for path in file_paths}
         if value == omit:
             value = OMIT_PLACEHOLDER
-
         try:
             if os.path.exists(cache_path):
                 with open(cache_path, 'r') as f:
                     cache = json.load(f)
             else:
                 cache = {}
-
             cache[key] = {'hash': file_hashes, 'value': value}
             os.makedirs(os.path.dirname(cache_path), exist_ok=True)
             with open(cache_path, 'w') as f:
