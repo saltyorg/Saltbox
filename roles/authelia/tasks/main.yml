@@ -15,14 +15,14 @@
 - name: "Fail if invalid Authentication Backend"
   ansible.builtin.fail:
     msg: "authelia_authentication_backend is not valid. Use 'file' or 'ldap'."
-  when: not authelia_authentication_backend in ["file", "ldap"]
+  when: not lookup('role_var', '_authentication_backend') in ["file", "ldap"]
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Reset Authelia directory
   ansible.builtin.file:
-    path: "{{ authelia_paths_location }}"
+    path: "{{ authelia_role_paths_location }}"
     state: absent
   when: ('authelia-reset' in ansible_run_tags)
 
@@ -31,12 +31,12 @@
 
 - name: Check if 'configuration.yml' exists
   ansible.builtin.stat:
-    path: "{{ authelia_paths_location }}/configuration.yml"
+    path: "{{ authelia_role_paths_location }}/configuration.yml"
   register: authelia_config_stat
 
 - name: Load authentication_backend value
   ansible.builtin.shell: |
-    yyq '.authentication_backend' {{ authelia_paths_location }}/configuration.yml
+    yyq '.authentication_backend' {{ authelia_role_paths_location }}/configuration.yml
   register: authentication_backend_key
   when: authelia_config_stat.stat.exists and (not 'authelia-reset' in ansible_run_tags)
 
@@ -49,8 +49,8 @@
   when:
     - (not 'authelia-reset' in ansible_run_tags)
     - authelia_config_stat.stat.exists
-    - ((('ldap' in authentication_backend_key.stdout) and (authelia_authentication_backend == 'file'))
-      or (('file' in authentication_backend_key.stdout) and (authelia_authentication_backend == 'ldap')))
+    - ((('ldap' in authentication_backend_key.stdout) and (lookup('role_var', '_authentication_backend') == 'file'))
+      or (('file' in authentication_backend_key.stdout) and (lookup('role_var', '_authentication_backend') == 'ldap')))
 
 - name: Authentication Backend Task
   ansible.builtin.import_tasks: "subtasks/auth_backend.yml"
@@ -77,9 +77,9 @@
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: Settings Task
   ansible.builtin.import_tasks: "subtasks/settings.yml"

@@ -9,8 +9,8 @@
 ---
 - name: Auth | Import File Backend Task
   ansible.builtin.import_tasks: "subtasks/file_backend.yml"
-  when: (authelia_authentication_backend == 'file')
+  when: (lookup('role_var', '_authentication_backend') == 'file')
 
 - name: Auth | Import LDAP Backend Task
   ansible.builtin.import_tasks: "subtasks/ldap_backend.yml"
-  when: (authelia_authentication_backend == 'ldap')
+  when: (lookup('role_var', '_authentication_backend') == 'ldap')
