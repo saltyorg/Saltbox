@@ -48,7 +48,7 @@
         mode: "0775"
 
     - name: "{{ arr_type | capitalize }} | Backup databases"
-      ansible.builtin.shell: "cp '{{ lookup('vars', arr_type + '_paths_location') }}/{{ item }}' /tmp/{{ lookup('vars', arr_type + '_name') }}_backup/"
+      ansible.builtin.shell: "cp '{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}' /tmp/{{ lookup('vars', arr_type + '_name') }}_backup/"
       loop: "{{ arr_db_files }}"
 
     - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_main_db | basename }}' database"
@@ -74,12 +74,12 @@
   rescue:
     - name: "{{ arr_type | capitalize }} | Delete wal and shm files"
       ansible.builtin.file:
-        path: "{{ lookup('vars', arr_type + '_paths_location') }}/{{ item }}"
+        path: "{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}"
         state: absent
       with_items: "{{ arr_db_temp_files }}"
 
     - name: "{{ arr_type | capitalize }} | Restore database backup"
-      ansible.builtin.shell: "cp -f '/tmp/{{ lookup('vars', arr_type + '_name') }}_backup/{{ item }}' '{{ lookup('vars', arr_type + '_paths_location') }}/{{ item }}'"
+      ansible.builtin.shell: "cp -f '/tmp/{{ lookup('vars', arr_type + '_name') }}_backup/{{ item }}' '{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}'"
       loop: "{{ arr_db_files }}"
 
 - name: "{{ arr_type | capitalize }} | Start Docker container"

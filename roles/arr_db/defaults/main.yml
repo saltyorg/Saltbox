@@ -22,8 +22,8 @@ arr_db_tautulli_enabled: false
 # Variables
 ################################
 
-arr_path_logs_db: "{{ lookup('vars', arr_type + '_paths_location') }}/logs.db"
-arr_path_main_db: "{{ lookup('vars', arr_type + '_paths_location') }}/{{ arr_type }}.db"
+arr_path_logs_db: "{{ lookup('vars', arr_type + '_role_paths_location') }}/logs.db"
+arr_path_main_db: "{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ arr_type }}.db"
 arr_db_files:
   - "logs.db"
   - "{{ arr_type }}.db"
