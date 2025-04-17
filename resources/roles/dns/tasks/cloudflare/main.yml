@@ -30,7 +30,7 @@
   when: (not cloudflare_folder.stat.exists) or (not cloudflare_folder_symlink.stat.exists) or cloudflare_reinstall
 
 - name: Cloudflare | Tailscale block
-  when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=false)
+  when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
   block:
     - name: Get Tailscale IPs
       ansible.builtin.shell: "tailscale ip"
