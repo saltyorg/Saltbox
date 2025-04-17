@@ -13,14 +13,18 @@
                   if (var_prefix is defined)
                   else role_name }}"
 
+- name: Resources | Tasks | Docker | Remove Docker Container | Set instance name
+  ansible.builtin.set_fact:
+    _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
+
 - name: Resources | Tasks | Docker | Remove Docker Container | Remove Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    force_kill: "{{ lookup('vars', _var_prefix + '_docker_force_kill', default=omit) }}"
-    kill_signal: "{{ lookup('vars', _var_prefix + '_docker_kill_signal', default=omit) }}"
-    name: "{{ var_prefix | default(lookup('vars', _var_prefix + '_docker_container', default=_var_prefix)) }}"
+    force_kill: "{{ lookup('docker_var', '_docker_force_kill', default=omit) }}"
+    kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
+    name: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }}"
     state: absent
-    stop_timeout: "{{ lookup('vars', _var_prefix + '_docker_stop_timeout', default='10') }}"
+    stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='10') }}"
     tls_hostname: localhost
   register: remove_docker_result
   retries: "{{ ansible_retry_count

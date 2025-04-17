@@ -13,10 +13,14 @@
                   if (var_prefix is defined)
                   else role_name }}"
 
+- name: Resources | Tasks | Docker | Start Docker Container | Set instance name
+  ansible.builtin.set_fact:
+    _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
+
 - name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    name: "{{ lookup('vars', _var_prefix + '_docker_container', default=_var_prefix) }}"
+    name: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }}"
     state: started
     tls_hostname: localhost
     comparisons:
