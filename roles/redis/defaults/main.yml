@@ -17,7 +17,7 @@ redis_instances: ["redis"]
 # Paths
 ################################
 
-redis_role_paths_folder: "{{ redis_role_name }}"
+redis_role_paths_folder: "{{ redis_name }}"
 redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
 redis_role_paths_folders_list:
   - "{{ redis_role_paths_location }}"
@@ -27,7 +27,7 @@ redis_role_paths_folders_list:
 ################################
 
 # Container
-redis_role_docker_container: "{{ redis_role_name }}"
+redis_role_docker_container: "{{ redis_name }}"
 
 # Image
 redis_role_docker_image_pull: true
