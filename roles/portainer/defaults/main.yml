@@ -17,151 +17,151 @@ portainer_name: portainer
 # Settings
 ################################
 
-portainer_business_edition: false
+portainer_role_business_edition: false
 
 ################################
 # Paths
 ################################
 
-portainer_paths_folder: "{{ portainer_name }}"
-portainer_paths_location: "{{ server_appdata_path }}/{{ portainer_paths_folder }}"
-portainer_paths_folders_list:
-  - "{{ portainer_paths_location }}"
+portainer_role_paths_folder: "{{ portainer_name }}"
+portainer_role_paths_location: "{{ server_appdata_path }}/{{ portainer_role_paths_folder }}"
+portainer_role_paths_folders_list:
+  - "{{ portainer_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-portainer_web_subdomain: "{{ portainer_name }}"
-portainer_web_domain: "{{ user.domain }}"
-portainer_web_port: "9000"
-portainer_web_url: "{{ 'https://' + (portainer_web_subdomain + '.' + portainer_web_domain
-                    if (portainer_web_subdomain | length > 0)
-                    else portainer_web_domain) }}"
+portainer_role_web_subdomain: "{{ portainer_name }}"
+portainer_role_web_domain: "{{ user.domain }}"
+portainer_role_web_port: "9000"
+portainer_role_web_url: "{{ 'https://' + (lookup('role_var', 'web_subdomain') + '.' + lookup('role_var', '_web_domain')
+                         if (lookup('role_var', '_web_subdomain') | length > 0)
+                         else lookup('role_var', '_web_domain')) }}"
 
 ################################
 # DNS
 ################################
 
-portainer_dns_record: "{{ portainer_web_subdomain }}"
-portainer_dns_zone: "{{ portainer_web_domain }}"
-portainer_dns_proxy: "{{ dns.proxied }}"
+portainer_role_dns_record: "{{ lookup('role_var', '_web_subdomain') }}"
+portainer_role_dns_zone: "{{ lookup('role_var', '_web_domain') }}"
+portainer_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-portainer_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-portainer_traefik_middleware_default: "{{ traefik_default_middleware
-                                          + (',themepark-' + lookup('vars', portainer_name + '_name', default=portainer_name)
-                                            if (portainer_themepark_enabled and global_themepark_plugin_enabled)
-                                            else '') }}"
-portainer_traefik_middleware_custom: ""
-portainer_traefik_certresolver: "{{ traefik_default_certresolver }}"
-portainer_traefik_enabled: true
-portainer_traefik_api_enabled: true
-portainer_traefik_api_endpoint: "PathPrefix(`/api/websocket/`)"
+portainer_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+portainer_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                               + (',themepark-' + portainer_name
+                                                 if (lookup('role_var', '_themepark_enabled') and global_themepark_plugin_enabled)
+                                                 else '') }}"
+portainer_role_traefik_middleware_custom: ""
+portainer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+portainer_role_traefik_enabled: true
+portainer_role_traefik_api_enabled: true
+portainer_role_traefik_api_endpoint: "PathPrefix(`/api/websocket/`)"
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-portainer_themepark_enabled: false
-portainer_themepark_theme: "{{ global_themepark_theme }}"
+portainer_role_themepark_enabled: false
+portainer_role_themepark_theme: "{{ global_themepark_theme }}"
 
 ################################
 # Docker
 ################################
 
 # Container
-portainer_docker_container: "{{ portainer_name }}"
+portainer_role_docker_container: "{{ portainer_name }}"
 
 # Image
-portainer_docker_image_pull: true
-portainer_docker_image_tag: "latest"
-portainer_docker_image: "{{ ('portainer/portainer-ee:'
-                             if portainer_business_edition
-                             else 'portainer/portainer-ce:') + portainer_docker_image_tag }}"
+portainer_role_docker_image_pull: true
+portainer_role_docker_image_tag: "latest"
+portainer_role_docker_image: "{{ ('portainer/portainer-ee:'
+                              if lookup('role_var', '_business_edition')
+                              else 'portainer/portainer-ce:') + portainer_role_docker_image_tag }}"
 
 # Ports
-portainer_docker_ports_defaults: []
-portainer_docker_ports_custom: []
-portainer_docker_ports: "{{ portainer_docker_ports_defaults
-                            + portainer_docker_ports_custom }}"
+portainer_role_docker_ports_defaults: []
+portainer_role_docker_ports_custom: []
+portainer_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults')
+                                 + lookup('role_var', '_docker_ports_custom') }}"
 
 # Envs
-portainer_docker_envs_default:
+portainer_role_docker_envs_default:
   TZ: "{{ tz }}"
-portainer_docker_envs_custom: {}
-portainer_docker_envs: "{{ portainer_docker_envs_default
-                           | combine(portainer_docker_envs_custom) }}"
+portainer_role_docker_envs_custom: {}
+portainer_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default')
+                                | combine(lookup('role_var', '_docker_envs_custom')) }}"
 
 # Commands
-portainer_docker_commands_default: []
-portainer_docker_commands_custom: []
-portainer_docker_commands: "{{ portainer_docker_commands_default
-                               + portainer_docker_commands_custom }}"
+portainer_role_docker_commands_default: []
+portainer_role_docker_commands_custom: []
+portainer_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default')
+                                    + lookup('role_var', '_docker_commands_custom') }}"
 
 # Volumes
-portainer_docker_volumes_default:
-  - "{{ portainer_paths_location }}:/data"
+portainer_role_docker_volumes_default:
+  - "{{ portainer_role_paths_location }}:/data"
   - "/var/run/docker.sock:/var/run/docker.sock"
-portainer_docker_volumes_custom: []
-portainer_docker_volumes: "{{ portainer_docker_volumes_default
-                              + portainer_docker_volumes_custom }}"
+portainer_role_docker_volumes_custom: []
+portainer_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default')
+                                   + lookup('role_var', '_docker_volumes_custom') }}"
 
 # Devices
-portainer_docker_devices_default: []
-portainer_docker_devices_custom: []
-portainer_docker_devices: "{{ portainer_docker_devices_default
-                              + portainer_docker_devices_custom }}"
+portainer_role_docker_devices_default: []
+portainer_role_docker_devices_custom: []
+portainer_role_docker_devices: "{{ lookup('role_var', '_docker_devices_default')
+                                   + lookup('role_var', '_docker_devices_custom') }}"
 
 # Hosts
-portainer_docker_hosts_default: {}
-portainer_docker_hosts_custom: {}
-portainer_docker_hosts: "{{ docker_hosts_common
-                            | combine(portainer_docker_hosts_default)
-                            | combine(portainer_docker_hosts_custom) }}"
+portainer_role_docker_hosts_default: {}
+portainer_role_docker_hosts_custom: {}
+portainer_role_docker_hosts: "{{ docker_hosts_common
+                                 | combine(lookup('role_var', '_docker_hosts_default'))
+                                 | combine(lookup('role_var', '_docker_hosts_custom')) }}"
 
 # Labels
-portainer_docker_labels_default: {}
-portainer_docker_labels_custom: {}
-portainer_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", portainer_name + "_name", default=portainer_name) }}.plugin.themepark.app": "portainer" }'
-  - '{ "traefik.http.middlewares.themepark-{{ lookup("vars", portainer_name + "_name", default=portainer_name) }}.plugin.themepark.theme": "{{ lookup("vars", portainer_name + "_themepark_theme", default=portainer_themepark_theme) }}" }'
-portainer_docker_labels: "{{ docker_labels_common
-                             | combine(portainer_docker_labels_default)
-                             | combine((lookup('vars', portainer_name + '_docker_labels_themepark', default=portainer_docker_labels_themepark)
-                                       if (portainer_themepark_enabled and global_themepark_plugin_enabled)
-                                       else {}),
-                                       lookup('vars', portainer_name + '_docker_labels_custom', default=portainer_docker_labels_custom)) }}"
+portainer_role_docker_labels_default: {}
+portainer_role_docker_labels_custom: {}
+portainer_role_docker_labels_themepark:
+  - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.app": "portainer" }'
+  - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.theme": "{{ lookup("role_var", "_themepark_theme") }}" }'
+portainer_role_docker_labels: "{{ docker_labels_common
+                                  | combine(lookup('role_var', '_docker_labels_default'))
+                                  | combine((lookup('role_var', '_docker_labels_themepark')
+                                            if (lookup('role_var', '_themepark_enabled') and global_themepark_plugin_enabled)
+                                            else {}),
+                                            lookup('role_var', '_docker_labels_custom')) }}"
 
 # Hostname
-portainer_docker_hostname: "{{ portainer_name }}"
+portainer_role_docker_hostname: "{{ portainer_name }}"
 
 # Networks
-portainer_docker_networks_alias: "{{ portainer_name }}"
-portainer_docker_networks_default: []
-portainer_docker_networks_custom: []
-portainer_docker_networks: "{{ docker_networks_common
-                               + portainer_docker_networks_default
-                               + portainer_docker_networks_custom }}"
+portainer_role_docker_networks_alias: "{{ portainer_name }}"
+portainer_role_docker_networks_default: []
+portainer_role_docker_networks_custom: []
+portainer_role_docker_networks: "{{ docker_networks_common
+                                    + lookup('role_var', '_docker_networks_default')
+                                    + lookup('role_var', '_docker_networks_custom') }}"
 
 # Capabilities
-portainer_docker_capabilities_default: []
-portainer_docker_capabilities_custom: []
-portainer_docker_capabilities: "{{ portainer_docker_capabilities_default
-                                   + portainer_docker_capabilities_custom }}"
+portainer_role_docker_capabilities_default: []
+portainer_role_docker_capabilities_custom: []
+portainer_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default')
+                                        + lookup('role_var', '_docker_capabilities_custom') }}"
 
 # Security Opts
-portainer_docker_security_opts_default: []
-portainer_docker_security_opts_custom: []
-portainer_docker_security_opts: "{{ portainer_docker_security_opts_default
-                                    + portainer_docker_security_opts_custom }}"
+portainer_role_docker_security_opts_default: []
+portainer_role_docker_security_opts_custom: []
+portainer_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default')
+                                         + lookup('role_var', '_docker_security_opts_custom') }}"
 
 # Restart Policy
-portainer_docker_restart_policy: unless-stopped
+portainer_role_docker_restart_policy: unless-stopped
 
 # State
-portainer_docker_state: started
+portainer_role_docker_state: started
