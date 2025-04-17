@@ -22,28 +22,28 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/AniDB'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/Plex'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/OMDB'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TMDB'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/blank'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/_cache/fanart/original'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/episodes'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/original'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/vignette'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/graphical'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/posters'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasons'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasonswide'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/text'
-    - '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/FanartTV'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/AniDB'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/Plex'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/OMDB'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TMDB'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/blank'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/_cache/fanart/original'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/episodes'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/original'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/fanart/vignette'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/graphical'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/posters'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasons'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/seasonswide'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/TVDB/text'
+    - '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-in Support/Data/com.plexapp.agents.hama/DataItems/FanartTV'
 
 - name: "Get latest Absolute Series Scanner.py"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ZeroQI/Absolute-Series-Scanner/master/Scanners/Series/Absolute%20Series%20Scanner.py
-    dest: "{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py"
+    dest: "{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Scanners/Series/Absolute Series Scanner.py"
     mode: "0775"
   register: x
   until: "x is not failed"
@@ -54,7 +54,7 @@
 
 - name: "Set ASS directory permissions"
   ansible.builtin.file:
-    path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
+    path: '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Scanners'
     state: directory
     mode: "0775"
     owner: "{{ user.name }}"
@@ -64,7 +64,7 @@
 - name: "Clone Hama Bundle"
   ansible.builtin.git:
     repo: https://github.com/ZeroQI/Hama.bundle.git
-    dest: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+    dest: '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     clone: true
     version: HEAD
     force: true
@@ -73,7 +73,7 @@
 
 - name: "Set HAMA directory permissions"
   ansible.builtin.file:
-    path: '{{ plex_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
+    path: '{{ plex_role_paths_location }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle'
     state: directory
     mode: "0775"
     owner: "{{ user.name }}"
