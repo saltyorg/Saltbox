@@ -30,7 +30,9 @@
     cgroup_parent: "{{ lookup('docker_var', '_docker_cgroup_parent', default=omit) }}"
     cgroupns_mode: "{{ lookup('docker_var', '_docker_cgroupns_mode', default=omit) }}"
     cleanup: "{{ lookup('docker_var', '_docker_cleanup', default=omit) }}"
-    command: "{{ lookup('docker_var', '_docker_commands', default=omit) | reject('equalto', omit) | list }}"
+    command: "{{ (lookup('docker_var', '_docker_commands', default=omit) | reject('equalto', omit) | list)
+              if (lookup('docker_var', '_docker_commands', default=[]) | length > 0)
+              else omit }}"
     command_handling: compatibility
     container_default_behavior: compatibility
     cpu_period: "{{ lookup('docker_var', '_docker_cpu_period', default=omit) }}"
@@ -58,12 +60,14 @@
           if (((nvidia_docker_env if use_nvidia else {}) | combine(lookup('docker_var', '_docker_envs', default={}))) | length > 0)
           else omit }}"
     env_file: "{{ lookup('docker_var', '_docker_env_file', default=omit) }}"
-    etc_hosts: "{{ lookup('docker_var', '_docker_hosts', default=omit)
+    etc_hosts: "{{ ((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_hosts', default={})))
+                   if ((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_hosts', default={}))) | length > 0)
+                   else omit)
                 if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
-                else {} }}"
+                else omit }}"
     exposed_ports: "{{ (lookup('docker_var', '_docker_exposed_ports', default=[]) | unique | reject('equalto', omit) | list)
                     if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
-                    else [] }}"
+                    else omit }}"
     groups: "{{ lookup('docker_var', '_docker_groups', default=omit) }}"
     healthcheck: "{{ lookup('docker_var', '_docker_healthcheck', default=omit) }}"
     healthy_wait_timeout: "{{ lookup('docker_var', '_docker_healthy_wait_timeout', default=300) }}"
@@ -79,7 +83,9 @@
     keep_volumes: "{{ lookup('docker_var', '_docker_keep_volumes', default=omit) }}"
     kernel_memory: "{{ lookup('docker_var', '_docker_kernel_memory', default=omit) }}"
     kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
-    labels: "{{ lookup('docker_var', '_docker_labels', default=omit) }}"
+    labels: "{{ docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_labels', default={}))
+             if (docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_labels', default={})) | length > 0)
+             else omit }}"
     links: "{{ lookup('docker_var', '_docker_links', default=omit) }}"
     log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('docker_var', '_docker_log_driver', default=omit)) }}"
     log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('docker_var', '_docker_log_options', default=omit)) }}"
@@ -102,7 +108,7 @@
     privileged: "{{ lookup('docker_var', '_docker_privileged', default=omit) }}"
     published_ports: "{{ (lookup('docker_var', '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
                       if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
-                      else [] }}"
+                      else omit }}"
     pull: "{{ lookup('docker_var', '_docker_image_pull', default=true) | bool }}"
     pull_check_mode_behavior: "image_not_present"
     read_only: "{{ lookup('docker_var', '_docker_read_only', default=omit) }}"
