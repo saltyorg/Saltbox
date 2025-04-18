@@ -16,7 +16,6 @@
 
 # Cache
 /cache.json
-/cache*.json
 
 # Settings
 /ansible.cfg
