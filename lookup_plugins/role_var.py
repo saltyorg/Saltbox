@@ -19,6 +19,7 @@ DOCUMENTATION = '''
       - Caches only the returned variable (primary or fallback) per suffix
       - Avoids redundant hashing within a single playbook run
       - Skips cache for variables passed via --extra-vars
+      - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
     options:
       _terms:
         description: The suffix to append (e.g. '_dns_record')
@@ -26,6 +27,10 @@ DOCUMENTATION = '''
       default:
         description: The default value to return if neither variable is found
         type: raw
+        required: False
+      role:
+        description: The role name to use for lookup instead of the current role_name
+        type: str
         required: False
 '''
 
@@ -41,6 +46,7 @@ class LookupModule(LookupBase):
         suffix = terms[0] if terms else ''
         self.set_options(var_options=variables, direct=kwargs)
         default = self.get_option('default')
+        specified_role = self.get_option('role')
 
         self._templar.available_variables = variables
         omit = variables.get('omit')
@@ -49,8 +55,20 @@ class LookupModule(LookupBase):
         foldername = os.path.basename(playbook_dir.rstrip('/'))
         cache_path = f'/srv/git/saltbox/cache-{foldername}.json'
 
-        role_name = self._templar.template(variables['role_name'], fail_on_undefined=False)
-        traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=False)
+        # Use specified role if provided, otherwise fall back to role_name
+        role_name = self._templar.template(specified_role, fail_on_undefined=False) if specified_role else self._templar.template(variables['role_name'], fail_on_undefined=False)
+        
+        # If a custom role is specified, we need to construct the appropriate traefik_role_var for that role
+        if specified_role:
+            # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
+            custom_role_name_var = role_name + '_name'
+            if custom_role_name_var in variables:
+                traefik_role_var = self._templar.template(variables[custom_role_name_var], fail_on_undefined=False)
+            else:
+                traefik_role_var = role_name
+            display.vvv(f"[role_var] Using custom traefik_role_var for role '{role_name}': {traefik_role_var}")
+        else:
+            traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=False)
 
         if suffix == '_name':
             primary_var = traefik_role_var + suffix
@@ -78,8 +96,12 @@ class LookupModule(LookupBase):
             '/srv/git/saltbox/inventories/host_vars/localhost.yml',
         ]
         role_base = os.path.join(playbook_dir, f'roles/{role_name}')
-        watched_files.append(os.path.join(role_base, 'defaults/main.yml'))
-        watched_files.extend(self._find_task_files(os.path.join(role_base, 'tasks')))
+        role_defaults = os.path.join(role_base, 'defaults/main.yml')
+        if os.path.exists(role_defaults):
+            watched_files.append(role_defaults)
+        role_tasks = os.path.join(role_base, 'tasks')
+        if os.path.exists(role_tasks):
+            watched_files.extend(self._find_task_files(role_tasks))
 
         extra_var_keys = variables.get('__extra_var_keys__', [])
         skip_cache = primary_var in extra_var_keys or fallback_var in extra_var_keys
