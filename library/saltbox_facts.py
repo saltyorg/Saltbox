@@ -192,14 +192,68 @@ def atomic_write(file_path, content, mode, owner, group):
             os.unlink(temp_path)
         raise
 
-def load_and_save_facts(file_path, instance, keys, owner, group, mode):
+def load_facts(file_path, instance, keys):
     """
-    Load and save facts to configuration file.
+    Load facts from configuration file.
 
     Args:
         file_path (str): Path to the configuration file
         instance (str): Name of the instance
         keys (dict): Dictionary of keys and their default values
+
+    Returns:
+        dict: Dictionary of facts with defaults applied for missing values
+
+    Raises:
+        Exception: With detailed error message for various failure scenarios
+    """
+    try:
+        validate_instance_name(instance)
+        validate_keys(keys)
+        
+        config = configparser.ConfigParser(
+            interpolation=None,
+            comment_prefixes=('#',),
+            inline_comment_prefixes=('#',),
+            default_section='DEFAULT',
+            delimiters=('=',),
+            empty_lines_in_values=False
+        )
+        
+        config.optionxform = str
+        
+        facts = {}
+        
+        if os.path.exists(file_path):
+            config.read(file_path)
+
+        # Apply defaults and load existing values
+        for key, default_value in keys.items():
+            if config.has_section(instance) and config.has_option(instance, key):
+                current_value = config[instance].get(key)
+                
+                if current_value == 'None':
+                    facts[key] = default_value
+                else:
+                    facts[key] = current_value
+            else:
+                facts[key] = default_value
+                
+        return facts
+        
+    except configparser.Error as e:
+        raise Exception(f"Configuration parsing error: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Unexpected error: {str(e)}")
+
+def save_facts(file_path, instance, keys, owner, group, mode):
+    """
+    Save facts to configuration file.
+
+    Args:
+        file_path (str): Path to the configuration file
+        instance (str): Name of the instance
+        keys (dict): Dictionary of keys and values to save
         owner (str): Username of the file owner
         group (str): Group name for the file
         mode (int): File permissions mode in octal
@@ -235,21 +289,13 @@ def load_and_save_facts(file_path, instance, keys, owner, group, mode):
             config.add_section(instance)
             changed = True
 
-        for key, default_value in keys.items():
-            if config.has_option(instance, key):
-                current_value = config[instance].get(key)
-
-                if current_value == 'None':
-                    config.set(instance, key, str(default_value))
-                    facts[key] = default_value
-                    changed = True
-
-                else:
-                    facts[key] = current_value
-
-            else:
-                facts[key] = str(default_value)
-                config.set(instance, key, str(default_value))
+        for key, value in keys.items():
+            facts[key] = str(value)
+            
+            if (not config.has_section(instance) or 
+                not config.has_option(instance, key) or 
+                config.get(instance, key) != str(value)):
+                config.set(instance, key, str(value))
                 changed = True
 
         if changed:
@@ -420,8 +466,13 @@ def run_module():
             if not delete_type:
                 module.fail_json(msg="delete_type is required for delete method.")
             result['changed'] = delete_facts(file_path, delete_type, instance, keys)
-        else:
-            result['facts'], result['changed'] = load_and_save_facts(
+        elif method == 'load':
+            # For load method, just load the facts without writing anything
+            result['facts'] = load_facts(file_path, instance, keys)
+            result['changed'] = False
+        elif method == 'save':
+            # For save method, save the facts and set changed flag
+            result['facts'], result['changed'] = save_facts(
                 file_path, instance, keys, owner, group, mode
             )
 
