@@ -423,7 +423,7 @@ docker_labels_saltbox_tmp:
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
 
-docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | reject('equalto', omit) | list }}"
+docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | reject('equalto', omit) | combine({}) }}"
 
 docker_labels_traefik_main:
   - traefik.enable: "true"
