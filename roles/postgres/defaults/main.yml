@@ -21,6 +21,11 @@ postgres_docker_env_password: "password4321"
 postgres_docker_env_user: "{{ user.name }}"
 postgres_docker_env_db: "saltbox"
 
+# Memory limit in format <number>[<unit>].
+# Number is a positive integer.
+# Unit can be B (byte), K (kibibyte, 1024B), M (mebibyte), G (gibibyte), T (tebibyte), or P (pebibyte).
+postgres_docker_memory_limit: 0
+
 ################################
 # Paths
 ################################
@@ -129,3 +134,6 @@ postgres_docker_state: started
 
 # User
 postgres_docker_user: "{{ uid }}:{{ gid }}"
+
+# Memory Limit
+postgres_docker_memory: "{{ lookup('vars', postgres_name + '_docker_memory_limit', default=postgres_docker_memory_limit) }}"
