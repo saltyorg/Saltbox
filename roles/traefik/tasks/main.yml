@@ -10,9 +10,9 @@
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
@@ -41,15 +41,15 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
 - name: Traefik ZeroSSL Tasks
-  ansible.builtin.import_tasks: "subtasks/zerossl.yml"
+  ansible.builtin.include_tasks: "subtasks/zerossl.yml"
   when: traefik_enable_zerossl and (not continuous_integration)
 
 - name: Traefik Config Tasks
-  ansible.builtin.import_tasks: "subtasks/config.yml"
+  ansible.builtin.include_tasks: "subtasks/config.yml"
   when: (not continuous_integration)
 
 - name: Traefik Crowdsec Tasks
-  ansible.builtin.import_tasks: "subtasks/crowdsec.yml"
+  ansible.builtin.include_tasks: "subtasks/crowdsec.yml"
   when: crowdsec_is_enabled
 
 - name: Remove Certificates

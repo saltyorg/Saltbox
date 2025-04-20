@@ -47,7 +47,7 @@ docker_socket_proxy_docker_commands: "{{ docker_socket_proxy_docker_commands_def
 
 # Volumes
 docker_socket_proxy_docker_volumes_default:
-  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  - "/var/run/docker.sock:/var/run/docker.sock"
 docker_socket_proxy_docker_volumes_custom: []
 docker_socket_proxy_docker_volumes: "{{ docker_socket_proxy_docker_volumes_default
                                         + docker_socket_proxy_docker_volumes_custom }}"

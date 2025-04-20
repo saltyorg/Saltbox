@@ -27,7 +27,7 @@ http_host = "0.0.0.0"
 http_port = 17170
 
 ## The public URL of the server, for password reset links.
-http_url = "{{ lldap_web_url }}"
+http_url = "{{ lookup('role_var', '_web_url', role='lldap') }}"
 
 ## Random secret for JWT signature.
 ## This secret should be random, and should be shared with application
@@ -116,15 +116,15 @@ key_file = "/data/private_key"
 ## To set these options from environment variables, use the following format
 ## (example with "password"): LLDAP_SMTP_OPTIONS__PASSWORD
 [smtp_options]
-{% if lldap_smtp_enabled %}
+{% if lookup('role_var', '_smtp_enabled', role='lldap') %}
 enable_password_reset=true
-server="{{ lldap_smtp_server }}"
-port={{ lldap_smtp_port }}
-smtp_encryption="{{ lldap_smtp_encryption }}"
-user="{{ lldap_smtp_user }}"
-password="{{ lldap_smtp_password }}"
-from="{{ lldap_smtp_from }}"
-reply_to="{{ lldap_smtp_reply_to }}"
+server="{{ lookup('role_var', '_smtp_server', role='lldap') }}"
+port={{ lookup('role_var', '_smtp_port', role='lldap') }}
+smtp_encryption="{{ lookup('role_var', '_smtp_encryption', role='lldap') }}"
+user="{{ lookup('role_var', '_smtp_user', role='lldap') }}"
+password="{{ lookup('role_var', '_smtp_password', role='lldap') }}"
+from="{{ lookup('role_var', '_smtp_from', role='lldap') }}"
+reply_to="{{ lookup('role_var', '_smtp_reply_to', role='lldap') }}"
 {% else %}
 ## Whether to enabled password reset via email, from LLDAP.
 #enable_password_reset=true

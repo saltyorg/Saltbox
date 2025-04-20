@@ -54,7 +54,7 @@ portainer_role_dns_proxy: "{{ dns.proxied }}"
 portainer_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 portainer_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                + (',themepark-' + portainer_name
-                                                 if (lookup('role_var', '_themepark_enabled') and global_themepark_plugin_enabled)
+                                                 if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
                                                  else '') }}"
 portainer_role_traefik_middleware_custom: ""
 portainer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
@@ -80,15 +80,10 @@ portainer_role_docker_container: "{{ portainer_name }}"
 # Image
 portainer_role_docker_image_pull: true
 portainer_role_docker_image_tag: "latest"
-portainer_role_docker_image: "{{ ('portainer/portainer-ee:'
-                              if lookup('role_var', '_business_edition', role='portainer')
-                              else 'portainer/portainer-ce:') + portainer_role_docker_image_tag }}"
-
-# Ports
-portainer_role_docker_ports_defaults: []
-portainer_role_docker_ports_custom: []
-portainer_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='portainer')
-                                 + lookup('role_var', '_docker_ports_custom', role='portainer') }}"
+portainer_role_docker_image_repo: "{{ 'portainer/portainer-ee:'
+                                   if lookup('role_var', '_business_edition', role='portainer')
+                                   else 'portainer/portainer-ce:' }}"
+portainer_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='portainer') + lookup('role_var', '_docker_image_tag', role='portainer') }}"
 
 # Envs
 portainer_role_docker_envs_default:
@@ -96,12 +91,6 @@ portainer_role_docker_envs_default:
 portainer_role_docker_envs_custom: {}
 portainer_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='portainer')
                                 | combine(lookup('role_var', '_docker_envs_custom', role='portainer')) }}"
-
-# Commands
-portainer_role_docker_commands_default: []
-portainer_role_docker_commands_custom: []
-portainer_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='portainer')
-                                    + lookup('role_var', '_docker_commands_custom', role='portainer') }}"
 
 # Volumes
 portainer_role_docker_volumes_default:
@@ -111,31 +100,15 @@ portainer_role_docker_volumes_custom: []
 portainer_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='portainer')
                                    + lookup('role_var', '_docker_volumes_custom', role='portainer') }}"
 
-# Devices
-portainer_role_docker_devices_default: []
-portainer_role_docker_devices_custom: []
-portainer_role_docker_devices: "{{ lookup('role_var', '_docker_devices_default', role='portainer')
-                                   + lookup('role_var', '_docker_devices_custom', role='portainer') }}"
-
-# Hosts
-portainer_role_docker_hosts_default: {}
-portainer_role_docker_hosts_custom: {}
-portainer_role_docker_hosts: "{{ docker_hosts_common
-                                 | combine(lookup('role_var', '_docker_hosts_default', role='portainer'))
-                                 | combine(lookup('role_var', '_docker_hosts_custom', role='portainer')) }}"
-
 # Labels
-portainer_role_docker_labels_default: {}
 portainer_role_docker_labels_custom: {}
 portainer_role_docker_labels_themepark:
   - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.app": "portainer" }'
   - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.theme": "{{ lookup("role_var", "_themepark_theme", role="portainer") }}" }'
-portainer_role_docker_labels: "{{ docker_labels_common
-                                  | combine(lookup('role_var', '_docker_labels_default', role='portainer'))
+portainer_role_docker_labels: "{{ lookup('role_var', '_docker_labels_custom', role='portainer')
                                   | combine((lookup('role_var', '_docker_labels_themepark', role='portainer')
                                             if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
-                                            else {}),
-                                            lookup('role_var', '_docker_labels_custom', role='portainer')) }}"
+                                            else {})) }}"
 
 # Hostname
 portainer_role_docker_hostname: "{{ portainer_name }}"
@@ -147,18 +120,6 @@ portainer_role_docker_networks_custom: []
 portainer_role_docker_networks: "{{ docker_networks_common
                                     + lookup('role_var', '_docker_networks_default', role='portainer')
                                     + lookup('role_var', '_docker_networks_custom', role='portainer') }}"
-
-# Capabilities
-portainer_role_docker_capabilities_default: []
-portainer_role_docker_capabilities_custom: []
-portainer_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='portainer')
-                                        + lookup('role_var', '_docker_capabilities_custom', role='portainer') }}"
-
-# Security Opts
-portainer_role_docker_security_opts_default: []
-portainer_role_docker_security_opts_custom: []
-portainer_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default', role='portainer')
-                                         + lookup('role_var', '_docker_security_opts_custom', role='portainer') }}"
 
 # Restart Policy
 portainer_role_docker_restart_policy: unless-stopped

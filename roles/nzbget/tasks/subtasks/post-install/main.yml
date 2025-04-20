@@ -22,10 +22,10 @@
     var_prefix: "{{ nzbget_docker_container }}"
 
 - name: Post-Install | Scripts Task
-  ansible.builtin.import_tasks: "scripts/main.yml"
+  ansible.builtin.include_tasks: "scripts/main.yml"
 
 - name: Post-Install | Settings Task
-  ansible.builtin.import_tasks: "settings/main.yml"
+  ansible.builtin.include_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

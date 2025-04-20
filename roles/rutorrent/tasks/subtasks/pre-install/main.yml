@@ -29,5 +29,5 @@
   ignore_errors: true
 
 - name: Pre-Install | Settings | Update settings For Existing Installs
-  ansible.builtin.import_tasks: "existing_installs.yml"
+  ansible.builtin.include_tasks: "existing_installs.yml"
   when: rutorrent_paths_rtorrent_rc_location_stat.stat.exists

@@ -14,7 +14,7 @@
 
 - name: "Fail if invalid Authentication Backend"
   ansible.builtin.fail:
-    msg: "authelia_authentication_backend is not valid. Use 'file' or 'ldap'."
+    msg: "{{ authelia_name }}_authentication_backend or {{ authelia_name }}_role_authentication_backend is not valid. Use 'file' or 'ldap'."
   when: not lookup('role_var', '_authentication_backend') in ["file", "ldap"]
 
 - name: Remove existing Docker container
@@ -43,7 +43,7 @@
 - name: Fail if Configuration was generated with incorrect authentication_backend
   ansible.builtin.fail:
     msg:
-      - "You seem to have changed 'authelia_authentication_backend' but the old configuration still exists."
+      - "You seem to have changed '{{ authelia_name }}_authentication_backend' or '{{ authelia_name }}_role_authentication_backend' but the old configuration still exists."
       - "Backup the Authelia opt folder if you want to keep it and then run the 'authelia-reset' tag."
       - "Port any modifications made to your configurations.yml from the backup that you want to keep."
   when:
@@ -53,7 +53,7 @@
       or (('file' in authentication_backend_key.stdout) and (lookup('role_var', '_authentication_backend') == 'ldap')))
 
 - name: Authentication Backend Task
-  ansible.builtin.import_tasks: "subtasks/auth_backend.yml"
+  ansible.builtin.include_tasks: "subtasks/auth_backend.yml"
 
 - name: Remove legacy Redis Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -82,7 +82,7 @@
     dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: Settings Task
-  ansible.builtin.import_tasks: "subtasks/settings.yml"
+  ansible.builtin.include_tasks: "subtasks/settings.yml"
   when: (authelia_config_stat.stat.exists)
 
 - name: Logrotate | Create 'authelia_logrotate' variable

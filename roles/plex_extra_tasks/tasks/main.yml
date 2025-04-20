@@ -17,5 +17,5 @@
     docker_installed_containers_list: "{{ (docker_installed_containers_list.stdout).split() }}"
 
 - name: "Continue when Plex Docker container exists"
-  ansible.builtin.import_tasks: "main2.yml"
+  ansible.builtin.include_tasks: "main2.yml"
   when: (plex_docker_container in docker_installed_containers_list)

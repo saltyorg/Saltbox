@@ -10,17 +10,17 @@
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_webtools_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_webtools_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_webtools_dns_proxy') }}"
-  when: plex_plugin_webtools
+    dns_record: "{{ lookup('role_var', '_webtools_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_webtools_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_webtools_dns_proxy') }}"
+  when: lookup('vars', plex_name + '_plugin_webtools', default=plex_role_plugin_webtools)
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -33,8 +33,8 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ plex_paths_location }}/98-themepark"
-    - "{{ plex_paths_location }}/99-modify-binary"
+    - "{{ plex_role_paths_location }}/98-themepark"
+    - "{{ plex_role_paths_location }}/99-modify-binary"
     - "{{ server_appdata_path }}/scripts/bbe"
 
 - name: Plex Reset Codecs tasks
@@ -42,7 +42,7 @@
   block:
     - name: Get contents of Plex Codecs Folder
       ansible.builtin.find:
-        paths: "{{ plex_paths_application_support_location }}/Codecs"
+        paths: "{{ plex_role_paths_application_support_location }}/Codecs"
         file_type: directory
         recurse: no
       register: plex_codecs_removal
@@ -54,11 +54,11 @@
       with_items: "{{ plex_codecs_removal.files }}"
 
 - name: Pre-Install Tasks
-  ansible.builtin.import_tasks: "subtasks/pre-install/main.yml"
+  ansible.builtin.include_tasks: "subtasks/pre-install/main.yml"
   when: (not continuous_integration)
 
 - name: Preferences Tasks
-  ansible.builtin.import_tasks: "subtasks/preferences/preferences.yml"
+  ansible.builtin.include_tasks: "subtasks/preferences/preferences.yml"
   when: (not continuous_integration)
 
 - name: Docker Devices Task
@@ -71,4 +71,4 @@
 - name: "Execute Plex Extra Tasks role"
   ansible.builtin.include_role:
     name: "plex_extra_tasks"
-  when: (plex_plugin_sub_zero or plex_plugin_webtools) and (not continuous_integration)
+  when: (lookup('vars', plex_name + '_plugin_sub_zero', default=plex_role_plugin_sub_zero) or lookup('vars', plex_name + '_plugin_webtools', default=plex_role_plugin_webtools)) and (not continuous_integration)

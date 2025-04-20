@@ -19,7 +19,7 @@
 
 - name: Reset lldap directory
   ansible.builtin.file:
-    path: "{{ lldap_paths_location }}"
+    path: "{{ lldap_role_paths_location }}"
     state: absent
   when: ('lldap-reset' in ansible_run_tags)
 
@@ -28,13 +28,13 @@
 
 - name: Check if 'lldap_config.toml' exists
   ansible.builtin.stat:
-    path: "{{ lldap_paths_location }}/lldap_config.toml"
+    path: "{{ lldap_role_paths_location }}/lldap_config.toml"
   register: lldap_config_stat
 
 - name: Import default 'lldap_config.toml'
   ansible.builtin.template:
     src: lldap_config.toml.j2
-    dest: "{{ lldap_paths_location }}/lldap_config.toml"
+    dest: "{{ lldap_role_paths_location }}/lldap_config.toml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"

@@ -130,11 +130,11 @@
   when: ruleset_exists and not rule_exists
 
 - name: Configuration Rules | Remove Configuration Rule Task
-  ansible.builtin.import_tasks: "configuration_rules/remove_configuration_rule.yml"
+  ansible.builtin.include_tasks: "configuration_rules/remove_configuration_rule.yml"
   when: ruleset_exists and rule_exists
 
 # Create new CF Configuration Rule for Lets Encrypt
 
 - name: Configuration Rules | Add Configuration Rule Task
-  ansible.builtin.import_tasks: "configuration_rules/add_configuration_rule.yml"
+  ansible.builtin.include_tasks: "configuration_rules/add_configuration_rule.yml"
   when: ruleset_exists and rule_exists

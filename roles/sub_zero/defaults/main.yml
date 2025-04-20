@@ -11,7 +11,7 @@
 # Paths
 ################################
 
-plex_plugin_subzero_paths_location: "{{ plex_paths_plugins_location }}/Sub-Zero.bundle"
+plex_plugin_subzero_paths_location: "{{ plex_role_paths_plugins_location }}/Sub-Zero.bundle"
 
 plex_plugin_subzero_paths_info_plist_location: "{{ plex_plugin_subzero_paths_location }}/Contents/Info.plist"
 

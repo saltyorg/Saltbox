@@ -7,25 +7,25 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Preferences | Check if '{{ plex_paths_config_location | basename }}' exists"
+- name: "Preferences | Check if '{{ plex_role_paths_config_location | basename }}' exists"
   ansible.builtin.stat:
-    path: "{{ plex_paths_config_location }}"
+    path: "{{ plex_role_paths_config_location }}"
   register: preferences_xml
 
-- name: "Preferences | '{{ plex_paths_config_location | basename }}' Tasks"
+- name: "Preferences | '{{ plex_role_paths_config_location | basename }}' Tasks"
   when: preferences_xml.stat.exists
   block:
-    - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
+    - name: Preferences | Get '{{ plex_role_paths_config_location | basename }}' XML data
       community.general.xml:
-        path: "{{ plex_paths_config_location }}"
+        path: "{{ plex_role_paths_config_location }}"
         xpath: /Preferences
         content: attribute
       register: preferences_xml_resp
       ignore_errors: true
 
-    - name: "Preferences | Remove '{{ plex_paths_config_location | basename }}' if malformed"
+    - name: "Preferences | Remove '{{ plex_role_paths_config_location | basename }}' if malformed"
       ansible.builtin.file:
-        path: "{{ plex_paths_config_location }}"
+        path: "{{ plex_role_paths_config_location }}"
         state: absent
       when: (preferences_xml_resp is failed)
 
@@ -37,7 +37,7 @@
 
     - name: "Preferences | Fix 'TranscoderTempDirectory'"
       community.general.xml:
-        path: "{{ plex_paths_config_location }}"
+        path: "{{ plex_role_paths_config_location }}"
         xpath: /Preferences
         attribute: TranscoderTempDirectory
         value: "/transcode"
@@ -48,7 +48,7 @@
 
     - name: "Preferences | Set 'secureConnections' to preferred"
       community.general.xml:
-        path: "{{ plex_paths_config_location }}"
+        path: "{{ plex_role_paths_config_location }}"
         xpath: /Preferences
         attribute: secureConnections
         value: "1"
@@ -63,5 +63,5 @@
           (preferences_xml_resp.matches[0].Preferences.PlexOnlineToken | trim | length > 0) }}"
 
 - name: Preferences | Claim {{ plex_name | title }} Server
-  ansible.builtin.import_tasks: "claim_server.yml"
+  ansible.builtin.include_tasks: "claim_server.yml"
   when: (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and (not plex_server_claimed))

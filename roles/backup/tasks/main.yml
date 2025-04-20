@@ -29,10 +29,10 @@
         backup_success: false
 
     - name: Sanity Check
-      ansible.builtin.import_tasks: "sanity_check.yml"
+      ansible.builtin.include_tasks: "sanity_check.yml"
 
     - name: Variables
-      ansible.builtin.import_tasks: "variables.yml"
+      ansible.builtin.include_tasks: "variables.yml"
       tags:
         - set-backup
         - unset-backup
@@ -41,13 +41,13 @@
         - wipe-restore-service
 
     - name: Import Restore Service Cleanup
-      ansible.builtin.import_tasks: "wipe_restore_service.yml"
+      ansible.builtin.include_tasks: "wipe_restore_service.yml"
       when: ('wipe-restore-service' in ansible_run_tags) and not ('backup' in ansible_run_tags)
       tags:
         - wipe-restore-service
 
     - name: Cron
-      ansible.builtin.import_tasks: "cron.yml"
+      ansible.builtin.include_tasks: "cron.yml"
       when: (['set-backup', 'unset-backup'] | intersect(ansible_run_tags)) and not ('backup' in ansible_run_tags)
       tags:
         - set-backup
@@ -62,7 +62,7 @@
         start_time: "{{ start_time_lookup.stdout }}"
 
     - name: Snapshot
-      ansible.builtin.import_tasks: "snapshot.yml"
+      ansible.builtin.include_tasks: "snapshot.yml"
 
     - name: "Notify | Saltbox Backup: Started Saltbox backup task"
       ansible.builtin.include_role:
@@ -236,7 +236,7 @@
           else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
 
     - name: Saltbox Restore Service
-      ansible.builtin.import_tasks: "restore_service.yml"
+      ansible.builtin.include_tasks: "restore_service.yml"
       when: restore_service_enabled
       tags:
         - restore-service

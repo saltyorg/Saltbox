@@ -15,7 +15,7 @@
     - "cloudplow-disable"
 
 - name: Import Disable Task
-  ansible.builtin.import_tasks: "subtasks/disable.yml"
+  ansible.builtin.include_tasks: "subtasks/disable.yml"
   when: ('cloudplow-disable' in ansible_run_tags)
   tags:
     - "cloudplow-disable"
@@ -103,7 +103,7 @@
         force: true
 
     - name: Import Settings Task
-      ansible.builtin.import_tasks: "subtasks/settings.yml"
+      ansible.builtin.include_tasks: "subtasks/settings.yml"
 
     - name: Import '{{ cloudplow_service_name }}.service'
       ansible.builtin.template:

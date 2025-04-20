@@ -56,7 +56,7 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
   vars:
     _var_prefix: "plex"
-  when: (plex_proxy_lookup | length > 0)
+  when: (plex_role_proxy_lookup | length > 0)
 
 - name: "Auth Token | Check if Token is valid"
   ansible.builtin.uri:

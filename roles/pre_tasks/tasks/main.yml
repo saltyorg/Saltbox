@@ -8,10 +8,10 @@
 #########################################################################
 ---
 - name: APT Tasks
-  ansible.builtin.import_tasks: "subtasks/apt.yml"
+  ansible.builtin.include_tasks: "subtasks/apt.yml"
 
 - name: Git Tasks
-  ansible.builtin.import_tasks: "subtasks/git.yml"
+  ansible.builtin.include_tasks: "subtasks/git.yml"
 
 - name: Variables Tasks
   ansible.builtin.include_tasks: "subtasks/variables.yml"

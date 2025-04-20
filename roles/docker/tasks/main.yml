@@ -94,7 +94,7 @@
       ansible.builtin.shell: "apt-get install --reinstall linux-modules-{{ ansible_kernel }}"
 
 - name: "Import Daemon Tasks"
-  ansible.builtin.import_tasks: "subtasks/daemon.yml"
+  ansible.builtin.include_tasks: "subtasks/daemon.yml"
 
 - name: "Import Docker Binary tasks"
   ansible.builtin.include_tasks: "subtasks/binary/binary.yml"
@@ -104,7 +104,7 @@
   when: ('btrfs' in var_lib_file_system.stdout)
 
 - name: "Import Nvidia tasks"
-  ansible.builtin.import_tasks: "subtasks/nvidia.yml"
+  ansible.builtin.include_tasks: "subtasks/nvidia.yml"
   when: use_nvidia
 
 - name: Start docker socket
@@ -126,7 +126,7 @@
     timeout: "60"
 
 - name: "Import Controller tasks"
-  ansible.builtin.import_tasks: "subtasks/controller.yml"
+  ansible.builtin.include_tasks: "subtasks/controller.yml"
 
 - name: Unblock Docker Controller
   ansible.builtin.uri:
@@ -142,10 +142,10 @@
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
 
 - name: "Import Docker Network tasks"
-  ansible.builtin.import_tasks: "subtasks/network.yml"
+  ansible.builtin.include_tasks: "subtasks/network.yml"
 
 - name: "Import Docker Housekeeping tasks"
-  ansible.builtin.import_tasks: "subtasks/housekeeping.yml"
+  ansible.builtin.include_tasks: "subtasks/housekeeping.yml"
   tags: docker-housekeeping
 
 - name: Docker Service Running
@@ -180,15 +180,15 @@
   ignore_errors: true
 
 - name: "Import Docker Hub tasks"
-  ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
+  ansible.builtin.include_tasks: "subtasks/dockerhub.yml"
   tags: dockerhub
   when: dockerhub_is_enabled
 
 - name: "Import DNS tasks"
-  ansible.builtin.import_tasks: "subtasks/dns.yml"
+  ansible.builtin.include_tasks: "subtasks/dns.yml"
 
 - name: "Import Compose tasks"
-  ansible.builtin.import_tasks: "subtasks/compose.yml"
+  ansible.builtin.include_tasks: "subtasks/compose.yml"
   tags: docker-compose
 
 - name: "Install ctop"

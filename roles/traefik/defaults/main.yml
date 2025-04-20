@@ -406,7 +406,7 @@ traefik_docker_commands: "{{ traefik_docker_commands_default
 
 # Volumes
 traefik_docker_volumes_default:
-  - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  - "/var/run/docker.sock:/var/run/docker.sock"
   - "{{ traefik_paths_location }}:/etc/traefik"
 traefik_docker_volumes_custom: []
 traefik_docker_volumes: "{{ traefik_docker_volumes_default

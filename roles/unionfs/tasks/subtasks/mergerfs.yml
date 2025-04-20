@@ -68,7 +68,7 @@
     daemon_reload: true
 
 - name: Mount Path Tasks
-  ansible.builtin.import_tasks: "mount_path.yml"
+  ansible.builtin.include_tasks: "mount_path.yml"
 
 - name: "MergerFS | Start '{{ mergerfs_service_name }}'"
   ansible.builtin.systemd_service:

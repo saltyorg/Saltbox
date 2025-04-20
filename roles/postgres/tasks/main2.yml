@@ -11,14 +11,14 @@
   ansible.builtin.set_fact:
     postgres_major_version: ""
     postgres_docker_tag_major_version: ""
-    postgres_original_image_repo: "{{ true if postgres_docker_image_repo == 'postgres' else false }}"
+    postgres_original_image_repo: "{{ true if postgres_role_docker_image_repo == 'postgres' else false }}"
 
 - name: Supported image repository
   when: postgres_original_image_repo
   block:
-    - name: "Check if '{{ postgres_paths_location }}' exists"
+    - name: "Check if '{{ postgres_role_paths_location }}' exists"
       ansible.builtin.stat:
-        path: "{{ postgres_paths_location }}"
+        path: "{{ postgres_role_paths_location }}"
       register: stat_postgres_path
 
     - name: Check for upgrade
@@ -26,13 +26,13 @@
       block:
         - name: Read PG_VERSION file
           ansible.builtin.slurp:
-            src: "{{ postgres_paths_location }}/PG_VERSION"
+            src: "{{ postgres_role_paths_location }}/PG_VERSION"
           register: pg_version_file
 
         - name: Define installed and desired Postgres versions
           ansible.builtin.set_fact:
             postgres_major_version: "{{ pg_version_file['content'] | b64decode | trim }}"
-            postgres_docker_tag_major_version: "{{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag).split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
+            postgres_docker_tag_major_version: "{{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_role_docker_image_tag).split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
 
         - name: Display PostgreSQL version
           ansible.builtin.debug:
@@ -42,8 +42,8 @@
           ansible.builtin.assert:
             that:
               - postgres_docker_tag_major_version is regex("^[0-9]+$")
-            fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
-            success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }}"
+            fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_role_docker_image_tag) }}"
+            success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_role_docker_image_tag) }}"
 
     - name: Upgrade PostgreSQL
       when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
@@ -56,25 +56,25 @@
         - name: Remove existing Docker container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-        - name: "Check if '{{ postgres_paths_location }}_backup' exists"
+        - name: "Check if '{{ postgres_role_paths_location }}_backup' exists"
           ansible.builtin.stat:
-            path: "{{ postgres_paths_location }}_backup"
+            path: "{{ postgres_role_paths_location }}_backup"
           register: stat_postgres_backup_path
 
         - name: Fail if backup location already exists
           ansible.builtin.fail:
             msg:
               - "A backup of the postgres folder already exists, clean it up if it was from a previously successful upgrade. Otherwise ask for help on the discord."
-              - "Path is {{ postgres_paths_location }}_backup"
+              - "Path is {{ postgres_role_paths_location }}_backup"
           when: stat_postgres_backup_path.stat.exists
 
         - name: Move Postgres data folder
-          ansible.builtin.shell: mv "{{ postgres_paths_location }}" "{{ postgres_paths_location }}_backup"
+          ansible.builtin.shell: mv "{{ postgres_role_paths_location }}" "{{ postgres_role_paths_location }}_backup"
 
         - name: Create directories
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-        - name: "Create Docker container (Desired tag: {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_docker_image_tag) }})"
+        - name: "Create Docker container (Desired tag: {{ lookup('vars', postgres_name + '_docker_image_tag', default=postgres_role_docker_image_tag) }})"
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
           vars:
             postgres_docker_container: "{{ postgres_name + '_new' }}"
@@ -85,10 +85,10 @@
           vars:
             postgres_docker_container: "{{ postgres_name + '_old' }}"
             postgres_docker_networks_alias: "{{ postgres_name + '_old' }}"
-            postgres_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_docker_image_repo)
+            postgres_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_role_docker_image_repo)
                                       + ':' + postgres_major_version + '-alpine' }}"
             postgres_docker_volumes_default:
-              - "{{ postgres_paths_location }}_backup:/var/lib/postgresql/data"
+              - "{{ postgres_role_paths_location }}_backup:/var/lib/postgresql/data"
               - "/etc/passwd:/etc/passwd:ro"
 
         - name: Sleep for 60 seconds
@@ -111,7 +111,7 @@
 
         - name: Update user password for SCRAM authentication in new container
           ansible.builtin.shell: |
-            docker exec {{ postgres_name }}_new psql -U {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_docker_env_user) }} -d {{ lookup('vars', postgres_name + '_docker_env_db', default=postgres_docker_env_db) }} -c "ALTER USER {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_docker_env_user) }} WITH PASSWORD '{{ lookup('vars', postgres_name + '_docker_env_password', default=postgres_docker_env_password) }}';"
+            docker exec {{ postgres_name }}_new psql -U {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_role_docker_env_user) }} -d {{ lookup('vars', postgres_name + '_docker_env_db', default=postgres_role_docker_env_db) }} -c "ALTER USER {{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_role_docker_env_user) }} WITH PASSWORD '{{ lookup('vars', postgres_name + '_docker_env_password', default=postgres_role_docker_env_password) }}';"
           when: (postgres_major_version | int < 14) and (postgres_docker_tag_major_version | int >= 14)
 
         - name: Remove temporary containers

@@ -33,53 +33,28 @@ redis_role_docker_container: "{{ redis_name }}"
 redis_role_docker_image_pull: true
 redis_role_docker_image_tag: "alpine"
 redis_role_docker_image_repo: "redis"
-redis_role_docker_image: "{{ lookup('role_var', '_docker_image_repo') }}:{{ lookup('role_var', '_docker_image_tag') }}"
-
-# Ports
-redis_role_docker_ports_defaults: []
-redis_role_docker_ports_custom: []
-redis_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults')
-                             + lookup('role_var', '_docker_ports_custom') }}"
+redis_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='redis') }}:{{ lookup('role_var', '_docker_image_tag', role='redis') }}"
 
 # Envs
 redis_role_docker_envs_default:
   TZ: "{{ tz }}"
 redis_role_docker_envs_custom: {}
-redis_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default')
-                            | combine(lookup('role_var', '_docker_envs_custom')) }}"
-
-# Commands
-redis_role_docker_commands_default: []
-redis_role_docker_commands_custom: []
-redis_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default')
-                                + lookup('role_var', '_docker_commands_custom') }}"
+redis_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='redis')
+                            | combine(lookup('role_var', '_docker_envs_custom', role='redis')) }}"
 
 # Volumes
 redis_role_docker_volumes_default:
   - "{{ redis_role_paths_location }}:/data"
 redis_role_docker_volumes_custom: []
-redis_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default')
-                               + lookup('role_var', '_docker_volumes_custom') }}"
-
-# Devices
-redis_role_docker_devices_default: []
-redis_role_docker_devices_custom: []
-redis_role_docker_devices: "{{ lookup('role_var', '_docker_devices_default')
-                               + lookup('role_var', '_docker_devices_custom') }}"
+redis_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='redis')
+                               + lookup('role_var', '_docker_volumes_custom', role='redis') }}"
 
 # Hosts
 redis_role_docker_hosts_default: {}
 redis_role_docker_hosts_custom: {}
 redis_role_docker_hosts: "{{ docker_hosts_common
-                             | combine(lookup('role_var', '_docker_hosts_default'))
-                             | combine(lookup('role_var', '_docker_hosts_custom')) }}"
-
-# Labels
-redis_role_docker_labels_default: {}
-redis_role_docker_labels_custom: {}
-redis_role_docker_labels: "{{ docker_labels_common
-                              | combine(lookup('role_var', '_docker_labels_default'))
-                              | combine(lookup('role_var', '_docker_labels_custom')) }}"
+                             | combine(lookup('role_var', '_docker_hosts_default', role='redis'))
+                             | combine(lookup('role_var', '_docker_hosts_custom', role='redis')) }}"
 
 # Hostname
 redis_role_docker_hostname: "{{ redis_name }}"
@@ -89,20 +64,8 @@ redis_role_docker_networks_alias: "{{ redis_name }}"
 redis_role_docker_networks_default: []
 redis_role_docker_networks_custom: []
 redis_role_docker_networks: "{{ docker_networks_common
-                                + lookup('role_var', '_docker_networks_default')
-                                + lookup('role_var', '_docker_networks_custom') }}"
-
-# Capabilities
-redis_role_docker_capabilities_default: []
-redis_role_docker_capabilities_custom: []
-redis_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default')
-                                    + lookup('role_var', '_docker_capabilities_custom') }}"
-
-# Security Opts
-redis_role_docker_security_opts_default: []
-redis_role_docker_security_opts_custom: []
-redis_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default')
-                                     + lookup('role_var', '_docker_security_opts_custom') }}"
+                                + lookup('role_var', '_docker_networks_default', role='redis')
+                                + lookup('role_var', '_docker_networks_custom', role='redis') }}"
 
 # Restart Policy
 redis_role_docker_restart_policy: unless-stopped

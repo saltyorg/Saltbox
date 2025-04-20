@@ -14,10 +14,10 @@
         backup2_success: false
 
     - name: Sanity Check
-      ansible.builtin.import_tasks: "sanity_check.yml"
+      ansible.builtin.include_tasks: "sanity_check.yml"
 
     - name: Variables
-      ansible.builtin.import_tasks: "variables.yml"
+      ansible.builtin.include_tasks: "variables.yml"
       tags:
         - set-backup2
         - unset-backup2
@@ -25,7 +25,7 @@
         - saltbox-restore-service2
 
     - name: Cron
-      ansible.builtin.import_tasks: "cron.yml"
+      ansible.builtin.include_tasks: "cron.yml"
       when: (['set-backup2', 'unset-backup2'] | intersect(ansible_run_tags)) and not ('backup2' in ansible_run_tags)
       tags:
         - set-backup2
@@ -40,7 +40,7 @@
         start_time: "{{ start_time_lookup.stdout }}"
 
     - name: Snapshot
-      ansible.builtin.import_tasks: "snapshot.yml"
+      ansible.builtin.include_tasks: "snapshot.yml"
 
     - name: "Notify | Saltbox Backup: Started Saltbox backup task"
       ansible.builtin.include_role:
@@ -145,7 +145,7 @@
           else (playbook_dir + '/roles/backup2/files/backup_excludes_list.txt') }}"
 
     - name: saltbox Restore Service
-      ansible.builtin.import_tasks: "restore_service.yml"
+      ansible.builtin.include_tasks: "restore_service.yml"
       when: restore_service_enabled
       tags:
         - restore-service2
