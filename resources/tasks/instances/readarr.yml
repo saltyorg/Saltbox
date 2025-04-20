@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Readarr exists
   ansible.builtin.stat:
-    path: "{{ readarr_paths_config_location }}"
+    path: "{{ readarr_role_paths_config_location }}"
   register: readarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Readarr API Key tasks
@@ -17,7 +17,7 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Readarr API Key
       community.general.xml:
-        path: "{{ readarr_paths_config_location }}"
+        path: "{{ readarr_role_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text
       register: xmlresp

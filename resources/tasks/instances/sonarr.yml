@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Sonarr exists
   ansible.builtin.stat:
-    path: "{{ sonarr_paths_config_location }}"
+    path: "{{ sonarr_role_paths_config_location }}"
   register: sonarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Sonarr API Key tasks
@@ -17,7 +17,7 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Sonarr API Key
       community.general.xml:
-        path: "{{ sonarr_paths_config_location }}"
+        path: "{{ sonarr_role_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text
       register: xmlresp

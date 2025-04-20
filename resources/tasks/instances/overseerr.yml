@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Overseerr exists
   ansible.builtin.stat:
-    path: "{{ overseerr_paths_config_location }}"
+    path: "{{ overseerr_role_paths_config_location }}"
   register: overseerr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Overseerr API Key tasks
@@ -17,7 +17,7 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Overseerr API Key
       ansible.builtin.set_fact:
-        jsondata: "{{ lookup('ansible.builtin.file', overseerr_paths_config_location) }}"
+        jsondata: "{{ lookup('ansible.builtin.file', overseerr_role_paths_config_location) }}"
 
     - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
       ansible.builtin.set_fact:

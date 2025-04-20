@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Radarr exists
   ansible.builtin.stat:
-    path: "{{ radarr_paths_config_location }}"
+    path: "{{ radarr_role_paths_config_location }}"
   register: radarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Radarr API Key tasks
@@ -17,7 +17,7 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Radarr API Key
       community.general.xml:
-        path: "{{ radarr_paths_config_location }}"
+        path: "{{ radarr_role_paths_config_location }}"
         xpath: /Config/ApiKey
         content: text
       register: xmlresp
