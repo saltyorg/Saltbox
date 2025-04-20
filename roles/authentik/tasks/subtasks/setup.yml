@@ -9,7 +9,7 @@
 ---
 - name: Validate bootstrap token (retry until Authentik is ready)
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/me/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/me/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_bootstrap_token }}"
@@ -20,7 +20,7 @@
 
 - name: Create new admin user
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/"
     method: POST
     body_format: json
     headers:
@@ -37,7 +37,7 @@
 
 - name: Set new admin user's password
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/{{ new_user_response.json.pk }}/set_password/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/{{ new_user_response.json.pk }}/set_password/"
     method: POST
     body_format: json
     headers:
@@ -50,7 +50,7 @@
 
 - name: Create new admin group
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/groups/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/groups/"
     method: POST
     body_format: json
     headers:
@@ -67,7 +67,7 @@
 
 - name: Create token for new admin user
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/tokens/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/tokens/"
     method: POST
     body_format: json
     headers:
@@ -83,7 +83,7 @@
 
 - name: Get token for new admin user
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/tokens/saltbox-api-token/view_key/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/tokens/saltbox-api-token/view_key/"
     method: GET
     body_format: json
     headers:
@@ -107,7 +107,7 @@
 
 - name: Retrieve flow instances
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/flows/instances/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/flows/instances/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -129,7 +129,7 @@
 
 - name: Create Traefik Forward Auth provider
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/providers/proxy/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/providers/proxy/"
     method: POST
     body_format: json
     headers:
@@ -140,16 +140,16 @@
       name: "Traefik Forward Auth"
       authorization_flow: "{{ authentik_authorization_flow_uuid }}"
       invalidation_flow: "{{ authentik_invalidation_flow_uuid }}"
-      cookie_domain: "{{ authentik_web_domain }}"
-      external_host: "{{ authentik_web_url }}"
+      cookie_domain: "{{ authentik_role_web_domain }}"
+      external_host: "{{ authentik_role_web_url }}"
       mode: "forward_domain"
-      access_token_validity: "hours={{ authentik_access_token_validity }}"
+      access_token_validity: "hours={{ authentik_role_access_token_validity }}"
     status_code: 201
   register: proxy_providers
 
 - name: Create Traefik Forward Auth application
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/applications/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/applications/"
     method: POST
     body_format: json
     headers:
@@ -165,7 +165,7 @@
 
 - name: Retrieve Outposts
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/outposts/instances/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/outposts/instances/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -175,7 +175,7 @@
 
 - name: Edit Embedded Outpost
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/outposts/instances/{{ outposts.json.results[0].pk }}/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/outposts/instances/{{ outposts.json.results[0].pk }}/"
     method: PATCH
     body_format: json
     headers:
@@ -186,12 +186,12 @@
       providers:
         - "{{ proxy_providers.json.pk }}"
       config:
-        authentik_host: "{{ authentik_web_url }}"
+        authentik_host: "{{ authentik_role_web_url }}"
     status_code: 200
 
 - name: Get admins group ID
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/groups/?name=admins"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/groups/?name=admins"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -202,7 +202,7 @@
 
 - name: Get all notification rules
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/events/rules/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/events/rules/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -213,7 +213,7 @@
 
 - name: Update notification rules with admins group
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/events/rules/{{ item.pk }}/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/events/rules/{{ item.pk }}/"
     method: PATCH
     body_format: json
     headers:
@@ -233,9 +233,10 @@
     - "authentik"
     - "authentik-worker"
 
-- name: Check if '{{ authentik_paths_location }}' exists
+# To ensure bootstrap token is no longer set
+- name: Check if '{{ authentik_role_paths_location }}' exists
   ansible.builtin.stat:
-    path: "{{ authentik_paths_location }}"
+    path: "{{ authentik_role_paths_location }}"
   register: authentik_data_folder
 
 - name: Create Docker container
@@ -247,7 +248,7 @@
 
 - name: Validate Saltbox token (retry until Authentik is ready)
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/me/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/me/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -258,7 +259,7 @@
 
 - name: Delete authentik-bootstrap-token
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/tokens/authentik-bootstrap-token/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/tokens/authentik-bootstrap-token/"
     method: DELETE
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -267,7 +268,7 @@
 
 - name: Get Users
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/"
     method: GET
     headers:
       Authorization: "Bearer {{ authentik_admin_token }}"
@@ -283,7 +284,7 @@
 
 - name: Disable akadmin user
   ansible.builtin.uri:
-    url: "{{ authentik_host }}/api/v3/core/users/{{ akadmin_id }}/"
+    url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/{{ akadmin_id }}/"
     method: PATCH
     body_format: json
     headers:

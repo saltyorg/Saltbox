@@ -18,95 +18,58 @@ authentik_worker_name: authentik-worker
 ################################
 
 # Container
-authentik_worker_docker_container: "{{ authentik_worker_name }}"
+authentik_worker_role_docker_container: "{{ authentik_worker_name }}"
 
 # Image
-authentik_worker_docker_image_pull: true
-authentik_worker_docker_image_tag: "{{ authentik_docker_image_tag }}"
-authentik_worker_docker_image: "ghcr.io/goauthentik/server:{{ authentik_worker_docker_image_tag }}"
-
-# Ports
-authentik_worker_docker_ports_defaults: []
-authentik_worker_docker_ports_custom: []
-authentik_worker_docker_ports: "{{ authentik_worker_docker_ports_defaults
-                                   + authentik_worker_docker_ports_custom }}"
+authentik_worker_role_docker_image_pull: true
+authentik_worker_role_docker_image_repo: "ghcr.io/goauthentik/server"
+authentik_worker_role_docker_image_tag: "{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
+authentik_worker_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik_worker') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik_worker') }}"
 
 # Envs
-authentik_worker_docker_envs_default: "{{ authentik_docker_envs_default }}"
-authentik_worker_docker_envs_custom: {}
-authentik_worker_docker_envs: "{{ authentik_worker_docker_envs_default
-                                  | combine(authentik_worker_docker_envs_custom) }}"
+authentik_worker_role_docker_envs_default: "{{ lookup('role_var', '_docker_envs_default', role='authentik') }}"
+authentik_worker_role_docker_envs_custom: {}
+authentik_worker_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='authentik_worker')
+                                       | combine(lookup('role_var', '_docker_envs_custom', role='authentik_worker')) }}"
 
 # Commands
-authentik_worker_docker_commands_default:
+authentik_worker_role_docker_commands_default:
   - "worker"
-authentik_worker_docker_commands_custom: []
-authentik_worker_docker_commands: "{{ authentik_worker_docker_commands_default
-                                      + authentik_worker_docker_commands_custom }}"
+authentik_worker_role_docker_commands_custom: []
+authentik_worker_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='authentik_worker')
+                                           + lookup('role_var', '_docker_commands_custom', role='authentik_worker') }}"
 
 # Volumes
-authentik_worker_docker_volumes_default:
-  - "{{ server_appdata_path }}/authentik/media:/media"
-  - "{{ server_appdata_path }}/authentik/custom-templates:/templates"
-  - "{{ server_appdata_path }}/authentik/certs:/certs"
+authentik_worker_role_docker_volumes_default:
+  - "{{ authentik_role_paths_location }}/media:/media"
+  - "{{ authentik_role_paths_location }}/custom-templates:/templates"
+  - "{{ authentik_role_paths_location }}/certs:/certs"
   - "/var/run/docker.sock:/var/run/docker.sock"
-authentik_worker_docker_volumes_custom: []
-authentik_worker_docker_volumes: "{{ authentik_worker_docker_volumes_default
-                                     + authentik_worker_docker_volumes_custom }}"
-
-# Devices
-authentik_worker_docker_devices_default: []
-authentik_worker_docker_devices_custom: []
-authentik_worker_docker_devices: "{{ authentik_worker_docker_devices_default
-                                     + authentik_worker_docker_devices_custom }}"
-
-# Hosts
-authentik_worker_docker_hosts_default: {}
-authentik_worker_docker_hosts_custom: {}
-authentik_worker_docker_hosts: "{{ docker_hosts_common
-                                   | combine(authentik_worker_docker_hosts_default)
-                                   | combine(authentik_worker_docker_hosts_custom) }}"
-
-# Labels
-authentik_worker_docker_labels_default: {}
-authentik_worker_docker_labels_custom: {}
-authentik_worker_docker_labels: "{{ docker_labels_common
-                                    | combine(authentik_worker_docker_labels_default)
-                                    | combine(authentik_worker_docker_labels_custom) }}"
+authentik_worker_role_docker_volumes_custom: []
+authentik_worker_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authentik_worker')
+                                          + lookup('role_var', '_docker_volumes_custom', role='authentik_worker') }}"
 
 # Hostname
-authentik_worker_docker_hostname: "{{ authentik_worker_name }}"
+authentik_worker_role_docker_hostname: "{{ authentik_worker_name }}"
 
 # Networks
-authentik_worker_docker_networks_alias: "{{ authentik_worker_name }}"
-authentik_worker_docker_networks_default: []
-authentik_worker_docker_networks_custom: []
-authentik_worker_docker_networks: "{{ docker_networks_common
-                                      + authentik_worker_docker_networks_default
-                                      + authentik_worker_docker_networks_custom }}"
-
-# Capabilities
-authentik_worker_docker_capabilities_default: []
-authentik_worker_docker_capabilities_custom: []
-authentik_worker_docker_capabilities: "{{ authentik_worker_docker_capabilities_default
-                                          + authentik_worker_docker_capabilities_custom }}"
-
-# Security Opts
-authentik_worker_docker_security_opts_default: []
-authentik_worker_docker_security_opts_custom: []
-authentik_worker_docker_security_opts: "{{ authentik_worker_docker_security_opts_default
-                                           + authentik_worker_docker_security_opts_custom }}"
+authentik_worker_role_docker_networks_alias: "{{ authentik_worker_name }}"
+authentik_worker_role_docker_networks_default: []
+authentik_worker_role_docker_networks_custom: []
+authentik_worker_role_docker_networks: "{{ docker_networks_common
+                                           + lookup('role_var', '_docker_networks_default', role='authentik_worker')
+                                           + lookup('role_var', '_docker_networks_custom', role='authentik_worker') }}"
 
 # Restart Policy
-authentik_worker_docker_restart_policy: unless-stopped
+authentik_worker_role_docker_restart_policy: unless-stopped
 
 # State
-authentik_worker_docker_state: started
+authentik_worker_role_docker_state: started
 
 # Dependencies
-authentik_worker_depends_on: "authentik-redis,authentik-postgres"
-authentik_worker_depends_on_delay: "0"
-authentik_worker_depends_on_healthchecks: "false"
+authentik_worker_role_depends_on: "{{ authentik_name }}-redis,{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+authentik_worker_role_depends_on_delay: "0"
+authentik_worker_role_depends_on_healthchecks: "false"
 
 # User
-authentik_worker_docker_user: "root"
+authentik_worker_role_docker_user: "root"

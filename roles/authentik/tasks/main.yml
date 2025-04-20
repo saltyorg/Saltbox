@@ -19,18 +19,19 @@
 
 - name: Reset Authentik directory
   ansible.builtin.file:
-    path: "{{ authentik_paths_location }}"
+    path: "{{ authentik_role_paths_location }}"
     state: absent
   when: ('authentik-reset' in ansible_run_tags)
 
-- name: Check if '{{ authentik_paths_location }}' exists
+- name: Check if '{{ authentik_role_paths_location }}' exists
   ansible.builtin.stat:
-    path: "{{ authentik_paths_location }}"
+    path: "{{ authentik_role_paths_location }}"
   register: authentik_data_folder
 
 - name: Generate Bootstrap Token
   ansible.builtin.set_fact:
     authentik_bootstrap_token: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50) }}"
+  when: (not authentik_data_folder.stat.exists)
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
@@ -40,29 +41,29 @@
     name: redis
   vars:
     redis_instances: ["authentik-redis"]
-    redis_docker_image_tag: "alpine"
-    redis_paths_folder: "{{ authentik_paths_folder }}/redis"
-    redis_paths_location: "{{ server_appdata_path }}/{{ redis_paths_folder }}"
-    redis_docker_commands_default:
+    redis_role_docker_image_tag: "alpine"
+    redis_role_paths_folder: "{{ authentik_role_paths_folder }}/redis"
+    redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
+    redis_role_docker_commands_default:
       - "--save 60 1 --loglevel warning"
 
 - name: "Import Postgres Role"
   ansible.builtin.include_role:
     name: postgres
   vars:
-    postgres_instances: ["{{ authentik_postgres_name }}"]
-    postgres_docker_image_tag: "{{ authentik_postgres_docker_image_tag }}"
-    postgres_docker_image_repo: "{{ authentik_postgres_docker_image_repo }}"
-    postgres_paths_folder: "{{ authentik_paths_folder }}/postgres"
-    postgres_paths_location: "{{ server_appdata_path }}/{{ postgres_paths_folder }}"
-    postgres_docker_env_db: "{{ authentik_postgres_docker_env_db }}"
+    postgres_instances: ["{{ lookup('role_var', '_postgres_name', role='authentik') }}"]
+    postgres_role_docker_image_tag: "{{ lookup('role_var', '_postgres_docker_image_tag', role='authentik') }}"
+    postgres_role_docker_image_repo: "{{ lookup('role_var', '_postgres_docker_image_repo', role='authentik') }}"
+    postgres_role_paths_folder: "{{ authentik_role_paths_folder }}/postgres"
+    postgres_role_paths_location: "{{ server_appdata_path }}/{{ postgres_role_paths_folder }}"
+    postgres_role_docker_env_db: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_dns_proxy') }}"
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: "Save Authentik Saltbox facts"
   saltbox_facts:
@@ -81,10 +82,6 @@
   ansible.builtin.include_role:
     name: authentik_worker
 
-- name: Setup Toggle
-  ansible.builtin.set_fact:
-    authentik_setup: "{{ false if authentik_data_folder.stat.exists else true }}"
-
 - name: Setup Task
-  ansible.builtin.import_tasks: "subtasks/setup.yml"
-  when: authentik_setup and not continuous_integration
+  ansible.builtin.include_tasks: "subtasks/setup.yml"
+  when: (not authentik_data_folder.stat.exists) and not continuous_integration

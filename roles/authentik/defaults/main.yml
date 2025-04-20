@@ -17,145 +17,127 @@ authentik_name: authentik
 # Settings
 ################################
 
-authentik_email_host: "localhost"
-authentik_email_port: "25"
-authentik_email_username: ""
-authentik_email_password: ""
-authentik_email_tls: "false"
-authentik_email_ssl: "false"
-authentik_email_timeout: "10"
-authentik_email_from: "authentik@localhost"
-authentik_access_token_validity: "24" # Hours, only fresh installs use this
+authentik_role_email_host: "localhost"
+authentik_role_email_port: "25"
+authentik_role_email_username: ""
+authentik_role_email_password: ""
+authentik_role_email_tls: "false"
+authentik_role_email_ssl: "false"
+authentik_role_email_timeout: "10"
+authentik_role_email_from: "authentik@localhost"
+authentik_role_access_token_validity: "24" # Hours, only fresh installs use this
 
 ################################
 # Postgres
 ################################
 
-authentik_postgres_name: "{{ authentik_name }}-postgres"
-authentik_postgres_docker_env_db: "authentik"
-authentik_postgres_docker_image_tag: "16-alpine"
-authentik_postgres_docker_image_repo: "postgres"
+authentik_role_postgres_name: "{{ authentik_name }}-postgres"
+authentik_role_postgres_docker_env_db: "authentik"
+authentik_role_postgres_docker_image_tag: "16-alpine"
+authentik_role_postgres_docker_image_repo: "postgres"
 
 ################################
 # Paths
 ################################
 
-authentik_paths_folder: "{{ authentik_name }}"
-authentik_paths_location: "{{ server_appdata_path }}/{{ authentik_paths_folder }}"
-authentik_paths_folders_list:
-  - "{{ authentik_paths_location }}"
-  - "{{ authentik_paths_location }}/media"
-  - "{{ authentik_paths_location }}/custom-templates"
-  - "{{ authentik_paths_location }}/certs"
+authentik_role_paths_folder: "{{ authentik_name }}"
+authentik_role_paths_location: "{{ server_appdata_path }}/{{ authentik_role_paths_folder }}"
+authentik_role_paths_folders_list:
+  - "{{ authentik_role_paths_location }}"
+  - "{{ authentik_role_paths_location }}/media"
+  - "{{ authentik_role_paths_location }}/custom-templates"
+  - "{{ authentik_role_paths_location }}/certs"
 
 ################################
 # Web
 ################################
 
-authentik_web_subdomain: "auth"
-authentik_web_domain: "{{ user.domain }}"
-authentik_web_port: "9000"
-authentik_web_url: "{{ 'https://' + (authentik_web_subdomain + '.' + authentik_web_domain
-                    if (authentik_web_subdomain | length > 0)
-                    else authentik_web_domain) }}"
+authentik_role_web_subdomain: "auth"
+authentik_role_web_domain: "{{ user.domain }}"
+authentik_role_web_port: "9000"
+authentik_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='authentik') + '.' + lookup('role_var', '_web_domain', role='authentik')
+                         if (lookup('role_var', '_web_subdomain', role='authentik') | length > 0)
+                         else lookup('role_var', '_web_domain', role='authentik')) }}"
 
 ################################
 # DNS
 ################################
 
-authentik_dns_record: "{{ authentik_web_subdomain }}"
-authentik_dns_zone: "{{ authentik_web_domain }}"
-authentik_dns_proxy: "{{ dns.proxied }}"
+authentik_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='authentik') }}"
+authentik_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='authentik') }}"
+authentik_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-authentik_traefik_sso_middleware: ""
-authentik_traefik_middleware_default: "{{ traefik_default_middleware }}"
-authentik_traefik_middleware_custom: ""
-authentik_traefik_certresolver: "{{ traefik_default_certresolver }}"
-authentik_traefik_enabled: true
-authentik_traefik_api_enabled: false
-authentik_traefik_api_endpoint: ""
+authentik_role_traefik_sso_middleware: ""
+authentik_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+authentik_role_traefik_middleware_custom: ""
+authentik_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+authentik_role_traefik_enabled: true
+authentik_role_traefik_api_enabled: false
+authentik_role_traefik_api_endpoint: ""
 
 ################################
 # Setup
 ################################
 
-authentik_host: "http://{{ authentik_name }}:9000"
-authentik_default_user: "akadmin"
+authentik_role_host: "http://{{ authentik_name }}:{{ lookup('role_var', '_web_port', role='authentik') }}"
+authentik_role_default_user: "akadmin"
 
 ################################
 # Docker
 ################################
 
 # Container
-authentik_docker_container: "{{ authentik_name }}"
+authentik_role_docker_container: "{{ authentik_name }}"
 
 # Image
-authentik_docker_image_pull: true
-authentik_docker_image_tag: "2025.2"
-authentik_docker_image: "ghcr.io/goauthentik/server:{{ authentik_docker_image_tag }}"
-
-# Ports
-authentik_docker_ports_defaults: []
-authentik_docker_ports_custom: []
-authentik_docker_ports: "{{ authentik_docker_ports_defaults
-                            + authentik_docker_ports_custom }}"
+authentik_role_docker_image_pull: true
+authentik_role_docker_image_repo: "ghcr.io/goauthentik/server"
+authentik_role_docker_image_tag: "2025.2"
+authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
 
 # Envs
-authentik_docker_envs_default:
+authentik_role_docker_envs_default:
   AUTHENTIK_REDIS__HOST: authentik-redis
-  AUTHENTIK_POSTGRESQL__HOST: "{{ authentik_postgres_name }}"
-  AUTHENTIK_POSTGRESQL__USER: "{{ postgres_docker_env_user }}"
-  AUTHENTIK_POSTGRESQL__NAME: "{{ authentik_postgres_docker_env_db }}"
-  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ postgres_docker_env_password }}"
+  AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ postgres_role_docker_env_user }}"
+  AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ postgres_role_docker_env_password }}"
   AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
-  AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit if authentik_data_folder.stat.exists else authentik_bootstrap_token }}"
-  AUTHENTIK_EMAIL__HOST: "{{ authentik_email_host }}"
-  AUTHENTIK_EMAIL__PORT: "{{ authentik_email_port }}"
-  AUTHENTIK_EMAIL__USERNAME: "{{ authentik_email_username }}"
-  AUTHENTIK_EMAIL__PASSWORD: "{{ authentik_email_password }}"
-  AUTHENTIK_EMAIL__USE_TLS: "{{ authentik_email_tls }}"
-  AUTHENTIK_EMAIL__USE_SSL: "{{ authentik_email_ssl }}"
-  AUTHENTIK_EMAIL__TIMEOUT: "{{ authentik_email_timeout }}"
-  AUTHENTIK_EMAIL__FROM: "{{ authentik_email_from }}"
+  AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit if authentik_data_folder.stat.exists else authentik_role_bootstrap_token }}"
+  AUTHENTIK_EMAIL__HOST: "{{ lookup('role_var', '_email_host', role='authentik') }}"
+  AUTHENTIK_EMAIL__PORT: "{{ lookup('role_var', '_email_port', role='authentik') }}"
+  AUTHENTIK_EMAIL__USERNAME: "{{ lookup('role_var', '_email_username', role='authentik') }}"
+  AUTHENTIK_EMAIL__PASSWORD: "{{ lookup('role_var', '_email_password', role='authentik') }}"
+  AUTHENTIK_EMAIL__USE_TLS: "{{ lookup('role_var', '_email_tls', role='authentik') }}"
+  AUTHENTIK_EMAIL__USE_SSL: "{{ lookup('role_var', '_email_ssl', role='authentik') }}"
+  AUTHENTIK_EMAIL__TIMEOUT: "{{ lookup('role_var', '_email_timeout', role='authentik') }}"
+  AUTHENTIK_EMAIL__FROM: "{{ lookup('role_var', '_email_from', role='authentik') }}"
   AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS: "172.19.0.0/16"
-authentik_docker_envs_custom: {}
-authentik_docker_envs: "{{ authentik_docker_envs_default
-                           | combine(authentik_docker_envs_custom) }}"
+authentik_role_docker_envs_custom: {}
+authentik_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='authentik')
+                                | combine(lookup('role_var', '_docker_envs_custom', role='authentik')) }}"
 
 # Commands
-authentik_docker_commands_default:
+authentik_role_docker_commands_default:
   - "server"
-authentik_docker_commands_custom: []
-authentik_docker_commands: "{{ authentik_docker_commands_default
-                               + authentik_docker_commands_custom }}"
+authentik_role_docker_commands_custom: []
+authentik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='authentik')
+                                    + lookup('role_var', '_docker_commands_custom', role='authentik') }}"
 
 # Volumes
-authentik_docker_volumes_default:
-  - "{{ authentik_paths_location }}/media:/media"
-  - "{{ authentik_paths_location }}/custom-templates:/templates"
-authentik_docker_volumes_custom: []
-authentik_docker_volumes: "{{ authentik_docker_volumes_default
-                              + authentik_docker_volumes_custom }}"
-
-# Devices
-authentik_docker_devices_default: []
-authentik_docker_devices_custom: []
-authentik_docker_devices: "{{ authentik_docker_devices_default
-                              + authentik_docker_devices_custom }}"
-
-# Hosts
-authentik_docker_hosts_default: {}
-authentik_docker_hosts_custom: {}
-authentik_docker_hosts: "{{ docker_hosts_common
-                            | combine(authentik_docker_hosts_default)
-                            | combine(authentik_docker_hosts_custom) }}"
+authentik_role_docker_volumes_default:
+  - "{{ authentik_role_paths_location }}/media:/media"
+  - "{{ authentik_role_paths_location }}/custom-templates:/templates"
+authentik_role_docker_volumes_custom: []
+authentik_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authentik')
+                                   + lookup('role_var', '_docker_volumes_custom', role='authentik') }}"
 
 # Labels
-authentik_docker_labels_default:
+authentik_role_docker_labels_default:
   traefik.http.routers.authentik-outpost-http.entrypoints: "web"
   traefik.http.routers.authentik-outpost-http.service: "authentik-outpost-http"
   traefik.http.routers.authentik-outpost-http.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
@@ -165,46 +147,32 @@ authentik_docker_labels_default:
   traefik.http.routers.authentik-outpost.service: "authentik-outpost"
   traefik.http.routers.authentik-outpost.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
   traefik.http.routers.authentik-outpost.tls.options: "securetls@file"
-  traefik.http.routers.authentik-outpost.tls.certresolver: "{{ authentik_traefik_certresolver }}"
+  traefik.http.routers.authentik-outpost.tls.certresolver: "{{ authentik_role_traefik_certresolver }}"
   traefik.http.routers.authentik-outpost.middlewares: "{{ traefik_default_middleware }}"
   traefik.http.routers.authentik-outpost.priority: "99"
-  traefik.http.services.authentik-outpost-http.loadbalancer.server.port: "9000"
-  traefik.http.services.authentik-outpost.loadbalancer.server.port: "9000"
-authentik_docker_labels_custom: {}
-authentik_docker_labels: "{{ docker_labels_common
-                             | combine(authentik_docker_labels_default)
-                             | combine(authentik_docker_labels_custom) }}"
+  traefik.http.services.authentik-outpost-http.loadbalancer.server.port: "{{ lookup('role_var', '_web_port', role='authentik') }}"
+  traefik.http.services.authentik-outpost.loadbalancer.server.port: "{{ lookup('role_var', '_web_port', role='authentik') }}"
+authentik_role_docker_labels_custom: {}
+authentik_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='authentik')
+                                  | combine(lookup('role_var', '_docker_labels_custom', role='authentik')) }}"
 
 # Hostname
-authentik_docker_hostname: "{{ authentik_name }}"
+authentik_role_docker_hostname: "{{ authentik_name }}"
 
 # Networks
-authentik_docker_networks_alias: "{{ authentik_name }}"
-authentik_docker_networks_default: []
-authentik_docker_networks_custom: []
-authentik_docker_networks: "{{ docker_networks_common
-                               + authentik_docker_networks_default
-                               + authentik_docker_networks_custom }}"
-
-# Capabilities
-authentik_docker_capabilities_default: []
-authentik_docker_capabilities_custom: []
-authentik_docker_capabilities: "{{ authentik_docker_capabilities_default
-                                   + authentik_docker_capabilities_custom }}"
-
-# Security Opts
-authentik_docker_security_opts_default: []
-authentik_docker_security_opts_custom: []
-authentik_docker_security_opts: "{{ authentik_docker_security_opts_default
-                                    + authentik_docker_security_opts_custom }}"
+authentik_role_docker_networks_alias: "{{ authentik_name }}"
+authentik_role_docker_networks_default: []
+authentik_role_docker_networks_custom: []
+authentik_role_docker_networks: "{{ lookup('role_var', '_docker_networks_default', role='authentik')
+                                    + lookup('role_var', '_docker_networks_custom', role='authentik') }}"
 
 # Restart Policy
-authentik_docker_restart_policy: unless-stopped
+authentik_role_docker_restart_policy: unless-stopped
 
 # State
-authentik_docker_state: started
+authentik_role_docker_state: started
 
 # Dependencies
-authentik_depends_on: "authentik-redis,{{ authentik_postgres_name }}"
-authentik_depends_on_delay: "0"
-authentik_depends_on_healthchecks: "false"
+authentik_role_depends_on: "{{ authentik_name }}-redis,{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+authentik_role_depends_on_delay: "0"
+authentik_role_depends_on_healthchecks: "false"
