@@ -20,6 +20,10 @@ authelia_name: authelia
 # Options are light, dark, grey or auto.
 authelia_role_theme: "auto"
 
+# Logs
+authelia_role_log_max_backups: "3"
+authelia_role_log_max_size: "10"
+
 # Options are file or ldap
 authelia_role_authentication_backend: "file"
 authelia_role_authentication_backend_password_reset_disable: "false"
@@ -202,12 +206,6 @@ authelia_role_docker_image_repo: "authelia/authelia"
 authelia_role_docker_image_tag: "4.38"
 authelia_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authelia') }}:{{ lookup('role_var', '_docker_image_tag', role='authelia') }}"
 
-# Ports
-authelia_role_docker_ports_defaults: []
-authelia_role_docker_ports_custom: []
-authelia_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='authelia')
-                                + lookup('role_var', '_docker_ports_custom', role='authelia') }}"
-
 # Envs
 authelia_role_docker_envs_default:
   TZ: "{{ tz }}"
@@ -217,38 +215,12 @@ authelia_role_docker_envs_custom: {}
 authelia_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='authelia')
                                | combine(lookup('role_var', '_docker_envs_custom', role='authelia')) }}"
 
-# Commands
-authelia_role_docker_commands_default: []
-authelia_role_docker_commands_custom: []
-authelia_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='authelia')
-                                   + lookup('role_var', '_docker_commands_custom', role='authelia') }}"
-
 # Volumes
 authelia_role_docker_volumes_default:
   - "{{ authelia_role_paths_location }}:/config"
 authelia_role_docker_volumes_custom: []
 authelia_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authelia')
                                   + lookup('role_var', '_docker_volumes_custom', role='authelia') }}"
-
-# Devices
-authelia_role_docker_devices_default: []
-authelia_role_docker_devices_custom: []
-authelia_role_docker_devices: "{{ lookup('role_var', '_docker_devices_default', role='authelia')
-                                  + lookup('role_var', '_docker_devices_custom', role='authelia') }}"
-
-# Hosts
-authelia_role_docker_hosts_default: {}
-authelia_role_docker_hosts_custom: {}
-authelia_role_docker_hosts: "{{ docker_hosts_common
-                                | combine(lookup('role_var', '_docker_hosts_default', role='authelia'))
-                                | combine(lookup('role_var', '_docker_hosts_custom', role='authelia')) }}"
-
-# Labels
-authelia_role_docker_labels_default: {}
-authelia_role_docker_labels_custom: {}
-authelia_role_docker_labels: "{{ docker_labels_common
-                                 | combine(lookup('role_var', '_docker_labels_default', role='authelia'))
-                                 | combine(lookup('role_var', '_docker_labels_custom', role='authelia')) }}"
 
 # Hostname
 authelia_role_docker_hostname: "{{ authelia_name }}"
@@ -260,18 +232,6 @@ authelia_role_docker_networks_custom: []
 authelia_role_docker_networks: "{{ docker_networks_common
                                    + lookup('role_var', '_docker_networks_default', role='authelia')
                                    + lookup('role_var', '_docker_networks_custom', role='authelia') }}"
-
-# Capabilities
-authelia_role_docker_capabilities_default: []
-authelia_role_docker_capabilities_custom: []
-authelia_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='authelia')
-                                       + lookup('role_var', '_docker_capabilities_custom', role='authelia') }}"
-
-# Security Opts
-authelia_role_docker_security_opts_default: []
-authelia_role_docker_security_opts_custom: []
-authelia_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default', role='authelia')
-                                        + lookup('role_var', '_docker_security_opts_custom', role='authelia') }}"
 
 # Restart Policy
 authelia_role_docker_restart_policy: unless-stopped

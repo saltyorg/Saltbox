@@ -85,5 +85,31 @@
   ansible.builtin.import_tasks: "subtasks/settings.yml"
   when: (authelia_config_stat.stat.exists)
 
+- name: Logrotate | Create 'authelia_logrotate' variable
+  ansible.builtin.set_fact:
+    authelia_logrotate:
+      - path: "{{ authelia_name }}"
+        content: |
+          /opt/{{ authelia_name }}/authelia.log {
+              su {{ user.name }} {{ user.name }}
+              rotate {{ lookup('role_var', '_log_max_backups') }}
+              size {{ lookup('role_var', '_log_max_size') }}
+              missingok
+              notifempty
+              postrotate
+                docker kill --signal="HUP" {{ lookup('role_var', '_docker_container') }}
+              endscript
+              create 600 {{ user.name }} {{ user.name }}
+          }
+
+- name: Logrotate | Add items to '/etc/logrotate.d'
+  ansible.builtin.blockinfile:
+    path: "/etc/logrotate.d/{{ item.path }}"
+    marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
+    block: "{{ item.content }}"
+    create: yes
+    mode: "0644"
+  loop: "{{ authelia_logrotate }}"
+
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
