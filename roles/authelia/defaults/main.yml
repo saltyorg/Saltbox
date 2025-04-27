@@ -203,7 +203,7 @@ authelia_role_docker_container: "{{ authelia_name }}"
 # Image
 authelia_role_docker_image_pull: true
 authelia_role_docker_image_repo: "authelia/authelia"
-authelia_role_docker_image_tag: "4.38"
+authelia_role_docker_image_tag: "4.39"
 authelia_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authelia') }}:{{ lookup('role_var', '_docker_image_tag', role='authelia') }}"
 
 # Envs
