@@ -30,4 +30,4 @@
 
 - name: Setup Tasks
   ansible.builtin.import_tasks: "subtasks/setup.yml"
-  when: not portainer_config_stat.stat.exists and (user.pass | length >= 12)
+  when: not portainer_config_stat.stat.exists and (user.pass | length >= 12) and (user.pass | length <= 72)
