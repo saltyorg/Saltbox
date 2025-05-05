@@ -414,6 +414,7 @@ docker_labels_autoheal_template:
 
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
+  - com.github.saltbox.saltbox_controller: "{{ 'true' if (lookup('role_var', '_docker_controller', default=true) | bool) else 'false' }}"
   - "{{ docker_labels_diun_template if (lookup('role_var', '_diun_enabled', default=docker_labels_diun_enabled) | bool) else omit }}"
   - "{{ docker_labels_autoheal_template if (lookup('role_var', '_autoheal_enabled', default=docker_labels_autoheal_enabled) | bool) else omit }}"
   - "{{ docker_labels_docker_depends_on_template if ((lookup('role_var', '_depends_on', default='') | length > 0) or docker_container_network_mode) else omit }}"

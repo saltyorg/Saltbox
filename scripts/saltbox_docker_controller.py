@@ -68,11 +68,12 @@ start_containers_lock = asyncio.Lock()
 
 # Container Node Class
 class ContainerNode:
-    def __init__(self, name: str, delay: int = 0, healthcheck_enabled: bool = False, is_placeholder: bool = False):
+    def __init__(self, name: str, delay: int = 0, healthcheck_enabled: bool = False, is_placeholder: bool = False, controller_disabled: bool = False):
         self.name = name
         self.delay = delay
         self.healthcheck_enabled = healthcheck_enabled
         self.is_placeholder = is_placeholder
+        self.controller_disabled = controller_disabled  # New property to track opt-out status
         self.children: List['ContainerNode'] = []  # Containers that depend on this container
         self.parents: List['ContainerNode'] = []  # Containers that this container depends on
 
@@ -144,7 +145,14 @@ def parse_container_labels(client):
             name = container.name
             delay = int(labels.get("com.github.saltbox.depends_on.delay", 0))
             healthchecks = labels.get("com.github.saltbox.depends_on.healthchecks", "false") == "true"
-            node = ContainerNode(name, delay, healthchecks)
+            # Check if container has opted out of controller
+            controller_disabled = labels.get("com.github.saltbox.saltbox_controller", "true") == "false"
+            
+            # If controller disabled, log it
+            if controller_disabled:
+                logging.info(f"Container '{name}' has opted out of controller management via label")
+                
+            node = ContainerNode(name, delay, healthchecks, is_placeholder=False, controller_disabled=controller_disabled)
             _graph.add_container(node)
 
             # Initialize health status
@@ -202,7 +210,15 @@ def start_containers_with_shell(containers: List[str]):
 def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, timeout: int = 600):
     client = docker.from_env()
     started_containers = set()
-    containers_to_start = set(_graph.nodes.keys())
+    containers_to_start = set()
+    
+    # Only include containers that haven't opted out of controller management
+    for name, node in _graph.nodes.items():
+        if not node.controller_disabled:
+            containers_to_start.add(name)
+        else:
+            logging.info(f"Skipping container '{name}' due to controller opt-out.")
+    
     logged_health_check_waiting = set()
     skip_start_due_to_placeholder = set()
     container_start_times = defaultdict(lambda: 0.0)
@@ -295,7 +311,14 @@ def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containe
     if ignore_containers is None:
         ignore_containers = set()
     stopped_containers = set()
-    containers_to_stop = set(_graph.nodes.keys()) - ignore_containers
+    containers_to_stop = set()
+    
+    # Only include containers that haven't opted out of controller management
+    for name, node in _graph.nodes.items():
+        if not node.controller_disabled and name not in ignore_containers:
+            containers_to_stop.add(name)
+        elif node.controller_disabled:
+            logging.info(f"Skipping container '{name}' due to controller opt-out.")
     
     start_time = time.time()
 
@@ -316,7 +339,7 @@ def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containe
                 continue
 
             # A container is ready to stop if all its children are already stopped
-            if all(child.name in stopped_containers for child in container.children):
+            if all(child.name in stopped_containers or _graph.nodes[child.name].controller_disabled for child in container.children):
                 ready_to_stop.append(container_name)
 
         stop_containers_with_shell(ready_to_stop, ignore_containers)
