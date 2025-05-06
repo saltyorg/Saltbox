@@ -175,4 +175,4 @@ authentik_role_docker_state: started
 # Dependencies
 authentik_role_depends_on: "{{ authentik_name }}-redis,{{ lookup('role_var', '_postgres_name', role='authentik') }}"
 authentik_role_depends_on_delay: "0"
-authentik_role_depends_on_healthchecks: "false"
+authentik_role_depends_on_healthchecks: "true"
