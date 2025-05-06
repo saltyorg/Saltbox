@@ -186,7 +186,7 @@
       community.general.ini_file:
         section: Preferences
         option: WebUI\Password_PBKDF2
-        value: '{{ qbittorrent_hashed_passwd.msg }}'
+        value: '{{ qbittorrent_hashed_passwd.hash }}'
         path: "{{ qbittorrent_paths_conf }}"
         state: present
         owner: "{{ user.name }}"
