@@ -28,24 +28,44 @@
     name: pkg-config
     state: latest
 
-- name: Fetch Nvidia card info
-  ansible.builtin.shell: |
-    if [ `lspci | grep -c -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA'` -eq 1 ]; then
-      lspci -s $(lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1)
-    else
-      echo ""
-    fi
-  register: lspci_resp
+- name: Fetch all Nvidia GPU IDs
+  ansible.builtin.shell: lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1
+  register: nvidia_gpu_ids
   changed_when: false
 
-- name: Fail if no GPU was detected
+- name: Check if any NVIDIA GPUs were found
+  ansible.builtin.set_fact:
+    nvidia_gpus_found: "{{ nvidia_gpu_ids.stdout_lines | length > 0 }}"
+
+- name: Fail if no NVIDIA GPU was detected
   ansible.builtin.fail:
-    msg: "No Nvidia GPU could be detected."
-  when: not ('NVIDIA' in lspci_resp.stdout)
+    msg: "No Nvidia GPUs could be detected."
+  when: not nvidia_gpus_found
 
 - name: Nvidia Setup block
-  when: ('NVIDIA' in lspci_resp.stdout)
+  when: nvidia_gpus_found
   block:
+    - name: Fetch detailed info for all Nvidia GPUs
+      ansible.builtin.shell: lspci -s {{ item }}
+      register: nvidia_gpu_info
+      changed_when: false
+      with_items: "{{ nvidia_gpu_ids.stdout_lines }}"
+
+    - name: Create a list of all GPU details
+      ansible.builtin.set_fact:
+        all_nvidia_gpus: "{{ nvidia_gpu_info.results | map(attribute='stdout') | list }}"
+
+    - name: Check if any GeForce GPUs are present
+      ansible.builtin.set_fact:
+        geforce_gpu_present: "{{ all_nvidia_gpus | select('search', 'GeForce') | list | length > 0 }}"
+
+    - name: Display detected NVIDIA GPUs
+      ansible.builtin.debug:
+        msg:
+          - "Detected {{ all_nvidia_gpus | length }} NVIDIA GPU(s):"
+          - "{{ all_nvidia_gpus }}"
+          - "GeForce GPU present: {{ geforce_gpu_present | default(false) }}"
+
     - name: Fetch NVIDIA driver patch script
       ansible.builtin.uri:
         url: "{{ nvidia_patch_download_url }}"
@@ -69,7 +89,7 @@
     - name: Check for incompatible version (GeForce patching)
       ansible.builtin.fail:
         msg: "Driver version: {{ nvidia_driver_version }} is not supported by the keylase patch."
-      when: ('GeForce' in lspci_resp.stdout) and (nvidia_driver_version != "latest") and nvidia_driver_version not in supported_versions
+      when: geforce_gpu_present and (nvidia_driver_version != "latest") and nvidia_driver_version not in supported_versions
 
     - name: Get nvidia-smi driver version
       ansible.builtin.shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
@@ -78,7 +98,7 @@
 
     - name: Set 'nvidia_installed_driver_version' variable
       ansible.builtin.set_fact:
-        nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout
+        nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout_lines[0] | default('')
                                           if nvidia_smi_output.rc == 0
                                           else '' }}"
 
@@ -141,7 +161,7 @@
             state: absent
 
     - name: Nvidia Driver Patch Tasks
-      when: ('GeForce' in lspci_resp.stdout)
+      when: geforce_gpu_present
       block:
         - name: Check to see if patch backup files exist
           ansible.builtin.stat:
