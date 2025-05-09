@@ -18,85 +18,41 @@ autoheal_name: autoheal
 ################################
 
 # Container
-autoheal_docker_container: "{{ autoheal_name }}"
+autoheal_role_docker_container: "{{ autoheal_name }}"
 
 # Image
-autoheal_docker_image_pull: true
-autoheal_docker_image_tag: "latest"
-autoheal_docker_image: "willfarrell/autoheal:{{ autoheal_docker_image_tag }}"
-
-# Ports
-autoheal_docker_ports_defaults: []
-autoheal_docker_ports_custom: []
-autoheal_docker_ports: "{{ autoheal_docker_ports_defaults
-                           + autoheal_docker_ports_custom }}"
+autoheal_role_docker_image_pull: true
+autoheal_role_docker_image_tag: "latest"
+autoheal_role_docker_image: "willfarrell/autoheal:{{ autoheal_role_docker_image_tag }}"
 
 # Envs
-autoheal_docker_envs_default:
+autoheal_role_docker_envs_default:
   AUTOHEAL_CONTAINER_LABEL: "autoheal"
-autoheal_docker_envs_custom: {}
-autoheal_docker_envs: "{{ autoheal_docker_envs_default
-                          | combine(autoheal_docker_envs_custom) }}"
-
-# Commands
-autoheal_docker_commands_default: []
-autoheal_docker_commands_custom: []
-autoheal_docker_commands: "{{ autoheal_docker_commands_default
-                              + autoheal_docker_commands_custom }}"
+autoheal_role_docker_envs_custom: {}
+autoheal_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='autoheal')
+                               | combine(lookup('role_var', '_docker_envs_custom', role='autoheal')) }}"
 
 # Volumes
-autoheal_docker_volumes_default:
+autoheal_role_docker_volumes_default:
   - "/var/run/docker.sock:/var/run/docker.sock"
   - "/etc/localtime:/etc/localtime:ro"
-autoheal_docker_volumes_custom: []
-autoheal_docker_volumes: "{{ autoheal_docker_volumes_default
-                             + autoheal_docker_volumes_custom }}"
-
-# Devices
-autoheal_docker_devices_default: []
-autoheal_docker_devices_custom: []
-autoheal_docker_devices: "{{ autoheal_docker_devices_default
-                             + autoheal_docker_devices_custom }}"
-
-# Hosts
-autoheal_docker_hosts_default: {}
-autoheal_docker_hosts_custom: {}
-autoheal_docker_hosts: "{{ docker_hosts_common
-                           | combine(autoheal_docker_hosts_default)
-                           | combine(autoheal_docker_hosts_custom) }}"
-
-# Labels
-autoheal_docker_labels_default: {}
-autoheal_docker_labels_custom: {}
-autoheal_docker_labels: "{{ docker_labels_common
-                            | combine(autoheal_docker_labels_default)
-                            | combine(autoheal_docker_labels_custom) }}"
+autoheal_role_docker_volumes_custom: []
+autoheal_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='autoheal')
+                                  + lookup('role_var', '_docker_volumes_custom', role='autoheal') }}"
 
 # Hostname
-autoheal_docker_hostname: "{{ autoheal_name }}"
+autoheal_role_docker_hostname: "{{ autoheal_name }}"
 
 # Networks
-autoheal_docker_networks_alias: "{{ autoheal_name }}"
-autoheal_docker_networks_default: []
-autoheal_docker_networks_custom: []
-autoheal_docker_networks: "{{ docker_networks_common
-                              + autoheal_docker_networks_default
-                              + autoheal_docker_networks_custom }}"
-
-# Capabilities
-autoheal_docker_capabilities_default: []
-autoheal_docker_capabilities_custom: []
-autoheal_docker_capabilities: "{{ autoheal_docker_capabilities_default
-                                  + autoheal_docker_capabilities_custom }}"
-
-# Security Opts
-autoheal_docker_security_opts_default: []
-autoheal_docker_security_opts_custom: []
-autoheal_docker_security_opts: "{{ autoheal_docker_security_opts_default
-                                   + autoheal_docker_security_opts_custom }}"
+autoheal_role_docker_networks_alias: "{{ autoheal_name }}"
+autoheal_role_docker_networks_default: []
+autoheal_role_docker_networks_custom: []
+autoheal_role_docker_networks: "{{ docker_networks_common
+                                   + lookup('role_var', '_docker_networks_default', role='autoheal')
+                                   + lookup('role_var', '_docker_networks_custom', role='autoheal') }}"
 
 # Restart Policy
-autoheal_docker_restart_policy: unless-stopped
+autoheal_role_docker_restart_policy: unless-stopped
 
 # State
-autoheal_docker_state: started
+autoheal_role_docker_state: started
