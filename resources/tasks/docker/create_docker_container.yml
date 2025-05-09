@@ -154,6 +154,7 @@
     images: true
     images_filters:
       dangling: true
+    timeout: 120
   when: docker_create_image_prune
   register: prune_images_result
   retries: "{{ ansible_retry_count
