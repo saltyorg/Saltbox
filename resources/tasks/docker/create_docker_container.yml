@@ -60,8 +60,8 @@
           if (((nvidia_docker_env if use_nvidia else {}) | combine(lookup('docker_var', '_docker_envs', default={}))) | length > 0)
           else omit }}"
     env_file: "{{ lookup('docker_var', '_docker_env_file', default=omit) }}"
-    etc_hosts: "{{ ((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_hosts', default={})))
-                   if ((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_hosts', default={}))) | length > 0)
+    etc_hosts: "{{ (((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_hosts', default={})))
+                   if (((docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_hosts', default={}))) | length > 0)
                    else omit)
                 if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
                 else omit }}"
@@ -83,8 +83,8 @@
     keep_volumes: "{{ lookup('docker_var', '_docker_keep_volumes', default=omit) }}"
     kernel_memory: "{{ lookup('docker_var', '_docker_kernel_memory', default=omit) }}"
     kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
-    labels: "{{ docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_labels', default={}))
-             if (docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {} | combine(lookup('docker_var', '_docker_labels', default={})) | length > 0)
+    labels: "{{ ((docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_labels', default={})))
+             if (((docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_labels', default={}))) | length > 0)
              else omit }}"
     links: "{{ lookup('docker_var', '_docker_links', default=omit) }}"
     log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('docker_var', '_docker_log_driver', default=omit)) }}"
