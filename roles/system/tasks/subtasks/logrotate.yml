@@ -63,8 +63,8 @@
         content: |
           /opt/traefik/access.log {
               su {{ user.name }} {{ user.name }}
-              rotate {{ traefik_log_max_backups }}
-              size {{ traefik_log_max_size }}
+              rotate {{ lookup('role_var', '_log_max_backups', role='traefik') }}
+              size {{ lookup('role_var', '_log_max_size', role='traefik') }}
               missingok
               notifempty
               postrotate
