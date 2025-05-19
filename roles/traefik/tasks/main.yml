@@ -17,9 +17,9 @@
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_metrics_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_metrics_dns_zone') }}"
-    dns_proxy: "{{ lookup('vars', role_name + '_metrics_dns_proxy') }}"
+    dns_record: "{{ lookup('role_var', '_metrics_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_metrics_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_metrics_dns_proxy') }}"
   when: traefik.metrics
 
 - name: Remove existing Docker container
@@ -54,7 +54,7 @@
 
 - name: Remove Certificates
   ansible.builtin.file:
-    path: "{{ traefik_paths_location }}/acme.json"
+    path: "{{ traefik_role_paths_location }}/acme.json"
     state: absent
   when: ('traefik-reset-certs' in ansible_run_tags)
 
@@ -63,13 +63,13 @@
 
 - name: Wait for 'acme.json' to be created
   ansible.builtin.wait_for:
-    path: "{{ traefik_paths_acme_config_location }}"
+    path: "{{ traefik_role_paths_acme_config_location }}"
     state: present
   when: (not continuous_integration)
 
-- name: Chown '{{ traefik_paths_location }}'
+- name: Chown '{{ traefik_role_paths_location }}'
   ansible.builtin.file:
-    path: "{{ traefik_paths_location }}"
+    path: "{{ traefik_role_paths_location }}"
     state: directory
     recurse: true
     owner: "{{ user.name }}"
@@ -77,9 +77,9 @@
     mode: "0775"
   when: (not continuous_integration)
 
-- name: Chown '{{ traefik_paths_acme_config_location }}'
+- name: Chown '{{ traefik_role_paths_acme_config_location }}'
   ansible.builtin.file:
-    path: "{{ traefik_paths_acme_config_location }}"
+    path: "{{ traefik_role_paths_acme_config_location }}"
     state: file
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

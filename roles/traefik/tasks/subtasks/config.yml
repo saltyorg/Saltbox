@@ -10,7 +10,7 @@
 - name: "Import 'dynamic.yml'"
   ansible.builtin.template:
     src: dynamic.yml.j2
-    dest: "{{ traefik_paths_location }}/dynamic.yml"
+    dest: "{{ traefik_role_paths_location }}/dynamic.yml"
     force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -18,7 +18,7 @@
 
 - name: Remove 'themepark.yml'
   ansible.builtin.file:
-    path: "{{ traefik_paths_location }}/themepark.yml"
+    path: "{{ traefik_role_paths_location }}/themepark.yml"
     state: absent
 
 - name: Create auth file
@@ -53,9 +53,9 @@
   loop: "{{ traefik_entrypoint_custom | dict2items }}"
   when: (traefik_entrypoint_custom | length > 0)
 
-- name: Set 'traefik_docker_ports_defaults' variable
+- name: Set 'traefik_role_docker_ports_defaults' variable
   ansible.builtin.set_fact:
-    traefik_docker_ports_defaults: "{{ (traefik_docker_ports_defaults + custom_entrypoints_ports) | unique }}"
+    traefik_role_docker_ports_defaults: "{{ (traefik_role_docker_ports_defaults + custom_entrypoints_ports) | unique }}"
   when: (traefik_entrypoint_custom | length > 0)
 
 - name: Tailscale block

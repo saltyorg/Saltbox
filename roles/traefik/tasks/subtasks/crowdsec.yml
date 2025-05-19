@@ -38,7 +38,7 @@
   ansible.builtin.copy:
     src: "ban.html"
     force: true
-    dest: "{{ traefik_paths_location }}/ban.html"
+    dest: "{{ traefik_role_paths_location }}/ban.html"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
