@@ -99,7 +99,7 @@ dir_mode = "0755"
 [[sonarr]]
   url = "{{ sonarr_info[instance]['url'] }}"
   api_key = "{{ sonarr_info[instance]['api_key'] }}"
-  paths = ["/mnt/unionfs/downloads/torrents/rutorrent/completed"]
+  paths = ["/mnt/unionfs/downloads/torrents/qbittorrent/completed"]
   protocols = "torrent"
   timeout = "10s"
   delete_delay = "5m"
@@ -134,7 +134,7 @@ dir_mode = "0755"
 [[radarr]]
   url = "{{ radarr_info[instance]['url'] }}"
   api_key = "{{ radarr_info[instance]['api_key'] }}"
-  paths = ["/mnt/unionfs/downloads/torrents/rutorrent/completed"]
+  paths = ["/mnt/unionfs/downloads/torrents/qbittorrent/completed"]
   protocols = "torrent"
   timeout = "10s"
   delete_delay = "5m"
@@ -169,7 +169,7 @@ dir_mode = "0755"
 [[lidarr]]
   url = "{{ lidarr_info[instance]['url'] }}"
   api_key = "{{ lidarr_info[instance]['api_key'] }}"
-  paths = ["/mnt/unionfs/downloads/torrents/rutorrent/completed"]
+  paths = ["/mnt/unionfs/downloads/torrents/qbittorrent/completed"]
   protocols = "torrent"
   timeout = "10s"
   delete_delay = "5m"
@@ -204,7 +204,7 @@ dir_mode = "0755"
 [[readarr]]
   url = "{{ readarr_info[instance]['url'] }}"
   api_key = "{{ readarr_info[instance]['api_key'] }}"
-  paths = ["/mnt/unionfs/downloads/torrents/rutorrent/completed"]
+  paths = ["/mnt/unionfs/downloads/torrents/qbittorrent/completed"]
   protocols = "torrent"
   timeout = "10s"
   delete_delay = "5m"
