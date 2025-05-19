@@ -18,4 +18,4 @@
 
 - name: Resources | Tasks | Instances | Get Info | Set 'plex_info' variable
   ansible.builtin.set_fact:
-    plex_info: "{{ plex_info | default({}) | combine({plex_name: {'name': plex_name, 'url': plex_web_url, 'token': plex_auth_token}}) }}"
+    plex_info: "{{ plex_info | default({}) | combine({plex_name: {'name': plex_name, 'url': lookup('role_var', '_web_url', role='plex'), 'token': plex_auth_token}}) }}"

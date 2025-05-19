@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Readarr exists
   ansible.builtin.stat:
-    path: "{{ readarr_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='readarr') }}"
   register: readarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Readarr API Key tasks
@@ -17,16 +17,16 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Readarr API Key
       community.general.xml:
-        path: "{{ readarr_role_paths_config_location }}"
+        path: "{{ lookup('role_var', '_paths_config_location', role='readarr') }}"
         xpath: /Config/ApiKey
         content: text
       register: xmlresp
 
     - name: Resources | Tasks | Instances | Get Info | Set 'readarr_info' variable
       ansible.builtin.set_fact:
-        readarr_info: "{{ readarr_info | default({}) | combine({readarr_name: {'name': readarr_name, 'url': readarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
+        readarr_info: "{{ readarr_info | default({}) | combine({readarr_name: {'name': readarr_name, 'url': lookup('role_var', '_web_url', role='readarr'), 'api_key': xmlresp.matches[0].ApiKey}}) }}"
 
 - name: Resources | Tasks | Instances | Get Info | Set 'readarr_info' variable
   ansible.builtin.set_fact:
-    readarr_info: "{{ readarr_info | default({}) | combine({readarr_name: {'name': readarr_name, 'url': readarr_web_url, 'api_key': 'not installed'}}) }}"
+    readarr_info: "{{ readarr_info | default({}) | combine({readarr_name: {'name': readarr_name, 'url': lookup('role_var', '_web_url', role='readarr'), 'api_key': 'not installed'}}) }}"
   when: (not readarr_paths_config_location_stat.stat.exists)

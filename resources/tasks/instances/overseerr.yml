@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Overseerr exists
   ansible.builtin.stat:
-    path: "{{ overseerr_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='overseerr') }}"
   register: overseerr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Overseerr API Key tasks
@@ -17,13 +17,13 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Overseerr API Key
       ansible.builtin.set_fact:
-        jsondata: "{{ lookup('ansible.builtin.file', overseerr_role_paths_config_location) }}"
+        jsondata: "{{ lookup('ansible.builtin.file', lookup('role_var', '_paths_config_location', role='overseerr')) }}"
 
     - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
       ansible.builtin.set_fact:
-        overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': overseerr_web_url, 'api_key': jsondata.main.apiKey}}) }}"
+        overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': lookup('role_var', '_web_url', role='overseerr'), 'api_key': jsondata.main.apiKey}}) }}"
 
 - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
   ansible.builtin.set_fact:
-    overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': overseerr_web_url, 'api_key': 'not installed'}}) }}"
+    overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': lookup('role_var', '_web_url', role='overseerr'), 'api_key': 'not installed'}}) }}"
   when: (not overseerr_paths_config_location_stat.stat.exists)

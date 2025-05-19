@@ -9,7 +9,7 @@
 ---
 - name: Resources | Tasks | Instances | Get Info | Check if Radarr exists
   ansible.builtin.stat:
-    path: "{{ radarr_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='radarr') }}"
   register: radarr_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Radarr API Key tasks
@@ -17,16 +17,16 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Radarr API Key
       community.general.xml:
-        path: "{{ radarr_role_paths_config_location }}"
+        path: "{{ lookup('role_var', '_paths_config_location', role='radarr') }}"
         xpath: /Config/ApiKey
         content: text
       register: xmlresp
 
     - name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
       ansible.builtin.set_fact:
-        radarr_info: "{{ radarr_info | default({}) | combine({radarr_name: {'name': radarr_name, 'url': radarr_web_url, 'api_key': xmlresp.matches[0].ApiKey}}) }}"
+        radarr_info: "{{ radarr_info | default({}) | combine({radarr_name: {'name': radarr_name, 'url': lookup('role_var', '_web_url', role='radarr'), 'api_key': xmlresp.matches[0].ApiKey}}) }}"
 
 - name: Resources | Tasks | Instances | Get Info | Set 'radarr_info' variable
   ansible.builtin.set_fact:
-    radarr_info: "{{ radarr_info | default({}) | combine({radarr_name: {'name': radarr_name, 'url': radarr_web_url, 'api_key': 'not installed'}}) }}"
+    radarr_info: "{{ radarr_info | default({}) | combine({radarr_name: {'name': radarr_name, 'url': lookup('role_var', '_web_url', role='radarr'), 'api_key': 'not installed'}}) }}"
   when: (not radarr_paths_config_location_stat.stat.exists)
