@@ -153,6 +153,12 @@ authelia_role_access_control_whitelist_networks:
   - "{{ (ip_address_public + '/32') if (dns.ipv4 | default(true)) else omit }}"
   - "{{ (ipv6_address_public + '/128') if (dns.ipv6 | default(false)) else omit }}"
 
+authelia_role_response_headers:
+  - "Remote-User"
+  - "Remote-Groups"
+  - "Remote-Name"
+  - "Remote-Email"
+
 ################################
 # Paths
 ################################

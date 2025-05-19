@@ -86,18 +86,18 @@ authentik_role_traefik_api_endpoint: ""
 authentik_role_host: "http://{{ authentik_name }}:{{ lookup('role_var', '_web_port', role='authentik') }}"
 authentik_role_default_user: "akadmin"
 authentik_role_response_headers:
-  - X-authentik-username
-  - X-authentik-groups
-  - X-authentik-entitlements
-  - X-authentik-email
-  - X-authentik-name
-  - X-authentik-uid
-  - X-authentik-jwt
-  - X-authentik-meta-jwks
-  - X-authentik-meta-outpost
-  - X-authentik-meta-provider
-  - X-authentik-meta-app
-  - X-authentik-meta-version
+  - "X-authentik-username"
+  - "X-authentik-groups"
+  - "X-authentik-entitlements"
+  - "X-authentik-email"
+  - "X-authentik-name"
+  - "X-authentik-uid"
+  - "X-authentik-jwt"
+  - "X-authentik-meta-jwks"
+  - "X-authentik-meta-outpost"
+  - "X-authentik-meta-provider"
+  - "X-authentik-meta-app"
+  - "X-authentik-meta-version"
 
 ################################
 # Docker
