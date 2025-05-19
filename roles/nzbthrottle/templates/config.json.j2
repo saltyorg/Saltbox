@@ -1,6 +1,6 @@
 {
   "plex": {
-    "url": "{{ plex_web_url }}",
+    "url": "{{ lookup('role_var', '_web_url', role='plex') }}",
     "interval": 60,
     "token": "{{ plex_auth_token | default('') }}"
   },
