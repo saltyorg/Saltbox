@@ -101,19 +101,19 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/jonathanfinley>
-            <img src=https://avatars.githubusercontent.com/u/23283167?v=4 width="100;"  alt=jonathanfinley/>
+        <a href=https://github.com/chazlarson>
+            <img src=https://avatars.githubusercontent.com/u/3865541?v=4 width="100;"  alt=Chaz Larson/>
             <br />
-            <sub style="font-size:14px"><b>jonathanfinley</b></sub>
+            <sub style="font-size:14px"><b>Chaz Larson</b></sub>
         </a>
     </td>
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/chazlarson>
-            <img src=https://avatars.githubusercontent.com/u/3865541?v=4 width="100;"  alt=Chaz Larson/>
+        <a href=https://github.com/jonathanfinley>
+            <img src=https://avatars.githubusercontent.com/u/23283167?v=4 width="100;"  alt=jonathanfinley/>
             <br />
-            <sub style="font-size:14px"><b>Chaz Larson</b></sub>
+            <sub style="font-size:14px"><b>jonathanfinley</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -131,17 +131,10 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/andrewkhunn>
-            <img src=https://avatars.githubusercontent.com/u/116436?v=4 width="100;"  alt=Andrew Hunn/>
+        <a href=https://github.com/TABLE272>
+            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
             <br />
-            <sub style="font-size:14px"><b>Andrew Hunn</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/BeansIsFat>
-            <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=Beans Baxter/>
-            <br />
-            <sub style="font-size:14px"><b>Beans Baxter</b></sub>
+            <sub style="font-size:14px"><b>TABLE272</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -151,34 +144,27 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Max Kowalski</b></sub>
         </a>
     </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/BeansIsFat>
+            <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=Beans Baxter/>
+            <br />
+            <sub style="font-size:14px"><b>Beans Baxter</b></sub>
+        </a>
+    </td>
 </tr>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/TABLE272>
-            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
+        <a href=https://github.com/andrewkhunn>
+            <img src=https://avatars.githubusercontent.com/u/116436?v=4 width="100;"  alt=Andrew Hunn/>
             <br />
-            <sub style="font-size:14px"><b>TABLE272</b></sub>
+            <sub style="font-size:14px"><b>Andrew Hunn</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/keldian>
-            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
+        <a href=https://github.com/kbgvirus>
+            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
             <br />
-            <sub style="font-size:14px"><b>keldian</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/lonix>
-            <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
-            <br />
-            <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Migz93>
-            <img src=https://avatars.githubusercontent.com/u/33037112?v=4 width="100;"  alt=Migz93/>
-            <br />
-            <sub style="font-size:14px"><b>Migz93</b></sub>
+            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -189,10 +175,24 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/kbgvirus>
-            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
+        <a href=https://github.com/Migz93>
+            <img src=https://avatars.githubusercontent.com/u/33037112?v=4 width="100;"  alt=Migz93/>
             <br />
-            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
+            <sub style="font-size:14px"><b>Migz93</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/lonix>
+            <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
+            <br />
+            <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/keldian>
+            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
+            <br />
+            <sub style="font-size:14px"><b>keldian</b></sub>
         </a>
     </td>
 </tr>
