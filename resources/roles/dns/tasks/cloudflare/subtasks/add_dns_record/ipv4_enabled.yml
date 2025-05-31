@@ -10,7 +10,7 @@
 - name: Cloudflare | Add DNS Record | IPv4 | Validate IP variable
   ansible.builtin.fail:
     msg: "{{ ip_address_public_error }}"
-  when: (not ip_address_public_is_valid)
+  when: (not ip_address_public_is_valid) and (ipv4_address_public_template == ip_address_public)
 
 - name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
   community.general.cloudflare_dns:
@@ -21,7 +21,7 @@
     solo: true
     proxied: "{{ dns_proxy }}"
     type: A
-    value: "{{ ip_address_public
+    value: "{{ ipv4_address_public_template
             if not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
             else dns_tailscale_ipv4 }}"
     record: "{{ dns_record }}"
@@ -36,4 +36,4 @@
 
     - name: Cloudflare | Add DNS Record | IPv4 | Display DNS Record creation status
       ansible.builtin.debug:
-        msg: "DNS A Record for '{{ dns_record_print }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns_proxy }}"
+        msg: "DNS A Record for '{{ dns_record_print }}' set to '{{ ipv4_address_public_template }}' was added. Proxy: {{ dns_proxy }}"

@@ -10,7 +10,7 @@
 - name: Cloudflare | Add DNS Record | IPv6 | Validate IPv6 variable
   ansible.builtin.fail:
     msg: "{{ ipv6_address_public_error }}"
-  when: (not ipv6_address_public_is_valid)
+  when: (not ipv6_address_public_is_valid) and (ipv6_address_public_template == ipv6_address_public)
 
 - name: Cloudflare | Add DNS Record | IPv6 | Add DNS Record
   community.general.cloudflare_dns:
@@ -21,8 +21,8 @@
     solo: true
     proxied: "{{ dns_proxy }}"
     type: AAAA
-    value: "{{ ipv6_address_public
-            if not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
+    value: "{{ ipv6_address_public_template
+            if (not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false)))
             else dns_tailscale_ipv6 }}"
     record: "{{ dns_record }}"
   register: cloudflare_dns_v6_record_creation_status
@@ -36,4 +36,4 @@
 
     - name: Cloudflare | Add DNS Record | IPv6 | Display DNS Record creation status
       ansible.builtin.debug:
-        msg: "DNS AAAA Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns_proxy }}"
+        msg: "DNS AAAA Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public_template }}' was added. Proxy: {{ dns_proxy }}"
