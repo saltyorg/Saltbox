@@ -36,7 +36,7 @@ plex_proxy_dict:
   https_proxy: "{{ plex_role_proxy_lookup if (plex_role_proxy_lookup | length > 0) else '' }}"
 
 # Do not edit or override using the inventory
-plex_role_proxy_lookup: "{{ lookup('role_var', '_auth_token_proxy') }}"
+plex_role_proxy_lookup: "{{ lookup('role_var', '_auth_token_proxy', role='plex') }}"
 plex_role_network_modes: []
 
 ################################
