@@ -11,17 +11,21 @@
   ansible.builtin.wait_for:
     timeout: "{{ docker_network_container_health_delay }}"
 
-- name: Resources | Tasks | Docker | Network Container Health Status | Check health of network linked container
+- name: "Resources | Tasks | Docker | Network Container Health Status | Set instance name"
+  ansible.builtin.set_fact:
+    _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
+
+- name: "Resources | Tasks | Docker | Network Container Health Status | Check health of network linked container"
   community.docker.docker_container_info:
     name: "{{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }}"
   register: docker_info
 
-- name: Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container does not exist
+- name: "Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container does not exist"
   ansible.builtin.fail:
     msg: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }} is configured to use {{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }} for networking but it does not exist"
   when: not docker_info.exists
 
-- name: Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container is not healthy
+- name: "Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container is not healthy"
   ansible.builtin.fail:
     msg: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }} is configured to use {{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }} for networking but it is not healthy"
   when: ('State' not in docker_info.container or 'Health' not in docker_info.container.State or 'Status' not in docker_info.container.State.Health or docker_info.container.State.Health.Status != 'healthy')
