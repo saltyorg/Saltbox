@@ -1,0 +1,33 @@
+---
+{% set services = ['lidarr', 'plex', 'radarr', 'readarr', 'sonarr'] %}
+{% for service in services %}
+{% set service_info_var = service + '_info' %}
+{% set installed_instances = [] %}
+{% if vars[service_info_var] is defined %}
+{% for instance_name, instance_data in vars[service_info_var].items() %}
+{% if service == 'plex' %}
+{% if instance_data.token != 'not installed' %}
+{% set _ = installed_instances.append({'name': instance_data.name, 'url': instance_data.url, 'token': instance_data.token}) %}
+{% endif %}
+{% else %}
+{% if instance_data.api_key != 'not installed' %}
+{% set _ = installed_instances.append({'name': instance_data.name, 'url': instance_data.url, 'apikey': instance_data.api_key}) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{{ service }}:
+{% if installed_instances %}
+{% for instance in installed_instances %}
+  - name: {{ instance.name }}
+    url: {{ instance.url }}
+{% if service == 'plex' %}
+    token: {{ instance.token }}
+{% else %}
+    apikey: {{ instance.apikey }}
+{% endif %}
+{% endfor %}
+{% else %}
+  []
+{% endif %}
+{% endfor %}

@@ -1,0 +1,50 @@
+#########################################################################
+# Title:         Saltbox: MOTD Role                                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Delete 'motd.yml'
+  ansible.builtin.file:
+    path: "/srv/git/saltbox/motd.yml"
+    state: absent
+  when: ('motd-generate-config' in ansible_run_tags)
+
+- name: Check if 'motd.yml' exists
+  ansible.builtin.stat:
+    path: "/srv/git/saltbox/motd.yml"
+  register: cli_motd_config
+
+- name: New Config tasks
+  when: ('motd-generate-config' in ansible_run_tags) or (not cli_motd_config.stat.exists)
+  block:
+    - name: Settings | Get Instance Info
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
+      vars:
+        get_info_list:
+          - plex
+          - sonarr
+          - radarr
+          - lidarr
+          - readarr
+
+    - name: Import 'motd.yml' template
+      ansible.builtin.template:
+        src: "motd.yml.j2"
+        dest: "/srv/git/saltbox/motd.yml"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+        force: false
+
+- name: Import '01-motd' template
+  ansible.builtin.template:
+    src: "01-motd.j2"
+    dest: "/etc/update-motd.d/01-motd"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0755"
+    force: false
