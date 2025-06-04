@@ -41,85 +41,37 @@ postgres_role_docker_container: "{{ postgres_name }}"
 postgres_role_docker_image_pull: true
 postgres_role_docker_image_tag: "12-alpine"
 postgres_role_docker_image_repo: "postgres"
-postgres_role_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_role_docker_image_repo)
-                                + ':' + lookup('vars', postgres_name + '_docker_image_tag', default=postgres_role_docker_image_tag) }}"
-
-# Ports
-postgres_role_docker_ports_defaults: []
-postgres_role_docker_ports_custom: []
-postgres_role_docker_ports: "{{ postgres_role_docker_ports_defaults
-                                + postgres_role_docker_ports_custom }}"
+postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres')
+                                + ':' + lookup('role_var', '_docker_image_tag', role='postgres') }}"
 
 # Envs
 postgres_role_docker_envs_default:
   TZ: "{{ tz }}"
-  postgres_role_PASSWORD: "{{ lookup('vars', postgres_name + '_docker_env_password', default=postgres_role_docker_env_password) }}"
-  postgres_role_USER: "{{ lookup('vars', postgres_name + '_docker_env_user', default=postgres_role_docker_env_user) }}"
-  postgres_role_DB: "{{ lookup('vars', postgres_name + '_docker_env_db', default=postgres_role_docker_env_db) }}"
+  POSTGRES_PASSWORD: "{{ lookup('role_var', '_docker_env_password', role='postgres') }}"
+  POSTGRES_USER: "{{ lookup('role_var', '_docker_env_user', role='postgres') }}"
+  POSTGRES_DB: "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
 postgres_role_docker_envs_custom: {}
-postgres_role_docker_envs: "{{ lookup('vars', postgres_name + '_docker_envs_default', default=postgres_role_docker_envs_default)
-                          | combine(lookup('vars', postgres_name + '_docker_envs_custom', default=postgres_role_docker_envs_custom)) }}"
-
-# Commands
-postgres_role_docker_commands_default: []
-postgres_role_docker_commands_custom: []
-postgres_role_docker_commands: "{{ lookup('vars', postgres_name + '_docker_commands_default', default=postgres_role_docker_commands_default)
-                              + lookup('vars', postgres_name + '_docker_commands_custom', default=postgres_role_docker_commands_custom) }}"
+postgres_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='postgres')
+                               | combine(lookup('role_var', '_docker_envs_custom', role='postgres')) }}"
 
 # Volumes
 postgres_role_docker_volumes_default:
   - "{{ postgres_role_paths_location }}:/var/lib/postgresql/data"
   - "/etc/passwd:/etc/passwd:ro"
 postgres_role_docker_volumes_custom: []
-postgres_role_docker_volumes: "{{ lookup('vars', postgres_name + '_docker_volumes_default', default=postgres_role_docker_volumes_default)
-                             + lookup('vars', postgres_name + '_docker_volumes_custom', default=postgres_role_docker_volumes_custom) }}"
-
-# Devices
-postgres_role_docker_devices_default: []
-postgres_role_docker_devices_custom: []
-postgres_role_docker_devices: "{{ lookup('vars', postgres_name + '_docker_devices_default', default=postgres_role_docker_devices_default)
-                             + lookup('vars', postgres_name + '_docker_devices_custom', default=postgres_role_docker_devices_custom) }}"
-
-# Hosts
-postgres_role_docker_hosts_default: {}
-postgres_role_docker_hosts_custom: {}
-postgres_role_docker_hosts: "{{ docker_hosts_common
-                           | combine(lookup('vars', postgres_name + '_docker_hosts_default', default=postgres_role_docker_hosts_default))
-                           | combine(lookup('vars', postgres_name + '_docker_hosts_custom', default=postgres_role_docker_hosts_custom)) }}"
-
-# Labels
-postgres_role_docker_labels_default: {}
-postgres_role_docker_labels_custom: {}
-postgres_role_docker_labels: "{{ docker_labels_common
-                            | combine(lookup('vars', postgres_name + '_docker_labels_default', default=postgres_role_docker_labels_default))
-                            | combine(lookup('vars', postgres_name + '_docker_labels_custom', default=postgres_role_docker_labels_custom)) }}"
+postgres_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='postgres')
+                                  + lookup('role_var', '_docker_volumes_custom', role='postgres') }}"
 
 # Hostname
 postgres_role_docker_hostname: "{{ postgres_name }}"
-
-# Network Mode
-postgres_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
-postgres_role_docker_network_mode: "{{ lookup('vars', postgres_name + '_docker_network_mode_default', default=postgres_role_docker_network_mode_default) }}"
 
 # Networks
 postgres_role_docker_networks_alias: "{{ postgres_name }}"
 postgres_role_docker_networks_default: []
 postgres_role_docker_networks_custom: []
 postgres_role_docker_networks: "{{ docker_networks_common
-                              + lookup('vars', postgres_name + '_docker_networks_default', default=postgres_role_docker_networks_default)
-                              + lookup('vars', postgres_name + '_docker_networks_custom', default=postgres_role_docker_networks_custom) }}"
-
-# Capabilities
-postgres_role_docker_capabilities_default: []
-postgres_role_docker_capabilities_custom: []
-postgres_role_docker_capabilities: "{{ lookup('vars', postgres_name + '_docker_capabilities_default', default=postgres_role_docker_capabilities_default)
-                                  + lookup('vars', postgres_name + '_docker_capabilities_custom', default=postgres_role_docker_capabilities_custom) }}"
-
-# Security Opts
-postgres_role_docker_security_opts_default: []
-postgres_role_docker_security_opts_custom: []
-postgres_role_docker_security_opts: "{{ lookup('vars', postgres_name + '_docker_security_opts_default', default=postgres_role_docker_security_opts_default)
-                                   + lookup('vars', postgres_name + '_docker_security_opts_custom', default=postgres_role_docker_security_opts_custom) }}"
+                                   + lookup('role_var', '_docker_networks_default', role='postgres')
+                                   + lookup('role_var', '_docker_networks_custom', role='postgres') }}"
 
 # Restart Policy
 postgres_role_docker_restart_policy: unless-stopped
