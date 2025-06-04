@@ -33,7 +33,7 @@ authentik_role_access_token_validity: "24" # Hours, only fresh installs use this
 
 authentik_role_postgres_name: "{{ authentik_name }}-postgres"
 authentik_role_postgres_docker_env_db: "authentik"
-authentik_role_postgres_docker_image_tag: "16-alpine"
+authentik_role_postgres_docker_image_tag: "17-alpine"
 authentik_role_postgres_docker_image_repo: "postgres"
 
 ################################
@@ -109,7 +109,7 @@ authentik_role_docker_container: "{{ authentik_name }}"
 # Image
 authentik_role_docker_image_pull: true
 authentik_role_docker_image_repo: "ghcr.io/goauthentik/server"
-authentik_role_docker_image_tag: "2025.4"
+authentik_role_docker_image_tag: "2025.6"
 authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
 
 # Envs
