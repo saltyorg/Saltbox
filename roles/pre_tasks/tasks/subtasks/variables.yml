@@ -9,22 +9,22 @@
 ---
 - name: Find Saltbox roles
   ansible.builtin.shell: "find /srv/git/saltbox/roles -type d -name 'defaults'"
-  register: saltbox_roles
+  register: pre_tasks_saltbox_roles
 
 - name: Include Saltbox role default vars
   ansible.builtin.include_vars: "{{ item }}/main.yml"
-  with_items: "{{ saltbox_roles.stdout_lines }}"
+  with_items: "{{ pre_tasks_saltbox_roles.stdout_lines }}"
 
 - name: Sandbox
   when: (playbook_dir == "/opt/saltbox_mod")
   block:
     - name: Find Sandbox roles
       ansible.builtin.shell: "find /opt/sandbox/roles -type d -name 'defaults'"
-      register: sandbox_roles
+      register: pre_tasks_sandbox_roles
 
     - name: Include Sandbox role default vars
       ansible.builtin.include_vars: "{{ item }}/main.yml"
-      with_items: "{{ sandbox_roles.stdout_lines }}"
+      with_items: "{{ pre_tasks_sandbox_roles.stdout_lines }}"
 
 - name: Check if 'localhost.yml' exists
   ansible.builtin.stat:
