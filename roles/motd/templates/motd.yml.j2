@@ -16,8 +16,8 @@
 {% endif %}
 {% endfor %}
 {% endif %}
-{{ service }}:
 {% if installed_instances %}
+{{ service }}:
 {% for instance in installed_instances %}
   - name: {{ instance.name }}
     url: {{ instance.url }}
@@ -28,6 +28,6 @@
 {% endif %}
 {% endfor %}
 {% else %}
-  []
+{{ service }}: []
 {% endif %}
 {% endfor %}
