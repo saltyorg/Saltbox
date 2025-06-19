@@ -95,7 +95,7 @@ authentik_docker_container: "{{ authentik_name }}"
 
 # Image
 authentik_docker_image_pull: true
-authentik_docker_image_tag: "2025.4"
+authentik_docker_image_tag: "2025.6"
 authentik_docker_image: "ghcr.io/goauthentik/server:{{ authentik_docker_image_tag }}"
 
 # Ports
