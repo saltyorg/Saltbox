@@ -124,6 +124,13 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/kbgvirus>
+            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
+            <br />
+            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/JigSawFr>
             <img src=https://avatars.githubusercontent.com/u/5781907?v=4 width="100;"  alt=JigSaw/>
             <br />
@@ -144,6 +151,8 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Max Kowalski</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/BeansIsFat>
             <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=Beans Baxter/>
@@ -151,20 +160,11 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Beans Baxter</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/andrewkhunn>
             <img src=https://avatars.githubusercontent.com/u/116436?v=4 width="100;"  alt=Andrew Hunn/>
             <br />
             <sub style="font-size:14px"><b>Andrew Hunn</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/kbgvirus>
-            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
-            <br />
-            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
