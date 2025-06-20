@@ -471,7 +471,7 @@ docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
 
 docker_networks_name_common: saltbox
 
-docker_networks_alias_template: "{{ lookup('role_var', '_docker_networks_alias') | split(' ')
+docker_networks_alias_template: "{{ [lookup('role_var', '_docker_networks_alias')]
                                     + lookup('role_var', '_docker_networks_alias_custom', default=[]) }}"
 
 docker_networks_common:
