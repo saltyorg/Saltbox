@@ -280,7 +280,7 @@
   ansible.builtin.set_fact:
     akadmin_id: "{{ item.pk }}"
   loop: "{{ get_users_response.json.results }}"
-  when: item.username == authentik_default_user
+  when: item.username == authentik_role_default_user
 
 - name: Disable akadmin user
   ansible.builtin.uri:

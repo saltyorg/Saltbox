@@ -40,10 +40,11 @@
   ansible.builtin.include_role:
     name: redis
   vars:
-    redis_instances: ["authentik-redis"]
+    redis_instances: ["{{ lookup('role_var', '_redis_name', role='authentik') }}"]
     redis_role_docker_image_tag: "alpine"
     redis_role_paths_folder: "{{ authentik_role_paths_folder }}/redis"
     redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
+    redis_role_docker_healthcheck: "{{ authentik_role_redis_docker_healthcheck }}"
     redis_role_docker_commands_default:
       - "--save 60 1 --loglevel warning"
 
@@ -57,6 +58,7 @@
     postgres_role_paths_folder: "{{ authentik_role_paths_folder }}/postgres"
     postgres_role_paths_location: "{{ server_appdata_path }}/{{ postgres_role_paths_folder }}"
     postgres_role_docker_env_db: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
+    postgres_role_docker_healthcheck: "{{ authentik_role_postgres_docker_healthcheck }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
@@ -74,6 +76,22 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   register: authentik_saltbox_facts
+
+- name: "Wait for {{ lookup('role_var', '_redis_name', role='authentik') }} container to be healthy"
+  community.docker.docker_container_info:
+    name: "{{ lookup('role_var', '_redis_name', role='authentik') }}"
+  until: "authentik_redis_container_info.container.State.Health.Status == 'healthy'"
+  register: authentik_redis_container_info
+  retries: 15
+  delay: 10
+
+- name: "Wait for {{ lookup('role_var', '_postgres_name', role='authentik') }} container to be healthy"
+  community.docker.docker_container_info:
+    name: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+  until: "authentik_postgres_container_info.container.State.Health.Status == 'healthy'"
+  register: authentik_postgres_container_info
+  retries: 15
+  delay: 10
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
