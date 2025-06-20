@@ -135,4 +135,4 @@ cadvisor_docker_restart_policy: unless-stopped
 cadvisor_docker_state: started
 
 # Privileged
-cadvisor_docker_privileged: "yes"
+cadvisor_docker_privileged: true
