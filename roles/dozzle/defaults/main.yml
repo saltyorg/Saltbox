@@ -108,6 +108,9 @@ dozzle_docker_envs_default:
   DOZZLE_REMOTE_HOST: "{{ 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host + ',' + dozzle_additional_hosts
                        if (dozzle_additional_hosts | length > 0)
                        else 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host }}"
+  DOZZLE_AUTH_HEADER_USER: "{{ 'X-authentik-username' if 'authentik' in dozzle_traefik_sso_middleware else omit }}"
+  DOZZLE_AUTH_HEADER_EMAIL: "{{ 'X-authentik-email' if 'authentik' in dozzle_traefik_sso_middleware else omit }}"
+  DOZZLE_AUTH_HEADER_NAME: "{{ 'X-authentik-name' if 'authentik' in dozzle_traefik_sso_middleware else omit }}"
 dozzle_docker_envs_custom: {}
 dozzle_docker_envs: "{{ dozzle_docker_envs_default
                         | combine(dozzle_docker_envs_custom) }}"
