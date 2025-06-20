@@ -153,7 +153,7 @@
   community.docker.docker_prune:
     images: true
     images_filters:
-      dangling: true
+      until: 24h
     timeout: 120
   when: docker_create_image_prune
   register: prune_images_result
