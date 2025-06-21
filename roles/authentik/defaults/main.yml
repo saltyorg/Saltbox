@@ -100,9 +100,6 @@ authentik_role_traefik_enabled: true
 authentik_role_traefik_api_enabled: false
 authentik_role_traefik_api_endpoint: ""
 authentik_role_traefik_outpost_catch_all: false
-authentik_role_traefik_outpost_rule: "{{ 'PathPrefix(`/outpost.goauthentik.io/`)'
-                                      if authentik_role_traefik_outpost_catch_all
-                                      else 'HostRegexp(`^.+' + lookup('role_var', '_web_domain', role='authentik') | replace('.', '\\.') + '$`) && PathPrefix(`/outpost.goauthentik.io/`)' }}"
 
 ################################
 # Setup
@@ -178,12 +175,12 @@ authentik_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default',
 authentik_role_docker_labels_default:
   traefik.http.routers.authentik-outpost-http.entrypoints: "web"
   traefik.http.routers.authentik-outpost-http.service: "authentik-outpost-http"
-  traefik.http.routers.authentik-outpost-http.rule: "{{ authentik_role_traefik_outpost_rule }}"
+  traefik.http.routers.authentik-outpost-http.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
   traefik.http.routers.authentik-outpost-http.middlewares: "{{ traefik_default_middleware_http }}"
   traefik.http.routers.authentik-outpost-http.priority: "99"
   traefik.http.routers.authentik-outpost.entrypoints: "websecure"
   traefik.http.routers.authentik-outpost.service: "authentik-outpost"
-  traefik.http.routers.authentik-outpost.rule: "{{ authentik_role_traefik_outpost_rule }}"
+  traefik.http.routers.authentik-outpost.rule: "PathPrefix(`/outpost.goauthentik.io/`)"
   traefik.http.routers.authentik-outpost.tls.options: "securetls@file"
   traefik.http.routers.authentik-outpost.tls.certresolver: "{{ authentik_role_traefik_certresolver }}"
   traefik.http.routers.authentik-outpost.middlewares: "{{ traefik_default_middleware }}"
