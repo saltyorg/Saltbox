@@ -78,15 +78,7 @@
           - subnet: fd00:dead:beef::/48
 
     - name: "Network (IPv6) | Connect containers to saltbox network"
-      ansible.builtin.shell: >
-        docker network connect saltbox {{ item.key }}
-        {% if item.value is not none and item.value | length > 0 %}
-          {% for alias in item.value %}
-            --alias {{ alias }}
-          {% endfor %}
-        {% else %}
-          --alias {{ item.key }}
-        {% endif %}
+      ansible.builtin.shell: docker network connect saltbox {{ item.key }} {{ (([item.key] + (item.value | default([]))) | unique) | map('regex_replace', '^', '--alias ') | join(' ') }}
       with_dict: "{{ parsed_docker_containers }}"
       register: connect_containers
       failed_when: connect_containers.rc > 1
@@ -126,15 +118,7 @@
           - subnet: 172.19.0.0/16
 
     - name: "Network (IPv4) | Connect containers to saltbox network"
-      ansible.builtin.shell: >
-        docker network connect saltbox {{ item.key }}
-        {% if item.value is not none and item.value | length > 0 %}
-          {% for alias in item.value %}
-            --alias {{ alias }}
-          {% endfor %}
-        {% else %}
-          --alias {{ item.key }}
-        {% endif %}
+      ansible.builtin.shell: docker network connect saltbox {{ item.key }} {{ (([item.key] + (item.value | default([]))) | unique) | map('regex_replace', '^', '--alias ') | join(' ') }}
       with_dict: "{{ parsed_docker_containers }}"
       register: connect_containers
       failed_when: connect_containers.rc > 1
