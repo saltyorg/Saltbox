@@ -223,7 +223,6 @@ def run_module():
                  # Handle case where stat fails (e.g. permissions) - assume change needed
                  changed = True
 
-
         result['changed'] = changed
         module.exit_json(**result)
 
@@ -240,6 +239,37 @@ def run_module():
     # Scenario 1: Migrate (Move)
     if legacy_is_dir and not new_exists:
         try:
+            # Ensure all parent directories exist before moving
+            parent_dir = os.path.dirname(new_path)
+            created_dirs = []
+            
+            if parent_dir and not os.path.exists(parent_dir):
+                # Find which directories we'll need to create
+                path_to_create = parent_dir
+                dirs_to_create = []
+                
+                while path_to_create and path_to_create != '/' and path_to_create != '' and not os.path.exists(path_to_create):
+                    dirs_to_create.append(path_to_create)
+                    path_to_create = os.path.dirname(path_to_create)
+                
+                # Create parent directories
+                os.makedirs(parent_dir, exist_ok=True)
+                
+                # Apply ownership and permissions only to directories we just created
+                if (owner is not None or group is not None or mode_int is not None) and dirs_to_create:
+                    for created_dir in dirs_to_create:
+                        if os.path.exists(created_dir):
+                            try:
+                                if owner is not None or group is not None:
+                                    current_stat = os.stat(created_dir)
+                                    os.chown(created_dir, 
+                                            uid if uid != -1 else current_stat.st_uid,
+                                            gid if gid != -1 else current_stat.st_gid)
+                                if mode_int is not None:
+                                    os.chmod(created_dir, mode_int)
+                            except OSError as e:
+                                module.warn(f"Could not set attributes on created parent directory {created_dir}: {str(e)}")
+            
             module.atomic_move(legacy_path, new_path)
             result['moved'] = True
             result['changed'] = True
@@ -276,25 +306,36 @@ def run_module():
 
     # --- Ensure Final State (Attributes) ---
     if new_is_dir: # Only proceed if the target exists as a directory now
-        # Prepare args for setting attributes
-        file_args = {'path': new_path}
+        # Prepare args for setting attributes - start with common file arguments
+        file_args = module.load_file_common_arguments(module.params)
+        file_args['path'] = new_path
+        
+        # Only set attributes that were explicitly provided by the user
         if owner is not None:
             file_args['owner'] = owner
         if group is not None:
             file_args['group'] = group
-        if mode_str is not None: # Use the original string for set_fs_attributes
-             file_args['mode'] = mode_str
-        if recurse:
-             file_args['recurse'] = True # Pass recurse only if owner/group are set
+        if mode_str is not None:
+            file_args['mode'] = mode_str
+        
+        # Explicitly disable SELinux context handling and file attributes
+        file_args['secontext'] = None
+        file_args['selevel'] = None
+        file_args['serole'] = None
+        file_args['setype'] = None
+        file_args['seuser'] = None
+        file_args['attributes'] = None
+        
+        # Handle recursive ownership
+        if recurse and (owner is not None or group is not None):
+            file_args['recurse'] = True
 
         # Let Ansible handle idempotency and setting attributes
-        # Pass the current 'changed' status. If attributes change, this function updates it.
         try:
-             changed_attributes = module.set_fs_attributes_if_different(file_args, result['changed'])
-             result['changed'] = result['changed'] or changed_attributes
+            changed_attributes = module.set_fs_attributes_if_different(file_args, result['changed'])
+            result['changed'] = result['changed'] or changed_attributes
         except Exception as e:
-              module.fail_json(msg=f"Failed to set attributes on {new_path}: {get_exception()}", **result)
-
+            module.fail_json(msg=f"Failed to set attributes on {new_path}: {str(e)}", **result)
 
         # Fetch final state for return values
         try:
