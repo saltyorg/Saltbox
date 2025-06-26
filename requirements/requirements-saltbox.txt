@@ -1,7 +1,7 @@
 ansible==11.3.0
 ansible-lint==25.2.1
 apprise==1.9.3
-argon2_cffi==23.1.0
+argon2_cffi==25.1.0
 certbot==4.1.1
 dnspython==2.7.0
 docker==7.1.0
