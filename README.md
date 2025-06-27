@@ -124,6 +124,13 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/keldian>
+            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
+            <br />
+            <sub style="font-size:14px"><b>keldian</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/kbgvirus>
             <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
             <br />
@@ -144,6 +151,8 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>TABLE272</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/maximuskowalski>
             <img src=https://avatars.githubusercontent.com/u/13492750?v=4 width="100;"  alt=Max Kowalski/>
@@ -151,8 +160,6 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Max Kowalski</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/BeansIsFat>
             <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=Beans Baxter/>
@@ -186,13 +193,6 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
             <br />
             <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/keldian>
-            <img src=https://avatars.githubusercontent.com/u/953679?v=4 width="100;"  alt=keldian/>
-            <br />
-            <sub style="font-size:14px"><b>keldian</b></sub>
         </a>
     </td>
 </tr>
