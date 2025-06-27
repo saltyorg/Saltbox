@@ -412,14 +412,16 @@ docker_labels_autoheal_template:
   autoheal: "true"
   autoheal.stop.timeout: "{{ lookup('role_var', '_docker_stop_timeout', default=docker_labels_autoheal_timeout) }}"
 
+docker_labels_custom_common: {}
+
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
-  - com.github.saltbox.saltbox_controller: "{{ 'true' if (lookup('role_var', '_docker_controller', default=true) | bool) else 'false' }}"
-  - "{{ docker_labels_diun_template if (lookup('role_var', '_diun_enabled', default=docker_labels_diun_enabled) | bool) else omit }}"
-  - "{{ docker_labels_autoheal_template if (lookup('role_var', '_autoheal_enabled', default=docker_labels_autoheal_enabled) | bool) else omit }}"
-  - "{{ docker_labels_docker_depends_on_template if ((lookup('role_var', '_depends_on', default='') | length > 0) or docker_container_network_mode) else omit }}"
-  - "{{ docker_labels_docker_depends_on_delay_template if ((lookup('role_var', '_depends_on_delay', default='') | length > 0) or docker_container_network_mode) else omit }}"
-  - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('role_var', '_depends_on_healthchecks', default='') | length > 0) or docker_container_network_mode) else omit }}"
+  - "{{ docker_labels_diun_template if (lookup('vars', role_name + '_diun_enabled', default=true) | bool) else omit }}"
+  - "{{ docker_labels_autoheal_template if (lookup('vars', role_name + '_autoheal_enabled', default=true) | bool) else omit }}"
+  - "{{ docker_labels_docker_depends_on_template if ((lookup('vars', role_name + '_depends_on', default='') | length > 0) or docker_container_network_mode) else omit }}"
+  - "{{ docker_labels_docker_depends_on_delay_template if ((lookup('vars', role_name + '_depends_on_delay', default='') | length > 0) or docker_container_network_mode) else omit }}"
+  - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('vars', role_name + '_depends_on_healthchecks', default='') | length > 0) or docker_container_network_mode) else omit }}"
+  - "{{ docker_labels_custom_common }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
