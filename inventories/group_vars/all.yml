@@ -405,7 +405,7 @@ docker_labels_autoheal_template:
   autoheal: "true"
   autoheal.stop.timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
 
-docker_labels_custom_template: []
+docker_labels_custom_template: {}
 
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
