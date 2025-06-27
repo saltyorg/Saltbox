@@ -405,7 +405,7 @@ docker_labels_autoheal_template:
   autoheal: "true"
   autoheal.stop.timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
 
-docker_labels_custom_template: {}
+docker_labels_custom_common: {}
 
 docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
@@ -414,7 +414,7 @@ docker_labels_saltbox_tmp:
   - "{{ docker_labels_docker_depends_on_template if ((lookup('vars', role_name + '_depends_on', default='') | length > 0) or docker_container_network_mode) else omit }}"
   - "{{ docker_labels_docker_depends_on_delay_template if ((lookup('vars', role_name + '_depends_on_delay', default='') | length > 0) or docker_container_network_mode) else omit }}"
   - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('vars', role_name + '_depends_on_healthchecks', default='') | length > 0) or docker_container_network_mode) else omit }}"
-  - "{{ docker_labels_custom_template | default(omit, true) }}"
+  - "{{ docker_labels_custom_common }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('vars', traefik_role_var + '_docker_network_mode', default=lookup('vars', role_name + '_docker_network_mode', default=docker_networks_name_common)) }}"
 docker_container_network_mode_lookup: "{{ lookup('vars', traefik_role_var + '_docker_network_mode', default=lookup('vars', role_name + '_docker_network_mode', default=docker_networks_name_common)) | split(':') | last }}"
