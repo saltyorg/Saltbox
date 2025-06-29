@@ -13,7 +13,6 @@
 arr_db_sonarr_enabled: false
 arr_db_radarr_enabled: false
 arr_db_lidarr_enabled: false
-arr_db_readarr_enabled: false
 arr_db_whisparr_enabled: false
 arr_db_prowlarr_enabled: false
 arr_db_tautulli_enabled: false

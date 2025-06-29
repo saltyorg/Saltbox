@@ -22,7 +22,6 @@
           - sonarr
           - radarr
           - lidarr
-          - readarr
 
     - name: Settings | Import default `{{ unpackerr_config_location | basename }}`
       ansible.builtin.template:

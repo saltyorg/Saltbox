@@ -199,19 +199,6 @@ dir_mode = "0755"
 ## Setting this to true deletes the entire original download folder after import.
 #  delete_orig = false
 
-{% for instance in readarr_info %}
-{% if readarr_info[instance]['api_key'] != 'not installed' %}
-[[readarr]]
-  url = "{{ readarr_info[instance]['url'] }}"
-  api_key = "{{ readarr_info[instance]['api_key'] }}"
-  paths = ["/mnt/unionfs/downloads/torrents/qbittorrent/completed"]
-  protocols = "torrent"
-  timeout = "10s"
-  delete_delay = "5m"
-  delete_orig = false
-{% endif %}
-{% endfor %}
-
 ##-Folders-#######################################################################
 ## This application can also watch folders for things to extract. If you copy a ##
 ## subfolder into a watched folder (defined below) any extractable items in the ##
