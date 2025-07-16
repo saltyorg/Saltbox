@@ -33,7 +33,7 @@ unpackerr_docker_container: "{{ unpackerr_name }}"
 # Image
 unpackerr_docker_image_pull: true
 unpackerr_docker_image_tag: "latest"
-unpackerr_docker_image: "hotio/unpackerr:{{ unpackerr_docker_image_tag }}"
+unpackerr_docker_image: "ghcr.io/hotio/unpackerr:{{ unpackerr_docker_image_tag }}"
 
 # Ports
 unpackerr_docker_ports_defaults: []
