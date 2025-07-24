@@ -225,7 +225,7 @@ traefik_docker_container: "{{ traefik_name }}"
 
 # Image
 traefik_docker_image_pull: true
-traefik_docker_image_tag: "v3.4"
+traefik_docker_image_tag: "v3.5"
 traefik_docker_image: "traefik:{{ traefik_docker_image_tag }}"
 
 # Ports
@@ -365,7 +365,7 @@ traefik_docker_commands_tailscale:
   - "--entrypoints.tailscale-websecure.address=:444"
 traefik_docker_commands_crowdsec:
   - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-  - "--experimental.plugins.bouncer.version=v1.4.2"
+  - "--experimental.plugins.bouncer.version=v1.4.4"
 traefik_docker_commands_custom: []
 traefik_docker_commands: "{{ traefik_docker_commands_default
                              + traefik_docker_commands_custom
