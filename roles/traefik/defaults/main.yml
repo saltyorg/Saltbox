@@ -207,7 +207,7 @@ traefik_role_docker_container: "{{ traefik_name }}"
 # Image
 traefik_role_docker_image_pull: true
 traefik_role_docker_image_repo: "traefik"
-traefik_role_docker_image_tag: "v3.4"
+traefik_role_docker_image_tag: "v3.5"
 traefik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='traefik') }}:{{ lookup('role_var', '_docker_image_tag', role='traefik') }}"
 
 # Ports
@@ -347,7 +347,7 @@ traefik_role_docker_commands_tailscale:
   - "--entrypoints.tailscale-websecure.address=:444"
 traefik_role_docker_commands_crowdsec:
   - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-  - "--experimental.plugins.bouncer.version=v1.4.2"
+  - "--experimental.plugins.bouncer.version=v1.4.4"
 traefik_role_docker_commands_custom: []
 traefik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='traefik')
                                   + lookup('role_var', '_docker_commands_custom', role='traefik')
