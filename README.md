@@ -124,17 +124,17 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/RXWatcher>
-            <img src=https://avatars.githubusercontent.com/u/14085001?v=4 width="100;"  alt=RXWatcher/>
-            <br />
-            <sub style="font-size:14px"><b>RXWatcher</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/kbgvirus>
             <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
             <br />
             <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/RXWatcher>
+            <img src=https://avatars.githubusercontent.com/u/14085001?v=4 width="100;"  alt=RXWatcher/>
+            <br />
+            <sub style="font-size:14px"><b>RXWatcher</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
