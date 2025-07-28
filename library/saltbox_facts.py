@@ -3,15 +3,15 @@
 Ansible module for managing Saltbox configuration facts.
 
 This module provides functionality to load, save, and delete configuration facts
-for Saltbox roles.
+for Saltbox roles. By default, it loads existing values and only saves new ones
+if the keys don't exist yet.
 
 Example Usage:
-    # Save new facts otherwise loads existing facts
+    # Save facts (loads existing, only saves new keys)
     - name: Save facts for role
       saltbox_facts:
         role: myapp
         instance: instance1
-        method: save
         keys:
           key1: value1
           key2: value2
@@ -20,15 +20,15 @@ Example Usage:
         mode: "0640"
       register: register_var
 
-    # Load existing facts (keys parameter provides defaults for missing values)
-    - name: Load facts
+    # Save facts with overwrite (ignores existing values)
+    - name: Save facts with overwrite
       saltbox_facts:
         role: myapp
         instance: instance1
-        method: load
         keys:
-          key1: default1
-          key2: default2
+          key1: value1
+          key2: value2
+        overwrite: true
       register: register_var
 
     # Delete specific keys from instance
@@ -63,7 +63,6 @@ Example Usage:
       saltbox_facts:
         role: myapp
         instance: instance1
-        method: save
         keys:
           key1: value1
       register: register_var
@@ -73,7 +72,6 @@ Example Usage:
       saltbox_facts:
         role: myapp
         instance: instance1
-        method: save
         keys:
           key1: value1
         mode: "0600"
@@ -83,7 +81,7 @@ Return Values:
     facts:
         description: Dictionary containing the loaded or saved facts
         type: dict
-        returned: When method is 'load' or 'save'
+        returned: When method is 'save' or when keys are processed
     changed:
         description: Whether any changes were made
         type: bool
@@ -192,24 +190,22 @@ def atomic_write(file_path, content, mode, owner, group):
             os.unlink(temp_path)
         raise
 
-def load_facts(file_path, instance, keys):
+def load_existing_facts(file_path, instance):
     """
-    Load facts from configuration file.
+    Load existing facts from configuration file for a specific instance.
 
     Args:
         file_path (str): Path to the configuration file
         instance (str): Name of the instance
-        keys (dict): Dictionary of keys and their default values
 
     Returns:
-        dict: Dictionary of facts with defaults applied for missing values
+        dict: Dictionary of existing facts for the instance
 
     Raises:
         Exception: With detailed error message for various failure scenarios
     """
     try:
         validate_instance_name(instance)
-        validate_keys(keys)
         
         config = configparser.ConfigParser(
             interpolation=None,
@@ -222,44 +218,39 @@ def load_facts(file_path, instance, keys):
         
         config.optionxform = str
         
-        facts = {}
+        existing_facts = {}
         
         if os.path.exists(file_path):
             config.read(file_path)
-
-        # Apply defaults and load existing values
-        for key, default_value in keys.items():
-            if config.has_section(instance) and config.has_option(instance, key):
-                current_value = config[instance].get(key)
+            if config.has_section(instance):
+                for key in config.options(instance):
+                    if key != 'DEFAULT':  # Skip DEFAULT section items
+                        value = config.get(instance, key)
+                        if value != 'None':
+                            existing_facts[key] = value
                 
-                if current_value == 'None':
-                    facts[key] = default_value
-                else:
-                    facts[key] = current_value
-            else:
-                facts[key] = default_value
-                
-        return facts
+        return existing_facts
         
     except configparser.Error as e:
         raise Exception(f"Configuration parsing error: {str(e)}")
     except Exception as e:
         raise Exception(f"Unexpected error: {str(e)}")
 
-def save_facts(file_path, instance, keys, owner, group, mode):
+def process_facts(file_path, instance, keys, owner, group, mode, overwrite=False):
     """
-    Save facts to configuration file.
+    Process facts by loading existing values and saving new ones as needed.
 
     Args:
         file_path (str): Path to the configuration file
         instance (str): Name of the instance
-        keys (dict): Dictionary of keys and values to save
+        keys (dict): Dictionary of keys and values to process
         owner (str): Username of the file owner
         group (str): Group name for the file
         mode (int): File permissions mode in octal
+        overwrite (bool): If True, overwrite existing values; if False, keep existing values
 
     Returns:
-        tuple: (dict of facts, bool indicating if changes were made)
+        tuple: (dict of final facts, bool indicating if changes were made)
 
     Raises:
         Exception: With detailed error message for various failure scenarios
@@ -268,6 +259,33 @@ def save_facts(file_path, instance, keys, owner, group, mode):
         validate_instance_name(instance)
         validate_keys(keys)
         
+        # Load existing facts first
+        existing_facts = load_existing_facts(file_path, instance)
+        
+        # Determine final facts based on overwrite setting
+        final_facts = {}
+        keys_to_save = {}
+        
+        if overwrite:
+            # Overwrite mode: use provided keys, keep existing keys not in provided keys
+            final_facts.update(existing_facts)
+            final_facts.update({k: str(v) for k, v in keys.items()})
+            keys_to_save = {k: str(v) for k, v in keys.items()}
+        else:
+            # Default mode: keep existing values, only add new keys
+            final_facts.update({k: str(v) for k, v in keys.items()})
+            final_facts.update(existing_facts)  # Existing values override new ones
+            
+            # Only save keys that don't exist yet
+            for key, value in keys.items():
+                if key not in existing_facts:
+                    keys_to_save[key] = str(value)
+        
+        # If no new keys to save, return existing facts without changes
+        if not keys_to_save:
+            return final_facts, False
+        
+        # Save new/updated keys
         config = configparser.ConfigParser(
             interpolation=None,
             comment_prefixes=('#',),
@@ -282,16 +300,13 @@ def save_facts(file_path, instance, keys, owner, group, mode):
         if os.path.exists(file_path):
             config.read(file_path)
 
-        facts = {}
         changed = False
         
         if not config.has_section(instance):
             config.add_section(instance)
             changed = True
 
-        for key, value in keys.items():
-            facts[key] = str(value)
-            
+        for key, value in keys_to_save.items():
             if (not config.has_section(instance) or 
                 not config.has_option(instance, key) or 
                 config.get(instance, key) != str(value)):
@@ -305,7 +320,7 @@ def save_facts(file_path, instance, keys, owner, group, mode):
             
             atomic_write(file_path, config_str, mode, owner, group)
 
-        return facts, changed
+        return final_facts, changed
         
     except (OSError, IOError) as e:
         raise Exception(f"File operation error: {str(e)}")
@@ -356,7 +371,7 @@ def delete_facts(file_path, delete_type, instance, keys):
                     changed = True
 
         if changed:
-            with tempfile.StringIO() as string_buffer:
+            with StringIO() as string_buffer:
                 config.write(string_buffer)
                 config_str = string_buffer.getvalue()
             
@@ -418,22 +433,24 @@ def run_module():
     The function processes the following parameters:
     - role (str): The role name (required)
     - instance (str): The instance name (required)
-    - method (str): Operation to perform ('load', 'save', 'delete') (default: 'save')
+    - method (str): Operation to perform ('delete') - save/load is now default behavior
     - keys (dict): Configuration keys and values (default: {})
     - delete_type (str): Type of deletion ('role', 'instance', 'key')
     - owner (str): File owner (default: current user)
     - group (str): File group (default: current user)
     - mode (str): File mode in octal string format (default: '0640')
+    - overwrite (bool): If True, overwrite existing values; if False, keep existing (default: False)
     """
     module_args = dict(
         role=dict(type='str', required=True),
         instance=dict(type='str', required=True),
-        method=dict(type='str', choices=['load', 'save', 'delete'], required=False, default='save'),
+        method=dict(type='str', choices=['delete'], required=False),
         keys=dict(type='dict', required=False, default={}),
         delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False),
         owner=dict(type='str', required=False),
         group=dict(type='str', required=False),
-        mode=dict(type='str', required=False, default='0640')
+        mode=dict(type='str', required=False, default='0640'),
+        overwrite=dict(type='bool', required=False, default=False)
     )
 
     result = dict(
@@ -451,9 +468,10 @@ def run_module():
     try:
         role = module.params['role']
         instance = module.params['instance']
-        method = module.params['method']
+        method = module.params.get('method')
         keys = module.params['keys']
         delete_type = module.params.get('delete_type')
+        overwrite = module.params['overwrite']
         
         current_user = get_current_user()
         owner = module.params.get('owner') or current_user
@@ -466,14 +484,10 @@ def run_module():
             if not delete_type:
                 module.fail_json(msg="delete_type is required for delete method.")
             result['changed'] = delete_facts(file_path, delete_type, instance, keys)
-        elif method == 'load':
-            # For load method, just load the facts without writing anything
-            result['facts'] = load_facts(file_path, instance, keys)
-            result['changed'] = False
-        elif method == 'save':
-            # For save method, save the facts and set changed flag
-            result['facts'], result['changed'] = save_facts(
-                file_path, instance, keys, owner, group, mode
+        else:
+            # Default behavior: process facts (load existing, save new ones)
+            result['facts'], result['changed'] = process_facts(
+                file_path, instance, keys, owner, group, mode, overwrite
             )
 
         module.exit_json(**result)
