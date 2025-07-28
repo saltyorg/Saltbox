@@ -13,7 +13,6 @@
     instance: "{{ plex_name }}"
     keys:
       token: ""
-    method: "load"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   register: plex_instance_token
