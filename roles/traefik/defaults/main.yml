@@ -156,6 +156,9 @@ traefik_dns_provider_cloudns:
 traefik_dns_provider_duckdns:
   DUCKDNS_TOKEN: "{{ duckdns.token }}"
 
+traefik_dns_provider_dynu:
+  DYNU_API_KEY: "{{ dynu.api_key }}"
+
 traefik_dns_provider_godaddy:
   GODADDY_API_KEY: "{{ godaddy.api_key }}"
   GODADDY_API_SECRET: "{{ godaddy.api_secret }}"
