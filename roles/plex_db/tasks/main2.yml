@@ -44,7 +44,7 @@
       ansible.builtin.set_fact:
         plex_db_failed_integrity: true
 
-    - name: "Notify | Plex instance '{{ plex_name }}' failed the integrity check."
+    - name: "Plex instance '{{ plex_name }}' failed the integrity check."
       ansible.builtin.include_role:
         name: notify
       vars:
@@ -90,7 +90,7 @@
       ansible.builtin.set_fact:
         plex_db_failed_optimization: true
 
-    - name: "Notify | Plex instance '{{ plex_name }}' failed the optimization tasks."
+    - name: "Plex instance '{{ plex_name }}' failed the optimization tasks."
       ansible.builtin.include_role:
         name: notify
       vars:
