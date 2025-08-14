@@ -424,6 +424,14 @@ docker_labels_saltbox_tmp:
   - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('role_var', '_depends_on_healthchecks', default='') | length > 0) or docker_container_network_mode) else omit }}"
   - "{{ docker_labels_custom_common }}"
 
+docker_labels_wildcard_template:
+  - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].main": "{{ traefik_domain }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
+
+docker_labels_wildcard_api_template:
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].main": "{{ traefik_domain }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
+
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
 
@@ -464,9 +472,9 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("role_var", "_traefik_api_middleware", default=traefik_default_middleware_api) }}" }'
 
-docker_labels_traefik: "{{ docker_labels_traefik_main | combine(docker_labels_traefik_api)
+docker_labels_traefik: "{{ (docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled
-                        else docker_labels_traefik_main }}"
+                        else docker_labels_traefik_main) | combine(docker_labels_wildcard_template if not traefik_http else {}) }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if traefik_role_enabled
