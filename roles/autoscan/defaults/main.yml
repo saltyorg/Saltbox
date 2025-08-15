@@ -17,142 +17,102 @@ autoscan_instances: ["autoscan"]
 # Paths
 ################################
 
-autoscan_paths_folder: "{{ autoscan_name }}"
-autoscan_paths_location: "{{ server_appdata_path }}/{{ autoscan_paths_folder }}"
-autoscan_paths_folders_list:
-  - "{{ autoscan_paths_location }}"
-autoscan_paths_config_location: "{{ autoscan_paths_location }}/config.yml"
+autoscan_role_paths_folder: "{{ autoscan_name }}"
+autoscan_role_paths_location: "{{ server_appdata_path }}/{{ autoscan_role_paths_folder }}"
+autoscan_role_paths_folders_list:
+  - "{{ autoscan_role_paths_location }}"
+autoscan_role_paths_config_location: "{{ autoscan_role_paths_location }}/config.yml"
 
 ################################
 # Web
 ################################
 
-autoscan_web_subdomain: "{{ autoscan_name }}"
-autoscan_web_domain: "{{ user.domain }}"
-autoscan_web_port: "3030"
-autoscan_web_url: "{{ 'https://' + (lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) + '.' + lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)
-                   if (lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) | length > 0)
-                   else lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain)) }}"
+autoscan_role_web_subdomain: "{{ autoscan_name }}"
+autoscan_role_web_domain: "{{ user.domain }}"
+autoscan_role_web_port: "3030"
+autoscan_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='autoscan') + '.' + lookup('role_var', '_web_domain', role='autoscan')
+                        if (lookup('role_var', '_web_subdomain', role='autoscan') | length > 0)
+                        else lookup('role_var', '_web_domain', role='autoscan')) }}"
 
 ################################
 # DNS
 ################################
 
-autoscan_dns_record: "{{ lookup('vars', autoscan_name + '_web_subdomain', default=autoscan_web_subdomain) }}"
-autoscan_dns_zone: "{{ lookup('vars', autoscan_name + '_web_domain', default=autoscan_web_domain) }}"
-autoscan_dns_proxy: "{{ dns.proxied }}"
+autoscan_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='autoscan') }}"
+autoscan_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='autoscan') }}"
+autoscan_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-autoscan_traefik_regex_middleware_string: ",{{ autoscan_name }}-replacepathregex"
-autoscan_traefik_sso_middleware: ""
-autoscan_traefik_middleware_default: "{{ traefik_default_middleware + autoscan_traefik_regex_middleware_string }}"
-autoscan_traefik_middleware_custom: ""
-autoscan_traefik_certresolver: "{{ traefik_default_certresolver }}"
-autoscan_traefik_enabled: true
-autoscan_traefik_api_enabled: false
-autoscan_traefik_api_endpoint: ""
+autoscan_role_traefik_regex_middleware_string: ",{{ autoscan_name }}-replacepathregex"
+autoscan_role_traefik_sso_middleware: ""
+autoscan_role_traefik_middleware_default: "{{ traefik_default_middleware + autoscan_role_traefik_regex_middleware_string }}"
+autoscan_role_traefik_middleware_custom: ""
+autoscan_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+autoscan_role_traefik_enabled: true
+autoscan_role_traefik_api_enabled: false
+autoscan_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-autoscan_docker_container: "{{ autoscan_name }}"
+autoscan_role_docker_container: "{{ autoscan_name }}"
 
 # Image
-autoscan_docker_image_pull: true
-autoscan_docker_image_tag: "latest"
-autoscan_docker_image: "saltydk/autoscan:{{ lookup('vars', autoscan_name + '_docker_image_tag', default=autoscan_docker_image_tag) }}"
-
-# Ports
-autoscan_docker_ports_defaults: []
-autoscan_docker_ports_custom: []
-autoscan_docker_ports: "{{ lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
-                           + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom) }}"
+autoscan_role_docker_image_pull: true
+autoscan_role_docker_image_repo: "saltydk/autoscan"
+autoscan_role_docker_image_tag: "latest"
+autoscan_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='autoscan') }}:{{ lookup('role_var', '_docker_image_tag', role='autoscan') }}"
 
 # Envs
-autoscan_docker_envs_default:
+autoscan_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-autoscan_docker_envs_custom: {}
-autoscan_docker_envs: "{{ lookup('vars', autoscan_name + '_docker_envs_default', default=autoscan_docker_envs_default)
-                          | combine(lookup('vars', autoscan_name + '_docker_envs_custom', default=autoscan_docker_envs_custom)) }}"
-
-# Commands
-autoscan_docker_commands_default: []
-autoscan_docker_commands_custom: []
-autoscan_docker_commands: "{{ lookup('vars', autoscan_name + '_docker_commands_default', default=autoscan_docker_commands_default)
-                              + lookup('vars', autoscan_name + '_docker_commands_custom', default=autoscan_docker_commands_custom) }}"
+autoscan_role_docker_envs_custom: {}
+autoscan_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='autoscan')
+                               | combine(lookup('role_var', '_docker_envs_custom', role='autoscan')) }}"
 
 # Volumes
-autoscan_docker_volumes_default:
-  - "{{ autoscan_paths_location }}:/config"
-autoscan_docker_volumes_custom: []
-autoscan_docker_volumes: "{{ lookup('vars', autoscan_name + '_docker_volumes_default', default=autoscan_docker_volumes_default)
-                             + lookup('vars', autoscan_name + '_docker_volumes_custom', default=autoscan_docker_volumes_custom) }}"
-
-# Devices
-autoscan_docker_devices_default: []
-autoscan_docker_devices_custom: []
-autoscan_docker_devices: "{{ lookup('vars', autoscan_name + '_docker_devices_default', default=autoscan_docker_devices_default)
-                             + lookup('vars', autoscan_name + '_docker_devices_custom', default=autoscan_docker_devices_custom) }}"
-
-# Hosts
-autoscan_docker_hosts_default: {}
-autoscan_docker_hosts_custom: {}
-autoscan_docker_hosts: "{{ docker_hosts_common
-                           | combine(lookup('vars', autoscan_name + '_docker_hosts_default', default=autoscan_docker_hosts_default))
-                           | combine(lookup('vars', autoscan_name + '_docker_hosts_custom', default=autoscan_docker_hosts_custom)) }}"
+autoscan_role_docker_volumes_default:
+  - "{{ autoscan_role_paths_location }}:/config"
+autoscan_role_docker_volumes_custom: []
+autoscan_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='autoscan')
+                                  + lookup('role_var', '_docker_volumes_custom', role='autoscan') }}"
 
 # Labels
-autoscan_docker_labels_default:
+autoscan_role_docker_labels_default:
   - '{ "traefik.http.middlewares.{{ traefik_router }}-replacepathregex.replacepathregex.regex": "^/$" }'
   - '{ "traefik.http.middlewares.{{ traefik_router }}-replacepathregex.replacepathregex.replacement": "/triggers/manual" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.rule": "Host(`{{ traefik_host }}`) && PathPrefix(`/triggers`)" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.priority": "{{ lookup("vars", traefik_role_var + "_traefik_priority", default=lookup("vars", role_name + "_traefik_priority", default="40")) }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.certresolver": "{{ lookup("vars", traefik_role_var + "_traefik_certresolver", default=lookup("vars", role_name + "_traefik_certresolver", default=traefik_default_certresolver)) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.priority": "{{ lookup("role_var", "_traefik_priority", role="autoscan", default="40") }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.certresolver": "{{ lookup("role_var", "_traefik_certresolver", role="autoscan", default=traefik_default_certresolver) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.middlewares": "{{ traefik_middleware | regex_replace(autoscan_traefik_regex_middleware_string) }}" }'
-autoscan_docker_labels_custom: {}
-autoscan_docker_labels: "{{ docker_labels_common
-                            | combine(lookup('vars', autoscan_name + '_docker_labels_default', default=autoscan_docker_labels_default))
-                            | combine(lookup('vars', autoscan_name + '_docker_labels_custom', default=autoscan_docker_labels_custom)) }}"
+  - '{ "traefik.http.routers.{{ traefik_router }}-triggers.middlewares": "{{ traefik_middleware | regex_replace(autoscan_role_traefik_regex_middleware_string) }}" }'
+autoscan_role_docker_labels_custom: {}
+autoscan_role_docker_labels: "{{ docker_labels_common
+                                 | combine(lookup('role_var', '_docker_labels_default', role='autoscan'))
+                                 | combine(lookup('role_var', '_docker_labels_custom', role='autoscan')) }}"
 
 # Hostname
-autoscan_docker_hostname: "{{ autoscan_name }}"
-
-# Network Mode
-autoscan_docker_network_mode_default: "{{ docker_networks_name_common }}"
-autoscan_docker_network_mode: "{{ lookup('vars', autoscan_name + '_docker_network_mode_default', default=autoscan_docker_network_mode_default) }}"
+autoscan_role_docker_hostname: "{{ autoscan_name }}"
 
 # Networks
-autoscan_docker_networks_alias: "{{ autoscan_name }}"
-autoscan_docker_networks_default: []
-autoscan_docker_networks_custom: []
-autoscan_docker_networks: "{{ docker_networks_common
-                              + lookup('vars', autoscan_name + '_docker_networks_default', default=autoscan_docker_networks_default)
-                              + lookup('vars', autoscan_name + '_docker_networks_custom', default=autoscan_docker_networks_custom) }}"
-
-# Capabilities
-autoscan_docker_capabilities_default: []
-autoscan_docker_capabilities_custom: []
-autoscan_docker_capabilities: "{{ lookup('vars', autoscan_name + '_docker_capabilities_default', default=autoscan_docker_capabilities_default)
-                                  + lookup('vars', autoscan_name + '_docker_capabilities_custom', default=autoscan_docker_capabilities_custom) }}"
-
-# Security Opts
-autoscan_docker_security_opts_default: []
-autoscan_docker_security_opts_custom: []
-autoscan_docker_security_opts: "{{ lookup('vars', autoscan_name + '_docker_security_opts_default', default=autoscan_docker_security_opts_default)
-                                   + lookup('vars', autoscan_name + '_docker_security_opts_custom', default=autoscan_docker_security_opts_custom) }}"
+autoscan_role_docker_networks_alias: "{{ autoscan_name }}"
+autoscan_role_docker_networks_default: []
+autoscan_role_docker_networks_custom: []
+autoscan_role_docker_networks: "{{ docker_networks_common
+                                   + lookup('role_var', '_docker_networks_default', role='autoscan')
+                                   + lookup('role_var', '_docker_networks_custom', role='autoscan') }}"
 
 # Restart Policy
-autoscan_docker_restart_policy: unless-stopped
+autoscan_role_docker_restart_policy: unless-stopped
 
 # State
-autoscan_docker_state: started
+autoscan_role_docker_state: started
