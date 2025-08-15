@@ -7,16 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Folder
-
 - name: Cleanup backup location
   ansible.builtin.file:
     path: "{{ backup.local.destination }}"
     state: absent
   become: true
   become_user: "{{ user.name }}"
-
-# Rclone
 
 - name: "Check if 'rclone.conf' exists in '{{ playbook_dir }}' folder"
   ansible.builtin.stat:
@@ -78,8 +74,6 @@
       '{{ backup.rclone.destination }}/opt/{{ restore_tar }}' '{{ backup.local.destination }}/opt'
   become: true
   become_user: "{{ user.name }}"
-
-# Checks
 
 - name: "Check if tar files were retrieved"
   ansible.builtin.find:

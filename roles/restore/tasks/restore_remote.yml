@@ -7,8 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Checks
-
 - name: Fail when no backup method is enabled or when no local backup exists
   ansible.builtin.fail:
     msg:
@@ -16,16 +14,12 @@
       - "You must either enable rclone, in the backup settings, or provide backup tarball files locally, to perform a restore."
   when: (not backup.rclone.enable)
 
-# Folder
-
 - name: Cleanup backup location
   ansible.builtin.file:
     path: "{{ backup.local.destination }}"
     state: absent
   become: true
   become_user: "{{ user.name }}"
-
-# Rclone
 
 - name: "Check if 'rclone.conf' exists in '{{ playbook_dir }}' folder"
   ansible.builtin.stat:
@@ -87,8 +81,6 @@
       '{{ backup.rclone.destination }}/' '{{ backup.local.destination }}'
   become: true
   become_user: "{{ user.name }}"
-
-# Checks
 
 - name: "Check if tar files were retrieved"
   ansible.builtin.find:
