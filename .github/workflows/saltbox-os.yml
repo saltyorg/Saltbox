@@ -102,3 +102,44 @@ jobs:
 
       - name: Install ${{ matrix.roles }}
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars "@vars.yml"
+
+      - name: Inspect all Docker containers
+        run: |
+          echo "=== Inspecting all Docker containers ==="
+
+          # Get list of all containers (running and stopped)
+          ALL_CONTAINERS=$(docker ps -a -q)
+
+          if [ -z "$ALL_CONTAINERS" ]; then
+            echo "No containers found on this system"
+            exit 0
+          fi
+
+          echo "Found containers: $ALL_CONTAINERS"
+          echo ""
+
+          # Loop through each container and inspect it
+          for container_id in $ALL_CONTAINERS; do
+            echo "========================================="
+            echo "Inspecting container: $container_id"
+            echo "========================================="
+
+            # Get container name and status for better readability
+            CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $container_id | sed 's/^\///')
+            CONTAINER_STATUS=$(docker inspect --format='{{.State.Status}}' $container_id)
+
+            echo "Container Name: $CONTAINER_NAME"
+            echo "Container Status: $CONTAINER_STATUS"
+            echo ""
+            echo "Full inspection details:"
+            echo "----------------------------------------"
+
+            # Print full inspection details
+            docker inspect $container_id
+
+            echo ""
+            echo "========================================="
+            echo ""
+          done
+
+          echo "=== Container inspection completed ==="
