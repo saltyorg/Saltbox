@@ -9,14 +9,10 @@ updates:
     groups:
       ansible:
         applies-to: version-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
       ansible-security:
         applies-to: security-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
   - package-ecosystem: "pip"
     directory: "/resources/roles/dns/files"
     schedule:
@@ -26,14 +22,10 @@ updates:
     groups:
       dns:
         applies-to: version-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
       dns-security:
         applies-to: security-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
@@ -41,11 +33,7 @@ updates:
     groups:
       gha:
         applies-to: version-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
       gha-security:
         applies-to: security-updates
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: "*"
