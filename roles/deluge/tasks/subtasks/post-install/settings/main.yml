@@ -9,25 +9,25 @@
 ---
 - name: Post-Install | Settings | Update 'core.conf' | Set listen ports
   ansible.builtin.replace:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     regexp: '"listen_ports": (\[[\d|\W]+\]),'
-    replace: '"listen_ports": [{{ deluge_docker_ports_58112 }},{{ deluge_docker_ports_58112 }}],'
+    replace: '"listen_ports": [{{ lookup("role_var", "_docker_ports_58112", role="deluge") }},{{ lookup("role_var", "_docker_ports_58112", role="deluge") }}],'
 
 - name: Post-Install | Settings | Update 'core.conf' | Set listen random port to null
   ansible.builtin.replace:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     regexp: '"listen_random_port": ([\d|\W]+),'
     replace: '"listen_random_port": null,'
 
 - name: Post-Install | Settings | Update 'core.conf' | Disable random incoming port
   ansible.builtin.replace:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     regexp: '"random_port": ([\w]+),'
     replace: '"random_port": false,'
 
 - name: Post-Install | Settings | Update 'core.conf' | Enable random outgoing ports
   ansible.builtin.replace:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     regexp: '"random_outgoing_ports": ([\w]+),'
     replace: '"random_outgoing_ports": true,'
 
@@ -36,7 +36,7 @@
   block:
     - name: Post-Install | Settings | Update 'core.conf' | Disable Network Extras
       ansible.builtin.replace:
-        path: "{{ deluge_paths_conf }}"
+        path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
         regexp: '"{{ item }}": ([\w]+){{ "," if item != "utpex" else "" }}'
         replace: '"{{ item }}": false{{ "," if item != "utpex" else "" }}'
       loop:

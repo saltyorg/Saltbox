@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Wait for config to be created
   ansible.builtin.wait_for:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     state: present
 
 - name: Post-Install | Wait for 10 seconds

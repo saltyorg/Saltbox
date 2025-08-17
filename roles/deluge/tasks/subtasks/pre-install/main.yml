@@ -17,5 +17,5 @@
 
 - name: Pre-Install | Check if existing config file exists
   ansible.builtin.stat:
-    path: "{{ deluge_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
   register: deluge_paths_conf_stat
