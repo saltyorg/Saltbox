@@ -39,7 +39,7 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -59,7 +59,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: set-matrix
         run: echo "matrix={\"roles\":[$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|docker\|hetzner\|kernel\|motd\|motd-generate-config\|mounts\|nvidia\|nvidia-purge\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\|crowdsec\).,//g")]}" >> $GITHUB_OUTPUT
 
@@ -71,7 +71,7 @@ jobs:
       matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Create Directories
         run: sudo mkdir -p /srv/ansible /srv/git/sb
