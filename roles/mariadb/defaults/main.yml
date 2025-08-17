@@ -17,125 +17,80 @@ mariadb_instances: ["mariadb"]
 # Settings
 ################################
 
-mariadb_docker_env_password: "password321"
-mariadb_docker_env_user: "{{ user.name }}"
-mariadb_docker_env_db: "saltbox"
+mariadb_role_docker_env_password: "password321"
+mariadb_role_docker_env_user: "{{ user.name }}"
+mariadb_role_docker_env_db: "saltbox"
 
 ################################
 # Paths
 ################################
 
-mariadb_paths_folder: "{{ mariadb_name }}"
-mariadb_paths_location: "{{ server_appdata_path }}/{{ mariadb_paths_folder }}"
-mariadb_paths_folders_list:
-  - "{{ mariadb_paths_location }}"
+mariadb_role_paths_folder: "{{ mariadb_name }}"
+mariadb_role_paths_location: "{{ server_appdata_path }}/{{ mariadb_role_paths_folder }}"
+mariadb_role_paths_folders_list:
+  - "{{ mariadb_role_paths_location }}"
 
 ################################
 # Migration Settings
 ################################
 
-mariadb_docker_envs_mysql_root_password: password321
-mariadb_docker_image_migration: "lscr.io/linuxserver/mariadb:10.6.13"
-mariadb_docker_volumes_migration:
-  - "{{ mariadb_paths_location }}:/config"
+mariadb_role_docker_envs_mysql_root_password: password321
+mariadb_role_docker_image_migration: "lscr.io/linuxserver/mariadb:10.6.13"
+mariadb_role_docker_volumes_migration:
+  - "{{ mariadb_role_paths_location }}:/config"
 
 ################################
 # Docker
 ################################
 
 # Container
-mariadb_docker_container: "{{ mariadb_name }}"
+mariadb_role_docker_container: "{{ mariadb_name }}"
 
 # Image
-mariadb_docker_image_pull: true
-mariadb_docker_image_repo: "mariadb"
-mariadb_docker_image_tag: "10"
-mariadb_docker_image: "{{ lookup('vars', mariadb_name + '_docker_image_repo', default=mariadb_docker_image_repo)
-                          + ':' + lookup('vars', mariadb_name + '_docker_image_tag', default=mariadb_docker_image_tag) }}"
-
-# Ports
-mariadb_docker_ports_defaults: []
-mariadb_docker_ports_custom: []
-mariadb_docker_ports: "{{ lookup('vars', mariadb_name + '_docker_ports_default', default=mariadb_docker_ports_defaults)
-                          + lookup('vars', mariadb_name + '_docker_ports_custom', default=mariadb_docker_ports_custom) }}"
+mariadb_role_docker_image_pull: true
+mariadb_role_docker_image_repo: "mariadb"
+mariadb_role_docker_image_tag: "10"
+mariadb_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='mariadb') }}:{{ lookup('role_var', '_docker_image_tag', role='mariadb') }}"
 
 # Envs
-mariadb_docker_envs_default:
+mariadb_role_docker_envs_default:
   TZ: "{{ tz }}"
-  MARIADB_ROOT_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
-  MARIADB_USER: "{{ lookup('vars', mariadb_name + '_docker_env_user', default=mariadb_docker_env_user) }}"
-  MARIADB_PASSWORD: "{{ lookup('vars', mariadb_name + '_docker_env_password', default=mariadb_docker_env_password) }}"
-  MARIADB_DATABASE: "{{ lookup('vars', mariadb_name + '_docker_env_db', default=mariadb_docker_env_db) }}"
+  MARIADB_ROOT_PASSWORD: "{{ lookup('role_var', '_docker_env_password', role='mariadb') }}"
+  MARIADB_USER: "{{ lookup('role_var', '_docker_env_user', role='mariadb') }}"
+  MARIADB_PASSWORD: "{{ lookup('role_var', '_docker_env_password', role='mariadb') }}"
+  MARIADB_DATABASE: "{{ lookup('role_var', '_docker_env_db', role='mariadb') }}"
   MARIADB_AUTO_UPGRADE: "1"
-mariadb_docker_envs_custom: {}
-mariadb_docker_envs: "{{ lookup('vars', mariadb_name + '_docker_envs_default', default=mariadb_docker_envs_default)
-                         | combine(lookup('vars', mariadb_name + '_docker_envs_custom', default=mariadb_docker_envs_custom)) }}"
-
-# Commands
-mariadb_docker_commands_default: []
-mariadb_docker_commands_custom: []
-mariadb_docker_commands: "{{ lookup('vars', mariadb_name + '_docker_commands_default', default=mariadb_docker_commands_default)
-                             + lookup('vars', mariadb_name + '_docker_commands_custom', default=mariadb_docker_commands_custom) }}"
+mariadb_role_docker_envs_custom: {}
+mariadb_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='mariadb')
+                              | combine(lookup('role_var', '_docker_envs_custom', role='mariadb')) }}"
 
 # Volumes
-mariadb_docker_volumes_default:
-  - "{{ mariadb_paths_location }}:/var/lib/mysql"
-mariadb_docker_volumes_custom: []
-mariadb_docker_volumes: "{{ lookup('vars', mariadb_name + '_docker_volumes_default', default=mariadb_docker_volumes_default)
-                            + lookup('vars', mariadb_name + '_docker_volumes_custom', default=mariadb_docker_volumes_custom) }}"
-
-# Devices
-mariadb_docker_devices_default: []
-mariadb_docker_devices_custom: []
-mariadb_docker_devices: "{{ lookup('vars', mariadb_name + '_docker_devices_default', default=mariadb_docker_devices_default)
-                            + lookup('vars', mariadb_name + '_docker_devices_custom', default=mariadb_docker_devices_custom) }}"
-
-# Hosts
-mariadb_docker_hosts_default: {}
-mariadb_docker_hosts_custom: {}
-mariadb_docker_hosts: "{{ docker_hosts_common
-                          | combine(lookup('vars', mariadb_name + '_docker_hosts_default', default=mariadb_docker_hosts_default))
-                          | combine(lookup('vars', mariadb_name + '_docker_hosts_custom', default=mariadb_docker_hosts_custom)) }}"
-
-# Labels
-mariadb_docker_labels_default: {}
-mariadb_docker_labels_custom: {}
-mariadb_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', mariadb_name + '_docker_labels_default', default=mariadb_docker_labels_default))
-                           | combine(lookup('vars', mariadb_name + '_docker_labels_custom', default=mariadb_docker_labels_custom)) }}"
+mariadb_role_docker_volumes_default:
+  - "{{ mariadb_role_paths_location }}:/var/lib/mysql"
+mariadb_role_docker_volumes_custom: []
+mariadb_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='mariadb')
+                                 + lookup('role_var', '_docker_volumes_custom', role='mariadb') }}"
 
 # Hostname
-mariadb_docker_hostname: "{{ mariadb_name }}"
+mariadb_role_docker_hostname: "{{ mariadb_name }}"
 
 # Network Mode
-mariadb_docker_network_mode_default: "{{ docker_networks_name_common }}"
-mariadb_docker_network_mode: "{{ lookup('vars', mariadb_name + '_docker_network_mode_default', default=mariadb_docker_network_mode_default) }}"
+mariadb_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
+mariadb_role_docker_network_mode: "{{ lookup('role_var', '_docker_network_mode_default', role='mariadb') }}"
 
 # Networks
-mariadb_docker_networks_alias: "{{ mariadb_name }}"
-mariadb_docker_networks_default: []
-mariadb_docker_networks_custom: []
-mariadb_docker_networks: "{{ docker_networks_common
-                             + lookup('vars', mariadb_name + '_docker_networks_default', default=mariadb_docker_networks_default)
-                             + lookup('vars', mariadb_name + '_docker_networks_dcustom', default=mariadb_docker_networks_custom) }}"
-
-# Capabilities
-mariadb_docker_capabilities_default: []
-mariadb_docker_capabilities_custom: []
-mariadb_docker_capabilities: "{{ lookup('vars', mariadb_name + '_docker_capabilities_default', default=mariadb_docker_capabilities_default)
-                                 + lookup('vars', mariadb_name + '_docker_capabilities_custom', default=mariadb_docker_capabilities_custom) }}"
-
-# Security Opts
-mariadb_docker_security_opts_default: []
-mariadb_docker_security_opts_custom: []
-mariadb_docker_security_opts: "{{ lookup('vars', mariadb_name + '_docker_security_opts_default', default=mariadb_docker_security_opts_default)
-                                  + lookup('vars', mariadb_name + '_docker_security_opts_custom', default=mariadb_docker_security_opts_custom) }}"
+mariadb_role_docker_networks_alias: "{{ mariadb_name }}"
+mariadb_role_docker_networks_default: []
+mariadb_role_docker_networks_custom: []
+mariadb_role_docker_networks: "{{ docker_networks_common
+                                  + lookup('role_var', '_docker_networks_default', role='mariadb')
+                                  + lookup('role_var', '_docker_networks_custom', role='mariadb') }}"
 
 # Restart Policy
-mariadb_docker_restart_policy: unless-stopped
+mariadb_role_docker_restart_policy: unless-stopped
 
 # State
-mariadb_docker_state: started
+mariadb_role_docker_state: started
 
 # User
-mariadb_docker_user: "{{ uid }}:{{ gid }}"
+mariadb_role_docker_user: "{{ uid }}:{{ gid }}"

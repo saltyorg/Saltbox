@@ -24,9 +24,9 @@
           PUID: "{{ uid }}"
           PGID: "{{ gid }}"
           TZ: "{{ tz }}"
-          MYSQL_ROOT_PASSWORD: "{{ mariadb_docker_envs_mysql_root_password }}"
+          MYSQL_ROOT_PASSWORD: "{{ lookup('role_var', '_docker_envs_mysql_root_password', role='mariadb') }}"
         hostname: "mariadb"
-        image: "{{ mariadb_docker_image_migration }}"
+        image: "{{ lookup('role_var', '_docker_image_migration', role='mariadb') }}"
         log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('vars', role_name + '_docker_log_driver', default=omit)) }}"
         log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('vars', role_name + '_docker_log_options', default=omit)) }}"
         name: "mariadb"
@@ -37,7 +37,7 @@
         restart_policy: "{{ lookup('vars', role_name + '_docker_restart_policy', default='unless-stopped') }}"
         state: started
         stop_timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
-        volumes: "{{ mariadb_docker_volumes_migration }}"
+        volumes: "{{ lookup('role_var', '_docker_volumes_migration', role='mariadb') }}"
 
     - name: Wait for 30 seconds
       ansible.builtin.wait_for:
