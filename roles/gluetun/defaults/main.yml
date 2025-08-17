@@ -1,10 +1,10 @@
 ##########################################################################
-# Title:            Sandbox: Gluetun | Default Variables                 #
-# Author(s):        owine                                                #
-# URL:              https://github.com/saltyorg/Sandbox                  #
-# --                                                                     #
+# Title:         Saltbox: Gluetun | Default Variables                    #
+# Author(s):     owine                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
 ##########################################################################
-#                   GNU General Public License v3.0                      #
+#                   GNU General Public License v3.0                     #
 ##########################################################################
 ---
 ################################
@@ -16,162 +16,130 @@ gluetun_instances: ["gluetun"]
 ################################
 # Settings
 ################################
+
 # These variables map to the appropriate Docker ENVs
 # Review the gluetun wiki (https://github.com/qdm12/gluetun/wiki)
-gluetun_vpn_service_provider: ""
-gluetun_vpn_type: ""
-gluetun_openvpn_custom_config: ""
-gluetun_openvpn_endpoint_ip: ""
-gluetun_openvpn_endpoint_port: ""
-gluetun_openvpn_user: ""
-gluetun_openvpn_password: ""
-gluetun_openvpn_key_passphrase: ""
-gluetun_vpn_endpoint_ip: ""
-gluetun_vpn_endpoint_port: ""
-gluetun_wireguard_endpoint_ip: ""
-gluetun_wireguard_endpoint_port: ""
-gluetun_wireguard_mtu: ""
-gluetun_wireguard_public_key: ""
-gluetun_wireguard_private_key: ""
-gluetun_wireguard_preshared_key: ""
-gluetun_wireguard_addresses: ""
-gluetun_server_countries: ""
-gluetun_server_cities: ""
-gluetun_server_hostnames: ""
-gluetun_server_names: ""
-gluetun_server_regions: ""
-gluetun_firewall_vpn_input_ports: ""
-gluetun_firewall_input_ports: ""
-gluetun_firewall_outbound_subnets: ""
-gluetun_docker_resolver: true
+gluetun_role_vpn_service_provider: ""
+gluetun_role_vpn_type: ""
+gluetun_role_openvpn_custom_config: ""
+gluetun_role_openvpn_endpoint_ip: ""
+gluetun_role_openvpn_endpoint_port: ""
+gluetun_role_openvpn_user: ""
+gluetun_role_openvpn_password: ""
+gluetun_role_openvpn_key_passphrase: ""
+gluetun_role_vpn_endpoint_ip: ""
+gluetun_role_vpn_endpoint_port: ""
+gluetun_role_wireguard_endpoint_ip: ""
+gluetun_role_wireguard_endpoint_port: ""
+gluetun_role_wireguard_mtu: ""
+gluetun_role_wireguard_public_key: ""
+gluetun_role_wireguard_private_key: ""
+gluetun_role_wireguard_preshared_key: ""
+gluetun_role_wireguard_addresses: ""
+gluetun_role_server_countries: ""
+gluetun_role_server_cities: ""
+gluetun_role_server_hostnames: ""
+gluetun_role_server_names: ""
+gluetun_role_server_regions: ""
+gluetun_role_firewall_vpn_input_ports: ""
+gluetun_role_firewall_input_ports: ""
+gluetun_role_firewall_outbound_subnets: ""
+gluetun_role_docker_resolver: true
 
 ################################
 # Paths
 ################################
 
-gluetun_paths_folder: "{{ gluetun_name }}"
-gluetun_paths_location: "{{ server_appdata_path }}/{{ gluetun_paths_folder }}"
-gluetun_paths_folders_list:
-  - "{{ gluetun_paths_location }}"
+gluetun_role_paths_folder: "{{ gluetun_name }}"
+gluetun_role_paths_location: "{{ server_appdata_path }}/{{ gluetun_role_paths_folder }}"
+gluetun_role_paths_folders_list:
+  - "{{ gluetun_role_paths_location }}"
 
 ################################
 # Docker
 ################################
 
 # Container
-gluetun_docker_container: "{{ gluetun_name }}"
+gluetun_role_docker_container: "{{ gluetun_name }}"
 
 # Image
-gluetun_docker_image_pull: true
-gluetun_docker_image_repo: "qmcgaw/gluetun"
-gluetun_docker_image_tag: "v3"
-gluetun_docker_image: "{{ lookup('vars', gluetun_name + '_docker_image_repo', default=gluetun_docker_image_repo)
-                          + ':' + lookup('vars', gluetun_name + '_docker_image_tag', default=gluetun_docker_image_tag) }}"
-
-# Ports
-gluetun_docker_ports_defaults: []
-gluetun_docker_ports_custom: []
-gluetun_docker_ports: "{{ lookup('vars', gluetun_name + '_docker_ports_defaults', default=gluetun_docker_ports_defaults)
-                          + lookup('vars', gluetun_name + '_docker_ports_custom', default=gluetun_docker_ports_custom) }}"
+gluetun_role_docker_image_pull: true
+gluetun_role_docker_image_repo: "qmcgaw/gluetun"
+gluetun_role_docker_image_tag: "v3"
+gluetun_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='gluetun') }}:{{ lookup('role_var', '_docker_image_tag', role='gluetun') }}"
 
 # Envs
-gluetun_docker_envs_default:
-  DNS_KEEP_NAMESERVER: "{{ 'on' if lookup('vars', gluetun_name + '_docker_resolver', default=gluetun_docker_resolver) else 'off' }}"
-  FIREWALL_INPUT_PORTS: "{{ lookup('vars', gluetun_name + '_firewall_input_ports', default='') if (lookup('vars', gluetun_name + '_firewall_input_ports', default='') | length > 0) else omit }}"
-  FIREWALL_OUTBOUND_SUBNETS: "{{ lookup('vars', gluetun_name + '_firewall_outbound_subnets', default='') if (lookup('vars', gluetun_name + '_firewall_outbound_subnets', default='') | length > 0) else omit }}"
-  FIREWALL_VPN_INPUT_PORTS: "{{ lookup('vars', gluetun_name + '_firewall_vpn_input_ports', default='') if (lookup('vars', gluetun_name + '_firewall_vpn_input_ports', default='') | length > 0) else omit }}"
+gluetun_role_docker_envs_default:
+  DNS_KEEP_NAMESERVER: "{{ 'on' if lookup('role_var', '_docker_resolver', role='gluetun') else 'off' }}"
+  FIREWALL_INPUT_PORTS: "{{ lookup('role_var', '_firewall_input_ports', role='gluetun') if (lookup('role_var', '_firewall_input_ports', role='gluetun') | length > 0) else omit }}"
+  FIREWALL_OUTBOUND_SUBNETS: "{{ lookup('role_var', '_firewall_outbound_subnets', role='gluetun') if (lookup('role_var', '_firewall_outbound_subnets', role='gluetun') | length > 0) else omit }}"
+  FIREWALL_VPN_INPUT_PORTS: "{{ lookup('role_var', '_firewall_vpn_input_ports', role='gluetun') if (lookup('role_var', '_firewall_vpn_input_ports', role='gluetun') | length > 0) else omit }}"
   HTTPPROXY: "on"
   HTTPPROXY_STEALTH: "on"
-  OPENVPN_CUSTOM_CONFIG: "{{ lookup('vars', gluetun_name + '_openvpn_custom_config', default='') if (lookup('vars', gluetun_name + '_openvpn_custom_config', default='') | length > 0) else omit }}"
-  OPENVPN_ENDPOINT_IP: "{{ lookup('vars', gluetun_name + '_openvpn_endpoint_ip', default='') if (lookup('vars', gluetun_name + '_openvpn_endpoint_ip', default='') | length > 0) else omit }}"
-  OPENVPN_ENDPOINT_PORT: "{{ lookup('vars', gluetun_name + '_openvpn_endpoint_port', default='') if (lookup('vars', gluetun_name + '_openvpn_endpoint_port', default='') | length > 0) else omit }}"
-  OPENVPN_KEY_PASSPHRASE: "{{ lookup('vars', gluetun_name + '_openvpn_key_passphrase', default='') if (lookup('vars', gluetun_name + '_openvpn_key_passphrase', default='') | length > 0) else omit }}"
-  OPENVPN_PASSWORD: "{{ lookup('vars', gluetun_name + '_openvpn_password', default='') if (lookup('vars', gluetun_name + '_openvpn_password', default='') | length > 0) else omit }}"
-  OPENVPN_USER: "{{ lookup('vars', gluetun_name + '_openvpn_user', default='') if (lookup('vars', gluetun_name + '_openvpn_user', default='') | length > 0) else omit }}"
+  OPENVPN_CUSTOM_CONFIG: "{{ lookup('role_var', '_openvpn_custom_config', role='gluetun') if (lookup('role_var', '_openvpn_custom_config', role='gluetun') | length > 0) else omit }}"
+  OPENVPN_ENDPOINT_IP: "{{ lookup('role_var', '_openvpn_endpoint_ip', role='gluetun') if (lookup('role_var', '_openvpn_endpoint_ip', role='gluetun') | length > 0) else omit }}"
+  OPENVPN_ENDPOINT_PORT: "{{ lookup('role_var', '_openvpn_endpoint_port', role='gluetun') if (lookup('role_var', '_openvpn_endpoint_port', role='gluetun') | length > 0) else omit }}"
+  OPENVPN_KEY_PASSPHRASE: "{{ lookup('role_var', '_openvpn_key_passphrase', role='gluetun') if (lookup('role_var', '_openvpn_key_passphrase', role='gluetun') | length > 0) else omit }}"
+  OPENVPN_PASSWORD: "{{ lookup('role_var', '_openvpn_password', role='gluetun') if (lookup('role_var', '_openvpn_password', role='gluetun') | length > 0) else omit }}"
+  OPENVPN_USER: "{{ lookup('role_var', '_openvpn_user', role='gluetun') if (lookup('role_var', '_openvpn_user', role='gluetun') | length > 0) else omit }}"
   PGID: "{{ gid }}"
   PUID: "{{ uid }}"
-  SERVER_CITIES: "{{ lookup('vars', gluetun_name + '_server_cities', default='') if (lookup('vars', gluetun_name + '_server_cities', default='') | length > 0) else omit }}"
-  SERVER_COUNTRIES: "{{ lookup('vars', gluetun_name + '_server_countries', default='') if (lookup('vars', gluetun_name + '_server_countries', default='') | length > 0) else omit }}"
-  SERVER_HOSTNAMES: "{{ lookup('vars', gluetun_name + '_server_hostnames', default='') if (lookup('vars', gluetun_name + '_server_hostnames', default='') | length > 0) else omit }}"
-  SERVER_NAMES: "{{ lookup('vars', gluetun_name + '_server_names', default='') if (lookup('vars', gluetun_name + '_server_names', default='') | length > 0) else omit }}"
-  SERVER_REGIONS: "{{ lookup('vars', gluetun_name + '_server_regions', default='') if (lookup('vars', gluetun_name + '_server_regions', default='') | length > 0) else omit }}"
+  SERVER_CITIES: "{{ lookup('role_var', '_server_cities', role='gluetun') if (lookup('role_var', '_server_cities', role='gluetun') | length > 0) else omit }}"
+  SERVER_COUNTRIES: "{{ lookup('role_var', '_server_countries', role='gluetun') if (lookup('role_var', '_server_countries', role='gluetun') | length > 0) else omit }}"
+  SERVER_HOSTNAMES: "{{ lookup('role_var', '_server_hostnames', role='gluetun') if (lookup('role_var', '_server_hostnames', role='gluetun') | length > 0) else omit }}"
+  SERVER_NAMES: "{{ lookup('role_var', '_server_names', role='gluetun') if (lookup('role_var', '_server_names', role='gluetun') | length > 0) else omit }}"
+  SERVER_REGIONS: "{{ lookup('role_var', '_server_regions', role='gluetun') if (lookup('role_var', '_server_regions', role='gluetun') | length > 0) else omit }}"
   TZ: "{{ tz }}"
-  VPN_ENDPOINT_IP: "{{ lookup('vars', gluetun_name + '_vpn_endpoint_ip', default='') if (lookup('vars', gluetun_name + '_vpn_endpoint_ip', default='') | length > 0) else omit }}"
-  VPN_ENDPOINT_PORT: "{{ lookup('vars', gluetun_name + '_vpn_endpoint_port', default='') if (lookup('vars', gluetun_name + '_vpn_endpoint_port', default='') | length > 0) else omit }}"
-  VPN_SERVICE_PROVIDER: "{{ lookup('vars', gluetun_name + '_vpn_service_provider', default='') if (lookup('vars', gluetun_name + '_vpn_service_provider', default='') | length > 0) else omit }}"
-  VPN_TYPE: "{{ lookup('vars', gluetun_name + '_vpn_type', default='') if (lookup('vars', gluetun_name + '_vpn_type', default='') | length > 0) else omit }}"
-  WIREGUARD_ADDRESSES: "{{ lookup('vars', gluetun_name + '_wireguard_addresses', default='') if (lookup('vars', gluetun_name + '_wireguard_addresses', default='') | length > 0) else omit }}"
-  WIREGUARD_ENDPOINT_IP: "{{ lookup('vars', gluetun_name + '_wireguard_endpoint_ip', default='') if (lookup('vars', gluetun_name + '_wireguard_endpoint_ip', default='') | length > 0) else omit }}"
-  WIREGUARD_ENDPOINT_PORT: "{{ lookup('vars', gluetun_name + '_wireguard_endpoint_port', default='') if (lookup('vars', gluetun_name + '_wireguard_endpoint_port', default='') | length > 0) else omit }}"
-  WIREGUARD_MTU: "{{ lookup('vars', gluetun_name + '_wireguard_mtu', default='') if (lookup('vars', gluetun_name + '_wireguard_mtu', default='') | length > 0) else omit }}"
-  WIREGUARD_PRESHARED_KEY: "{{ lookup('vars', gluetun_name + '_wireguard_preshared_key', default='') if (lookup('vars', gluetun_name + '_wireguard_preshared_key', default='') | length > 0) else omit }}"
-  WIREGUARD_PRIVATE_KEY: "{{ lookup('vars', gluetun_name + '_wireguard_private_key', default='') if (lookup('vars', gluetun_name + '_wireguard_private_key', default='') | length > 0) else omit }}"
-  WIREGUARD_PUBLIC_KEY: "{{ lookup('vars', gluetun_name + '_wireguard_public_key', default='') if (lookup('vars', gluetun_name + '_wireguard_public_key', default='') | length > 0) else omit }}"
-gluetun_docker_envs_custom: {}
-gluetun_docker_envs: "{{ lookup('vars', gluetun_name + '_docker_envs_default', default=gluetun_docker_envs_default)
-                         | combine(lookup('vars', gluetun_name + '_docker_envs_custom', default=gluetun_docker_envs_custom)) }}"
-
-# Commands
-gluetun_docker_commands_default: []
-gluetun_docker_commands_custom: []
-gluetun_docker_commands: "{{ lookup('vars', gluetun_name + '_docker_commands_default', default=gluetun_docker_commands_default)
-                             + lookup('vars', gluetun_name + '_docker_commands_custom', default=gluetun_docker_commands_custom) }}"
+  VPN_ENDPOINT_IP: "{{ lookup('role_var', '_vpn_endpoint_ip', role='gluetun') if (lookup('role_var', '_vpn_endpoint_ip', role='gluetun') | length > 0) else omit }}"
+  VPN_ENDPOINT_PORT: "{{ lookup('role_var', '_vpn_endpoint_port', role='gluetun') if (lookup('role_var', '_vpn_endpoint_port', role='gluetun') | length > 0) else omit }}"
+  VPN_SERVICE_PROVIDER: "{{ lookup('role_var', '_vpn_service_provider', role='gluetun') if (lookup('role_var', '_vpn_service_provider', role='gluetun') | length > 0) else omit }}"
+  VPN_TYPE: "{{ lookup('role_var', '_vpn_type', role='gluetun') if (lookup('role_var', '_vpn_type', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_ADDRESSES: "{{ lookup('role_var', '_wireguard_addresses', role='gluetun') if (lookup('role_var', '_wireguard_addresses', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_ENDPOINT_IP: "{{ lookup('role_var', '_wireguard_endpoint_ip', role='gluetun') if (lookup('role_var', '_wireguard_endpoint_ip', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_ENDPOINT_PORT: "{{ lookup('role_var', '_wireguard_endpoint_port', role='gluetun') if (lookup('role_var', '_wireguard_endpoint_port', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_MTU: "{{ lookup('role_var', '_wireguard_mtu', role='gluetun') if (lookup('role_var', '_wireguard_mtu', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_PRESHARED_KEY: "{{ lookup('role_var', '_wireguard_preshared_key', role='gluetun') if (lookup('role_var', '_wireguard_preshared_key', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_PRIVATE_KEY: "{{ lookup('role_var', '_wireguard_private_key', role='gluetun') if (lookup('role_var', '_wireguard_private_key', role='gluetun') | length > 0) else omit }}"
+  WIREGUARD_PUBLIC_KEY: "{{ lookup('role_var', '_wireguard_public_key', role='gluetun') if (lookup('role_var', '_wireguard_public_key', role='gluetun') | length > 0) else omit }}"
+gluetun_role_docker_envs_custom: {}
+gluetun_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='gluetun')
+                              | combine(lookup('role_var', '_docker_envs_custom', role='gluetun')) }}"
 
 # Volumes
-gluetun_docker_volumes_global: false
-gluetun_docker_volumes_default:
-  - "{{ gluetun_paths_location }}:/gluetun"
-gluetun_docker_volumes_custom: []
-gluetun_docker_volumes: "{{ lookup('vars', gluetun_name + '_docker_volumes_default', default=gluetun_docker_volumes_default)
-                            + lookup('vars', gluetun_name + '_docker_volumes_custom', default=gluetun_docker_volumes_custom) }}"
-
-# Devices
-gluetun_docker_devices_default: []
-gluetun_docker_devices_custom: []
-gluetun_docker_devices: "{{ lookup('vars', gluetun_name + '_docker_devices_default', default=gluetun_docker_devices_default)
-                            + lookup('vars', gluetun_name + '_docker_devices_custom', default=gluetun_docker_devices_custom) }}"
-
-# Hosts
-gluetun_docker_hosts_default: {}
-gluetun_docker_hosts_custom: {}
-gluetun_docker_hosts: "{{ docker_hosts_common
-                          | combine(lookup('vars', gluetun_name + '_docker_hosts_default', default=gluetun_docker_hosts_default))
-                          | combine(lookup('vars', gluetun_name + '_docker_hosts_custom', default=gluetun_docker_hosts_custom)) }}"
+gluetun_role_docker_volumes_global: false
+gluetun_role_docker_volumes_default:
+  - "{{ gluetun_role_paths_location }}:/gluetun"
+gluetun_role_docker_volumes_custom: []
+gluetun_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='gluetun')
+                                 + lookup('role_var', '_docker_volumes_custom', role='gluetun') }}"
 
 # Labels
-gluetun_docker_labels_default:
+gluetun_role_docker_labels_default:
   com.centurylinklabs.watchtower.enable: "false"
-gluetun_docker_labels_custom: {}
-gluetun_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', gluetun_name + '_docker_labels_default', default=gluetun_docker_labels_default))
-                           | combine(lookup('vars', gluetun_name + '_docker_labels_custom', default=gluetun_docker_labels_custom)) }}"
+gluetun_role_docker_labels_custom: {}
+gluetun_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='gluetun')
+                                | combine(lookup('role_var', '_docker_labels_custom', role='gluetun')) }}"
 
 # Hostname
-gluetun_docker_hostname: "{{ gluetun_name }}"
+gluetun_role_docker_hostname: "{{ gluetun_name }}"
 
 # Networks
-gluetun_docker_networks_alias: "{{ gluetun_name }}"
-gluetun_docker_networks_default: []
-gluetun_docker_networks_custom: []
-gluetun_docker_networks: "{{ docker_networks_common
-                             + lookup('vars', gluetun_name + '_docker_networks_default', default=gluetun_docker_networks_default)
-                             + lookup('vars', gluetun_name + '_docker_networks_custom', default=gluetun_docker_networks_custom) }}"
+gluetun_role_docker_networks_alias: "{{ gluetun_name }}"
+gluetun_role_docker_networks_default: []
+gluetun_role_docker_networks_custom: []
+gluetun_role_docker_networks: "{{ docker_networks_common
+                                  + lookup('role_var', '_docker_networks_default', role='gluetun')
+                                  + lookup('role_var', '_docker_networks_custom', role='gluetun') }}"
 
 # Capabilities
-gluetun_docker_capabilities_default:
+gluetun_role_docker_capabilities_default:
   - NET_ADMIN
-gluetun_docker_capabilities_custom: []
-gluetun_docker_capabilities: "{{ lookup('vars', gluetun_name + '_docker_capabilities_default', default=gluetun_docker_capabilities_default)
-                                 + lookup('vars', gluetun_name + '_docker_capabilities_custom', default=gluetun_docker_capabilities_custom) }}"
-
-# Security Opts
-gluetun_docker_security_opts_default: []
-gluetun_docker_security_opts_custom: []
-gluetun_docker_security_opts: "{{ lookup('vars', gluetun_name + '_docker_security_opts_default', default=gluetun_docker_security_opts_default)
-                                  + lookup('vars', gluetun_name + '_docker_security_opts_custom', default=gluetun_docker_security_opts_custom) }}"
+gluetun_role_docker_capabilities_custom: []
+gluetun_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='gluetun')
+                                      + lookup('role_var', '_docker_capabilities_custom', role='gluetun') }}"
 
 # Restart Policy
-gluetun_docker_restart_policy: unless-stopped
+gluetun_role_docker_restart_policy: unless-stopped
 
 # State
-gluetun_docker_state: started
+gluetun_role_docker_state: started
