@@ -24,9 +24,9 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-- name: Check if '{{ lookup('role_var', '_paths_config_file_location', role='netdata') }}' exists
+- name: Check if '{{ netdata_role_paths_config_file_location }}' exists
   ansible.builtin.stat:
-    path: "{{ lookup('role_var', '_paths_config_file_location', role='netdata') }}"
+    path: "{{ netdata_role_paths_config_file_location }}"
   register: netdata_config
 
 - name: Create directories

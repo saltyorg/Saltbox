@@ -33,7 +33,7 @@ netdata_role_docker_socket_proxy_envs:
 ################################
 
 netdata_role_paths_folder: "{{ netdata_name }}"
-netdata_role_paths_location: "{{ server_appdata_path }}/{{ netdata_paths_folder }}"
+netdata_role_paths_location: "{{ server_appdata_path }}/{{ netdata_role_paths_folder }}"
 netdata_role_paths_config_location: "{{ netdata_role_paths_location }}/config"
 netdata_role_paths_config_file_location: "{{ netdata_role_paths_location }}/config/netdata.conf"
 netdata_role_paths_folders_list:
