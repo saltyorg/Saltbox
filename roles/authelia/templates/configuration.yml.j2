@@ -5,49 +5,49 @@
 
 identity_validation:
   reset_password:
-    jwt_secret: {{ lookup('role_var', '_jwt_secret') }}
+    jwt_secret: {{ lookup('role_var', '_jwt_secret', role='authelia') }}
 
 # Options are light, dark, grey or auto
-theme: {{ lookup('role_var', '_theme') }}
+theme: {{ lookup('role_var', '_theme', role='authelia') }}
 
-{% if lookup('role_var', '_default_redirection_url') | length > 0 %}
-default_redirection_url: {{ lookup('role_var', '_default_redirection_url') }}
+{% if lookup('role_var', '_default_redirection_url', role='authelia') | length > 0 %}
+default_redirection_url: {{ lookup('role_var', '_default_redirection_url', role='authelia') }}
 
 {% endif %}
-default_2fa_method: "{{ lookup('role_var', '_default_2fa_method') }}"
+default_2fa_method: "{{ lookup('role_var', '_default_2fa_method', role='authelia') }}"
 
 server:
-  address: {{ lookup('role_var', '_server_address') }}
+  address: {{ lookup('role_var', '_server_address', role='authelia') }}
   buffers:
-    read: {{ lookup('role_var', '_server_buffers_read') }}
-    write: {{ lookup('role_var', '_server_buffers_write') }}
-  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck') }}
+    read: {{ lookup('role_var', '_server_buffers_read', role='authelia') }}
+    write: {{ lookup('role_var', '_server_buffers_write', role='authelia') }}
+  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck', role='authelia') }}
   headers:
-    csp_template: "{{ lookup('role_var', '_server_headers_csp_template') }}"
+    csp_template: "{{ lookup('role_var', '_server_headers_csp_template', role='authelia') }}"
   endpoints:
-    enable_pprof: {{ lookup('role_var', '_server_enable_pprof') }}
-    enable_expvars: {{ lookup('role_var', '_server_enable_expvars') }}
+    enable_pprof: {{ lookup('role_var', '_server_enable_pprof', role='authelia') }}
+    enable_expvars: {{ lookup('role_var', '_server_enable_expvars', role='authelia') }}
 
 log:
-  level: {{ lookup('role_var', '_log_level') }}
-  format: {{ lookup('role_var', '_log_format') }}
-  file_path: {{ lookup('role_var', '_log_file_path') }}
-  keep_stdout: {{ lookup('role_var', '_log_keep_stdout') }}
+  level: {{ lookup('role_var', '_log_level', role='authelia') }}
+  format: {{ lookup('role_var', '_log_format', role='authelia') }}
+  file_path: {{ lookup('role_var', '_log_file_path', role='authelia') }}
+  keep_stdout: {{ lookup('role_var', '_log_keep_stdout', role='authelia') }}
 
 totp:
-  issuer: {{ lookup('role_var', '_totp_issuer') }}
-  period: {{ lookup('role_var', '_totp_period') }}
-  skew: {{ lookup('role_var', '_totp_skew') }}
-  digits: {{ lookup('role_var', '_totp_digits') }}
-  secret_size: {{ lookup('role_var', '_totp_secret_size') }}
+  issuer: {{ lookup('role_var', '_totp_issuer', role='authelia') }}
+  period: {{ lookup('role_var', '_totp_period', role='authelia') }}
+  skew: {{ lookup('role_var', '_totp_skew', role='authelia') }}
+  digits: {{ lookup('role_var', '_totp_digits', role='authelia') }}
+  secret_size: {{ lookup('role_var', '_totp_secret_size', role='authelia') }}
 
-{% if lookup('role_var', '_duo_enabled') | bool %}
+{% if lookup('role_var', '_duo_enabled', role='authelia') | bool %}
 duo_api:
   disable: false
-  hostname: {{ lookup('role_var', '_duo_hostname') }}
-  integration_key: {{ lookup('role_var', '_duo_integration_key') }}
-  secret_key: {{ lookup('role_var', '_duo_secret_key') }}
-  enable_self_enrollment: {{ lookup('role_var', '_duo_self_enrollment') }}
+  hostname: {{ lookup('role_var', '_duo_hostname', role='authelia') }}
+  integration_key: {{ lookup('role_var', '_duo_integration_key', role='authelia') }}
+  secret_key: {{ lookup('role_var', '_duo_secret_key', role='authelia') }}
+  enable_self_enrollment: {{ lookup('role_var', '_duo_self_enrollment', role='authelia') }}
 {% else %}
 #
 # If you want to use Duo Push notifications
@@ -62,32 +62,32 @@ duo_api:
 {% endif %}
 
 webauthn:
-  disable: {{ lookup('role_var', '_webauthn_disable') }}
-  display_name: {{ lookup('role_var', '_webauthn_display_name') }}
-  attestation_conveyance_preference: {{ lookup('role_var', '_webauthn_attestation_conveyance_preference') }}
-  user_verification: {{ lookup('role_var', '_webauthn_user_verification') }}
-  timeout: {{ lookup('role_var', '_webauthn_timeout') }}
+  disable: {{ lookup('role_var', '_webauthn_disable', role='authelia') }}
+  display_name: {{ lookup('role_var', '_webauthn_display_name', role='authelia') }}
+  attestation_conveyance_preference: {{ lookup('role_var', '_webauthn_attestation_conveyance_preference', role='authelia') }}
+  user_verification: {{ lookup('role_var', '_webauthn_user_verification', role='authelia') }}
+  timeout: {{ lookup('role_var', '_webauthn_timeout', role='authelia') }}
 
 authentication_backend:
   password_reset:
-    disable: {{ lookup('role_var', '_authentication_backend_password_reset_disable') }}
-    custom_url: "{{ lookup('role_var', '_authentication_backend_password_reset_custom_url') }}"
-  refresh_interval: {{ lookup('role_var', '_authentication_backend_refresh_interval') }}
-{% if lookup('role_var', '_authentication_backend') == 'file' %}
+    disable: {{ lookup('role_var', '_authentication_backend_password_reset_disable', role='authelia') }}
+    custom_url: "{{ lookup('role_var', '_authentication_backend_password_reset_custom_url', role='authelia') }}"
+  refresh_interval: {{ lookup('role_var', '_authentication_backend_refresh_interval', role='authelia') }}
+{% if lookup('role_var', '_authentication_backend', role='authelia') == 'file' %}
   file:
-    path: {{ lookup('role_var', '_authentication_backend_file_path') }}
-    watch: {{ lookup('role_var', '_authentication_backend_file_watch') }}
+    path: {{ lookup('role_var', '_authentication_backend_file_path', role='authelia') }}
+    watch: {{ lookup('role_var', '_authentication_backend_file_watch', role='authelia') }}
     password:
-      algorithm: {{ lookup('role_var', '_authentication_backend_file_password_algorithm') }}
+      algorithm: {{ lookup('role_var', '_authentication_backend_file_password_algorithm', role='authelia') }}
       argon2:
-        variant: {{ lookup('role_var', '_authentication_backend_file_password_argon2_variant') }}
-        iterations: {{ lookup('role_var', '_authentication_backend_file_password_argon2_iterations') }}
-        memory: {{ lookup('role_var', '_authentication_backend_file_password_argon2_memory') }}
-        parallelism: {{ lookup('role_var', '_authentication_backend_file_password_argon2_parallelism') }}
-        key_length: {{ lookup('role_var', '_authentication_backend_file_password_argon2_key_length') }}
-        salt_length: {{ lookup('role_var', '_authentication_backend_file_password_argon2_salt_length') }}
+        variant: {{ lookup('role_var', '_authentication_backend_file_password_argon2_variant', role='authelia') }}
+        iterations: {{ lookup('role_var', '_authentication_backend_file_password_argon2_iterations', role='authelia') }}
+        memory: {{ lookup('role_var', '_authentication_backend_file_password_argon2_memory', role='authelia') }}
+        parallelism: {{ lookup('role_var', '_authentication_backend_file_password_argon2_parallelism', role='authelia') }}
+        key_length: {{ lookup('role_var', '_authentication_backend_file_password_argon2_key_length', role='authelia') }}
+        salt_length: {{ lookup('role_var', '_authentication_backend_file_password_argon2_salt_length', role='authelia') }}
 {% endif %}
-{% if lookup('role_var', '_authentication_backend') == 'ldap' %}
+{% if lookup('role_var', '_authentication_backend', role='authelia') == 'ldap' %}
   ldap:
     implementation: custom
     address: ldap://lldap:3890
@@ -111,24 +111,24 @@ authentication_backend:
 
 password_policy:
   standard:
-    enabled: {{ lookup('role_var', '_password_policy_standard_enabled') }}
-    min_length: {{ lookup('role_var', '_password_policy_standard_min_length') }}
-    max_length: {{ lookup('role_var', '_password_policy_standard_max_length') }}
-    require_uppercase: {{ lookup('role_var', '_password_policy_standard_require_uppercase') }}
-    require_lowercase: {{ lookup('role_var', '_password_policy_standard_require_lowercase') }}
-    require_number: {{ lookup('role_var', '_password_policy_standard_require_number') }}
-    require_special: {{ lookup('role_var', '_password_policy_standard_require_special') }}
+    enabled: {{ lookup('role_var', '_password_policy_standard_enabled', role='authelia') }}
+    min_length: {{ lookup('role_var', '_password_policy_standard_min_length', role='authelia') }}
+    max_length: {{ lookup('role_var', '_password_policy_standard_max_length', role='authelia') }}
+    require_uppercase: {{ lookup('role_var', '_password_policy_standard_require_uppercase', role='authelia') }}
+    require_lowercase: {{ lookup('role_var', '_password_policy_standard_require_lowercase', role='authelia') }}
+    require_number: {{ lookup('role_var', '_password_policy_standard_require_number', role='authelia') }}
+    require_special: {{ lookup('role_var', '_password_policy_standard_require_special', role='authelia') }}
   zxcvbn:
-    enabled: {{ lookup('role_var', '_password_policy_zxcvbn_enabled') }}
-    min_score: {{ lookup('role_var', '_password_policy_zxcvbn_min_score') }}
+    enabled: {{ lookup('role_var', '_password_policy_zxcvbn_enabled', role='authelia') }}
+    min_score: {{ lookup('role_var', '_password_policy_zxcvbn_min_score', role='authelia') }}
 
 access_control:
-  default_policy: {{ lookup('role_var', '_access_control_default_policy') }}
+  default_policy: {{ lookup('role_var', '_access_control_default_policy', role='authelia') }}
   rules:
-    {{ (lookup('role_var', '_access_control_whitelist_rules_lookup') + lookup('role_var', '_access_control_rules')) | to_nice_yaml | indent(4) }}
+    {{ (lookup('role_var', '_access_control_whitelist_rules_lookup', role='authelia') + lookup('role_var', '_access_control_rules', role='authelia')) | to_nice_yaml | indent(4) }}
 
 session:
-  name: {{ (lookup('role_var', '_web_subdomain') + '.' + lookup('role_var', '_web_domain')) | lower }}
+  name: {{ (lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia')) | lower }}
   secret: {{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}
   expiration: 1h
   inactivity: 5m
@@ -138,9 +138,9 @@ session:
     host: authelia-redis
     port: 6379
   cookies:
-    - domain: {{ lookup('role_var', '_web_domain') | lower }}
-      authelia_url: {{ lookup('role_var', '_web_url') | lower }}
-      name: authelia_{{ lookup('role_var', '_web_domain') | lower }}
+    - domain: {{ lookup('role_var', '_web_domain', role='authelia', role='authelia') | lower }}
+      authelia_url: {{ lookup('role_var', '_web_url', role='authelia', role='authelia') | lower }}
+      name: authelia_{{ lookup('role_var', '_web_domain', role='authelia', role='authelia') | lower }}
       same_site: lax
       inactivity: 5m
       expiration: 1h
@@ -157,35 +157,35 @@ storage:
     path: /config/db.sqlite3
 
 ntp:
-  address: "{{ lookup('role_var', '_ntp_address') }}"
-  version: {{ lookup('role_var', '_ntp_version') }}
-  max_desync: {{ lookup('role_var', '_ntp_max_desync') }}
-  disable_startup_check: {{ lookup('role_var', '_ntp_disable_startup_check') }}
-  disable_failure: {{ lookup('role_var', '_ntp_disable_failure') }}
+  address: "{{ lookup('role_var', '_ntp_address', role='authelia') }}"
+  version: {{ lookup('role_var', '_ntp_version', role='authelia') }}
+  max_desync: {{ lookup('role_var', '_ntp_max_desync', role='authelia') }}
+  disable_startup_check: {{ lookup('role_var', '_ntp_disable_startup_check', role='authelia') }}
+  disable_failure: {{ lookup('role_var', '_ntp_disable_failure', role='authelia') }}
 
 notifier:
-  disable_startup_check: {{ lookup('role_var', '_notifier_disable_startup_check') }}
-{% if lookup('role_var', '_notifier') == 'filesystem' %}
+  disable_startup_check: {{ lookup('role_var', '_notifier_disable_startup_check', role='authelia') }}
+{% if lookup('role_var', '_notifier', role='authelia') == 'filesystem' %}
   filesystem:
     filename: /config/notification.txt
 {% endif %}
-{% if lookup('role_var', '_notifier') == 'smtp' %}
+{% if lookup('role_var', '_notifier', role='authelia') == 'smtp' %}
   smtp:
-    host: {{ lookup('role_var', '_notifier_smtp_host') }}
-    port: {{ lookup('role_var', '_notifier_smtp_port') }}
-    timeout: {{ (lookup('role_var', '_notifier_smtp_timeout')) | default(omit) }}
-    username: {{ (lookup('role_var', '_notifier_smtp_username')) | default(omit) }}
-    password: {{ (lookup('role_var', '_notifier_smtp_password')) | default(omit) }}
-    sender: {{ lookup('role_var', '_notifier_smtp_sender') }}
-    identifier: {{ (lookup('role_var', '_notifier_smtp_identifier')) | default(omit) }}
-    subject: "{{ (lookup('role_var', '_notifier_smtp_subject')) | default(omit) }}"
-    startup_check_address: {{ (lookup('role_var', '_notifier_smtp_startup_check_address')) | default(omit) }}
-    disable_require_tls: {{ (lookup('role_var', '_notifier_smtp_disable_require_tls')) | default(omit) }}
-    disable_html_emails: {{ (lookup('role_var', '_notifier_smtp_disable_html_emails')) | default(omit) }}
+    host: {{ lookup('role_var', '_notifier_smtp_host', role='authelia') }}
+    port: {{ lookup('role_var', '_notifier_smtp_port', role='authelia') }}
+    timeout: {{ (lookup('role_var', '_notifier_smtp_timeout', role='authelia')) | default(omit) }}
+    username: {{ (lookup('role_var', '_notifier_smtp_username', role='authelia')) | default(omit) }}
+    password: {{ (lookup('role_var', '_notifier_smtp_password', role='authelia')) | default(omit) }}
+    sender: {{ lookup('role_var', '_notifier_smtp_sender', role='authelia') }}
+    identifier: {{ (lookup('role_var', '_notifier_smtp_identifier', role='authelia')) | default(omit) }}
+    subject: "{{ (lookup('role_var', '_notifier_smtp_subject', role='authelia')) | default(omit) }}"
+    startup_check_address: {{ (lookup('role_var', '_notifier_smtp_startup_check_address', role='authelia')) | default(omit) }}
+    disable_require_tls: {{ (lookup('role_var', '_notifier_smtp_disable_require_tls', role='authelia')) | default(omit) }}
+    disable_html_emails: {{ (lookup('role_var', '_notifier_smtp_disable_html_emails', role='authelia')) | default(omit) }}
     tls:
-      server_name: {{ (lookup('role_var', '_notifier_smtp_tls_server_name')) | default(omit) }}
-      skip_verify: {{ (lookup('role_var', '_notifier_smtp_tls_skip_verify')) | default(omit) }}
-      minimum_version: {{ (lookup('role_var', '_notifier_smtp_tls_minimum_version')) | default(omit) }}
+      server_name: {{ (lookup('role_var', '_notifier_smtp_tls_server_name', role='authelia')) | default(omit) }}
+      skip_verify: {{ (lookup('role_var', '_notifier_smtp_tls_skip_verify', role='authelia')) | default(omit) }}
+      minimum_version: {{ (lookup('role_var', '_notifier_smtp_tls_minimum_version', role='authelia')) | default(omit) }}
 {% else %}
 #
 # If you want to use email here is a template (Replace the above entry as you can only have one notifier configured)

@@ -7,12 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Settings | Check if `{{ autoscan_role_paths_config_location | basename }}` exists
+- name: Settings | Check if `{{ lookup('role_var', '_paths_config_location', role='autoscan') | basename }}` exists
   ansible.builtin.stat:
-    path: "{{ autoscan_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='autoscan') }}"
   register: autoscan_config
 
-- name: Settings | New `{{ autoscan_role_paths_config_location | basename }}` tasks
+- name: Settings | New `{{ lookup('role_var', '_paths_config_location', role='autoscan') | basename }}` tasks
   when: (not autoscan_config.stat.exists)
   block:
     - name: Settings | Get Instance Info
@@ -21,10 +21,10 @@
         get_info_list:
           - plex
 
-    - name: Settings | Import default `{{ autoscan_role_paths_config_location | basename }}`
+    - name: Settings | Import default `{{ lookup('role_var', '_paths_config_location', role='autoscan') | basename }}`
       ansible.builtin.template:
         src: config.yml.j2
-        dest: "{{ autoscan_role_paths_config_location }}"
+        dest: "{{ lookup('role_var', '_paths_config_location', role='autoscan') }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"

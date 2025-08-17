@@ -12,7 +12,7 @@
 
 - name: Post-Install | Ensure transcodes folder has the correct permissions
   ansible.builtin.file:
-    path: "{{ jellyfin_paths_transcodes_location }}"
+    path: "{{ lookup('role_var', '_paths_transcodes_location', role='jellyfin') }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
@@ -20,7 +20,7 @@
 
 - name: Post-Install | Ensure config folder has the correct permissions
   ansible.builtin.file:
-    path: "{{ jellyfin_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='jellyfin') }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"

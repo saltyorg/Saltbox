@@ -11,16 +11,16 @@
 
 - name: Post-Install | Wait for 'system.xml' file to be created
   ansible.builtin.wait_for:
-    path: "{{ jellyfin_paths_sys_xml_location }}"
+    path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
     state: present
 
 - name: "Post-Install | Prompt user to complete the wizard"
   ansible.builtin.pause:
-    prompt: "Please open {{ jellyfin_web_url }}/web/index.html#!/wizardstart.html. Hit enter after having finished the wizard"
+    prompt: "Please open {{ lookup('role_var', '_web_url', role='jellyfin') }}/web/index.html#!/wizardstart.html. Hit enter after having finished the wizard"
 
 - name: Post-Install | Wait for 'network.xml' file to be created
   ansible.builtin.wait_for:
-    path: "{{ jellyfin_paths_net_xml_location }}"
+    path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
     state: present
 
 - name: Stop Docker container
@@ -28,21 +28,21 @@
 
 - name: Settings | Update 'system.xml' file
   community.general.xml:
-    path: "{{ jellyfin_paths_sys_xml_location }}"
+    path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
   become: true
   become_user: "{{ user.name }}"
-  loop: "{{ jellyfin_system_settings_list }}"
+  loop: "{{ lookup('role_var', '_system_settings_list', role='jellyfin') }}"
 
 - name: Settings | Update 'network.xml' file
   community.general.xml:
-    path: "{{ jellyfin_paths_net_xml_location }}"
+    path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
     xpath: "/NetworkConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
   become: true
   become_user: "{{ user.name }}"
-  loop: "{{ jellyfin_network_settings_list }}"
+  loop: "{{ lookup('role_var', '_network_settings_list', role='jellyfin') }}"
 
 - name: Start Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

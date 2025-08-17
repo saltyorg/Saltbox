@@ -140,10 +140,10 @@
       name: "Traefik Forward Auth"
       authorization_flow: "{{ authentik_authorization_flow_uuid }}"
       invalidation_flow: "{{ authentik_invalidation_flow_uuid }}"
-      cookie_domain: "{{ authentik_role_web_domain }}"
-      external_host: "{{ authentik_role_web_url }}"
+      cookie_domain: "{{ lookup('role_var', '_web_domain', role='authentik') }}"
+      external_host: "{{ lookup('role_var', '_web_url', role='authentik') }}"
       mode: "forward_domain"
-      access_token_validity: "hours={{ authentik_role_access_token_validity }}"
+      access_token_validity: "hours={{ lookup('role_var', '_access_token_validity', role='authentik') }}"
     status_code: 201
   register: proxy_providers
 
@@ -186,7 +186,7 @@
       providers:
         - "{{ proxy_providers.json.pk }}"
       config:
-        authentik_host: "{{ authentik_role_web_url }}"
+        authentik_host: "{{ lookup('role_var', '_web_url', role='authentik') }}"
     status_code: 200
 
 - name: Get admins group ID
@@ -234,9 +234,9 @@
     - "authentik-worker"
 
 # To ensure bootstrap token is no longer set
-- name: Check if '{{ authentik_role_paths_location }}' exists
+- name: Check if '{{ lookup('role_var', '_paths_location', role='authentik') }}' exists
   ansible.builtin.stat:
-    path: "{{ authentik_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='authentik') }}"
   register: authentik_data_folder
 
 - name: Create Docker container
@@ -276,7 +276,7 @@
     status_code: 200
   register: get_users_response
 
-- name: fact
+- name: Set fact
   ansible.builtin.set_fact:
     akadmin_id: "{{ item.pk }}"
   loop: "{{ get_users_response.json.results }}"

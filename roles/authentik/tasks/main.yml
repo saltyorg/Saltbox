@@ -19,13 +19,13 @@
 
 - name: Reset Authentik directory
   ansible.builtin.file:
-    path: "{{ authentik_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='authentik') }}"
     state: absent
   when: ('authentik-reset' in ansible_run_tags)
 
-- name: Check if '{{ authentik_role_paths_location }}' exists
+- name: Check if '{{ lookup('role_var', '_paths_location', role='authentik') }}' exists
   ansible.builtin.stat:
-    path: "{{ authentik_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='authentik') }}"
   register: authentik_data_folder
 
 - name: Generate Bootstrap Token
@@ -42,9 +42,9 @@
   vars:
     redis_instances: ["{{ lookup('role_var', '_redis_name', role='authentik') }}"]
     redis_role_docker_image_tag: "alpine"
-    redis_role_paths_folder: "{{ authentik_role_paths_folder }}/redis"
+    redis_role_paths_folder: "{{ lookup('role_var', '_paths_folder', role='authentik') }}/redis"
     redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
-    redis_role_docker_healthcheck: "{{ authentik_role_redis_docker_healthcheck }}"
+    redis_role_docker_healthcheck: "{{ lookup('role_var', '_redis_docker_healthcheck', role='authentik') }}"
     redis_role_docker_commands_default:
       - "--save 60 1 --loglevel warning"
 
@@ -55,10 +55,10 @@
     postgres_instances: ["{{ lookup('role_var', '_postgres_name', role='authentik') }}"]
     postgres_role_docker_image_tag: "{{ lookup('role_var', '_postgres_docker_image_tag', role='authentik') }}"
     postgres_role_docker_image_repo: "{{ lookup('role_var', '_postgres_docker_image_repo', role='authentik') }}"
-    postgres_role_paths_folder: "{{ authentik_role_paths_folder }}/postgres"
+    postgres_role_paths_folder: "{{ lookup('role_var', '_paths_folder', role='authentik') }}/postgres"
     postgres_role_paths_location: "{{ server_appdata_path }}/{{ postgres_role_paths_folder }}"
     postgres_role_docker_env_db: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
-    postgres_role_docker_healthcheck: "{{ authentik_role_postgres_docker_healthcheck }}"
+    postgres_role_docker_healthcheck: "{{ lookup('role_var', '_postgres_docker_healthcheck', role='authentik') }}"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"

@@ -19,28 +19,28 @@
 
 - name: Check if already installed
   ansible.builtin.stat:
-    path: "{{ autobrr_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='autobrr') }}"
   register: autobrr_directory
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-- name: Check if `{{ autobrr_role_paths_config_location | basename }}` exists
+- name: Check if `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}` exists
   ansible.builtin.stat:
-    path: "{{ autobrr_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='autobrr') }}"
   register: autobrr_config
 
-- name: New `{{ autobrr_role_paths_config_location | basename }}` tasks
+- name: New `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}` tasks
   when: not autobrr_config.stat.exists
   block:
     - name: Generate sessionSecret
       ansible.builtin.shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c16"
       register: autobrr_secret
 
-    - name: Import default `{{ autobrr_role_paths_config_location | basename }}`
+    - name: Import default `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}`
       ansible.builtin.template:
         src: config.toml.j2
-        dest: "{{ autobrr_role_paths_config_location }}"
+        dest: "{{ lookup('role_var', '_paths_config_location', role='autobrr') }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
