@@ -138,9 +138,9 @@ session:
     host: authelia-redis
     port: 6379
   cookies:
-    - domain: {{ lookup('role_var', '_web_domain', role='authelia', role='authelia') | lower }}
-      authelia_url: {{ lookup('role_var', '_web_url', role='authelia', role='authelia') | lower }}
-      name: authelia_{{ lookup('role_var', '_web_domain', role='authelia', role='authelia') | lower }}
+    - domain: {{ lookup('role_var', '_web_domain', role='authelia') | lower }}
+      authelia_url: {{ lookup('role_var', '_web_url', role='authelia') | lower }}
+      name: authelia_{{ lookup('role_var', '_web_domain', role='authelia') | lower }}
       same_site: lax
       inactivity: 5m
       expiration: 1h
