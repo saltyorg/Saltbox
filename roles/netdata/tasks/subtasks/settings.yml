@@ -10,12 +10,12 @@
 - name: Settings | Copy Default Config if it doesn't exist
   ansible.builtin.shell: |
     docker run -d --name netdata_tmp "{{ lookup('role_var', '_docker_image', role='netdata') }}"
-    docker cp netdata_tmp:/etc/netdata/. "{{ lookup('role_var', '_paths_config_location', role='netdata') }}"
+    docker cp netdata_tmp:/etc/netdata/. "{{ netdata_role_paths_location }}"
     docker rm -f netdata_tmp
 
 - name: Chown directories
   ansible.builtin.file:
-    path: "{{ lookup('role_var', '_paths_location', role='netdata') }}"
+    path: "{{ netdata_role_paths_location }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"

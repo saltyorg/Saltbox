@@ -32,13 +32,13 @@ netdata_role_docker_socket_proxy_envs:
 # Paths
 ################################
 
-netdata_paths_folder: "{{ netdata_name }}"
-netdata_paths_location: "{{ server_appdata_path }}/{{ netdata_paths_folder }}"
-netdata_paths_config_location: "{{ netdata_paths_location }}/config"
-netdata_paths_config_file_location: "{{ netdata_paths_location }}/config/netdata.conf"
-netdata_paths_folders_list:
-  - "{{ netdata_paths_location }}"
-  - "{{ netdata_paths_location }}/config"
+netdata_role_paths_folder: "{{ netdata_name }}"
+netdata_role_paths_location: "{{ server_appdata_path }}/{{ netdata_paths_folder }}"
+netdata_role_paths_config_location: "{{ netdata_role_paths_location }}/config"
+netdata_role_paths_config_file_location: "{{ netdata_role_paths_location }}/config/netdata.conf"
+netdata_role_paths_folders_list:
+  - "{{ netdata_role_paths_location }}"
+  - "{{ netdata_role_paths_location }}/config"
 
 ################################
 # Web
@@ -98,7 +98,7 @@ netdata_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='n
 
 # Volumes
 netdata_role_docker_volumes_default:
-  - "{{ lookup('role_var', '_paths_location', role='netdata') }}/config:/etc/netdata"
+  - "{{ netdata_role_paths_location }}/config:/etc/netdata"
   - "netdatalib:/var/lib/netdata"
   - "netdatacache:/var/cache/netdata"
   - "/etc/passwd:/host/etc/passwd:ro"
