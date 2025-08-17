@@ -59,7 +59,7 @@ emby_role_dns_proxy: "{{ dns.proxied }}"
 
 emby_role_traefik_sso_middleware: ""
 emby_role_traefik_middleware_default: "{{ traefik_default_middleware
-                                          + (',themepark-' + lookup('role_var', '_name', role='emby')
+                                          + (',themepark-' + emby_name
                                             if (lookup('role_var', '_themepark_enabled', role='emby') and global_themepark_plugin_enabled)
                                             else '') }}"
 emby_role_traefik_middleware_custom: ""

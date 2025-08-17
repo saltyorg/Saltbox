@@ -47,7 +47,7 @@ bazarr_role_dns_proxy: "{{ dns.proxied }}"
 
 bazarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 bazarr_role_traefik_middleware_default: "{{ traefik_default_middleware
-                                            + (',themepark-' + lookup('role_var', '_name', role='bazarr')
+                                            + (',themepark-' + bazarr_name
                                               if (lookup('role_var', '_themepark_enabled', role='bazarr') and global_themepark_plugin_enabled)
                                               else '') }}"
 bazarr_role_traefik_middleware_custom: ""
