@@ -96,8 +96,7 @@ autoscan_role_docker_labels_default:
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-triggers.middlewares": "{{ traefik_middleware | regex_replace(autoscan_role_traefik_regex_middleware_string) }}" }'
 autoscan_role_docker_labels_custom: {}
-autoscan_role_docker_labels: "{{ docker_labels_common
-                                 | combine(lookup('role_var', '_docker_labels_default', role='autoscan'))
+autoscan_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='autoscan')
                                  | combine(lookup('role_var', '_docker_labels_custom', role='autoscan')) }}"
 
 # Hostname

@@ -107,8 +107,7 @@ bazarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', ro
 # Labels
 bazarr_role_docker_labels_default: {}
 bazarr_role_docker_labels_custom: {}
-bazarr_role_docker_labels: "{{ docker_labels_common
-                               | combine(lookup('role_var', '_docker_labels_default', role='bazarr'))
+bazarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='bazarr')
                                | combine((traefik_themepark_labels
                                          if (lookup('role_var', '_themepark_enabled', role='bazarr') and global_themepark_plugin_enabled)
                                          else {}),

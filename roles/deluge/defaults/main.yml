@@ -120,8 +120,7 @@ deluge_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', ro
 # Labels
 deluge_role_docker_labels_default: {}
 deluge_role_docker_labels_custom: {}
-deluge_role_docker_labels: "{{ docker_labels_common
-                               | combine(lookup('role_var', '_docker_labels_default', role='deluge'))
+deluge_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='deluge')
                                | combine((traefik_themepark_labels
                                          if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
                                          else {}),
