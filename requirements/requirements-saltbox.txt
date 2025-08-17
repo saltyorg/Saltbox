@@ -1,8 +1,8 @@
-ansible==11.3.0
-ansible-lint==25.2.1
-apprise==1.9.3
+ansible==11.9.0
+ansible-lint==25.8.1
+apprise==1.9.4
 argon2_cffi==25.1.0
-certbot==4.1.1
+certbot==4.2.0
 dnspython==2.7.0
 docker==7.1.0
 jinja2==3.1.6
