@@ -1,95 +1,176 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":semanticCommits",
-    ":separateMajorReleases",
-    ":ignoreUnstable"
-  ],
-  "prConcurrentLimit": 0,
-  "prHourlyLimit": 0,
-  "ansible": {
-    "enabled": false
-  },
-  "labels": ["dependencies"],
-  "packageRules": [
-    {
-      "description": "Group all major pip requirements updates",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["requirements/*"],
-      "groupName": "requirements (major)",
-      "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "pip", "major"],
-
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":semanticCommits",
+        ":separateMajorReleases",
+        ":ignoreUnstable"
+    ],
+    "prConcurrentLimit": 0,
+    "prHourlyLimit": 0,
+    "ansible": {
+        "enabled": false
     },
-    {
-      "description": "Docker controller requirements",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["requirements/requirements-docker-controller.txt"],
-      "groupName": "requirements-docker-controller",
-      "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "pip", "docker-controller"],
-
+    "labels": [
+        "dependencies"
+    ],
+    "packageRules": [
+        {
+            "description": "Group all major pip requirements updates",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/*"
+            ],
+            "groupName": "requirements (major)",
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "labels": [
+                "dependencies",
+                "pip",
+                "major"
+            ]
+        },
+        {
+            "description": "Docker controller requirements",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/requirements-docker-controller.txt"
+            ],
+            "groupName": "requirements-docker-controller",
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "pip",
+                "docker-controller"
+            ]
+        },
+        {
+            "description": "Lint requirements",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/requirements-lint.txt"
+            ],
+            "groupName": "requirements-lint",
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "pip",
+                "lint"
+            ]
+        },
+        {
+            "description": "Notify requirements",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/requirements-notify.txt"
+            ],
+            "groupName": "requirements-notify",
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "pip",
+                "notify"
+            ]
+        },
+        {
+            "description": "Saltbox requirements",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/requirements-saltbox.txt"
+            ],
+            "groupName": "requirements-saltbox",
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "pip",
+                "saltbox"
+            ]
+        },
+        {
+            "description": "Major GitHub Actions updates",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "groupName": "github-actions (major)",
+            "matchUpdateTypes": [
+                "major"
+            ],
+            "labels": [
+                "dependencies",
+                "github-actions",
+                "major"
+            ]
+        },
+        {
+            "description": "Minor/patch GitHub Actions updates",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "groupName": "github-actions",
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "github-actions"
+            ]
+        },
+        {
+            "description": "Security updates - high priority",
+            "matchPackagePatterns": [
+                "*"
+            ],
+            "matchUpdateTypes": [
+                "patch"
+            ],
+            "labels": [
+                "dependencies",
+                "security"
+            ],
+            "vulnerabilitySeverity": [
+                "HIGH",
+                "CRITICAL"
+            ],
+            "prPriority": 10
+        }
+    ],
+    "rebaseWhen": "conflicted",
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "addLabels": [
+            "security",
+            "vulnerability"
+        ]
     },
-    {
-      "description": "Lint requirements",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["requirements/requirements-lint.txt"],
-      "groupName": "requirements-lint",
-      "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "pip", "lint"],
-
-    },
-    {
-      "description": "Notify requirements",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["requirements/requirements-notify.txt"],
-      "groupName": "requirements-notify",
-      "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "pip", "notify"]
-    },
-    {
-      "description": "Saltbox requirements",
-      "matchManagers": ["pip_requirements"],
-      "matchFileNames": ["requirements/requirements-saltbox.txt"],
-      "groupName": "requirements-saltbox",
-      "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "pip", "saltbox"]
-    },
-    {
-      "description": "Major GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "groupName": "github-actions (major)",
-      "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "github-actions", "major"],
-
-    },
-    {
-      "description": "Minor/patch GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "groupName": "github-actions",
-      "matchUpdateTypes": ["minor", "patch"],
-      "labels": ["dependencies", "github-actions"]
-    },
-    {
-      "description": "Security updates - high priority",
-      "matchPackagePatterns": ["*"],
-      "matchUpdateTypes": ["patch"],
-      "labels": ["dependencies", "security"],
-      "vulnerabilitySeverity": ["HIGH", "CRITICAL"],
-      "prPriority": 10
+    "commitMessageAction": "Update",
+    "commitMessageTopic": "{{depName}}",
+    "commitMessageExtra": "to {{newVersion}}",
+    "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
+    "lockFileMaintenance": {
+        "enabled": true
     }
-  ],
-  "rebaseWhen": "conflicted",
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "addLabels": ["security", "vulnerability"]
-  },
-  "commitMessageAction": "Update",
-  "commitMessageTopic": "{{depName}}",
-  "commitMessageExtra": "to {{newVersion}}",
-  "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
-  "lockFileMaintenance": {
-    "enabled": true
-  }
 }
