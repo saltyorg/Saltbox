@@ -17,145 +17,108 @@ jackett_name: jackett
 # Paths
 ################################
 
-jackett_paths_folder: "{{ jackett_name }}"
-jackett_paths_location: "{{ server_appdata_path }}/{{ jackett_paths_folder }}"
-jackett_paths_folders_list:
-  - "{{ jackett_paths_location }}"
+jackett_role_paths_folder: "{{ jackett_name }}"
+jackett_role_paths_location: "{{ server_appdata_path }}/{{ jackett_role_paths_folder }}"
+jackett_role_paths_folders_list:
+  - "{{ jackett_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-jackett_web_subdomain: "{{ jackett_name }}"
-jackett_web_domain: "{{ user.domain }}"
-jackett_web_port: "9117"
-jackett_web_url: "{{ 'https://' + (jackett_web_subdomain + '.' + jackett_web_domain
-                  if (jackett_web_subdomain | length > 0)
-                  else jackett_web_domain) }}"
+jackett_role_web_subdomain: "{{ jackett_name }}"
+jackett_role_web_domain: "{{ user.domain }}"
+jackett_role_web_port: "9117"
+jackett_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='jackett') + '.' + lookup('role_var', '_web_domain', role='jackett')
+                       if (lookup('role_var', '_web_subdomain', role='jackett') | length > 0)
+                       else lookup('role_var', '_web_domain', role='jackett')) }}"
 
 ################################
 # DNS
 ################################
 
-jackett_dns_record: "{{ jackett_web_subdomain }}"
-jackett_dns_zone: "{{ jackett_web_domain }}"
-jackett_dns_proxy: "{{ dns.proxied }}"
+jackett_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='jackett') }}"
+jackett_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='jackett') }}"
+jackett_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-jackett_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-jackett_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', jackett_name + '_name', default=jackett_name)
-                                          if (jackett_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
-jackett_traefik_middleware_custom: ""
-jackett_traefik_certresolver: "{{ traefik_default_certresolver }}"
-jackett_traefik_enabled: true
-jackett_traefik_api_enabled: true
-jackett_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/dl`)"
+jackett_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+jackett_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                             + (',themepark-' + lookup('role_var', '_name', role='jackett')
+                                               if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
+                                               else '') }}"
+jackett_role_traefik_middleware_custom: ""
+jackett_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+jackett_role_traefik_enabled: true
+jackett_role_traefik_api_enabled: true
+jackett_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/dl`)"
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-jackett_themepark_enabled: false
-jackett_themepark_app: "jackett"
-jackett_themepark_theme: "{{ global_themepark_theme }}"
-jackett_themepark_domain: "{{ global_themepark_domain }}"
-jackett_themepark_addons: []
+jackett_role_themepark_enabled: false
+jackett_role_themepark_app: "jackett"
+jackett_role_themepark_theme: "{{ global_themepark_theme }}"
+jackett_role_themepark_domain: "{{ global_themepark_domain }}"
+jackett_role_themepark_addons: []
 
 ################################
 # Docker
 ################################
 
 # Container
-jackett_docker_container: "{{ jackett_name }}"
+jackett_role_docker_container: "{{ jackett_name }}"
 
 # Image
-jackett_docker_image_pull: true
-jackett_docker_image_tag: "release"
-jackett_docker_image: "ghcr.io/hotio/jackett:{{ jackett_docker_image_tag }}"
-
-# Ports
-jackett_docker_ports_defaults: []
-jackett_docker_ports_custom: []
-jackett_docker_ports: "{{ jackett_docker_ports_defaults
-                          + jackett_docker_ports_custom }}"
+jackett_role_docker_image_pull: true
+jackett_role_docker_image_repo: "ghcr.io/hotio/jackett"
+jackett_role_docker_image_tag: "release"
+jackett_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='jackett') }}:{{ lookup('role_var', '_docker_image_tag', role='jackett') }}"
 
 # Envs
-jackett_docker_envs_default:
+jackett_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-jackett_docker_envs_custom: {}
-jackett_docker_envs: "{{ jackett_docker_envs_default
-                         | combine(jackett_docker_envs_custom) }}"
-
-# Commands
-jackett_docker_commands_default: []
-jackett_docker_commands_custom: []
-jackett_docker_commands: "{{ jackett_docker_commands_default
-                             + jackett_docker_commands_custom }}"
+jackett_role_docker_envs_custom: {}
+jackett_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='jackett')
+                              | combine(lookup('role_var', '_docker_envs_custom', role='jackett')) }}"
 
 # Volumes
-jackett_docker_volumes_default:
-  - "{{ jackett_paths_location }}:/config"
-jackett_docker_volumes_custom: []
-jackett_docker_volumes: "{{ jackett_docker_volumes_default
-                            + jackett_docker_volumes_custom }}"
-
-# Devices
-jackett_docker_devices_default: []
-jackett_docker_devices_custom: []
-jackett_docker_devices: "{{ jackett_docker_devices_default
-                            + jackett_docker_devices_custom }}"
-
-# Hosts
-jackett_docker_hosts_default: {}
-jackett_docker_hosts_custom: {}
-jackett_docker_hosts: "{{ docker_hosts_common
-                          | combine(jackett_docker_hosts_default)
-                          | combine(jackett_docker_hosts_custom) }}"
+jackett_role_docker_volumes_default:
+  - "{{ jackett_role_paths_location }}:/config"
+jackett_role_docker_volumes_custom: []
+jackett_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='jackett')
+                                 + lookup('role_var', '_docker_volumes_custom', role='jackett') }}"
 
 # Labels
-jackett_docker_labels_default: {}
-jackett_docker_labels_custom: {}
-jackett_docker_labels: "{{ docker_labels_common
-                           | combine(lookup('vars', jackett_name + '_docker_labels_default', default=jackett_docker_labels_default))
-                           | combine((traefik_themepark_labels
-                                     if (jackett_themepark_enabled and global_themepark_plugin_enabled)
-                                     else {}),
-                                     lookup('vars', jackett_name + '_docker_labels_custom', default=jackett_docker_labels_custom)) }}"
+jackett_role_docker_labels_default: {}
+jackett_role_docker_labels_custom: {}
+jackett_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='jackett')
+                                | combine((traefik_themepark_labels
+                                          if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
+                                          else {}),
+                                          lookup('role_var', '_docker_labels_custom', role='jackett')) }}"
 
 # Hostname
-jackett_docker_hostname: "{{ jackett_name }}"
+jackett_role_docker_hostname: "{{ jackett_name }}"
 
 # Networks
-jackett_docker_networks_alias: "{{ jackett_name }}"
-jackett_docker_networks_default: []
-jackett_docker_networks_custom: []
-jackett_docker_networks: "{{ docker_networks_common
-                             + jackett_docker_networks_default
-                             + jackett_docker_networks_custom }}"
-
-# Capabilities
-jackett_docker_capabilities_default: []
-jackett_docker_capabilities_custom: []
-jackett_docker_capabilities: "{{ jackett_docker_capabilities_default
-                                 + jackett_docker_capabilities_custom }}"
-
-# Security Opts
-jackett_docker_security_opts_default: []
-jackett_docker_security_opts_custom: []
-jackett_docker_security_opts: "{{ jackett_docker_security_opts_default
-                                  + jackett_docker_security_opts_custom }}"
+jackett_role_docker_networks_alias: "{{ jackett_name }}"
+jackett_role_docker_networks_default: []
+jackett_role_docker_networks_custom: []
+jackett_role_docker_networks: "{{ docker_networks_common
+                                  + lookup('role_var', '_docker_networks_default', role='jackett')
+                                  + lookup('role_var', '_docker_networks_custom', role='jackett') }}"
 
 # Restart Policy
-jackett_docker_restart_policy: unless-stopped
+jackett_role_docker_restart_policy: unless-stopped
 
 # State
-jackett_docker_state: started
+jackett_role_docker_state: started
