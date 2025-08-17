@@ -17,15 +17,15 @@ netdata_name: netdata
 # Settings
 ################################
 
-netdata_claim_token: ""
-netdata_claim_url: ""
-netdata_claim_room: ""
+netdata_role_claim_token: ""
+netdata_role_claim_url: ""
+netdata_role_claim_room: ""
 
 ################################
 # Docker Socket Proxy
 ################################
 
-netdata_docker_socket_proxy_envs:
+netdata_role_docker_socket_proxy_envs:
   CONTAINERS: "1"
 
 ################################
@@ -44,73 +44,61 @@ netdata_paths_folders_list:
 # Web
 ################################
 
-netdata_web_subdomain: "{{ netdata_name }}"
-netdata_web_domain: "{{ user.domain }}"
-netdata_web_port: "19999"
-netdata_web_url: "{{ 'https://' + (netdata_web_subdomain + '.' + netdata_web_domain
-                  if (netdata_web_subdomain | length > 0)
-                  else netdata_web_domain) }}"
+netdata_role_web_subdomain: "{{ netdata_name }}"
+netdata_role_web_domain: "{{ user.domain }}"
+netdata_role_web_port: "19999"
+netdata_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='netdata') + '.' + lookup('role_var', '_web_domain', role='netdata')
+                       if (lookup('role_var', '_web_subdomain', role='netdata') | length > 0)
+                       else lookup('role_var', '_web_domain', role='netdata')) }}"
 
 ################################
 # DNS
 ################################
 
-netdata_dns_record: "{{ netdata_web_subdomain }}"
-netdata_dns_zone: "{{ netdata_web_domain }}"
-netdata_dns_proxy: "{{ dns.proxied }}"
+netdata_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='netdata') }}"
+netdata_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='netdata') }}"
+netdata_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-netdata_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-netdata_traefik_middleware_default: "{{ traefik_default_middleware }}"
-netdata_traefik_middleware_custom: ""
-netdata_traefik_certresolver: "{{ traefik_default_certresolver }}"
-netdata_traefik_enabled: true
-netdata_traefik_api_enabled: false
-netdata_traefik_api_endpoint: ""
+netdata_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+netdata_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+netdata_role_traefik_middleware_custom: ""
+netdata_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+netdata_role_traefik_enabled: true
+netdata_role_traefik_api_enabled: false
+netdata_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-netdata_docker_container: "{{ netdata_name }}"
+netdata_role_docker_container: "{{ netdata_name }}"
 
 # Image
-netdata_docker_image_pull: true
-netdata_docker_image_tag: "latest"
-netdata_docker_image: "netdata/netdata:{{ netdata_docker_image_tag }}"
-
-# Ports
-netdata_docker_ports_defaults: []
-netdata_docker_ports_custom: []
-netdata_docker_ports: "{{ netdata_docker_ports_defaults
-                          + netdata_docker_ports_custom }}"
+netdata_role_docker_image_pull: true
+netdata_role_docker_image_repo: "netdata/netdata"
+netdata_role_docker_image_tag: "latest"
+netdata_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='netdata') }}:{{ lookup('role_var', '_docker_image_tag', role='netdata') }}"
 
 # Envs
-netdata_docker_envs_default:
+netdata_role_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   DOCKER_HOST: "{{ netdata_name }}-docker-socket-proxy:2375"
-  NETDATA_CLAIM_TOKEN: "{{ netdata_claim_token }}"
-  NETDATA_CLAIM_URL: "{{ netdata_claim_url }}"
-  NETDATA_CLAIM_ROOMS: "{{ netdata_claim_room }}"
-netdata_docker_envs_custom: {}
-netdata_docker_envs: "{{ netdata_docker_envs_default
-                         | combine(netdata_docker_envs_custom) }}"
-
-# Commands
-netdata_docker_commands_default: []
-netdata_docker_commands_custom: []
-netdata_docker_commands: "{{ netdata_docker_commands_default
-                             + netdata_docker_commands_custom }}"
+  NETDATA_CLAIM_TOKEN: "{{ lookup('role_var', '_claim_token', role='netdata') }}"
+  NETDATA_CLAIM_URL: "{{ lookup('role_var', '_claim_url', role='netdata') }}"
+  NETDATA_CLAIM_ROOMS: "{{ lookup('role_var', '_claim_room', role='netdata') }}"
+netdata_role_docker_envs_custom: {}
+netdata_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='netdata')
+                              | combine(lookup('role_var', '_docker_envs_custom', role='netdata')) }}"
 
 # Volumes
-netdata_docker_volumes_global: false
-netdata_docker_volumes_default:
-  - "{{ netdata_paths_location }}/config:/etc/netdata"
+netdata_role_docker_volumes_default:
+  - "{{ lookup('role_var', '_paths_location', role='netdata') }}/config:/etc/netdata"
   - "netdatalib:/var/lib/netdata"
   - "netdatacache:/var/cache/netdata"
   - "/etc/passwd:/host/etc/passwd:ro"
@@ -120,66 +108,52 @@ netdata_docker_volumes_default:
   - "/etc/os-release:/host/etc/os-release:ro"
   - "/var/log:/host/var/log:ro"
   - "/run/dbus:/run/dbus:ro"
-netdata_docker_volumes_custom: []
-netdata_docker_volumes: "{{ netdata_docker_volumes_default
-                            + netdata_docker_volumes_custom }}"
-
-# Devices
-netdata_docker_devices_default: []
-netdata_docker_devices_custom: []
-netdata_docker_devices: "{{ netdata_docker_devices_default
-                            + netdata_docker_devices_custom }}"
-
-# Hosts
-netdata_docker_hosts_default: {}
-netdata_docker_hosts_custom: {}
-netdata_docker_hosts: "{{ docker_hosts_common
-                          | combine(netdata_docker_hosts_default)
-                          | combine(netdata_docker_hosts_custom) }}"
+netdata_role_docker_volumes_custom: []
+netdata_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='netdata')
+                                 + lookup('role_var', '_docker_volumes_custom', role='netdata') }}"
 
 # Labels
-netdata_docker_labels_default: {}
-netdata_docker_labels_custom: {}
-netdata_docker_labels: "{{ docker_labels_common
-                           | combine(netdata_docker_labels_default)
-                           | combine(netdata_docker_labels_custom) }}"
+netdata_role_docker_labels_default: {}
+netdata_role_docker_labels_custom: {}
+netdata_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='netdata')
+                                | combine(lookup('role_var', '_docker_labels_custom', role='netdata')) }}"
 
 # Hostname
-netdata_docker_hostname: "{{ netdata_name }}"
+netdata_role_docker_hostname: "{{ netdata_name }}"
 
 # Networks
-netdata_docker_networks_alias: "{{ netdata_name }}"
-netdata_docker_networks_default: []
-netdata_docker_networks_custom: []
-netdata_docker_networks: "{{ docker_networks_common
-                             + netdata_docker_networks_default
-                             + netdata_docker_networks_custom }}"
+netdata_role_docker_networks_alias: "{{ netdata_name }}"
+netdata_role_docker_networks_default: []
+netdata_role_docker_networks_custom: []
+netdata_role_docker_networks: "{{ docker_networks_common
+                                  + lookup('role_var', '_docker_networks_default', role='netdata')
+                                  + lookup('role_var', '_docker_networks_custom', role='netdata') }}"
 
 # Capabilities
-netdata_docker_capabilities_default:
+netdata_role_docker_capabilities_default:
   - SYS_PTRACE
   - SYS_ADMIN
-netdata_docker_capabilities_custom: []
-netdata_docker_capabilities: "{{ netdata_docker_capabilities_default
-                                 + netdata_docker_capabilities_custom }}"
+netdata_role_docker_capabilities_custom: []
+netdata_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='netdata')
+                                     + lookup('role_var', '_docker_capabilities_custom', role='netdata') }}"
 
 # Security Opts
-netdata_docker_security_opts_default:
+netdata_role_docker_security_opts_default:
   - apparmor=unconfined
-netdata_docker_security_opts_custom: []
-netdata_docker_security_opts: "{{ netdata_docker_security_opts_default
-                                  + netdata_docker_security_opts_custom }}"
+netdata_role_docker_security_opts_custom: []
+netdata_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default', role='netdata')
+                                      + lookup('role_var', '_docker_security_opts_custom', role='netdata') }}"
 
 # Restart Policy
-netdata_docker_restart_policy: unless-stopped
+netdata_role_docker_restart_policy: unless-stopped
 
 # State
-netdata_docker_state: started
+netdata_role_docker_state: started
 
 # PID Mode
-netdata_docker_pid_mode: "host"
+netdata_role_docker_pid_mode: "host"
 
 # Dependencies
-netdata_depends_on: "{{ netdata_name }}-docker-socket-proxy"
-netdata_depends_on_delay: "0"
-netdata_depends_on_healthchecks: "false"
+netdata_role_depends_on: "{{ netdata_name }}-docker-socket-proxy"
+netdata_role_depends_on_delay: "0"
+netdata_role_depends_on_healthchecks: "false"
