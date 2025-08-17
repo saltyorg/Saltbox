@@ -1,9 +1,9 @@
 #########################################################################
-# Title:            Saltbox: Grafana Role | Default Variables           #
-# Author(s):        desimaniac, salty                                   #
-# URL:              https://github.com/saltyorg/Saltbox                 #
+# Title:            Saltbox: Grafana | Default Variables               #
+# Author(s):        desimaniac, salty                                  #
+# URL:              https://github.com/saltyorg/Saltbox                #
 #########################################################################
-#                   GNU General Public License v3.0                     #
+#                   GNU General Public License v3.0                    #
 #########################################################################
 ---
 ################################
@@ -13,144 +13,101 @@
 grafana_name: grafana
 
 ################################
+# Settings
+################################
+
+# Comma separated list of plugins
+grafana_role_plugins: ""
+
+################################
 # Paths
 ################################
 
-grafana_paths_folder: "{{ grafana_name }}"
-grafana_paths_location: "{{ server_appdata_path }}/{{ grafana_paths_folder }}"
-grafana_paths_folders_list:
-  - "{{ grafana_paths_location }}"
+grafana_role_paths_folder: "{{ grafana_name }}"
+grafana_role_paths_location: "{{ server_appdata_path }}/{{ grafana_role_paths_folder }}"
+grafana_role_paths_folders_list:
+  - "{{ grafana_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-grafana_web_subdomain: "{{ grafana_name }}"
-grafana_web_domain: "{{ user.domain }}"
-grafana_web_port: "3000"
-grafana_web_url: "{{ 'https://' + (grafana_web_subdomain + '.' + grafana_web_domain
-                  if (grafana_web_subdomain | length > 0)
-                  else grafana_web_domain) }}"
+grafana_role_web_subdomain: "{{ grafana_name }}"
+grafana_role_web_domain: "{{ user.domain }}"
+grafana_role_web_port: "3000"
+grafana_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='grafana') + '.' + lookup('role_var', '_web_domain', role='grafana')
+                       if (lookup('role_var', '_web_subdomain', role='grafana') | length > 0)
+                       else lookup('role_var', '_web_domain', role='grafana')) }}"
 
 ################################
 # DNS
 ################################
 
-grafana_dns_record: "{{ grafana_web_subdomain }}"
-grafana_dns_zone: "{{ grafana_web_domain }}"
-grafana_dns_proxy: "{{ dns.proxied }}"
+grafana_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='grafana') }}"
+grafana_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='grafana') }}"
+grafana_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-grafana_traefik_sso_middleware: ""
-grafana_traefik_middleware_default: "{{ traefik_default_middleware }}"
-grafana_traefik_middleware_custom: ""
-grafana_traefik_certresolver: "{{ traefik_default_certresolver }}"
-grafana_traefik_enabled: true
-grafana_traefik_api_enabled: false
-grafana_traefik_api_endpoint: ""
-
-################################
-# Plugins
-################################
-
-# Comma separated list of plugins
-grafana_plugins: ""
+grafana_role_traefik_sso_middleware: ""
+grafana_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+grafana_role_traefik_middleware_custom: ""
+grafana_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+grafana_role_traefik_enabled: true
+grafana_role_traefik_api_enabled: false
+grafana_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-grafana_docker_container: "{{ grafana_name }}"
+grafana_role_docker_container: "{{ grafana_name }}"
 
 # Image
-grafana_docker_image_pull: true
-grafana_docker_image_tag: "latest"
-grafana_docker_image: "grafana/grafana:{{ grafana_docker_image_tag }}"
-
-# Ports
-grafana_docker_ports_defaults: []
-grafana_docker_ports_custom: []
-grafana_docker_ports: "{{ grafana_docker_ports_defaults
-                          + grafana_docker_ports_custom }}"
+grafana_role_docker_image_pull: true
+grafana_role_docker_image_repo: "grafana/grafana"
+grafana_role_docker_image_tag: "latest"
+grafana_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='grafana') }}:{{ lookup('role_var', '_docker_image_tag', role='grafana') }}"
 
 # Envs
-grafana_docker_envs_default:
+grafana_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  GF_SERVER_ROOT_URL: "https://grafana.{{ user.domain }}"
+  GF_SERVER_ROOT_URL: "{{ lookup('role_var', '_web_url', role='grafana') }}"
   GF_SECURITY_ADMIN_USER: "{{ user.name }}"
   GF_SECURITY_ADMIN_PASSWORD: "{{ user.pass }}"
-  GF_INSTALL_PLUGINS: "{{ grafana_plugins }}"
-grafana_docker_envs_custom: {}
-grafana_docker_envs: "{{ grafana_docker_envs_default
-                          | combine(grafana_docker_envs_custom) }}"
-
-# Commands
-grafana_docker_commands_default: []
-grafana_docker_commands_custom: []
-grafana_docker_commands: "{{ grafana_docker_commands_default
-                              + grafana_docker_commands_custom }}"
+  GF_INSTALL_PLUGINS: "{{ lookup('role_var', '_plugins', role='grafana') }}"
+grafana_role_docker_envs_custom: {}
+grafana_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='grafana')
+                              | combine(lookup('role_var', '_docker_envs_custom', role='grafana')) }}"
 
 # Volumes
-grafana_docker_volumes_default:
-  - "{{ grafana_paths_location }}:/var/lib/grafana"
-grafana_docker_volumes_custom: []
-grafana_docker_volumes: "{{ grafana_docker_volumes_default
-                            + grafana_docker_volumes_custom }}"
-
-# Devices
-grafana_docker_devices_default: []
-grafana_docker_devices_custom: []
-grafana_docker_devices: "{{ grafana_docker_devices_default
-                            + grafana_docker_devices_custom }}"
-
-# Hosts
-grafana_docker_hosts_default: {}
-grafana_docker_hosts_custom: {}
-grafana_docker_hosts: "{{ docker_hosts_common
-                          | combine(grafana_docker_hosts_default)
-                          | combine(grafana_docker_hosts_custom) }}"
-
-# Labels
-grafana_docker_labels_default: {}
-grafana_docker_labels_custom: {}
-grafana_docker_labels: "{{ docker_labels_common
-                            | combine(grafana_docker_labels_default)
-                            | combine(grafana_docker_labels_custom) }}"
+grafana_role_docker_volumes_default:
+  - "{{ grafana_role_paths_location }}:/var/lib/grafana"
+grafana_role_docker_volumes_custom: []
+grafana_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='grafana')
+                                 + lookup('role_var', '_docker_volumes_custom', role='grafana') }}"
 
 # Hostname
-grafana_docker_hostname: "{{ grafana_name }}"
+grafana_role_docker_hostname: "{{ grafana_name }}"
 
 # Networks
-grafana_docker_networks_alias: "{{ grafana_name }}"
-grafana_docker_networks_default: []
-grafana_docker_networks_custom: []
-grafana_docker_networks: "{{ docker_networks_common
-                              + grafana_docker_networks_default
-                              + grafana_docker_networks_custom }}"
-
-# Capabilities
-grafana_docker_capabilities_default: []
-grafana_docker_capabilities_custom: []
-grafana_docker_capabilities: "{{ grafana_docker_capabilities_default
-                                  + grafana_docker_capabilities_custom }}"
-
-# Security Opts
-grafana_docker_security_opts_default: []
-grafana_docker_security_opts_custom: []
-grafana_docker_security_opts: "{{ grafana_docker_security_opts_default
-                                  + grafana_docker_security_opts_custom }}"
+grafana_role_docker_networks_alias: "{{ grafana_name }}"
+grafana_role_docker_networks_default: []
+grafana_role_docker_networks_custom: []
+grafana_role_docker_networks: "{{ docker_networks_common
+                                  + lookup('role_var', '_docker_networks_default', role='grafana')
+                                  + lookup('role_var', '_docker_networks_custom', role='grafana') }}"
 
 # Restart Policy
-grafana_docker_restart_policy: unless-stopped
+grafana_role_docker_restart_policy: unless-stopped
 
 # State
-grafana_docker_state: started
+grafana_role_docker_state: started
 
 # User
-grafana_docker_user: "{{ uid }}:{{ gid }}"
+grafana_role_docker_user: "{{ uid }}:{{ gid }}"
