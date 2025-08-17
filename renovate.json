@@ -13,46 +13,48 @@
     "/roles/**"
   ],
 
+  "labels": ["dependencies"],
+
   "packageRules": [
     {
       "matchManagers": ["pip_requirements"],
       "matchFileNames": ["requirements/requirements-lint.txt"],
       "groupName": "requirements-lint (pip)",
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "pip", "lint"]
     },
     {
       "matchManagers": ["pip_requirements"],
       "matchFileNames": ["requirements/requirements-notify.txt"],
       "groupName": "requirements-notify (pip)",
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "pip", "notify"]
     },
     {
       "matchManagers": ["pip_requirements"],
       "matchFileNames": ["requirements/requirements-saltbox.txt"],
       "groupName": "requirements-saltbox (pip)",
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "matchManagers": ["pip_requirements"],
-      "matchUpdateTypes": ["major"],
-      "separateMajorMinor": true,
-      "separateMultipleMajor": true
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "pip", "saltbox"]
     },
     {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchUpdateTypes": ["minor", "patch"],
+      "labels": ["dependencies", "github-actions"]
     },
     {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["major"],
-      "separateMajorMinor": true,
-      "separateMultipleMajor": true
-    },
-    {
+      "groupName": "security-updates",
+      "groupSlug": "security-updates",
       "matchManagers": ["pip_requirements", "github-actions"],
-      "isSecurityUpdate": true,
-      "groupName": "security-updates"
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "matchPackagePatterns": [".*"],
+      "group": {
+        "security": true
+      },
+      "labels": ["dependencies", "security"]
     }
-  ]
+  ],
+
+  "rebaseWhen": "conflicted"
 }
