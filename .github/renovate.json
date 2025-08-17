@@ -67,7 +67,7 @@
 
   "rebaseWhen": "conflicted",
 
-   "vulnerabilityAlerts": {
+  "vulnerabilityAlerts": {
     "enabled": true
   }
 }
