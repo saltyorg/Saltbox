@@ -9,23 +9,23 @@
 ---
 - name: Post-Install | Settings | Update settings For New Installs
   ansible.builtin.lineinfile:
-    path: "{{ nzbget_paths_config_location }}"
+    path: "{{ nzbget_role_paths_config_location }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
-  loop: "{{ nzbget_config_new_installs_settings_list }}"
+  loop: "{{ lookup('role_var', '_config_new_installs_settings_list', role='nzbget') }}"
   when: (not nzbget_paths_config_location_stat.stat.exists)
 
 - name: Post-Install | Settings | Set settings For Existing Installs
   ansible.builtin.lineinfile:
-    path: "{{ nzbget_paths_config_location }}"
+    path: "{{ nzbget_role_paths_config_location }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
-  loop: "{{ nzbget_config_existing_installs_settings_list }}"
+  loop: "{{ lookup('role_var', '_config_existing_installs_settings_list', role='nzbget') }}"

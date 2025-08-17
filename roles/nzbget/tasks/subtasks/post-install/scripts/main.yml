@@ -14,54 +14,54 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-  with_items: "{{ nzbget_scripts_paths_folders_list }}"
+  with_items: "{{ lookup('role_var', '_scripts_paths_folders_list', role='nzbget') }}"
 
 # Add Scripts
 
 - name: Post-Install | Scripts | Download scripts repos
   ansible.builtin.git:
     repo: "{{ item }}"
-    dest: "{{ nzbget_scripts_paths_location }}/{{ (item | basename | splitext)[0] }}"
+    dest: "{{ lookup('role_var', '_scripts_paths_location', role='nzbget') }}/{{ (item | basename | splitext)[0] }}"
     clone: true
     version: HEAD
     force: true
   become: true
   become_user: "{{ user.name }}"
-  loop: "{{ nzbget_scripts_repos_list }}"
+  loop: "{{ lookup('role_var', '_scripts_repos_list', role='nzbget') }}"
   ignore_errors: true
 
 - name: Post-Install | Scripts | Download script URLs
   ansible.builtin.get_url:
     url: "{{ item }}"
-    dest: "{{ nzbget_scripts_paths_location }}"
+    dest: "{{ lookup('role_var', '_scripts_paths_location', role='nzbget') }}"
     validate_certs: false
     force: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-  loop: "{{ nzbget_scripts_direct_downloads_list }}"
+  loop: "{{ lookup('role_var', '_scripts_direct_downloads_list', role='nzbget') }}"
   ignore_errors: true
 
 - name: Post-Install | Scripts | Import local scripts
   ansible.builtin.copy:
     src: "{{ item }}"
-    dest: "{{ nzbget_scripts_paths_location }}/{{ item }}"
+    dest: "{{ lookup('role_var', '_scripts_paths_location', role='nzbget') }}/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
     force: true
-  loop: "{{ nzbget_scripts_local_copy_list }}"
+  loop: "{{ lookup('role_var', '_scripts_local_copy_list', role='nzbget') }}"
 
 # Customize Scripts
 
 - name: Post-Install | Scripts | Check if 'nzbgetpp/rarfile/rarfile.py' exists
   ansible.builtin.stat:
-    path: "{{ nzbget_scripts_paths_rarfile_py_location }}"
+    path: "{{ lookup('role_var', '_scripts_paths_rarfile_py_location', role='nzbget') }}"
   register: nzbget_scripts_rarfile_py_stat
 
 - name: Post-Install | Scripts | Add unrar path to 'nzbgetpp/rarfile/rarfile.py'
   ansible.builtin.lineinfile:
-    path: "{{ nzbget_scripts_paths_rarfile_py_location }}"
+    path: "{{ lookup('role_var', '_scripts_paths_rarfile_py_location', role='nzbget') }}"
     regexp: '^UNRAR_TOOL\s?=.*'
     line: 'UNRAR_TOOL = "/app/unrar"'
     state: present
