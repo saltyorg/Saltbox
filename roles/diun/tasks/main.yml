@@ -16,7 +16,7 @@
 - name: Import default config
   ansible.builtin.copy:
     src: "diun.yml"
-    dest: "{{ diun_paths_location }}/diun.yml"
+    dest: "{{ lookup('role_var', '_paths_location', role='diun') }}/diun.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
