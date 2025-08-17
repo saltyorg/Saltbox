@@ -1,6 +1,58 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":semanticCommits",
+    ":separateMajorReleases",
+    ":ignoreUnstable"
+  ],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
+  "ignorePaths": [
+    "/roles/**"
+  ],
+
+  "packageRules": [
+    {
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": ["requirements/requirements-lint.txt"],
+      "groupName": "requirements-lint (pip)",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": ["requirements/requirements-notify.txt"],
+      "groupName": "requirements-notify (pip)",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["pip_requirements"],
+      "matchFileNames": ["requirements/requirements-saltbox.txt"],
+      "groupName": "requirements-saltbox (pip)",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["pip_requirements"],
+      "matchUpdateTypes": ["major"],
+      "separateMajorMinor": true,
+      "separateMultipleMajor": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "separateMajorMinor": true,
+      "separateMultipleMajor": true
+    },
+    {
+      "matchManagers": ["pip_requirements", "github-actions"],
+      "isSecurityUpdate": true,
+      "groupName": "security-updates"
+    }
   ]
 }
