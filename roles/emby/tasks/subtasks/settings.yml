@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ emby_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='emby') }}"
     state: present
 
 - name: Settings | Stop Docker container
@@ -17,12 +17,12 @@
 
 - name: Settings | Update config file
   community.general.xml:
-    path: "{{ emby_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='emby') }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
   become: true
   become_user: "{{ user.name }}"
-  loop: "{{ emby_config_settings_list }}"
+  loop: "{{ lookup('role_var', '_config_settings_list', role='emby') }}"
 
 - name: Settings | Start Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

@@ -17,197 +17,154 @@ emby_instances: ["emby"]
 # Settings
 ################################
 
-emby_config_cache_size: 1024
+emby_role_config_cache_size: 1024
 
 ################################
 # Paths
 ################################
 
-emby_paths_folder: "{{ emby_name }}"
-emby_paths_location: "{{ server_appdata_path }}/{{ emby_paths_folder }}"
-emby_paths_transcodes_location: "{{ transcodes_path }}/{{ emby_paths_folder }}"
-emby_paths_folders_list:
-  - "{{ emby_paths_location }}"
-  - "{{ emby_paths_location }}/config"
-  - "{{ emby_paths_location }}/config/users"
-  - "{{ emby_paths_transcodes_location }}"
-emby_paths_config_location: "{{ emby_paths_location }}/config/system.xml"
-emby_paths_dlna_xml_location: "{{ emby_paths_location }}/config/dlna.xml"
+emby_role_paths_folder: "{{ emby_name }}"
+emby_role_paths_location: "{{ server_appdata_path }}/{{ emby_role_paths_folder }}"
+emby_role_paths_transcodes_location: "{{ transcodes_path }}/{{ emby_role_paths_folder }}"
+emby_role_paths_folders_list:
+  - "{{ emby_role_paths_location }}"
+  - "{{ emby_role_paths_location }}/config"
+  - "{{ emby_role_paths_location }}/config/users"
+  - "{{ emby_role_paths_transcodes_location }}"
+emby_role_paths_config_location: "{{ emby_role_paths_location }}/config/system.xml"
+emby_role_paths_dlna_xml_location: "{{ emby_role_paths_location }}/config/dlna.xml"
 
 ################################
 # Web
 ################################
 
-emby_web_subdomain: "{{ emby_name }}"
-emby_web_domain: "{{ user.domain }}"
-emby_web_port: "8096"
-emby_web_url: "{{ 'https://' + (lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain) + '.' + lookup('vars', emby_name + '_web_domain', default=emby_web_domain)
-               if (lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain) | length > 0)
-               else lookup('vars', emby_name + '_web_domain', default=emby_web_domain)) }}"
+emby_role_web_subdomain: "{{ emby_name }}"
+emby_role_web_domain: "{{ user.domain }}"
+emby_role_web_port: "8096"
+emby_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='emby') + '.' + lookup('role_var', '_web_domain', role='emby')
+                    if (lookup('role_var', '_web_subdomain', role='emby') | length > 0)
+                    else lookup('role_var', '_web_domain', role='emby')) }}"
 
 ################################
 # DNS
 ################################
 
-emby_dns_record: "{{ lookup('vars', emby_name + '_web_subdomain', default=emby_web_subdomain) }}"
-emby_dns_zone: "{{ lookup('vars', emby_name + '_web_domain', default=emby_web_domain) }}"
-emby_dns_proxy: "{{ dns.proxied }}"
+emby_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='emby') }}"
+emby_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='emby') }}"
+emby_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-emby_traefik_sso_middleware: ""
-emby_traefik_middleware_default: "{{ traefik_default_middleware
-                                     + (',themepark-' + lookup('vars', emby_name + '_name', default=emby_name)
-                                       if (emby_themepark_enabled and global_themepark_plugin_enabled)
-                                       else '') }}"
-emby_traefik_middleware_custom: ""
-emby_traefik_certresolver: "{{ traefik_default_certresolver }}"
-emby_traefik_enabled: true
-emby_traefik_gzip_enabled: false
-emby_traefik_api_enabled: false
-emby_traefik_api_endpoint: ""
+emby_role_traefik_sso_middleware: ""
+emby_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                          + (',themepark-' + lookup('role_var', '_name', role='emby')
+                                            if (lookup('role_var', '_themepark_enabled', role='emby') and global_themepark_plugin_enabled)
+                                            else '') }}"
+emby_role_traefik_middleware_custom: ""
+emby_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+emby_role_traefik_enabled: true
+emby_role_traefik_gzip_enabled: false
+emby_role_traefik_api_enabled: false
+emby_role_traefik_api_endpoint: ""
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-emby_themepark_enabled: false
-emby_themepark_app: "emby"
-emby_themepark_theme: "{{ global_themepark_theme }}"
-emby_themepark_domain: "{{ global_themepark_domain }}"
-emby_themepark_addons: []
+emby_role_themepark_enabled: false
+emby_role_themepark_app: "emby"
+emby_role_themepark_theme: "{{ global_themepark_theme }}"
+emby_role_themepark_domain: "{{ global_themepark_domain }}"
+emby_role_themepark_addons: []
 
 ################################
 # Config
 ################################
 
-emby_config_settings_default:
+emby_role_config_settings_default:
   - { xpath: 'IsBehindProxy', value: 'true' }
-  - { xpath: 'WanDdns', value: '{{ lookup("vars", emby_name + "_web_subdomain", default=emby_web_subdomain) }}.{{ lookup("vars", emby_name + "_web_domain", default=emby_web_domain) }}' }
+  - { xpath: 'WanDdns', value: '{{ lookup("role_var", "_web_subdomain", role="emby") }}.{{ lookup("role_var", "_web_domain", role="emby") }}' }
   - { xpath: 'PublicPort', value: '80' }
   - { xpath: 'PublicHttpsPort', value: '443' }
   - { xpath: 'EnableHttps', value: 'true' }
   - { xpath: 'RequireHttps', value: 'false' }
   - { xpath: 'EnableUPnP', value: 'false' }
-  - { xpath: 'DatabaseCacheSizeMB', value: '{{ lookup("vars", emby_name + "_config_cache_size", default=emby_config_cache_size) }}' }
+  - { xpath: 'DatabaseCacheSizeMB', value: '{{ lookup("role_var", "_config_cache_size", role="emby") }}' }
 
-emby_config_settings_custom: []
+emby_role_config_settings_custom: []
 
-emby_config_settings_list: "{{ lookup('vars', emby_name + '_config_settings_default', default=emby_config_settings_default) + lookup('vars', emby_name + '_config_settings_custom', default=emby_config_settings_custom) }}"
+emby_role_config_settings_list: "{{ lookup('role_var', '_config_settings_default', role='emby') + lookup('role_var', '_config_settings_custom', role='emby') }}"
 
 ################################
 # Docker
 ################################
 
 # Container
-emby_docker_container: "{{ emby_name }}"
+emby_role_docker_container: "{{ emby_name }}"
 
 # Image
-emby_docker_image_pull: true
-emby_docker_image_repo: "lscr.io/linuxserver/emby"
-emby_docker_image_tag: "latest"
-emby_docker_image: "{{ lookup('vars', emby_name + '_docker_image_repo', default=emby_docker_image_repo)
-                       + ':' + lookup('vars', emby_name + '_docker_image_tag', default=emby_docker_image_tag) }}"
-
-# Ports
-emby_docker_ports_defaults: []
-emby_docker_ports_custom: []
-emby_docker_ports: "{{ lookup('vars', emby_name + '_docker_ports_defaults', default=emby_docker_ports_defaults)
-                       + lookup('vars', emby_name + '_docker_ports_custom', default=emby_docker_ports_custom) }}"
+emby_role_docker_image_pull: true
+emby_role_docker_image_repo: "lscr.io/linuxserver/emby"
+emby_role_docker_image_tag: "latest"
+emby_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='emby') }}:{{ lookup('role_var', '_docker_image_tag', role='emby') }}"
 
 # Envs
-emby_docker_envs_default:
+emby_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-emby_docker_envs_custom: {}
-emby_docker_envs: "{{ lookup('vars', emby_name + '_docker_envs_default', default=emby_docker_envs_default)
-                      | combine(lookup('vars', emby_name + '_docker_envs_custom', default=emby_docker_envs_custom)) }}"
-
-# Commands
-emby_docker_commands_default: []
-emby_docker_commands_custom: []
-emby_docker_commands: "{{ lookup('vars', emby_name + '_docker_commands_default', default=emby_docker_commands_default)
-                          + lookup('vars', emby_name + '_docker_commands_custom', default=emby_docker_commands_custom) }}"
+emby_role_docker_envs_custom: {}
+emby_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='emby')
+                           | combine(lookup('role_var', '_docker_envs_custom', role='emby')) }}"
 
 # Volumes
-emby_docker_volumes_default:
-  - "{{ emby_paths_location }}:/config"
+emby_role_docker_volumes_default:
+  - "{{ emby_role_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/dev/shm:/dev/shm"
-  - "{{ emby_paths_transcodes_location }}:/transcode"
-emby_docker_volumes_legacy:
+  - "{{ emby_role_paths_transcodes_location }}:/transcode"
+emby_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media:/data"
-emby_docker_volumes_custom: []
-emby_docker_volumes: "{{ lookup('vars', emby_name + '_docker_volumes_default', default=emby_docker_volumes_default)
-                         + lookup('vars', emby_name + '_docker_volumes_custom', default=emby_docker_volumes_custom)
-                         + (lookup('vars', emby_name + '_docker_volumes_legacy', default=emby_docker_volumes_legacy)
-                           if docker_legacy_volume
-                           else []) }}"
+emby_role_docker_volumes_custom: []
+emby_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='emby')
+                              + lookup('role_var', '_docker_volumes_custom', role='emby')
+                              + (lookup('role_var', '_docker_volumes_legacy', role='emby')
+                                if docker_legacy_volume
+                                else []) }}"
 
 # Mounts
-emby_docker_mounts_default:
+emby_role_docker_mounts_default:
   - target: /tmp
     type: tmpfs
-emby_docker_mounts_custom: []
-emby_docker_mounts: "{{ lookup('vars', emby_name + '_docker_mounts_default', default=emby_docker_mounts_default)
-                        + lookup('vars', emby_name + '_docker_mounts_custom', default=emby_docker_mounts_custom) }}"
-
-# Devices
-emby_docker_devices_default: []
-emby_docker_devices_custom: []
-emby_docker_devices: "{{ lookup('vars', emby_name + '_docker_devices_default', default=emby_docker_devices_default)
-                         + lookup('vars', emby_name + '_docker_devices_custom', default=emby_docker_devices_custom) }}"
-
-# Hosts
-emby_docker_hosts_default: {}
-emby_docker_hosts_custom: {}
-emby_docker_hosts: "{{ docker_hosts_common
-                       | combine(lookup('vars', emby_name + '_docker_hosts_default', default=emby_docker_hosts_default))
-                       | combine(lookup('vars', emby_name + '_docker_hosts_custom', default=emby_docker_hosts_custom)) }}"
+emby_role_docker_mounts_custom: []
+emby_role_docker_mounts: "{{ lookup('role_var', '_docker_mounts_default', role='emby')
+                             + lookup('role_var', '_docker_mounts_custom', role='emby') }}"
 
 # Labels
-emby_docker_labels_default: {}
-emby_docker_labels_custom: {}
-emby_docker_labels: "{{ docker_labels_common
-                        | combine(lookup('vars', emby_name + '_docker_labels_default', default=emby_docker_labels_default))
-                        | combine((traefik_themepark_labels
-                                  if (emby_themepark_enabled and global_themepark_plugin_enabled)
-                                  else {}),
-                                  lookup('vars', emby_name + '_docker_labels_custom', default=emby_docker_labels_custom)) }}"
+emby_role_docker_labels_default: {}
+emby_role_docker_labels_custom: {}
+emby_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='emby')
+                             | combine((traefik_themepark_labels
+                                       if (lookup('role_var', '_themepark_enabled', role='emby') and global_themepark_plugin_enabled)
+                                       else {}),
+                                       lookup('role_var', '_docker_labels_custom', role='emby')) }}"
 
 # Hostname
-emby_docker_hostname: "{{ emby_name }}"
-
-# Network Mode
-emby_docker_network_mode_default: "{{ docker_networks_name_common }}"
-emby_docker_network_mode: "{{ lookup('vars', emby_name + '_docker_network_mode_default', default=emby_docker_network_mode_default) }}"
+emby_role_docker_hostname: "{{ emby_name }}"
 
 # Networks
-emby_docker_networks_alias: "{{ emby_name }}"
-emby_docker_networks_default: []
-emby_docker_networks_custom: []
-emby_docker_networks: "{{ docker_networks_common
-                          + lookup('vars', emby_name + '_docker_networks_default', default=emby_docker_networks_default)
-                          + lookup('vars', emby_name + '_docker_networks_custom', default=emby_docker_networks_custom) }}"
-
-# Capabilities
-emby_docker_capabilities_default: []
-emby_docker_capabilities_custom: []
-emby_docker_capabilities: "{{ lookup('vars', emby_name + '_docker_capabilities_default', default=emby_docker_capabilities_default)
-                              + lookup('vars', emby_name + '_docker_capabilities_custom', default=emby_docker_capabilities_custom) }}"
-
-# Security Opts
-emby_docker_security_opts_default: []
-emby_docker_security_opts_custom: []
-emby_docker_security_opts: "{{ lookup('vars', emby_name + '_docker_security_opts_default', default=emby_docker_security_opts_default)
-                               + lookup('vars', emby_name + '_docker_security_opts_custom', default=emby_docker_security_opts_custom) }}"
+emby_role_docker_networks_alias: "{{ emby_name }}"
+emby_role_docker_networks_default: []
+emby_role_docker_networks_custom: []
+emby_role_docker_networks: "{{ docker_networks_common
+                               + lookup('role_var', '_docker_networks_default', role='emby')
+                               + lookup('role_var', '_docker_networks_custom', role='emby') }}"
 
 # Restart Policy
-emby_docker_restart_policy: unless-stopped
+emby_role_docker_restart_policy: unless-stopped
 
 # State
-emby_docker_state: started
+emby_role_docker_state: started
