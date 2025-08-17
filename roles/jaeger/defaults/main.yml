@@ -17,125 +17,76 @@ jaeger_name: jaeger
 # Paths
 ################################
 
-jaeger_paths_folder: "{{ jaeger_name }}"
-jaeger_paths_location: "{{ server_appdata_path }}/{{ jaeger_paths_folder }}"
-jaeger_paths_folders_list:
-  - "{{ jaeger_paths_location }}"
+jaeger_role_paths_folder: "{{ jaeger_name }}"
+jaeger_role_paths_location: "{{ server_appdata_path }}/{{ jaeger_role_paths_folder }}"
+jaeger_role_paths_folders_list:
+  - "{{ jaeger_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-jaeger_web_subdomain: "{{ jaeger_name }}"
-jaeger_web_domain: "{{ user.domain }}"
-jaeger_web_port: "16686"
-jaeger_web_url: "{{ 'https://' + (jaeger_web_subdomain + '.' + jaeger_web_domain
-                 if (jaeger_web_subdomain | length > 0)
-                 else jaeger_web_domain) }}"
+jaeger_role_web_subdomain: "{{ jaeger_name }}"
+jaeger_role_web_domain: "{{ user.domain }}"
+jaeger_role_web_port: "16686"
+jaeger_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='jaeger') + '.' + lookup('role_var', '_web_domain', role='jaeger')
+                      if (lookup('role_var', '_web_subdomain', role='jaeger') | length > 0)
+                      else lookup('role_var', '_web_domain', role='jaeger')) }}"
 
 ################################
 # DNS
 ################################
 
-jaeger_dns_record: "{{ jaeger_web_subdomain }}"
-jaeger_dns_zone: "{{ jaeger_web_domain }}"
-jaeger_dns_proxy: "{{ dns.proxied }}"
+jaeger_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='jaeger') }}"
+jaeger_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='jaeger') }}"
+jaeger_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-jaeger_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-jaeger_traefik_middleware_default: "{{ traefik_default_middleware }}"
-jaeger_traefik_middleware_custom: ""
-jaeger_traefik_certresolver: "{{ traefik_default_certresolver }}"
-jaeger_traefik_enabled: true
-jaeger_traefik_api_enabled: false
-jaeger_traefik_api_endpoint: ""
+jaeger_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+jaeger_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+jaeger_role_traefik_middleware_custom: ""
+jaeger_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+jaeger_role_traefik_enabled: true
+jaeger_role_traefik_api_enabled: false
+jaeger_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-jaeger_docker_container: "{{ jaeger_name }}"
+jaeger_role_docker_container: "{{ jaeger_name }}"
 
 # Image
-jaeger_docker_image_pull: true
-jaeger_docker_image_tag: "latest"
-jaeger_docker_image: "jaegertracing/all-in-one:{{ jaeger_docker_image_tag }}"
-
-# Ports
-jaeger_docker_ports_defaults: []
-jaeger_docker_ports_custom: []
-jaeger_docker_ports: "{{ jaeger_docker_ports_defaults
-                         + jaeger_docker_ports_custom }}"
+jaeger_role_docker_image_pull: true
+jaeger_role_docker_image_repo: "jaegertracing/all-in-one"
+jaeger_role_docker_image_tag: "latest"
+jaeger_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='jaeger') }}:{{ lookup('role_var', '_docker_image_tag', role='jaeger') }}"
 
 # Envs
-jaeger_docker_envs_default:
+jaeger_role_docker_envs_default:
   TZ: "{{ tz }}"
   COLLECTOR_ZIPKIN_HTTP_PORT: "9411"
-jaeger_docker_envs_custom: {}
-jaeger_docker_envs: "{{ jaeger_docker_envs_default
-                        | combine(jaeger_docker_envs_custom) }}"
-
-# Commands
-jaeger_docker_commands_default: []
-jaeger_docker_commands_custom: []
-jaeger_docker_commands: "{{ jaeger_docker_commands_default
-                            + jaeger_docker_commands_custom }}"
-
-# Volumes
-jaeger_docker_volumes_default: []
-jaeger_docker_volumes_custom: []
-jaeger_docker_volumes: "{{ jaeger_docker_volumes_default
-                           + jaeger_docker_volumes_custom }}"
-
-# Devices
-jaeger_docker_devices_default: []
-jaeger_docker_devices_custom: []
-jaeger_docker_devices: "{{ jaeger_docker_devices_default
-                           + jaeger_docker_devices_custom }}"
-
-# Hosts
-jaeger_docker_hosts_default: {}
-jaeger_docker_hosts_custom: {}
-jaeger_docker_hosts: "{{ docker_hosts_common
-                         | combine(jaeger_docker_hosts_default)
-                         | combine(jaeger_docker_hosts_custom) }}"
-
-# Labels
-jaeger_docker_labels_default: {}
-jaeger_docker_labels_custom: {}
-jaeger_docker_labels: "{{ docker_labels_common
-                          | combine(jaeger_docker_labels_default)
-                          | combine(jaeger_docker_labels_custom) }}"
+jaeger_role_docker_envs_custom: {}
+jaeger_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='jaeger')
+                             | combine(lookup('role_var', '_docker_envs_custom', role='jaeger')) }}"
 
 # Hostname
-jaeger_docker_hostname: "{{ jaeger_name }}"
+jaeger_role_docker_hostname: "{{ jaeger_name }}"
 
 # Networks
-jaeger_docker_networks_alias: "{{ jaeger_name }}"
-jaeger_docker_networks_default: []
-jaeger_docker_networks_custom: []
-jaeger_docker_networks: "{{ docker_networks_common
-                            + jaeger_docker_networks_default
-                            + jaeger_docker_networks_custom }}"
-
-# Capabilities
-jaeger_docker_capabilities_default: []
-jaeger_docker_capabilities_custom: []
-jaeger_docker_capabilities: "{{ jaeger_docker_capabilities_default
-                                + jaeger_docker_capabilities_custom }}"
-
-# Security Opts
-jaeger_docker_security_opts_default: []
-jaeger_docker_security_opts_custom: []
-jaeger_docker_security_opts: "{{ jaeger_docker_security_opts_default
-                                 + jaeger_docker_security_opts_custom }}"
+jaeger_role_docker_networks_alias: "{{ jaeger_name }}"
+jaeger_role_docker_networks_default: []
+jaeger_role_docker_networks_custom: []
+jaeger_role_docker_networks: "{{ docker_networks_common
+                                 + lookup('role_var', '_docker_networks_default', role='jaeger')
+                                 + lookup('role_var', '_docker_networks_custom', role='jaeger') }}"
 
 # Restart Policy
-jaeger_docker_restart_policy: unless-stopped
+jaeger_role_docker_restart_policy: unless-stopped
 
 # State
-jaeger_docker_state: started
+jaeger_role_docker_state: started
