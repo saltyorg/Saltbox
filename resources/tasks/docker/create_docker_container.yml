@@ -30,7 +30,7 @@
     cgroup_parent: "{{ lookup('docker_var', '_docker_cgroup_parent', default=omit) }}"
     cgroupns_mode: "{{ lookup('docker_var', '_docker_cgroupns_mode', default=omit) }}"
     cleanup: "{{ lookup('docker_var', '_docker_cleanup', default=omit) }}"
-    command: "{{ (lookup('docker_var', '_docker_commands', default=omit) | reject('equalto', omit) | list)
+    command: "{{ (lookup('docker_var', '_docker_commands', default=[]) | reject('equalto', omit) | list)
               if (lookup('docker_var', '_docker_commands', default=[]) | length > 0)
               else omit }}"
     command_handling: compatibility
@@ -129,9 +129,9 @@
     userns_mode: "{{ lookup('docker_var', '_docker_userns_mode', default=omit) }}"
     uts: "{{ lookup('docker_var', '_docker_uts', default=omit) }}"
     volume_driver: "{{ lookup('docker_var', '_docker_volume_driver', default=omit) }}"
-    volumes: "{{ ((docker_volumes_common + lookup('docker_var', '_docker_volumes', default=omit))
+    volumes: "{{ ((docker_volumes_common + lookup('docker_var', '_docker_volumes', default=[]))
               if (lookup('docker_var', '_docker_volumes_global', default=true) | bool)
-              else lookup('docker_var', '_docker_volumes', default=omit)) | unique | reject('equalto', omit) | list }}"
+              else lookup('docker_var', '_docker_volumes', default=[])) | unique | reject('equalto', omit) | list }}"
     volumes_from: "{{ lookup('docker_var', '_docker_volumes_from', default=omit) }}"
     working_dir: "{{ lookup('docker_var', '_docker_working_dir', default=omit) }}"
   register: create_docker_result
