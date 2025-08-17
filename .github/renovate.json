@@ -138,24 +138,6 @@
                 "dependencies",
                 "github-actions"
             ]
-        },
-        {
-            "description": "Security updates - high priority",
-            "matchPackagePatterns": [
-                "*"
-            ],
-            "matchUpdateTypes": [
-                "patch"
-            ],
-            "labels": [
-                "dependencies",
-                "security"
-            ],
-            "vulnerabilitySeverity": [
-                "HIGH",
-                "CRITICAL"
-            ],
-            "prPriority": 10
         }
     ],
     "rebaseWhen": "conflicted",
