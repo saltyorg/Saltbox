@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Settings | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ nzbhydra2_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbhydra2') }}"
     state: present
 
 - name: Wait 30 seconds
@@ -21,10 +21,10 @@
 
 - name: Post-Install | Settings | Update settings
   ansible.builtin.shell: |
-    yyq -i '{{ item }}' {{ nzbhydra2_paths_config_location }}
+    yyq -i '{{ item }}' {{ lookup('role_var', '_paths_config_location', role='nzbhydra2') }}
   become: true
   become_user: "{{ user.name }}"
-  loop: "{{ nzbhydra2_config_settings_list }}"
+  loop: "{{ lookup('role_var', '_config_settings_list', role='nzbhydra2') }}"
 
 - name: Post-Install | Settings | Start container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

@@ -74,10 +74,6 @@ mariadb_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', r
 # Hostname
 mariadb_role_docker_hostname: "{{ mariadb_name }}"
 
-# Network Mode
-mariadb_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
-mariadb_role_docker_network_mode: "{{ lookup('role_var', '_docker_network_mode_default', role='mariadb') }}"
-
 # Networks
 mariadb_role_docker_networks_alias: "{{ mariadb_name }}"
 mariadb_role_docker_networks_default: []

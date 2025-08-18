@@ -13,11 +13,11 @@
 
 - name: Pre-Install | Check if config exists
   ansible.builtin.stat:
-    path: "{{ nzbthrottle_paths_config_location }}"
-  register: nzbthrottle_paths_config_location_stat
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbthrottle') }}"
+  register: nzbthrottle_role_paths_config_location_stat
 
 - name: Pre-Install | New config tasks
-  when: (not nzbthrottle_paths_config_location_stat.stat.exists)
+  when: (not nzbthrottle_role_paths_config_location_stat.stat.exists)
   block:
     - name: Pre-Install | Import Plex Auth Token role
       ansible.builtin.include_role:
@@ -27,7 +27,7 @@
     - name: Pre-Install | Import default config
       ansible.builtin.template:
         src: 'config.json.j2'
-        dest: "{{ nzbthrottle_paths_config_location }}"
+        dest: "{{ lookup('role_var', '_paths_config_location', role='nzbthrottle') }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"

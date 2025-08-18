@@ -7,12 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Settings | Check if `{{ unpackerr_config_location | basename }}` exists
+- name: Settings | Check if `{{ lookup('role_var', '_paths_config_location', role='unpackerr') | basename }}` exists
   ansible.builtin.stat:
-    path: "{{ unpackerr_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='unpackerr') }}"
   register: unpackerr_config
 
-- name: Settings | New `{{ unpackerr_config_location | basename }}` tasks
+- name: Settings | New `{{ lookup('role_var', '_paths_config_location', role='unpackerr') | basename }}` tasks
   when: not unpackerr_config.stat.exists
   block:
     - name: Get Instance Info
@@ -23,10 +23,10 @@
           - radarr
           - lidarr
 
-    - name: Settings | Import default `{{ unpackerr_config_location | basename }}`
+    - name: Settings | Import default `{{ lookup('role_var', '_paths_config_location', role='unpackerr') | basename }}`
       ansible.builtin.template:
         src: unpackerr.conf.j2
-        dest: "{{ unpackerr_config_location }}"
+        dest: "{{ lookup('role_var', '_paths_config_location', role='unpackerr') }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"

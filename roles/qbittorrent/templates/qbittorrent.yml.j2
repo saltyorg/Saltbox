@@ -17,13 +17,13 @@ http:
       service: "{{ qbittorrent_name }}"
       tls:
         options: securetls@file
-        certResolver: {{ qbittorrent_traefik_certresolver }}
-{% if lookup('vars', qbittorrent_name + '_traefik_api_enabled', default=qbittorrent_traefik_api_enabled) %}
+        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='qbittorrent') }}
+{% if lookup('role_var', '_traefik_api_enabled', role='qbittorrent') %}
 
     {{ qbittorrent_name }}-api-http:
       entryPoints:
         - "web"
-      rule: "{{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }})"
+      rule: "{{ traefik_host_template + ' && (' + lookup('role_var', '_traefik_api_endpoint', role='qbittorrent') }})"
       middlewares:
         {{ traefik_default_middleware_http_api.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
@@ -31,29 +31,29 @@ http:
     {{ qbittorrent_name }}-api:
       entryPoints:
         - "websecure"
-      rule: "{{ traefik_host_template + ' && (' + lookup('vars', qbittorrent_name + '_traefik_api_endpoint', default=qbittorrent_traefik_api_endpoint) }})"
+      rule: "{{ traefik_host_template + ' && (' + lookup('role_var', '_traefik_api_endpoint', role='qbittorrent') }})"
       middlewares:
         {{ traefik_default_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ qbittorrent_name }}"
       tls:
         options: securetls@file
-        certResolver: {{ qbittorrent_traefik_certresolver }}
+        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='qbittorrent') }}
 {% endif %}
 
   services:
     {{ qbittorrent_name }}:
       loadBalancer:
         servers:
-          - url: "http://172.19.0.1:{{ qbittorrent_docker_ports_8080 }}"
-{% if qbittorrent_themepark_enabled and global_themepark_plugin_enabled %}
+          - url: "http://172.19.0.1:{{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') }}"
+{% if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled %}
 
   middlewares:
-    themepark-{{ lookup("vars", qbittorrent_name + "_name", default=qbittorrent_name) }}:
+    themepark-{{ qbittorrent_name }}:
       plugin:
         themepark:
-          app: "{{ qbittorrent_themepark_app }}"
-          theme: "{{ lookup("vars", qbittorrent_name + "_themepark_theme", default=qbittorrent_themepark_theme) }}"
-{% if lookup("vars", qbittorrent_name + "_themepark_addons", default=qbittorrent_themepark_addons) | length > 0 %}
-          addons: "{{ lookup("vars", qbittorrent_name + "_themepark_addons", default=qbittorrent_themepark_addons) }}"
+          app: "{{ qbittorrent_role_themepark_app }}"
+          theme: "{{ lookup('role_var', '_themepark_theme', role='qbittorrent') }}"
+{% if lookup('role_var', '_themepark_addons', role='qbittorrent') | length > 0 %}
+          addons: "{{ lookup('role_var', '_themepark_addons', role='qbittorrent') }}"
 {% endif %}
 {% endif %}

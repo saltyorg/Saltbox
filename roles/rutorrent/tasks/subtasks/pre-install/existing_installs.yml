@@ -9,7 +9,7 @@
 ---
 - name: Pre-Install | Settings | Existing Installs | Update 'rtorrent.rc' config settings
   community.general.ini_file:
-    path: "{{ rutorrent_paths_rtorrent_rc_location }}"
+    path: "{{ lookup('role_var', '_paths_rtorrent_rc_location', role='rutorrent') }}"
     section: null
     option: "{{ item.option }}"
     value: "{{ item.value }}"
@@ -18,4 +18,4 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
-  loop: "{{ rutorrent_config_existing_installs_rutorrent_rc_settings_list }}"
+  loop: "{{ lookup('role_var', '_config_existing_installs_rutorrent_rc_settings_list', role='rutorrent') }}"

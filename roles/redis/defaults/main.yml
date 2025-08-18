@@ -49,13 +49,6 @@ redis_role_docker_volumes_custom: []
 redis_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='redis')
                                + lookup('role_var', '_docker_volumes_custom', role='redis') }}"
 
-# Hosts
-redis_role_docker_hosts_default: {}
-redis_role_docker_hosts_custom: {}
-redis_role_docker_hosts: "{{ docker_hosts_common
-                             | combine(lookup('role_var', '_docker_hosts_default', role='redis'))
-                             | combine(lookup('role_var', '_docker_hosts_custom', role='redis')) }}"
-
 # Hostname
 redis_role_docker_hostname: "{{ redis_name }}"
 

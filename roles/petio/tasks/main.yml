@@ -13,9 +13,9 @@
   vars:
     mongodb_instances: ["{{ petio_name }}-mongo"]
     mongodb_docker_env_db: "{{ petio_name }}"
-    mongodb_docker_image_tag: "{{ petio_mongodb_version }}"
+    mongodb_docker_image_tag: "{{ lookup('role_var', '_mongodb_version', role='petio') }}"
     mongodb_paths_folder: "{{ petio_name }}"
-    mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_paths_folder }}/mongodb"
+    mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_role_paths_folder }}/mongodb"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"

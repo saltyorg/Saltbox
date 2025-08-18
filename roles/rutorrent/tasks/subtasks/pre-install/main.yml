@@ -9,7 +9,7 @@
 ---
 - name: Pre-Install | Remove existing 'config.php'
   ansible.builtin.file:
-    path: "{{ rutorrent_paths_config_php_location }}"
+    path: "{{ lookup('role_var', '_paths_config_php_location', role='rutorrent') }}"
     state: absent
 
 - name: Pre-Install | Get next available port within the range of '51413-51423' # noqa fqcn[action]
@@ -30,4 +30,4 @@
 
 - name: Pre-Install | Settings | Update settings For Existing Installs
   ansible.builtin.include_tasks: "existing_installs.yml"
-  when: rutorrent_paths_rtorrent_rc_location_stat.stat.exists
+  when: rutorrent_role_paths_rtorrent_rc_location_stat.stat.exists

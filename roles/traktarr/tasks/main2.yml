@@ -100,7 +100,7 @@
   register: sonarr_config
   when: (not traktarr_config.stat.exists)
 
-- name: "When sonarr exists, add api key to traktar config"
+- name: "When sonarr exists, add api key to traktarr config"
   when: (not traktarr_config.stat.exists) and sonarr_config.stat.exists
   block:
     - name: Pull sonarr api key
@@ -120,7 +120,7 @@
   register: radarr_config
   when: (not traktarr_config.stat.exists)
 
-- name: "When radarr exists, add api key to traktar config"
+- name: "When radarr exists, add api key to traktarr config"
   when: (not traktarr_config.stat.exists) and radarr_config.stat.exists
   block:
     - name: Pull radarr api key

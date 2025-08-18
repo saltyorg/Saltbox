@@ -125,10 +125,6 @@ lidarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role
 # Hostname
 lidarr_role_docker_hostname: "{{ lidarr_name }}"
 
-# Network Mode
-lidarr_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
-lidarr_role_docker_network_mode: "{{ lookup('role_var', '_docker_network_mode_default', role='lidarr') }}"
-
 # Networks
 lidarr_role_docker_networks_alias: "{{ lidarr_name }}"
 lidarr_role_docker_networks_default: []

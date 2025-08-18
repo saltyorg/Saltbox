@@ -18,12 +18,12 @@
 
 - name: Settings | Check if SABnzbd is installed
   ansible.builtin.stat:
-    path: "{{ sabnzbd_paths_config_location }}"
+    path: "{{ sabnzbd_role_paths_config_location }}"
   register: stat_sabnzbd
 
 - name: Settings | Lookup SABnzbd API Key
   ansible.builtin.set_fact:
-    sabnzbd_apikey: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
+    sabnzbd_apikey: "{{ lookup('file', sabnzbd_role_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
 
 - name: Settings | Check if 'config.json' exists
@@ -82,7 +82,7 @@
 
     - name: Settings | Update SABnzbd URL in 'config.json'
       ansible.builtin.shell: |
-        jq '.sabnzbd.url = "{{ sabnzbd_web_local_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+        jq '.sabnzbd.url = "{{ sabnzbd_role_web_local_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
 

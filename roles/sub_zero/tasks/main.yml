@@ -96,12 +96,12 @@
         mode: "0775"
         recurse: true
       with_items:
-        - "{{ plex_role_paths_plugins_location }}"
+        - "{{ lookup('role_var', '_paths_plugins_location', role='plex') }}"
 
     - name: Install Sub-Zero Plugin
       ansible.builtin.unarchive:
         src: "{{ plex_plugin_subzero_download_url }}"
-        dest: "{{ plex_role_paths_plugins_location }}"
+        dest: "{{ lookup('role_var', '_paths_plugins_location', role='plex') }}"
         copy: false
         owner: "{{ user.name }}"
         group: "{{ user.name }}"

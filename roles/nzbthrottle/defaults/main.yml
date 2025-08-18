@@ -17,95 +17,52 @@ nzbthrottle_name: nzbthrottle
 # Paths
 ################################
 
-nzbthrottle_paths_folder: "{{ nzbthrottle_name }}"
-nzbthrottle_paths_location: "{{ server_appdata_path }}/{{ nzbthrottle_paths_folder }}"
-nzbthrottle_paths_folders_list:
-  - "{{ nzbthrottle_paths_location }}"
-nzbthrottle_paths_config_location: "{{ nzbthrottle_paths_location }}/config.json"
+nzbthrottle_role_paths_folder: "{{ nzbthrottle_name }}"
+nzbthrottle_role_paths_location: "{{ server_appdata_path }}/{{ nzbthrottle_role_paths_folder }}"
+nzbthrottle_role_paths_folders_list:
+  - "{{ nzbthrottle_role_paths_location }}"
+nzbthrottle_role_paths_config_location: "{{ nzbthrottle_role_paths_location }}/config.json"
 
 ################################
 # Docker
 ################################
 
 # Container
-nzbthrottle_docker_container: "{{ nzbthrottle_name }}"
+nzbthrottle_role_docker_container: "{{ nzbthrottle_name }}"
 
 # Image
-nzbthrottle_docker_image_pull: true
-nzbthrottle_docker_image_tag: "latest"
-nzbthrottle_docker_image: "daghaian/nzbthrottle:{{ nzbthrottle_docker_image_tag }}"
-
-# Ports
-nzbthrottle_docker_ports_defaults: []
-nzbthrottle_docker_ports_custom: []
-nzbthrottle_docker_ports: "{{ nzbthrottle_docker_ports_defaults
-                              + nzbthrottle_docker_ports_custom }}"
+nzbthrottle_role_docker_image_pull: true
+nzbthrottle_role_docker_image_repo: "daghaian/nzbthrottle"
+nzbthrottle_role_docker_image_tag: "latest"
+nzbthrottle_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='nzbthrottle') }}:{{ lookup('role_var', '_docker_image_tag', role='nzbthrottle') }}"
 
 # Envs
-nzbthrottle_docker_envs_default:
+nzbthrottle_role_docker_envs_default:
   TZ: "{{ tz }}"
-nzbthrottle_docker_envs_custom: {}
-nzbthrottle_docker_envs: "{{ nzbthrottle_docker_envs_default
-                              | combine(nzbthrottle_docker_envs_custom) }}"
-
-# Commands
-nzbthrottle_docker_commands_default: []
-nzbthrottle_docker_commands_custom: []
-nzbthrottle_docker_commands: "{{ nzbthrottle_docker_commands_default
-                                  + nzbthrottle_docker_commands_custom }}"
+nzbthrottle_role_docker_envs_custom: {}
+nzbthrottle_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='nzbthrottle')
+                                  | combine(lookup('role_var', '_docker_envs_custom', role='nzbthrottle')) }}"
 
 # Volumes
-nzbthrottle_docker_volumes_default:
-  - "{{ nzbthrottle_paths_config_location }}:/nzbthrottle/config.json:ro"
-nzbthrottle_docker_volumes_custom: []
-nzbthrottle_docker_volumes: "{{ nzbthrottle_docker_volumes_default
-                                + nzbthrottle_docker_volumes_custom }}"
-
-# Devices
-nzbthrottle_docker_devices_default: []
-nzbthrottle_docker_devices_custom: []
-nzbthrottle_docker_devices: "{{ nzbthrottle_docker_devices_default
-                                + nzbthrottle_docker_devices_custom }}"
-
-# Hosts
-nzbthrottle_docker_hosts_default: {}
-nzbthrottle_docker_hosts_custom: {}
-nzbthrottle_docker_hosts: "{{ docker_hosts_common
-                              | combine(nzbthrottle_docker_hosts_default)
-                              | combine(nzbthrottle_docker_hosts_custom) }}"
-
-# Labels
-nzbthrottle_docker_labels_default: {}
-nzbthrottle_docker_labels_custom: {}
-nzbthrottle_docker_labels: "{{ docker_labels_common
-                                | combine(nzbthrottle_docker_labels_default)
-                                | combine(nzbthrottle_docker_labels_custom) }}"
+nzbthrottle_role_docker_volumes_default:
+  - "{{ nzbthrottle_role_paths_config_location }}:/nzbthrottle/config.json:ro"
+nzbthrottle_role_docker_volumes_custom: []
+nzbthrottle_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nzbthrottle')
+                                     + lookup('role_var', '_docker_volumes_custom', role='nzbthrottle') }}"
 
 # Hostname
-nzbthrottle_docker_hostname: "{{ nzbthrottle_name }}"
+nzbthrottle_role_docker_hostname: "{{ nzbthrottle_name }}"
 
 # Networks
-nzbthrottle_docker_networks_alias: "{{ nzbthrottle_name }}"
-nzbthrottle_docker_networks_default: []
-nzbthrottle_docker_networks_custom: []
-nzbthrottle_docker_networks: "{{ docker_networks_common
-                                  + nzbthrottle_docker_networks_default
-                                  + nzbthrottle_docker_networks_custom }}"
-
-# Capabilities
-nzbthrottle_docker_capabilities_default: []
-nzbthrottle_docker_capabilities_custom: []
-nzbthrottle_docker_capabilities: "{{ nzbthrottle_docker_capabilities_default
-                                      + nzbthrottle_docker_capabilities_custom }}"
-
-# Security Opts
-nzbthrottle_docker_security_opts_default: []
-nzbthrottle_docker_security_opts_custom: []
-nzbthrottle_docker_security_opts: "{{ nzbthrottle_docker_security_opts_default
-                                      + nzbthrottle_docker_security_opts_custom }}"
+nzbthrottle_role_docker_networks_alias: "{{ nzbthrottle_name }}"
+nzbthrottle_role_docker_networks_default: []
+nzbthrottle_role_docker_networks_custom: []
+nzbthrottle_role_docker_networks: "{{ docker_networks_common
+                                      + lookup('role_var', '_docker_networks_default', role='nzbthrottle')
+                                      + lookup('role_var', '_docker_networks_custom', role='nzbthrottle') }}"
 
 # Restart Policy
-nzbthrottle_docker_restart_policy: unless-stopped
+nzbthrottle_role_docker_restart_policy: unless-stopped
 
 # State
-nzbthrottle_docker_state: started
+nzbthrottle_role_docker_state: started

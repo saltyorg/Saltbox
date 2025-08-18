@@ -218,8 +218,7 @@ nzbget_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', ro
 # Labels
 nzbget_role_docker_labels_default: {}
 nzbget_role_docker_labels_custom: {}
-nzbget_role_docker_labels: "{{ docker_labels_common
-                               | combine(lookup('role_var', '_docker_labels_default', role='nzbget'))
+nzbget_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='nzbget')
                                | combine((traefik_themepark_labels
                                          if (lookup('role_var', '_themepark_enabled', role='nzbget') and global_themepark_plugin_enabled)
                                          else {}),

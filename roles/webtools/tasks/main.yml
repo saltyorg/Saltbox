@@ -109,7 +109,7 @@
       register: plex_plugin_webtools_download_status
       ignore_errors: true
 
-    - name: Post-Successfull WebTools Plugin Download
+    - name: Post-Successful WebTools Plugin Download
       when: (plex_plugin_webtools_download_status is success)
       block:
         - name: Check for newly installed WebTools Plugin
@@ -117,7 +117,7 @@
             path: "{{ plex_plugin_webtools_paths_version_location }}"
           register: plex_plugin_webtools_version_status
 
-        - name: Post-Successfull WebTools Plugin Install
+        - name: Post-Successful WebTools Plugin Install
           when: plex_plugin_webtools_version_status.stat.exists
           block:
             - name: Check version of newly installed WebTools Plugin

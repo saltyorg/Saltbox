@@ -11,7 +11,7 @@
 # Paths
 ################################
 
-plex_plugin_webtools_paths_location: "{{ plex_role_paths_plugins_location }}/WebTools.bundle"
+plex_plugin_webtools_paths_location: "{{ lookup('role_var', '_paths_plugins_location', role='plex') }}/WebTools.bundle"
 
 plex_plugin_webtools_paths_version_location: "{{ plex_plugin_webtools_paths_location }}/VERSION"
 

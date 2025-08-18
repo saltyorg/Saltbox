@@ -19,9 +19,9 @@ StartLimitBurst=5
 User={{ user.name }}
 Group={{ user.name }}
 Type=exec
-Environment="XDG_CONFIG_HOME={{ qbittorrent_paths_location }}" "XDG_DATA_HOME={{ qbittorrent_paths_location }}" "HOME={{ qbittorrent_paths_location }}"
+Environment="XDG_CONFIG_HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}" "XDG_DATA_HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}" "HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}"
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ qbittorrent_docker_ports_8080 }}
+ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') }}
 AmbientCapabilities=CAP_NET_RAW
 TimeoutStopSec=1800
 Restart=on-failure

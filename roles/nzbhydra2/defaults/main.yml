@@ -17,67 +17,67 @@ nzbhydra2_name: nzbhydra2
 # Paths
 ################################
 
-nzbhydra2_paths_folder: "{{ nzbhydra2_name }}"
-nzbhydra2_paths_location: "{{ server_appdata_path }}/{{ nzbhydra2_paths_folder }}"
-nzbhydra2_paths_downloads_location: "{{ downloads_usenet_path }}/{{ nzbhydra2_paths_folder }}"
-nzbhydra2_paths_folders_list:
-  - "{{ nzbhydra2_paths_location }}"
-nzbhydra2_paths_config_location: "{{ nzbhydra2_paths_location }}/nzbhydra.yml"
+nzbhydra2_role_paths_folder: "{{ nzbhydra2_name }}"
+nzbhydra2_role_paths_location: "{{ server_appdata_path }}/{{ nzbhydra2_role_paths_folder }}"
+nzbhydra2_role_paths_downloads_location: "{{ downloads_usenet_path }}/{{ nzbhydra2_role_paths_folder }}"
+nzbhydra2_role_paths_folders_list:
+  - "{{ nzbhydra2_role_paths_location }}"
+nzbhydra2_role_paths_config_location: "{{ nzbhydra2_role_paths_location }}/nzbhydra.yml"
 
 ################################
 # Web
 ################################
 
-nzbhydra2_web_subdomain: "{{ nzbhydra2_name }}"
-nzbhydra2_web_domain: "{{ user.domain }}"
-nzbhydra2_web_port: "5076"
-nzbhydra2_web_url: "{{ 'https://' + (nzbhydra2_web_subdomain + '.' + nzbhydra2_web_domain
-                    if (nzbhydra2_web_subdomain | length > 0)
-                    else nzbhydra2_web_domain) }}"
+nzbhydra2_role_web_subdomain: "{{ nzbhydra2_name }}"
+nzbhydra2_role_web_domain: "{{ user.domain }}"
+nzbhydra2_role_web_port: "5076"
+nzbhydra2_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='nzbhydra2') + '.' + lookup('role_var', '_web_domain', role='nzbhydra2')
+                         if (lookup('role_var', '_web_subdomain', role='nzbhydra2') | length > 0)
+                         else lookup('role_var', '_web_domain', role='nzbhydra2')) }}"
 
 ################################
 # DNS
 ################################
 
-nzbhydra2_dns_record: "{{ nzbhydra2_web_subdomain }}"
-nzbhydra2_dns_zone: "{{ nzbhydra2_web_domain }}"
-nzbhydra2_dns_proxy: "{{ dns.proxied }}"
+nzbhydra2_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='nzbhydra2') }}"
+nzbhydra2_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='nzbhydra2') }}"
+nzbhydra2_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-nzbhydra2_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-nzbhydra2_traefik_middleware_default: "{{ traefik_default_middleware
-                                        + (',themepark-' + lookup('vars', nzbhydra2_name + '_name', default=nzbhydra2_name)
-                                          if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                          else '') }}"
-nzbhydra2_traefik_middleware_custom: ""
-nzbhydra2_traefik_certresolver: "{{ traefik_default_certresolver }}"
-nzbhydra2_traefik_enabled: true
-nzbhydra2_traefik_api_enabled: true
-nzbhydra2_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/getnzb`) || PathPrefix(`/gettorrent`) || PathPrefix(`/rss`) || PathPrefix(`/torznab/api`)"
+nzbhydra2_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+nzbhydra2_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                               + (',themepark-' + nzbhydra2_name
+                                                 if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
+                                                 else '') }}"
+nzbhydra2_role_traefik_middleware_custom: ""
+nzbhydra2_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+nzbhydra2_role_traefik_enabled: true
+nzbhydra2_role_traefik_api_enabled: true
+nzbhydra2_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/getnzb`) || PathPrefix(`/gettorrent`) || PathPrefix(`/rss`) || PathPrefix(`/torznab/api`)"
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-nzbhydra2_themepark_enabled: false
-nzbhydra2_themepark_app: "nzbhydra2"
-nzbhydra2_themepark_theme: "{{ global_themepark_theme }}"
-nzbhydra2_themepark_domain: "{{ global_themepark_domain }}"
-nzbhydra2_themepark_addons: []
+nzbhydra2_role_themepark_enabled: false
+nzbhydra2_role_themepark_app: "nzbhydra2"
+nzbhydra2_role_themepark_theme: "{{ global_themepark_theme }}"
+nzbhydra2_role_themepark_domain: "{{ global_themepark_domain }}"
+nzbhydra2_role_themepark_addons: []
 
 ################################
 # Config
 ################################
 
-nzbhydra2_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
-                                           | round(0, 'ceil') | int >= 8)
-                                           | ternary('512', '256') }}"
+nzbhydra2_role_config_settings_jvm_memory: "{{ ((ansible_memory_mb.real.total / 1024)
+                                               | round(0, 'ceil') | int >= 8)
+                                               | ternary('512', '256') }}"
 
-nzbhydra2_config_settings_default:
+nzbhydra2_role_config_settings_default:
   # NZBGet
   - del(.downloading.downloaders)
   - .downloading.downloaders[0].apiKey = "{{ nzbhydra2_sabnzbd_api_lookup | default('not-found') }}"
@@ -88,107 +88,70 @@ nzbhydra2_config_settings_default:
   - .downloading.downloaders[0].name = "SABnzbd" | .downloading.downloaders[0].name style="double"
   - .downloading.downloaders[0].nzbAddingType = "UPLOAD" | .downloading.downloaders[0].nzbAddingType style="double"
   - .downloading.downloaders[0].downloaderType = "SABNZBD" | .downloading.downloaders[0].downloaderType style="double"
-  - .downloading.downloaders[0].url = "http://{{ sabnzbd_docker_networks_alias }}:{{ sabnzbd_web_port }}" | .downloading.downloaders[0].url style="double"
+  - .downloading.downloaders[0].url = "http://{{ lookup('role_var', '_docker_networks_alias', role='sabnzbd') }}:{{ lookup('role_var', '_web_port', role='sabnzbd') }}" | .downloading.downloaders[0].url style="double"
   - .downloading.downloaders[0].username = null
   - .downloading.downloaders[0].password = null
   - .downloading.downloaders[0].addPaused = false
   # JVM Memory. If RAM >= 8GB, set XMX to 512, else 256.
-  - .main.xmx = {{ nzbhydra2_config_settings_jvm_memory }}
+  - .main.xmx = {{ lookup('role_var', '_config_settings_jvm_memory', role='nzbhydra2') }}
 
-nzbhydra2_config_settings_custom: []
+nzbhydra2_role_config_settings_custom: []
 
-nzbhydra2_config_settings_list: "{{ nzbhydra2_config_settings_default
-                                    + nzbhydra2_config_settings_custom }}"
+nzbhydra2_role_config_settings_list: "{{ lookup('role_var', '_config_settings_default', role='nzbhydra2')
+                                         + lookup('role_var', '_config_settings_custom', role='nzbhydra2') }}"
 
 ################################
 # Docker
 ################################
 
 # Container
-nzbhydra2_docker_container: "{{ nzbhydra2_name }}"
+nzbhydra2_role_docker_container: "{{ nzbhydra2_name }}"
 
 # Image
-nzbhydra2_docker_image_pull: true
-nzbhydra2_docker_image_tag: "latest"
-nzbhydra2_docker_image: "lscr.io/linuxserver/nzbhydra2:{{ nzbhydra2_docker_image_tag }}"
-
-# Ports
-nzbhydra2_docker_ports_defaults: []
-nzbhydra2_docker_ports_custom: []
-nzbhydra2_docker_ports: "{{ nzbhydra2_docker_ports_defaults
-                            + nzbhydra2_docker_ports_custom }}"
+nzbhydra2_role_docker_image_pull: true
+nzbhydra2_role_docker_image_repo: "lscr.io/linuxserver/nzbhydra2"
+nzbhydra2_role_docker_image_tag: "latest"
+nzbhydra2_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='nzbhydra2') }}:{{ lookup('role_var', '_docker_image_tag', role='nzbhydra2') }}"
 
 # Envs
-nzbhydra2_docker_envs_default:
+nzbhydra2_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-nzbhydra2_docker_envs_custom: {}
-nzbhydra2_docker_envs: "{{ nzbhydra2_docker_envs_default
-                           | combine(nzbhydra2_docker_envs_custom) }}"
-
-# Commands
-nzbhydra2_docker_commands_default: []
-nzbhydra2_docker_commands_custom: []
-nzbhydra2_docker_commands: "{{ nzbhydra2_docker_commands_default
-                               + nzbhydra2_docker_commands_custom }}"
+nzbhydra2_role_docker_envs_custom: {}
+nzbhydra2_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='nzbhydra2')
+                                | combine(lookup('role_var', '_docker_envs_custom', role='nzbhydra2')) }}"
 
 # Volumes
-nzbhydra2_docker_volumes_default:
-  - "{{ nzbhydra2_paths_location }}:/config"
-nzbhydra2_docker_volumes_custom: []
-nzbhydra2_docker_volumes: "{{ nzbhydra2_docker_volumes_default
-                              + nzbhydra2_docker_volumes_custom }}"
-
-# Devices
-nzbhydra2_docker_devices_default: []
-nzbhydra2_docker_devices_custom: []
-nzbhydra2_docker_devices: "{{ nzbhydra2_docker_devices_default
-                              + nzbhydra2_docker_devices_custom }}"
-
-# Hosts
-nzbhydra2_docker_hosts_default: {}
-nzbhydra2_docker_hosts_custom: {}
-nzbhydra2_docker_hosts: "{{ docker_hosts_common
-                            | combine(nzbhydra2_docker_hosts_default)
-                            | combine(nzbhydra2_docker_hosts_custom) }}"
+nzbhydra2_role_docker_volumes_default:
+  - "{{ nzbhydra2_role_paths_location }}:/config"
+nzbhydra2_role_docker_volumes_custom: []
+nzbhydra2_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nzbhydra2')
+                                   + lookup('role_var', '_docker_volumes_custom', role='nzbhydra2') }}"
 
 # Labels
-nzbhydra2_docker_labels_default: {}
-nzbhydra2_docker_labels_custom: {}
-nzbhydra2_docker_labels: "{{ docker_labels_common
-                             | combine(lookup('vars', nzbhydra2_name + '_docker_labels_default', default=nzbhydra2_docker_labels_default))
-                             | combine((traefik_themepark_labels
-                                       if (nzbhydra2_themepark_enabled and global_themepark_plugin_enabled)
-                                       else {}),
-                                       lookup('vars', nzbhydra2_name + '_docker_labels_custom', default=nzbhydra2_docker_labels_custom)) }}"
+nzbhydra2_role_docker_labels_default: {}
+nzbhydra2_role_docker_labels_custom: {}
+nzbhydra2_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='nzbhydra2')
+                                  | combine((traefik_themepark_labels
+                                            if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
+                                            else {}),
+                                            lookup('role_var', '_docker_labels_custom', role='nzbhydra2')) }}"
 
 # Hostname
-nzbhydra2_docker_hostname: "{{ nzbhydra2_name }}"
+nzbhydra2_role_docker_hostname: "{{ nzbhydra2_name }}"
 
 # Networks
-nzbhydra2_docker_networks_alias: "{{ nzbhydra2_name }}"
-nzbhydra2_docker_networks_default: []
-nzbhydra2_docker_networks_custom: []
-nzbhydra2_docker_networks: "{{ docker_networks_common
-                               + nzbhydra2_docker_networks_default
-                               + nzbhydra2_docker_networks_custom }}"
-
-# Capabilities
-nzbhydra2_docker_capabilities_default: []
-nzbhydra2_docker_capabilities_custom: []
-nzbhydra2_docker_capabilities: "{{ nzbhydra2_docker_capabilities_default
-                                   + nzbhydra2_docker_capabilities_custom }}"
-
-# Security Opts
-nzbhydra2_docker_security_opts_default: []
-nzbhydra2_docker_security_opts_custom: []
-nzbhydra2_docker_security_opts: "{{ nzbhydra2_docker_security_opts_default
-                                    + nzbhydra2_docker_security_opts_custom }}"
+nzbhydra2_role_docker_networks_alias: "{{ nzbhydra2_name }}"
+nzbhydra2_role_docker_networks_default: []
+nzbhydra2_role_docker_networks_custom: []
+nzbhydra2_role_docker_networks: "{{ docker_networks_common
+                                    + lookup('role_var', '_docker_networks_default', role='nzbhydra2')
+                                    + lookup('role_var', '_docker_networks_custom', role='nzbhydra2') }}"
 
 # Restart Policy
-nzbhydra2_docker_restart_policy: unless-stopped
+nzbhydra2_role_docker_restart_policy: unless-stopped
 
 # State
-nzbhydra2_docker_state: started
+nzbhydra2_role_docker_state: started

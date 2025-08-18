@@ -22,7 +22,7 @@
 
 - name: Check if existing config exists
   ansible.builtin.stat:
-    path: "{{ nzbhydra2_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbhydra2') }}"
   register: nzbhydra2_yml_stat
 
 - name: Create Docker container

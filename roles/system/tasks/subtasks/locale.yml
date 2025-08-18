@@ -12,12 +12,12 @@
     name: locales
     state: present
 
-- name: Locale | Ensure localisation files for '{{ system_locale }}' are available
+- name: Locale | Ensure localization files for '{{ system_locale }}' are available
   community.general.locale_gen:
     name: "{{ system_locale }}"
     state: present
 
-- name: Locale | Ensure localisation files for '{{ system_language }}' are available
+- name: Locale | Ensure localization files for '{{ system_language }}' are available
   community.general.locale_gen:
     name: "{{ system_language }}"
     state: present
@@ -25,7 +25,6 @@
 - name: Locale | Get current locale and language configuration
   ansible.builtin.command: localectl status
   register: locale_status
-  changed_when: false
 
 - name: Locale | Parse 'LANG' from current locale and language configuration
   ansible.builtin.set_fact:

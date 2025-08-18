@@ -73,28 +73,27 @@ plex_role_web_port: "32400"
 plex_role_web_scheme: "https"
 plex_role_web_http_port: "32400"
 plex_role_web_http_scheme: "http"
-plex_role_web_url: "{{ 'https://' + (lookup('vars', plex_name + '_web_subdomain', default=plex_role_web_subdomain) + '.' + lookup('vars', plex_name + '_web_domain', default=plex_role_web_domain)
-                    if (lookup('vars', plex_name + '_web_subdomain', default=plex_role_web_subdomain) | length > 0)
-                    else lookup('vars', plex_name + '_web_domain', default=plex_role_web_domain)) }}"
+plex_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
+                    if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
+                    else lookup('role_var', '_web_domain', role='plex')) }}"
 plex_role_webtools_web_subdomain: "{{ plex_name }}-webtools"
-plex_role_webtools_web_domain: "{{ plex_role_web_domain }}"
+plex_role_webtools_web_domain: "{{ lookup('role_var', '_web_domain', role='plex') }}"
 plex_role_webtools_web_port: "33400"
-plex_role_webtools_host: "{{ lookup('vars', plex_name + '_webtools_web_subdomain', default=plex_role_webtools_web_subdomain)
-                             + '.' + lookup('vars', plex_name + '_webtools_web_domain', default=plex_role_webtools_web_domain) }}"
-plex_role_web_insecure_url: "{{ 'http://' + (lookup('vars', plex_name + '_web_subdomain', default=plex_role_web_subdomain) + '.' + lookup('vars', plex_name + '_web_domain', default=plex_role_web_domain)
-                             if (lookup('vars', plex_name + '_web_subdomain', default=plex_role_web_subdomain) | length > 0)
-                             else lookup('vars', plex_name + '_web_domain', default=plex_role_web_domain)) }}"
+plex_role_webtools_host: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') + '.' + lookup('role_var', '_webtools_web_domain', role='plex') }}"
+plex_role_web_insecure_url: "{{ 'http://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
+                             if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
+                             else lookup('role_var', '_web_domain', role='plex')) }}"
 
 ################################
 # DNS
 ################################
 
-plex_role_dns_record: "{{ lookup('vars', plex_name + '_web_subdomain', default=plex_role_web_subdomain) }}"
-plex_role_dns_zone: "{{ lookup('vars', plex_name + '_web_domain', default=plex_role_web_domain) }}"
-plex_role_dns_proxy: "{{ lookup('vars', plex_name + '_web_proxy', default=(dns.proxied | bool)) }}"
-plex_role_webtools_dns_record: "{{ lookup('vars', plex_name + '_webtools_web_subdomain', default=plex_role_webtools_web_subdomain) }}"
-plex_role_webtools_dns_zone: "{{ lookup('vars', plex_name + '_webtools_web_domain', default=plex_role_webtools_web_domain) }}"
-plex_role_webtools_dns_proxy: "{{ lookup('vars', plex_name + '_webtools_web_proxy', default=(dns.proxied | bool)) }}"
+plex_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='plex') }}"
+plex_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='plex') }}"
+plex_role_dns_proxy: "{{ dns.proxied | bool }}"
+plex_role_webtools_dns_record: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') }}"
+plex_role_webtools_dns_zone: "{{ lookup('role_var', '_webtools_web_domain', role='plex') }}"
+plex_role_webtools_dns_proxy: "{{ dns.proxied | bool }}"
 
 ################################
 # Traefik
@@ -102,9 +101,9 @@ plex_role_webtools_dns_proxy: "{{ lookup('vars', plex_name + '_webtools_web_prox
 
 plex_role_traefik_sso_middleware: ""
 plex_role_traefik_middleware_default: "{{ traefik_default_middleware
-                                     + (',themepark-' + lookup('vars', plex_name + '_name', default=plex_name)
-                                       if (plex_themepark_enabled and global_themepark_plugin_enabled)
-                                       else '') }}"
+                                          + (',themepark-' + plex_name
+                                            if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
+                                            else '') }}"
 plex_role_traefik_middleware_custom: ""
 plex_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_role_traefik_enabled: true
@@ -114,22 +113,22 @@ plex_role_traefik_error_pages_enabled: false
 plex_role_traefik_gzip_enabled: false
 
 plex_role_traefik_middleware_http: "{{ 'globalHeaders@file'
-                               if lookup('vars', plex_name + '_insecure', default=plex_role_insecure)
-                               else traefik_default_middleware_default_http }}"
+                                    if lookup('role_var', '_insecure', role='plex')
+                                    else traefik_default_middleware_default_http }}"
 plex_role_web_serverstransport: "skipverify@file"
 
 plex_role_webtools_traefik_sso_middleware: ""
 plex_role_webtools_traefik_middleware_default: "{{ traefik_default_middleware
-                                                   + (',' + lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_role_webtools_traefik_sso_middleware)
-                                                     if (lookup('vars', plex_name + '_webtools_traefik_sso_middleware', default=plex_role_webtools_traefik_sso_middleware) | length > 0)
+                                                   + (',' + lookup('role_var', '_webtools_traefik_sso_middleware', role='plex')
+                                                     if (lookup('role_var', '_webtools_traefik_sso_middleware', role='plex') | length > 0)
                                                      else '') }}"
 plex_role_webtools_traefik_middleware_custom: ""
-plex_role_webtools_traefik_middleware: "{{ plex_role_webtools_traefik_middleware_default
-                                           + (',' + plex_role_webtools_traefik_middleware_custom
-                                             if (not plex_role_webtools_traefik_middleware_custom.startswith(',') and plex_role_webtools_traefik_middleware_custom | length > 0)
-                                             else plex_role_webtools_traefik_middleware_custom) }}"
+plex_role_webtools_traefik_middleware: "{{ lookup('role_var', '_webtools_traefik_middleware_default', role='plex')
+                                           + (',' + lookup('role_var', '_webtools_traefik_middleware_custom', role='plex')
+                                             if (not lookup('role_var', '_webtools_traefik_middleware_custom', role='plex').startswith(',') and lookup('role_var', '_webtools_traefik_middleware_custom', role='plex') | length > 0)
+                                             else lookup('role_var', '_webtools_traefik_middleware_custom', role='plex')) }}"
 plex_role_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
-plex_role_webtools_traefik_router: "{{ lookup('vars', plex_name + '_webtools_web_subdomain', default=plex_role_webtools_web_subdomain) }}"
+plex_role_webtools_traefik_router: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') }}"
 
 ################################
 # THEME
@@ -153,8 +152,7 @@ plex_role_docker_container: "{{ plex_name }}"
 plex_role_docker_image_pull: true
 plex_role_docker_image_repo: "plexinc/pms-docker"
 plex_role_docker_image_tag: "latest"
-plex_role_docker_image: "{{ lookup('vars', plex_name + '_docker_image_repo', default=plex_role_docker_image_repo)
-                            + ':' + lookup('vars', plex_name + '_docker_image_tag', default=plex_role_docker_image_tag) }}"
+plex_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='plex') }}:{{ lookup('role_var', '_docker_image_tag', role='plex') }}"
 
 # Ports
 plex_role_docker_ports_32400: "{{ port_lookup_32400.meta.port
@@ -173,38 +171,32 @@ plex_role_docker_ports_local:
 plex_role_docker_ports_ui:
   - "{{ plex_role_docker_ports_32400 }}:{{ lookup('vars', plex_name + '_web_port', default=plex_role_web_port) }}"
 plex_role_docker_ports_custom: []
-plex_role_docker_ports: "{{ lookup('vars', plex_name + '_docker_ports_defaults', default=plex_role_docker_ports_defaults)
-                            + lookup('vars', plex_name + '_docker_ports_custom', default=plex_role_docker_ports_custom)
+plex_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='plex')
+                            + lookup('role_var', '_docker_ports_custom', role='plex')
                             + (plex_role_docker_ports_local
-                              if (lookup('vars', plex_name + '_open_local_ports', default=plex_role_open_local_ports))
+                              if (lookup('role_var', '_open_local_ports', role='plex'))
                               else [])
                             + (plex_role_docker_ports_ui
-                              if lookup('vars', plex_name + '_open_main_ports', default=plex_role_open_main_ports)
+                              if lookup('role_var', '_open_main_ports', role='plex')
                               else []) }}"
 
 # Envs
-plex_role_docker_envs_advertise_ip_url: "{{ lookup('vars', plex_name + '_web_url', default=plex_role_web_url) + ':443,' + lookup('vars', plex_name + '_web_insecure_url', default=plex_role_web_insecure_url) + ':80'
-                                         if lookup('vars', plex_name + '_insecure', default=plex_role_insecure)
-                                         else lookup('vars', plex_name + '_web_url', default=plex_role_web_url) + ':443' }}"
-plex_role_docker_envs_advertise_ip: "{{ 'http://' + lookup('vars', plex_name + '_lan_ip', default=plex_role_lan_ip) + ':32400,' + lookup('vars', plex_name + '_docker_envs_advertise_ip_url', default=plex_role_docker_envs_advertise_ip_url)
-                                     if (lookup('vars', plex_name + '_lan_ip', default=plex_role_lan_ip) | length > 0) and lookup('vars', plex_name + '_open_main_ports', default=plex_role_open_main_ports)
-                                     else lookup('vars', plex_name + '_docker_envs_advertise_ip_url', default=plex_role_docker_envs_advertise_ip_url) }}"
+plex_role_docker_envs_advertise_ip_url: "{{ lookup('role_var', '_web_url', role='plex') + ':443,' + lookup('role_var', '_web_insecure_url', role='plex') + ':80'
+                                         if lookup('role_var', '_insecure', role='plex')
+                                         else lookup('role_var', '_web_url', role='plex') + ':443' }}"
+plex_role_docker_envs_advertise_ip: "{{ 'http://' + lookup('role_var', '_lan_ip', role='plex') + ':32400,' + lookup('role_var', '_docker_envs_advertise_ip_url', role='plex')
+                                     if (lookup('role_var', '_lan_ip', role='plex') | length > 0) and lookup('role_var', '_open_main_ports', role='plex')
+                                     else lookup('role_var', '_docker_envs_advertise_ip_url', role='plex') }}"
 plex_role_docker_envs_default:
   PLEX_UID: "{{ uid }}"
   PLEX_GID: "{{ gid }}"
   PLEX_CLAIM: "{{ (plex_claim_code) | default(omit) }}"
   CHANGE_CONFIG_DIR_OWNERSHIP: "false"
   TZ: "{{ tz }}"
-  ADVERTISE_IP: "{{ plex_role_docker_envs_advertise_ip }}"
+  ADVERTISE_IP: "{{ lookup('role_var', '_docker_envs_advertise_ip', role='plex') }}"
 plex_role_docker_envs_custom: {}
-plex_role_docker_envs: "{{ lookup('vars', plex_name + '_docker_envs_default', default=plex_role_docker_envs_default)
-                           | combine(lookup('vars', plex_name + '_docker_envs_custom', default=plex_role_docker_envs_custom)) }}"
-
-# Commands
-plex_role_docker_commands_default: []
-plex_role_docker_commands_custom: []
-plex_role_docker_commands: "{{ lookup('vars', plex_name + '_docker_commands_default', default=plex_role_docker_commands_default)
-                               + lookup('vars', plex_name + '_docker_commands_custom', default=plex_role_docker_commands_custom) }}"
+plex_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='plex')
+                           | combine(lookup('role_var', '_docker_envs_custom', role='plex')) }}"
 
 # Volumes
 plex_role_docker_volumes_default:
@@ -215,9 +207,9 @@ plex_role_docker_volumes_default:
 plex_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media:/data"
 plex_role_docker_volumes_custom: []
-plex_role_docker_volumes: "{{ lookup('vars', plex_name + '_docker_volumes_default', default=plex_role_docker_volumes_default)
-                              + lookup('vars', plex_name + '_docker_volumes_custom', default=plex_role_docker_volumes_custom)
-                              + (lookup('vars', plex_name + '_docker_volumes_legacy', default=plex_role_docker_volumes_legacy)
+plex_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='plex')
+                              + lookup('role_var', '_docker_volumes_custom', role='plex')
+                              + (lookup('role_var', '_docker_volumes_legacy', role='plex')
                                 if docker_legacy_volume
                                 else []) }}"
 
@@ -226,14 +218,8 @@ plex_role_docker_mounts_default:
   - target: /tmp
     type: tmpfs
 plex_role_docker_mounts_custom: []
-plex_role_docker_mounts: "{{ lookup('vars', plex_name + '_docker_mounts_default', default=plex_role_docker_mounts_default)
-                             + lookup('vars', plex_name + '_docker_mounts_custom', default=plex_role_docker_mounts_custom) }}"
-
-# Devices
-plex_role_docker_devices_default: []
-plex_role_docker_devices_custom: []
-plex_role_docker_devices: "{{ lookup('vars', plex_name + '_docker_devices_default', default=plex_role_docker_devices_default)
-                              + lookup('vars', plex_name + '_docker_devices_custom', default=plex_role_docker_devices_custom) }}"
+plex_role_docker_mounts: "{{ lookup('role_var', '_docker_mounts_default', role='plex')
+                             + lookup('role_var', '_docker_mounts_custom', role='plex') }}"
 
 # Hosts
 plex_role_docker_hosts_default:
@@ -241,34 +227,30 @@ plex_role_docker_hosts_default:
   metrics.plex.tv: "{{ ip_address_localhost }}"
   analytics.plex.tv: "{{ ip_address_localhost }}"
 plex_role_docker_hosts_custom: {}
-plex_role_docker_hosts: "{{ docker_hosts_common
-                            | combine(lookup('vars', plex_name + '_docker_hosts_default', default=plex_role_docker_hosts_default))
-                            | combine(lookup('vars', plex_name + '_docker_hosts_custom', default=plex_role_docker_hosts_custom)) }}"
+plex_role_docker_hosts: "{{ lookup('role_var', '_docker_hosts_default', role='plex')
+                            | combine(lookup('role_var', '_docker_hosts_custom', role='plex')) }}"
 
 # Labels
 plex_role_docker_labels_default:
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.entrypoints": "web" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.service": "{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_role_webtools_web_subdomain) }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.rule": "Host(`{{ plex_role_webtools_host }}`)" }'
+  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.service": "{{ lookup("role_var", "_webtools_web_subdomain", role="plex") }}" }'
+  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.rule": "Host(`{{ lookup("role_var", "_webtools_host", role="plex") }}`)" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.priority": "20" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.entrypoints": "websecure" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.service": "{{ lookup("vars", plex_name + "_webtools_web_subdomain", default=plex_role_webtools_web_subdomain) }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.rule": "Host(`{{ plex_role_webtools_host }}`)" }'
+  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.service": "{{ lookup("role_var", "_webtools_web_subdomain", role="plex") }}" }'
+  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.rule": "Host(`{{ lookup("role_var", "_webtools_host", role="plex") }}`)" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.tls.certresolver": "{{ plex_role_webtools_traefik_certresolver }}" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.middlewares": "{{ plex_role_webtools_traefik_middleware }}" }'
   - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.priority": "20" }'
-  - '{ "traefik.http.services.{{ plex_role_webtools_traefik_router }}.loadbalancer.server.port": "{{ plex_role_webtools_web_port }}" }'
+  - '{ "traefik.http.services.{{ plex_role_webtools_traefik_router }}.loadbalancer.server.port": "{{ lookup("role_var", "_web_port", role="plex") }}" }'
 plex_role_docker_labels_custom: {}
-plex_role_docker_labels: "{{ docker_labels_common
-                             | combine((lookup('vars', plex_name + '_docker_labels_default', default=plex_role_docker_labels_default)
-                                       if lookup('vars', plex_name + '_plugin_webtools', default=plex_role_plugin_webtools)
-                                       else {}),
-                                       (traefik_themepark_labels
-                                       if (plex_themepark_enabled and global_themepark_plugin_enabled)
-                                       else {}),
-                                       lookup('vars', plex_name + '_docker_labels_custom', default=plex_role_docker_labels_custom)) }}"
+plex_role_docker_labels: "{{ (lookup('role_var', '_docker_labels_default', role='plex') if lookup('role_var', '_plugin_webtools', role='plex') else {})
+                              | combine((traefik_themepark_labels
+                                        if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
+                                        else {}),
+                                        lookup('role_var', '_docker_labels_custom', role='plex')) }}"
 
 # Hostname
 plex_role_docker_hostname: "{{ plex_name }}"
@@ -278,20 +260,8 @@ plex_role_docker_networks_alias: "{{ plex_name }}"
 plex_role_docker_networks_default: []
 plex_role_docker_networks_custom: []
 plex_role_docker_networks: "{{ docker_networks_common
-                               + lookup('vars', plex_name + '_docker_networks_default', default=plex_role_docker_networks_default)
-                               + lookup('vars', plex_name + '_docker_networks_custom', default=plex_role_docker_networks_custom) }}"
-
-# Capabilities
-plex_role_docker_capabilities_default: []
-plex_role_docker_capabilities_custom: []
-plex_role_docker_capabilities: "{{ lookup('vars', plex_name + '_docker_capabilities_default', default=plex_role_docker_capabilities_default)
-                                   + lookup('vars', plex_name + '_docker_capabilities_custom', default=plex_role_docker_capabilities_custom) }}"
-
-# Security Opts
-plex_role_docker_security_opts_default: []
-plex_role_docker_security_opts_custom: []
-plex_role_docker_security_opts: "{{ lookup('vars', plex_name + '_docker_security_opts_default', default=plex_role_docker_security_opts_default)
-                                    + lookup('vars', plex_name + '_docker_security_opts_custom', default=plex_role_docker_security_opts_custom) }}"
+                               + lookup('role_var', '_docker_networks_default', role='plex')
+                               + lookup('role_var', '_docker_networks_custom', role='plex') }}"
 
 # Restart Policy
 plex_role_docker_restart_policy: unless-stopped

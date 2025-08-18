@@ -7,18 +7,18 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Wait for '{{ plex_role_paths_config_location | basename }}' to be created
+- name: Wait for '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}' to be created
   ansible.builtin.wait_for:
-    path: "{{ plex_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     state: present
 
 - name: Wait for {{ plex_name | title }} DB to be created
   ansible.builtin.wait_for:
-    path: "{{ plex_role_paths_db_location }}"
+    path: "{{ lookup('role_var', '_paths_db_location', role='plex') }}"
     state: present
 
 - name: Wait for {{ plex_name | title }} executable to be created
-  ansible.builtin.shell: docker exec {{ plex_docker_container }} bash -c "ls '/usr/lib/plexmediaserver/Plex Media Server'"
+  ansible.builtin.shell: docker exec {{ lookup('role_var', '_docker_container', role='plex') }} bash -c "ls '/usr/lib/plexmediaserver/Plex Media Server'"
   register: pms_check
   until: pms_check.stderr.find("No such file or directory") == -1
   retries: 600
@@ -42,17 +42,17 @@
 
 - name: Ensure transcodes folder has the correct permissions
   ansible.builtin.file:
-    path: "{{ plex_role_paths_transcodes_location }}"
+    path: "{{ lookup('role_var', '_paths_transcodes_location', role='plex') }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
     recurse: true
 
-- name: Find external port binding for '{{ plex_docker_container }}' docker port '{{ plex_web_port }}'
-  when: plex_open_main_ports
+- name: Find external port binding for '{{ lookup('role_var', '_docker_container', role='plex') }}' docker port '{{ lookup('role_var', '_web_port', role='plex') }}'
+  when: lookup('role_var', '_open_main_ports', role='plex')
   block:
-    - name: Lookup host port mapped to '{{ plex_docker_container }}' docker port '{{ plex_web_port }}'
-      ansible.builtin.shell: docker port {{ plex_docker_container }} {{ plex_web_port }} 2> /dev/null | sed 's/[0-9.]*://'
+    - name: Lookup host port mapped to '{{ lookup('role_var', '_docker_container', role='plex') }}' docker port '{{ lookup('role_var', '_web_port', role='plex') }}'
+      ansible.builtin.shell: docker port {{ lookup('role_var', '_docker_container', role='plex') }} {{ lookup('role_var', '_web_port', role='plex') }} 2> /dev/null | sed 's/[0-9.]*://'
       register: plex_docker_port_lookup_cmd
       changed_when: false
 
@@ -60,21 +60,21 @@
       ansible.builtin.set_fact:
         plex_docker_port_lookup: "{{ (plex_docker_port_lookup_cmd.stdout | trim)
                                   if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
-                                  else plex_web_port }}"
+                                  else lookup('role_var', '_web_port', role='plex') }}"
 
-- name: Update port in '{{ plex_role_paths_config_location | basename }}'
+- name: Update port in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   community.general.xml:
-    path: "{{ plex_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     xpath: /Preferences
     attribute: ManualPortMappingPort
-    value: "{{ plex_docker_port_lookup | default(plex_web_port) }}"
+    value: "{{ plex_docker_port_lookup | default(lookup('role_var', '_web_port', role='plex')) }}"
     state: present
   become: true
   become_user: "{{ user.name }}"
 
-- name: Disable Remote Access in '{{ plex_role_paths_config_location | basename }}'
+- name: Disable Remote Access in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   community.general.xml:
-    path: "{{ plex_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     xpath: /Preferences
     attribute: PublishServerOnPlexOnlineKey
     value: "0"
@@ -82,9 +82,9 @@
   become: true
   become_user: "{{ user.name }}"
 
-- name: Disable Relay in '{{ plex_role_paths_config_location | basename }}'
+- name: Disable Relay in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   community.general.xml:
-    path: "{{ plex_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     xpath: /Preferences
     attribute: RelayEnabled
     value: "0"
@@ -92,9 +92,9 @@
   become: true
   become_user: "{{ user.name }}"
 
-- name: Reset permissions of '{{ plex_role_paths_config_location | basename }}'
+- name: Reset permissions of '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   ansible.builtin.file:
-    path: "{{ plex_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"
@@ -102,12 +102,12 @@
 - name: "Install Sub-Zero Plugin"
   ansible.builtin.include_role:
     name: sub_zero
-  when: lookup('vars', plex_name + '_plugin_sub_zero', default=plex_role_plugin_sub_zero)
+  when: lookup('role_var', '_plugin_sub_zero', role='plex')
 
 - name: "Install WebTools Plugin"
   ansible.builtin.include_role:
     name: webtools
-  when: lookup('vars', plex_name + '_plugin_webtools', default=plex_role_plugin_webtools)
+  when: lookup('role_var', '_plugin_webtools', role='plex')
 
 - name: Start Docker Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

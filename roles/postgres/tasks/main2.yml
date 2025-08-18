@@ -11,7 +11,7 @@
   ansible.builtin.set_fact:
     postgres_major_version: ""
     postgres_docker_tag_major_version: ""
-    postgres_original_image_repo: "{{ true if postgres_role_docker_image_repo == 'postgres' else false }}"
+    postgres_original_image_repo: "{{ true if lookup('role_var', '_docker_image_repo', role='postgres') == 'postgres' else false }}"
 
 - name: Supported image repository
   when: postgres_original_image_repo

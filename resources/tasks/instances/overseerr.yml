@@ -10,10 +10,10 @@
 - name: Resources | Tasks | Instances | Get Info | Check if Overseerr exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_config_location', role='overseerr') }}"
-  register: overseerr_paths_config_location_stat
+  register: overseerr_role_paths_config_location_stat
 
 - name: Resources | Tasks | Instances | Get Info | Overseerr API Key tasks
-  when: overseerr_paths_config_location_stat.stat.exists
+  when: overseerr_role_paths_config_location_stat.stat.exists
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Overseerr API Key
       ansible.builtin.set_fact:
@@ -26,4 +26,4 @@
 - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
   ansible.builtin.set_fact:
     overseerr_info: "{{ overseerr_info | default({}) | combine({overseerr_name: {'name': overseerr_name, 'url': lookup('role_var', '_web_url', role='overseerr'), 'api_key': 'not installed'}}) }}"
-  when: (not overseerr_paths_config_location_stat.stat.exists)
+  when: (not overseerr_role_paths_config_location_stat.stat.exists)

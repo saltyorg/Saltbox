@@ -18,135 +18,90 @@ organizr_name: organizr
 ################################
 
 organizr_branch: "v2-master"
-organizr_fpm: "yes"
 
 ################################
 # Paths
 ################################
 
-organizr_paths_folder: "{{ organizr_name }}"
-organizr_paths_location: "{{ server_appdata_path }}/{{ organizr_paths_folder }}"
-organizr_paths_folders_list:
-  - "{{ organizr_paths_location }}"
+organizr_role_paths_folder: "{{ organizr_name }}"
+organizr_role_paths_location: "{{ server_appdata_path }}/{{ organizr_role_paths_folder }}"
+organizr_role_paths_folders_list:
+  - "{{ organizr_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-organizr_web_subdomain: "{{ organizr_name }}"
-organizr_web_domain: "{{ user.domain }}"
-organizr_web_port: "80"
-organizr_web_url: "{{ 'https://' + (organizr_web_subdomain + '.' + organizr_web_domain
-                   if (organizr_web_subdomain | length > 0)
-                   else organizr_web_domain) }}"
+organizr_role_web_subdomain: "{{ organizr_name }}"
+organizr_role_web_domain: "{{ user.domain }}"
+organizr_role_web_port: "80"
+organizr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='organizr') + '.' + lookup('role_var', '_web_domain', role='organizr')
+                        if (lookup('role_var', '_web_subdomain', role='organizr') | length > 0)
+                        else lookup('role_var', '_web_domain', role='organizr')) }}"
 
 ################################
 # DNS
 ################################
 
-organizr_dns_record: "{{ organizr_web_subdomain }}"
-organizr_dns_zone: "{{ organizr_web_domain }}"
-organizr_dns_proxy: "{{ dns.proxied }}"
+organizr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='organizr') }}"
+organizr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='organizr') }}"
+organizr_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-organizr_traefik_sso_middleware: ""
-organizr_traefik_middleware_default: "{{ traefik_default_middleware }}"
-organizr_traefik_middleware_custom: ""
-organizr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-organizr_traefik_enabled: true
-organizr_traefik_api_enabled: false
-organizr_traefik_api_endpoint: ""
+organizr_role_traefik_sso_middleware: ""
+organizr_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+organizr_role_traefik_middleware_custom: ""
+organizr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+organizr_role_traefik_enabled: true
+organizr_role_traefik_api_enabled: false
+organizr_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-organizr_docker_container: "{{ organizr_name }}"
+organizr_role_docker_container: "{{ organizr_name }}"
 
 # Image
-organizr_docker_image_pull: true
-organizr_docker_image_tag: "latest"
-organizr_docker_image: "organizr/organizr:{{ organizr_docker_image_tag }}"
-
-# Ports
-organizr_docker_ports_defaults: []
-organizr_docker_ports_custom: []
-organizr_docker_ports: "{{ organizr_docker_ports_defaults
-                           + organizr_docker_ports_custom }}"
+organizr_role_docker_image_pull: true
+organizr_role_docker_image_repo: "organizr/organizr"
+organizr_role_docker_image_tag: "latest"
+organizr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='organizr') }}:{{ lookup('role_var', '_docker_image_tag', role='organizr') }}"
 
 # Envs
-organizr_docker_envs_default:
+organizr_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
-  fpm: "{{ organizr_fpm }}"
   branch: "{{ organizr_branch }}"
-organizr_docker_envs_custom: {}
-organizr_docker_envs: "{{ organizr_docker_envs_default
-                          | combine(organizr_docker_envs_custom) }}"
-
-# Commands
-organizr_docker_commands_default: []
-organizr_docker_commands_custom: []
-organizr_docker_commands: "{{ organizr_docker_commands_default
-                              + organizr_docker_commands_custom }}"
+organizr_role_docker_envs_custom: {}
+organizr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='organizr')
+                               | combine(lookup('role_var', '_docker_envs_custom', role='organizr')) }}"
 
 # Volumes
-organizr_docker_volumes_default:
-  - "{{ organizr_paths_location }}:/config"
-organizr_docker_volumes_custom: []
-organizr_docker_volumes: "{{ organizr_docker_volumes_default
-                             + organizr_docker_volumes_custom }}"
-
-# Devices
-organizr_docker_devices_default: []
-organizr_docker_devices_custom: []
-organizr_docker_devices: "{{ organizr_docker_devices_default
-                             + organizr_docker_devices_custom }}"
-
-# Hosts
-organizr_docker_hosts_default: {}
-organizr_docker_hosts_custom: {}
-organizr_docker_hosts: "{{ docker_hosts_common
-                           | combine(organizr_docker_hosts_default)
-                           | combine(organizr_docker_hosts_custom) }}"
-
-# Labels
-organizr_docker_labels_default: {}
-organizr_docker_labels_custom: {}
-organizr_docker_labels: "{{ docker_labels_common
-                            | combine(organizr_docker_labels_default)
-                            | combine(organizr_docker_labels_custom) }}"
+organizr_role_docker_volumes_default:
+  - "{{ organizr_role_paths_location }}:/config"
+organizr_role_docker_volumes_custom: []
+organizr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='organizr')
+                                  + lookup('role_var', '_docker_volumes_custom', role='organizr') }}"
 
 # Hostname
-organizr_docker_hostname: "{{ organizr_name }}"
+organizr_role_docker_hostname: "{{ organizr_name }}"
 
 # Networks
-organizr_docker_networks_alias: "{{ organizr_name }}"
-organizr_docker_networks_default: []
-organizr_docker_networks_custom: []
-organizr_docker_networks: "{{ docker_networks_common
-                              + organizr_docker_networks_default
-                              + organizr_docker_networks_custom }}"
-
-# Capabilities
-organizr_docker_capabilities_default: []
-organizr_docker_capabilities_custom: []
-organizr_docker_capabilities: "{{ organizr_docker_capabilities_default
-                                  + organizr_docker_capabilities_custom }}"
-
-# Security Opts
-organizr_docker_security_opts_default: []
-organizr_docker_security_opts_custom: []
-organizr_docker_security_opts: "{{ organizr_docker_security_opts_default
-                                   + organizr_docker_security_opts_custom }}"
+organizr_role_docker_networks_alias: "{{ organizr_name }}"
+organizr_role_docker_networks_default: []
+organizr_role_docker_networks_custom: []
+organizr_role_docker_networks: "{{ docker_networks_common
+                                   + lookup('role_var', '_docker_networks_default', role='organizr')
+                                   + lookup('role_var', '_docker_networks_custom', role='organizr') }}"
 
 # Restart Policy
-organizr_docker_restart_policy: unless-stopped
+organizr_role_docker_restart_policy: unless-stopped
 
 # State
-organizr_docker_state: started
+organizr_role_docker_state: started

@@ -22,8 +22,8 @@
 
 - name: Check if existing config file exists
   ansible.builtin.stat:
-    path: "{{ rutorrent_paths_rtorrent_rc_location }}"
-  register: rutorrent_paths_rtorrent_rc_location_stat
+    path: "{{ lookup('role_var', '_paths_rtorrent_rc_location', role='rutorrent') }}"
+  register: rutorrent_role_paths_rtorrent_rc_location_stat
 
 - name: Pre-Install Tasks
   ansible.builtin.include_tasks: "subtasks/pre-install/main.yml"

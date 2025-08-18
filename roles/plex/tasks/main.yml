@@ -7,12 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Filter Plex Network Modes
+- name: Filter Plex Network Modes # noqa jinja[invalid]
   ansible.builtin.set_fact:
     plex_role_network_modes: "{{ plex_role_network_modes + [plex_lookup] }}"
   vars:
     plex_name: "{{ item }}"
-    plex_lookup: "{{ lookup('vars', item + '_docker_network_mode_default', default=lookup('vars', item + '_docker_network_mode', default=plex_role_docker_network_mode)) }}"
+    plex_lookup: "{{ lookup('role_var', '_docker_network_mode', role='plex') }}"
   loop: "{{ plex_instances }}"
   when: (plex_instances | length > 1) and ('container:' in plex_lookup)
 

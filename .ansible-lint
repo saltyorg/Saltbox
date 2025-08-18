@@ -17,7 +17,6 @@ mock_modules:
   - saltbox_facts
   - qbittorrent_passwd
   - migrate_folder
-  - cloudflare_dns_custom
 
 skip_list:
   - braces

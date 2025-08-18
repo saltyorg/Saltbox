@@ -9,4 +9,4 @@
 ---
 - name: Find api_key value
   ansible.builtin.set_fact:
-    nzbhydra2_sabnzbd_api_lookup: "{{ lookup('file', sabnzbd_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
+    nzbhydra2_sabnzbd_api_lookup: "{{ lookup('file', lookup('role_var', '_paths_config_location', role='sabnzbd')) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"

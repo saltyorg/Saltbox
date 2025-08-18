@@ -17,7 +17,7 @@ whisparr_instances: ["whisparr"]
 # Settings
 ################################
 
-whisparr_external_auth: true
+whisparr_role_external_auth: true
 
 ################################
 # Paths
@@ -33,35 +33,35 @@ whisparr_paths_config_location: "{{ whisparr_paths_location }}/config.xml"
 # Web
 ################################
 
-whisparr_web_subdomain: "{{ whisparr_name }}"
-whisparr_web_domain: "{{ user.domain }}"
-whisparr_web_port: "6969"
-whisparr_web_url: "{{ 'https://' + (lookup('vars', whisparr_name + '_web_subdomain', default=whisparr_web_subdomain) + '.' + lookup('vars', whisparr_name + '_web_domain', default=whisparr_web_domain)
-                   if (lookup('vars', whisparr_name + '_web_subdomain', default=whisparr_web_subdomain) | length > 0)
-                   else lookup('vars', whisparr_name + '_web_domain', default=whisparr_web_domain)) }}"
+whisparr_role_web_subdomain: "{{ whisparr_name }}"
+whisparr_role_web_domain: "{{ user.domain }}"
+whisparr_role_web_port: "6969"
+whisparr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='whisparr') + '.' + lookup('role_var', '_web_domain', role='whisparr')
+                        if (lookup('role_var', '_web_subdomain', role='whisparr') | length > 0)
+                        else lookup('role_var', '_web_domain', role='whisparr')) }}"
 
 ################################
 # DNS
 ################################
 
-whisparr_dns_record: "{{ lookup('vars', whisparr_name + '_web_subdomain', default=whisparr_web_subdomain) }}"
-whisparr_dns_zone: "{{ lookup('vars', whisparr_name + '_web_domain', default=whisparr_web_domain) }}"
-whisparr_dns_proxy: "{{ dns.proxied }}"
+whisparr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='whisparr') }}"
+whisparr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='whisparr') }}"
+whisparr_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-whisparr_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-whisparr_traefik_middleware_default: "{{ traefik_default_middleware
-                                         + (',themepark-' + lookup('vars', whisparr_name + '_name', default=whisparr_name)
-                                           if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
-                                           else '') }}"
-whisparr_traefik_middleware_custom: ""
-whisparr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-whisparr_traefik_enabled: true
-whisparr_traefik_api_enabled: true
-whisparr_traefik_api_endpoint: "PathPrefix(`/api`)"
+whisparr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+whisparr_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                              + (',themepark-' + whisparr_name
+                                                if (lookup('role_var', '_themepark_enabled', role='whisparr') and global_themepark_plugin_enabled)
+                                                else '') }}"
+whisparr_role_traefik_middleware_custom: ""
+whisparr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+whisparr_role_traefik_enabled: true
+whisparr_role_traefik_api_enabled: true
+whisparr_role_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
 # API
@@ -75,108 +75,65 @@ whisparr_api_key:
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-whisparr_themepark_enabled: false
-whisparr_themepark_app: "whisparr"
-whisparr_themepark_theme: "{{ global_themepark_theme }}"
-whisparr_themepark_domain: "{{ global_themepark_domain }}"
-whisparr_themepark_addons: []
+whisparr_role_themepark_enabled: false
+whisparr_role_themepark_app: "whisparr"
+whisparr_role_themepark_theme: "{{ global_themepark_theme }}"
+whisparr_role_themepark_domain: "{{ global_themepark_domain }}"
+whisparr_role_themepark_addons: []
 
 ################################
 # Docker
 ################################
 
 # Container
-whisparr_docker_container: "{{ whisparr_name }}"
+whisparr_role_docker_container: "{{ whisparr_name }}"
 
 # Image
-whisparr_docker_image_pull: true
-whisparr_docker_image_repo: "ghcr.io/hotio/whisparr"
-whisparr_docker_image_tag: "nightly"
-whisparr_docker_image: "{{ lookup('vars', whisparr_name + '_docker_image_repo', default=whisparr_docker_image_repo)
-                           + ':' + lookup('vars', whisparr_name + '_docker_image_tag', default=whisparr_docker_image_tag) }}"
-
-# Ports
-whisparr_docker_ports_defaults: []
-whisparr_docker_ports_custom: []
-whisparr_docker_ports: "{{ lookup('vars', whisparr_name + '_docker_ports_defaults', default=whisparr_docker_ports_defaults)
-                           + lookup('vars', whisparr_name + '_docker_ports_custom', default=whisparr_docker_ports_custom) }}"
+whisparr_role_docker_image_pull: true
+whisparr_role_docker_image_repo: "ghcr.io/hotio/whisparr"
+whisparr_role_docker_image_tag: "nightly"
+whisparr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='whisparr') }}:{{ lookup('role_var', '_docker_image_tag', role='whisparr') }}"
 
 # Envs
-whisparr_docker_envs_default:
+whisparr_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   UMASK: "002"
   TZ: "{{ tz }}"
-whisparr_docker_envs_custom: {}
-whisparr_docker_envs: "{{ lookup('vars', whisparr_name + '_docker_envs_default', default=whisparr_docker_envs_default)
-                          | combine(lookup('vars', whisparr_name + '_docker_envs_custom', default=whisparr_docker_envs_custom)) }}"
-
-# Commands
-whisparr_docker_commands_default: []
-whisparr_docker_commands_custom: []
-whisparr_docker_commands: "{{ lookup('vars', whisparr_name + '_docker_commands_default', default=whisparr_docker_commands_default)
-                              + lookup('vars', whisparr_name + '_docker_commands_custom', default=whisparr_docker_commands_custom) }}"
+whisparr_role_docker_envs_custom: {}
+whisparr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='whisparr')
+                               | combine(lookup('role_var', '_docker_envs_custom', role='whisparr')) }}"
 
 # Volumes
-whisparr_docker_volumes_default:
+whisparr_role_docker_volumes_default:
   - "{{ whisparr_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-whisparr_docker_volumes_custom: []
-whisparr_docker_volumes: "{{ lookup('vars', whisparr_name + '_docker_volumes_default', default=whisparr_docker_volumes_default)
-                             + lookup('vars', whisparr_name + '_docker_volumes_custom', default=whisparr_docker_volumes_custom) }}"
-
-# Devices
-whisparr_docker_devices_default: []
-whisparr_docker_devices_custom: []
-whisparr_docker_devices: "{{ lookup('vars', whisparr_name + '_docker_devices_default', default=whisparr_docker_devices_default)
-                             + lookup('vars', whisparr_name + '_docker_devices_custom', default=whisparr_docker_devices_custom) }}"
-
-# Hosts
-whisparr_docker_hosts_default: {}
-whisparr_docker_hosts_custom: {}
-whisparr_docker_hosts: "{{ docker_hosts_common
-                           | combine(lookup('vars', whisparr_name + '_docker_hosts_default', default=whisparr_docker_hosts_default))
-                           | combine(lookup('vars', whisparr_name + '_docker_hosts_custom', default=whisparr_docker_hosts_custom)) }}"
+whisparr_role_docker_volumes_custom: []
+whisparr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='whisparr')
+                                  + lookup('role_var', '_docker_volumes_custom', role='whisparr') }}"
 
 # Labels
-whisparr_docker_labels_default: {}
-whisparr_docker_labels_custom: {}
-whisparr_docker_labels: "{{ docker_labels_common
-                            | combine(lookup('vars', whisparr_name + '_docker_labels_default', default=whisparr_docker_labels_default))
-                            | combine((traefik_themepark_labels
-                                      if (whisparr_themepark_enabled and global_themepark_plugin_enabled)
-                                      else {}),
-                                      lookup('vars', whisparr_name + '_docker_labels_custom', default=whisparr_docker_labels_custom)) }}"
+whisparr_role_docker_labels_default: {}
+whisparr_role_docker_labels_custom: {}
+whisparr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='whisparr')
+                                 | combine((traefik_themepark_labels
+                                           if (lookup('role_var', '_themepark_enabled', role='whisparr') and global_themepark_plugin_enabled)
+                                           else {}),
+                                           lookup('role_var', '_docker_labels_custom', role='whisparr')) }}"
 
 # Hostname
-whisparr_docker_hostname: "{{ whisparr_name }}"
-
-# Network Mode
-whisparr_docker_network_mode_default: "{{ docker_networks_name_common }}"
-whisparr_docker_network_mode: "{{ lookup('vars', whisparr_name + '_docker_network_mode_default', default=whisparr_docker_network_mode_default) }}"
+whisparr_role_docker_hostname: "{{ whisparr_name }}"
 
 # Networks
-whisparr_docker_networks_alias: "{{ whisparr_name }}"
-whisparr_docker_networks_default: []
-whisparr_docker_networks_custom: []
-whisparr_docker_networks: "{{ docker_networks_common
-                              + lookup('vars', whisparr_name + '_docker_networks_default', default=whisparr_docker_networks_default)
-                              + lookup('vars', whisparr_name + '_docker_networks_custom', default=whisparr_docker_networks_custom) }}"
-
-# Capabilities
-whisparr_docker_capabilities_default: []
-whisparr_docker_capabilities_custom: []
-whisparr_docker_capabilities: "{{ lookup('vars', whisparr_name + '_docker_capabilities_default', default=whisparr_docker_capabilities_default)
-                                  + lookup('vars', whisparr_name + '_docker_capabilities_custom', default=whisparr_docker_capabilities_custom) }}"
-
-# Security Opts
-whisparr_docker_security_opts_default: []
-whisparr_docker_security_opts_custom: []
-whisparr_docker_security_opts: "{{ lookup('vars', whisparr_name + '_docker_security_opts_default', default=whisparr_docker_security_opts_default)
-                                   + lookup('vars', whisparr_name + '_docker_security_opts_custom', default=whisparr_docker_security_opts_custom) }}"
+whisparr_role_docker_networks_alias: "{{ whisparr_name }}"
+whisparr_role_docker_networks_default: []
+whisparr_role_docker_networks_custom: []
+whisparr_role_docker_networks: "{{ docker_networks_common
+                                   + lookup('role_var', '_docker_networks_default', role='whisparr')
+                                   + lookup('role_var', '_docker_networks_custom', role='whisparr') }}"
 
 # Restart Policy
-whisparr_docker_restart_policy: unless-stopped
+whisparr_role_docker_restart_policy: unless-stopped
 
 # State
-whisparr_docker_state: started
+whisparr_role_docker_state: started

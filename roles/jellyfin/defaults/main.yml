@@ -29,7 +29,7 @@ jellyfin_role_paths_folders_list:
 jellyfin_role_paths_dlna_location: "{{ jellyfin_role_paths_location }}/dlna.xml"
 jellyfin_role_paths_sys_xml_location: "{{ jellyfin_role_paths_location }}/system.xml"
 jellyfin_role_paths_net_xml_location: "{{ jellyfin_role_paths_location }}/network.xml"
-jellyfin_role_paths_xml_loct_old: "{{ jellyfin_role_paths_location }}/app/config/system.xml"
+jellyfin_role_paths_xml_location_old: "{{ jellyfin_role_paths_location }}/app/config/system.xml"
 
 ################################
 # Web
@@ -134,10 +134,6 @@ jellyfin_role_docker_mounts: "{{ lookup('role_var', '_docker_mounts_default', ro
 
 # Hostname
 jellyfin_role_docker_hostname: "{{ jellyfin_name }}"
-
-# Network Mode
-jellyfin_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
-jellyfin_role_docker_network_mode: "{{ lookup('role_var', '_docker_network_mode_default', role='jellyfin') }}"
 
 # Networks
 jellyfin_role_docker_networks_alias: "{{ jellyfin_name }}"

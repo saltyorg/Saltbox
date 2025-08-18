@@ -66,12 +66,6 @@ nginx_role_docker_image_repo: "lscr.io/linuxserver/nginx"
 nginx_role_docker_image_tag: "latest"
 nginx_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='nginx') }}:{{ lookup('role_var', '_docker_image_tag', role='nginx') }}"
 
-# Ports
-nginx_role_docker_ports_defaults: []
-nginx_role_docker_ports_custom: []
-nginx_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='nginx')
-                             + lookup('role_var', '_docker_ports_custom', role='nginx') }}"
-
 # Envs
 nginx_role_docker_envs_default:
   PUID: "{{ uid }}"
@@ -81,12 +75,6 @@ nginx_role_docker_envs_custom: {}
 nginx_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='nginx')
                             | combine(lookup('role_var', '_docker_envs_custom', role='nginx')) }}"
 
-# Commands
-nginx_role_docker_commands_default: []
-nginx_role_docker_commands_custom: []
-nginx_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='nginx')
-                                + lookup('role_var', '_docker_commands_custom', role='nginx') }}"
-
 # Volumes
 nginx_role_docker_volumes_default:
   - "{{ nginx_role_paths_location }}:/config"
@@ -94,32 +82,8 @@ nginx_role_docker_volumes_custom: []
 nginx_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nginx')
                                + lookup('role_var', '_docker_volumes_custom', role='nginx') }}"
 
-# Devices
-nginx_role_docker_devices_default: []
-nginx_role_docker_devices_custom: []
-nginx_role_docker_devices: "{{ lookup('role_var', '_docker_devices_default', role='nginx')
-                               + lookup('role_var', '_docker_devices_custom', role='nginx') }}"
-
-# Hosts
-nginx_role_docker_hosts_default: {}
-nginx_role_docker_hosts_custom: {}
-nginx_role_docker_hosts: "{{ docker_hosts_common
-                             | combine(lookup('role_var', '_docker_hosts_default', role='nginx'))
-                             | combine(lookup('role_var', '_docker_hosts_custom', role='nginx')) }}"
-
-# Labels
-nginx_role_docker_labels_default: {}
-nginx_role_docker_labels_custom: {}
-nginx_role_docker_labels: "{{ docker_labels_common
-                              | combine(lookup('role_var', '_docker_labels_default', role='nginx'))
-                              | combine(lookup('role_var', '_docker_labels_custom', role='nginx')) }}"
-
 # Hostname
 nginx_role_docker_hostname: "{{ nginx_name }}"
-
-# Network Mode
-nginx_role_docker_network_mode_default: "{{ docker_networks_name_common }}"
-nginx_role_docker_network_mode: "{{ lookup('role_var', '_docker_network_mode_default', role='nginx') }}"
 
 # Networks
 nginx_role_docker_networks_alias: "{{ nginx_name }}"
@@ -128,18 +92,6 @@ nginx_role_docker_networks_custom: []
 nginx_role_docker_networks: "{{ docker_networks_common
                                 + lookup('role_var', '_docker_networks_default', role='nginx')
                                 + lookup('role_var', '_docker_networks_custom', role='nginx') }}"
-
-# Capabilities
-nginx_role_docker_capabilities_default: []
-nginx_role_docker_capabilities_custom: []
-nginx_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='nginx')
-                                    + lookup('role_var', '_docker_capabilities_custom', role='nginx') }}"
-
-# Security Opts
-nginx_role_docker_security_opts_default: []
-nginx_role_docker_security_opts_custom: []
-nginx_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default', role='nginx')
-                                     + lookup('role_var', '_docker_security_opts_custom', role='nginx') }}"
 
 # Restart Policy
 nginx_role_docker_restart_policy: unless-stopped

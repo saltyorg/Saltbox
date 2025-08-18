@@ -99,9 +99,6 @@
         name: "python{{ python_version }}-venv"
         state: present
 
-    - name: "Install pip for Python {{ python_version }}"
-      ansible.builtin.command: "python{{ python_version }} -m ensurepip"
-
   rescue:
     - name: Update APT cache
       ansible.builtin.apt:
@@ -126,6 +123,3 @@
       ansible.builtin.apt:
         name: "python{{ python_version }}-venv"
         state: present
-
-    - name: "Install pip for Python {{ python_version }}"
-      ansible.builtin.command: "python{{ python_version }} -m ensurepip"

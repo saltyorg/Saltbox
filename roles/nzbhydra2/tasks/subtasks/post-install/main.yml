@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Check if SABnzbd config exists
   ansible.builtin.stat:
-    path: "{{ sabnzbd_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
   register: nzbhydra2_sabnzbd_yml_stat
 
 - name: Post-Install | SABnzbd tasks

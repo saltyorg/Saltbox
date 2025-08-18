@@ -22,7 +22,7 @@
 
 - name: Check if existing config exists
   ansible.builtin.stat:
-    path: "{{ sabnzbd_paths_config_location }}"
+    path: "{{ sabnzbd_role_paths_config_location }}"
   register: sabnzbd_conf_stat
 
 - name: Create Docker container

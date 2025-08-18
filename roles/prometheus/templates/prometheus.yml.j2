@@ -18,5 +18,5 @@ scrape_configs:
         username: '{{ user.name }}'
         password: '{{ user.pass }}'
     static_configs:
-      - targets: ['{{ traefik_metrics_subdomain }}.{{ traefik_metrics_domain }}']
+      - targets: ['{{ traefik_role_metrics_subdomain }}.{{ traefik_role_metrics_domain }}']
 {% endif %}

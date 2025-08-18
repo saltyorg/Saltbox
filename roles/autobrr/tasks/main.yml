@@ -52,5 +52,5 @@
   ansible.builtin.debug:
     msg:
       - "Run the following to create your user:"
-      - "docker exec -it {{ lookup('vars', role_name + '_name') }} sh -c 'autobrrctl --config /config create-user {{ user.name }}'"
+      - "docker exec -it {{ autobrr_name }} sh -c 'autobrrctl --config /config create-user {{ user.name }}'"
   when: not autobrr_directory.stat.exists

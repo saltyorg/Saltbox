@@ -17,162 +17,119 @@ overseerr_instances: ["overseerr"]
 # Settings
 ################################
 
-overseerr_log_level: "info"
+overseerr_role_log_level: "info"
 
 ################################
 # Paths
 ################################
 
-overseerr_paths_folder: "{{ overseerr_name }}"
-overseerr_paths_location: "{{ server_appdata_path }}/{{ overseerr_paths_folder }}"
-overseerr_paths_cache: "{{ overseerr_paths_location }}/cache"
-overseerr_paths_folders_list:
-  - "{{ overseerr_paths_location }}"
-  - "{{ overseerr_paths_cache }}"
-overseerr_paths_config_location: "{{ overseerr_paths_location }}/settings.json"
+overseerr_role_paths_folder: "{{ overseerr_name }}"
+overseerr_role_paths_location: "{{ server_appdata_path }}/{{ overseerr_role_paths_folder }}"
+overseerr_role_paths_cache: "{{ overseerr_role_paths_location }}/cache"
+overseerr_role_paths_folders_list:
+  - "{{ overseerr_role_paths_location }}"
+  - "{{ overseerr_role_paths_cache }}"
+overseerr_role_paths_config_location: "{{ overseerr_role_paths_location }}/settings.json"
 
 ################################
 # Web
 ################################
 
-overseerr_web_subdomain: "{{ overseerr_name }}"
-overseerr_web_domain: "{{ user.domain }}"
-overseerr_web_port: "5055"
-overseerr_web_url: "{{ 'https://' + (lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) + '.' + lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)
-                    if (lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) | length > 0)
-                    else lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain)) }}"
+overseerr_role_web_subdomain: "{{ overseerr_name }}"
+overseerr_role_web_domain: "{{ user.domain }}"
+overseerr_role_web_port: "5055"
+overseerr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='overseerr') + '.' + lookup('role_var', '_web_domain', role='overseerr')
+                    if (lookup('role_var', '_web_subdomain', role='overseerr') | length > 0)
+                    else lookup('role_var', '_web_domain', role='overseerr')) }}"
 
 ################################
 # DNS
 ################################
 
-overseerr_dns_record: "{{ lookup('vars', overseerr_name + '_web_subdomain', default=overseerr_web_subdomain) }}"
-overseerr_dns_zone: "{{ lookup('vars', overseerr_name + '_web_domain', default=overseerr_web_domain) }}"
-overseerr_dns_proxy: "{{ dns.proxied }}"
+overseerr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='overseerr') }}"
+overseerr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='overseerr') }}"
+overseerr_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-overseerr_traefik_sso_middleware: ""
-overseerr_traefik_middleware_default: "{{ traefik_default_middleware
-                                          + (',themepark-' + lookup('vars', overseerr_name + '_name', default=overseerr_name)
-                                            if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
-                                            else '') }}"
-overseerr_traefik_middleware_custom: ""
-overseerr_traefik_certresolver: "{{ traefik_default_certresolver }}"
-overseerr_traefik_enabled: true
-overseerr_traefik_api_enabled: false
-overseerr_traefik_api_endpoint: ""
+overseerr_role_traefik_sso_middleware: ""
+overseerr_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                               + (',themepark-' + overseerr_name
+                                                 if (lookup('role_var', '_themepark_enabled', role='overseerr') and global_themepark_plugin_enabled)
+                                                 else '') }}"
+overseerr_role_traefik_middleware_custom: ""
+overseerr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+overseerr_role_traefik_enabled: true
+overseerr_role_traefik_api_enabled: false
+overseerr_role_traefik_api_endpoint: ""
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-overseerr_themepark_enabled: false
-overseerr_themepark_app: "overseerr"
-overseerr_themepark_theme: "{{ global_themepark_theme }}"
-overseerr_themepark_domain: "{{ global_themepark_domain }}"
-overseerr_themepark_addons: []
+overseerr_role_themepark_enabled: false
+overseerr_role_themepark_app: "overseerr"
+overseerr_role_themepark_theme: "{{ global_themepark_theme }}"
+overseerr_role_themepark_domain: "{{ global_themepark_domain }}"
+overseerr_role_themepark_addons: []
 
 ################################
 # Docker
 ################################
 
 # Container
-overseerr_docker_container: "{{ overseerr_name }}"
+overseerr_role_docker_container: "{{ overseerr_name }}"
 
 # Image
-overseerr_docker_image_pull: true
-overseerr_docker_image_repo: "sctx/overseerr"
-overseerr_docker_image_tag: "latest"
-overseerr_docker_image: "{{ lookup('vars', overseerr_name + '_docker_image_repo', default=overseerr_docker_image_repo)
-                            + ':' + lookup('vars', overseerr_name + '_docker_image_tag', default=overseerr_docker_image_tag) }}"
-
-# Ports
-overseerr_docker_ports_defaults: []
-overseerr_docker_ports_custom: []
-overseerr_docker_ports: "{{ lookup('vars', overseerr_name + '_docker_ports_defaults', default=overseerr_docker_ports_defaults)
-                            + lookup('vars', overseerr_name + '_docker_ports_custom', default=overseerr_docker_ports_custom) }}"
+overseerr_role_docker_image_pull: true
+overseerr_role_docker_image_repo: "sctx/overseerr"
+overseerr_role_docker_image_tag: "latest"
+overseerr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='overseerr') }}:{{ lookup('role_var', '_docker_image_tag', role='overseerr') }}"
 
 # Envs
-overseerr_docker_envs_default:
+overseerr_role_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
-  LOG_LEVEL: "{{ overseerr_log_level }}"
-overseerr_docker_envs_custom: {}
-overseerr_docker_envs: "{{ lookup('vars', overseerr_name + '_docker_envs_default', default=overseerr_docker_envs_default)
-                           | combine(lookup('vars', overseerr_name + '_docker_envs_custom', default=overseerr_docker_envs_custom)) }}"
-
-# Commands
-overseerr_docker_commands_default: []
-overseerr_docker_commands_custom: []
-overseerr_docker_commands: "{{ lookup('vars', overseerr_name + '_docker_commands_default', default=overseerr_docker_commands_default)
-                               + lookup('vars', overseerr_name + '_docker_commands_custom', default=overseerr_docker_commands_custom) }}"
+  LOG_LEVEL: "{{ lookup('role_var', '_log_level', role='overseerr') }}"
+overseerr_role_docker_envs_custom: {}
+overseerr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='overseerr')
+                                | combine(lookup('role_var', '_docker_envs_custom', role='overseerr')) }}"
 
 # Volumes
-overseerr_docker_volumes_default:
-  - "{{ overseerr_paths_location }}:/app/config"
-overseerr_docker_volumes_custom: []
-overseerr_docker_volumes: "{{ lookup('vars', overseerr_name + '_docker_volumes_default', default=overseerr_docker_volumes_default)
-                              + lookup('vars', overseerr_name + '_docker_volumes_custom', default=overseerr_docker_volumes_custom) }}"
-
-# Devices
-overseerr_docker_devices_default: []
-overseerr_docker_devices_custom: []
-overseerr_docker_devices: "{{ lookup('vars', overseerr_name + '_docker_devices_default', default=overseerr_docker_devices_default)
-                              + lookup('vars', overseerr_name + '_docker_devices_custom', default=overseerr_docker_devices_custom) }}"
-
-# Hosts
-overseerr_docker_hosts_default: {}
-overseerr_docker_hosts_custom: {}
-overseerr_docker_hosts: "{{ docker_hosts_common
-                            | combine(lookup('vars', overseerr_name + '_docker_hosts_default', default=overseerr_docker_hosts_default))
-                            | combine(lookup('vars', overseerr_name + '_docker_hosts_custom', default=overseerr_docker_hosts_custom)) }}"
+overseerr_role_docker_volumes_default:
+  - "{{ overseerr_role_paths_location }}:/app/config"
+overseerr_role_docker_volumes_custom: []
+overseerr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='overseerr')
+                                   + lookup('role_var', '_docker_volumes_custom', role='overseerr') }}"
 
 # Labels
-overseerr_docker_labels_default: {}
-overseerr_docker_labels_custom: {}
-overseerr_docker_labels: "{{ docker_labels_common
-                             | combine(lookup('vars', overseerr_name + '_docker_labels_default', default=overseerr_docker_labels_default))
-                             | combine((traefik_themepark_labels
-                                       if (overseerr_themepark_enabled and global_themepark_plugin_enabled)
-                                       else {}),
-                                       lookup('vars', overseerr_name + '_docker_labels_custom', default=overseerr_docker_labels_custom)) }}"
+overseerr_role_docker_labels_default: {}
+overseerr_role_docker_labels_custom: {}
+overseerr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='overseerr')
+                                  | combine((traefik_themepark_labels
+                                            if (lookup('role_var', '_themepark_enabled', role='overseerr') and global_themepark_plugin_enabled)
+                                            else {}),
+                                            lookup('role_var', '_docker_labels_custom', role='overseerr')) }}"
 
 # Hostname
-overseerr_docker_hostname: "{{ overseerr_name }}"
-
-# Network Mode
-overseerr_docker_network_mode_default: "{{ docker_networks_name_common }}"
-overseerr_docker_network_mode: "{{ lookup('vars', overseerr_name + '_docker_network_mode_default', default=overseerr_docker_network_mode_default) }}"
+overseerr_role_docker_hostname: "{{ overseerr_name }}"
 
 # Networks
-overseerr_docker_networks_alias: "{{ overseerr_name }}"
-overseerr_docker_networks_default: []
-overseerr_docker_networks_custom: []
-overseerr_docker_networks: "{{ docker_networks_common
-                               + lookup('vars', overseerr_name + '_docker_networks_default', default=overseerr_docker_networks_default)
-                               + lookup('vars', overseerr_name + '_docker_networks_custom', default=overseerr_docker_networks_custom) }}"
-
-# Capabilities
-overseerr_docker_capabilities_default: []
-overseerr_docker_capabilities_custom: []
-overseerr_docker_capabilities: "{{ lookup('vars', overseerr_name + '_docker_capabilities_default', default=overseerr_docker_capabilities_default)
-                                   + lookup('vars', overseerr_name + '_docker_capabilities_custom', default=overseerr_docker_capabilities_custom) }}"
-
-# Security Opts
-overseerr_docker_security_opts_default: []
-overseerr_docker_security_opts_custom: []
-overseerr_docker_security_opts: "{{ lookup('vars', overseerr_name + '_docker_security_opts_default', default=overseerr_docker_security_opts_default)
-                                    + lookup('vars', overseerr_name + '_docker_security_opts_custom', default=overseerr_docker_security_opts_custom) }}"
+overseerr_role_docker_networks_alias: "{{ overseerr_name }}"
+overseerr_role_docker_networks_default: []
+overseerr_role_docker_networks_custom: []
+overseerr_role_docker_networks: "{{ docker_networks_common
+                                    + lookup('role_var', '_docker_networks_default', role='overseerr')
+                                    + lookup('role_var', '_docker_networks_custom', role='overseerr') }}"
 
 # Restart Policy
-overseerr_docker_restart_policy: unless-stopped
+overseerr_role_docker_restart_policy: unless-stopped
 
 # State
-overseerr_docker_state: started
+overseerr_role_docker_state: started
 
 # User
-overseerr_docker_user: "{{ uid }}:{{ gid }}"
+overseerr_role_docker_user: "{{ uid }}:{{ gid }}"

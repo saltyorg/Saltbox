@@ -17,137 +17,94 @@ petio_name: petio
 # Settings
 ################################
 
-petio_mongodb_version: "4.4"
+petio_role_mongodb_version: "4.4"
 
 ################################
 # Paths
 ################################
 
-petio_paths_folder: "{{ petio_name }}"
-petio_paths_location: "{{ server_appdata_path }}/{{ petio_paths_folder }}"
-petio_paths_folders_list:
-  - "{{ petio_paths_location }}"
+petio_role_paths_folder: "{{ petio_name }}"
+petio_role_paths_location: "{{ server_appdata_path }}/{{ petio_role_paths_folder }}"
+petio_role_paths_folders_list:
+  - "{{ petio_role_paths_location }}"
 
 ################################
 # Web
 ################################
 
-petio_web_subdomain: "{{ petio_name }}"
-petio_web_domain: "{{ user.domain }}"
-petio_web_port: "7777"
-petio_web_url: "{{ 'https://' + (petio_web_subdomain + '.' + petio_web_domain
-                if (petio_web_subdomain | length > 0)
-                else petio_web_domain) }}"
+petio_role_web_subdomain: "{{ petio_name }}"
+petio_role_web_domain: "{{ user.domain }}"
+petio_role_web_port: "7777"
+petio_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='petio') + '.' + lookup('role_var', '_web_domain', role='petio')
+                     if (lookup('role_var', '_web_subdomain', role='petio') | length > 0)
+                     else lookup('role_var', '_web_domain', role='petio')) }}"
 
 ################################
 # DNS
 ################################
 
-petio_dns_record: "{{ petio_web_subdomain }}"
-petio_dns_zone: "{{ petio_web_domain }}"
-petio_dns_proxy: "{{ dns.proxied }}"
+petio_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='petio') }}"
+petio_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='petio') }}"
+petio_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-petio_traefik_sso_middleware: ""
-petio_traefik_middleware_default: "{{ traefik_default_middleware }}"
-petio_traefik_middleware_custom: ""
-petio_traefik_certresolver: "{{ traefik_default_certresolver }}"
-petio_traefik_enabled: true
-petio_traefik_api_enabled: false
-petio_traefik_api_endpoint: ""
+petio_role_traefik_sso_middleware: ""
+petio_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+petio_role_traefik_middleware_custom: ""
+petio_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+petio_role_traefik_enabled: true
+petio_role_traefik_api_enabled: false
+petio_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-petio_docker_container: "{{ petio_name }}"
+petio_role_docker_container: "{{ petio_name }}"
 
 # Image
-petio_docker_image_pull: true
-petio_docker_image_tag: "latest"
-petio_docker_image: "ghcr.io/petio-team/petio:{{ petio_docker_image_tag }}"
-
-# Ports
-petio_docker_ports_defaults: []
-petio_docker_ports_custom: []
-petio_docker_ports: "{{ petio_docker_ports_defaults
-                        + petio_docker_ports_custom }}"
+petio_role_docker_image_pull: true
+petio_role_docker_image_repo: "ghcr.io/petio-team/petio"
+petio_role_docker_image_tag: "latest"
+petio_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='petio') }}:{{ lookup('role_var', '_docker_image_tag', role='petio') }}"
 
 # Envs
-petio_docker_envs_default:
+petio_role_docker_envs_default:
   TZ: "{{ tz }}"
-petio_docker_envs_custom: {}
-petio_docker_envs: "{{ petio_docker_envs_default
-                       | combine(petio_docker_envs_custom) }}"
-
-# Commands
-petio_docker_commands_default: []
-petio_docker_commands_custom: []
-petio_docker_commands: "{{ petio_docker_commands_default
-                           + petio_docker_commands_custom }}"
+petio_role_docker_envs_custom: {}
+petio_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='petio')
+                            | combine(lookup('role_var', '_docker_envs_custom', role='petio')) }}"
 
 # Volumes
-petio_docker_volumes_default:
-  - "{{ petio_paths_location }}:/app/api/config"
-petio_docker_volumes_custom: []
-petio_docker_volumes: "{{ petio_docker_volumes_default
-                          + petio_docker_volumes_custom }}"
-
-# Devices
-petio_docker_devices_default: []
-petio_docker_devices_custom: []
-petio_docker_devices: "{{ petio_docker_devices_default
-                          + petio_docker_devices_custom }}"
-
-# Hosts
-petio_docker_hosts_default: {}
-petio_docker_hosts_custom: {}
-petio_docker_hosts: "{{ docker_hosts_common
-                        | combine(petio_docker_hosts_default)
-                        | combine(petio_docker_hosts_custom) }}"
-
-# Labels
-petio_docker_labels_default: {}
-petio_docker_labels_custom: {}
-petio_docker_labels: "{{ docker_labels_common
-                         | combine(petio_docker_labels_default)
-                         | combine(petio_docker_labels_custom) }}"
+petio_role_docker_volumes_default:
+  - "{{ petio_role_paths_location }}:/app/api/config"
+petio_role_docker_volumes_custom: []
+petio_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='petio')
+                               + lookup('role_var', '_docker_volumes_custom', role='petio') }}"
 
 # Hostname
-petio_docker_hostname: "{{ petio_name }}"
+petio_role_docker_hostname: "{{ petio_name }}"
 
 # Networks
-petio_docker_networks_alias: "{{ petio_name }}"
-petio_docker_networks_default: []
-petio_docker_networks_custom: []
-petio_docker_networks: "{{ docker_networks_common
-                           + petio_docker_networks_default
-                           + petio_docker_networks_custom }}"
-
-# Capabilities
-petio_docker_capabilities_default: []
-petio_docker_capabilities_custom: []
-petio_docker_capabilities: "{{ petio_docker_capabilities_default
-                               + petio_docker_capabilities_custom }}"
-
-# Security Opts
-petio_docker_security_opts_default: []
-petio_docker_security_opts_custom: []
-petio_docker_security_opts: "{{ petio_docker_security_opts_default
-                                + petio_docker_security_opts_custom }}"
+petio_role_docker_networks_alias: "{{ petio_name }}"
+petio_role_docker_networks_default: []
+petio_role_docker_networks_custom: []
+petio_role_docker_networks: "{{ docker_networks_common
+                                + lookup('role_var', '_docker_networks_default', role='petio')
+                                + lookup('role_var', '_docker_networks_custom', role='petio') }}"
 
 # Restart Policy
-petio_docker_restart_policy: unless-stopped
+petio_role_docker_restart_policy: unless-stopped
 
 # State
-petio_docker_state: started
+petio_role_docker_state: started
 
 # User
-petio_docker_user: "{{ uid }}:{{ gid }}"
+petio_role_docker_user: "{{ uid }}:{{ gid }}"
 
 # Dependencies
 petio_depends_on: "{{ petio_name }}-mongo"

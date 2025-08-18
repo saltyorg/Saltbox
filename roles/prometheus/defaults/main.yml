@@ -18,143 +18,112 @@ prometheus_name: prometheus
 ################################
 # https://prometheus.io/docs/prometheus/latest/storage/
 
-prometheus_retention: "15d"
-prometheus_size: "0"
+prometheus_role_retention: "15d"
+prometheus_role_size: "0"
 
 ################################
 # Paths
 ################################
 
-prometheus_paths_folder: "{{ prometheus_name }}"
-prometheus_paths_location: "{{ server_appdata_path }}/{{ prometheus_paths_folder }}"
-prometheus_config_path: "{{ prometheus_paths_location }}/prometheus.yml"
-prometheus_paths_folders_list:
-  - "{{ prometheus_paths_location }}"
-  - "{{ prometheus_paths_location }}/data"
+prometheus_role_paths_folder: "{{ prometheus_name }}"
+prometheus_role_paths_location: "{{ server_appdata_path }}/{{ prometheus_role_paths_folder }}"
+prometheus_role_paths_config_path: "{{ prometheus_role_paths_location }}/prometheus.yml"
+prometheus_role_paths_folders_list:
+  - "{{ prometheus_role_paths_location }}"
+  - "{{ prometheus_role_paths_location }}/data"
 
 ################################
 # Web
 ################################
 
-prometheus_web_subdomain: "{{ prometheus_name }}"
-prometheus_web_domain: "{{ user.domain }}"
-prometheus_web_port: "9090"
-prometheus_web_url: "{{ 'https://' + (prometheus_web_subdomain + '.' + prometheus_web_domain
-                     if (prometheus_web_subdomain | length > 0)
-                     else prometheus_web_domain) }}"
+prometheus_role_web_subdomain: "{{ prometheus_name }}"
+prometheus_role_web_domain: "{{ user.domain }}"
+prometheus_role_web_port: "9090"
+prometheus_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='prometheus') + '.' + lookup('role_var', '_web_domain', role='prometheus')
+                     if (lookup('role_var', '_web_subdomain', role='prometheus') | length > 0)
+                     else lookup('role_var', '_web_domain', role='prometheus')) }}"
 
 ################################
 # DNS
 ################################
 
-prometheus_dns_record: "{{ prometheus_web_subdomain }}"
-prometheus_dns_zone: "{{ prometheus_web_domain }}"
-prometheus_dns_proxy: "{{ dns.proxied }}"
+prometheus_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='prometheus') }}"
+prometheus_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='prometheus') }}"
+prometheus_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-prometheus_traefik_sso_middleware: ""
-prometheus_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth' }}"
-prometheus_traefik_middleware_custom: ""
-prometheus_traefik_certresolver: "{{ traefik_default_certresolver }}"
-prometheus_traefik_enabled: true
-prometheus_traefik_api_enabled: false
-prometheus_traefik_api_endpoint: ""
+prometheus_role_traefik_sso_middleware: ""
+prometheus_role_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth' }}"
+prometheus_role_traefik_middleware_custom: ""
+prometheus_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+prometheus_role_traefik_enabled: true
+prometheus_role_traefik_api_enabled: false
+prometheus_role_traefik_api_endpoint: ""
 
 ################################
 # Docker
 ################################
 
 # Container
-prometheus_docker_container: "{{ prometheus_name }}"
+prometheus_role_docker_container: "{{ prometheus_name }}"
 
 # Image
-prometheus_docker_image_pull: true
-prometheus_docker_image_tag: "latest"
-prometheus_docker_image: "prom/prometheus:{{ prometheus_docker_image_tag }}"
-
-# Ports
-prometheus_docker_ports_defaults: []
-prometheus_docker_ports_custom: []
-prometheus_docker_ports: "{{ prometheus_docker_ports_defaults
-                             + prometheus_docker_ports_custom }}"
+prometheus_role_docker_image_pull: true
+prometheus_role_docker_image_tag: "latest"
+prometheus_role_docker_image_repo: "prom/prometheus"
+prometheus_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='prometheus') + lookup('role_var', '_docker_image_tag', role='prometheus') }}"
 
 # Envs
-prometheus_docker_envs_default:
+prometheus_role_docker_envs_default:
   TZ: "{{ tz }}"
-prometheus_docker_envs_custom: {}
-prometheus_docker_envs: "{{ prometheus_docker_envs_default
-                            | combine(prometheus_docker_envs_custom) }}"
+prometheus_role_docker_envs_custom: {}
+prometheus_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='prometheus')
+                                 | combine(lookup('role_var', '_docker_envs_custom', role='prometheus')) }}"
 
 # Commands
-prometheus_docker_commands_default:
+prometheus_role_docker_commands_default:
   - "--config.file=/etc/prometheus/prometheus.yml"
   - "--storage.tsdb.path=/data"
-  - "--storage.tsdb.retention.time={{ prometheus_retention }}"
-  - "--storage.tsdb.retention.size={{ prometheus_size }}"
-prometheus_docker_commands_custom: []
-prometheus_docker_commands: "{{ prometheus_docker_commands_default
-                                + prometheus_docker_commands_custom }}"
+  - "--storage.tsdb.retention.time={{ lookup('role_var', '_retention', role='prometheus') }}"
+  - "--storage.tsdb.retention.size={{ lookup('role_var', '_size', role='prometheus') }}"
+prometheus_role_docker_commands_custom: []
+prometheus_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='prometheus')
+                                     + lookup('role_var', '_docker_commands_custom', role='prometheus') }}"
 
 # Volumes
-prometheus_docker_volumes_default:
-  - "{{ prometheus_paths_location }}:/etc/prometheus"
-  - "{{ prometheus_paths_location }}/data:/data"
-prometheus_docker_volumes_custom: []
-prometheus_docker_volumes: "{{ prometheus_docker_volumes_default
-                               + prometheus_docker_volumes_custom }}"
-
-# Devices
-prometheus_docker_devices_default: []
-prometheus_docker_devices_custom: []
-prometheus_docker_devices: "{{ prometheus_docker_devices_default
-                               + prometheus_docker_devices_custom }}"
-
-# Hosts
-prometheus_docker_hosts_default: {}
-prometheus_docker_hosts_custom: {}
-prometheus_docker_hosts: "{{ docker_hosts_common
-                             | combine(prometheus_docker_hosts_default)
-                             | combine(prometheus_docker_hosts_custom) }}"
+prometheus_role_docker_volumes_default:
+  - "{{ prometheus_role_paths_location }}:/etc/prometheus"
+  - "{{ prometheus_role_paths_location }}/data:/data"
+prometheus_role_docker_volumes_custom: []
+prometheus_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='prometheus')
+                                    + lookup('role_var', '_docker_volumes_custom', role='prometheus') }}"
 
 # Labels
-prometheus_docker_labels_default:
+prometheus_role_docker_labels_default:
   traefik.http.middlewares.prometheus-auth.basicauth.usersfile: "/etc/traefik/auth"
-prometheus_docker_labels_custom: {}
-prometheus_docker_labels: "{{ docker_labels_common
-                              | combine(prometheus_docker_labels_default)
-                              | combine(prometheus_docker_labels_custom) }}"
+prometheus_role_docker_labels_custom: {}
+prometheus_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='prometheus')
+                                   | combine(lookup('role_var', '_docker_labels_custom', role='prometheus')) }}"
 
 # Hostname
-prometheus_docker_hostname: "{{ prometheus_name }}"
+prometheus_role_docker_hostname: "{{ prometheus_name }}"
 
 # Networks
-prometheus_docker_networks_alias: "{{ prometheus_name }}"
-prometheus_docker_networks_default: []
-prometheus_docker_networks_custom: []
-prometheus_docker_networks: "{{ docker_networks_common
-                                + prometheus_docker_networks_default
-                                + prometheus_docker_networks_custom }}"
-
-# Capabilities
-prometheus_docker_capabilities_default: []
-prometheus_docker_capabilities_custom: []
-prometheus_docker_capabilities: "{{ prometheus_docker_capabilities_default
-                                    + prometheus_docker_capabilities_custom }}"
-
-# Security Opts
-prometheus_docker_security_opts_default: []
-prometheus_docker_security_opts_custom: []
-prometheus_docker_security_opts: "{{ prometheus_docker_security_opts_default
-                                     + prometheus_docker_security_opts_custom }}"
+prometheus_role_docker_networks_alias: "{{ prometheus_name }}"
+prometheus_role_docker_networks_default: []
+prometheus_role_docker_networks_custom: []
+prometheus_role_docker_networks: "{{ docker_networks_common
+                                     + lookup('role_var', '_docker_networks_default', role='prometheus')
+                                     + lookup('role_var', '_docker_networks_custom', role='prometheus') }}"
 
 # Restart Policy
-prometheus_docker_restart_policy: unless-stopped
+prometheus_role_docker_restart_policy: unless-stopped
 
 # State
-prometheus_docker_state: started
+prometheus_role_docker_state: started
 
 # User
-prometheus_docker_user: "{{ uid }}:{{ gid }}"
+prometheus_role_docker_user: "{{ uid }}:{{ gid }}"

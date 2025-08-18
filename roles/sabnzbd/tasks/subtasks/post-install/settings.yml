@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Settings | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ sabnzbd_paths_config_location }}"
+    path: "{{ sabnzbd_role_paths_config_location }}"
     state: present
 
 - name: Post-Install | Settings | Stop container
@@ -21,7 +21,7 @@
 
 - name: Post-Install | Settings | Update config settings
   community.general.ini_file:
-    path: "{{ sabnzbd_paths_config_location }}"
+    path: "{{ sabnzbd_role_paths_config_location }}"
     section: misc
     option: "{{ item.option }}"
     value: "{{ item.value }}"
@@ -29,7 +29,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
-  loop: "{{ sabnzbd_config_settings_list }}"
+  loop: "{{ sabnzbd_role_config_settings_list }}"
 
 - name: Post-Install | Settings | Start container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

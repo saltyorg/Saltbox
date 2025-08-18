@@ -30,43 +30,43 @@
   ansible.builtin.include_tasks: subtasks/legacy.yml
   when: qbittorrent_legacy_service.stat.exists
 
-- name: Check if '{{ qbittorent_service_name }}' exists
+- name: Check if '{{ qbittorrent_service_name }}' exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ qbittorent_service_name }}"
+    path: "/etc/systemd/system/{{ qbittorrent_service_name }}"
   register: qbittorrent_service
 
-- name: Stop '{{ qbittorent_service_name }}'
+- name: Stop '{{ qbittorrent_service_name }}'
   ansible.builtin.systemd_service:
-    name: "{{ qbittorent_service_name }}"
+    name: "{{ qbittorrent_service_name }}"
     state: stopped
   when: qbittorrent_service.stat.exists
 
-- name: Remove '{{ qbittorent_service_name }}' file
+- name: Remove '{{ qbittorrent_service_name }}' file
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ qbittorent_service_name }}"
+    path: "/etc/systemd/system/{{ qbittorrent_service_name }}"
     state: absent
-  when: qbittorrent_service.stat.exists and not qbittorrent_host_install
+  when: qbittorrent_service.stat.exists and not lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Remove '{{ qbittorrent_name }}-nox' file
   ansible.builtin.file:
     path: "/usr/bin/{{ qbittorrent_name }}-nox"
     state: absent
-  when: qbittorrent_service.stat.exists and not qbittorrent_host_install
+  when: qbittorrent_service.stat.exists and not lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
 - name: Check if config file exists
   ansible.builtin.stat:
-    path: "{{ qbittorrent_paths_conf }}"
-  register: qbittorrent_paths_conf_stat
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+  register: qbittorrent_role_paths_conf_stat
 
 - name: Pre-Install Tasks
   ansible.builtin.include_tasks: "subtasks/pre-install/main.yml"
   when: (not continuous_integration)
 
 - name: Host Install
-  when: qbittorrent_host_install
+  when: lookup('role_var', '_host_install', role='qbittorrent')
   block:
     - name: Add '{{ qbittorrent_name }}' to hosts
       ansible.builtin.blockinfile:
@@ -76,12 +76,12 @@
           172.19.0.1 {{ qbittorrent_name }}
 
     - name: Get Download Url
-      ansible.builtin.shell: "{{ qbittorrent_host_version }}"
-      register: qbittorret_release_version
+      ansible.builtin.shell: "{{ lookup('role_var', '_host_version', role='qbittorrent') }}"
+      register: qbittorrent_release_version
 
     - name: Download 'qbittorrent-nox'
       ansible.builtin.get_url:
-        url: "{{ qbittorrent_host_download_url }}"
+        url: "{{ lookup('role_var', '_host_download_url', role='qbittorrent') }}"
         dest: "/usr/bin/{{ qbittorrent_name }}-nox"
         mode: "0755"
         force: true
@@ -89,25 +89,25 @@
     - name: Import '{{ qbittorrent_name }}.service'
       ansible.builtin.template:
         src: "qbittorrent.service.j2"
-        dest: "/etc/systemd/system/{{ qbittorent_service_name }}"
+        dest: "/etc/systemd/system/{{ qbittorrent_service_name }}"
         mode: "0644"
         force: true
 
-    - name: Systemd daemon-reload '{{ qbittorent_service_name }}'
+    - name: Systemd daemon-reload '{{ qbittorrent_service_name }}'
       ansible.builtin.systemd_service:
-        name: "{{ qbittorent_service_name }}"
+        name: "{{ qbittorrent_service_name }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Start '{{ qbittorent_service_name }}'
+    - name: Start '{{ qbittorrent_service_name }}'
       ansible.builtin.systemd_service:
-        name: "{{ qbittorent_service_name }}"
+        name: "{{ qbittorrent_service_name }}"
         state: started
         enabled: true
 
 - name: Docker Install
-  when: not qbittorrent_host_install
+  when: not lookup('role_var', '_host_install', role='qbittorrent')
   block:
     - name: Remove '{{ qbittorrent_name }}' from hosts
       ansible.builtin.blockinfile:
@@ -120,4 +120,4 @@
 
 - name: Post-Install Tasks
   ansible.builtin.include_tasks: "subtasks/post-install/main.yml"
-  when: (not continuous_integration) and (not qbittorrent_paths_conf_stat.stat.exists)
+  when: (not continuous_integration) and (not qbittorrent_role_paths_conf_stat.stat.exists)

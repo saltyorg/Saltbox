@@ -7,14 +7,14 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: "Check if '{{ plex_role_paths_db_location | basename }}' exists"
+- name: "Check if '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' exists"
   ansible.builtin.stat:
-    path: "{{ plex_role_paths_db_location }}"
+    path: "{{ lookup('role_var', '_paths_db_location', role='plex') }}"
   register: plex_db
 
-- name: "Check if '{{ plex_role_paths_db_blobs_location | basename }}' exists"
+- name: "Check if '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' exists"
   ansible.builtin.stat:
-    path: "{{ plex_role_paths_db_blobs_location }}"
+    path: "{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}"
   register: plex_db_blobs
 
 - name: Fail if database does not exist
@@ -30,12 +30,12 @@
 - name: Integrity check
   block:
     - name: Check if main database passes integrity_check
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_location }}' 'PRAGMA integrity_check(1)'"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'PRAGMA integrity_check(1)'"
       register: plex_db_integrity_check
       failed_when: (plex_db_integrity_check.stdout != 'ok')
 
     - name: Check if blobs database passes integrity_check
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_blobs_location }}' 'PRAGMA integrity_check(1)'"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'PRAGMA integrity_check(1)'"
       register: plex_db_blobs_integrity_check
       failed_when: (plex_db_blobs_integrity_check.stdout != 'ok')
 
@@ -62,26 +62,26 @@
         mode: "0775"
 
     - name: Backup databases
-      ansible.builtin.shell: "cp '{{ plex_role_paths_plugin_support_location }}/Databases/{{ item }}' /tmp/{{ plex_name }}_backup/"
+      ansible.builtin.shell: "cp '{{ lookup('role_var', '_paths_plugin_support_location', role='plex') }}/Databases/{{ item }}' /tmp/{{ plex_name }}_backup/"
       loop: "{{ plex_db_files }}"
 
-    - name: "Vacuum '{{ plex_role_paths_db_location | basename }}' database"
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_location }}' 'VACUUM;'"
+    - name: "Vacuum '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'VACUUM;'"
       register: plex_db_vacuum
       failed_when: (plex_db_vacuum.rc != 0)
 
-    - name: "Vacuum '{{ plex_role_paths_db_blobs_location | basename }}' database"
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_blobs_location }}' 'VACUUM;'"
+    - name: "Vacuum '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'VACUUM;'"
       register: plex_db_blobs_vacuum
       failed_when: (plex_db_blobs_vacuum.rc != 0)
 
-    - name: "Reindex '{{ plex_role_paths_db_location | basename }}' database"
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_location }}' 'REINDEX;'"
+    - name: "Reindex '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'REINDEX;'"
       register: plex_db_reindex
       failed_when: (plex_db_reindex.rc != 0)
 
-    - name: "Reindex '{{ plex_role_paths_db_blobs_location | basename }}' database"
-      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ plex_role_paths_db_blobs_location }}' 'REINDEX;'"
+    - name: "Reindex '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
+      ansible.builtin.shell: "'/opt/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'REINDEX;'"
       register: plex_db_blobs_reindex
       failed_when: (plex_db_blobs_reindex.rc != 0)
 
@@ -98,7 +98,7 @@
 
     - name: Delete wal and shm files
       ansible.builtin.file:
-        path: "{{ plex_role_paths_plugin_support_location }}/Databases/{{ item }}"
+        path: "{{ lookup('role_var', '_paths_plugin_support_location', role='plex') }}/Databases/{{ item }}"
         state: absent
       loop:
         - "com.plexapp.plugins.library.db-wal"
@@ -107,7 +107,7 @@
         - "com.plexapp.plugins.library.blobs.db-shm"
 
     - name: Restore database backup
-      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ plex_role_paths_plugin_support_location }}/Databases/{{ item }}'"
+      ansible.builtin.shell: "cp -f '/tmp/{{ plex_name }}_backup/{{ item }}' '{{ lookup('role_var', '_paths_plugin_support_location', role='plex') }}/Databases/{{ item }}'"
       loop: "{{ plex_db_files }}"
 
 - name: Start Docker container

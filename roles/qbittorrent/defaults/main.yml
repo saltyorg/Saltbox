@@ -11,220 +11,183 @@
 ################################
 
 qbittorrent_instances: ["qbittorrent"]
-qbittorrent_host_install: false
+qbittorrent_role_host_install: false
 
 ################################
 # Settings
 ################################
 
-qbittorrent_webui_custom_headers_enabled: "{{ 'true' if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else 'false' }}"
-qbittorrent_webui_custom_headers_default: "{{ (qbittorrent_themepark_headers if qbittorrent_themepark_enabled and global_themepark_plugin_enabled else '') + qbittorrent_webui_custom_headers_custom }}"
-qbittorrent_webui_custom_headers_custom: ""
-qbittorrent_webui_custom_headers: "{{ (qbittorrent_webui_custom_headers_default | trim + ' ' + qbittorrent_webui_custom_headers_custom | trim) | trim }}"
+qbittorrent_role_webui_custom_headers_enabled: "{{ 'true' if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else 'false' }}"
+qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_headers if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else '') }}"
+qbittorrent_role_webui_custom_headers_custom: ""
+qbittorrent_role_webui_custom_headers: "{{ (lookup('role_var', '_webui_custom_headers_default', role='qbittorrent') | trim + ' ' + lookup('role_var', '_webui_custom_headers_custom', role='qbittorrent') | trim) | trim }}"
 # Options are: Delete or MoveToTrash
-qbittorrent_torrent_content_remove_option: "Delete"
+qbittorrent_host_torrent_content_remove_option: "Delete"
 
 ################################
 # Host Install
 ################################
 
 # Options are: libtorrent1 (latest), libtorrent2 (latest) or legacy (4.3.9)
-qbittorrent_host_branch: libtorrent1
+qbittorrent_role_host_branch: libtorrent1
 # Example being "release-4.4.5_v1.2.18"
 # If this is set then the above branch logic is ignored
-qbittorrent_host_specific_version: ""
+qbittorrent_role_host_specific_version: ""
 
 # Lookup variables
-qbittorrent_host_download_endpoint: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/download/'
-                                     if qbittorrent_host_branch != 'legacy'
-                                     else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/' }}"
-qbittorrent_host_download_url: "{{ qbittorrent_host_download_endpoint }}{{ qbittorrent_host_specific_version
-                                                                        if (qbittorrent_host_specific_version | length > 0)
-                                                                        else qbittorret_release_version.stdout }}/x86_64-qbittorrent-nox"
-qbittorrent_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
-                               if qbittorrent_host_branch != 'legacy'
-                               else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
-qbittorrent_host_lookup_libtorrent1: 'release-\(.qbittorrent)_v\(.libtorrent_1_2)'
-qbittorrent_host_lookup_libtorrent2: 'release-\(.qbittorrent)_v\(.libtorrent_2_0)'
-qbittorrent_host_release_lookup: "{{ qbittorrent_host_lookup_libtorrent2
-                                  if qbittorrent_host_branch == 'libtorrent2'
-                                  else qbittorrent_host_lookup_libtorrent1 }}"
-qbittorrent_host_version: |
-  curl -sL {{ qbittorrent_host_release_url }} | jq -r '. | "{{ qbittorrent_host_release_lookup }}"'
+qbittorrent_role_host_download_endpoint: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/download/'
+                                          if lookup('role_var', '_host_branch', role='qbittorrent') != 'legacy'
+                                          else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/' }}"
+qbittorrent_role_host_download_url: "{{ lookup('role_var', '_host_download_endpoint', role='qbittorrent') }}{{ lookup('role_var', '_host_specific_version', role='qbittorrent')
+                                                                                                            if (lookup('role_var', '_host_specific_version', role='qbittorrent') | length > 0)
+                                                                                                            else qbittorrent_release_version.stdout }}/x86_64-qbittorrent-nox"
+qbittorrent_role_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
+                                    if lookup('role_var', '_host_branch', role='qbittorrent') != 'legacy'
+                                    else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
+qbittorrent_role_host_lookup_libtorrent1: 'release-\(.qbittorrent)_v\(.libtorrent_1_2)'
+qbittorrent_role_host_lookup_libtorrent2: 'release-\(.qbittorrent)_v\(.libtorrent_2_0)'
+qbittorrent_role_host_release_lookup: "{{ qbittorrent_role_host_lookup_libtorrent2
+                                       if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
+                                       else qbittorrent_role_host_lookup_libtorrent1 }}"
+qbittorrent_role_host_version: |
+  curl -sL {{ lookup('role_var', '_host_release_url', role='qbittorrent') }} | jq -r '. | "{{ lookup('role_var', '_host_release_lookup', role='qbittorrent') }}"'
 
-qbittorent_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
+qbittorrent_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
 
 ################################
 # Paths
 ################################
 
-qbittorrent_paths_folder: "{{ qbittorrent_name }}"
-qbittorrent_paths_location: "{{ server_appdata_path }}/{{ qbittorrent_paths_folder }}"
-qbittorrent_paths_downloads_location: "{{ downloads_torrents_path }}/{{ qbittorrent_paths_folder }}"
-qbittorrent_paths_conf: "{{ qbittorrent_paths_location }}/qBittorrent/qBittorrent.conf"
-qbittorrent_paths_folders_list:
-  - "{{ qbittorrent_paths_location }}"
-  - "{{ qbittorrent_paths_downloads_location }}"
-  - "{{ qbittorrent_paths_downloads_location }}/completed"
-  - "{{ qbittorrent_paths_downloads_location }}/incoming"
-  - "{{ qbittorrent_paths_downloads_location }}/watched"
-  - "{{ qbittorrent_paths_downloads_location }}/torrents"
+qbittorrent_role_paths_folder: "{{ qbittorrent_name }}"
+qbittorrent_role_paths_location: "{{ server_appdata_path }}/{{ qbittorrent_role_paths_folder }}"
+qbittorrent_role_paths_downloads_location: "{{ downloads_torrents_path }}/{{ qbittorrent_role_paths_folder }}"
+qbittorrent_role_paths_conf: "{{ qbittorrent_role_paths_location }}/qBittorrent/qBittorrent.conf"
+qbittorrent_role_paths_folders_list:
+  - "{{ qbittorrent_role_paths_location }}"
+  - "{{ qbittorrent_role_paths_downloads_location }}"
+  - "{{ qbittorrent_role_paths_downloads_location }}/completed"
+  - "{{ qbittorrent_role_paths_downloads_location }}/incoming"
+  - "{{ qbittorrent_role_paths_downloads_location }}/watched"
+  - "{{ qbittorrent_role_paths_downloads_location }}/torrents"
 
 ################################
 # Web
 ################################
 
-qbittorrent_web_subdomain: "{{ qbittorrent_name }}"
-qbittorrent_web_domain: "{{ user.domain }}"
-qbittorrent_web_port: "8080"
-qbittorrent_web_url: "{{ 'https://' + (lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) + '.' + lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain)
-                      if (lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) | length > 0)
-                      else lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain)) }}"
+qbittorrent_role_web_subdomain: "{{ qbittorrent_name }}"
+qbittorrent_role_web_domain: "{{ user.domain }}"
+qbittorrent_role_web_port: "8080"
+qbittorrent_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='qbittorrent') + '.' + lookup('role_var', '_web_domain', role='qbittorrent')
+                           if (lookup('role_var', '_web_subdomain', role='qbittorrent') | length > 0)
+                           else lookup('role_var', '_web_domain', role='qbittorrent')) }}"
 
 ################################
 # DNS
 ################################
 
-qbittorrent_dns_record: "{{ lookup('vars', qbittorrent_name + '_web_subdomain', default=qbittorrent_web_subdomain) }}"
-qbittorrent_dns_zone: "{{ lookup('vars', qbittorrent_name + '_web_domain', default=qbittorrent_web_domain) }}"
-qbittorrent_dns_proxy: "{{ dns.proxied }}"
+qbittorrent_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='qbittorrent') }}"
+qbittorrent_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='qbittorrent') }}"
+qbittorrent_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
 # Traefik
 ################################
 
-qbittorrent_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-qbittorrent_traefik_middleware_default: "{{ traefik_default_middleware
-                                            + (',themepark-' + lookup('vars', qbittorrent_name + '_name', default=qbittorrent_name)
-                                              if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
-                                              else '') }}"
-qbittorrent_traefik_middleware_custom: ""
-qbittorrent_traefik_certresolver: "{{ traefik_default_certresolver }}"
-qbittorrent_traefik_enabled: true
-qbittorrent_traefik_api_enabled: true
-qbittorrent_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) || PathPrefix(`/query`) || PathPrefix(`/login`) || PathPrefix(`/sync`)"
+qbittorrent_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+qbittorrent_role_traefik_middleware_default: "{{ traefik_default_middleware
+                                                 + (',themepark-' + qbittorrent_name
+                                                   if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                                   else '') }}"
+qbittorrent_role_traefik_middleware_custom: ""
+qbittorrent_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+qbittorrent_role_traefik_enabled: true
+qbittorrent_role_traefik_api_enabled: true
+qbittorrent_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) || PathPrefix(`/query`) || PathPrefix(`/login`) || PathPrefix(`/sync`)"
 
 ################################
 # THEME
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
-qbittorrent_themepark_enabled: false
-qbittorrent_themepark_app: "qbittorrent"
-qbittorrent_themepark_theme: "{{ global_themepark_theme }}"
-qbittorrent_themepark_domain: "{{ global_themepark_domain }}"
-qbittorrent_themepark_addons: []
-qbittorrent_themepark_headers: "\"content-security-policy: default-src 'self'; style-src 'self' 'unsafe-inline' theme-park.dev raw.githubusercontent.com use.fontawesome.com; img-src 'self' theme-park.dev raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; font-src use.fontawesome.com;\""
+qbittorrent_role_themepark_enabled: false
+qbittorrent_role_themepark_app: "qbittorrent"
+qbittorrent_role_themepark_theme: "{{ global_themepark_theme }}"
+qbittorrent_role_themepark_domain: "{{ global_themepark_domain }}"
+qbittorrent_role_themepark_addons: []
+qbittorrent_role_themepark_headers: "\"content-security-policy: default-src 'self'; style-src 'self' 'unsafe-inline' theme-park.dev raw.githubusercontent.com use.fontawesome.com; img-src 'self' theme-park.dev raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; font-src use.fontawesome.com;\""
 
 ################################
 # Docker
 ################################
 
 # Container
-qbittorrent_docker_container: "{{ qbittorrent_name }}"
+qbittorrent_role_docker_container: "{{ qbittorrent_name }}"
 
 # Image
-qbittorrent_docker_image_pull: true
-qbittorrent_docker_image_repo: "saltydk/qbittorrent"
-qbittorrent_docker_image_tag: "latest"
-qbittorrent_docker_image: "{{ lookup('vars', qbittorrent_name + '_docker_image_repo', default=qbittorrent_docker_image_repo)
-                              + ':' + lookup('vars', qbittorrent_name + '_docker_image_tag', default=qbittorrent_docker_image_tag) }}"
+qbittorrent_role_docker_image_pull: true
+qbittorrent_role_docker_image_repo: "saltydk/qbittorrent"
+qbittorrent_role_docker_image_tag: "latest"
+qbittorrent_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='qbittorrent') }}:{{ lookup('role_var', '_docker_image_tag', role='qbittorrent') }}"
 
 # Ports
-qbittorrent_docker_ports_56881: "{{ port_lookup_56881.meta.port
-                                 if (port_lookup_56881.meta.port is defined) and (port_lookup_56881.meta.port | trim | length > 0)
-                                 else '56881' }}"
-qbittorrent_docker_ports_8080: "{{ port_lookup_8080.meta.port
-                                if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
-                                else '8090' }}"
-qbittorrent_web_port_lookup: "{{ lookup('vars', qbittorrent_name + '_web_port', default=qbittorrent_web_port) }}"
+qbittorrent_role_docker_ports_56881: "{{ port_lookup_56881.meta.port
+                                      if (port_lookup_56881.meta.port is defined) and (port_lookup_56881.meta.port | trim | length > 0)
+                                      else '56881' }}"
+qbittorrent_role_docker_ports_8080: "{{ port_lookup_8080.meta.port
+                                     if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
+                                     else '8090' }}"
+qbittorrent_role_web_port_lookup: "{{ lookup('role_var', '_web_port', role='qbittorrent') }}"
 
-qbittorrent_docker_ports_defaults:
-  - "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}:{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
-  - "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}:{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}/udp"
-qbittorrent_docker_ports_custom: []
-qbittorrent_docker_ports: "{{ lookup('vars', qbittorrent_name + '_docker_ports_defaults', default=qbittorrent_docker_ports_defaults)
-                              + lookup('vars', qbittorrent_name + '_docker_ports_custom', default=qbittorrent_docker_ports_custom) }}"
+qbittorrent_role_docker_ports_defaults:
+  - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
+  - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}/udp"
+qbittorrent_role_docker_ports_custom: []
+qbittorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='qbittorrent')
+                                   + lookup('role_var', '_docker_ports_custom', role='qbittorrent') }}"
 
 # Envs
-qbittorrent_docker_envs_default:
+qbittorrent_role_docker_envs_default:
   PUID: "{{ uid }}"
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   UMASK_SET: "002"
-qbittorrent_docker_envs_custom: {}
-qbittorrent_docker_envs: "{{ lookup('vars', qbittorrent_name + '_docker_envs_default', default=qbittorrent_docker_envs_default)
-                             | combine(lookup('vars', qbittorrent_name + '_docker_envs_custom', default=qbittorrent_docker_envs_custom)) }}"
-
-# Commands
-qbittorrent_docker_commands_default: []
-qbittorrent_docker_commands_custom: []
-qbittorrent_docker_commands: "{{ lookup('vars', qbittorrent_name + '_docker_commands_default', default=qbittorrent_docker_commands_default)
-                                 + lookup('vars', qbittorrent_name + '_docker_commands_custom', default=qbittorrent_docker_commands_custom) }}"
+qbittorrent_role_docker_envs_custom: {}
+qbittorrent_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='qbittorrent')
+                                  | combine(lookup('role_var', '_docker_envs_custom', role='qbittorrent')) }}"
 
 # Volumes
-qbittorrent_docker_volumes_default:
-  - "{{ qbittorrent_paths_location }}:/config"
+qbittorrent_role_docker_volumes_default:
+  - "{{ qbittorrent_role_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
-qbittorrent_docker_volumes_custom: []
-qbittorrent_docker_volumes: "{{ lookup('vars', qbittorrent_name + '_docker_volumes_default', default=qbittorrent_docker_volumes_default)
-                                + lookup('vars', qbittorrent_name + '_docker_volumes_custom', default=qbittorrent_docker_volumes_custom) }}"
-
-# Devices
-qbittorrent_docker_devices_default: []
-qbittorrent_docker_devices_custom: []
-qbittorrent_docker_devices: "{{ lookup('vars', qbittorrent_name + '_docker_devices_default', default=qbittorrent_docker_devices_default)
-                                + lookup('vars', qbittorrent_name + '_docker_devices_custom', default=qbittorrent_docker_devices_custom) }}"
-
-# Hosts
-qbittorrent_docker_hosts_default: {}
-qbittorrent_docker_hosts_custom: {}
-qbittorrent_docker_hosts: "{{ docker_hosts_common
-                              | combine(lookup('vars', qbittorrent_name + '_docker_hosts_default', default=qbittorrent_docker_hosts_default))
-                              | combine(lookup('vars', qbittorrent_name + '_docker_hosts_custom', default=qbittorrent_docker_hosts_custom)) }}"
+qbittorrent_role_docker_volumes_custom: []
+qbittorrent_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='qbittorrent')
+                                     + lookup('role_var', '_docker_volumes_custom', role='qbittorrent') }}"
 
 # Labels
-qbittorrent_docker_labels_default: {}
-qbittorrent_docker_labels_custom: {}
-qbittorrent_docker_labels: "{{ docker_labels_common
-                               | combine(lookup('vars', qbittorrent_name + '_docker_labels_default', default=qbittorrent_docker_labels_default))
-                               | combine((traefik_themepark_labels
-                                         if (qbittorrent_themepark_enabled and global_themepark_plugin_enabled)
-                                         else {}),
-                                         lookup('vars', qbittorrent_name + '_docker_labels_custom', default=qbittorrent_docker_labels_custom)) }}"
+qbittorrent_role_docker_labels_default: {}
+qbittorrent_role_docker_labels_custom: {}
+qbittorrent_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='qbittorrent')
+                                    | combine((traefik_themepark_labels
+                                              if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                              else {}),
+                                              lookup('role_var', '_docker_labels_custom', role='qbittorrent')) }}"
 
 # Hostname
-qbittorrent_docker_hostname: "{{ qbittorrent_name }}"
-
-# Network Mode
-qbittorrent_docker_network_mode_default: "{{ docker_networks_name_common }}"
-qbittorrent_docker_network_mode: "{{ lookup('vars', qbittorrent_name + '_docker_network_mode_default', default=qbittorrent_docker_network_mode_default) }}"
+qbittorrent_role_docker_hostname: "{{ qbittorrent_name }}"
 
 # Networks
-qbittorrent_docker_networks_alias: "{{ qbittorrent_name }}"
-qbittorrent_docker_networks_default: []
-qbittorrent_docker_networks_custom: []
-qbittorrent_docker_networks: "{{ docker_networks_common
-                                 + lookup('vars', qbittorrent_name + '_docker_networks_default', default=qbittorrent_docker_networks_default)
-                                 + lookup('vars', qbittorrent_name + '_docker_networks_custom', default=qbittorrent_docker_networks_custom) }}"
-
-# Capabilities
-qbittorrent_docker_capabilities_default: []
-qbittorrent_docker_capabilities_custom: []
-qbittorrent_docker_capabilities: "{{ lookup('vars', qbittorrent_name + '_docker_capabilities_default', default=qbittorrent_docker_capabilities_default)
-                                     + lookup('vars', qbittorrent_name + '_docker_capabilities_custom', default=qbittorrent_docker_capabilities_custom) }}"
-
-# Security Opts
-qbittorrent_docker_security_opts_default: []
-qbittorrent_docker_security_opts_custom: []
-qbittorrent_docker_security_opts: "{{ lookup('vars', qbittorrent_name + '_docker_security_opts_default', default=qbittorrent_docker_security_opts_default)
-                                      + lookup('vars', qbittorrent_name + '_docker_security_opts_custom', default=qbittorrent_docker_security_opts_custom) }}"
+qbittorrent_role_docker_networks_alias: "{{ qbittorrent_name }}"
+qbittorrent_role_docker_networks_default: []
+qbittorrent_role_docker_networks_custom: []
+qbittorrent_role_docker_networks: "{{ docker_networks_common
+                                      + lookup('role_var', '_docker_networks_default', role='qbittorrent')
+                                      + lookup('role_var', '_docker_networks_custom', role='qbittorrent') }}"
 
 # Restart Policy
-qbittorrent_docker_restart_policy: unless-stopped
+qbittorrent_role_docker_restart_policy: unless-stopped
 
 # Stop Timeout
-qbittorrent_docker_stop_timeout: 900
+qbittorrent_role_docker_stop_timeout: 900
 
 # State
-qbittorrent_docker_state: started
+qbittorrent_role_docker_state: started

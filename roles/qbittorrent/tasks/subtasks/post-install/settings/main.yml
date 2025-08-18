@@ -9,10 +9,10 @@
 ---
 - name: Post-Install | Settings | Update Session\Port in 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: BitTorrent
     option: Session\Port
-    value: "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
+    value: "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -21,10 +21,10 @@
 
 - name: Post-Install | Settings | Update Connection\PortRangeMin in 'qBittorrent.conf' config settings (legacy)
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: Connection\PortRangeMin
-    value: "{{ lookup('vars', qbittorrent_name + '_docker_ports_56881', default=qbittorrent_docker_ports_56881) }}"
+    value: "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -33,7 +33,7 @@
 
 - name: Post-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\HostHeaderValidation
     value: "false"
@@ -45,7 +45,7 @@
 
 - name: Post-Install | Settings | Update WebUI\CSRFProtection 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\CSRFProtection
     value: "false"
@@ -57,10 +57,10 @@
 
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeaders 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\CustomHTTPHeaders
-    value: "{{ qbittorrent_webui_custom_headers }}"
+    value: "{{ lookup('role_var', '_webui_custom_headers', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -69,10 +69,10 @@
 
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\CustomHTTPHeadersEnabled
-    value: "{{ qbittorrent_webui_custom_headers_enabled }}"
+    value: "{{ lookup('role_var', '_webui_custom_headers_enabled', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -81,7 +81,7 @@
 
 - name: Post-Install | Settings | Update LegalNotice.Accepted 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: LegalNotice
     option: Accepted
     value: "true"
@@ -93,10 +93,10 @@
 
 - name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\Port
-    value: "{{ lookup('vars', qbittorrent_name + '_docker_ports_8080', default=qbittorrent_docker_ports_8080) if qbittorrent_host_install else '8080' }}"
+    value: "{{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') if lookup('role_var', '_host_install', role='qbittorrent') else '8080' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -105,10 +105,10 @@
 
 - name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\Address
-    value: "{{ '172.19.0.1' if qbittorrent_host_install else '*' }}"
+    value: "{{ '172.19.0.1' if lookup('role_var', '_host_install', role='qbittorrent') else '*' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -117,7 +117,7 @@
 
 - name: Post-Install | Settings | Update WebUI\TrustedReverseProxiesList 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\TrustedReverseProxiesList
     value: "172.19.0.0/16"
@@ -129,7 +129,7 @@
 
 - name: Post-Install | Settings | Update WebUI\ReverseProxySupportEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\ReverseProxySupportEnabled
     value: "true"
@@ -141,7 +141,7 @@
 
 - name: Post-Install | Settings | Update FileLogger\Enabled 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Application
     option: FileLogger\Enabled
     value: "true"
@@ -153,10 +153,10 @@
 
 - name: Post-Install | Settings | Update FileLogger\Path 'qBittorrent.conf' config settings
   community.general.ini_file:
-    path: "{{ qbittorrent_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Application
     option: FileLogger\Path
-    value: "{{ qbittorrent_paths_location + '/log' if qbittorrent_host_install else '/config/log' }}"
+    value: "{{ lookup('role_var', '_paths_location', role='qbittorrent') + '/log' if lookup('role_var', '_host_install', role='qbittorrent') else '/config/log' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -164,7 +164,7 @@
     mode: "0664"
 
 - name: Post-Install | Settings | Generate Password Hash
-  when: not qbittorrent_paths_conf_stat.stat.exists
+  when: not qbittorrent_role_paths_conf_stat.stat.exists
   block:
     - name: Post-Install | Settings | Generate Password Hash
       qbittorrent_passwd:
@@ -176,7 +176,7 @@
         section: Preferences
         option: WebUI\Username
         value: '{{ user.name }}'
-        path: "{{ qbittorrent_paths_conf }}"
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
@@ -187,7 +187,7 @@
         section: Preferences
         option: WebUI\Password_PBKDF2
         value: '{{ qbittorrent_hashed_passwd.hash }}'
-        path: "{{ qbittorrent_paths_conf }}"
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
