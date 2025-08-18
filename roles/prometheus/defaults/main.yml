@@ -74,7 +74,7 @@ prometheus_role_docker_container: "{{ prometheus_name }}"
 prometheus_role_docker_image_pull: true
 prometheus_role_docker_image_tag: "latest"
 prometheus_role_docker_image_repo: "prom/prometheus"
-prometheus_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='prometheus') + lookup('role_var', '_docker_image_tag', role='prometheus') }}"
+prometheus_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='prometheus') }}:{{ lookup('role_var', '_docker_image_tag', role='prometheus') }}"
 
 # Envs
 prometheus_role_docker_envs_default:
