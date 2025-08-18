@@ -110,7 +110,7 @@
       register: plex_plugin_subzero_download_status
       ignore_errors: true
 
-    - name: Post-Successfull Sub-Zero Plugin Download
+    - name: Post-Successful Sub-Zero Plugin Download
       when: (plex_plugin_subzero_download_status is success)
       block:
         - name: Check for newly installed Sub-Zero Plugin
@@ -118,7 +118,7 @@
             path: "{{ plex_plugin_subzero_paths_info_plist_location }}"
           register: plex_plugin_subzero_info_plist_status
 
-        - name: Post-Successfull Sub-Zero Plugin Install
+        - name: Post-Successful Sub-Zero Plugin Install
           when: plex_plugin_subzero_info_plist_status.stat.exists
           block:
             - name: Check version of newly installed Sub-Zero Plugin
