@@ -16,14 +16,13 @@
     ],
     "packageRules": [
         {
-            "description": "Group all major pip requirements updates",
+            "description": "Major pip requirements updates",
             "matchManagers": [
                 "pip_requirements"
             ],
             "matchFileNames": [
                 "requirements/*"
             ],
-            "groupName": "requirements (major)",
             "matchUpdateTypes": [
                 "major"
             ],
@@ -114,7 +113,6 @@
             "matchManagers": [
                 "github-actions"
             ],
-            "groupName": "github-actions (major)",
             "matchUpdateTypes": [
                 "major"
             ],
@@ -125,7 +123,7 @@
             ]
         },
         {
-            "description": "Minor/patch GitHub Actions updates",
+            "description": "GitHub Actions updates",
             "matchManagers": [
                 "github-actions"
             ],
