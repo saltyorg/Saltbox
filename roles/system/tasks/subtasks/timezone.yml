@@ -23,20 +23,39 @@
     - (system.timezone is defined)
     - ('auto' in system.timezone | lower)
   block:
-    - name: Time Zone | Get IP geolocation data
-      community.general.ipinfoio_facts:
+    - name: Time Zone | Get timezone from IP using multiple sources
+      ip_timezone_lookup:
+        ip_address: "{{ ip_address_public }}"
+        timeout: 5
+        min_consensus: 2
+      register: tz_lookup
 
-    - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
+    - name: Time Zone | Set 'timezone' variable from IP lookup
       ansible.builtin.set_fact:
-        timezone: "{{ ansible_facts.timezone }}"
+        timezone: "{{ tz_lookup.timezone }}"
+      when:
+        - tz_lookup.timezone is defined
+        - tz_lookup.timezone is not none
+        - tz_lookup.confidence in ['high', 'medium']
+
+    - name: Time Zone | Display timezone detection results
+      ansible.builtin.debug:
+        msg: "Detected timezone '{{ tz_lookup.timezone }}' with {{ tz_lookup.confidence }} confidence ({{ tz_lookup.consensus_count }}/{{ tz_lookup.successful_lookups }} sources agree)"
+      when: tz_lookup.timezone is defined
+
+    - name: Time Zone | Fail if low confidence or no consensus
+      ansible.builtin.fail:
+        msg: "Could not reliably determine timezone. Only {{ tz_lookup.consensus_count }} sources agreed. Manual configuration may be required."
+      when:
+        - tz_lookup.timezone is none or tz_lookup.confidence == 'low'
 
   rescue:
-    - name: Time Zone | Get IP geolocation data (with curl)
+    - name: Time Zone | Fallback to curl method if module fails
       ansible.builtin.shell: "curl -s https://ipapi.co/timezone"
       register: system_curl_timezone
       failed_when: (system_curl_timezone.stdout | trim | length == 0)
 
-    - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
+    - name: Time Zone | Set 'timezone' variable from curl fallback
       ansible.builtin.set_fact:
         timezone: "{{ system_curl_timezone.stdout | trim }}"
 
