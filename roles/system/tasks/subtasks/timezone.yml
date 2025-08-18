@@ -29,7 +29,6 @@
     - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
       ansible.builtin.set_fact:
         timezone: "{{ ansible_facts.timezone }}"
-        timezone_string: "Time zone: {{ timezone }}"
 
   rescue:
     - name: Time Zone | Get IP geolocation data (with curl)
@@ -40,12 +39,15 @@
     - name: Time Zone | Set 'timezone' variable from 'ipinfoio_facts'
       ansible.builtin.set_fact:
         timezone: "{{ system_curl_timezone.stdout | trim }}"
-        timezone_string: "Time zone: {{ timezone }}"
 
 - name: Time Zone | Check if timezone is valid
   ansible.builtin.fail:
     msg: "Invalid timezone given, given timezone was {{ timezone }}\"."
-  when: (timezone_list.stdout is defined) and timezone not in timezone_list.stdout
+  when: (timezone_list.stdout_lines is defined) and timezone not in timezone_list.stdout_lines
+
+- name: Time Zone | Set 'timezone_string' variable
+  ansible.builtin.set_fact:
+    timezone_string: "Time zone: {{ timezone }}"
 
 - name: Time Zone | Set timezone
   ansible.builtin.shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
