@@ -62,7 +62,7 @@
   ansible.builtin.uri:
     url: "https://plex.tv/api/v2/user"
     method: GET
-    return_content: yes
+    return_content: true
     body:
       X-Plex-Token: "{{ lookup('ini', 'token section=' + plex_name + ' file=/opt/saltbox/plex.ini') }}"
       X-Plex-Version: "{{ plex_auth_token_version }}"
@@ -87,7 +87,7 @@
       ansible.builtin.uri:
         url: "https://plex.tv/api/v2/pins"
         method: POST
-        return_content: yes
+        return_content: true
         body:
           strong: "true"
           X-Plex-Version: "{{ plex_auth_token_version }}"
@@ -112,7 +112,7 @@
       ansible.builtin.uri:
         url: "https://plex.tv/api/v2/pins/{{ plex_pin.json.id }}"
         method: GET
-        return_content: yes
+        return_content: true
         body:
           X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
         body_format: form-urlencoded
@@ -130,7 +130,7 @@
       ansible.builtin.uri:
         url: "https://plex.tv/api/v2/user"
         method: GET
-        return_content: yes
+        return_content: true
         body:
           X-Plex-Token: "{{ plex_auth_token }}"
           X-Plex-Version: "{{ plex_auth_token_version }}"

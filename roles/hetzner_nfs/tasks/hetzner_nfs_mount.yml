@@ -82,7 +82,7 @@
     regexp: '(^After\=network-online\.target).*'
     line: '\1 init_vlan.service'
     state: present
-    backrefs: yes
+    backrefs: true
   when: mergerfs_service.stat.exists
 
 - name: Replace '/mnt/local' with '/mnt/feeder' in '{{ mergerfs_service_name }}'

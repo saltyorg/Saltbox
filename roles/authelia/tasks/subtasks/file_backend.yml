@@ -30,12 +30,12 @@
     name: authelia-password-hash
     image: "{{ lookup('role_var', '_docker_image') }}"
     command: "authelia crypto hash generate --config /config/configuration.yml --password {{ user.pass | quote }}"
-    detach: no
+    detach: false
     volumes:
       - "{{ authelia_role_paths_location }}:/config"
     networks:
       - name: saltbox
-    cleanup: yes
+    cleanup: true
     state: started
     container_default_behavior: compatibility
     tls_hostname: localhost

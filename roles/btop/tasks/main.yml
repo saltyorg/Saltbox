@@ -50,7 +50,7 @@
   ansible.builtin.shell: "bash /tmp/btop/btop/install.sh"
   args:
     chdir: "/tmp/btop/btop"
-  become: yes
+  become: true
   become_user: "{{ user.name }}"
 
 - name: "btop | Remove temp folder"

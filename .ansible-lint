@@ -19,20 +19,17 @@ mock_modules:
   - migrate_folder
 
 skip_list:
-  - braces
-  - git-latest
-  - no-changed-when
-  - ignore-errors
-  - risky-shell-pipe
-  - package-latest
-  - no-handler
   - command-instead-of-module
   - command-instead-of-shell
-  - deprecated-command-syntax
-  - yaml[line-length]
-  - yaml[truthy]
-  - schema[tasks]
+  - ignore-errors
+  - latest[git]
   - name[casing]
   - name[template]
-  - var-naming[no-role-prefix]
+  - no-changed-when
+  - no-handler
+  - package-latest
+  - risky-shell-pipe
   - schema[playbook]
+  - schema[tasks]
+  - var-naming[no-role-prefix]
+  - yaml[line-length]

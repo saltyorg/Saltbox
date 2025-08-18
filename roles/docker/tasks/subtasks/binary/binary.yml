@@ -10,7 +10,7 @@
 - name: Binary | Identify apt source files
   ansible.builtin.find:
     paths: /etc/apt/sources.list.d/
-    recurse: no
+    recurse: false
   register: apt_source_files
 
 - name: Binary | Check if file contains 'download.docker.com'
@@ -28,7 +28,7 @@
 
 - name: Binary | Update APT package index
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
 
 - name: Binary | Ensure '/etc/apt/keyrings' exists
   ansible.builtin.file:

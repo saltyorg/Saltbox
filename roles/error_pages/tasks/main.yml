@@ -48,7 +48,7 @@
       - name: saltbox
     container_default_behavior: compatibility
     tls_hostname: localhost
-    auto_remove: yes
+    auto_remove: true
     state: started
     pull: true
   when: (not error_pages_folder.stat.exists)

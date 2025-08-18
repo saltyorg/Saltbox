@@ -107,7 +107,7 @@
     path: "/etc/logrotate.d/{{ item.path }}"
     marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
     block: "{{ item.content }}"
-    create: yes
+    create: true
     mode: "0644"
   loop: "{{ authelia_logrotate }}"
 

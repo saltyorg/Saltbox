@@ -44,7 +44,7 @@
       ansible.builtin.find:
         paths: "{{ plex_role_paths_application_support_location }}/Codecs"
         file_type: directory
-        recurse: no
+        recurse: false
       register: plex_codecs_removal
 
     - name: Delete Plex Codecs Folder

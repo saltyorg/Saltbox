@@ -19,7 +19,7 @@
   ansible.builtin.file:
     path: "/opt/plexsql"
     state: directory
-    recurse: yes
+    recurse: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
 

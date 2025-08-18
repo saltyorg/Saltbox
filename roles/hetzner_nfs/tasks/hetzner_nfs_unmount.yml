@@ -46,7 +46,7 @@
     regexp: '(^After\=.*)\sinit_vlan\.service\s(.*)'
     line: '\1 \2'
     state: present
-    backrefs: yes
+    backrefs: true
   when: mergerfs_service.stat.exists
 
 - name: Replace '/mnt/feeder' with '/mnt/local' in '{{ mergerfs_service_name }}'

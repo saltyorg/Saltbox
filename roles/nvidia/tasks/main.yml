@@ -69,7 +69,7 @@
     - name: Fetch NVIDIA driver patch script
       ansible.builtin.uri:
         url: "{{ nvidia_patch_download_url }}"
-        return_content: yes
+        return_content: true
       register: patch_script
 
     - name: Extract supported driver versions
@@ -94,7 +94,7 @@
     - name: Get nvidia-smi driver version
       ansible.builtin.shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
       register: nvidia_smi_output
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Set 'nvidia_installed_driver_version' variable
       ansible.builtin.set_fact:
@@ -116,11 +116,11 @@
         - name: Purge Nvidia APT packages
           ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
           register: dpkg_purge_output
-          ignore_errors: yes
+          ignore_errors: true
 
         - name: Remove dependencies that are no longer required
           ansible.builtin.apt:
-            autoremove: yes
+            autoremove: true
 
         - name: Success message
           ansible.builtin.debug:

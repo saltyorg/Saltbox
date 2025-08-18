@@ -50,7 +50,7 @@
 - name: Controller | Find pip3 path
   ansible.builtin.find:
     paths: "/srv/docker-controller/venv"
-    recurse: yes
+    recurse: true
     patterns: 'uvicorn'
   register: docker_controller_venv_files
 
@@ -76,7 +76,7 @@
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/ping"
     method: GET
-    return_content: yes
+    return_content: true
     status_code: 200
   register: result
   retries: 12

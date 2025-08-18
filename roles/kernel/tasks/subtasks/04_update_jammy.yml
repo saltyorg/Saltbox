@@ -20,7 +20,7 @@
       - gcc-12
       - g++-12
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Update | Set gcc-12 and g++-12 as the default compilers
   ansible.builtin.shell: update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12

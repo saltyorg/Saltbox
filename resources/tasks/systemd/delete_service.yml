@@ -50,4 +50,4 @@
 
     - name: Resources | Tasks | systemd | Delete Service | systemd daemon-reload
       ansible.builtin.systemd_service:
-        daemon_reload: yes
+        daemon_reload: true

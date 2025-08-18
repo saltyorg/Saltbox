@@ -81,7 +81,7 @@
 - name: Find pip3 path
   ansible.builtin.find:
     paths: "/opt/{{ traktarr_name }}/venv"
-    recurse: yes
+    recurse: true
     patterns: 'pip3'
   register: files
 
