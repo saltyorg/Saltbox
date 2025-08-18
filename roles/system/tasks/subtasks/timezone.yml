@@ -79,3 +79,20 @@
   register: timedatectl_rtc
   changed_when: "(timedatectl_rtc.stdout is defined) and ('RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout)"
   when: "(timedatectl_rtc.stdout is defined) and timezone_use_local_rtc and ('RTC in local TZ: no' not in timedatectl_rtc.stdout)"
+
+- name: Time Zone | Add results to GitHub Actions summary
+  ansible.builtin.shell: |
+    if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+      echo "## 🌍 Timezone Configuration Results" >> $GITHUB_STEP_SUMMARY
+      echo "" >> $GITHUB_STEP_SUMMARY
+      if [ "{{ tz_lookup.timezone is defined }}" == "True" ]; then
+        echo "- **Detected Timezone**: \`{{ tz_lookup.timezone }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Confidence Level**: {{ tz_lookup.confidence | title }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Source Consensus**: {{ tz_lookup.consensus_count }}/{{ tz_lookup.successful_lookups }} sources agreed" >> $GITHUB_STEP_SUMMARY
+      else
+        echo "- **Timezone Set**: \`{{ timezone }}\` (fallback method)" >> $GITHUB_STEP_SUMMARY
+      fi
+      echo "- **Status**: ✅ Timezone configured successfully" >> $GITHUB_STEP_SUMMARY
+      echo "" >> $GITHUB_STEP_SUMMARY
+    fi
+  when: continuous_integration
