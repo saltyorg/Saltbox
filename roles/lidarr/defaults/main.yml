@@ -108,10 +108,14 @@ lidarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='li
 lidarr_role_docker_volumes_default:
   - "{{ lidarr_role_paths_location }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
+lidarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Music:/music"
 lidarr_role_docker_volumes_custom: []
 lidarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='lidarr')
-                                + lookup('role_var', '_docker_volumes_custom', role='lidarr') }}"
+                                + lookup('role_var', '_docker_volumes_custom', role='lidarr')
+                                + (lookup('role_var', '_docker_volumes_legacy', role='lidarr')
+                                  if docker_legacy_volume
+                                  else []) }}"
 
 # Labels
 lidarr_role_docker_labels_default: {}
