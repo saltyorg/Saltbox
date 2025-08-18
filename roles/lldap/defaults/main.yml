@@ -86,8 +86,7 @@ lldap_role_docker_container: "{{ lldap_name }}"
 lldap_role_docker_image_pull: true
 lldap_role_docker_image_repo: "nitnelave/lldap"
 lldap_role_docker_image_tag: "stable"
-lldap_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='lldap')
-                             + ':' + lookup('role_var', '_docker_image_tag', role='lldap') }}"
+lldap_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='lldap') }}:{{ lookup('role_var', '_docker_image_tag', role='lldap') }}"
 
 # Envs
 lldap_role_docker_envs_default:
