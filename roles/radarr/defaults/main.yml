@@ -36,16 +36,16 @@ radarr_role_paths_config_location: "{{ radarr_role_paths_location }}/config.xml"
 radarr_role_web_subdomain: "{{ radarr_name }}"
 radarr_role_web_domain: "{{ user.domain }}"
 radarr_role_web_port: "7878"
-radarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='qbittorrent') + '.' + lookup('role_var', '_web_domain', role='qbittorrent')
-                      if (lookup('role_var', '_web_subdomain', role='qbittorrent') | length > 0)
-                      else lookup('role_var', '_web_domain', role='qbittorrent')) }}"
+radarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='radarr') + '.' + lookup('role_var', '_web_domain', role='radarr')
+                      if (lookup('role_var', '_web_subdomain', role='radarr') | length > 0)
+                      else lookup('role_var', '_web_domain', role='radarr')) }}"
 
 ################################
 # DNS
 ################################
 
-radarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='qbittorrent') }}"
-radarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='qbittorrent') }}"
+radarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='radarr') }}"
+radarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='radarr') }}"
 radarr_role_dns_proxy: "{{ dns.proxied }}"
 
 ################################
@@ -55,7 +55,7 @@ radarr_role_dns_proxy: "{{ dns.proxied }}"
 radarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 radarr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                             + (',themepark-' + radarr_name
-                                              if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                              if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
                                               else '') }}"
 radarr_role_traefik_middleware_custom: ""
 radarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
@@ -92,7 +92,7 @@ radarr_role_docker_container: "{{ radarr_name }}"
 radarr_role_docker_image_pull: true
 radarr_role_docker_image_repo: "ghcr.io/hotio/radarr"
 radarr_role_docker_image_tag: "release"
-radarr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='qbittorrent') }}:{{ lookup('role_var', '_docker_image_tag', role='qbittorrent') }}"
+radarr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='radarr') }}:{{ lookup('role_var', '_docker_image_tag', role='radarr') }}"
 
 # Envs
 radarr_role_docker_envs_default:
@@ -101,8 +101,8 @@ radarr_role_docker_envs_default:
   UMASK: "002"
   TZ: "{{ tz }}"
 radarr_role_docker_envs_custom: {}
-radarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='qbittorrent')
-                             | combine(lookup('role_var', '_docker_envs_custom', role='qbittorrent')) }}"
+radarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='radarr')
+                             | combine(lookup('role_var', '_docker_envs_custom', role='radarr')) }}"
 
 # Volumes
 radarr_role_docker_volumes_default:
@@ -111,20 +111,20 @@ radarr_role_docker_volumes_default:
 radarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"
 radarr_role_docker_volumes_custom: []
-radarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='qbittorrent')
-                                + lookup('role_var', '_docker_volumes_custom', role='qbittorrent')
-                                + (lookup('role_var', '_docker_volumes_legacy', role='qbittorrent')
+radarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='radarr')
+                                + lookup('role_var', '_docker_volumes_custom', role='radarr')
+                                + (lookup('role_var', '_docker_volumes_legacy', role='radarr')
                                   if docker_legacy_volume
                                   else []) }}"
 
 # Labels
 radarr_role_docker_labels_default: {}
 radarr_role_docker_labels_custom: {}
-radarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='qbittorrent')
+radarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='radarr')
                                | combine((traefik_themepark_labels
-                                         if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                         if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
                                          else {}),
-                                         lookup('role_var', '_docker_labels_custom', role='qbittorrent')) }}"
+                                         lookup('role_var', '_docker_labels_custom', role='radarr')) }}"
 
 # Hostname
 radarr_role_docker_hostname: "{{ radarr_name }}"
@@ -134,8 +134,8 @@ radarr_role_docker_networks_alias: "{{ radarr_name }}"
 radarr_role_docker_networks_default: []
 radarr_role_docker_networks_custom: []
 radarr_role_docker_networks: "{{ docker_networks_common
-                                 + lookup('role_var', '_docker_networks_default', role='qbittorrent')
-                                 + lookup('role_var', '_docker_networks_custom', role='qbittorrent') }}"
+                                 + lookup('role_var', '_docker_networks_default', role='radarr')
+                                 + lookup('role_var', '_docker_networks_custom', role='radarr') }}"
 
 # Restart Policy
 radarr_role_docker_restart_policy: unless-stopped
