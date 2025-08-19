@@ -13,7 +13,7 @@
     },
     "scanSettings": {
         "baseBranches": ["$default", "role-refactor"]
-    }
+    },
     "labels": [
         "dependencies"
     ],
