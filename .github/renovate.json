@@ -25,7 +25,8 @@
                 "pip_requirements"
             ],
             "matchFileNames": [
-                "requirements/*"
+                "requirements/*",
+                "resources/roles/dns/files/*"
             ],
             "matchUpdateTypes": [
                 "major"
@@ -42,7 +43,8 @@
                 "pip_requirements"
             ],
             "matchFileNames": [
-                "requirements/*"
+                "requirements/*",
+                "resources/roles/dns/files/*"
             ],
             "groupName": "pip-requirements",
             "matchUpdateTypes": [
