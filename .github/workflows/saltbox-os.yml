@@ -92,7 +92,7 @@ jobs:
           echo "continuous_integration: true" > vars.yml
 
       - name: Add Docker Hub info to vars file
-        if: github.repository == 'saltyorg/Saltbox' && github.event_name != 'pull_request'
+        if: github.repository == 'saltyorg/Saltbox' && github.event.repository.fork == false
         run: |
           echo "dockerhub:" >> vars.yml
           echo "  token: ${{ secrets.DOCKERHUB_TOKEN }}" >> vars.yml
