@@ -11,9 +11,10 @@
     "ansible": {
         "enabled": false
     },
-    "scanSettings": {
-        "baseBranches": ["$default", "role-refactor"]
-    },
+    "baseBranches": [
+        "$default",
+        "role-refactor"
+    ],
     "labels": [
         "dependencies"
     ],
