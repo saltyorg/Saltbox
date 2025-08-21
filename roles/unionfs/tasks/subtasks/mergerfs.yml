@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Check if '{{ mergerfs_service_name }}' exists"
+- name: "MergerFS | Check if '{{ mergerfs_service_name }}' exists"
   ansible.builtin.stat:
     path: "/etc/systemd/system/{{ mergerfs_service_name }}"
   register: saltbox_managed_mergerfs_status
@@ -67,7 +67,7 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
 
-- name: Mount Path Tasks
+- name: "MergerFS | Mount Path Tasks"
   ansible.builtin.include_tasks: "mount_path.yml"
 
 - name: "MergerFS | Start '{{ mergerfs_service_name }}'"

@@ -7,23 +7,15 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-# Variables
-
 - name: Variables Task
   ansible.builtin.include_tasks: "subtasks/variables.yml"
-
-# Stop Docker Containers
 
 - name: Docker Containers Stop Tasks
   ansible.builtin.include_tasks: "subtasks/docker/containers_stop.yml"
   when: (not containers_list is defined)
 
-# Existing Setup
-
 - name: Legacy Task
   ansible.builtin.include_tasks: "subtasks/legacy.yml"
-
-# Mount Mergerfs
 
 - name: MergerFS Tasks
   ansible.builtin.include_tasks: "subtasks/mergerfs.yml"
@@ -33,8 +25,6 @@
   block:
     - name: Docker Daemon Tasks
       ansible.builtin.include_tasks: "subtasks/docker/daemon.yml"
-
-    # Start Docker Containers
 
     - name: Docker Containers Start Tasks
       ansible.builtin.include_tasks: "subtasks/docker/containers_start.yml"
