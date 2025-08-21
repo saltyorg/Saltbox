@@ -6,24 +6,24 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Restart Docker container
+- name: Settings | Restart Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
 
-- name: Post-Install | Wait for 'system.xml' file to be created
+- name: Settings | Wait for 'system.xml' file to be created
   ansible.builtin.wait_for:
     path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
     state: present
 
-- name: "Post-Install | Prompt user to complete the wizard"
+- name: "Settings | Prompt user to complete the wizard"
   ansible.builtin.pause:
     prompt: "Please open {{ lookup('role_var', '_web_url', role='jellyfin') }}/web/index.html#!/wizardstart.html. Hit enter after having finished the wizard"
 
-- name: Post-Install | Wait for 'network.xml' file to be created
+- name: Settings | Wait for 'network.xml' file to be created
   ansible.builtin.wait_for:
     path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
     state: present
 
-- name: Stop Docker container
+- name: Settings | Stop Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
 
 - name: Settings | Update 'system.xml' file
@@ -44,5 +44,5 @@
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_network_settings_list', role='jellyfin') }}"
 
-- name: Start Docker container
+- name: Settings | Start Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

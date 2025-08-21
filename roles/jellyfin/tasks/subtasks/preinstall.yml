@@ -11,15 +11,15 @@
 # Migrate old non hotio setup
 ################################
 
-- name: Preinstall MIGRATE | Check if `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check if `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
   register: jellyfin_xml_old
 
-- name: Preinstall MIGRATE | New `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` tasks
+- name: Preinstall | New `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` tasks
   when: jellyfin_xml_old.stat.exists
   block:
-    - name: Preinstall MIGRATE | Import `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists
+    - name: Preinstall | Import `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists
       ansible.builtin.copy:
         src: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
         dest: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
@@ -28,7 +28,7 @@
         mode: "0664"
         force: false
 
-    - name: Preinstall MIGRATE | Remove old `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists"
+    - name: Preinstall | Remove old `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists"
       ansible.builtin.file:
         path: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
         state: absent
@@ -41,22 +41,22 @@
 # Register | STATS 'n' FACTS
 ################################
 
-- name: Preinstall STAT | Check if `{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check if `{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
   register: jellyfin_sys_xml
 
-- name: Preinstall STAT | Check also if `{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check also if `{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
   register: jellyfin_existing_install
 
-- name: Preinstall STAT | Check if `{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check if `{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
   register: network_xml
 
-- name: Preinstall STAT | Check if `{{ lookup('role_var', '_paths_dlna_location', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check if `{{ lookup('role_var', '_paths_dlna_location', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_dlna_location', role='jellyfin') }}"
   register: jellyfin_dlna
@@ -65,7 +65,7 @@
 # Block DLNA network spam
 ################################
 
-- name: Import 'dlna.xml' config
+- name: Preinstall | Import 'dlna.xml' config
   ansible.builtin.copy:
     src: "dlna.xml"
     dest: "{{ lookup('role_var', '_paths_dlna_location', role='jellyfin') }}"
@@ -75,7 +75,7 @@
     force: false
   when: (not jellyfin_dlna.stat.exists)
 
-- name: Settings | Update 'network.xml' file
+- name: Preinstall | Update 'network.xml' file
   community.general.xml:
     path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
     xpath: "/NetworkConfiguration/{{ item.xpath }}"
