@@ -138,7 +138,7 @@
   retries: "{{ ansible_retry_count
             if (not continuous_integration)
             else ansible_retry_count_ci }}"
-  timeout: "{{ 120
+  timeout: "{{ lookup('docker_var', '_docker_create_timeout', default=120)
             if continuous_integration
             else omit }}"
   delay: 10
