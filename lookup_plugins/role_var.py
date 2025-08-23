@@ -11,6 +11,7 @@ DOCUMENTATION = '''
     description:
       - This lookup replicates: lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
       - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
+      - For _name variables with dashes, checks both original and underscore-converted versions
     options:
       _terms:
         description: The suffix to append (e.g. '_dns_record')
@@ -54,6 +55,7 @@ class LookupModule(LookupBase):
         else:
             traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=False)
 
+        # Build the variable names to check
         if suffix == '_name':
             primary_var = traefik_role_var + suffix
             fallback_var = role_name + suffix
@@ -61,18 +63,30 @@ class LookupModule(LookupBase):
             primary_var = traefik_role_var + suffix
             fallback_var = role_name + '_role' + suffix
 
-        display.vvv(f"[role_var] Checking these keys: primary={primary_var}, fallback={fallback_var}")
+        # Create list of all variable names to check (including dash/underscore variants)
+        vars_to_check = []
+        
+        for var_name in [primary_var, fallback_var]:
+            vars_to_check.append(var_name)
+            # If the variable name contains dashes, also check the underscore version
+            if '-' in var_name:
+                underscore_var = var_name.replace('-', '_')
+                vars_to_check.append(underscore_var)
+                display.vvv(f"[role_var] Added underscore variant: {underscore_var} for {var_name}")
+
+        display.vvv(f"[role_var] Checking these keys in order: {vars_to_check}")
         debug_keys = sorted([
             k for k in variables
             if suffix in k or k.endswith(suffix) or k.startswith((traefik_role_var, role_name))
         ])
         display.vvv(f"[role_var] Relevant vars: {debug_keys}")
 
-        for var_name in [primary_var, fallback_var]:
+        # Try each variable name in order
+        for var_name in vars_to_check:
             if var_name in variables:
                 raw_value = variables.get(var_name)
                 if raw_value is None:
-                    display.vvv(f"[plugin] Skipping {var_name} (value is None)")
+                    display.vvv(f"[role_var] Skipping {var_name} (value is None)")
                     continue
                 try:
                     result = self._templar.template(raw_value, fail_on_undefined=False)
