@@ -75,11 +75,12 @@ class LookupModule(LookupBase):
                 display.vvv(f"[role_var] Added underscore variant: {underscore_var} for {var_name}")
 
         display.vvv(f"[role_var] Checking these keys in order: {vars_to_check}")
-        debug_keys = sorted([
-            k for k in variables
-            if suffix in k or k.endswith(suffix) or k.startswith((traefik_role_var, role_name))
-        ])
-        display.vvv(f"[role_var] Relevant vars: {debug_keys}")
+        if display.verbosity >= 3:
+            debug_keys = sorted([
+                k for k in variables
+                if suffix in k or k.endswith(suffix) or k.startswith((traefik_role_var, role_name))
+            ])
+            display.vvv(f"[role_var] Relevant vars: {debug_keys}")
 
         # Try each variable name in order
         for var_name in vars_to_check:

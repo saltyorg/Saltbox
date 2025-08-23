@@ -68,11 +68,12 @@ class LookupModule(LookupBase):
             vars_to_check.append(fallback_var)
 
         display.vvv(f"[docker_var] Checking these keys in order: {vars_to_check}")
-        debug_keys = sorted([
-            k for k in variables
-            if suffix in k or k.endswith(suffix) or any(k.startswith(prefix) for prefix in instance_names_to_try + var_prefixes_to_try)
-        ])
-        display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
+        if display.verbosity >= 3:
+            debug_keys = sorted([
+                k for k in variables
+                if suffix in k or k.endswith(suffix) or any(k.startswith(prefix) for prefix in instance_names_to_try + var_prefixes_to_try)
+            ])
+            display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
         
         # Try each variable name in order
         for var_name in vars_to_check:
