@@ -18,6 +18,6 @@ jobs:
           days-before-issue-close: 5
           days-before-pr-close: 10
           stale-issue-label: 'no-issue-activity'
-          exempt-issue-labels: 'work-in-progress'
+          exempt-issue-labels: 'work-in-progress,no-stale'
           stale-pr-label: 'no-pr-activity'
-          exempt-pr-labels: 'work-in-progress'
+          exempt-pr-labels: 'work-in-progress,no-stale'
