@@ -107,6 +107,6 @@ petio_role_docker_state: started
 petio_role_docker_user: "{{ uid }}:{{ gid }}"
 
 # Dependencies
-petio_depends_on: "{{ petio_name }}-mongo"
-petio_depends_on_delay: "0"
-petio_depends_on_healthchecks: "false"
+petio_role_depends_on: "{{ petio_name }}-mongo"
+petio_role_depends_on_delay: "0"
+petio_role_depends_on_healthchecks: "false"
