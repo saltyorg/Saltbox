@@ -2,7 +2,7 @@ name: 'Close stale issues and PRs'
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 1 * * *'
 
 permissions:
   actions: write
@@ -27,3 +27,4 @@ jobs:
           exempt-issue-labels: 'work-in-progress,no-stale'
           stale-pr-label: 'no-pr-activity'
           exempt-pr-labels: 'work-in-progress,no-stale'
+          operations-per-run: 1000
