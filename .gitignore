@@ -35,4 +35,4 @@
 /.idea
 /*.log
 /*.log.*
-.vscode/settings.json
+.vscode/
