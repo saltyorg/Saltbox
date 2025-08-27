@@ -15,10 +15,10 @@
 
 - name: Resources | Tasks | Git | Clone Git Repo | Set '_git_repo_*' variables
   ansible.builtin.set_fact:
-    _git_repo_url: "{{ lookup('vars', _var_prefix + '_git_repo_url') }}"
-    _git_repo_dest: "{{ lookup('vars', _var_prefix + '_git_repo_dest') }}"
-    _git_repo_branch_primary: "{{ lookup('vars', _var_prefix + '_git_repo_branch_primary') }}"
-    _git_repo_branch_secondary: "{{ lookup('vars', _var_prefix + '_git_repo_branch_secondary', default='master') }}"
+    _git_repo_url: "{{ git_repo_url }}"
+    _git_repo_dest: "{{ git_repo_dest }}"
+    _git_repo_branch_primary: "{{ git_repo_branch_primary }}"
+    _git_repo_branch_secondary: "{{ git_repo_branch_secondary | default('main') }}"
 
 - name: Resources | Tasks | Git | Clone Git Repo | Check for existing git folder
   ansible.builtin.stat:
@@ -28,7 +28,6 @@
 - name: Resources | Tasks | Git | Clone Git Repo | Existing repo block
   when: _git_repo_dest_stat.stat.exists
   block:
-
     - name: Resources | Tasks | Git | Clone Git Repo | Get current git branch
       ansible.builtin.shell: |
         cd {{ _git_repo_dest }}
@@ -55,7 +54,6 @@
 - name: Resources | Tasks | Git | Clone Git Repo | Tasks when above fails
   when: _git_clone_status is failed
   block:
-
     - name: Resources | Tasks | Git | Clone Git Repo | git clone repo 'master' if above fails
       ansible.builtin.git:
         repo: "{{ _git_repo_url }}"
