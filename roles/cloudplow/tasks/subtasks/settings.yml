@@ -18,12 +18,12 @@
 
 - name: Settings | Check if SABnzbd is installed
   ansible.builtin.stat:
-    path: "{{ sabnzbd_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
   register: stat_sabnzbd
 
 - name: Settings | Lookup SABnzbd API Key
   ansible.builtin.set_fact:
-    sabnzbd_apikey: "{{ lookup('file', sabnzbd_role_paths_config_location) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
+    sabnzbd_apikey: "{{ lookup('file', lookup('role_var', '_paths_config_location', role='sabnzbd')) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
 
 - name: Settings | Check if 'config.json' exists
@@ -76,13 +76,13 @@
 
     - name: Settings | Update NZBGet credentials in 'config.json'
       ansible.builtin.shell: |
-        jq '.nzbget.url = "{{ nzbget_web_local_url_web_login }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+        jq '.nzbget.url = "{{ lookup('role_var', '_web_local_url_web_login', role='nzbget') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
 
     - name: Settings | Update SABnzbd URL in 'config.json'
       ansible.builtin.shell: |
-        jq '.sabnzbd.url = "{{ sabnzbd_role_web_local_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+        jq '.sabnzbd.url = "{{ lookup('role_var', '_web_local_url', role='sabnzbd') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
 
@@ -95,7 +95,7 @@
 
     - name: Settings | Update Plex URL in 'config.json'
       ansible.builtin.shell: |
-        jq '.plex.url = "{{ plex_web_url }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
+        jq '.plex.url = "{{ lookup('role_var', '_web_url', role='plex') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
       become: true
       become_user: "{{ user.name }}"
 

@@ -53,6 +53,11 @@
 
     - name: Clone project git repo
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+      vars:
+        git_repo_url: "{{ cloudplow_git_repo_url }}"
+        git_repo_dest: "{{ cloudplow_git_repo_dest }}"
+        git_repo_branch_primary: "{{ cloudplow_git_repo_branch_primary }}"
+        git_repo_branch_secondary: "{{ cloudplow_git_repo_branch_secondary }}"
 
     - name: Set Python version
       ansible.builtin.set_fact:

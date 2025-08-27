@@ -30,19 +30,12 @@ cloudplow_remote_default_folder: "/Media"
 ################################
 
 cloudplow_folder: "{{ cloudplow_name }}"
-
 cloudplow_path: "{{ server_appdata_path }}/{{ cloudplow_folder }}"
-
 cloudplow_venv_path: "{{ cloudplow_path }}/venv"
-
 cloudplow_python_path: "{{ cloudplow_venv_path }}/bin/python3"
-
 cloudplow_script_path: "{{ cloudplow_path }}/cloudplow.py"
-
 cloudplow_requirements_path: "{{ cloudplow_path }}/requirements.txt"
-
 cloudplow_config_path: "{{ cloudplow_path }}/config.json"
-
 cloudplow_alias_path: "/usr/local/bin/{{ cloudplow_name }}"
 
 ################################
@@ -50,11 +43,8 @@ cloudplow_alias_path: "/usr/local/bin/{{ cloudplow_name }}"
 ################################
 
 cloudplow_git_repo_url: "https://github.com/l3uddz/cloudplow.git"
-
 cloudplow_git_repo_dest: "{{ cloudplow_path }}"
-
 cloudplow_git_repo_branch_primary: "master"
-
 cloudplow_git_repo_branch_secondary: "develop"
 
 ################################
@@ -69,9 +59,7 @@ cloudplow_service_name_old: "{{ cloudplow_name }}"
 ################################
 
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
-
 rclone_binary_path: "/usr/bin/rclone"
-
 cloudplow_rclone_google_template: |-
   "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
   "--checkers": 16,
@@ -83,7 +71,6 @@ cloudplow_rclone_google_template: |-
   "--retries": 1,
   "--low-level-retries": 2,
   "--drive-stop-on-upload-limit": null
-
 cloudplow_rclone_dropbox_template: |-
   "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
   "--checkers": 16,
