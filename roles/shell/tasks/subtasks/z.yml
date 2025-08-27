@@ -25,10 +25,3 @@
     force: true
   become: true
   become_user: "{{ user.name }}"
-  register: shell_z_git_clone_status
-  ignore_errors: true
-
-- name: z | 'z' Installed
-  ansible.builtin.debug:
-    msg: "'z (jump around)' Installed"
-  when: (shell_z_git_clone_status is succeeded)

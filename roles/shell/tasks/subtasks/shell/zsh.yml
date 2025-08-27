@@ -21,8 +21,6 @@
     force: true
   become: true
   become_user: "{{ user.name }}"
-  register: cloning
-  ignore_errors: true
 
 - name: ZSH | Check if an existing '.zshrc' file is present
   ansible.builtin.stat:
@@ -36,7 +34,7 @@
     group: "{{ user.name }}"
     owner: "{{ user.name }}"
     mode: "0664"
-  when: (cloning is success) and (not existing_zshrc.stat.exists)
+  when: (not existing_zshrc.stat.exists)
 
 - name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
   ansible.builtin.blockinfile:
