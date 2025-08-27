@@ -16,8 +16,6 @@
     mode: "0775"
   with_items: "{{ lookup('role_var', '_scripts_paths_folders_list', role='nzbget') }}"
 
-# Add Scripts
-
 - name: Post-Install | Scripts | Download scripts repos
   ansible.builtin.git:
     repo: "{{ item }}"
@@ -28,7 +26,6 @@
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_scripts_repos_list', role='nzbget') }}"
-  ignore_errors: true
 
 - name: Post-Install | Scripts | Download script URLs
   ansible.builtin.get_url:
@@ -40,7 +37,6 @@
     group: "{{ user.name }}"
     mode: "0775"
   loop: "{{ lookup('role_var', '_scripts_direct_downloads_list', role='nzbget') }}"
-  ignore_errors: true
 
 - name: Post-Install | Scripts | Import local scripts
   ansible.builtin.copy:
@@ -51,8 +47,6 @@
     mode: "0775"
     force: true
   loop: "{{ lookup('role_var', '_scripts_local_copy_list', role='nzbget') }}"
-
-# Customize Scripts
 
 - name: Post-Install | Scripts | Check if 'nzbgetpp/rarfile/rarfile.py' exists
   ansible.builtin.stat:
