@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Wait for config to be created
   ansible.builtin.wait_for:
-    path: "{{ qbittorrent_role_paths_conf }}"
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     state: present
 
 - name: Post-Install | Wait for 30 seconds
@@ -18,25 +18,25 @@
 
 - name: Post-Install | Stop container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
-  when: not qbittorrent_role_host_install
+  when: not lookup('role_var', '_host_install', role='qbittorrent')
 
-- name: Post-Install | Stop '{{ qbittorrent_service_name }}'
+- name: Post-Install | Stop '{{ lookup('role_var', '_service_name', role='qbittorrent') }}'
   ansible.builtin.systemd_service:
-    name: "{{ qbittorrent_service_name }}"
+    name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
     state: stopped
     enabled: true
-  when: qbittorrent_role_host_install
+  when: lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Post-Install | Settings Task
   ansible.builtin.include_tasks: "settings/main.yml"
 
 - name: Post-Install | Start container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
-  when: not qbittorrent_role_host_install
+  when: not lookup('role_var', '_host_install', role='qbittorrent')
 
-- name: Post-Install | Start '{{ qbittorrent_service_name }}'
+- name: Post-Install | Start '{{ lookup('role_var', '_service_name', role='qbittorrent') }}'
   ansible.builtin.systemd_service:
-    name: "{{ qbittorrent_service_name }}"
+    name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
     state: started
     enabled: true
-  when: qbittorrent_role_host_install
+  when: lookup('role_var', '_host_install', role='qbittorrent')

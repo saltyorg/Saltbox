@@ -10,8 +10,18 @@
 
 [Unit]
 Description={{ qbittorrent_name }}
-After=network-online.target docker.service
-Requires=network-online.target docker.service
+{% set service_after = lookup('role_var', '_service_after', role='qbittorrent') %}
+{% if service_after | length > 0 %}
+After={{ service_after }}
+{% endif %}
+{% set service_requires = lookup('role_var', '_service_requires', role='qbittorrent') %}
+{% if service_requires | length > 0 %}
+Requires={{ service_requires }}
+{% endif %}
+{% set service_wants = lookup('role_var', '_service_wants', role='qbittorrent') %}
+{% if service_wants | length > 0 %}
+Wants={{ service_wants }}
+{% endif %}
 StartLimitIntervalSec=500s
 StartLimitBurst=5
 

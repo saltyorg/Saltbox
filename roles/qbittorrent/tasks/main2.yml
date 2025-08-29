@@ -15,8 +15,9 @@
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
-    dns_record: "{{ lookup('vars', role_name + '_dns_record') }}"
-    dns_zone: "{{ lookup('vars', role_name + '_dns_zone') }}"
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -30,20 +31,20 @@
   ansible.builtin.include_tasks: subtasks/legacy.yml
   when: qbittorrent_legacy_service.stat.exists
 
-- name: Check if '{{ qbittorrent_service_name }}' exists
+- name: Check if '{{ qbittorrent_role_service_name }}' exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ qbittorrent_service_name }}"
+    path: "/etc/systemd/system/{{ qbittorrent_role_service_name }}"
   register: qbittorrent_service
 
-- name: Stop '{{ qbittorrent_service_name }}'
+- name: Stop '{{ qbittorrent_role_service_name }}'
   ansible.builtin.systemd_service:
-    name: "{{ qbittorrent_service_name }}"
+    name: "{{ qbittorrent_role_service_name }}"
     state: stopped
   when: qbittorrent_service.stat.exists
 
-- name: Remove '{{ qbittorrent_service_name }}' file
+- name: Remove '{{ qbittorrent_role_service_name }}' file
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ qbittorrent_service_name }}"
+    path: "/etc/systemd/system/{{ qbittorrent_role_service_name }}"
     state: absent
   when: qbittorrent_service.stat.exists and not lookup('role_var', '_host_install', role='qbittorrent')
 
@@ -89,20 +90,20 @@
     - name: Import '{{ qbittorrent_name }}.service'
       ansible.builtin.template:
         src: "qbittorrent.service.j2"
-        dest: "/etc/systemd/system/{{ qbittorrent_service_name }}"
+        dest: "/etc/systemd/system/{{ qbittorrent_role_service_name }}"
         mode: "0644"
         force: true
 
-    - name: Systemd daemon-reload '{{ qbittorrent_service_name }}'
+    - name: Systemd daemon-reload '{{ qbittorrent_role_service_name }}'
       ansible.builtin.systemd_service:
-        name: "{{ qbittorrent_service_name }}"
+        name: "{{ qbittorrent_role_service_name }}"
         state: stopped
         enabled: false
         daemon_reload: true
 
-    - name: Start '{{ qbittorrent_service_name }}'
+    - name: Start '{{ qbittorrent_role_service_name }}'
       ansible.builtin.systemd_service:
-        name: "{{ qbittorrent_service_name }}"
+        name: "{{ qbittorrent_role_service_name }}"
         state: started
         enabled: true
 

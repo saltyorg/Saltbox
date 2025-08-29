@@ -22,7 +22,7 @@ qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_h
 qbittorrent_role_webui_custom_headers_custom: ""
 qbittorrent_role_webui_custom_headers: "{{ (lookup('role_var', '_webui_custom_headers_default', role='qbittorrent') | trim + ' ' + lookup('role_var', '_webui_custom_headers_custom', role='qbittorrent') | trim) | trim }}"
 # Options are: Delete or MoveToTrash
-qbittorrent_host_torrent_content_remove_option: "Delete"
+qbittorrent_role_torrent_content_remove_option: "Delete"
 
 ################################
 # Host Install
@@ -52,7 +52,10 @@ qbittorrent_role_host_release_lookup: "{{ qbittorrent_role_host_lookup_libtorren
 qbittorrent_role_host_version: |
   curl -sL {{ lookup('role_var', '_host_release_url', role='qbittorrent') }} | jq -r '. | "{{ lookup('role_var', '_host_release_lookup', role='qbittorrent') }}"'
 
-qbittorrent_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
+qbittorrent_role_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
+qbittorrent_role_service_after: "network-online.target docker.service"
+qbittorrent_role_service_requires: "network-online.target docker.service"
+qbittorrent_role_service_wants: ""
 
 ################################
 # Paths
