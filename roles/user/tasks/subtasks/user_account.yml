@@ -72,8 +72,8 @@
 
 - name: User Account | Set 'uid', 'gid', 'vgid' and 'rgid'
   ansible.builtin.set_fact:
-    uid: "{{ user_info.uid }}"
-    gid: "{{ user_info.group }}"
+    uid: "{{ user_info.uid | string }}"
+    gid: "{{ user_info.group | string }}"
     vgid: "{{ vgid_lookup.stdout }}"
     rgid: "{{ rgid_lookup.stdout }}"
 
