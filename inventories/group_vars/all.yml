@@ -84,11 +84,9 @@ rclone_old_remote_is_defined: "{{ (rclone is defined) and
                                   (rclone.remote | trim | length > 0) }}"
 
 use_cloudplow: "{{ rclone_remote_is_defined and use_remote }}"
-
 use_remote: "{{ (rclone.enabled | bool) and not continuous_integration }}"
-
 use_motd: "{{ motd_install | bool }}"
-
+use_intel: "{{ gpu.intel | bool }}"
 use_nvidia: "{{ nvidia_enabled | bool }}"
 
 ################################
