@@ -34,7 +34,7 @@
 - name: Cloudflare | Checksum | Check for updates
   ansible.builtin.set_fact:
     cloudflare_reinstall: true
-  when: (not installed_fetch_cloudflare_records_py_checksum.stat.exists) or
-        (not installed_requirements_txt_checksum.stat.exists) or
-        (repo_fetch_cloudflare_records_py_checksum.stat.checksum != installed_fetch_cloudflare_records_py_checksum.stat.checksum) or
-        (repo_requirements_txt_checksum.stat.checksum != installed_requirements_txt_checksum.stat.checksum)
+  when: (not installed_fetch_cloudflare_records_py_checksum.stat.exists)
+        or (not installed_requirements_txt_checksum.stat.exists)
+        or (repo_fetch_cloudflare_records_py_checksum.stat.checksum != installed_fetch_cloudflare_records_py_checksum.stat.checksum)
+        or (repo_requirements_txt_checksum.stat.checksum != installed_requirements_txt_checksum.stat.checksum)

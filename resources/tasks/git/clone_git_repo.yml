@@ -37,7 +37,7 @@
     - name: Resources | Tasks | Git | Clone Git Repo | Update target branch
       ansible.builtin.set_fact:
         _git_repo_branch_primary: "{{ _git_repo_branch_secondary }}"
-      when: _git_repo_branch_secondary == _git_repo_dest_current_branch | trim
+      when: (_git_repo_branch_secondary == (_git_repo_dest_current_branch | trim))
 
 - name: Resources | Tasks | Git | Clone Git Repo | git clone repo '{{ _git_repo_branch_primary }}'
   ansible.builtin.git:
@@ -52,7 +52,7 @@
   register: _git_clone_status
 
 - name: Resources | Tasks | Git | Clone Git Repo | Tasks when above fails
-  when: _git_clone_status is failed
+  when: (_git_clone_status is failed)
   block:
     - name: Resources | Tasks | Git | Clone Git Repo | git clone repo 'master' if above fails
       ansible.builtin.git:
@@ -74,4 +74,4 @@
         git remote add origin {{ _git_repo_url }}
         git fetch origin
         git reset --hard origin/{{ _git_repo_branch_primary }}
-      when: _git_clone_master_status is failed
+      when: (_git_clone_master_status is failed)

@@ -23,9 +23,9 @@
 - name: "Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container does not exist"
   ansible.builtin.fail:
     msg: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }} is configured to use {{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }} for networking but it does not exist"
-  when: not docker_info.exists
+  when: (not docker_info.exists)
 
 - name: "Resources | Tasks | Docker | Network Container Health Status | Fail if network linked container is not healthy"
   ansible.builtin.fail:
     msg: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }} is configured to use {{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common).split(':')[1] }} for networking but it is not healthy"
-  when: ('State' not in docker_info.container or 'Health' not in docker_info.container.State or 'Status' not in docker_info.container.State.Health or docker_info.container.State.Health.Status != 'healthy')
+  when: (('State' not in docker_info.container) or ('Health' not in docker_info.container.State) or ('Status' not in docker_info.container.State.Health) or (docker_info.container.State.Health.Status != 'healthy'))

@@ -19,7 +19,7 @@ Type=notify
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
-{% if (rclone_vfs_cache_dir_lookup | length > 0) and item.settings.vfs_cache.enabled %}
+{% if (rclone_vfs_cache_dir_lookup | length > 0) and (item.settings.vfs_cache.enabled | bool) %}
     --cache-dir={{ rclone_vfs_cache_dir_lookup }} \
 {% endif %}
     --config={{ rclone_config_path }} \
@@ -28,19 +28,19 @@ ExecStart=/usr/bin/rclone mount \
     --max-read-ahead=200M \
     --rc \
     --rc-addr=localhost:{{ rclone_remort_port }} \
-{% if rclone_enable_metrics %}
+{% if (rclone_enable_metrics | bool) %}
     --metrics-addr=172.19.0.1:{{ rclone_remort_port }} \
 {% endif %}
     --rc-no-auth \
     --sftp-chunk-size={{ rclone_sftp_chunk_size }} \
     --sftp-concurrency={{ rclone_sftp_concurrency }} \
-{% if rclone_sftp_disable_hashcheck %}
+{% if (rclone_sftp_disable_hashcheck | bool) %}
     --sftp-disable-hashcheck \
 {% endif %}
     --syslog \
     --umask=002 \
     --user-agent='{{ user_agent }}' \
-{% if item.settings.vfs_cache.enabled %}
+{% if (item.settings.vfs_cache.enabled | bool) %}
     --vfs-cache-min-free-space={{ rclone_vfs_cache_min_free_space }} \
     --vfs-cache-max-age={{ item.settings.vfs_cache.max_age | default('504h') }} \
     --vfs-cache-max-size={{ item.settings.vfs_cache.size | default('50G') }} \

@@ -33,7 +33,7 @@
             if (not continuous_integration)
             else ansible_retry_count_ci }}"
   delay: 10
-  until: stop_docker_result is succeeded
+  until: (stop_docker_result is succeeded)
 
 - name: Resources | Tasks | Docker | Restart Docker Container | Start Docker Container
   community.docker.docker_container:
@@ -48,4 +48,4 @@
             if (not continuous_integration)
             else ansible_retry_count_ci }}"
   delay: 10
-  until: start_docker_result is succeeded
+  until: (start_docker_result is succeeded)

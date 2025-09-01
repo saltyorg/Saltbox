@@ -474,7 +474,7 @@ docker_labels_traefik_api:
 
 docker_labels_traefik: "{{ (docker_labels_traefik_main | combine(docker_labels_traefik_api)
                         if traefik_role_api_enabled
-                        else docker_labels_traefik_main) | combine(docker_labels_wildcard_template if not traefik_http else {}) }}"
+                        else docker_labels_traefik_main) | combine(docker_labels_wildcard_template if (not traefik_http) else {}) }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if traefik_role_enabled
@@ -502,14 +502,14 @@ dockerhub_is_enabled: "{{ (dockerhub is defined) and
 docker_log_driver_json: "json-file"
 
 docker_log_driver: "{{ docker_log_driver_json
-                    if docker.json_driver
+                    if (docker.json_driver | bool)
                     else 'default' }}"
 
 docker_log_options_json:
   tag: "{% raw %}'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}" # noqa jinja[spacing]
 
 docker_log_options: "{{ docker_log_options_json
-                     if docker.json_driver
+                     if (docker.json_driver | bool)
                      else 'default' }}"
 
 docker_network_container_health_delay: 5
@@ -527,7 +527,7 @@ svm: https://svm.saltbox.dev/version?url=
 ################################
 
 reboot_is_necessary: false
-skip_dns: "{{ not (dns.ipv4 or dns.ipv6) }}"
+skip_dns: "{{ not ((dns.ipv4 | bool) or (dns.ipv6 | bool)) }}"
 role_dns_enabled: "{{ lookup('role_var', '_dns_enabled', default=true) | bool }}"
 docker_legacy_volume: false
 ansible_retry_count: "2"

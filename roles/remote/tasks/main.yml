@@ -33,12 +33,12 @@
       ansible.builtin.systemd_service:
         name: saltbox_managed_docker_controller
         state: restarted
-      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: Wait 5 seconds
       ansible.builtin.wait_for:
         timeout: 5
-      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: "Gather list of running Docker containers"
       ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
@@ -51,7 +51,7 @@
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: "Stop all running Docker containers"
       ansible.builtin.shell: "docker stop {{ containers_list }}"
@@ -64,7 +64,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: remote_docker_controller_service_running is defined and remote_docker_controller_service_running
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
@@ -200,9 +200,9 @@
     - name: Remote Tasks
       ansible.builtin.include_tasks: "remote.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and item.settings.template != "nfs" and item.settings.mount
+      when: rclone_remote_is_defined and (item.settings.template != "nfs") and (item.settings.mount | bool)
 
     - name: Remote Tasks (NFS)
       ansible.builtin.include_tasks: "nfs.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and item.settings.template == "nfs" and item.settings.mount
+      when: rclone_remote_is_defined and (item.settings.template == "nfs") and (item.settings.mount | bool)

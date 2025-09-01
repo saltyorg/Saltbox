@@ -142,7 +142,7 @@
             if continuous_integration
             else omit }}"
   delay: 10
-  until: create_docker_result is succeeded
+  until: (create_docker_result is succeeded)
 
 - name: "Resources | Tasks | Docker | Create Docker Container | Wait for {{ docker_create_image_prune_delay_timeout }} seconds"
   ansible.builtin.wait_for:
@@ -161,4 +161,4 @@
             if (not continuous_integration)
             else ansible_retry_count_ci }}"
   delay: 10
-  until: prune_images_result is succeeded
+  until: (prune_images_result is succeeded)

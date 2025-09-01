@@ -52,7 +52,7 @@ traefik_entrypoint_custom: {}
 #     type: both
 traefik_dns_resolvers: "1.1.1.1:53,1.0.0.1:53"
 traefik_disable_propagation_check: false
-traefik_enable_http_validation: "{{ traefik_http or traefik.cert.http_validation }}"
+traefik_enable_http_validation: "{{ traefik_http or (traefik.cert.http_validation | bool) }}"
 traefik_enable_zerossl: true
 # Path is internal to the container, so a host path of /opt/traefik/file.html becomes /etc/traefik/file.html
 traefik_crowdsec_ban_filepath: "/etc/traefik/ban.html"
@@ -237,7 +237,7 @@ traefik_role_docker_ports: "{{ (lookup('role_var', '_docker_ports_defaults', rol
                                if not traefik_tailscale_enabled
                                else lookup('role_var', '_docker_ports_tailscale_ipv4_defaults', role='traefik')
                                    + (lookup('role_var', '_docker_ports_tailscale_ipv6_defaults', role='traefik')
-                                     if dns.ipv6
+                                     if (dns.ipv6 | bool)
                                      else []))
                                + lookup('role_var', '_docker_ports_custom', role='traefik') }}"
 
@@ -355,7 +355,7 @@ traefik_role_docker_commands_custom: []
 traefik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='traefik')
                                   + lookup('role_var', '_docker_commands_custom', role='traefik')
                                   + (lookup('role_var', '_docker_commands_metrics', role='traefik')
-                                    if traefik.metrics
+                                    if (traefik.metrics | bool)
                                     else [])
                                   + (lookup('role_var', '_docker_commands_cloudflarewarp_plugin', role='traefik')
                                     if traefik_plugin_cloudflarewarp_enabled and cloudflare_is_enabled
@@ -485,7 +485,7 @@ traefik_role_docker_labels: "{{ docker_labels_saltbox
                                           if traefik_http
                                           else lookup('role_var', '_docker_labels_dns_validation', role='traefik')))
                                 | combine((lookup('role_var', '_docker_labels_metrics', role='traefik')
-                                          if traefik.metrics
+                                          if (traefik.metrics | bool)
                                           else {}))
                                 | combine((lookup('role_var', '_docker_labels_cloudflare', role='traefik')
                                           if traefik_plugin_cloudflarewarp_enabled and cloudflare_is_enabled

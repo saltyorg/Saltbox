@@ -18,7 +18,7 @@
   register: cloudflare_dns_record_removal_status
 
 - name: Cloudflare | Remove DNS Record | IPv4 | Tasks on success
-  when: cloudflare_dns_record_removal_status is succeeded
+  when: (cloudflare_dns_record_removal_status is succeeded)
   block:
     - name: Cloudflare | Remove DNS Record | IPv4 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
@@ -39,7 +39,7 @@
   register: cloudflare_dns_v6_record_removal_status
 
 - name: Cloudflare | Remove DNS Record | IPv6 | Tasks on success
-  when: cloudflare_dns_v6_record_removal_status is succeeded
+  when: (cloudflare_dns_v6_record_removal_status is succeeded)
   block:
     - name: Cloudflare | Remove DNS Record | IPv6 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:

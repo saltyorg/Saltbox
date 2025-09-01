@@ -19,29 +19,29 @@
     url: "{{ docker_controller_url }}/job_status/{{ stop_docker_controller_job.json.job_id }}"
     method: GET
   register: stop_job_status
-  until: stop_job_status.json.status in ['completed', 'failed']
+  until: (stop_job_status.json.status in ['completed', 'failed'])
   retries: 120
   delay: 5
   when:
-    - stop_docker_controller_job is success
-    - stop_docker_controller_job.json.job_id is defined
+    - (stop_docker_controller_job is success)
+    - (stop_docker_controller_job.json.job_id is defined)
   ignore_errors: true
 
 - name: Check job status
   ansible.builtin.debug:
     msg: "Status of stopping Saltbox Docker containers: {{ stop_job_status.json.status | default('unknown') }}"
   when:
-    - stop_docker_controller_job is success
-    - stop_docker_controller_job.json.job_id is defined
+    - (stop_docker_controller_job is success)
+    - (stop_docker_controller_job.json.job_id is defined)
 
 - name: Check operation status (legacy)
   ansible.builtin.debug:
     msg: "Status of stopping Saltbox Docker containers: {{ stop_docker_controller_job.json.message | default('unknown') }}"
   when:
-    - stop_docker_controller_job is success
-    - stop_docker_controller_job.json.job_id is not defined
+    - (stop_docker_controller_job is success)
+    - (stop_docker_controller_job.json.job_id is not defined)
 
 - name: Check for operation failure
   ansible.builtin.debug:
     msg: "Failed to stop Saltbox Docker containers"
-  when: stop_docker_controller_job is failed
+  when: (stop_docker_controller_job is failed)

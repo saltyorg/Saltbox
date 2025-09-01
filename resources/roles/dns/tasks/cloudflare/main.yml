@@ -40,7 +40,7 @@
     - name: Get Tailscale IPs
       ansible.builtin.shell: "tailscale ip"
       register: dns_tailscale_ips
-      failed_when: dns_tailscale_ips.rc != 0
+      failed_when: (dns_tailscale_ips.rc != 0)
 
     - name: Set Tailscale variables
       ansible.builtin.set_fact:
@@ -49,8 +49,8 @@
 
 - name: Cloudflare | Add DNS Record
   ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
-  when: dns_action != 'remove'
+  when: (dns_action != 'remove')
 
 - name: Cloudflare | Remove DNS Record
   ansible.builtin.include_tasks: "subtasks/remove_dns_record.yml"
-  when: dns_action == 'remove'
+  when: (dns_action == 'remove')

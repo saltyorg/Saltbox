@@ -17,34 +17,34 @@
 - name: "Cleanup | Fail if 'rclone_service_name' is empty"
   ansible.builtin.fail:
     msg: "rclone_service_name is empty"
-  when: rclone_service_name | length == 0
+  when: (rclone_service_name | length == 0)
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}.service'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
-  when: rclone_service_name_full in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
+  when: (rclone_service_name_full in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ rclone_service_name }}.service"
     state: absent
-  when: rclone_service_name_full in saltbox_managed_rclone_services
+  when: (rclone_service_name_full in saltbox_managed_rclone_services)
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_refresh_service_name }}'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_refresh_service_name }}"
     state: stopped
     enabled: false
-  when: rclone_refresh_service_name in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
+  when: (rclone_refresh_service_name in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}_refresh.timer"
     state: stopped
     enabled: false
-  when: rclone_refresh_service_name in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
+  when: (rclone_refresh_service_name in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
 
 - name: "Cleanup | Delete '{{ rclone_refresh_service }}_refresh' services"
   ansible.builtin.file:
@@ -55,7 +55,7 @@
   loop:
     - "{{ rclone_service_name }}_refresh.service"
     - "{{ rclone_service_name }}_refresh.timer"
-  when: rclone_refresh_service_name in saltbox_managed_rclone_services
+  when: (rclone_refresh_service_name in saltbox_managed_rclone_services)
 
 - name: "Cleanup | Set 'cleanup_mount_path'"
   ansible.builtin.set_fact:
@@ -64,7 +64,7 @@
 - name: "Cleanup | Fail if 'cleanup_mount_path' is empty"
   ansible.builtin.fail:
     msg: "rclone_service_name is empty"
-  when: cleanup_mount_path | length == 0
+  when: (cleanup_mount_path | length == 0)
 
 - name: "Cleanup | Check if '{{ cleanup_mount_path }}' exists"
   ansible.builtin.stat:
