@@ -22,6 +22,8 @@ docker_dns: []
 # docker_config_custom:
 #   debug: "true"
 docker_config_custom: {}
+docker_cpus_default: ""
+docker_memory_default: ""
 
 ################################
 # Docker APT Key
