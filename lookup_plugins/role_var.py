@@ -1,32 +1,81 @@
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
+import json
 
 display = Display()
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
     name: role_var
     author: You
     version_added: "N/A"
-    short_description: Look up a role variable with automatic fallback
+    short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
-      - This lookup replicates: lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
+      - This lookup replicates lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
       - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
       - For _name variables with dashes, checks both original and underscore-converted versions
+      - Automatically converts lists of JSON strings to dictionaries when detected
     options:
       _terms:
         description: The suffix to append (e.g. '_dns_record')
-        required: True
+        required: true
       default:
         description: The default value to return if neither variable is found
         type: raw
-        required: False
+        required: false
       role:
         description: The role name to use for lookup instead of the current role_name
         type: str
-        required: False
-'''
+        required: false
+      convert_json:
+        description: Whether to automatically convert JSON string lists to dictionaries (default true)
+        type: bool
+        required: false
+        default: true
+"""
 
 class LookupModule(LookupBase):
+
+    def _is_json_string_list(self, value):
+        """Check if value is a list of JSON strings"""
+        if not isinstance(value, list):
+            return False
+        
+        # Check if all items are strings that look like JSON objects
+        for item in value:
+            if not isinstance(item, str):
+                return False
+            stripped = item.strip()
+            if not (stripped.startswith('{') and stripped.endswith('}')):
+                return False
+        
+        return len(value) > 0
+
+    def _convert_json_list_to_dict(self, json_list):
+        """Convert a list of JSON strings to a combined dictionary"""
+        try:
+            # Simple approach: do the JSON parsing manually like the manual method does
+            combined_dict = {}
+            
+            for json_str in json_list:
+                # Use the same from_json parsing that Ansible uses
+                try:
+                    import json
+                    # Parse the JSON string directly
+                    parsed = json.loads(json_str)
+                    if isinstance(parsed, dict):
+                        combined_dict.update(parsed)
+                    else:
+                        display.warning(f"[role_var] JSON string parsed to non-dict: {parsed}")
+                except json.JSONDecodeError as je:
+                    display.warning(f"[role_var] Invalid JSON in: {json_str[:100]}... Error: {je}")
+                    return None
+            
+            display.vvv(f"[role_var] Converted JSON list to dict with {len(combined_dict)} keys using manual parsing")
+            return combined_dict
+            
+        except Exception as e:
+            display.warning(f"[role_var] Failed to convert JSON list: {e}")
+            return None
 
     def run(self, terms, variables=None, **kwargs):
         if variables is None:
@@ -36,6 +85,9 @@ class LookupModule(LookupBase):
         self.set_options(var_options=variables, direct=kwargs)
         default = self.get_option('default')
         specified_role = self.get_option('role')
+        convert_json = self.get_option('convert_json')
+        if convert_json is None:
+            convert_json = True
 
         self._templar.available_variables = variables
         omit = variables.get('omit')
@@ -92,6 +144,16 @@ class LookupModule(LookupBase):
                 try:
                     result = self._templar.template(raw_value, fail_on_undefined=False)
                     if result is not None and not (isinstance(result, str) and "{{" in result):
+                        # Check if we should convert JSON list to dict
+                        if convert_json and self._is_json_string_list(result):
+                            display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
+                            converted = self._convert_json_list_to_dict(result)
+                            if converted is not None:
+                                display.vvv(f"[role_var] Returning converted dict for {var_name}: {len(converted)} keys")
+                                return [converted]
+                            else:
+                                display.vvv(f"[role_var] Conversion failed, returning original list")
+                        
                         display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
                         return [result]
                     else:
