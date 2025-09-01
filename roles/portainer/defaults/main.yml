@@ -102,11 +102,8 @@ portainer_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default',
 
 # Labels
 portainer_role_docker_labels_custom: {}
-portainer_role_docker_labels_themepark:
-  - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.app": "portainer" }'
-  - '{ "traefik.http.middlewares.themepark-{{ portainer_name }}.plugin.themepark.theme": "{{ lookup("role_var", "_themepark_theme", role="portainer") }}" }'
 portainer_role_docker_labels: "{{ lookup('role_var', '_docker_labels_custom', role='portainer')
-                                  | combine((lookup('role_var', '_docker_labels_themepark', role='portainer')
+                                  | combine((traefik_themepark_labels
                                             if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
                                             else {})) }}"
 
