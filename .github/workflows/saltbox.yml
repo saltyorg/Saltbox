@@ -108,9 +108,6 @@ jobs:
       - name: Import default configuration
         run: for i in defaults/*; do cp --update=none $i "$(basename "${i%.*}")"; done
 
-      - name: Edit accounts.yml
-        run: sed -i 's/seed/runner/g' accounts.yml
-
       - name: Run Tree on Saltbox repository
         run: tree -a
 
