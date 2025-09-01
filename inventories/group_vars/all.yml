@@ -347,12 +347,14 @@ traefik_url: "{{ 'https://'
               if (lookup('role_var', '_web_subdomain', default='') | length > 0)
               else lookup('role_var', '_web_domain', default='')) }}"
 
-traefik_themepark_labels:
+traefik_themepark_labels_tmp:
   - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.app": "{{ lookup("role_var", "_themepark_app", default=role_name) }}" }'
   - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.theme": "{{ lookup("role_var", "_themepark_theme", default="") }}" }'
   - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.addons": "{{ (lookup("role_var", "_themepark_addons", default="") | join(","))
                                                                                            if lookup("role_var", "_themepark_addons", default="") | length > 0
                                                                                            else omit }}" }'
+
+traefik_themepark_labels: "{{ traefik_themepark_labels_tmp | map('from_json') | list | combine }}"
 
 ################################
 # Docker
