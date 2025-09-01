@@ -65,7 +65,7 @@
           if ((rclone.version | type_debug == 'float') or (rclone.version | type_debug == 'int'))
           else (rclone.version | regex_replace('(^v\\.|^v)', '')) }}
 
-    - name: Build URL | Check if version '{{ rclone_version_specified0 }}' is available
+    - name: Build URL | Check if specified version is available
       ansible.builtin.shell: |
         curl -sL {{ svm }}https://api.github.com/repos/ncw/rclone/git/refs/tags \
         | jq -r  '.[] | .ref' | sed 's/\/\?refs\/tags\/v//g' \
