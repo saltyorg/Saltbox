@@ -92,6 +92,7 @@ traefik_trusted_ips_template: "{{ traefik_trusted_ips
 
 traefik_role_authelia_enabled: "{{ 'authelia' in traefik_default_sso_middleware }}"
 traefik_role_authentik_enabled: "{{ 'authentik' in traefik_default_sso_middleware }}"
+traefik_role_metrics_enabled: "{{ traefik.metrics | bool }}"
 
 ################################
 # Paths
@@ -355,7 +356,7 @@ traefik_role_docker_commands_custom: []
 traefik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='traefik')
                                   + lookup('role_var', '_docker_commands_custom', role='traefik')
                                   + (lookup('role_var', '_docker_commands_metrics', role='traefik')
-                                    if (traefik.metrics | bool)
+                                    if (lookup('role_var', '_metrics_enabled', role='traefik'))
                                     else [])
                                   + (lookup('role_var', '_docker_commands_cloudflarewarp_plugin', role='traefik')
                                     if traefik_plugin_cloudflarewarp_enabled and cloudflare_is_enabled
@@ -477,7 +478,6 @@ traefik_role_docker_labels_crowdsec:
   traefik.http.middlewares.crowdsec.plugin.bouncer.banhtmlfilepath: "{{ traefik_crowdsec_ban_filepath }}"
 
 traefik_role_docker_labels_custom: {}
-
 traefik_role_docker_labels: "{{ docker_labels_saltbox
                                 | combine(lookup('role_var', '_docker_labels_default', role='traefik'))
                                 | combine(lookup('role_var', '_docker_labels_custom', role='traefik'))
@@ -485,7 +485,7 @@ traefik_role_docker_labels: "{{ docker_labels_saltbox
                                           if traefik_http
                                           else lookup('role_var', '_docker_labels_dns_validation', role='traefik')))
                                 | combine((lookup('role_var', '_docker_labels_metrics', role='traefik')
-                                          if (traefik.metrics | bool)
+                                          if lookup('role_var', '_metrics_enabled', role='traefik')
                                           else {}))
                                 | combine((lookup('role_var', '_docker_labels_cloudflare', role='traefik')
                                           if traefik_plugin_cloudflarewarp_enabled and cloudflare_is_enabled

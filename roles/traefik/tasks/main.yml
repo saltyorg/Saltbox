@@ -20,7 +20,7 @@
     dns_record: "{{ lookup('role_var', '_metrics_dns_record') }}"
     dns_zone: "{{ lookup('role_var', '_metrics_dns_zone') }}"
     dns_proxy: "{{ lookup('role_var', '_metrics_dns_proxy') }}"
-  when: traefik.metrics
+  when: lookup('role_var', '_metrics_enabled', role='traefik')
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
@@ -54,7 +54,7 @@
 
 - name: Remove Certificates
   ansible.builtin.file:
-    path: "{{ traefik_role_paths_location }}/acme.json"
+    path: "{{ lookup('role_var', '_paths_location', role='traefik') }}/acme.json"
     state: absent
   when: ('traefik-reset-certs' in ansible_run_tags)
 
@@ -63,13 +63,13 @@
 
 - name: Wait for 'acme.json' to be created
   ansible.builtin.wait_for:
-    path: "{{ traefik_role_paths_acme_config_location }}"
+    path: "{{ lookup('role_var', '_paths_acme_config_location', role='traefik') }}"
     state: present
   when: (not continuous_integration)
 
-- name: Chown '{{ traefik_role_paths_location }}'
+- name: Chown '{{ lookup('role_var', '_paths_location', role='traefik') }}'
   ansible.builtin.file:
-    path: "{{ traefik_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='traefik') }}"
     state: directory
     recurse: true
     owner: "{{ user.name }}"
@@ -77,9 +77,9 @@
     mode: "0775"
   when: (not continuous_integration)
 
-- name: Chown '{{ traefik_role_paths_acme_config_location }}'
+- name: Chown '{{ lookup('role_var', '_paths_acme_config_location', role='traefik') }}'
   ansible.builtin.file:
-    path: "{{ traefik_role_paths_acme_config_location }}"
+    path: "{{ lookup('role_var', '_paths_acme_config_location', role='traefik') }}"
     state: file
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -89,12 +89,12 @@
 - name: "Import Authelia Role"
   ansible.builtin.include_role:
     name: authelia
-  when: traefik_role_authelia_enabled and authelia_is_master
+  when: lookup('role_var', '_authelia_enabled', role='traefik') and authelia_is_master
 
 - name: "Import Authentik Role"
   ansible.builtin.include_role:
     name: authentik
-  when: traefik_role_authentik_enabled and authentik_is_master
+  when: lookup('role_var', '_authentik_enabled', role='traefik') and authentik_is_master
 
 - name: "Import Error Pages Role"
   ansible.builtin.include_role:
