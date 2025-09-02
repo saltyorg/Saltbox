@@ -84,14 +84,17 @@ jobs:
       - name: Install sb binary
         run: curl -s https://api.github.com/repos/saltyorg/sb-go/releases/latest | jq -r '.assets[] | select(.name == "sb_linux_amd64") | .browser_download_url' | xargs sudo curl -Lo /usr/local/bin/sb && sudo chmod +x /usr/local/bin/sb
 
-      - name: Install Dependencies
-        run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
+      - name: Check sb version
+        run: /usr/local/bin/sb version
 
       - name: Create Directories
         run: sudo mkdir -p /srv/git
 
       - name: Symlink cloned repository to /srv/git/saltbox
         run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
+
+      - name: Install Dependencies
+        run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Install saltbox.fact
         run: |
