@@ -82,10 +82,18 @@ jobs:
         run: cat ./requirements/requirements-saltbox.txt
 
       - name: Install sb binary
-        run: curl -s https://api.github.com/repos/saltyorg/sb-go/releases/latest | jq -r '.assets[] | select(.name == "sb_linux_amd64") | .browser_download_url' | xargs sudo curl -Lo /usr/local/bin/sb && sudo chmod +x /usr/local/bin/sb
+        uses: jaxxstorm/action-install-gh-release@v2.1.0
+        with:
+          repo: saltyorg/sb-go
+          tag: latest
+          extension-matching: disable
+          platform: linux
+          arch: amd64
+          rename-to: sb
+          chmod: "0755"
 
       - name: Check sb version
-        run: /usr/local/bin/sb version
+        run: ~/bin/sb version
 
       - name: Create Directories
         run: sudo mkdir -p /srv/git
@@ -97,7 +105,7 @@ jobs:
         run: ln -s $GITHUB_WORKSPACE /srv/git/saltbox
 
       - name: Install Dependencies
-        run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
+        run: ~/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Import default configuration
         run: for i in defaults/*; do cp --update=none $i "$(basename "${i%.*}")"; done
