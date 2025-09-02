@@ -63,7 +63,9 @@ jobs:
           chmod: "0755"
 
       - name: Check sb version
-        run: ~/bin/sb version
+        run: |
+          sudo mv /opt/hostedtoolcache/saltyorg/sb-go/latest/linux-amd64/sb /usr/local/bin/sb
+          /usr/local/bin/sb version
 
       - name: Create Directories
         run: sudo mkdir -p /srv/git
@@ -75,7 +77,7 @@ jobs:
         run: ln -s $GITHUB_WORKSPACE /srv/git/saltbox
 
       - name: Install Dependencies
-        run: ~/bin/sb gha && /srv/ansible/venv/bin/ansible --version
+        run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Import default configuration
         run: for i in defaults/*; do cp --update=none $i "$(basename "${i%.*}")"; done
