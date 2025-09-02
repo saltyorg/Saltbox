@@ -96,7 +96,6 @@
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: scrutiny, tags: ['scrutiny'] }
     - { role: subliminal, tags: ['subliminal'] }
-    - { role: traktarr, tags: ['traktarr'] }
     - { role: transfer, tags: ['transfer'] }
     - { role: unpackerr, tags: ['unpackerr'] }
     - { role: whisparr, tags: ['whisparr'] }
