@@ -80,7 +80,20 @@ jobs:
         run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Import default configuration
-        run: for i in defaults/*; do cp --update=none $i "$(basename "${i%.*}")"; done
+        run: |
+          # Test if --update=none works
+          if touch /tmp/test1 && cp --update=none /tmp/test1 /tmp/test2 2>/dev/null; then
+            rm -f /tmp/test1 /tmp/test2
+            # Use modern syntax
+            for i in defaults/*; do
+              cp --update=none "$i" "$(basename "${i%.*}")"
+            done
+          else
+            # Use legacy syntax
+            for i in defaults/*; do
+              cp -n "$i" "$(basename "${i%.*}")"
+            done
+          fi
 
       - name: Run Tree on Saltbox repository
         run: tree -a
