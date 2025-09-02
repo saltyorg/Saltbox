@@ -88,19 +88,20 @@ jobs:
         run: /usr/local/bin/sb version
 
       - name: Create Directories
-        run: sudo mkdir -p /srv/git $GITHUB_WORKSPACE/ansible_facts.d
-
-      - name: Symlink cloned repository to /srv/git/saltbox
-        run: sudo ln -s $GITHUB_WORKSPACE /srv/git/saltbox
+        run: sudo mkdir -p /srv/git
 
       - name: Chown /srv/git
         run: sudo chown -R runner:runner /srv/git
+
+      - name: Symlink cloned repository to /srv/git/saltbox
+        run: ln -s $GITHUB_WORKSPACE /srv/git/saltbox
 
       - name: Install Dependencies
         run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Install saltbox.fact
         run: |
+          mkdir -p $GITHUB_WORKSPACE/ansible_facts.d
           curl -fsSL https://github.com/saltyorg/ansible-facts/releases/latest/download/saltbox-facts -o $GITHUB_WORKSPACE/ansible_facts.d/saltbox.fact
           chmod +x $GITHUB_WORKSPACE/ansible_facts.d/saltbox.fact
 
