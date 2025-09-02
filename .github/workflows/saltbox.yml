@@ -99,12 +99,6 @@ jobs:
       - name: Install Dependencies
         run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
-      - name: Install saltbox.fact
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/ansible_facts.d
-          curl -fsSL https://github.com/saltyorg/ansible-facts/releases/latest/download/saltbox-facts -o $GITHUB_WORKSPACE/ansible_facts.d/saltbox.fact
-          chmod +x $GITHUB_WORKSPACE/ansible_facts.d/saltbox.fact
-
       - name: Import default configuration
         run: for i in defaults/*; do cp --update=none $i "$(basename "${i%.*}")"; done
 
