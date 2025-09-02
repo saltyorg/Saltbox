@@ -427,12 +427,12 @@ docker_labels_saltbox_tmp:
 docker_labels_wildcard_template:
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | list | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict) if (not traefik_http) else {} }}"
+docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | list | combine) if (not traefik_http) else {} }}"
 
 docker_labels_wildcard_api_template:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | list | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict) if (not traefik_http) else {} }}"
+docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | list | combine) if (not traefik_http) else {} }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
