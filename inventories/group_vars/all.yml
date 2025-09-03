@@ -551,11 +551,21 @@ backup_rclone_dropbox_chunk_size: 128M
 reverse_proxy_apps:
   - traefik
 
-torrent_apps:
-  - deluge
-  - delugevpn
-  - qbittorrent
-  - qbittorrentvpn
-  - rutorrent
-  - transmission
-  - transmissionvpn
+torrent_apps_sandbox:
+  - "{{ delugevpn_name
+     if (delugevpn_name is defined)
+     else 'delugevpn' }}"
+  - "{{ qbittorrentvpn_instances
+     if (qbittorrentvpn_instances is defined)
+     else 'qbittorrentvpn' }}"
+  - "{{ transmission_instances
+     if (transmission_instances is defined)
+     else 'transmission' }}"
+  - "{{ transmissionvpn_name
+     if (transmissionvpn_name is defined)
+     else 'transmissionvpn' }}"
+
+torrent_apps: "{{ (deluge_instances
+                  + qbittorrent_instances
+                  + [rutorrent_name]
+                  + (torrent_apps_sandbox | flatten)) | unique | sort }}"
