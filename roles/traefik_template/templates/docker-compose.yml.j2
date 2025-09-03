@@ -1,0 +1,28 @@
+---
+services:
+  {{ traefik_template_name }}:
+    container_name: {{ traefik_template_name }}
+    environment: # Change this as needed for your image
+      PUID: "{{ uid }}"
+      PGID: "{{ gid }}"
+      TZ: "{{ tz }}"
+    hostname: {{ traefik_template_name }}
+    image: your_image:your_tag
+    labels:
+{% for key, value in docker_labels_common | dictsort %}
+      {{ key }}: {{ value }}
+{% endfor %}
+{% if ((service_gluetun_enabled.user_input | lower) | bool) %}
+    network_mode: {{ traefik_template_role_docker_network_mode }}
+{% else %}
+    networks:
+      - saltbox
+{% endif %}
+    restart: unless-stopped
+    volumes: # Change this as needed for your image
+      - /opt/{{ traefik_template_name }}:/config
+      - /etc/localtime:/etc/localtime:ro
+
+networks:
+  saltbox:
+    external: true

@@ -25,7 +25,7 @@
 - name: Validate boolean input
   ansible.builtin.fail:
     msg: "You must enter a boolean value (yes/no)"
-  when: service_sso_enabled.user_input | lower not in ['true', 'false', 'yes', 'no']
+  when: (service_sso_enabled.user_input | lower) not in ['true', 'false', 'yes', 'no']
 
 - name: API Router
   when: (service_sso_enabled.user_input | bool)
@@ -38,45 +38,32 @@
     - name: Validate boolean input
       ansible.builtin.fail:
         msg: "You must enter a boolean value (yes/no)"
-      when: service_api_enabled.user_input | lower not in ['true', 'false', 'yes', 'no']
+      when: (service_api_enabled.user_input | lower) not in ['true', 'false', 'yes', 'no']
 
-- name: Remove keys with omit values or empty values from docker_labels_common
-  ansible.builtin.set_fact:
-    docker_labels_common: "{{ docker_labels_common | dict2items |
-                              rejectattr('value', 'equalto', '') |
-                              rejectattr('value', 'search', '__omit_place_holder__') |
-                              items2dict }}"
+- name: Prompt for user input
+  ansible.builtin.pause:
+    prompt: "Do you want the container to use gluetun? (yes/no)"
+  register: service_gluetun_enabled
+
+- name: Validate boolean input
+  ansible.builtin.fail:
+    msg: "You must enter a boolean value (yes/no)"
+  when: (service_gluetun_enabled.user_input | lower) not in ['true', 'false', 'yes', 'no']
+
+- name: Prompt for user input
+  ansible.builtin.pause:
+    prompt: "Please enter the name of the gluetun container you want to use"
+  register: service_gluetun_container
+  when: (service_gluetun_enabled.user_input | bool)
 
 - name: Generate Docker Compose template
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
     dest: "{{ traefik_template_file }}"
-    content: |
-      services:
-        {{ traefik_template_name }}:
-          container_name: {{ traefik_template_name }}
-          environment: # Change this as needed for your image
-            PUID: "{{ uid }}"
-            PGID: "{{ gid }}"
-            TZ: "{{ tz }}"
-          hostname: {{ traefik_template_name }}
-          image: your_image:your_tag
-          labels:
-      {% for key, value in docker_labels_common.items() %}
-            {{ key }}: {{ value }}
-      {% endfor %}
-          networks:
-            - saltbox
-          restart: unless-stopped
-          volumes: # Change this as needed for your image
-            - /opt/{{ traefik_template_name }}:/config
-            - /etc/localtime:/etc/localtime:ro
-
-      networks:
-        saltbox:
-          external: true
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"
+    force: true
 
 - name: Print output information
   ansible.builtin.debug:
