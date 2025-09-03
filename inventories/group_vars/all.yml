@@ -189,6 +189,8 @@ traefik_default_resolver: "httpresolver"
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not (traefik_http | bool))
                                else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
+traefik_role_wildcard_enabled: "{{ lookup('role_var', '_traefik_wildcard_enabled', default=(not traefik_http)) | bool }}"
+
 
 traefik_error_pages_enabled: "{{ traefik.error_pages | bool }}"
 traefik_error_pages_role_enabled: "{{ lookup('role_var', '_traefik_error_pages_enabled', default=false) | bool }}"
@@ -427,12 +429,12 @@ docker_labels_saltbox_tmp:
 docker_labels_wildcard_template:
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | list | combine) if (not traefik_http) else {} }}"
+docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | list | combine) if traefik_role_wildcard_enabled else {} }}"
 
 docker_labels_wildcard_api_template:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | list | combine) if (not traefik_http) else {} }}"
+docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | list | combine) if traefik_role_wildcard_enabled else {} }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
