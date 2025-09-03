@@ -344,8 +344,8 @@ traefik_entrypoint_websecure_default: "{{ 'websecure' if not (lookup('role_var',
 traefik_entrypoint_websecure: "{{ lookup('role_var', '_traefik_entrypoint_websecure', default=traefik_entrypoint_websecure_default) }}"
 
 traefik_url: "{{ 'https://'
-                 + (lookup('role_var', '_web_subdomain', default='') + '.'
-                 + lookup('role_var', '_web_domain', default='')
+                 + ((lookup('role_var', '_web_subdomain', default='') + '.'
+                 + lookup('role_var', '_web_domain', default=''))
               if (lookup('role_var', '_web_subdomain', default='') | length > 0)
               else lookup('role_var', '_web_domain', default='')) }}"
 
@@ -356,7 +356,7 @@ traefik_themepark_labels_tmp:
                                                                                            if lookup("role_var", "_themepark_addons", default="") | length > 0
                                                                                            else omit }}" }'
 
-traefik_themepark_labels: "{{ traefik_themepark_labels_tmp | map('from_json') | list | combine }}"
+traefik_themepark_labels: "{{ traefik_themepark_labels_tmp | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
 
 ################################
 # Docker
@@ -429,17 +429,17 @@ docker_labels_saltbox_tmp:
 docker_labels_wildcard_template:
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | list | combine) if traefik_role_wildcard_enabled else {} }}"
+docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | combine) if traefik_role_wildcard_enabled else {} }}"
 
 docker_labels_wildcard_api_template:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].main": "{{ traefik_domain }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | list | combine) if traefik_role_wildcard_enabled else {} }}"
+docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | combine) if traefik_role_wildcard_enabled else {} }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', default=docker_networks_name_common) | split(':') | last }}"
 
-docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | flatten | select('mapping') | list | combine }}"
+docker_labels_saltbox: "{{ docker_labels_saltbox_tmp | flatten | select('mapping') | combine }}"
 
 docker_labels_traefik_main:
   - '{ "traefik.enable": "true" }'
@@ -476,8 +476,8 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("role_var", "_traefik_api_middleware", default=traefik_default_middleware_api) }}" }'
 
-docker_labels_traefik_main_dict: "{{ docker_labels_traefik_main | map('from_json') | list | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
-docker_labels_traefik_api_dict: "{{ docker_labels_traefik_api | map('from_json') | list | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
+docker_labels_traefik_main_dict: "{{ docker_labels_traefik_main | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
+docker_labels_traefik_api_dict: "{{ docker_labels_traefik_api | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
 
 docker_labels_traefik: "{{ (docker_labels_traefik_main_dict | combine(docker_labels_traefik_api_dict, docker_labels_wildcard_dict, docker_labels_wildcard_api_dict)
                         if traefik_role_api_enabled
