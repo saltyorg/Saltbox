@@ -37,8 +37,8 @@ sonarr_role_web_subdomain: "{{ sonarr_name }}"
 sonarr_role_web_domain: "{{ user.domain }}"
 sonarr_role_web_port: "8989"
 sonarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='sonarr') + '.' + lookup('role_var', '_web_domain', role='sonarr')
-                 if (lookup('role_var', '_web_subdomain', role='sonarr') | length > 0)
-                 else lookup('role_var', '_web_domain', role='sonarr')) }}"
+                      if (lookup('role_var', '_web_subdomain', role='sonarr') | length > 0)
+                      else lookup('role_var', '_web_domain', role='sonarr')) }}"
 
 ################################
 # DNS
@@ -54,9 +54,9 @@ sonarr_role_dns_proxy: "{{ dns.proxied }}"
 
 sonarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 sonarr_role_traefik_middleware_default: "{{ traefik_default_middleware
-                                       + (',themepark-' + sonarr_name
-                                         if (lookup('role_var', '_themepark_enabled', role='sonarr') and global_themepark_plugin_enabled)
-                                         else '') }}"
+                                            + (',themepark-' + sonarr_name
+                                              if (lookup('role_var', '_themepark_enabled', role='sonarr') and global_themepark_plugin_enabled)
+                                              else '') }}"
 sonarr_role_traefik_middleware_custom: ""
 sonarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 sonarr_role_traefik_enabled: true

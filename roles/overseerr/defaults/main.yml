@@ -39,8 +39,8 @@ overseerr_role_web_subdomain: "{{ overseerr_name }}"
 overseerr_role_web_domain: "{{ user.domain }}"
 overseerr_role_web_port: "5055"
 overseerr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='overseerr') + '.' + lookup('role_var', '_web_domain', role='overseerr')
-                    if (lookup('role_var', '_web_subdomain', role='overseerr') | length > 0)
-                    else lookup('role_var', '_web_domain', role='overseerr')) }}"
+                         if (lookup('role_var', '_web_subdomain', role='overseerr') | length > 0)
+                         else lookup('role_var', '_web_domain', role='overseerr')) }}"
 
 ################################
 # DNS

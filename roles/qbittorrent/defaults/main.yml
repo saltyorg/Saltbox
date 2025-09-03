@@ -154,6 +154,7 @@ qbittorrent_role_docker_envs_default:
   PGID: "{{ gid }}"
   TZ: "{{ tz }}"
   UMASK_SET: "002"
+  S6_SERVICES_GRACETIME: "{{ (lookup('role_var', '_docker_stop_timeout', role='qbittorrent') | int * 1000) | string }}"
 qbittorrent_role_docker_envs_custom: {}
 qbittorrent_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='qbittorrent')
                                   | combine(lookup('role_var', '_docker_envs_custom', role='qbittorrent')) }}"
