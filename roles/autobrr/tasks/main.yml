@@ -25,32 +25,10 @@
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
-- name: Check if `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}` exists
-  ansible.builtin.stat:
-    path: "{{ lookup('role_var', '_paths_config_location', role='autobrr') }}"
-  register: autobrr_config
-
-- name: New `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}` tasks
-  when: not autobrr_config.stat.exists
-  block:
-    - name: Generate sessionSecret
-      ansible.builtin.shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c16"
-      register: autobrr_secret
-
-    - name: Import default `{{ lookup('role_var', '_paths_config_location', role='autobrr') | basename }}`
-      ansible.builtin.template:
-        src: config.toml.j2
-        dest: "{{ lookup('role_var', '_paths_config_location', role='autobrr') }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0664"
-
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
-- name: Advise user to create Autobrr user
-  ansible.builtin.debug:
-    msg:
-      - "Run the following to create your user:"
-      - "docker exec -it {{ autobrr_name }} sh -c 'autobrrctl --config /config create-user {{ user.name }}'"
-  when: not autobrr_directory.stat.exists
+- name: Create Autobrr user
+  ansible.builtin.shell: |
+    docker exec -i {{ autobrr_name }} sh -c 'echo "{{ user.pass }}" | autobrrctl --config /config create-user {{ user.name }}'
+  when: (not autobrr_directory.stat.exists)
