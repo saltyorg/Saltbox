@@ -24,6 +24,14 @@
   ansible.builtin.systemd_service:
     daemon_reload: true
 
+- name: "Docker | Block Docker Controller"
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/block/20"
+    method: POST
+    timeout: 600
+  when: (remote_docker_controller_service_running is defined and remote_docker_controller_service_running)
+        or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running)
+
 - name: "Docker | Daemon | Start docker socket"
   ansible.builtin.systemd_service:
     name: docker.socket
@@ -39,12 +47,3 @@
 - name: "Docker | Daemon | Wait for 30 seconds before commencing"
   ansible.builtin.wait_for:
     timeout: 30
-
-- name: "Docker | Daemon | Unblock Docker Controller"
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/unblock"
-    method: POST
-    timeout: 600
-  ignore_errors: true
-  when: (remote_docker_controller_service_running is defined and remote_docker_controller_service_running)
-        or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running)

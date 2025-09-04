@@ -29,6 +29,15 @@
 - name: Tasks for when Docker exists and is running
   when: remote_docker_binary.stat.exists and remote_docker_service_running
   block:
+    - name: "Gather list of running Docker containers"
+      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
+      register: remote_docker_running_containers_ps
+      ignore_errors: true
+
+    - name: "Set 'containers_list' variable"
+      ansible.builtin.set_fact:
+        containers_list: "{{ remote_docker_running_containers_ps.stdout }}"
+
     - name: Block Docker Controller
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/block/20"
@@ -43,19 +52,29 @@
         state: restarted
       when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
-    - name: Wait 5 seconds
-      ansible.builtin.wait_for:
-        timeout: 5
+    - name: Wait until Controller is ready
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/ping"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: result
+      retries: 120
+      delay: 1
       when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
-    - name: "Gather list of running Docker containers"
-      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
-      register: remote_docker_running_containers_ps
+    - name: Block Docker Controller
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/block/20"
+        method: POST
+        timeout: 600
       ignore_errors: true
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
-    - name: "Set 'containers_list' variable"
-      ansible.builtin.set_fact:
-        containers_list: "{{ remote_docker_running_containers_ps.stdout }}"
+    - name: Wait 10 seconds
+      ansible.builtin.wait_for:
+        timeout: 10
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
