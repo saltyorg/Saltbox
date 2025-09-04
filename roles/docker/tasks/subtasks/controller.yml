@@ -58,6 +58,20 @@
   ansible.builtin.set_fact:
     docker_controller_uvicorn_path: "{{ docker_controller_venv_files.files[0].path }}"
 
+- name: "Controller | Populate Service Facts"
+  ansible.builtin.service_facts:
+
+- name: "Controller | Get Docker service state"
+  ansible.builtin.set_fact:
+    controller_docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
+
+- name: Controller | Block Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/block/20"
+    method: POST
+    timeout: 600
+  when: controller_docker_controller_service_running
+
 - name: Controller | Import 'saltbox_managed_docker_controller.service'
   ansible.builtin.template:
     src: docker-controller.service.j2
