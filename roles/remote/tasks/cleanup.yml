@@ -46,7 +46,7 @@
     enabled: false
   when: rclone_refresh_service_name in saltbox_managed_rclone_services and rclone_service_status != 'not-found' and rclone_service_status != 'failed'
 
-- name: "Cleanup | Delete '{{ rclone_refresh_service }}_refresh' services"
+- name: "Cleanup | Delete '{{ rclone_service_name }}_refresh' services"
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ rclone_refresh_service }}"
     state: absent
