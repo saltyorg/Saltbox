@@ -121,6 +121,8 @@ def main():
         print("Controller not available, exiting")
         sys.exit(1)
     
+    time.sleep(5)
+
     job_id = start_containers()
     if job_id:
         success = poll_job_status(job_id)
@@ -130,9 +132,9 @@ def main():
     # Trap SIGTERM signal and assign it to stop_containers function
     signal.signal(signal.SIGTERM, stop_containers)
     
-    # Keep the script running in an infinite loop
-    while True:
-        time.sleep(60)
+    # Keep the script running until a signal is received
+    print("Running... Send SIGTERM to stop")
+    signal.pause()
 
 if __name__ == "__main__":
     main()
