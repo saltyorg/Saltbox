@@ -17,7 +17,7 @@ class JobStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
-def wait_for_controller(retries: int = 12, delay: int = 10) -> bool:
+def wait_for_controller(retries: int = 120, delay: int = 1) -> bool:
     """
     Waits for the controller to be ready by polling the ping endpoint.
     
