@@ -50,7 +50,7 @@
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: docker_controller_service_running is defined and docker_controller_service_running
+      when: (docker_service_running is defined) and docker_service_running and (docker_controller_service_running is defined) and docker_controller_service_running
 
     - name: Stop all running Docker containers
       ansible.builtin.shell: "docker stop {{ docker_running_containers }} &> /dev/null || true"
@@ -67,7 +67,7 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: docker_controller_service_running is defined and docker_controller_service_running
+      when: (docker_service_running is defined) and docker_service_running and docker_controller_service_running is defined and docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
@@ -107,6 +107,13 @@
   ansible.builtin.import_tasks: "subtasks/nvidia.yml"
   when: use_nvidia
 
+- name: Block Docker Controller
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/block/20"
+    method: POST
+    timeout: 600
+  when: docker_controller_service_running
+
 - name: Start docker socket
   ansible.builtin.systemd_service:
     name: docker.socket
@@ -127,13 +134,6 @@
 
 - name: "Import Controller tasks"
   ansible.builtin.import_tasks: "subtasks/controller.yml"
-
-- name: Unblock Docker Controller
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/unblock"
-    method: POST
-    timeout: 600
-  ignore_errors: true
 
 - name: Stop Saltbox Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
