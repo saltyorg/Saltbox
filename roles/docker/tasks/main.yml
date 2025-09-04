@@ -135,11 +135,19 @@
 - name: "Import Controller tasks"
   ansible.builtin.include_tasks: "subtasks/controller.yml"
 
+- name: Gather list of running Docker containers (before Network Tasks)
+  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
+  register: docker_running_containers_before_network_tasks_ps
+  ignore_errors: true
+  changed_when: false
+
 - name: Stop Saltbox Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
+  when: (docker_running_containers_before_network_tasks_ps.stdout | trim | length > 0)
 
 - name: "Stop all Docker containers"
   ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
+  when: (docker_running_containers_before_network_tasks_ps.stdout | trim | length > 0)
 
 - name: "Import Docker Network tasks"
   ansible.builtin.include_tasks: "subtasks/network.yml"
