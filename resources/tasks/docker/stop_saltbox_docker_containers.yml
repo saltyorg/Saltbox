@@ -7,41 +7,56 @@
 #                   GNU General Public License v3.0                                      #
 ##########################################################################################
 ---
-- name: Stop Saltbox Docker Containers
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/stop{{ _query_var if _query_var is defined else '' }}"
-    method: POST
-  register: stop_docker_controller_job
-  ignore_errors: true
+- name: "Resources | Tasks | Docker | Stop Saltbox Docker Containers | Populate Service Facts"
+  ansible.builtin.service_facts:
 
-- name: Poll for job completion
-  ansible.builtin.uri:
-    url: "{{ docker_controller_url }}/job_status/{{ stop_docker_controller_job.json.job_id }}"
-    method: GET
-  register: stop_job_status
-  until: (stop_job_status.json.status in ['completed', 'failed'])
-  retries: 120
-  delay: 5
-  when:
-    - (stop_docker_controller_job is success)
-    - (stop_docker_controller_job.json.job_id is defined)
-  ignore_errors: true
+- name: "Resources | Tasks | Docker | Stop Saltbox Docker Containers | Get Docker service state"
+  ansible.builtin.set_fact:
+    stop_docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
+    stop_docker_containers_docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
 
-- name: Check job status
-  ansible.builtin.debug:
-    msg: "Status of stopping Saltbox Docker containers: {{ stop_job_status.json.status | default('unknown') }}"
-  when:
-    - (stop_docker_controller_job is success)
-    - (stop_docker_controller_job.json.job_id is defined)
+- name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Run Controller Tasks
+  when: stop_docker_service_running and stop_docker_containers_docker_controller_service_running
+  block:
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Unblock Docker Controller
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/unblock"
+        method: POST
+        timeout: 600
 
-- name: Check operation status (legacy)
-  ansible.builtin.debug:
-    msg: "Status of stopping Saltbox Docker containers: {{ stop_docker_controller_job.json.message | default('unknown') }}"
-  when:
-    - (stop_docker_controller_job is success)
-    - (stop_docker_controller_job.json.job_id is not defined)
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Stop Saltbox Docker Containers
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/stop{{ _query_var if _query_var is defined else '' }}"
+        method: POST
+      register: stop_docker_controller_job
 
-- name: Check for operation failure
-  ansible.builtin.debug:
-    msg: "Failed to stop Saltbox Docker containers"
-  when: (stop_docker_controller_job is failed)
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Poll for job completion
+      ansible.builtin.uri:
+        url: "{{ docker_controller_url }}/job_status/{{ stop_docker_controller_job.json.job_id }}"
+        method: GET
+      register: stop_job_status
+      until: (stop_job_status.json.status in ['completed', 'failed'])
+      retries: 120
+      delay: 5
+      when:
+        - (stop_docker_controller_job is success)
+        - (stop_docker_controller_job.json.job_id is defined)
+
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Check job status
+      ansible.builtin.debug:
+        msg: "Status of stopping Saltbox Docker containers: {{ stop_job_status.json.status | default('unknown') }}"
+      when:
+        - (stop_docker_controller_job is success)
+        - (stop_docker_controller_job.json.job_id is defined)
+
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Check operation status (legacy)
+      ansible.builtin.debug:
+        msg: "Status of stopping Saltbox Docker containers: {{ stop_docker_controller_job.json.message | default('unknown') }}"
+      when:
+        - (stop_docker_controller_job is success)
+        - (stop_docker_controller_job.json.job_id is not defined)
+
+    - name: Resources | Tasks | Docker | Stop Saltbox Docker Containers | Check for operation failure
+      ansible.builtin.debug:
+        msg: "Failed to stop Saltbox Docker containers"
+      when: (stop_docker_controller_job is failed)
