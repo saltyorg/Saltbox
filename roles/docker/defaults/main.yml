@@ -22,6 +22,9 @@ docker_dns: []
 # docker_config_custom:
 #   debug: "true"
 docker_config_custom: {}
+# Skip Container startup during core, saltbox, mediabox or feederbox
+# If the kernel has been updated and a reboot will happen
+docker_skip_start_during_meta_tag: "{{ saltbox_auto_reboot }}"
 
 ################################
 # Lookup
