@@ -156,6 +156,11 @@
   ansible.builtin.import_tasks: "subtasks/housekeeping.yml"
   tags: docker-housekeeping
 
+- name: Check if system needs to reboot
+  ansible.builtin.stat:
+    path: "/var/run/reboot-required"
+  register: docker_reboot_required_file
+
 - name: Docker Service Running
   when: docker_start_containers_check and docker_service_check and (docker_running_containers | trim | length > 0)
   block:
@@ -178,11 +183,6 @@
       ansible.builtin.wait_for:
         timeout: "{{ docker_network_container_health_delay }}"
       when: (docker_containers_gluetun | length > 0)
-
-- name: Check if system needs to reboot
-  ansible.builtin.stat:
-    path: "/var/run/reboot-required"
-  register: docker_reboot_required_file
 
 - name: Start Docker containers
   when: docker_start_containers_check
