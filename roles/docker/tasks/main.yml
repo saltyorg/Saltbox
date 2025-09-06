@@ -157,7 +157,7 @@
   tags: docker-housekeeping
 
 - name: Docker Service Running
-  when: docker_service_check and (docker_running_containers | trim | length > 0)
+  when: docker_start_containers_check and docker_service_check and (docker_running_containers | trim | length > 0)
   block:
     - name: "Initialize Gluetun variable"
       ansible.builtin.set_fact:
