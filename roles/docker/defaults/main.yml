@@ -24,6 +24,12 @@ docker_dns: []
 docker_config_custom: {}
 
 ################################
+# Lookup
+################################
+
+docker_start_containers_check: "{{ true if (('docker' in ansible_run_tags) or (not docker_skip_start_during_meta_tag)) else (not docker_reboot_required_file.stat.exists) }}"
+
+################################
 # Docker APT Key
 ################################
 

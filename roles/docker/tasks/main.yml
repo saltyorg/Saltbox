@@ -179,13 +179,21 @@
         timeout: "{{ docker_network_container_health_delay }}"
       when: (docker_containers_gluetun | length > 0)
 
-- name: Start Saltbox Docker containers
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
+- name: Check if system needs to reboot
+  ansible.builtin.stat:
+    path: "/var/run/reboot-required"
+  register: docker_reboot_required_file
 
-- name: "Re-start all previously running Docker containers"
-  ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
-  when: docker_service_check and (docker_running_containers | trim | length > 0) and (docker_running_containers.split() | difference(['ipv6nat']) | join(' ') | length > 0)
-  ignore_errors: true
+- name: Start Docker containers
+  when: docker_start_containers_check
+  block:
+    - name: Start Saltbox Docker containers
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
+
+    - name: "Re-start all previously running Docker containers"
+      ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
+      when: docker_service_check and (docker_running_containers | trim | length > 0) and (docker_running_containers.split() | difference(['ipv6nat']) | join(' ') | length > 0)
+      ignore_errors: true
 
 - name: "Import Docker Hub tasks"
   ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
