@@ -24,13 +24,21 @@ docker_dns: []
 docker_config_custom: {}
 docker_cpus_default: ""
 docker_memory_default: ""
+# Skip Container startup during core, saltbox, mediabox or feederbox
+# If the kernel has been updated and a reboot will happen
+docker_skip_start_during_meta_tag: "{{ saltbox_auto_reboot }}"
+
+################################
+# Lookup
+################################
+
+docker_start_containers_check: "{{ true if (('docker' in ansible_run_tags) or (not docker_skip_start_during_meta_tag)) else (not docker_reboot_required_file.stat.exists) }}"
 
 ################################
 # Docker APT Key
 ################################
 
 docker_apt_key_id: 0EBFCD88
-
 docker_apt_key_url: https://download.docker.com/linux/ubuntu/gpg
 
 ################################
@@ -38,9 +46,7 @@ docker_apt_key_url: https://download.docker.com/linux/ubuntu/gpg
 ################################
 
 docker_apt_repo_version: stable
-
 docker_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_repo_version }}"  # noqa line-length
-
 docker_apt_repo_filename: docker
 
 ################################
@@ -48,95 +54,61 @@ docker_apt_repo_filename: docker
 ################################
 
 # Version
-
 docker_version: "latest"
 
 # Docker CE
-
 docker_ce_name: "Docker CE"
-
 docker_ce_package: "{{ 'docker-ce'
                     if (docker_version is defined and docker_version | lower == 'latest')
                     else 'docker-ce=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
-
 docker_ce_filepath: "/usr/bin/dockerd"
-
 docker_ce_dpkg: "docker-ce"
 
 # Docker CE CLI
-
 docker_ce_cli_name: "Docker CE CLI"
-
 docker_ce_cli_package: "{{ 'docker-ce-cli'
                         if (docker_version is defined and docker_version | lower == 'latest')
                         else 'docker-ce-cli=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
-
 docker_ce_cli_filepath: "/usr/bin/docker"
-
 docker_ce_cli_dpkg: "docker-ce-cli"
 
 # Containerd
-
 containerd_io_name: "Containerd"
-
 containerd_io_package: "containerd.io"
-
 containerd_io_filepath: "/usr/bin/containerd"
-
 containerd_io_dpkg: "containerd.io"
 
 # Docker Compose
-
 compose_cli_name: "Docker Compose"
-
 compose_cli_package: "docker-compose-plugin"
-
 compose_cli_filepath: "docker compose"
-
 compose_cli_dpkg: "docker-compose-plugin"
 
 # Docker Rootless Extras
-
 docker_rootless_name: "Docker Rootless Extras"
-
 docker_rootless_package: "docker-ce-rootless-extras"
-
 docker_rootless_filepath: "/usr/bin/rootlesskit"
-
 docker_rootless_dpkg: "docker-ce-rootless-extras"
 
 # Misc
-
 docker_package_state: "{{ 'latest'
                        if (docker_version is defined and docker_version | lower == 'latest')
                        else 'present' }}"
-
 put_docker_dpkg_into_hold: true
-
 docker_filesystem_path: "/media/docker-volume.img"
-
 docker_filesystem_size: "20G"
-
 docker_ipv6: "{{ dns.ipv6 | bool }}"
 
 # Service
-
 docker_service_after: "{{ mergerfs_service_name }}"
-
 docker_service_sleep: "{{ 0
                        if continuous_integration or (not use_remote)
                        else 120 }}"
-
 docker_service_force: true
-
 docker_service_check: "{{ docker_binary.stat.exists and (docker_service_running or ((remote_docker_service_running is defined) and remote_docker_service_running) or ((unionfs_docker_service_running is defined) and unionfs_docker_service_running)) }}"
-
 docker_service_check_mounts: "{{ docker_binary.stat.exists and (((remote_docker_service_running is defined) and remote_docker_service_running) or ((unionfs_docker_service_running is defined) and unionfs_docker_service_running)) }}"
-
 docker_update_hosts_service_runtime_max: "3600s"
-
 docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternary('zfs', 'overlay2') }}"
-
 docker_daemon_template_force: true
 
 ################################
