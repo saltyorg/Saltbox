@@ -65,3 +65,7 @@
 - name: Preferences | Claim {{ plex_name | title }} Server
   ansible.builtin.include_tasks: "claim_server.yml"
   when: (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and (not plex_server_claimed))
+
+- name: Preferences | Reclaim {{ plex_name | title }} Server
+  ansible.builtin.include_tasks: "claim_server.yml"
+  when: ('plex-reclaim' in ansible_run_tags)
