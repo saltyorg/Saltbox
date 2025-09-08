@@ -98,7 +98,6 @@
     group: "{{ user.name }}"
     recurse: true
     follow: false
-  when: (not continuous_integration)
 
 - name: User Account | Reset ownership of '{{ srv_folder }}/' path
   ansible.builtin.file:  # noqa risky-file-permissions
@@ -107,7 +106,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     recurse: true
-    follow: false
+    follow: "{{ true if continuous_integration else false }}"
 
 - name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
   ansible.builtin.file:  # noqa risky-file-permissions
