@@ -15,6 +15,13 @@
 - name: "Preferences | '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}' Tasks"
   when: preferences_xml.stat.exists
   block:
+    - name: "Preferences | Remove existing PlexOnlineToken from Preferences.xml"
+      ansible.builtin.replace:
+        path: "{{ plex_role_paths_config_location }}"
+        regexp: ' PlexOnlineToken="[^"]*"'
+        replace: ''
+      when: ('plex-reclaim' in ansible_run_tags)
+
     - name: Preferences | Get '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}' XML data
       community.general.xml:
         path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
@@ -65,7 +72,3 @@
 - name: Preferences | Claim {{ plex_name | title }} Server
   ansible.builtin.include_tasks: "claim_server.yml"
   when: (not preferences_xml.stat.exists) or (preferences_xml.stat.exists and (not plex_server_claimed))
-
-- name: Preferences | Reclaim {{ plex_name | title }} Server
-  ansible.builtin.include_tasks: "claim_server.yml"
-  when: ('plex-reclaim' in ansible_run_tags)
