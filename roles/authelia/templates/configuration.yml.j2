@@ -5,7 +5,15 @@
 
 identity_validation:
   reset_password:
+    jwt_lifespan: {{ lookup('role_var', '_identity_validation_reset_password_jwt_lifespan', role='authelia') }}
+    jwt_algorithm: {{ lookup('role_var', '_identity_validation_reset_password_jwt_algorithm', role='authelia') }}
     jwt_secret: {{ lookup('role_var', '_jwt_secret', role='authelia') }}
+  elevated_session:
+    code_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_code_lifespan', role='authelia') }}
+    elevation_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_elevation_lifespan', role='authelia') }}
+    characters: {{ lookup('role_var', '_identity_validation_elevated_session_characters', role='authelia') }}
+    require_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_require_second_factor', role='authelia') }}
+    skip_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_skip_second_factor', role='authelia') }}
 
 # Options are light, dark, grey or auto
 theme: {{ lookup('role_var', '_theme', role='authelia') }}
@@ -18,15 +26,22 @@ default_2fa_method: "{{ lookup('role_var', '_default_2fa_method', role='authelia
 
 server:
   address: {{ lookup('role_var', '_server_address', role='authelia') }}
+{% if lookup('role_var', '_server_asset_path', role='authelia') | length > 0 %}
+  asset_path: {{ lookup('role_var', '_server_asset_path', role='authelia') }}
+{% endif %}
+  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck', role='authelia') }}
   buffers:
     read: {{ lookup('role_var', '_server_buffers_read', role='authelia') }}
     write: {{ lookup('role_var', '_server_buffers_write', role='authelia') }}
-  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck', role='authelia') }}
+  timeouts:
+    read: {{ lookup('role_var', '_server_timeouts_read', role='authelia') }}
+    write: {{ lookup('role_var', '_server_timeouts_write', role='authelia') }}
+    idle: {{ lookup('role_var', '_server_timeouts_idle', role='authelia') }}
+  endpoints:
+    enable_pprof: {{ lookup('role_var', '_server_endpoints_enable_pprof', role='authelia') }}
+    enable_expvars: {{ lookup('role_var', '_server_endpoints_enable_expvars', role='authelia') }}
   headers:
     csp_template: "{{ lookup('role_var', '_server_headers_csp_template', role='authelia') }}"
-  endpoints:
-    enable_pprof: {{ lookup('role_var', '_server_enable_pprof', role='authelia') }}
-    enable_expvars: {{ lookup('role_var', '_server_enable_expvars', role='authelia') }}
 
 log:
   level: {{ lookup('role_var', '_log_level', role='authelia') }}
@@ -34,12 +49,32 @@ log:
   file_path: {{ lookup('role_var', '_log_file_path', role='authelia') }}
   keep_stdout: {{ lookup('role_var', '_log_keep_stdout', role='authelia') }}
 
+telemetry:
+  metrics:
+    enabled: {{ lookup('role_var', '_telemetry_metrics_enabled', role='authelia') }}
+{% if lookup('role_var', '_telemetry_metrics_enabled', role='authelia') | bool %}
+    address: {{ lookup('role_var', '_telemetry_metrics_address', role='authelia') }}
+    buffers:
+      read: {{ lookup('role_var', '_telemetry_metrics_buffers_read', role='authelia') }}
+      write: {{ lookup('role_var', '_telemetry_metrics_buffers_write', role='authelia') }}
+    timeouts:
+      read: {{ lookup('role_var', '_telemetry_metrics_timeouts_read', role='authelia') }}
+      write: {{ lookup('role_var', '_telemetry_metrics_timeouts_write', role='authelia') }}
+      idle: {{ lookup('role_var', '_telemetry_metrics_timeouts_idle', role='authelia') }}
+{% endif %}
+
 totp:
+  disable: {{ lookup('role_var', '_totp_disable', role='authelia') }}
   issuer: {{ lookup('role_var', '_totp_issuer', role='authelia') }}
+  algorithm: {{ lookup('role_var', '_totp_algorithm', role='authelia') }}
+  digits: {{ lookup('role_var', '_totp_digits', role='authelia') }}
   period: {{ lookup('role_var', '_totp_period', role='authelia') }}
   skew: {{ lookup('role_var', '_totp_skew', role='authelia') }}
-  digits: {{ lookup('role_var', '_totp_digits', role='authelia') }}
   secret_size: {{ lookup('role_var', '_totp_secret_size', role='authelia') }}
+  allowed_algorithms: {{ lookup('role_var', '_totp_allowed_algorithms', role='authelia') }}
+  allowed_digits: {{ lookup('role_var', '_totp_allowed_digits', role='authelia') }}
+  allowed_periods: {{ lookup('role_var', '_totp_allowed_periods', role='authelia') }}
+  disable_reuse_security_policy: {{ lookup('role_var', '_totp_disable_reuse_security_policy', role='authelia') }}
 
 {% if lookup('role_var', '_duo_enabled', role='authelia') | bool %}
 duo_api:
@@ -63,12 +98,41 @@ duo_api:
 
 webauthn:
   disable: {{ lookup('role_var', '_webauthn_disable', role='authelia') }}
+  enable_passkey_login: {{ lookup('role_var', '_webauthn_enable_passkey_login', role='authelia') }}
   display_name: {{ lookup('role_var', '_webauthn_display_name', role='authelia') }}
   attestation_conveyance_preference: {{ lookup('role_var', '_webauthn_attestation_conveyance_preference', role='authelia') }}
-  user_verification: {{ lookup('role_var', '_webauthn_user_verification', role='authelia') }}
   timeout: {{ lookup('role_var', '_webauthn_timeout', role='authelia') }}
+  filtering:
+    prohibit_backup_eligibility: {{ lookup('role_var', '_webauthn_filtering_prohibit_backup_eligibility', role='authelia') }}
+{% if lookup('role_var', '_webauthn_filtering_permitted_aaguids', role='authelia') | length > 0 %}
+    permitted_aaguids: {{ lookup('role_var', '_webauthn_filtering_permitted_aaguids', role='authelia') }}
+{% endif %}
+{% if lookup('role_var', '_webauthn_filtering_prohibited_aaguids', role='authelia') | length > 0 %}
+    prohibited_aaguids: {{ lookup('role_var', '_webauthn_filtering_prohibited_aaguids', role='authelia') }}
+{% endif %}
+  selection_criteria:
+    attachment: {{ lookup('role_var', '_webauthn_selection_criteria_attachment', role='authelia') }}
+    discoverability: {{ lookup('role_var', '_webauthn_selection_criteria_discoverability', role='authelia') }}
+    user_verification: {{ lookup('role_var', '_webauthn_selection_criteria_user_verification', role='authelia') }}
+  metadata:
+    enabled: {{ lookup('role_var', '_webauthn_metadata_enabled', role='authelia') }}
+{% if lookup('role_var', '_webauthn_metadata_enabled', role='authelia') | bool %}
+    cache_policy: {{ lookup('role_var', '_webauthn_metadata_cache_policy', role='authelia') }}
+    validate_trust_anchor: {{ lookup('role_var', '_webauthn_metadata_validate_trust_anchor', role='authelia') }}
+    validate_entry: {{ lookup('role_var', '_webauthn_metadata_validate_entry', role='authelia') }}
+    validate_entry_permit_zero_aaguid: {{ lookup('role_var', '_webauthn_metadata_validate_entry_permit_zero_aaguid', role='authelia') }}
+    validate_status: {{ lookup('role_var', '_webauthn_metadata_validate_status', role='authelia') }}
+{% if lookup('role_var', '_webauthn_metadata_validate_status_permitted', role='authelia') | length > 0 %}
+    validate_status_permitted: {{ lookup('role_var', '_webauthn_metadata_validate_status_permitted', role='authelia') }}
+{% endif %}
+{% if lookup('role_var', '_webauthn_metadata_validate_status_prohibited', role='authelia') | length > 0 %}
+    validate_status_prohibited: {{ lookup('role_var', '_webauthn_metadata_validate_status_prohibited', role='authelia') }}
+{% endif %}
+{% endif %}
 
 authentication_backend:
+  password_change:
+    disable: {{ lookup('role_var', '_authentication_backend_password_change_disable', role='authelia') }}
   password_reset:
     disable: {{ lookup('role_var', '_authentication_backend_password_reset_disable', role='authelia') }}
     custom_url: "{{ lookup('role_var', '_authentication_backend_password_reset_custom_url', role='authelia') }}"
