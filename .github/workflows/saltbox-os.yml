@@ -95,6 +95,9 @@ jobs:
             done
           fi
 
+      - name: Edit accounts.yml
+        run: sed -i 's/seed/runner/g' accounts.yml
+
       - name: Run Tree on Saltbox repository
         run: tree -a
 
