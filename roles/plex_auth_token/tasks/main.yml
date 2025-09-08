@@ -161,6 +161,7 @@
           token: "{{ plex_auth_token }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
+        overwrite: true
 
 - name: "Auth Token | Display Plex Auth Token"
   ansible.builtin.debug:
