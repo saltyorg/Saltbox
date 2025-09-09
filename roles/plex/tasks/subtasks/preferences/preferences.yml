@@ -15,6 +15,13 @@
 - name: "Preferences | '{{ plex_paths_config_location | basename }}' Tasks"
   when: preferences_xml.stat.exists
   block:
+    - name: "Preferences | Remove existing PlexOnlineToken from Preferences.xml"
+      ansible.builtin.replace:
+        path: "{{ plex_paths_config_location }}"
+        regexp: ' PlexOnlineToken="[^"]*"'
+        replace: ''
+      when: ('plex-reclaim' in ansible_run_tags)
+
     - name: Preferences | Get '{{ plex_paths_config_location | basename }}' XML data
       community.general.xml:
         path: "{{ plex_paths_config_location }}"

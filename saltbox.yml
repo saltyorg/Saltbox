@@ -84,7 +84,7 @@
     - { role: nzbhydra2, tags: ['nzbhydra2'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
     - { role: petio, tags: ['petio'] }
-    - { role: plex, tags: ['plex', 'plex-reset-codecs'] }
+    - { role: plex, tags: ['plex', 'plex-reset-codecs', 'plex-reclaim'] }
     - { role: plex_db, tags: ['plex-db'] }
     - { role: postgres, tags: ['postgres'] }
     - { role: prometheus, tags: ['prometheus'] }
