@@ -90,10 +90,6 @@ Return Values:
         description: Informational or error message
         type: str
         returned: when applicable
-    warnings:
-        description: List of warning messages
-        type: list
-        returned: when applicable
 """
 
 from ansible.module_utils.basic import AnsibleModule
@@ -456,8 +452,7 @@ def run_module():
     result = dict(
         changed=False,
         message='',
-        facts={},
-        warnings=[]
+        facts={}
     )
 
     module = AnsibleModule(
