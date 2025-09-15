@@ -177,6 +177,7 @@
         option: WebUI\Username
         value: '{{ user.name }}'
         path: "{{ qbittorrent_paths_conf }}"
+        no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
@@ -188,6 +189,7 @@
         option: WebUI\Password_PBKDF2
         value: '{{ qbittorrent_hashed_passwd.msg }}'
         path: "{{ qbittorrent_paths_conf }}"
+        no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
