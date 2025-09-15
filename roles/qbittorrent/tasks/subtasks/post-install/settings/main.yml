@@ -173,10 +173,11 @@
 
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Username'
       community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
         section: Preferences
         option: WebUI\Username
         value: '{{ user.name }}'
-        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
@@ -184,10 +185,11 @@
 
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Password_PBKDF2'
       community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
         section: Preferences
         option: WebUI\Password_PBKDF2
         value: '{{ qbittorrent_hashed_passwd.hash }}'
-        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        no_extra_spaces: true
         state: present
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
