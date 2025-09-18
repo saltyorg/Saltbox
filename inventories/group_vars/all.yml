@@ -364,7 +364,7 @@ traefik_themepark_labels: "{{ traefik_themepark_labels_tmp | map('from_json') | 
 
 # Toggles pruning of dangling images after container creation.
 docker_create_image_prune: true
-docker_create_image_prune_delay: false
+docker_create_image_prune_delay: true
 docker_create_image_prune_delay_timeout: 10
 
 docker_volumes_downloads_nzbs: "{{ [downloads_usenet_path + ':/downloads/nzbs']
