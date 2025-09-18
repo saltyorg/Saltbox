@@ -80,3 +80,6 @@ postgres_role_docker_state: started
 
 # User
 postgres_role_docker_user: "{{ uid }}:{{ gid }}"
+
+# SHM size
+postgres_role_docker_shm_size: "128M"
