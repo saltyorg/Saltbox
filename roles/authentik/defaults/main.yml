@@ -43,6 +43,8 @@ authentik_role_redis_docker_healthcheck:
 # Postgres
 ################################
 
+# Authentik will always require postgres, this just allows you to skip the one Saltbox deploys
+authentik_role_postgres_deploy: true
 authentik_role_postgres_name: "{{ authentik_name }}-postgres"
 authentik_role_postgres_docker_env_db: "authentik"
 authentik_role_postgres_docker_image_tag: "16-alpine"
