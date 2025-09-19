@@ -103,4 +103,4 @@
 
 - name: Setup Task
   ansible.builtin.include_tasks: "subtasks/setup.yml"
-  when: (not authentik_data_folder.stat.exists) and not continuous_integration
+  when: (not authentik_data_folder.stat.exists) and (not continuous_integration)
