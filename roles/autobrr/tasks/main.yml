@@ -31,4 +31,5 @@
 - name: Create Autobrr user
   ansible.builtin.shell: |
     docker exec -i {{ autobrr_name }} sh -c 'echo "{{ user.pass }}" | autobrrctl --config /config create-user {{ user.name }}'
+  no_log: true
   when: (not autobrr_directory.stat.exists)

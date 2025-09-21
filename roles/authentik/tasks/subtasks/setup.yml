@@ -47,6 +47,7 @@
     body:
       password: "{{ user.pass }}"
     status_code: 204
+  no_log: true
 
 - name: Create new admin group
   ansible.builtin.uri:

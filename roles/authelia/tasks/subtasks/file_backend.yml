@@ -41,6 +41,7 @@
     tls_hostname: localhost
     pull: true
   register: authelia_password
+  no_log: true
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: File | Sanitize Password Hash

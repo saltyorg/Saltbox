@@ -170,6 +170,7 @@
       qbittorrent_passwd:
         password: "{{ user.pass }}"
       register: qbittorrent_hashed_passwd
+      no_log: true
 
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Username'
       community.general.ini_file:

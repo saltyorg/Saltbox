@@ -41,6 +41,7 @@
     skeleton: /etc/skel
     uid: "{{ user_id | default(omit) }}"
   register: user_info
+  no_log: true
 
 - name: Check for skeleton files in user home directory
   ansible.builtin.stat:

@@ -18,3 +18,4 @@
     return_content: true
     body_format: json
     body: {"Username": "{{ user.name }}", "Password": "{{ user.pass }}"}
+  no_log: true
