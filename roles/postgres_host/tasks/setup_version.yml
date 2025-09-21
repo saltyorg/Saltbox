@@ -21,7 +21,7 @@
     block: |
       {% for host in version_allowed_hosts %}
       # Allow connections from {{ host }}
-      host    all             all             {{ "%-18s"|format(host) }}      {{ version_auth_method }}
+      host    all             all             {{ "%-18s" | format(host) }}      {{ version_auth_method }}
       {% endfor %}
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
