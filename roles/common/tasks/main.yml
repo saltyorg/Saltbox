@@ -62,7 +62,7 @@
 
 - name: Install required packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - apt-transport-https
       - ca-certificates
@@ -70,7 +70,7 @@
 
 - name: Install common packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - "nano"
       - "zip"
@@ -105,7 +105,7 @@
 
 - name: Install extra packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - "run-one"
 
@@ -116,7 +116,7 @@
 
 - name: Install 'intel-gpu-tools'
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - "intel-gpu-tools"
   when:
@@ -131,7 +131,7 @@
 - name: Install 'unrar-free' if 'unrar' was not installed
   ansible.builtin.apt:
     name: unrar-free
-    state: present
+    state: latest
   when: (not unrar_binary.stat.exists)
 
 - name: "Import 'pip.conf'"

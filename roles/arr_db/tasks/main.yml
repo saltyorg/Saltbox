@@ -19,7 +19,7 @@
 - name: Install SQLite3
   ansible.builtin.apt:
     name: sqlite3
-    state: present
+    state: latest
 
 - name: "Execute Sonarr DB tasks"
   ansible.builtin.include_tasks: arr.yml

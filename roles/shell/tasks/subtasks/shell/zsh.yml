@@ -10,7 +10,7 @@
 - name: ZSH | Install 'zsh'
   ansible.builtin.apt:
     name: "{{ shell_zsh_apt_packages_list }}"
-    state: present
+    state: latest
 
 - name: ZSH | Clone 'oh-my-zsh' repo
   ansible.builtin.git:

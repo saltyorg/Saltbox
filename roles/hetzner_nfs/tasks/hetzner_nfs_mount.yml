@@ -38,7 +38,7 @@
 
 - name: Install nfs requirements
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - rpcbind
       - nfs-common

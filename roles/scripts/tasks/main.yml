@@ -9,7 +9,7 @@
 ---
 - name: Install common packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - jq
       - figlet

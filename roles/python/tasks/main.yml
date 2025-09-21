@@ -82,22 +82,22 @@
     - name: "Install Python {{ python_version }}"
       ansible.builtin.apt:
         name: "python{{ python_version }}"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} dev"
       ansible.builtin.apt:
         name: "python{{ python_version }}-dev"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} distutils"
       ansible.builtin.apt:
         name: "python{{ python_version }}-distutils"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} venv"
       ansible.builtin.apt:
         name: "python{{ python_version }}-venv"
-        state: present
+        state: latest
 
   rescue:
     - name: Update APT cache
@@ -107,19 +107,19 @@
     - name: "Install Python {{ python_version }}"
       ansible.builtin.apt:
         name: "python{{ python_version }}"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} dev"
       ansible.builtin.apt:
         name: "python{{ python_version }}-dev"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} distutils"
       ansible.builtin.apt:
         name: "python{{ python_version }}-distutils"
-        state: present
+        state: latest
 
     - name: "Install Python {{ python_version }} venv"
       ansible.builtin.apt:
         name: "python{{ python_version }}-venv"
-        state: present
+        state: latest

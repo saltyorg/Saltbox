@@ -27,7 +27,7 @@
     - name: "Install apt package"
       ansible.builtin.apt:
         name: "btrfsmaintenance"
-        state: present
+        state: latest
 
     - name: "Change mountpoints to 'auto'"
       ansible.builtin.lineinfile:

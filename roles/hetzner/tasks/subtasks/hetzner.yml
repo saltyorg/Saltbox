@@ -10,7 +10,7 @@
 - name: Hetzner | Install 'pciutils'
   ansible.builtin.apt:
     name: pciutils
-    state: present
+    state: latest
 
 - name: Hetzner | Fetch PCI info
   ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"

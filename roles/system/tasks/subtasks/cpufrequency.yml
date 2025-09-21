@@ -10,11 +10,11 @@
 - name: CPU Frequency | Install 'cpufrequtils'
   ansible.builtin.apt:
     name: cpufrequtils
-    state: present
+    state: latest
 
 - name: CPU Frequency | Install 'linux-tools' for Ubuntu
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - linux-tools-common
       - linux-tools-generic

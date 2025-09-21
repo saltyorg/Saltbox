@@ -28,7 +28,7 @@
 
 - name: Install nfs server
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - rpcbind
       - nfs-kernel-server

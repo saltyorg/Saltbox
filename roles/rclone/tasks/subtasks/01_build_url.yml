@@ -9,7 +9,7 @@
 ---
 - name: Build URL | Install common packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - curl
       - jq

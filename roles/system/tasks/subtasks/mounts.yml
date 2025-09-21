@@ -26,7 +26,7 @@
 - name: "Mounts | Install 'fuse3'"
   ansible.builtin.apt:
     name: "fuse3"
-    state: present
+    state: latest
 
 - name: Mounts | Import 'fuse.conf'
   ansible.builtin.copy:

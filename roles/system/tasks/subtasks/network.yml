@@ -9,7 +9,7 @@
 ---
 - name: Network | Install common packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - vnstat
       - pciutils

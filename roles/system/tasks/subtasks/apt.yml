@@ -48,7 +48,7 @@
 
 - name: APT | Install required packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - apt-utils
       - byobu

@@ -10,7 +10,7 @@
 - name: Cron | Install cron
   ansible.builtin.apt:
     name: cron
-    state: present
+    state: latest
 
 - name: Cron | Purge old kernels on reboot
   ansible.builtin.cron:

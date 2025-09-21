@@ -10,7 +10,7 @@
 - name: "Remote (NFS) | Install NFS requirements"
   ansible.builtin.apt:
     name: nfs-common
-    state: present
+    state: latest
 
 - name: "Remote (NFS) | Set Variables"
   ansible.builtin.set_fact:

@@ -18,7 +18,7 @@
 
 - name: Custom | Install custom deb packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     deb: "{{ item }}"
   loop: "{{ custom_deb }}"
 

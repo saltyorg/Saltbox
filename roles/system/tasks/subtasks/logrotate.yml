@@ -11,7 +11,7 @@
 
 - name: Logrotate | Install required packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - logrotate
 

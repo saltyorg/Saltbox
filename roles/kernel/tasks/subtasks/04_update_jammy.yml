@@ -19,7 +19,7 @@
     name:
       - gcc-12
       - g++-12
-    state: present
+    state: latest
     update_cache: true
 
 - name: Update | Set gcc-12 and g++-12 as the default compilers

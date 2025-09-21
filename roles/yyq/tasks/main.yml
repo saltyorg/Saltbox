@@ -33,7 +33,7 @@
   block:
     - name: Install common packages
       ansible.builtin.apt:
-        state: present
+        state: latest
         name:
           - curl
           - jq

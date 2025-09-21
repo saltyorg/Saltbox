@@ -9,7 +9,7 @@
 ---
 - name: Install required packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - lsb-release
       - figlet
@@ -19,7 +19,7 @@
 
 - name: Install required packages
   ansible.builtin.apt:
-    state: present
+    state: latest
     name:
       - update-motd
       - update-notifier-common
@@ -98,7 +98,7 @@
 - name: Install 'openssh-server'
   ansible.builtin.apt:
     name: openssh-server
-    state: present
+    state: latest
   when: (not sshd_config.stat.exists)
 
 - name: Wait for '/etc/ssh/sshd_config' to be created

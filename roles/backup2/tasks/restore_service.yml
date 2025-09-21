@@ -10,7 +10,7 @@
 - name: Restore Service | Install 'curl'
   ansible.builtin.apt:
     name: curl
-    state: present
+    state: latest
 
 - name: Restore Service | Set variables
   ansible.builtin.set_fact:

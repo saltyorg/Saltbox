@@ -63,7 +63,7 @@
   block:
     - name: Settings | Install required packages
       ansible.builtin.apt:
-        state: present
+        state: latest
         name:
           - jq
           - moreutils

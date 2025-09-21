@@ -20,7 +20,7 @@
 - name: Release Upgrade | Ensure update-manager-core is installed
   ansible.builtin.apt:
     name: update-manager-core
-    state: present
+    state: latest
 
 - name: Release Upgrade | Configure release-upgrades to never prompt for dist upgrades
   ansible.builtin.lineinfile:

@@ -10,7 +10,7 @@
 - name: Locale | Install locales
   ansible.builtin.apt:
     name: locales
-    state: present
+    state: latest
 
 - name: Locale | Ensure localization files for '{{ system_locale }}' are available
   community.general.locale_gen:
