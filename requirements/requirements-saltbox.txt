@@ -12,6 +12,7 @@ ndg-httpsclient==0.5.1
 netaddr==1.3.0
 passlib==1.7.4
 pexpect==4.9.0
+psycopg2-binary==2.9.10
 PyMySQL==1.1.2
 pyOpenSSL==25.1.0
 requests==2.32.5

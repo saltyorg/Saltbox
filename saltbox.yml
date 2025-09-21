@@ -87,6 +87,7 @@
     - { role: plex, tags: ['plex', 'plex-reset-codecs', 'plex-reclaim'] }
     - { role: plex_db, tags: ['plex-db'] }
     - { role: postgres, tags: ['postgres'] }
+    - { role: postgres_host, tags: ['postgres-host'] }
     - { role: prometheus, tags: ['prometheus'] }
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: python, tags: ['python'] }

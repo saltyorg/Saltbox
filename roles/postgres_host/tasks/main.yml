@@ -1,0 +1,246 @@
+#########################################################################
+# Title:         Saltbox: PostgreSQL Host Role                          #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install postgresql-common
+  ansible.builtin.apt:
+    name: postgresql-common
+    state: latest
+
+- name: Run PGDG script
+  ansible.builtin.command: /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+  args:
+    creates: /etc/apt/sources.list.d/pgdg.list
+
+- name: Create PostgreSQL data directory
+  ansible.builtin.file:
+    path: "{{ postgres_host_role_data_directory }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0755'
+
+- name: Create symlink for entire PostgreSQL directory
+  ansible.builtin.file:
+    src: "{{ postgres_host_role_data_directory }}"
+    dest: "/etc/postgresql"
+    state: link
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    follow: false
+    force: true
+
+- name: Install PostgreSQL packages for specified versions
+  ansible.builtin.apt:
+    name:
+      - "postgresql-{{ item }}"
+      - "postgresql-contrib-{{ item }}"
+    state: latest
+  loop: "{{ postgres_host_role_versions }}"
+
+- name: Discover existing PostgreSQL clusters
+  ansible.builtin.shell: |
+    pg_lsclusters --no-header | awk '{print $1":"$2":"$3}'
+  register: existing_clusters
+  changed_when: false
+  failed_when: false
+
+- name: Parse cluster information
+  ansible.builtin.set_fact:
+    postgres_cluster_info: "{{ postgres_cluster_info | default([]) + [{'version': item.split(':')[0], 'name': item.split(':')[1], 'port': item.split(':')[2]}] }}"
+  loop: "{{ existing_clusters.stdout_lines | default([]) }}"
+  when: (existing_clusters.stdout_lines is defined)
+
+- name: Find all PostgreSQL services
+  ansible.builtin.shell: |
+    systemctl list-units --type=service --state=loaded --no-legend | grep postgresql | awk '{print $1}'
+  register: postgres_services
+  changed_when: false
+  failed_when: false
+
+- name: Stop and disable unspecified PostgreSQL versions
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ postgres_services.stdout_lines }}"
+  when:
+    - postgres_services.stdout_lines is defined
+    - item != "postgresql.service"
+    - item not in (postgres_host_role_versions | map('regex_replace', '^(.*)$', 'postgresql@\\1-main.service') | list)
+  failed_when: false
+
+- name: Check if default clusters exist
+  ansible.builtin.stat:
+    path: "/var/lib/postgresql/{{ item }}/main"
+  register: default_clusters_exist
+  loop: "{{ postgres_host_role_versions }}"
+
+- name: Stop default clusters if they exist
+  ansible.builtin.command: >
+    pg_ctlcluster {{ item.item }} main stop
+  loop: "{{ default_clusters_exist.results }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: item.stat.exists
+  failed_when: false
+
+- name: Remove default clusters if they exist
+  ansible.builtin.command: >
+    pg_dropcluster {{ item.item }} main
+  loop: "{{ default_clusters_exist.results }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: item.stat.exists
+  failed_when: false
+
+- name: Check if clusters are already configured
+  ansible.builtin.shell: |
+    pg_lsclusters --no-header | grep "^{{ item }}\s\+main" || echo "not_found"
+  register: clusters_configured
+  loop: "{{ postgres_host_role_versions }}"
+  become: true
+  become_user: "{{ user.name }}"
+  changed_when: false
+  failed_when: false
+
+- name: Update port in postgresql.conf for existing clusters
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
+    regexp: "^#?port ="
+    line: "port = {{ postgres_port_assignments[item] }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0644'
+  loop: "{{ postgres_host_role_versions }}"
+  when: postgres_port_assignments[item] is defined
+
+- name: Create clusters with custom data directory and user
+  ansible.builtin.command: >
+    pg_createcluster {{ item.item }} main
+    --datadir={{ postgres_host_role_data_directory }}/{{ item.item }}/data
+    --user={{ user.name }}
+    --port={{ postgres_port_assignments[item.item] }}
+  loop: "{{ clusters_configured.results }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: ('not_found' in item.stdout)
+
+- name: Update PostgreSQL systemd service user
+  ansible.builtin.lineinfile:
+    path: "/lib/systemd/system/postgresql@.service"
+    regexp: '^User='
+    line: "User={{ user.name }}"
+    insertafter: '^\[Service\]'
+    backup: true
+  register: systemd_user_changed
+
+- name: Update PostgreSQL systemd service group
+  ansible.builtin.lineinfile:
+    path: "/lib/systemd/system/postgresql@.service"
+    regexp: '^Group='
+    line: "Group={{ user.name }}"
+    insertafter: '^\[Service\]'
+    backup: true
+  register: systemd_group_changed
+
+- name: Reload systemd daemon after service changes
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: systemd_user_changed.changed or systemd_group_changed.changed
+
+- name: Change ownership of PostgreSQL directories to custom user
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+  loop:
+    - "{{ postgres_host_role_data_directory }}"
+    - "/etc/postgresql/{{ postgres_host_role_version }}"
+    - "/var/log/postgresql"
+    - "/var/run/postgresql"
+  when: systemd_user_changed.changed or systemd_group_changed.changed
+
+- name: Calculate desired port assignments based on version order
+  ansible.builtin.set_fact:
+    postgres_port_assignments: "{{ postgres_port_assignments | default({}) | combine({item: (5432 + my_idx)}) }}"
+  loop: "{{ postgres_host_role_versions }}"
+  loop_control:
+    index_var: my_idx
+
+- name: Stop all PostgreSQL services before port validation
+  ansible.builtin.systemd:
+    name: "postgresql@{{ item }}-main"
+    state: stopped
+  loop: "{{ postgres_host_role_versions }}"
+  failed_when: false
+
+- name: Stop generic PostgreSQL service
+  ansible.builtin.systemd:
+    name: postgresql
+    state: stopped
+  failed_when: false
+
+- name: Check if desired ports are available
+  ansible.builtin.wait_for:
+    port: "{{ postgres_port_assignments[item] }}"
+    host: "127.0.0.1"
+    state: stopped
+    timeout: 1
+  loop: "{{ postgres_host_role_versions }}"
+  register: port_check_results
+  failed_when: false
+
+- name: Fail if any desired ports are not available
+  ansible.builtin.fail:
+    msg: "Port {{ postgres_port_assignments[item] }} for PostgreSQL version {{ item }} is not available (in use by another service)"
+  loop: "{{ postgres_host_role_versions }}"
+  loop_control:
+    index_var: port_idx
+  when: port_check_results.results[port_idx].failed
+
+- name: Start PostgreSQL services with correct port assignments
+  ansible.builtin.systemd:
+    name: "postgresql@{{ item }}-main"
+    state: started
+    enabled: true
+  loop: "{{ postgres_host_role_versions }}"
+
+- name: Ensure generic PostgreSQL service is enabled
+  ansible.builtin.systemd:
+    name: postgresql
+    enabled: true
+
+- name: Rediscover PostgreSQL clusters after setup
+  ansible.builtin.shell: |
+    pg_lsclusters --no-header | awk '{print $1":"$2":"$3":"$4}'
+  register: updated_clusters
+  changed_when: false
+  failed_when: false
+
+- name: Parse updated cluster information
+  ansible.builtin.set_fact:
+    postgres_active_clusters: "{{ postgres_active_clusters | default([]) + [{'version': item.split(':')[0], 'name': item.split(':')[1], 'port': item.split(':')[2], 'status': item.split(':')[3]}] }}"
+  loop: "{{ updated_clusters.stdout_lines | default([]) }}"
+  when:
+    - (updated_clusters.stdout_lines is defined)
+    - (item.split(':')[0] in postgres_host_role_versions)
+
+- name: Setup databases and users for each PostgreSQL version
+  ansible.builtin.include_tasks: setup_version.yml
+  vars:
+    postgres_version: "{{ postgres_item }}"
+    cluster_port: "{{ postgres_port_assignments[postgres_item] }}"
+  loop: "{{ postgres_host_role_versions }}"
+  loop_control:
+    loop_var: "postgres_item"

@@ -1,0 +1,83 @@
+##########################################################################
+# Title:         Saltbox: PostgreSQL | Default Variables                 #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+postgres_host_role_versions: ["17"]
+postgres_host_role_primary_version: "{{ postgres_host_role_versions[0] }}"
+
+################################
+# Data Directory
+################################
+
+postgres_host_role_data_directory: "/opt/postgresql"
+
+################################
+# Root Superuser
+################################
+
+postgres_host_role_create_root_superuser: true
+postgres_host_role_root_superuser_name: "root"
+postgres_host_role_root_superuser_password: "password4321"
+
+################################
+# Per-Version Configuration
+################################
+
+postgres_host_role_config: {}
+# Example:
+# postgres_host_role_config:
+#   "16":
+#     allowed_hosts:
+#       - "172.19.0.0/16"
+#       - "10.0.0.0/8"
+#     auth_method: "md5"
+#     users:
+#       - name: "app_user"
+#         password: "password1"
+#       - name: "app_user2"
+#         password: "password2"
+#     databases:
+#       - name: "app_database"
+#         users:
+#           - "app_user"
+#           - "app_user2"
+#       - name: "metrics_db"
+#         users:
+#           - "app_user"
+#   "17":
+#     allowed_hosts:
+#       - "172.19.0.0/16"
+#     auth_method: "scram-sha-256"
+#     users:
+#       - name: "app_user3"
+#         password: "password3"
+#     databases:
+#       - name: "new_app_database"
+#         users:
+#           - "app_user3"
+
+################################
+# Access Control
+################################
+
+postgres_host_role_allowed_hosts:
+  - "172.19.0.0/16"
+
+postgres_host_role_auth_method: "scram-sha-256"
+
+################################
+# Global Fallback Configuration
+################################
+
+postgres_host_role_users:
+  - name: "{{ user.name }}"
+    password: "{{ user.pass }}"
+
+postgres_host_role_databases:
+  - name: "saltbox"
+    users: ["{{ user.name }}"]

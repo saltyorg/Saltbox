@@ -1,0 +1,88 @@
+#########################################################################
+# Title:         Saltbox: PostgreSQL Host Role                          #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Set version-specific configuration for version {{ postgres_version }}
+  ansible.builtin.set_fact:
+    version_users: "{{ postgres_host_role_config[postgres_version].users | default(postgres_host_role_users) }}"
+    version_databases: "{{ postgres_host_role_config[postgres_version].databases | default(postgres_host_role_databases) }}"
+    version_allowed_hosts: "{{ postgres_host_role_config[postgres_version].allowed_hosts | default(postgres_host_role_allowed_hosts) }}"
+    version_auth_method: "{{ postgres_host_role_config[postgres_version].auth_method | default(postgres_host_role_auth_method) }}"
+
+- name: Add allowed hosts to pg_hba.conf for version {{ postgres_version }}
+  ansible.builtin.blockinfile:
+    path: "{{ postgres_host_role_data_directory }}/{{ postgres_version }}/main/pg_hba.conf"
+    marker: "### SALTBOX MANAGED BLOCK - {mark} ###"
+    block: |
+      {% for host in version_allowed_hosts %}
+      # Allow connections from {{ host }}
+      host    all             all             {{ "%-18s"|format(host) }}      {{ version_auth_method }}
+      {% endfor %}
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0640'
+
+- name: Create default user database for version {{ postgres_version }}
+  community.postgresql.postgresql_db:
+    name: "{{ user.name }}"
+    state: present
+    login_port: "{{ cluster_port }}"
+    login_user: "{{ user.name }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Create root superuser for version {{ postgres_version }}
+  community.postgresql.postgresql_user:
+    name: "{{ postgres_host_role_root_superuser_name }}"
+    password: "{{ postgres_host_role_root_superuser_password }}"
+    role_attr_flags: SUPERUSER,CREATEDB,CREATEROLE
+    state: present
+    login_port: "{{ cluster_port }}"
+    login_user: "{{ user.name }}"
+  become: true
+  become_user: "{{ user.name }}"
+  no_log: true
+  when: (postgres_host_role_create_root_superuser | bool)
+
+- name: Create PostgreSQL users for version {{ postgres_version }}
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    state: present
+    login_port: "{{ cluster_port }}"
+    login_user: "{{ user.name }}"
+  loop: "{{ version_users }}"
+  become: true
+  become_user: "{{ user.name }}"
+  no_log: true
+  when: (version_users | length > 0)
+
+- name: Create PostgreSQL databases for version {{ postgres_version }}
+  community.postgresql.postgresql_db:
+    name: "{{ item.name }}"
+    state: present
+    login_port: "{{ cluster_port }}"
+    login_user: "{{ user.name }}"
+  loop: "{{ version_databases }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: (version_databases | length > 0)
+
+- name: Grant database privileges to users for version {{ postgres_version }}
+  community.postgresql.postgresql_privs:
+    login_db: "{{ item.0.name }}"
+    roles: "{{ item.1 }}"
+    privs: ALL
+    type: database
+    state: present
+    login_port: "{{ cluster_port }}"
+    login_user: "{{ user.name }}"
+  loop: "{{ version_databases | subelements('users', skip_missing=True) }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: (version_databases | length > 0)
