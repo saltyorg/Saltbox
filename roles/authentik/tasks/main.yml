@@ -45,7 +45,7 @@
     redis_role_paths_folder: "{{ lookup('role_var', '_paths_folder', role='authentik') }}/redis"
     redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
     redis_role_docker_healthcheck: "{{ lookup('role_var', '_redis_docker_healthcheck', role='authentik') }}"
-    redis_role_docker_commands_default:
+    redis_role_docker_commands:
       - "--save 60 1 --loglevel warning"
 
 - name: "Import Postgres Role"
