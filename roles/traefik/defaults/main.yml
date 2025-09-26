@@ -275,7 +275,7 @@ traefik_role_docker_commands_default:
   - "--entrypoints.websecure.http.tls.certResolver={{ traefik_default_certresolver }}"
   - "--api.dashboard=true"
   - "--api=true"
-  - "--log.level={{ traefik_log_level }}"
+  - "--log.level={{ lookup('role_var', '_log_level', role='traefik') }}"
   - "{{ ('--log.filepath=/etc/traefik/traefik.log') if lookup('role_var', '_log_file', role='traefik') else omit }}"
   - "{{ ('--log.maxsize=' + lookup('role_var', '_log_max_size', role='traefik')) if lookup('role_var', '_log_file', role='traefik') else omit }}"
   - "{{ ('--log.maxbackups=' + lookup('role_var', '_log_max_backups', role='traefik')) if lookup('role_var', '_log_file', role='traefik') else omit }}"
