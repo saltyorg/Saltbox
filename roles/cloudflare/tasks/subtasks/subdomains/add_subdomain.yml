@@ -18,7 +18,7 @@
     type: A
     value: "{{ ip_address_public }}"
     record: "{{ saltbox_type }}"
-  when: dns.ipv4
+  when: dns_ipv4_enabled
 
 - name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns.proxied | default('no') }}"
   community.general.cloudflare_dns:
@@ -31,4 +31,4 @@
     type: AAAA
     value: "{{ ipv6_address_public }}"
     record: "{{ saltbox_type }}"
-  when: dns.ipv6
+  when: dns_ipv6_enabled

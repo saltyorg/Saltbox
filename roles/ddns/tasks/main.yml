@@ -12,7 +12,7 @@
     msg:
       - "IPv4 or IPv6 DNS management has to be enabled."
       - "Check your 'adv_settings.yml' config."
-  when: not (dns.ipv4 or dns.ipv6)
+  when: not (dns_ipv4_enabled or dns_ipv6_enabled)
 
 - name: "Fail if not using Cloudflare"
   ansible.builtin.fail:

@@ -97,7 +97,7 @@ docker_package_state: "{{ 'latest'
 put_docker_dpkg_into_hold: true
 docker_filesystem_path: "/media/docker-volume.img"
 docker_filesystem_size: "20G"
-docker_ipv6: "{{ dns.ipv6 | bool }}"
+docker_ipv6: "{{ dns_ipv6_enabled }}"
 
 # Service
 docker_service_after: "{{ mergerfs_service_name }}"

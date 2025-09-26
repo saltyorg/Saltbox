@@ -43,7 +43,7 @@ ddns_role_docker_envs_default:
   TRAEFIK_API_URL: "http://traefik:8080"
   TRAEFIK_ENTRYPOINTS: "websecure,web"
   CUSTOM_URLS: "{{ lookup('role_var', '_custom_urls', role='ddns') if (lookup('role_var', '_custom_urls', role='ddns') | length > 0) else omit }}"
-  IP_VERSION: "{{ 'both' if (dns.ipv4 and dns.ipv6) else ('4' if dns.ipv4 else '6') }}"
+  IP_VERSION: "{{ 'both' if (dns_ipv4_enabled and dns_ipv6_enabled) else ('4' if dns_ipv4_enabled else '6') }}"
   DELAY: "{{ lookup('role_var', '_delay', role='ddns') }}"
 ddns_role_docker_envs_custom: {}
 ddns_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='ddns')

@@ -26,7 +26,7 @@
 
     - name: Cron
       ansible.builtin.include_tasks: "cron.yml"
-      when: (['set-backup2', 'unset-backup2'] | intersect(ansible_run_tags)) and not ('backup2' in ansible_run_tags)
+      when: ((['set-backup2', 'unset-backup2'] | intersect(ansible_run_tags)) | length > 0) and not ('backup2' in ansible_run_tags)
       tags:
         - set-backup2
         - unset-backup2
@@ -354,7 +354,7 @@
       become_user: "{{ user.name }}"
       register: rclone_timestamp
       ignore_errors: true
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: Define Archive List
       ansible.builtin.set_fact:
@@ -386,7 +386,7 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
+      when: backup_rclone_enabled and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
       loop: "{{ backup_archive_list + (backup2_user_defined_files | map('basename') | list) }}"
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
@@ -395,7 +395,7 @@
       environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: "Wait for 5 seconds before uploading"
       ansible.builtin.wait_for:
@@ -414,14 +414,14 @@
       environment: "{{ backup2_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: "Run items asynchronously in batches of {{ backup2_async_batch_size }} items"
       ansible.builtin.include_tasks: upload.yml
       vars:
         folders: "{{ item }}"
       loop: "{{ opt_folders | batch(backup2_async_batch_size | int) | list }}"
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: Cleanup sync cache # noqa args[module]
       ansible.builtin.async_status:
@@ -438,7 +438,7 @@
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-      when: backup.rclone.enable and backup_notify_rclone_complete
+      when: backup_rclone_enabled and backup_notify_rclone_complete
 
     - name: Snapshot | Cleanup Tasks
       when: use_snapshot and (snapshot_type == 'btrfs')
@@ -604,7 +604,7 @@
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} '/home/{{ user.name }}/logs/'"
 
 - name: Backup Cleanup Block
-  when: backup.rclone.enable and backup2_cleanup_enabled and backup2_success
+  when: backup_rclone_enabled and backup2_cleanup_enabled and backup2_success
   block:
     - name: Determine number of existing backups
       ansible.builtin.shell: >

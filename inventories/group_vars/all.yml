@@ -83,6 +83,8 @@ rclone_old_remote_is_defined: "{{ (rclone is defined) and
                                   (rclone.remote is not none) and
                                   (rclone.remote | trim | length > 0) }}"
 
+rclone_mounts_ipv4_only: "{{ mounts.ipv4_only | bool }}"
+
 use_cloudplow: "{{ rclone_remote_is_defined and use_remote }}"
 use_remote: "{{ (rclone.enabled | bool) and not continuous_integration }}"
 use_motd: "{{ motd_install | bool }}"
@@ -201,7 +203,7 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware@docker,'
 traefik_default_robot: true
 traefik_default_gzip: false
 traefik_default_autodetect: false
-traefik_default_cloudflarewarp: "{{ lookup('role_var', '_dns_proxy', default=dns.proxied) and cloudflare_is_enabled and traefik_plugin_cloudflarewarp_enabled }}"
+traefik_default_cloudflarewarp: "{{ lookup('role_var', '_dns_proxy', default=(dns.proxied | bool)) and cloudflare_is_enabled and traefik_plugin_cloudflarewarp_enabled }}"
 
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file'
@@ -218,7 +220,7 @@ traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                           if (traefik.hsts | bool)
                                           else '')
                                         + (',cloudflarewarp@docker'
-                                          if (traefik_default_cloudflarewarp | bool)
+                                          if traefik_default_cloudflarewarp
                                           else '')
                                         + (',crowdsec@docker'
                                           if (lookup('role_var', '_traefik_crowdsec_enabled', default=crowdsec_is_enabled))
@@ -534,8 +536,10 @@ svm: https://svm.saltbox.dev/version?url=
 ################################
 
 reboot_is_necessary: false
-skip_dns: "{{ not ((dns.ipv4 | bool) or (dns.ipv6 | bool)) }}"
+skip_dns: "{{ not (dns_ipv4_enabled or dns_ipv6_enabled) }}"
 role_dns_enabled: "{{ lookup('role_var', '_dns_enabled', default=true) | bool }}"
+dns_ipv4_enabled: "{{ dns.ipv4 | bool }}"
+dns_ipv6_enabled: "{{ dns.ipv6 | bool }}"
 docker_legacy_volume: false
 ansible_retry_count: "2"
 ansible_retry_count_ci: "5"
@@ -547,6 +551,10 @@ ansible_retry_count_ci: "5"
 backup_rclone_transfers: 4
 backup_rclone_drive_chunk_size: 128M
 backup_rclone_dropbox_chunk_size: 128M
+backup_local_enabled: "{{ backup.local.enable | bool }}"
+backup_rclone_enabled: "{{ backup.rclone.enable | bool }}"
+backup_rsync_enabled: "{{ backup.rsync.enable | bool }}"
+backup_snapshot_enabled: "{{ backup.misc.snapshot | bool }}"
 
 reverse_proxy_apps:
   - traefik

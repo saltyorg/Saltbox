@@ -10,14 +10,14 @@
 - name: "Snapshot | Determine '/' filesystem type"
   ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
-  when: backup.misc.snapshot and (item.mount == '/')
+  when: backup_snapshot_enabled and (item.mount == '/')
   with_items:
     - "{{ ansible_mounts }}"
 
 - name: "Snapshot | Determine '/opt' filesystem type"
   ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
-  when: backup.misc.snapshot and (item.mount == '/opt')
+  when: backup_snapshot_enabled and (item.mount == '/opt')
   with_items:
     - "{{ ansible_mounts }}"
 
@@ -25,7 +25,7 @@
 
 - name: Snapshot | BTRFS specific tasks
   when:
-    - backup.misc.snapshot
+    - backup_snapshot_enabled
     - ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
   block:
     - name: "Snapshot | Set general BTRFS variables"

@@ -48,7 +48,7 @@
 
     - name: Cron
       ansible.builtin.include_tasks: "cron.yml"
-      when: (['set-backup', 'unset-backup'] | intersect(ansible_run_tags)) and not ('backup' in ansible_run_tags)
+      when: ((['set-backup', 'unset-backup'] | intersect(ansible_run_tags)) | length > 0) and not ('backup' in ansible_run_tags)
       tags:
         - set-backup
         - unset-backup
@@ -536,7 +536,7 @@
     - name: "Wait for 10 seconds before uploads"
       ansible.builtin.wait_for:
         timeout: 10
-      when: backup.rclone.enable or backup.rsync.enable
+      when: backup_rclone_enabled or backup_rsync_enabled
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
       ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ backup.local.destination }}/"
@@ -562,7 +562,7 @@
       become_user: "{{ user.name }}"
       register: rclone_timestamp
       ignore_errors: true
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: Define Archive List
       ansible.builtin.set_fact:
@@ -594,13 +594,13 @@
       register: rclone_move
       failed_when: rclone_move.rc > 3
       ignore_errors: true
-      when: backup.rclone.enable and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
+      when: backup_rclone_enabled and (rclone_timestamp is defined) and ('Failed' not in rclone_timestamp.stderr)
       loop: "{{ backup_archive_list + (backup_user_defined_files | map('basename') | list) }}"
 
     - name: "Wait for 5 seconds before uploading"
       ansible.builtin.wait_for:
         timeout: 5
-      when: backup.rclone.enable or backup.rsync.enable
+      when: backup_rclone_enabled or backup_rsync_enabled
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.shell: |
@@ -610,21 +610,21 @@
           {{ lookup('vars', 'backup_' + backup.rclone.template + '_template', default='') }} \
           --stats=30s \
           --bwlimit={{ backup_rclone_upload_speed_limit }} \
-          {{ '--bind=' + ansible_default_ipv4.address if mounts.ipv4_only else '' }} \
+          {{ '--bind=' + ansible_default_ipv4.address if rclone_mounts_ipv4_only else '' }} \
           -vv \
           --log-file='{{ playbook_dir }}/backup_rclone.log' \
           '{{ backup.local.destination }}' '{{ backup.rclone.destination }}'
       environment: "{{ backup_rclone_env }}"
       become: true
       become_user: "{{ user.name }}"
-      when: backup.rclone.enable
+      when: backup_rclone_enabled
 
     - name: "Notify | Saltbox Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'"
       ansible.builtin.include_role:
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Rclone uploaded backup to '{{ backup.rclone.destination }}'."
-      when: backup.rclone.enable and backup_notify_rclone_complete
+      when: backup_rclone_enabled and backup_notify_rclone_complete
 
     - name: "Use rsync to upload backup to '{{ backup.rsync.destination }}'"
       ansible.posix.synchronize:
@@ -635,14 +635,14 @@
         dest_port: "{{ backup.rsync.port }}"
       become: true
       become_user: "{{ user.name }}"
-      when: backup.rsync.enable
+      when: backup_rsync_enabled
 
     - name: "Notify | Saltbox Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'"
       ansible.builtin.include_role:
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Rsync uploaded backup to '{{ backup.rsync.destination }}'."
-      when: backup.rsync.enable and backup_notify_rsync_complete
+      when: backup_rsync_enabled and backup_notify_rsync_complete
 
     - name: Get Current Time
       ansible.builtin.shell: "date \"+%s\""
@@ -672,7 +672,7 @@
       ansible.builtin.file:
         path: "{{ backup.local.destination }}"
         state: absent
-      when: (dir_files2.matched | int != 0) and (not backup.local.enable)
+      when: (dir_files2.matched | int != 0) and (not backup_local_enabled)
 
     - name: "Set 'backup_success' variable"
       ansible.builtin.set_fact:
@@ -753,7 +753,7 @@
       ignore_errors: true
 
 - name: Backup Cleanup Block
-  when: backup.rclone.enable and backup_cleanup_enabled and backup_success
+  when: backup_rclone_enabled and backup_cleanup_enabled and backup_success
   block:
     - name: Determine number of existing backups
       ansible.builtin.shell: >

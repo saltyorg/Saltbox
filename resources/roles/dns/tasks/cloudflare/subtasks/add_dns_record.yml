@@ -73,20 +73,20 @@
 
 - name: Cloudflare | Add DNS Record | IPv4 Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_enabled.yml"
-  when: (dns.ipv4 | bool) and
+  when: dns_ipv4_enabled and
         ((not (((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)) and (cloudflare_ipv4_record.content == ipv4_address_public_template) and (cloudflare_ipv4_record.proxied == dns_proxy)))
          or not ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv4 Disable Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_disabled.yml"
-  when: (not (dns.ipv4 | bool)) and ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0))
+  when: (not dns_ipv4_enabled) and ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0))
 
 - name: Cloudflare | Add DNS Record | IPv6 Enabled Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_enabled.yml"
-  when: (dns.ipv6 | bool) and
+  when: dns_ipv6_enabled and
         ((not (((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)) and (cloudflare_ipv6_record.content == ipv6_address_public_template) and (cloudflare_ipv6_record.proxied == dns_proxy)))
          or not ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv6 Disable Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_disabled.yml"
-  when: (not (dns.ipv6 | bool)) and ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0))
+  when: (not dns_ipv6_enabled) and ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0))

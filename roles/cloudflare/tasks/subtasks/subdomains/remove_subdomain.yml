@@ -15,7 +15,7 @@
     state: absent
     type: A
     record: "saltbox"
-  when: dns.ipv4
+  when: dns_ipv4_enabled
 
 - name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' AAAA record from '{{ fld.stdout }}'"
   community.general.cloudflare_dns:
@@ -25,4 +25,4 @@
     state: absent
     type: AAAA
     record: "saltbox"
-  when: dns.ipv6
+  when: dns_ipv6_enabled

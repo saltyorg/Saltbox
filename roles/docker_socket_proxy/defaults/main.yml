@@ -29,7 +29,7 @@ docker_socket_proxy_role_docker_image: "{{ lookup('role_var', '_docker_image_rep
 # Envs
 docker_socket_proxy_role_docker_envs_default:
   TZ: "{{ tz }}"
-  DISABLE_IPV6: "{{ '0' if dns.ipv6 else '1' }}"
+  DISABLE_IPV6: "{{ '0' if dns_ipv6_enabled else '1' }}"
 docker_socket_proxy_role_docker_envs_custom: {}
 docker_socket_proxy_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='docker_socket_proxy')
                                           | combine(lookup('role_var', '_docker_envs_custom', role='docker_socket_proxy')) }}"

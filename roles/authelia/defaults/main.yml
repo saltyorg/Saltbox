@@ -187,7 +187,7 @@ authelia_role_access_control_rules:
       - "{{ user.domain | lower }}"
     policy: "{{ lookup('role_var', '_access_control_policy', role='authelia') }}"
 
-authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules', role='authelia') if lookup('role_var', '_access_control_whitelist_host', role='authelia') and ((dns.ipv4 | default(true)) or (dns.ipv6 | default(false))) else [] }}"
+authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules', role='authelia') if lookup('role_var', '_access_control_whitelist_host', role='authelia') and (dns_ipv4_enabled or dns_ipv6_enabled) else [] }}"
 
 authelia_role_access_control_whitelist_rules:
   - domain:
@@ -197,8 +197,8 @@ authelia_role_access_control_whitelist_rules:
     networks: "{{ lookup('role_var', '_access_control_whitelist_networks', role='authelia') | unique | reject('equalto', omit) | list }}"
 
 authelia_role_access_control_whitelist_networks:
-  - "{{ (ip_address_public + '/32') if (dns.ipv4 | default(true)) else omit }}"
-  - "{{ (ipv6_address_public + '/128') if (dns.ipv6 | default(false)) else omit }}"
+  - "{{ (ip_address_public + '/32') if dns_ipv4_enabled else omit }}"
+  - "{{ (ipv6_address_public + '/128') if dns_ipv6_enabled else omit }}"
 
 authelia_role_response_headers:
   - "Remote-User"

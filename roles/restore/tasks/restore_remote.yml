@@ -12,7 +12,7 @@
     msg:
       - "Rclone is not enabled and no local backup exists."
       - "You must either enable rclone, in the backup settings, or provide backup tarball files locally, to perform a restore."
-  when: (not backup.rclone.enable)
+  when: (not backup_rclone_enabled)
 
 - name: Cleanup backup location
   ansible.builtin.file:
