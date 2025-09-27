@@ -187,26 +187,40 @@
 
     # Stop Containers
 
-    - name: "Gather list of running Docker containers"
-      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.saltbox.saltbox_managed=true | xargs echo -n"
-      register: docker_containers
+    - name: "Gather Docker container information"
+      community.docker.docker_host_info:
+        containers: true
+        containers_filters:
+          label:
+            - "com.github.saltbox.saltbox_managed=true"
+          status:
+            - "running"
+      register: docker_info
       ignore_errors: true
 
-    - name: Set 'docker_containers' variable
+    - name: Extract and process container names
       ansible.builtin.set_fact:
-        docker_containers: "{{ docker_containers.stdout if (docker_containers is success) else '' }}"
+        docker_containers: "{{ docker_info.containers | map(attribute='Names') | map('first') | map('regex_replace', '^/', '') | reject('in', gluetun_instances | default(['gluetun'])) | sort | list }}"
+      when:
+        - (docker_info is success)
+        - (docker_info.containers is defined)
+        - (docker_info.containers | length > 0)
+
+    - name: Set empty list if no containers found
+      ansible.builtin.set_fact:
+        docker_containers: []
+      when: (docker_info is not success) or (docker_info.containers is not defined) or (docker_info.containers | length == 0)
 
     - name: Docker container tasks
-      when: (docker_containers | trim | length > 0)
+      when: (docker_containers | length > 0)
       block:
-        - name: Convert Docker containers string into a list
+        - name: Build list of containers to ignore
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers.split() | reject('in', gluetun_instances | default(['gluetun'])) | sort }}"
+            ignore_containers: "{{ reverse_proxy_apps + torrent_apps + backup2_ignore_containers }}"
 
         - name: Filter out ignored apps from Docker containers list
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers | difference(reverse_proxy_apps + torrent_apps + backup_ignore_containers) }}"
-            ignore_containers: "{{ reverse_proxy_apps + torrent_apps + backup_ignore_containers }}"
+            docker_containers: "{{ docker_containers | difference(ignore_containers) }}"
 
         - name: Convert Docker containers list back to string
           ansible.builtin.set_fact:
@@ -224,7 +238,9 @@
         - name: Stop Saltbox Docker containers
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
           vars:
-            _query_var: "{{ '?' + ignore_query_string if (ignore_query_string | length > 0) else '' }}"
+            _query_var: "{{ '?' + ignore_query_string
+                         if (ignore_query_string | length > 0)
+                         else '' }}"
 
         - name: "Stop all running Docker containers"
           ansible.builtin.shell: "docker stop {{ docker_containers_string }}"
