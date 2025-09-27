@@ -200,7 +200,7 @@
 
     - name: Extract and process container names
       ansible.builtin.set_fact:
-        docker_containers: "{{ docker_info.containers | map(attribute='Names') | map('first') | map('regex_replace', '^/', '') | reject('in', gluetun_instances | default(['gluetun'])) | sort | list }}"
+        docker_containers: "{{ docker_info.containers | map(attribute='Names') | map('first') | map('regex_replace', '^/', '') | reject('in', gluetun_instances | default(['gluetun'])) | sort }}"
       when:
         - (docker_info is success)
         - (docker_info.containers is defined)
