@@ -276,74 +276,81 @@
         - "/opt/systemd-backup"
         - "/opt/crontab-backup"
 
-    # Stop Containers
+    - name: Populate Service Facts
+      ansible.builtin.service_facts:
 
-    - name: "Gather Docker container information"
-      community.docker.docker_host_info:
-        containers: true
-        containers_filters:
-          label:
-            - "com.github.saltbox.saltbox_managed=true"
-          status:
-            - "running"
-      register: docker_info
-      ignore_errors: true
-
-    - name: Extract and process container names
+    - name: Set docker_service_running
       ansible.builtin.set_fact:
-        docker_containers: "{{ docker_info.containers | map(attribute='Names') | map('first') | map('regex_replace', '^/', '') | reject('in', gluetun_instances | default(['gluetun'])) | sort }}"
-      when:
-        - (docker_info is success)
-        - (docker_info.containers is defined)
-        - (docker_info.containers | length > 0)
+        docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
 
-    - name: Set empty list if no containers found
-      ansible.builtin.set_fact:
-        docker_containers: []
-      when: (docker_info is not success) or (docker_info.containers is not defined) or (docker_info.containers | length == 0)
-
-    - name: Docker container tasks
-      when: (docker_containers | length > 0)
+    - name: Stop Docker Container Tasks
+      when: docker_service_running
       block:
-        - name: Build list of containers to ignore
+        - name: "Gather Docker container information"
+          community.docker.docker_host_info:
+            containers: true
+            containers_filters:
+              label:
+                - "com.github.saltbox.saltbox_managed=true"
+              status:
+                - "running"
+          register: docker_info
+
+        - name: Extract and process container names
           ansible.builtin.set_fact:
-            ignore_containers: "{{ reverse_proxy_apps + torrent_apps + backup_ignore_containers }}"
+            docker_containers: "{{ docker_info.containers | map(attribute='Names') | map('first') | map('regex_replace', '^/', '') | reject('in', gluetun_instances | default(['gluetun'])) | sort }}"
+          when:
+            - (docker_info is success)
+            - (docker_info.containers is defined)
+            - (docker_info.containers | length > 0)
 
-        - name: Filter out ignored apps from Docker containers list
+        - name: Set empty list if no containers found
           ansible.builtin.set_fact:
-            docker_containers: "{{ docker_containers | difference(ignore_containers) }}"
+            docker_containers: []
+          when: (docker_info is not success) or (docker_info.containers is not defined) or (docker_info.containers | length == 0)
 
-        - name: Convert Docker containers list back to string
-          ansible.builtin.set_fact:
-            docker_containers_string: "{{ docker_containers | join(' ') }}"
-            ignore_query_string: >-
-              {% if docker_containers | length > 0 and ignore_containers | length > 0 %}
-                {%- set ignore_params = [] -%}
-                {% for container in ignore_containers %}
-                  {%- set _ = ignore_params.append('ignore=' ~ container) -%}
-                {%- endfor -%}
-                {{ ignore_params | join('&') }}
-              {%- else -%}
-              {% endif %}
+        - name: Docker container tasks
+          when: (docker_containers | length > 0)
+          block:
+            - name: Build list of containers to ignore
+              ansible.builtin.set_fact:
+                ignore_containers: "{{ reverse_proxy_apps + torrent_apps + backup_ignore_containers }}"
 
-        - name: Stop Saltbox Docker containers
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-          vars:
-            _query_var: "{{ '?' + ignore_query_string
-                         if (ignore_query_string | length > 0)
-                         else '' }}"
+            - name: Filter out ignored apps from Docker containers list
+              ansible.builtin.set_fact:
+                docker_containers: "{{ docker_containers | difference(ignore_containers) }}"
 
-        - name: "Stop all running Docker containers"
-          ansible.builtin.shell: "docker stop {{ docker_containers_string }}"
-          ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+            - name: Convert Docker containers list back to string
+              ansible.builtin.set_fact:
+                docker_containers_string: "{{ docker_containers | join(' ') }}"
+                ignore_query_string: >-
+                  {% if docker_containers | length > 0 and ignore_containers | length > 0 %}
+                    {%- set ignore_params = [] -%}
+                    {% for container in ignore_containers %}
+                      {%- set _ = ignore_params.append('ignore=' ~ container) -%}
+                    {%- endfor -%}
+                    {{ ignore_params | join('&') }}
+                  {%- else -%}
+                  {% endif %}
 
-        - name: "Notify | Saltbox Backup: Stopped Docker containers"
-          ansible.builtin.include_role:
-            name: notify
-          vars:
-            message: "{{ backup_instance }} Backup: Stopped Docker containers."
-          when: backup_notify_stop_docker_containers
+            - name: Stop Saltbox Docker containers
+              ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
+              vars:
+                _query_var: "{{ '?' + ignore_query_string
+                            if (ignore_query_string | length > 0)
+                            else '' }}"
+
+            - name: "Stop all running Docker containers"
+              ansible.builtin.shell: "docker stop {{ docker_containers_string }}"
+              ignore_errors: true
+              when: (docker_containers_string | trim | length > 0)
+
+            - name: "Notify | Saltbox Backup: Stopped Docker containers"
+              ansible.builtin.include_role:
+                name: notify
+              vars:
+                message: "{{ backup_instance }} Backup: Stopped Docker containers."
+              when: backup_notify_stop_docker_containers
 
     # Custom User Files
 
@@ -359,16 +366,11 @@
         - "{{ backup_user_defined_files }}"
       when: (backup_user_defined_files | length > 0)
 
-    # Services
-
-    - name: Populate Service Facts
-      ansible.builtin.service_facts:
-
-      # Stop Cloudplow
+    # Stop Cloudplow
 
     - name: Check if 'cloudplow.service' exists
       ansible.builtin.stat:
-        path: "/etc/systemd/system/cloudplow.service"
+        path: "/etc/systemd/system/{{ cloudplow_service_name }}.service"
       register: cloudplow_service
 
     - name: Stop 'cloudplow' service block
@@ -376,11 +378,11 @@
       block:
         - name: Get 'cloudplow' service state
           ansible.builtin.set_fact:
-            cloudplow_service_running: "{{ (services['cloudplow.service'] is defined) and (services['cloudplow.service']['state'] == 'running') }}"
+            cloudplow_service_running: "{{ (services[cloudplow_service_name + '.service'] is defined) and (services[cloudplow_service_name + '.service']['state'] == 'running') }}"
 
         - name: Stop 'cloudplow' service
           ansible.builtin.systemd_service:
-            name: cloudplow
+            name: "{{ cloudplow_service_name }}"
             state: stopped
           when: cloudplow_service_running
 
@@ -408,7 +410,7 @@
     # Start Docker containers when snapshot is enabled
 
     - name: Snapshot | Start Docker containers
-      when: use_snapshot
+      when: docker_service_running and use_snapshot
       block:
         - name: "Snapshot | Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
@@ -527,7 +529,7 @@
     # Start Docker containers when snapshot is not enabled
 
     - name: Start Docker Containers
-      when: (not use_snapshot)
+      when: docker_service_running and (not use_snapshot)
       block:
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
@@ -680,7 +682,7 @@
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd_service:
-        name: cloudplow
+        name: "{{ cloudplow_service_name }}"
         state: started
       when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
 
@@ -727,7 +729,7 @@
       ignore_errors: true
 
     - name: Start Docker Containers
-      when: (not use_snapshot)
+      when: docker_service_running and (not use_snapshot)
       block:
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:
@@ -744,7 +746,7 @@
 
     - name: "Start 'cloudplow' service"
       ansible.builtin.systemd_service:
-        name: cloudplow
+        name: "{{ cloudplow_service_name }}"
         state: started
       when: (cloudplow_service is defined) and cloudplow_service.stat.exists and cloudplow_service_running
 
