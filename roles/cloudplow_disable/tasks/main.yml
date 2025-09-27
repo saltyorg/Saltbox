@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: Cloudplow | Disable Task                      #
+# Title:         Saltbox: Cloudplow Disable Role                        #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Delete Legacy Service
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/delete_service.yml"
+  vars:
+    _service_name: "{{ cloudplow_service_name_old }}"
+
 - name: Delete Service
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/delete_service.yml"
   vars:

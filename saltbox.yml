@@ -47,6 +47,7 @@
     - { role: portainer, tags: ['portainer'] }
     - { role: organizr, tags: ['organizr'] }
     - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow', 'cloudplow-reset'], when: ['use_cloudplow'] }
+    - { role: cloudplow_disable, tags: ['cloudplow-disable']}
     - { role: sonarr, tags: ['sonarr'] }
     - { role: radarr, tags: ['radarr'] }
     - { role: lidarr, tags: ['lidarr'] }

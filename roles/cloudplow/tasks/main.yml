@@ -11,14 +11,6 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/delete_service.yml"
   vars:
     _service_name: "{{ cloudplow_service_name_old }}"
-  tags:
-    - "cloudplow-disable"
-
-- name: Import Disable Task
-  ansible.builtin.include_tasks: "subtasks/disable.yml"
-  when: ('cloudplow-disable' in ansible_run_tags)
-  tags:
-    - "cloudplow-disable"
 
 - name: Reset Cloudplow directory
   ansible.builtin.file:
