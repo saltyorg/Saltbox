@@ -1,0 +1,72 @@
+# Saltbox Backup Configuration Schema
+# This schema validates the backup_config.yml configuration file
+
+backup:
+  type: object
+  required: true
+  properties:
+    cron:
+      type: object
+      required: true
+      properties:
+        cron_time:
+          type: cron_time
+          required: true
+
+    local:
+      type: object
+      required: true
+      properties:
+        enable:
+          type: ansible_bool
+          required: true
+        destination:
+          type: string
+          required: true
+
+    misc:
+      type: object
+      required: true
+      properties:
+        snapshot:
+          type: ansible_bool
+          required: true
+
+    rclone:
+      type: object
+      required: true
+      properties:
+        enable:
+          type: ansible_bool
+          required: true
+        destination:
+          type: string
+          required: true
+        template:
+          type: string
+          required: true
+
+    restore_service:
+      type: object
+      required: true
+      properties:
+        user:
+          type: string
+          required: false
+        pass:
+          type: string
+          required: false
+
+    rsync:
+      type: object
+      required: true
+      properties:
+        enable:
+          type: ansible_bool
+          required: true
+        destination:
+          type: string
+          required: true
+        port:
+          type: number
+          required: true

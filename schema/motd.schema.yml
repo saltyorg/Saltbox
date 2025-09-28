@@ -1,0 +1,232 @@
+# Saltbox MOTD Configuration Schema
+# This schema validates the motd.yml configuration file
+
+sonarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      apikey:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+radarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      apikey:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+lidarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      apikey:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+readarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      apikey:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+plex:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      token:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+jellyfin:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      token:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+emby:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      token:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+sabnzbd:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      apikey:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+nzbget:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      user:
+        type: string
+        required: false
+        required_with: ["url"]
+      password:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+qbittorrent:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      user:
+        type: string
+        required: false
+        required_with: ["url"]
+      password:
+        type: string
+        required: false
+        required_with: ["url"]
+      timeout:
+        type: number
+        required: false
+
+rtorrent:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      name:
+        type: string
+        required: true
+      url:
+        type: url
+        required: false
+      user:
+        type: string
+        required: false
+      password:
+        type: string
+        required: false
+      timeout:
+        type: number
+        required: false

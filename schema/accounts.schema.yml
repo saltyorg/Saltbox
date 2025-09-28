@@ -1,0 +1,57 @@
+# Saltbox Accounts Configuration Schema
+# This schema validates the accounts.yml configuration file
+
+user:
+  type: object
+  required: true
+  properties:
+    name:
+      type: string
+      required: true
+      min_length: 1
+    email:
+      type: string
+      required: true
+      format: email
+      not_equals: "your@email.com"
+    domain:
+      type: hostname
+      required: true
+      not_equals: "testsaltbox.ml"
+    pass:
+      type: password
+      required: true
+      min_length: 1
+      not_equals: "password1234"
+    ssh_key:
+      type: ssh_key_or_url
+      required: false
+
+cloudflare:
+  type: object
+  required: false
+  custom_validator: "validate_cloudflare_config"
+  properties:
+    api:
+      type: string
+      required_with: ["email"]
+    email:
+      type: string
+      format: email
+      required_with: ["api"]
+
+dockerhub:
+  type: object
+  required: false
+  custom_validator: "validate_dockerhub_config"
+  properties:
+    user:
+      type: string
+      required_with: ["token"]
+    token:
+      type: string
+      required_with: ["user"]
+
+apprise:
+  type: string
+  required: false
