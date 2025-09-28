@@ -559,21 +559,15 @@ backup_snapshot_enabled: "{{ backup.misc.snapshot | bool }}"
 reverse_proxy_apps:
   - traefik
 
-torrent_apps_sandbox:
-  - "{{ delugevpn_name
-     if (delugevpn_name is defined)
-     else 'delugevpn' }}"
-  - "{{ qbittorrentvpn_instances
-     if (qbittorrentvpn_instances is defined)
-     else 'qbittorrentvpn' }}"
-  - "{{ transmission_instances
-     if (transmission_instances is defined)
-     else 'transmission' }}"
-  - "{{ transmissionvpn_name
-     if (transmissionvpn_name is defined)
-     else 'transmissionvpn' }}"
+torrent_apps_saltbox:
+  - "{{ deluge_instances | default('deluge') }}"
+  - "{{ qbittorrent_instances | default('qbittorrent') }}"
+  - "{{ rutorrent_name | default('rutorrent') }}"
 
-torrent_apps: "{{ (deluge_instances
-                  + qbittorrent_instances
-                  + [rutorrent_name]
-                  + (torrent_apps_sandbox | flatten)) | unique | sort }}"
+torrent_apps_sandbox:
+  - "{{ delugevpn_name | default('delugevpn') }}"
+  - "{{ qbittorrentvpn_instances | default('qbittorrentvpn') }}"
+  - "{{ transmission_instances | default('transmission') }}"
+  - "{{ transmissionvpn_name | default('transmissionvpn') }}"
+
+torrent_apps: "{{ (torrent_apps_saltbox + torrent_apps_sandbox) | flatten | unique | sort }}"
