@@ -1,0 +1,85 @@
+# Saltbox Advanced Settings Configuration Schema
+# This schema validates the adv_settings.yml configuration file
+
+dns:
+  type: object
+  required: true
+  properties:
+    ipv4:
+      type: ansible_bool
+      required: true
+    ipv6:
+      type: ansible_bool
+      required: true
+    proxied:
+      type: ansible_bool
+      required: true
+
+docker:
+  type: object
+  required: true
+  properties:
+    json_driver:
+      type: ansible_bool
+      required: true
+
+gpu:
+  type: object
+  required: true
+  properties:
+    intel:
+      type: ansible_bool
+      required: true
+
+mounts:
+  type: object
+  required: true
+  properties:
+    ipv4_only:
+      type: ansible_bool
+      required: true
+
+system:
+  type: object
+  required: true
+  properties:
+    timezone:
+      type: timezone
+      required: true
+
+traefik:
+  type: object
+  required: true
+  properties:
+    cert:
+      type: object
+      required: true
+      properties:
+        http_validation:
+          type: ansible_bool
+          required: true
+        zerossl:
+          type: ansible_bool
+          required: true
+    error_pages:
+      type: ansible_bool
+      required: true
+    hsts:
+      type: ansible_bool
+      required: true
+    metrics:
+      type: ansible_bool
+      required: true
+    provider:
+      type: string
+      required: true
+    subdomains:
+      type: object
+      required: true
+      properties:
+        dash:
+          type: subdomain
+          required: true
+        metrics:
+          type: subdomain
+          required: true

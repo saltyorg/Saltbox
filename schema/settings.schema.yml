@@ -1,0 +1,80 @@
+# Saltbox Settings Configuration Schema
+# This schema validates the settings.yml configuration file
+
+authelia:
+  type: object
+  required: true
+  properties:
+    master:
+      type: ansible_bool
+      required: true
+    subdomain:
+      type: subdomain
+      required: true
+
+downloads:
+  type: directory_path
+  required: true
+
+shell:
+  type: string
+  required: true
+
+transcodes:
+  type: directory_path
+  required: true
+
+rclone:
+  type: object
+  required: true
+  properties:
+    enabled:
+      type: ansible_bool
+      required: true
+    version:
+      type: string
+      required: true
+    remotes:
+      type: array
+      required: true
+      items:
+        type: object
+        properties:
+          remote:
+            type: string
+            required: true
+          settings:
+            type: object
+            required: true
+            properties:
+              enable_refresh:
+                type: ansible_bool
+                required: true
+              mount:
+                type: ansible_bool
+                required: true
+              template:
+                type: rclone_template
+                required: true
+              union:
+                type: ansible_bool
+                required: true
+              upload:
+                type: ansible_bool
+                required: true
+              upload_from:
+                type: directory_path
+                required: true
+              vfs_cache:
+                type: object
+                required: true
+                properties:
+                  enabled:
+                    type: ansible_bool
+                    required: true
+                  max_age:
+                    type: string
+                    required: true
+                  size:
+                    type: string
+                    required: true

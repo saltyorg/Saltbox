@@ -1,0 +1,13 @@
+# Saltbox Hetzner VLAN Configuration Schema
+# This schema validates the hetzner_vlan.yml configuration file
+
+hetzner_vlan:
+  type: object
+  required: true
+  properties:
+    client_number:
+      type: number
+      required: true
+    vlan_id:
+      type: number
+      required: true
