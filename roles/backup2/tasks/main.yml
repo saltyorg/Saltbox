@@ -7,6 +7,20 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Include role default vars
+  ansible.builtin.include_vars: "/srv/git/saltbox/roles/{{ item }}/defaults/main.yml"
+  loop:
+    - "cloudplow"
+
+- name: Check if 'localhost.yml' exists
+  ansible.builtin.stat:
+    path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  register: localhost_inventory_file
+
+- name: Import Inventory variables
+  ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  when: localhost_inventory_file.stat.exists
+
 - name: Backup
   block:
     - name: "Set 'backup2_success' variable"
