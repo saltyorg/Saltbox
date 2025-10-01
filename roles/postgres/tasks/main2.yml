@@ -88,7 +88,7 @@
             postgres_docker_image: "{{ lookup('vars', postgres_name + '_docker_image_repo', default=postgres_docker_image_repo)
                                       + ':' + postgres_major_version + '-alpine' }}"
             postgres_docker_volumes_default:
-              - "{{ postgres_paths_location }}_backup:/var/lib/postgresql/data"
+              - "{{ postgres_paths_location }}_backup:/data"
               - "/etc/passwd:/etc/passwd:ro"
 
         - name: Sleep for 60 seconds
