@@ -24,7 +24,7 @@
     kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
     name: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }}"
     state: absent
-    stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='10') }}"
+    stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
   register: remove_docker_result
   retries: "{{ ansible_retry_count
