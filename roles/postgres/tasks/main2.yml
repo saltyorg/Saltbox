@@ -118,6 +118,9 @@
           community.docker.docker_container:
             name: "{{ item }}"
             state: absent
+            container_default_behavior: compatibility
+            stop_timeout: "{{ lookup('role_var', '_docker_stop_timeout', default='180') }}"
+            tls_hostname: localhost
           loop:
             - "{{ postgres_name }}_old"
             - "{{ postgres_name }}_new"
