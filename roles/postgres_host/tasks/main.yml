@@ -41,9 +41,7 @@
 
 - name: Install PostgreSQL packages for specified versions
   ansible.builtin.apt:
-    name:
-      - "postgresql-{{ item }}"
-      - "postgresql-contrib-{{ item }}"
+    name: "postgresql-{{ item }}"
     state: latest
   loop: "{{ postgres_host_role_versions }}"
 
@@ -135,41 +133,39 @@
   become_user: "{{ user.name }}"
   when: ('not_found' in item.stdout)
 
-- name: Update PostgreSQL systemd service user
-  ansible.builtin.lineinfile:
-    path: "/lib/systemd/system/postgresql@.service"
-    regexp: '^User='
-    line: "User={{ user.name }}"
-    insertafter: '^\[Service\]'
-    backup: true
-  register: systemd_user_changed
+- name: Create systemd override directory for PostgreSQL service
+  ansible.builtin.file:
+    path: "/etc/systemd/system/postgresql@.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
-- name: Update PostgreSQL systemd service group
-  ansible.builtin.lineinfile:
-    path: "/lib/systemd/system/postgresql@.service"
-    regexp: '^Group='
-    line: "Group={{ user.name }}"
-    insertafter: '^\[Service\]'
-    backup: true
-  register: systemd_group_changed
+- name: Create systemd override for PostgreSQL service
+  ansible.builtin.copy:
+    content: |
+      [Service]
+      User={{ user.name }}
+      Group={{ user.name }}
 
-- name: Reload systemd daemon after service changes
+      # Ensure runtime directory exists and has correct ownership
+      ExecStartPre=+/bin/mkdir -p /var/run/postgresql
+      ExecStartPre=+/bin/chown -R {{ user.name }}:{{ user.name }} /var/run/postgresql
+      ExecStartPre=+/bin/chmod 0775 /var/run/postgresql
+
+      # Ensure log directory has correct ownership
+      ExecStartPre=+/bin/mkdir -p /var/run/postgresql
+      ExecStartPre=+/bin/chown -R {{ user.name }}:{{ user.name }} /var/log/postgresql
+    dest: "/etc/systemd/system/postgresql@.service.d/override.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  register: postgres_systemd_override
+
+- name: Reload systemd daemon after override changes
   ansible.builtin.systemd:
     daemon_reload: true
-  when: systemd_user_changed.changed or systemd_group_changed.changed
-
-- name: Change ownership of PostgreSQL directories to custom user
-  ansible.builtin.file:
-    path: "{{ item }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    recurse: true
-  loop:
-    - "{{ postgres_host_role_data_directory }}"
-    - "/etc/postgresql/{{ postgres_host_role_version }}"
-    - "/var/log/postgresql"
-    - "/var/run/postgresql"
-  when: systemd_user_changed.changed or systemd_group_changed.changed
+  when: postgres_systemd_override.changed
 
 - name: Calculate desired port assignments based on version order
   ansible.builtin.set_fact:
