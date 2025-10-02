@@ -22,11 +22,19 @@ docker_dns: []
 # docker_config_custom:
 #   debug: "true"
 docker_config_custom: {}
+
+# CPU and Memory defaults
 docker_cpus_default: ""
 docker_memory_default: ""
+
 # Skip Container startup during core, saltbox, mediabox or feederbox
 # If the kernel has been updated and a reboot will happen
 docker_skip_start_during_meta_tag: "{{ saltbox_auto_reboot }}"
+
+# Toggles pruning of dangling images after container creation.
+docker_create_image_prune: true
+docker_create_image_prune_delay: true
+docker_create_image_prune_delay_timeout: 10
 
 ################################
 # Lookup
