@@ -39,7 +39,7 @@ postgres_role_docker_container: "{{ postgres_name }}"
 
 # Image
 postgres_role_docker_image_pull: true
-postgres_role_docker_image_tag: "12-alpine"
+postgres_role_docker_image_tag: "17-alpine"
 postgres_role_docker_image_repo: "postgres"
 postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres') }}:{{ lookup('role_var', '_docker_image_tag', role='postgres') }}"
 
