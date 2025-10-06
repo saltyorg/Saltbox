@@ -53,7 +53,6 @@ import hashlib
 import os
 import traceback
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.pycompat24 import get_exception
 
 
 def generate_qbittorrent_hash(plain_passwd: str) -> str:
@@ -115,7 +114,7 @@ def main():
         module.fail_json(msg=f"Failed to generate qBittorrent hash: {str(err)}", **result)
     except Exception as e:
          # Catch any other unexpected errors during execution
-         module.fail_json(msg=f"An unexpected error occurred: {get_exception()}", **result)
+         module.fail_json(msg=f"An unexpected error occurred: {str(e)}", **result)
 
 
     # Exit successfully, returning the hash

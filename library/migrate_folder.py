@@ -107,7 +107,7 @@ import stat
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.pycompat24 import get_exception
+
 
 # Helper to safely get UID/GID
 def get_id_info(module, owner=None, group=None):
