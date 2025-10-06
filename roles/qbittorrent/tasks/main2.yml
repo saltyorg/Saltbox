@@ -46,13 +46,13 @@
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ qbittorrent_role_service_name }}"
     state: absent
-  when: qbittorrent_service.stat.exists and not lookup('role_var', '_host_install', role='qbittorrent')
+  when: qbittorrent_service.stat.exists and (not lookup('role_var', '_host_install', role='qbittorrent'))
 
 - name: Remove '{{ qbittorrent_name }}-nox' file
   ansible.builtin.file:
     path: "/usr/bin/{{ qbittorrent_name }}-nox"
     state: absent
-  when: qbittorrent_service.stat.exists and not lookup('role_var', '_host_install', role='qbittorrent')
+  when: qbittorrent_service.stat.exists and (not lookup('role_var', '_host_install', role='qbittorrent'))
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
@@ -64,7 +64,6 @@
 
 - name: Pre-Install Tasks
   ansible.builtin.include_tasks: "subtasks/pre-install/main.yml"
-  when: (not continuous_integration)
 
 - name: Host Install
   when: lookup('role_var', '_host_install', role='qbittorrent')
@@ -121,4 +120,4 @@
 
 - name: Post-Install Tasks
   ansible.builtin.include_tasks: "subtasks/post-install/main.yml"
-  when: (not continuous_integration) and (not qbittorrent_role_paths_conf_stat.stat.exists)
+  when: (not qbittorrent_role_paths_conf_stat.stat.exists)
