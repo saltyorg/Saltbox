@@ -20,6 +20,10 @@ rutorrent_name: rutorrent
 rutorrent_role_paths_folder: "{{ rutorrent_name }}"
 rutorrent_role_paths_location: "{{ server_appdata_path }}/{{ rutorrent_role_paths_folder }}"
 rutorrent_role_paths_downloads_location: "{{ downloads_torrents_path }}/{{ rutorrent_role_paths_folder }}"
+rutorrent_role_paths_config_php_location: "{{ rutorrent_role_paths_location }}/rutorrent/settings/config.php"
+rutorrent_role_paths_rtorrent_rc_location: "{{ rutorrent_role_paths_location }}/rtorrent/rtorrent.rc"
+rutorrent_role_paths_php_local_ini_location: "{{ rutorrent_role_paths_location }}/php/php-local.ini"
+rutorrent_role_paths_plugins_ini_location: "{{ rutorrent_role_paths_location }}/rutorrent/settings/plugins.ini"
 rutorrent_role_paths_folders_list:
   - "{{ rutorrent_role_paths_location }}"
   - "{{ rutorrent_role_paths_location }}/plugins"
@@ -28,12 +32,6 @@ rutorrent_role_paths_folders_list:
   - "{{ rutorrent_role_paths_downloads_location }}/completed"
   - "{{ rutorrent_role_paths_downloads_location }}/incoming"
   - "{{ rutorrent_role_paths_downloads_location }}/watched"
-
-# Config files
-rutorrent_role_paths_config_php_location: "{{ rutorrent_role_paths_location }}/rutorrent/settings/config.php"
-rutorrent_role_paths_rtorrent_rc_location: "{{ rutorrent_role_paths_location }}/rtorrent/rtorrent.rc"
-rutorrent_role_paths_php_local_ini_location: "{{ rutorrent_role_paths_location }}/php/php-local.ini"
-rutorrent_role_paths_plugins_ini_location: "{{ rutorrent_role_paths_location }}/rutorrent/settings/plugins.ini"
 
 ################################
 # Web
@@ -74,7 +72,9 @@ rutorrent_role_traefik_api_endpoint: "PathPrefix(`/RPC2`)"
 # Config
 ################################
 
+# Toggles if public tracker functionality is enabled
 rutorrent_role_config_public_trackers: false
+# Path used by the diskspace plugin to check usage
 rutorrent_role_config_diskspace_path: "/mnt"
 
 ## New Installs
