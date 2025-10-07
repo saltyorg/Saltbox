@@ -46,7 +46,7 @@ radarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role
 
 radarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='radarr') }}"
 radarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='radarr') }}"
-radarr_role_dns_proxy: "{{ dns.proxied }}"
+radarr_role_dns_proxy: dns_proxied
 
 ################################
 # Traefik

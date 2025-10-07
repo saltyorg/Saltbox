@@ -46,7 +46,7 @@ lidarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role
 
 lidarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='lidarr') }}"
 lidarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='lidarr') }}"
-lidarr_role_dns_proxy: "{{ dns.proxied }}"
+lidarr_role_dns_proxy: dns_proxied
 
 ################################
 # Traefik

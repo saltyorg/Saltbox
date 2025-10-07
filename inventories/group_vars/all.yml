@@ -531,6 +531,7 @@ svm: https://svm.saltbox.dev/version?url=
 ################################
 
 reboot_is_necessary: false
+dns_proxied: "{{ dns.proxied | bool }}"
 skip_dns: "{{ not (dns_ipv4_enabled or dns_ipv6_enabled) }}"
 role_dns_enabled: "{{ lookup('role_var', '_dns_enabled', default=true) | bool }}"
 dns_ipv4_enabled: "{{ dns.ipv4 | bool }}"

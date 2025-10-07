@@ -46,7 +46,7 @@ deluge_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role
 
 deluge_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='deluge') }}"
 deluge_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='deluge') }}"
-deluge_role_dns_proxy: "{{ dns.proxied }}"
+deluge_role_dns_proxy: dns_proxied
 
 ################################
 # Traefik

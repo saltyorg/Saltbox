@@ -90,7 +90,7 @@ qbittorrent_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain',
 
 qbittorrent_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='qbittorrent') }}"
 qbittorrent_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='qbittorrent') }}"
-qbittorrent_role_dns_proxy: "{{ dns.proxied }}"
+qbittorrent_role_dns_proxy: dns_proxied
 
 ################################
 # Traefik

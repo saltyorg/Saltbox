@@ -46,7 +46,7 @@ nzbget_role_web_local_url_web_login: "{{ 'http://' + lookup('role_var', '_web_lo
 
 nzbget_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='nzbget') }}"
 nzbget_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='nzbget') }}"
-nzbget_role_dns_proxy: "{{ dns.proxied }}"
+nzbget_role_dns_proxy: dns_proxied
 
 ################################
 # Traefik
