@@ -64,13 +64,6 @@ lidarr_role_traefik_api_enabled: true
 lidarr_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`) || PathPrefix(`/ping`)"
 
 ################################
-# API
-################################
-
-# default to blank
-lidarr_role_api_key:
-
-################################
 # THEME
 ################################
 

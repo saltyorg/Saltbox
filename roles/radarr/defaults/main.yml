@@ -64,13 +64,6 @@ radarr_role_traefik_api_enabled: true
 radarr_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`) || PathPrefix(`/ping`)"
 
 ################################
-# API
-################################
-
-# default to blank
-radarr_api_key:
-
-################################
 # THEME
 ################################
 

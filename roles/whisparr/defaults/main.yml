@@ -64,13 +64,6 @@ whisparr_role_traefik_api_enabled: true
 whisparr_role_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
-# API
-################################
-
-# default to blank
-whisparr_api_key:
-
-################################
 # THEME
 ################################
 

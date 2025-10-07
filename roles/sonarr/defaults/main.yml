@@ -64,13 +64,6 @@ sonarr_role_traefik_api_enabled: true
 sonarr_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/feed`) || PathPrefix(`/ping`)"
 
 ################################
-# API
-################################
-
-# default to blank
-sonarr_api_key:
-
-################################
 # THEME
 ################################
 
