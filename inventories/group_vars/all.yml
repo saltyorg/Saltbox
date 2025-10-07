@@ -203,7 +203,7 @@ traefik_error_pages_middleware: "{{ 'error-pages-middleware@docker,'
 traefik_default_robot: true
 traefik_default_gzip: false
 traefik_default_autodetect: false
-traefik_default_cloudflarewarp: "{{ lookup('role_var', '_dns_proxy', default=(dns.proxied | bool)) and cloudflare_is_enabled and traefik_plugin_cloudflarewarp_enabled }}"
+traefik_default_cloudflarewarp: "{{ lookup('role_var', '_dns_proxy', default=dns_proxied) and cloudflare_is_enabled and traefik_plugin_cloudflarewarp_enabled }}"
 
 traefik_default_middleware_default: "{{ traefik_error_pages_middleware
                                         + 'globalHeaders@file,secureHeaders@file'
