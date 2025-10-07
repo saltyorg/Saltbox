@@ -60,7 +60,7 @@ tautulli_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/newslett
 tautulli_role_traefik_gzip_enabled: false
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

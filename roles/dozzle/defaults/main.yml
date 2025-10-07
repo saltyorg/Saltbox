@@ -73,7 +73,7 @@ dozzle_role_traefik_api_enabled: false
 dozzle_role_traefik_api_endpoint: ""
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

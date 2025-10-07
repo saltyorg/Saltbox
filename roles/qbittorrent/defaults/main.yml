@@ -108,7 +108,7 @@ qbittorrent_role_traefik_api_enabled: true
 qbittorrent_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/command`) || PathPrefix(`/query`) || PathPrefix(`/login`) || PathPrefix(`/sync`)"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

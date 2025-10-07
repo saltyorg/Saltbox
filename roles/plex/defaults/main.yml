@@ -131,7 +131,7 @@ plex_role_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_role_webtools_traefik_router: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') }}"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

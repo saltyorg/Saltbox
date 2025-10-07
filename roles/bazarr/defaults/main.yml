@@ -57,7 +57,7 @@ bazarr_role_traefik_api_enabled: true
 bazarr_role_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

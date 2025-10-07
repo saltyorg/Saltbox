@@ -57,7 +57,7 @@ jackett_role_traefik_api_enabled: true
 jackett_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/dl`)"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

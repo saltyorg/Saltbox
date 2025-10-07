@@ -63,7 +63,7 @@ portainer_role_traefik_api_enabled: true
 portainer_role_traefik_api_endpoint: "PathPrefix(`/api/websocket/`)"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

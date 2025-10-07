@@ -139,7 +139,7 @@ rutorrent_role_config_existing_installs_rutorrent_rc_settings_list: "{{ lookup('
                                                                         + lookup('role_var', '_config_existing_installs_rutorrent_rc_settings_custom', role='rutorrent') }}"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

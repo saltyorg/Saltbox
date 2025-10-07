@@ -173,7 +173,7 @@ nzbget_role_scripts_local_copy_list: "{{ lookup('role_var', '_scripts_local_copy
                                          + lookup('role_var', '_scripts_local_copy_custom', role='nzbget') }}"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

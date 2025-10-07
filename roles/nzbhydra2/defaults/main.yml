@@ -59,7 +59,7 @@ nzbhydra2_role_traefik_api_enabled: true
 nzbhydra2_role_traefik_api_endpoint: "PathPrefix(`/api`) || PathPrefix(`/getnzb`) || PathPrefix(`/gettorrent`) || PathPrefix(`/rss`) || PathPrefix(`/torznab/api`)"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park

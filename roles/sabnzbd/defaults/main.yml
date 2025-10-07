@@ -89,7 +89,7 @@ sabnzbd_role_config_settings_list: "{{ lookup('role_var', '_config_settings_defa
                                        + lookup('role_var', '_config_settings_custom', role='sabnzbd') }}"
 
 ################################
-# THEME
+# Theme
 ################################
 
 # Options can be found at https://github.com/themepark-dev/theme.park
