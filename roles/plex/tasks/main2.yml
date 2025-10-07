@@ -7,6 +7,14 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Ensure that ports aren't opened when using multiple instances
+  ansible.builtin.assert:
+    that:
+      - not plex_role_open_main_ports
+      - not plex_role_open_local_ports
+    fail_msg: "Port opening must be disabled when using multiple Plex instances"
+  when: (plex_instances | length > 1)
+
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:

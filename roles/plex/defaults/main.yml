@@ -17,26 +17,33 @@ plex_instances: ["plex"]
 # Settings
 ################################
 
+# Do not enable globally if deploying multiple instances
 plex_role_open_main_ports: false
+# Do not enable globally if deploying multiple instances
 plex_role_open_local_ports: false
 plex_role_plugin_webtools: false
 plex_role_plugin_sub_zero: false
+# Disables Traefik's HTTP to HTTPS redirect for Plex
+# Allows older clients with certificate issues to connect insecurely
 plex_role_insecure: false
+# Adds the IP specified here to the advertised urls Plex broadcasts to clients
+# Useful to avoid traffic going through your WAN when hairpin NAT is not available
 plex_role_lan_ip: ""
+# For instances this works the same as usual plex2_auth_token_proxy for an instance named plex2.
+plex_role_auth_token_proxy: ""
 
 ################################
 # Proxy
 ################################
 
-# For instances this works the same as usual plex2_auth_token_proxy for an instance named plex2.
-plex_role_auth_token_proxy: ""
-
+# Do not edit or override using the inventory
 plex_proxy_dict:
   http_proxy: "{{ plex_role_proxy_lookup if (plex_role_proxy_lookup | length > 0) else '' }}"
   https_proxy: "{{ plex_role_proxy_lookup if (plex_role_proxy_lookup | length > 0) else '' }}"
 
 # Do not edit or override using the inventory
 plex_role_proxy_lookup: "{{ lookup('role_var', '_auth_token_proxy', role='plex') }}"
+# Do not edit or override using the inventory
 plex_role_network_modes: []
 
 ################################
@@ -70,8 +77,10 @@ plex_role_paths_db_blobs_location: "{{ plex_role_paths_plugin_support_location }
 plex_role_web_subdomain: "{{ plex_name }}"
 plex_role_web_domain: "{{ user.domain }}"
 plex_role_web_port: "32400"
+# Do not edit or override using the inventory
 plex_role_web_scheme: "https"
 plex_role_web_http_port: "32400"
+# Do not edit or override using the inventory
 plex_role_web_http_scheme: "http"
 plex_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
                     if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
@@ -134,11 +143,14 @@ plex_role_webtools_traefik_router: "{{ lookup('role_var', '_webtools_web_subdoma
 # Theme
 ################################
 
-# Options can be found at https://github.com/themepark-dev/theme.park
 plex_role_themepark_enabled: false
+# Do not edit or override using the inventory
 plex_role_themepark_app: "plex"
+# Options can be found at https://docs.theme-park.dev/themes/plex/
 plex_role_themepark_theme: "{{ global_themepark_theme }}"
+# Allows you to override the url where CSS files can be found
 plex_role_themepark_domain: "{{ global_themepark_domain }}"
+# Options can be found at https://docs.theme-park.dev/themes/addons/
 plex_role_themepark_addons: []
 
 ################################
@@ -160,6 +172,7 @@ plex_role_docker_ports_32400: "{{ port_lookup_32400.meta.port
                                else '32400' }}"
 
 plex_role_docker_ports_defaults: []
+# Skip docs
 plex_role_docker_ports_local:
   - "1900:1900/udp"
   - "5353:5353/udp"
@@ -168,6 +181,7 @@ plex_role_docker_ports_local:
   - "32412:32412/udp"
   - "32414:32414/udp"
   - "32469:32469"
+# Skip docs
 plex_role_docker_ports_ui:
   - "{{ plex_role_docker_ports_32400 }}:{{ lookup('vars', plex_name + '_web_port', default=plex_role_web_port) }}"
 plex_role_docker_ports_custom: []
