@@ -45,7 +45,7 @@ grafana_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', rol
 
 grafana_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='grafana') }}"
 grafana_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='grafana') }}"
-grafana_role_dns_proxy: dns_proxied
+grafana_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

@@ -46,7 +46,7 @@ whisparr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', ro
 
 whisparr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='whisparr') }}"
 whisparr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='whisparr') }}"
-whisparr_role_dns_proxy: dns_proxied
+whisparr_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

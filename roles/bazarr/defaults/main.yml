@@ -39,7 +39,7 @@ bazarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role
 
 bazarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='bazarr') }}"
 bazarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='bazarr') }}"
-bazarr_role_dns_proxy: dns_proxied
+bazarr_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

@@ -132,10 +132,10 @@ traefik_role_access_buffer: 100
 
 traefik_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='traefik') }}"
 traefik_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='traefik') }}"
-traefik_role_dns_proxy: dns_proxied
+traefik_role_dns_proxy: "{{ dns_proxied }}"
 traefik_role_metrics_dns_record: "{{ lookup('role_var', '_metrics_subdomain', role='traefik') }}"
 traefik_role_metrics_dns_zone: "{{ lookup('role_var', '_metrics_domain', role='traefik') }}"
-traefik_role_metrics_dns_proxy: dns_proxied
+traefik_role_metrics_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # DNS Provider

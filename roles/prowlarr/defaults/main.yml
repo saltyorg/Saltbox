@@ -45,7 +45,7 @@ prowlarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', ro
 
 prowlarr_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='prowlarr') }}"
 prowlarr_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='prowlarr') }}"
-prowlarr_role_dns_proxy: dns_proxied
+prowlarr_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

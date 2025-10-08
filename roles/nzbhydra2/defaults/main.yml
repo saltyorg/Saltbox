@@ -41,7 +41,7 @@ nzbhydra2_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', r
 
 nzbhydra2_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='nzbhydra2') }}"
 nzbhydra2_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='nzbhydra2') }}"
-nzbhydra2_role_dns_proxy: dns_proxied
+nzbhydra2_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

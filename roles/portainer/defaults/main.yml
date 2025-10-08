@@ -45,7 +45,7 @@ portainer_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', r
 
 portainer_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='portainer') }}"
 portainer_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='portainer') }}"
-portainer_role_dns_proxy: dns_proxied
+portainer_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik

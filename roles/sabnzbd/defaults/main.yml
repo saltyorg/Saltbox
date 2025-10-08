@@ -46,7 +46,7 @@ sabnzbd_role_web_local_url: "{{ 'http://' + sabnzbd_name + ':' + lookup('role_va
 
 sabnzbd_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='sabnzbd') }}"
 sabnzbd_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='sabnzbd') }}"
-sabnzbd_role_dns_proxy: dns_proxied
+sabnzbd_role_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik
