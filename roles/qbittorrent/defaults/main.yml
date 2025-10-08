@@ -11,12 +11,12 @@
 ################################
 
 qbittorrent_instances: ["qbittorrent"]
-qbittorrent_role_host_install: false
 
 ################################
 # Settings
 ################################
 
+qbittorrent_role_host_install: false
 qbittorrent_role_webui_custom_headers_enabled: "{{ 'true' if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else 'false' }}"
 qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_headers if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else '') }}"
 qbittorrent_role_webui_custom_headers_custom: ""

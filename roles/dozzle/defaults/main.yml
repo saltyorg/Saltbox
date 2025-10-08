@@ -8,6 +8,12 @@
 ##########################################################################
 ---
 ################################
+# Basics
+################################
+
+dozzle_name: dozzle
+
+################################
 # Docker Socket Proxy
 ################################
 
@@ -22,12 +28,6 @@ dozzle_docker_socket_proxy_envs:
 dozzle_role_additional_hosts: ""
 dozzle_role_agent_hosts: ""
 dozzle_role_agent_mode: false
-
-################################
-# Basics
-################################
-
-dozzle_name: dozzle
 
 ################################
 # Paths
