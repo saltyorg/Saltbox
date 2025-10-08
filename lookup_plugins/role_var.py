@@ -1,12 +1,13 @@
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
+from typing import Any, List, Optional, Dict
 import json
 
 display = Display()
 
 DOCUMENTATION = """
     name: role_var
-    author: You
+    author: salty
     version_added: "N/A"
     short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
@@ -35,7 +36,7 @@ DOCUMENTATION = """
 
 class LookupModule(LookupBase):
 
-    def _is_json_string_list(self, value):
+    def _is_json_string_list(self, value: Any) -> bool:
         """Check if value is a list of JSON strings"""
         if not isinstance(value, list):
             return False
@@ -50,64 +51,70 @@ class LookupModule(LookupBase):
         
         return len(value) > 0
 
-    def _convert_json_list_to_dict(self, json_list):
+    def _convert_json_list_to_dict(self, json_list: List[str]) -> Optional[Dict[str, Any]]:
         """Convert a list of JSON strings to a combined dictionary"""
-        try:
-            # Simple approach: do the JSON parsing manually like the manual method does
-            combined_dict = {}
-            
-            for json_str in json_list:
-                # Use the same from_json parsing that Ansible uses
-                try:
-                    import json
-                    # Parse the JSON string directly
-                    parsed = json.loads(json_str)
-                    if isinstance(parsed, dict):
-                        combined_dict.update(parsed)
-                    else:
-                        display.warning(f"[role_var] JSON string parsed to non-dict: {parsed}")
-                except json.JSONDecodeError as je:
-                    display.warning(f"[role_var] Invalid JSON in: {json_str[:100]}... Error: {je}")
-                    return None
-            
-            display.vvv(f"[role_var] Converted JSON list to dict with {len(combined_dict)} keys using manual parsing")
-            return combined_dict
-            
-        except Exception as e:
-            display.warning(f"[role_var] Failed to convert JSON list: {e}")
-            return None
+        combined_dict: Dict[str, Any] = {}
 
-    def run(self, terms, variables=None, **kwargs):
+        for json_str in json_list:
+            try:
+                # Parse the JSON string directly
+                parsed = json.loads(json_str)
+                if isinstance(parsed, dict):
+                    combined_dict.update(parsed)
+                else:
+                    display.warning(f"[role_var] JSON string parsed to non-dict: {parsed}")
+                    return None
+            except json.JSONDecodeError as je:
+                display.warning(f"[role_var] Invalid JSON in: {json_str[:100]}... Error: {je}")
+                return None
+            except (TypeError, AttributeError) as e:
+                display.warning(f"[role_var] Failed to process JSON string: {e}")
+                return None
+
+        display.vvv(f"[role_var] Converted JSON list to dict with {len(combined_dict)} keys using manual parsing")
+        return combined_dict
+
+    def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:
         if variables is None:
             variables = {}
 
-        suffix = terms[0] if terms else ''
+        suffix: str = terms[0] if terms else ''
         self.set_options(var_options=variables, direct=kwargs)
-        default = self.get_option('default')
-        specified_role = self.get_option('role')
-        convert_json = self.get_option('convert_json')
+        default: Any = self.get_option('default')
+        specified_role: Optional[str] = self.get_option('role')
+        convert_json: Optional[bool] = self.get_option('convert_json')
         if convert_json is None:
             convert_json = True
 
         self._templar.available_variables = variables
-        omit = variables.get('omit')
+        omit: Any = variables.get('omit')
 
         # Use specified role if provided, otherwise fall back to role_name
-        role_name = self._templar.template(specified_role, fail_on_undefined=False) if specified_role else self._templar.template(variables['role_name'], fail_on_undefined=False)
+        if specified_role:
+            role_name: str = self._templar.template(specified_role, fail_on_undefined=True)
+        else:
+            if 'role_name' not in variables:
+                raise KeyError("[role_var] Required variable 'role_name' not found")
+            role_name: str = self._templar.template(variables['role_name'], fail_on_undefined=True)
         
         # If a custom role is specified, we need to construct the appropriate traefik_role_var for that role
+        traefik_role_var: str
         if specified_role:
             # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
-            custom_role_name_var = role_name + '_name'
+            custom_role_name_var: str = role_name + '_name'
             if custom_role_name_var in variables:
-                traefik_role_var = self._templar.template(variables[custom_role_name_var], fail_on_undefined=False)
+                traefik_role_var = self._templar.template(variables[custom_role_name_var], fail_on_undefined=True)
             else:
                 traefik_role_var = role_name
             display.vvv(f"[role_var] Using custom traefik_role_var for role '{role_name}': {traefik_role_var}")
         else:
-            traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=False)
+            if 'traefik_role_var' not in variables:
+                raise KeyError("[role_var] Required variable 'traefik_role_var' not found")
+            traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=True)
 
         # Build the variable names to check
+        primary_var: str
+        fallback_var: str
         if suffix == '_name':
             primary_var = traefik_role_var + suffix
             fallback_var = role_name + suffix
@@ -116,7 +123,7 @@ class LookupModule(LookupBase):
             fallback_var = role_name + '_role' + suffix
 
         # Create list of all variable names to check (including dash/underscore variants)
-        vars_to_check = []
+        vars_to_check: List[str] = []
         
         for var_name in [primary_var, fallback_var]:
             vars_to_check.append(var_name)
@@ -135,6 +142,7 @@ class LookupModule(LookupBase):
             display.vvv(f"[role_var] Relevant vars: {debug_keys}")
 
         # Try each variable name in order
+        last_error: Optional[Exception] = None
         for var_name in vars_to_check:
             if var_name in variables:
                 raw_value = variables.get(var_name)
@@ -142,27 +150,36 @@ class LookupModule(LookupBase):
                     display.vvv(f"[role_var] Skipping {var_name} (value is None)")
                     continue
                 try:
-                    result = self._templar.template(raw_value, fail_on_undefined=False)
-                    if result is not None and not (isinstance(result, str) and "{{" in result):
+                    result = self._templar.template(raw_value, fail_on_undefined=True)
+                    if result is not None:
                         # Check if we should convert JSON list to dict
                         if convert_json and self._is_json_string_list(result):
                             display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
                             converted = self._convert_json_list_to_dict(result)
                             if converted is not None:
-                                display.vvv(f"[role_var] Returning converted dict for {var_name}: {len(converted)} keys")
                                 return [converted]
                             else:
                                 display.vvv(f"[role_var] Conversion failed, returning original list")
-                        
+
                         display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
                         return [result]
                     else:
-                        display.vvv(f"[role_var] {var_name} is unresolved or empty, skipping (value: {result})")
+                        display.vvv(f"[role_var] {var_name} is None after templating, skipping")
                 except Exception as e:
                     display.vvv(f"[role_var] Error templating {var_name}: {e}")
+                    last_error = e
             else:
                 display.vvv(f"[role_var] {var_name} not found in variables — skipping")
 
-        fallback_result = default if default is not None else omit
-        display.vvv(f"[role_var] No usable variable found, returning default or omit: {fallback_result}")
-        return [fallback_result]
+        # If we have a default, use it
+        if default is not None:
+            display.vvv(f"[role_var] No usable variable found, returning default: {default}")
+            return [default]
+
+        # If all attempts failed with errors, raise the last error
+        if last_error is not None:
+            raise last_error
+
+        # Otherwise return omit
+        display.vvv(f"[role_var] No usable variable found, returning omit")
+        return [omit]
