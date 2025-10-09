@@ -336,7 +336,7 @@ traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
                else traefik_domain }}"
 
 traefik_host_override_lookup: "{{ lookup('role_var', '_web_host_override', default='') }}"
-traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', default='') }}"
+traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', default=[]) }}"
 traefik_host_template: "{{ traefik_host | traefik_host_rule(traefik_host_override_lookup, traefik_fqdn_override_lookup) }}"
 
 traefik_entrypoint_tailscale_default: false
