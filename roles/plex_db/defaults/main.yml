@@ -7,10 +7,11 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-plex_db_files:
-  - "com.plexapp.plugins.library.db"
-  - "com.plexapp.plugins.library.blobs.db"
-
 plex_db_integrity_check_only: false
 plex_db_failed_integrity: false
 plex_db_failed_optimization: false
+
+# Do not enable globally if deploying multiple instances
+plex_db_files:
+  - "com.plexapp.plugins.library.db"
+  - "com.plexapp.plugins.library.blobs.db"
