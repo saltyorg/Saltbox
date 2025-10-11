@@ -182,7 +182,7 @@
     timeout: "{{ docker_create_image_prune_delay_timeout }}"
   when: docker_create_image_prune and docker_create_image_prune_delay
 
-- name: Resources | Tasks | Docker | Create Docker Container | Prune dangling images
+- name: Resources | Tasks | Docker | Create Docker Container | Prune images
   community.docker.docker_prune:
     images: true
     images_filters:
