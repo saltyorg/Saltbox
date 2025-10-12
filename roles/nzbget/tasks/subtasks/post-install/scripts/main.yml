@@ -63,7 +63,7 @@
   ansible.builtin.lineinfile:
     path: "{{ nzbget_scripts_paths_rarfile_py_location }}"
     regexp: '^UNRAR_TOOL\s?=.*'
-    line: 'UNRAR_TOOL = "/app/unrar"'
+    line: 'UNRAR_TOOL = "/usr/bin/unrar"'
     state: present
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
