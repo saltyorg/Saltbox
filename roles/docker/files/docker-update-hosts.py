@@ -221,9 +221,10 @@ def update_hosts_file():
             # Build and execute the shell command
             shell_command = (
                 "docker container ls -q | xargs -r docker container inspect | "
-                "jq -r '.[] | select(.NetworkSettings.Networks[].IPAddress | length > 0) | "
-                "select(.NetworkSettings.Networks[].Aliases != null) | select(.NetworkSettings.Networks[].Aliases | length > 0) | "
-                ".NetworkSettings.Networks[].IPAddress as $ip | .NetworkSettings.Networks[].Aliases | map(select(length > 0)) | "
+                "jq -r '.[] | select(.NetworkSettings.Networks.saltbox != null) | "
+                "select(.NetworkSettings.Networks.saltbox.IPAddress != null and .NetworkSettings.Networks.saltbox.IPAddress != \"\") | "
+                "select(.NetworkSettings.Networks.saltbox.Aliases != null and (.NetworkSettings.Networks.saltbox.Aliases | length) > 0) | "
+                ".NetworkSettings.Networks.saltbox.IPAddress as $ip | .NetworkSettings.Networks.saltbox.Aliases | map(select(length > 0)) | "
                 "unique | map(. + \" \" + . + \".saltbox\") | join(\" \") | \"\($ip) \(.)\"' | "
                 f"sed -ne \"/^{begin_block}$/ {{p; r /dev/stdin\" -e \":a; n; /^{end_block}$/ {{p; b}}; ba}}; p\" {hosts_file} > {hosts_file_tmp}"
             )
