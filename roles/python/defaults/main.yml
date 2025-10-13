@@ -1,5 +1,5 @@
 ##########################################################################
-# Title:         Saltbox: Python | Default Variables                     #
+# Title:         Saltbox: Python UV | Default Variables                 #
 # Author(s):     salty                                                   #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
@@ -7,4 +7,21 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+################################
+# Settings
+################################
+
+# Install of Python is handled by uv so any versions they support will be valid here.
 python_version: "3.8"
+
+################################
+# Lookups
+################################
+
+# Do not edit or override using the inventory
+python_bin: "/srv/ansible/venv/bin/uv"
+# Do not edit or override using the inventory
+python_python_install_dir: "/srv/python"
+# Do not edit or override using the inventory
+python_environment:
+  UV_PYTHON_INSTALL_DIR: "{{ python_python_install_dir }}"

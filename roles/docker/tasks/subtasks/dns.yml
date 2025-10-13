@@ -28,8 +28,20 @@
   ansible.builtin.include_role:
     name: "python"
   vars:
-    python_version: "3.10"
-  when: ansible_distribution_version is version('22.04', '!=')
+    python_version: "{{ docker_dns_python_version }}"
+  when: (docker_dns_python_version != docker_controller_python_version)
+
+- name: "DNS | Lookup Python {{ docker_dns_python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ docker_dns_python_version }} --managed-python"
+  register: docker_dns_python_install_path_lookup
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: "DNS | Set Python version"
+  ansible.builtin.set_fact:
+    docker_dns_python_install_path: "{{ docker_dns_python_install_path_lookup.stdout }}"
 
 - name: "DNS | Import 'saltbox_managed_docker_update_hosts.service'"
   ansible.builtin.template:

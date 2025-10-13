@@ -124,3 +124,16 @@ docker_daemon_template_force: true
 ################################
 
 compose_cleanup_switch: "{{ compose_install_switch | default(true) }}"
+
+################################
+# Docker Controller
+################################
+
+docker_controller_python_version: "3.10"
+docker_controller_venv_path: "/srv/docker-controller/venv"
+
+################################
+# Docker DNS
+################################
+
+docker_dns_python_version: "3.10"

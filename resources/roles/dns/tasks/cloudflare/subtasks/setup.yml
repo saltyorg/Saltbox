@@ -28,33 +28,32 @@
         mode: "0664"
       with_items: "{{ cloudflare_files }}"
 
-    - name: Cloudflare | Setup | Set Python version
-      ansible.builtin.set_fact:
-        cloudflare_python: "{{ 'python3'
-                            if (ansible_distribution_version is version('22.04', '=='))
-                            else 'python3.10' }}"
-
     - name: Cloudflare | Setup | Execute Python role
       ansible.builtin.include_role:
         name: "python"
       vars:
-        python_version: "3.10"
-      when: (ansible_distribution_version is version('22.04', '!='))
+        python_version: "{{ cloudflare_python_version }}"
 
-    - name: Cloudflare | Setup | Check if venv folder exists
-      ansible.builtin.stat:
-        path: "{{ cloudflare_venv_path }}"
-      register: cloudflare_venv_folder
+    - name: "Cloudflare | Setup | Lookup Python {{ cloudflare_python_version }} installation"
+      ansible.builtin.command: "{{ python_bin }} python find {{ cloudflare_python_version }} --managed-python"
+      register: cloudflare_python_install_path_lookup
+      changed_when: false
+      environment: "{{ python_environment }}"
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: Cloudflare | Setup | Set Python version
+      ansible.builtin.set_fact:
+        cloudflare_python_install_path: "{{ cloudflare_python_install_path_lookup.stdout }}"
 
     - name: Cloudflare | Setup | Delete venv folder
       ansible.builtin.file:
         path: "{{ cloudflare_venv_path }}"
         state: absent
-      when: cloudflare_venv_folder.stat.exists
 
     - name: Cloudflare | Create venv
       ansible.builtin.command:
-        cmd: "{{ cloudflare_python }} -m venv {{ cloudflare_venv_path }}"
+        cmd: "{{ cloudflare_python_install_path }} -m venv {{ cloudflare_venv_path }}"
       args:
         creates: "{{ cloudflare_venv_path }}"
       become: true
