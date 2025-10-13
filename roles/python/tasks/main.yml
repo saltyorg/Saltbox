@@ -19,11 +19,13 @@
 - name: Set expected system Python version based on Ubuntu release
   ansible.builtin.set_fact:
     expected_system_python: >-
-      {{ '3.10'
-      if (ansible_distribution_version is version('22.04', '=='))
-      else '3.12'
-        if (ansible_distribution_version is version('24.04', '=='))
-        else 'unknown' }}
+      {{ '3.8'
+      if (ansible_distribution_version is version('20.04', '=='))
+      else '3.10'
+        if (ansible_distribution_version is version('22.04', '=='))
+        else '3.12'
+          if (ansible_distribution_version is version('24.04', '=='))
+          else 'unknown' }}
 
 - name: Assert system Python matches Ubuntu release
   ansible.builtin.assert:
