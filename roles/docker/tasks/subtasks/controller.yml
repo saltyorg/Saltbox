@@ -7,43 +7,42 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Controller | Set Python version
-  ansible.builtin.set_fact:
-    docker_controller_python_version: "{{ 'python3'
-                                       if ansible_distribution_version is version('22.04', '==')
-                                       else 'python3.10' }}"
-
-- name: "Controller | Execute Python role"
+- name: Controller | Execute Python role
   ansible.builtin.include_role:
     name: "python"
   vars:
-    python_version: "3.10"
-  when: ansible_distribution_version is version('22.04', '!=')
+    python_version: "{{ docker_controller_python_version }}"
 
-- name: Controller | Check if venv folder exists
-  ansible.builtin.stat:
-    path: "/srv/docker-controller/venv"
-  register: docker_controller_venv
+- name: "Controller | Lookup Python {{ docker_controller_python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ docker_controller_python_version }} --managed-python"
+  register: docker_controller_python_install_path_lookup
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Controller | Set Python version
+  ansible.builtin.set_fact:
+    docker_controller_python_install_path: "{{ docker_controller_python_install_path_lookup.stdout }}"
 
 - name: Controller | Delete venv folder
   ansible.builtin.file:
-    path: "/srv/docker-controller/venv"
+    path: "{{ docker_controller_venv_path }}"
     state: absent
-  when: docker_controller_venv.stat.exists
 
 - name: Controller | Create venv
   ansible.builtin.command:
-    cmd: "{{ docker_controller_python_version }} -m venv /srv/docker-controller/venv"
+    cmd: "{{ docker_controller_python_install_path }} -m venv {{ docker_controller_venv_path }}"
   args:
-    creates: /srv/docker-controller/venv
+    creates: "{{ docker_controller_venv_path }}"
   become: true
   become_user: "{{ user.name }}"
 
 - name: Controller | Install pip requirements
   ansible.builtin.pip:
     requirements: "/srv/git/saltbox/requirements/requirements-docker-controller.txt"
-    virtualenv: "/srv/docker-controller/venv"
-    virtualenv_command: "/srv/docker-controller/venv/bin/python3 -m pip"
+    virtualenv: "{{ docker_controller_venv_path }}"
+    virtualenv_command: "{{ docker_controller_venv_path }}/bin/python3 -m pip"
   become: true
   become_user: "{{ user.name }}"
 

@@ -1,5 +1,5 @@
 #########################################################################
-# Title:         Saltbox: Python                                        #
+# Title:         Saltbox: Python UV                                     #
 # Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
@@ -7,125 +7,123 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Fail if not running Ubuntu 20.04 when installing Python 3.8"
-  ansible.builtin.fail:
-    msg: "This role is only for Ubuntu 22.04+ when installing Python 3.8"
-  when: ansible_distribution_version is version('20.04', '==') and python_version == "3.8"
+- name: Migration - Get system Python version
+  ansible.builtin.command: python3 --version
+  register: system_python_version
+  changed_when: false
 
-- name: "Fail if not running Ubuntu 22.04 when installing Python 3.10"
-  ansible.builtin.fail:
-    msg: "This role is only for Ubuntu 20.04 and 24.04+ when installing Python 3.10"
-  when: ansible_distribution_version is version('22.04', '==') and python_version == "3.10"
+- name: Migration - Extract system Python major.minor version
+  ansible.builtin.set_fact:
+    system_python_short: "{{ system_python_version.stdout | regex_search('Python (\\d+\\.\\d+)', '\\1') | first }}"
 
-- name: "Fail if running Ubuntu 24.04 when installing Python 3.12"
-  ansible.builtin.fail:
-    msg: "This role is only for Ubuntu 20.04 and 22.04 when installing Python 3.12"
-  when: ansible_distribution_version is version('24.04', '==') and python_version == "3.12"
+- name: Set expected system Python version based on Ubuntu release
+  ansible.builtin.set_fact:
+    expected_system_python: >-
+      {{ '3.10'
+      if (ansible_distribution_version is version('22.04', '=='))
+      else '3.12'
+        if (ansible_distribution_version is version('24.04', '=='))
+        else 'unknown' }}
 
-- name: Identify apt source files
-  ansible.builtin.find:
-    paths: /etc/apt/sources.list.d/
-    recurse: no
-  register: apt_source_files
+- name: Assert system Python matches Ubuntu release
+  ansible.builtin.assert:
+    that:
+      - system_python_short == expected_system_python
+    fail_msg: |
+      System Python version mismatch detected!
+      Expected Python {{ expected_system_python }} for Ubuntu {{ ansible_distribution_version }}
+      but found Python {{ system_python_short }}.
+      The system Python version has been changed from the default.
+      This role cannot safely proceed with cleanup.
+    success_msg: "System Python {{ system_python_short }} matches expected version {{ expected_system_python }} for Ubuntu {{ ansible_distribution_version }}"
 
-- name: Check if file contains 'deadsnakes'
-  ansible.builtin.slurp:
-    path: "{{ item.path }}"
-  register: file_contents
-  loop: "{{ apt_source_files.files }}"
+- name: Legacy Deadsnakes cleanup
+  when: system_python_short != python_version
+  block:
+    - name: Identify apt source files
+      ansible.builtin.find:
+        paths: /etc/apt/sources.list.d/
+        recurse: false
+      register: apt_source_files
 
-- name: Remove apt source files containing 'deadsnakes'
+    - name: Check if file contains 'deadsnakes'
+      ansible.builtin.slurp:
+        path: "{{ item.path }}"
+      register: file_contents
+      loop: "{{ apt_source_files.files }}"
+
+    - name: Remove apt source files containing 'deadsnakes'
+      ansible.builtin.file:
+        path: "{{ item.item.path }}"
+        state: absent
+      loop: "{{ file_contents.results }}"
+      when: "'deadsnakes' in item.content | b64decode"
+
+    - name: "Remove Python {{ python_version }}"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}"
+        state: absent
+
+    - name: "Remove Python {{ python_version }}-dev"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-dev"
+        state: absent
+
+    - name: "Remove Python {{ python_version }}-distutils"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-distutils"
+        state: absent
+
+    - name: "Remove Python {{ python_version }}-venv"
+      ansible.builtin.apt:
+        name: "python{{ python_version }}-venv"
+        state: absent
+
+    - name: "Invoke apt autoremove"
+      ansible.builtin.apt:
+        autoremove: true
+
+- name: Ensure Python install directory exists
   ansible.builtin.file:
-    path: "{{ item.item.path }}"
-    state: absent
-  loop: "{{ file_contents.results }}"
-  when: "'deadsnakes' in item.content | b64decode"
-
-- name: Update APT package index
-  ansible.builtin.apt:
-    update_cache: yes
-
-- name: Ensure '/etc/apt/keyrings' exists
-  ansible.builtin.file:
-    path: "/etc/apt/keyrings"
+    path: "{{ python_python_install_dir }}"
     state: directory
     mode: "0755"
-    owner: "root"
-    group: "root"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
 
-- name: Add gpg signing key to '/etc/apt/keyrings'
-  ansible.builtin.get_url:
-    url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
-    dest: /etc/apt/keyrings/deadsnakes.asc
-    mode: "0644"
-  register: result
-  retries: "{{ ansible_retry_count
-            if (not continuous_integration)
-            else ansible_retry_count_ci }}"
-  delay: 10
-  until: result is succeeded
+- name: "Check if Python {{ python_version }} is already installed"
+  ansible.builtin.command: "{{ python_bin }} python list --managed-python --only-installed"
+  register: uv_python_list
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
 
-- name: Add deadsnakes/ppa
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/deadsnakes.asc] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu {{ ansible_distribution_release }} main"
-    state: present
-    update_cache: true
-  register: result
-  retries: "{{ ansible_retry_count
-            if (not continuous_integration)
-            else ansible_retry_count_ci }}"
-  delay: 10
-  until: result is succeeded
+- name: "Install Python {{ python_version }} using uv"
+  ansible.builtin.command: "{{ python_bin }} python install {{ python_version }}"
+  register: uv_python_install
+  changed_when: uv_python_install.rc == 0
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
+  when: python_version not in uv_python_list.stdout
 
-- name: "Install Python Packages"
-  block:
-    - name: "Install Python {{ python_version }}"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}"
-        state: present
+- name: "Verify Python {{ python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
+  register: uv_python_path
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
 
-    - name: "Install Python {{ python_version }} dev"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-dev"
-        state: present
+- name: Get installed Python version
+  ansible.builtin.command: "{{ uv_python_path.stdout }} --version"
+  register: python_installed_version
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
 
-    - name: "Install Python {{ python_version }} distutils"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-distutils"
-        state: present
-
-    - name: "Install Python {{ python_version }} venv"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-venv"
-        state: present
-
-    - name: "Install pip for Python {{ python_version }}"
-      ansible.builtin.command: "python{{ python_version }} -m ensurepip"
-
-  rescue:
-    - name: Update APT cache
-      ansible.builtin.apt:
-        update_cache: yes
-
-    - name: "Install Python {{ python_version }}"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}"
-        state: present
-
-    - name: "Install Python {{ python_version }} dev"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-dev"
-        state: present
-
-    - name: "Install Python {{ python_version }} distutils"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-distutils"
-        state: present
-
-    - name: "Install Python {{ python_version }} venv"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-venv"
-        state: present
-
-    - name: "Install pip for Python {{ python_version }}"
-      ansible.builtin.command: "python{{ python_version }} -m ensurepip"
+- name: Display Python installation details
+  ansible.builtin.debug:
+    msg: "{{ python_installed_version.stdout }} installed at: {{ uv_python_path.stdout }}"

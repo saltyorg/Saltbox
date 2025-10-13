@@ -54,18 +54,23 @@
     - name: Clone project git repo
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
 
-    - name: Set Python version
-      ansible.builtin.set_fact:
-        cloudplow_python: "{{ 'python3'
-                           if ansible_distribution_version is version('20.04', '==')
-                           else 'python3.8' }}"
-
     - name: "Execute Python role"
       ansible.builtin.include_role:
         name: "python"
       vars:
-        python_version: "3.8"
-      when: ansible_distribution_version is version('20.04', '!=')
+        python_version: "{{ cloudplow_python_version }}"
+
+    - name: "Lookup Python {{ cloudplow_python_version }} installation"
+      ansible.builtin.command: "{{ python_bin }} python find {{ cloudplow_python_version }} --managed-python"
+      register: cloudplow_python_install_path_lookup
+      changed_when: false
+      environment: "{{ python_environment }}"
+      become: true
+      become_user: "{{ user.name }}"
+
+    - name: Set Python version
+      ansible.builtin.set_fact:
+        cloudplow_python_install_path: "{{ cloudplow_python_install_path_lookup.stdout }}"
 
     - name: Delete venv folder
       ansible.builtin.file:
@@ -74,7 +79,7 @@
 
     - name: Create venv
       ansible.builtin.command:
-        cmd: "{{ cloudplow_python }} -m venv {{ cloudplow_venv_path }}"
+        cmd: "{{ cloudplow_python_install_path }} -m venv {{ cloudplow_venv_path }}"
       args:
         creates: "{{ cloudplow_venv_path }}"
       become: true

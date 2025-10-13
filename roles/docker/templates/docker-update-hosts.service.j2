@@ -14,7 +14,7 @@ BindsTo=docker.service
 After=docker.service
 
 [Service]
-ExecStart=/usr/bin/python3.10 /srv/git/saltbox/roles/docker/files/docker-update-hosts.py {{ docker_update_hosts_service_runtime_max }}
+ExecStart={{ docker_dns_python_install_path }} /srv/git/saltbox/roles/docker/files/docker-update-hosts.py {{ docker_update_hosts_service_runtime_max }}
 
 [Install]
 WantedBy=multi-user.target
