@@ -90,6 +90,7 @@
     mode: "0755"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
+    recurse: true
 
 - name: "Check if Python {{ python_version }} is already installed"
   ansible.builtin.command: "{{ python_bin }} python list --managed-python --only-installed"
