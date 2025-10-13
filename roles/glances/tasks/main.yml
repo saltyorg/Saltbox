@@ -14,7 +14,7 @@
 
 - name: Set Python version
   ansible.builtin.set_fact:
-    glances_python: "python3.12"
+    glances_python: "3.12"
     glances_path: "/srv/glances"
     glances_venv_path: "/srv/glances/venv"
 
@@ -32,9 +32,32 @@
     mode: "0775"
     recurse: true
 
+- name: "Execute Python role"
+  ansible.builtin.include_role:
+    name: "python"
+  vars:
+    python_version: "{{ glances_python }}"
+
+- name: "Lookup Python {{ glances_python }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ glances_python }} --managed-python"
+  register: glances_python_install_path_lookup
+  changed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Set Python version
+  ansible.builtin.set_fact:
+    glances_python_install_path: "{{ glances_python_install_path_lookup.stdout }}"
+
+- name: Delete venv folder
+  ansible.builtin.file:
+    path: "{{ glances_venv_path }}"
+    state: absent
+
 - name: Create venv
   ansible.builtin.command:
-    cmd: "{{ glances_python }} -m venv {{ glances_venv_path }}"
+    cmd: "{{ glances_python_install_path }} -m venv {{ glances_venv_path }}"
   args:
     creates: "{{ glances_venv_path }}"
   become: true
