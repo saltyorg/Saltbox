@@ -40,7 +40,9 @@
     success_msg: "System Python {{ system_python_short }} matches expected version {{ expected_system_python }} for Ubuntu {{ ansible_distribution_version }}"
 
 - name: Legacy Deadsnakes cleanup
-  when: system_python_short != python_version
+  when:
+    - system_python_short != python_version
+    - python_version != '3.12'
   block:
     - name: Identify apt source files
       ansible.builtin.find:
