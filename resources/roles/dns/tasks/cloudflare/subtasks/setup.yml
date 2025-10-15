@@ -9,6 +9,11 @@
 ---
 - name: Cloudflare | Setup | Setup venv block
   block:
+    - name: Cloudflare | Setup | Cleanup folder
+      ansible.builtin.file:
+        path: "{{ cloudflare_path }}"
+        state: absent
+
     - name: Cloudflare | Setup | Create directory
       ansible.builtin.file:
         path: "{{ cloudflare_path }}"
