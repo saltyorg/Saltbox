@@ -1,0 +1,23 @@
+#########################################################################
+# Title:         Saltbox: DNS | Cloudflare | Python                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Cloudflare | Python | Verify Python {{ python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
+  register: cloudflare_uv_python_path
+  changed_when: false
+  failed_when: false
+  environment: "{{ python_environment }}"
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: "Cloudflare | Python | Check if Python needs upgrading"
+  ansible.builtin.set_fact:
+    cloudflare_reinstall: "{{ (cloudflare_uv_python_path.rc != 0)
+                              or (cloudflare_folder_symlink.stat.lnk_target is defined
+                                 and (cloudflare_folder_symlink.stat.lnk_target != cloudflare_uv_python_path.stdout)) }}"
