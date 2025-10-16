@@ -44,47 +44,42 @@
     - system_python_short != python_version
     - python_version != '3.12'
   block:
-    - name: Identify apt source files
-      ansible.builtin.find:
-        paths: /etc/apt/sources.list.d/
-        recurse: false
-      register: apt_source_files
+    - name: Check if any deadsnakes sources exist
+      ansible.builtin.shell: grep -l "deadsnakes" /etc/apt/sources.list.d/* 2>/dev/null
+      register: deadsnakes_files
+      changed_when: false
+      failed_when: false
 
-    - name: Check if file contains 'deadsnakes'
-      ansible.builtin.slurp:
-        path: "{{ item.path }}"
-      register: file_contents
-      loop: "{{ apt_source_files.files }}"
+    - name: Remove deadsnakes repository files
+      when: (deadsnakes_files.stdout | length > 0)
+      block:
+        - name: Identify apt source files
+          ansible.builtin.find:
+            paths: /etc/apt/sources.list.d/
+            recurse: false
+          register: apt_source_files
 
-    - name: Remove apt source files containing 'deadsnakes'
-      ansible.builtin.file:
-        path: "{{ item.item.path }}"
-        state: absent
-      loop: "{{ file_contents.results }}"
-      when: "'deadsnakes' in item.content | b64decode"
+        - name: Check if file contains 'deadsnakes'
+          ansible.builtin.slurp:
+            path: "{{ item.path }}"
+          register: file_contents
+          loop: "{{ apt_source_files.files }}"
 
-    - name: "Remove Python {{ python_version }}"
+        - name: Remove apt source files containing 'deadsnakes'
+          ansible.builtin.file:
+            path: "{{ item.item.path }}"
+            state: absent
+          loop: "{{ file_contents.results }}"
+          when: "'deadsnakes' in item.content | b64decode"
+
+    - name: "Remove all Python {{ python_version }} packages"
       ansible.builtin.apt:
-        name: "python{{ python_version }}"
+        name:
+          - "python{{ python_version }}"
+          - "python{{ python_version }}-dev"
+          - "python{{ python_version }}-distutils"
+          - "python{{ python_version }}-venv"
         state: absent
-
-    - name: "Remove Python {{ python_version }}-dev"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-dev"
-        state: absent
-
-    - name: "Remove Python {{ python_version }}-distutils"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-distutils"
-        state: absent
-
-    - name: "Remove Python {{ python_version }}-venv"
-      ansible.builtin.apt:
-        name: "python{{ python_version }}-venv"
-        state: absent
-
-    - name: "Invoke apt autoremove"
-      ansible.builtin.apt:
         autoremove: true
 
 - name: Ensure Python install directory exists
