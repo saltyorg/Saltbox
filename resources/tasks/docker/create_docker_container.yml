@@ -13,6 +13,15 @@
                   if (var_prefix is defined)
                   else role_name }}"
 
+- name: Resources | Tasks | Docker | Create Docker Container | Set Docker platform
+  ansible.builtin.set_fact:
+    docker_platform_map:
+      x86_64: "linux/amd64"
+      amd64: "linux/amd64"
+      aarch64: "linux/arm64"
+      arm64: "linux/arm64"
+    docker_default_platform: "{{ docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 - name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
   when: ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))
@@ -86,6 +95,7 @@
     output_logs: "{{ lookup('vars', _var_prefix + '_docker_output_logs', default=omit) }}"
     paused: "{{ lookup('vars', _var_prefix + '_docker_paused', default=omit) }}"
     pid_mode: "{{ lookup('vars', _var_prefix + '_docker_pid_mode', default=omit) }}"
+    platform: "{{ lookup('vars', _var_prefix + '_docker_platform', default=docker_default_platform) }}"
     privileged: "{{ lookup('vars', _var_prefix + '_docker_privileged', default=omit) }}"
     published_ports: "{{ (lookup('vars', _var_prefix + '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
                       if not ('container:' in lookup('vars', _var_prefix + '_docker_network_mode', default=docker_networks_name_common))

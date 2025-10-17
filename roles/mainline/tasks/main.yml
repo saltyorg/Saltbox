@@ -54,9 +54,13 @@
   delay: 10
   until: result is succeeded
 
+- name: Set architecture for APT repository
+  ansible.builtin.set_fact:
+    mainline_apt_arch: "{{ 'amd64' if ansible_architecture in ['x86_64', 'amd64'] else 'arm64' }}"
+
 - name: Add cappelikan/ppa
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_distribution_release }} main"
+    repo: "deb [arch={{ mainline_apt_arch }} signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_distribution_release }} main"
     state: present
     update_cache: true
   register: result

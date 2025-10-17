@@ -35,12 +35,20 @@ qbittorrent_host_branch: libtorrent1
 qbittorrent_host_specific_version: ""
 
 # Lookup variables
+qbittorrent_arch_map:
+  x86_64: "x86_64"
+  amd64: "x86_64"
+  aarch64: "aarch64"
+  arm64: "aarch64"
+
+qbittorrent_arch: "{{ qbittorrent_arch_map[ansible_architecture] | default('x86_64') }}"
+
 qbittorrent_host_download_endpoint: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/download/'
                                      if qbittorrent_host_branch != 'legacy'
                                      else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/' }}"
 qbittorrent_host_download_url: "{{ qbittorrent_host_download_endpoint }}{{ qbittorrent_host_specific_version
                                                                         if (qbittorrent_host_specific_version | length > 0)
-                                                                        else qbittorret_release_version.stdout }}/x86_64-qbittorrent-nox"
+                                                                        else qbittorret_release_version.stdout }}/{{ qbittorrent_arch }}-qbittorrent-nox"
 qbittorrent_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
                                if qbittorrent_host_branch != 'legacy'
                                else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"

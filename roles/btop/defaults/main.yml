@@ -7,14 +7,22 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+btop_arch_map:
+  x86_64: "x86_64"
+  amd64: "x86_64"
+  aarch64: "aarch64"
+  arm64: "aarch64"
+
+btop_arch: "{{ btop_arch_map[ansible_architecture] | default('x86_64') }}"
+
 btop_releases_url: "{{ svm }}https://api.github.com/repos/aristocratos/btop/releases/latest"
 
 btop_releases_download_url: https://github.com/aristocratos/btop/releases/download
 
 btop_release_lookup_command: |
   curl -s {{ btop_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"btop-x86_64-linux-musl.tbz\")) \
+    | jq -r ".assets[] | select(.name | test(\"btop-{{ btop_arch }}-linux-musl.tbz\")) \
     | .browser_download_url"
 
 btop_version_lock: false
-btop_version_lock_url: https://github.com/aristocratos/btop/releases/download/v1.2.12/btop-x86_64-linux-musl.tbz
+btop_version_lock_url: "https://github.com/aristocratos/btop/releases/download/v1.2.12/btop-{{ btop_arch }}-linux-musl.tbz"

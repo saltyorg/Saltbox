@@ -7,9 +7,17 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+rclone_arch_map:
+  x86_64: "amd64"
+  amd64: "amd64"
+  aarch64: "arm64"
+  arm64: "arm64"
+
+rclone_arch: "{{ rclone_arch_map[ansible_architecture] | default('amd64') }}"
+
 rclone_latest_releases_url: "{{ svm }}https://api.github.com/repos/rclone/rclone/releases/latest"
 
 rclone_latest_release_lookup_command: |
   curl -s {{ rclone_latest_releases_url }} \
-    | jq -r ".assets[] |select(.name | test(\"linux-amd64.zip\")) \
+    | jq -r ".assets[] |select(.name | test(\"linux-{{ rclone_arch }}.zip\")) \
     | .browser_download_url"

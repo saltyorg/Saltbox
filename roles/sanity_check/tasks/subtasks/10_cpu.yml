@@ -7,17 +7,46 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: CPU Check | Get CPU details from /proc/cpuinfo
-  ansible.builtin.shell:
-    cmd: "grep flags /proc/cpuinfo | uniq | sed 's/flags.*: //'"
-  register: cpu_flags
-
-- name: CPU Check | Determine supported x86-64 versions based on CPU flags
+- name: CPU Check | Detect CPU architecture
   ansible.builtin.set_fact:
-    supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
-  loop: "{{ lookup('dict', x86_64_versions) }}"
-  when: "item.value | difference(cpu_flags.stdout.split()) | length == 0"
+    cpu_architecture: "{{ ansible_architecture }}"
 
-- name: CPU Check | Print the supported x86-64 versions
+- name: CPU Check | x86_64 architecture tasks
+  when: cpu_architecture in ['x86_64', 'amd64']
+  block:
+    - name: CPU Check | Get CPU details from /proc/cpuinfo
+      ansible.builtin.shell:
+        cmd: "grep flags /proc/cpuinfo | uniq | sed 's/flags.*: //'"
+      register: cpu_flags
+
+    - name: CPU Check | Determine supported x86-64 versions based on CPU flags
+      ansible.builtin.set_fact:
+        supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
+      loop: "{{ lookup('dict', x86_64_versions) }}"
+      when: "item.value | difference(cpu_flags.stdout.split()) | length == 0"
+
+    - name: CPU Check | Print the supported x86-64 versions
+      ansible.builtin.debug:
+        msg: "Supported x86-64 versions: {{ supported_versions | join(', ') }}"
+
+- name: CPU Check | ARM64 architecture tasks
+  when: cpu_architecture in ['aarch64', 'arm64']
+  block:
+    - name: CPU Check | Get CPU features from /proc/cpuinfo
+      ansible.builtin.shell:
+        cmd: "grep Features /proc/cpuinfo | uniq | sed 's/Features.*: //'"
+      register: cpu_features
+
+    - name: CPU Check | Determine supported ARM64 versions based on CPU features
+      ansible.builtin.set_fact:
+        supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
+      loop: "{{ lookup('dict', arm64_versions) }}"
+      when: "item.value | difference(cpu_features.stdout.split()) | length == 0"
+
+    - name: CPU Check | Print the supported ARM64 versions
+      ansible.builtin.debug:
+        msg: "Supported ARM64 versions: {{ supported_versions | join(', ') }}"
+
+- name: CPU Check | Print detected architecture
   ansible.builtin.debug:
-    msg: "Supported x86-64 versions: {{ supported_versions | join(', ') }}"
+    msg: "Detected CPU architecture: {{ cpu_architecture }}"

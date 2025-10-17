@@ -7,11 +7,19 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+node_exporter_arch_map:
+  x86_64: "amd64"
+  amd64: "amd64"
+  aarch64: "arm64"
+  arm64: "arm64"
+
+node_exporter_arch: "{{ node_exporter_arch_map[ansible_architecture] | default('amd64') }}"
+
 node_exporter_path: "/opt/node_exporter"
 
 node_exporter_latest_releases_url: "{{ svm }}https://api.github.com/repos/prometheus/node_exporter/releases/latest"
 
 node_exporter_latest_release_lookup_command: |
   curl -s {{ node_exporter_latest_releases_url }} \
-    | jq -r ".assets[] |select(.name | test(\"linux-amd64.tar.gz\")) \
+    | jq -r ".assets[] |select(.name | test(\"linux-{{ node_exporter_arch }}.tar.gz\")) \
     | .browser_download_url"
