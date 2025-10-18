@@ -72,6 +72,14 @@ autoscan_docker_ports_defaults: []
 autoscan_docker_ports_custom: []
 autoscan_docker_ports: "{{ lookup('vars', autoscan_name + '_docker_ports_defaults', default=autoscan_docker_ports_defaults)
                            + lookup('vars', autoscan_name + '_docker_ports_custom', default=autoscan_docker_ports_custom) }}"
+# Platform
+autoscan_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+autoscan_docker_platform: "{{ autoscan_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 autoscan_docker_envs_default:

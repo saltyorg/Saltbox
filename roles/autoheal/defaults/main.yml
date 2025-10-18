@@ -30,6 +30,14 @@ autoheal_docker_ports_defaults: []
 autoheal_docker_ports_custom: []
 autoheal_docker_ports: "{{ autoheal_docker_ports_defaults
                            + autoheal_docker_ports_custom }}"
+# Platform
+autoheal_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+autoheal_docker_platform: "{{ autoheal_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 autoheal_docker_envs_default:

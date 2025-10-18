@@ -111,6 +111,14 @@ emby_docker_image_repo: "lscr.io/linuxserver/emby"
 emby_docker_image_tag: "latest"
 emby_docker_image: "{{ lookup('vars', emby_name + '_docker_image_repo', default=emby_docker_image_repo)
                        + ':' + lookup('vars', emby_name + '_docker_image_tag', default=emby_docker_image_tag) }}"
+# Platform
+emby_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+emby_docker_platform: "{{ emby_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 emby_docker_ports_defaults: []

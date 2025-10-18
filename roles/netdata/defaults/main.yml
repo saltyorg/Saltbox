@@ -88,6 +88,14 @@ netdata_docker_ports_defaults: []
 netdata_docker_ports_custom: []
 netdata_docker_ports: "{{ netdata_docker_ports_defaults
                           + netdata_docker_ports_custom }}"
+# Platform
+netdata_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+netdata_docker_platform: "{{ netdata_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 netdata_docker_envs_default:

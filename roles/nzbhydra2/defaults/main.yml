@@ -117,6 +117,14 @@ nzbhydra2_docker_ports_defaults: []
 nzbhydra2_docker_ports_custom: []
 nzbhydra2_docker_ports: "{{ nzbhydra2_docker_ports_defaults
                             + nzbhydra2_docker_ports_custom }}"
+# Platform
+nzbhydra2_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+nzbhydra2_docker_platform: "{{ nzbhydra2_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 nzbhydra2_docker_envs_default:

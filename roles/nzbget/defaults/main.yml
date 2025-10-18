@@ -200,6 +200,14 @@ nzbget_docker_ports_defaults: []
 nzbget_docker_ports_custom: []
 nzbget_docker_ports: "{{ nzbget_docker_ports_defaults
                          + nzbget_docker_ports_custom }}"
+# Platform
+nzbget_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+nzbget_docker_platform: "{{ nzbget_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 nzbget_docker_envs_default:

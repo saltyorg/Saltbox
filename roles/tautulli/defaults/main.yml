@@ -83,6 +83,14 @@ tautulli_docker_image_repo: "ghcr.io/hotio/tautulli"
 tautulli_docker_image_tag: "release"
 tautulli_docker_image: "{{ lookup('vars', tautulli_name + '_docker_image_repo', default=tautulli_docker_image_repo)
                            + ':' + lookup('vars', tautulli_name + '_docker_image_tag', default=tautulli_docker_image_tag) }}"
+# Platform
+tautulli_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+tautulli_docker_platform: "{{ tautulli_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 tautulli_docker_ports_defaults: []

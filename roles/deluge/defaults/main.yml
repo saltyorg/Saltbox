@@ -87,6 +87,14 @@ deluge_docker_image_repo: "lscr.io/linuxserver/deluge"
 deluge_docker_image_tag: "latest"
 deluge_docker_image: "{{ lookup('vars', deluge_name + '_docker_image_repo', default=deluge_docker_image_repo)
                          + ':' + lookup('vars', deluge_name + '_docker_image_tag', default=deluge_docker_image_tag) }}"
+# Platform
+deluge_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+deluge_docker_platform: "{{ deluge_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 deluge_docker_ports_58112: "{{ port_lookup_58112.meta.port

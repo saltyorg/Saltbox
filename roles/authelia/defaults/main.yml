@@ -206,6 +206,14 @@ authelia_docker_ports_defaults: []
 authelia_docker_ports_custom: []
 authelia_docker_ports: "{{ authelia_docker_ports_defaults
                            + authelia_docker_ports_custom }}"
+# Platform
+authelia_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+authelia_docker_platform: "{{ authelia_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 authelia_docker_envs_default:

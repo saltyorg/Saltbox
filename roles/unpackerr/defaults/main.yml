@@ -40,6 +40,14 @@ unpackerr_docker_ports_defaults: []
 unpackerr_docker_ports_custom: []
 unpackerr_docker_ports: "{{ unpackerr_docker_ports_defaults
                             + unpackerr_docker_ports_custom }}"
+# Platform
+unpackerr_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+unpackerr_docker_platform: "{{ unpackerr_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 unpackerr_docker_envs_default:

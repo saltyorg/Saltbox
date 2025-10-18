@@ -155,6 +155,14 @@ plex_docker_image_repo: "plexinc/pms-docker"
 plex_docker_image_tag: "latest"
 plex_docker_image: "{{ lookup('vars', plex_name + '_docker_image_repo', default=plex_docker_image_repo)
                        + ':' + lookup('vars', plex_name + '_docker_image_tag', default=plex_docker_image_tag) }}"
+# Platform
+plex_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+plex_docker_platform: "{{ plex_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 plex_docker_ports_32400: "{{ port_lookup_32400.meta.port

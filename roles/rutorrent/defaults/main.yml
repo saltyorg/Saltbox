@@ -169,6 +169,14 @@ rutorrent_docker_ports_6881: "{{ port_lookup_6881.meta.port
                               if (port_lookup_6881.meta.port is defined) and (port_lookup_6881.meta.port | trim | length > 0)
                               else '6881' }}"
 
+# Platform
+rutorrent_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+rutorrent_docker_platform: "{{ rutorrent_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 rutorrent_docker_ports_defaults:
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}"
   - "{{ rutorrent_docker_ports_51413 }}:{{ rutorrent_docker_ports_51413 }}/udp"

@@ -70,6 +70,14 @@ jaeger_docker_ports_defaults: []
 jaeger_docker_ports_custom: []
 jaeger_docker_ports: "{{ jaeger_docker_ports_defaults
                          + jaeger_docker_ports_custom }}"
+# Platform
+jaeger_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+jaeger_docker_platform: "{{ jaeger_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 jaeger_docker_envs_default:

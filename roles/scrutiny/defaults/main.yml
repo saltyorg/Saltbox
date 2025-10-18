@@ -70,6 +70,14 @@ scrutiny_docker_ports_defaults: []
 scrutiny_docker_ports_custom: []
 scrutiny_docker_ports: "{{ scrutiny_docker_ports_defaults
                            + scrutiny_docker_ports_custom }}"
+# Platform
+scrutiny_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+scrutiny_docker_platform: "{{ scrutiny_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 scrutiny_docker_envs_default:

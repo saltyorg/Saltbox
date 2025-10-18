@@ -40,6 +40,14 @@ nzbthrottle_docker_ports_defaults: []
 nzbthrottle_docker_ports_custom: []
 nzbthrottle_docker_ports: "{{ nzbthrottle_docker_ports_defaults
                               + nzbthrottle_docker_ports_custom }}"
+# Platform
+nzbthrottle_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+nzbthrottle_docker_platform: "{{ nzbthrottle_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 nzbthrottle_docker_envs_default:

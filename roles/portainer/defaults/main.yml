@@ -83,6 +83,14 @@ portainer_docker_image_tag: "latest"
 portainer_docker_image: "{{ ('portainer/portainer-ee:'
                              if portainer_business_edition
                              else 'portainer/portainer-ce:') + portainer_docker_image_tag }}"
+# Platform
+portainer_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+portainer_docker_platform: "{{ portainer_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 portainer_docker_ports_defaults: []

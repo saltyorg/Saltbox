@@ -40,6 +40,14 @@ redis_docker_ports_defaults: []
 redis_docker_ports_custom: []
 redis_docker_ports: "{{ lookup('vars', redis_name + '_docker_ports_defaults', default=redis_docker_ports_defaults)
                         + lookup('vars', redis_name + '_docker_ports_custom', default=redis_docker_ports_custom) }}"
+# Platform
+redis_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+redis_docker_platform: "{{ redis_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 redis_docker_envs_default:

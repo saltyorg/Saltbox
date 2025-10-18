@@ -94,6 +94,14 @@ radarr_docker_image_repo: "ghcr.io/hotio/radarr"
 radarr_docker_image_tag: "release"
 radarr_docker_image: "{{ lookup('vars', radarr_name + '_docker_image_repo', default=radarr_docker_image_repo)
                          + ':' + lookup('vars', radarr_name + '_docker_image_tag', default=radarr_docker_image_tag) }}"
+# Platform
+radarr_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+radarr_docker_platform: "{{ radarr_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 radarr_docker_ports_defaults: []

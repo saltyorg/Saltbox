@@ -67,6 +67,14 @@ gluetun_docker_image_repo: "qmcgaw/gluetun"
 gluetun_docker_image_tag: "v3"
 gluetun_docker_image: "{{ lookup('vars', gluetun_name + '_docker_image_repo', default=gluetun_docker_image_repo)
                           + ':' + lookup('vars', gluetun_name + '_docker_image_tag', default=gluetun_docker_image_tag) }}"
+# Platform
+gluetun_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+gluetun_docker_platform: "{{ gluetun_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 gluetun_docker_ports_defaults: []

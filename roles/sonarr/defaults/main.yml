@@ -94,6 +94,14 @@ sonarr_docker_image_repo: "ghcr.io/hotio/sonarr"
 sonarr_docker_image_tag: "release"
 sonarr_docker_image: "{{ lookup('vars', sonarr_name + '_docker_image_repo', default=sonarr_docker_image_repo)
                          + ':' + lookup('vars', sonarr_name + '_docker_image_tag', default=sonarr_docker_image_tag) }}"
+# Platform
+sonarr_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+sonarr_docker_platform: "{{ sonarr_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 sonarr_docker_ports_defaults: []

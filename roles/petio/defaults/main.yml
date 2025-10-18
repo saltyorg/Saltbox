@@ -76,6 +76,14 @@ petio_docker_ports_defaults: []
 petio_docker_ports_custom: []
 petio_docker_ports: "{{ petio_docker_ports_defaults
                         + petio_docker_ports_custom }}"
+# Platform
+petio_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+petio_docker_platform: "{{ petio_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 petio_docker_envs_default:

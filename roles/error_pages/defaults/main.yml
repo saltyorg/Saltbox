@@ -37,6 +37,14 @@ error_pages_docker_ports_defaults: []
 error_pages_docker_ports_custom: []
 error_pages_docker_ports: "{{ error_pages_docker_ports_defaults
                               + error_pages_docker_ports_custom }}"
+# Platform
+error_pages_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+error_pages_docker_platform: "{{ error_pages_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Envs
 error_pages_docker_envs_default:

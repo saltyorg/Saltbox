@@ -36,6 +36,14 @@ mongodb_docker_image_tag: "6"
 mongodb_docker_image_repo: "mongo"
 mongodb_docker_image: "{{ lookup('vars', mongodb_name + '_docker_image_repo', default=mongodb_docker_image_repo)
                           + ':' + lookup('vars', mongodb_name + '_docker_image_tag', default=mongodb_docker_image_tag) }}"
+# Platform
+mongodb_docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+mongodb_docker_platform: "{{ mongodb_docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 
 # Ports
 mongodb_docker_ports_defaults: []
