@@ -67,7 +67,7 @@
       timeout: 60
 
 - name: Install Binary | Find rclone tmp dir
-  ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
+  ansible.builtin.shell: ls -d /tmp/rclone-*-linux-{{ rclone_arch }}
   register: rclone_tmp_dir
 
 - name: Install Binary | Copy binary to /usr/bin/rclone
