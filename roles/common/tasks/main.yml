@@ -98,10 +98,16 @@
       - "tmux"
       - "apache2-utils"
       - "jq"
-      - "lib32z1"
       - "moreutils"
       - "unrar"
       - "python3-virtualenv"
+
+- name: Install lib32z1 (x86_64 only)
+  ansible.builtin.apt:
+    state: present
+    name:
+      - "lib32z1"
+  when: ansible_architecture in ['x86_64', 'amd64']
 
 - name: Install extra packages
   ansible.builtin.apt:
