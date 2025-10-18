@@ -8,3 +8,11 @@
 #########################################################################
 ---
 yyq_install_version: "4.44.1"
+
+yyq_arch_map:
+  x86_64: "amd64"
+  amd64: "amd64"
+  aarch64: "arm64"
+  arm64: "arm64"
+
+yyq_arch: "{{ yyq_arch_map[ansible_architecture] | default('amd64') }}"
