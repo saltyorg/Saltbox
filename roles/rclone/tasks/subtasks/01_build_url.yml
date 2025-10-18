@@ -36,7 +36,7 @@
 - name: Build URL | Set vars for current version
   ansible.builtin.set_fact:
     rclone_version_specified: "latest"
-    rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
+    rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-{{ rclone_arch }}.zip"
   when: (not rclone_version_is_specified) or (rclone.version in ['latest', 'current'])
 
 - name: "Get URL for latest rclone release"
@@ -50,7 +50,7 @@
 - name: Build URL | Set vars for beta version
   ansible.builtin.set_fact:
     rclone_version_specified: "{{ rclone.version }}"
-    rclone_download_url: "https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip"
+    rclone_download_url: "https://beta.rclone.org/rclone-beta-latest-linux-{{ rclone_arch }}.zip"
   when: rclone_version_is_specified and (rclone.version == 'beta')
 
 - name: Build URL | Specified version tasks
@@ -76,7 +76,7 @@
     - name: Build URL | Set vars for specified version if available
       ansible.builtin.set_fact:
         rclone_version_specified: "{{ rclone_version_specified0 }}"
-        rclone_download_url: 'https://downloads.rclone.org/v{{ rclone_version_specified0 }}/rclone-v{{ rclone_version_specified0 }}-linux-amd64.zip'
+        rclone_download_url: 'https://downloads.rclone.org/v{{ rclone_version_specified0 }}/rclone-v{{ rclone_version_specified0 }}-linux-{{ rclone_arch }}.zip'
       when: (rclone_version_specified0_check.stdout | trim | length > 0)
 
     - name: Build URL | Display message if specified version is not available
@@ -87,5 +87,5 @@
     - name: Build URL | Set vars for specified version if not available
       ansible.builtin.set_fact:
         rclone_version_specified: "latest"
-        rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-amd64.zip"
+        rclone_download_url: "https://downloads.rclone.org/rclone-current-linux-{{ rclone_arch }}.zip"
       when: (rclone_version_specified0_check.stdout | trim | length == 0)
