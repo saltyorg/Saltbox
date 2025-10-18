@@ -23,6 +23,14 @@ mergerfs_service_name: "saltbox_managed_mergerfs.service"
 # MergerFS
 ################################
 
+mergerfs_arch_map:
+  x86_64: "amd64"
+  amd64: "amd64"
+  aarch64: "arm64"
+  arm64: "arm64"
+
+mergerfs_arch: "{{ mergerfs_arch_map[ansible_architecture] | default('amd64') }}"
+
 mergerfs_version: latest
 
 mergerfs_github_endpoint: "{{ 'latest' if (mergerfs_version == 'latest') else 'tags/' + mergerfs_version }}"
@@ -35,7 +43,7 @@ mergerfs_release_distribution: "{{ ansible_distribution_release | lower }}"
 
 mergerfs_release_lookup_command: |
   curl -s {{ mergerfs_releases_url }} \
-    | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution | lower }}-{{ mergerfs_release_distribution }}_amd64\")) \
+    | jq -r ".assets[] | select(.name | test(\"{{ ansible_distribution | lower }}-{{ mergerfs_release_distribution }}_{{ mergerfs_arch }}\")) \
     | .browser_download_url"
 
 mergerfs_download_backup_version: 2.40.2
@@ -45,7 +53,7 @@ mergerfs_download_backup_url: "
   {{ mergerfs_download_backup_version }}/\
   mergerfs_{{ mergerfs_download_backup_version }}.\
   {{ ansible_distribution | lower }}-\
-  {{ mergerfs_release_distribution }}_amd64.deb"
+  {{ mergerfs_release_distribution }}_{{ mergerfs_arch }}.deb"
 
 mergerfs_mount_branches: "{{ local_mount_branch }}{{ _remotes_list }}"
 
