@@ -11,26 +11,26 @@
 # Migrate old non hotio setup
 ################################
 
-- name: Preinstall | Check if `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` exists
+- name: Preinstall | Check if `{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') | basename }}` exists
   ansible.builtin.stat:
-    path: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
+    path: "{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') }}"
   register: jellyfin_xml_old
 
-- name: Preinstall | New `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` tasks
+- name: Preinstall | New `{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') | basename }}` tasks
   when: jellyfin_xml_old.stat.exists
   block:
-    - name: Preinstall | Import `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists
+    - name: Preinstall | Import `{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') | basename }}` if it exists
       ansible.builtin.copy:
-        src: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
+        src: "{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') }}"
         dest: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
         force: false
 
-    - name: Preinstall | Remove old `{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') | basename }}` if it exists"
+    - name: Preinstall | Remove old `{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') | basename }}` if it exists"
       ansible.builtin.file:
-        path: "{{ lookup('role_var', '_paths_xml_loct_old', role='jellyfin') }}"
+        path: "{{ lookup('role_var', '_paths_xml_location_old', role='jellyfin') }}"
         state: absent
 
 # Low priority as migrate should not be needed.
