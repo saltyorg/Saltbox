@@ -24,10 +24,11 @@
 
 - name: Cloudflare | Python Migration
   ansible.builtin.include_tasks: "subtasks/python.yml"
-  when: cloudflare_folder_symlink.stat.exists
+  when: cloudflare_folder_symlink.stat.exists and (not cloudflare_reinstall)
 
 - name: Cloudflare | Checksum
   ansible.builtin.include_tasks: "subtasks/checksum.yml"
+  when: (not cloudflare_reinstall)
 
 - name: Cloudflare | Setup
   ansible.builtin.include_tasks: "subtasks/setup.yml"

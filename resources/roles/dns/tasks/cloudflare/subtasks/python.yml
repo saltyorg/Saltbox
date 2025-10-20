@@ -7,8 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Cloudflare | Python | Verify Python {{ python_version }} installation"
-  ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
+- name: "Cloudflare | Python | Verify Python {{ cloudflare_python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ cloudflare_python_version }} --managed-python"
   register: cloudflare_uv_python_path
   changed_when: false
   failed_when: false
@@ -19,5 +19,6 @@
 - name: "Cloudflare | Python | Check if Python needs upgrading"
   ansible.builtin.set_fact:
     cloudflare_reinstall: "{{ (cloudflare_uv_python_path.rc != 0)
-                              or (cloudflare_folder_symlink.stat.lnk_target is defined
+                              or (cloudflare_folder_symlink.stat.islnk | default(false)
+                                 and cloudflare_folder_symlink.stat.lnk_target is defined
                                  and (cloudflare_folder_symlink.stat.lnk_target != cloudflare_uv_python_path.stdout)) }}"
