@@ -115,7 +115,7 @@ jobs:
         run: sudo /srv/ansible/venv/bin/ansible-playbook saltbox.yml --tags "${{ matrix.roles }}" --skip-tags "settings" --extra-vars "@vars.yml"
 
       - name: Run Tree on app data folder
-        run: tree -a /opt2
+        run: sudo tree -aug /opt2
 
       - name: Inspect all Docker containers
         run: |
