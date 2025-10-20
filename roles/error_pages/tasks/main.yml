@@ -9,13 +9,13 @@
 ---
 - name: Check if legacy folder exists
   ansible.builtin.stat:
-    path: "/opt/error_pages"
+    path: "{{ server_appdata_path }}/error_pages"
   register: error_pages_legacy_folder
 
 - name: Migrate error pages directory
   migrate_folder:
-    legacy_path: /opt/error_pages
-    new_path: /opt/error-pages
+    legacy_path: "{{ server_appdata_path }}/error_pages"
+    new_path: "{{ server_appdata_path }}/error-pages"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: '0775'
@@ -24,12 +24,12 @@
 
 - name: Check if folder already exists
   ansible.builtin.stat:
-    path: "/opt/error-pages"
+    path: "{{ server_appdata_path }}/error-pages"
   register: error_pages_folder
 
 - name: Create directory
   ansible.builtin.file:
-    path: "/opt/error-pages"
+    path: "{{ server_appdata_path }}/error-pages"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -43,7 +43,7 @@
     user: "{{ uid }}:{{ gid }}"
     command: "build --config-file ./error-pages.yml /out"
     volumes:
-      - "/opt/error-pages:/out:rw"
+      - "{{ server_appdata_path }}/error-pages:/out:rw"
     networks:
       - name: saltbox
     container_default_behavior: compatibility

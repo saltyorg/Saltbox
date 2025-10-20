@@ -113,14 +113,14 @@
   block:
     - name: "Create services folder."
       ansible.builtin.file:
-        path: "/opt/services"
+        path: "{{ server_appdata_path }}/services"
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
         recurse: true
 
-    - name: "Synchronize '/etc/systemd/system' to '/opt/services'"
+    - name: "Synchronize '/etc/systemd/system' to '{{ server_appdata_path }}/services'"
       ansible.builtin.shell: |
         /usr/bin/rsync \
           --delay-updates \
@@ -133,14 +133,14 @@
           --exclude='saltbox_managed_*' \
           --include='*.service' \
           --include='*.mount' \
-          /etc/systemd/system/* /opt/services/
+          /etc/systemd/system/* {{ server_appdata_path }}/services/
       args:
         executable: /bin/bash
       ignore_errors: true
 
     - name: "Reset permissions of folders"
       ansible.builtin.file:
-        path: "/opt/services"
+        path: "{{ server_appdata_path }}/services"
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"

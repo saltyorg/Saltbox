@@ -15,6 +15,7 @@
       token: ""
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
+    base_path: "{{ server_appdata_path }}"
   register: plex_instance_token
 
 - name: Plex API Block

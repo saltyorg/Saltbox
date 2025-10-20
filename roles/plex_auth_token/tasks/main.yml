@@ -13,7 +13,7 @@
 
 - name: "Auth Token | Create directories"
   ansible.builtin.file:
-    path: "/opt/saltbox"
+    path: "{{ server_appdata_path }}/saltbox"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -21,7 +21,7 @@
 
 - name: "Auth Token | Check if PIN exists"
   ansible.builtin.stat:
-    path: "/opt/saltbox/plex.ini"
+    path: "{{ plex_auth_token_ini_file }}"
   register: plex_ini
 
 - name: "Auth Token | plex_auth_client_identifier"
@@ -29,7 +29,7 @@
   block:
     - name: "Auth Token | Lookup plex_auth_client_identifier"
       ansible.builtin.set_fact:
-        plex_auth_client_identifier: "{{ lookup('ini', 'client_identifier section=' + plex_name + ' file=/opt/saltbox/plex.ini') }}"
+        plex_auth_client_identifier: "{{ lookup('ini', 'client_identifier section=' + plex_name + ' file=' + plex_auth_token_ini_file) }}"
         plex_auth_client_identifier_missing: false
 
   rescue:
@@ -45,7 +45,7 @@
 
 - name: "Auth Token | Set plex_auth_token variable if previously saved"
   ansible.builtin.set_fact:
-    plex_auth_token: "{{ lookup('ini', 'token section=' + plex_name + ' file=/opt/saltbox/plex.ini') | regex_replace('\n', '') }}"
+    plex_auth_token: "{{ lookup('ini', 'token section=' + plex_name + ' file=' + plex_auth_token_ini_file) | regex_replace('\n', '') }}"
   when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
 
 - name: "Auth Token | Set plex_no_token status"
@@ -64,7 +64,7 @@
     method: GET
     return_content: true
     body:
-      X-Plex-Token: "{{ lookup('ini', 'token section=' + plex_name + ' file=/opt/saltbox/plex.ini') }}"
+      X-Plex-Token: "{{ lookup('ini', 'token section=' + plex_name + ' file=' + plex_auth_token_ini_file) }}"
       X-Plex-Version: "{{ plex_auth_token_version }}"
       X-Plex-Product: "{{ plex_auth_token_product }}"
       X-Plex-Client-Identifier: "{{ plex_auth_client_identifier }}"
@@ -161,6 +161,7 @@
           token: "{{ plex_auth_token }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
+        base_path: "{{ server_appdata_path }}"
         overwrite: true
 
 - name: "Auth Token | Display Plex Auth Token"
@@ -169,7 +170,7 @@
 
 - name: Change permissions
   ansible.builtin.file:
-    path: /opt/saltbox
+    path: "{{ server_appdata_path }}/saltbox"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0755"

@@ -18,6 +18,7 @@ Example Usage:
         owner: user1
         group: group1
         mode: "0640"
+        base_path: "{{ server_appdata_path }}"
       register: register_var
 
     # Save facts with overwrite (ignores existing values)
@@ -28,6 +29,7 @@ Example Usage:
         keys:
           key1: value1
           key2: value2
+        base_path: "{{ server_appdata_path }}"
         overwrite: true
       register: register_var
 
@@ -41,6 +43,7 @@ Example Usage:
         keys:
           key1: ""
           key2: ""
+        base_path: "{{ server_appdata_path }}"
 
     # Delete entire instance
     - name: Delete instance
@@ -49,6 +52,7 @@ Example Usage:
         instance: instance1
         method: delete
         delete_type: instance
+        base_path: "{{ server_appdata_path }}"
 
     # Delete entire role (removes configuration file)
     - name: Delete role
@@ -57,6 +61,7 @@ Example Usage:
         instance: instance1
         method: delete
         delete_type: role
+        base_path: "{{ server_appdata_path }}"
 
     # Save with default owner/group (current user)
     - name: Save facts with defaults
@@ -65,6 +70,7 @@ Example Usage:
         instance: instance1
         keys:
           key1: value1
+        base_path: "{{ server_appdata_path }}"
       register: register_var
 
     # Save with specific file permissions
@@ -75,6 +81,7 @@ Example Usage:
         keys:
           key1: value1
         mode: "0600"
+        base_path: "{{ server_appdata_path }}"
       register: register_var
 
 Return Values:
@@ -135,12 +142,13 @@ def validate_keys(keys):
                 f"Invalid value type for key '{key}': must be string, number, or boolean"
             )
 
-def get_file_path(role):
+def get_file_path(role, base_path):
     """
     Get the configuration file path for a role.
 
     Args:
         role (str): Name of the role
+        base_path (str): Base directory path
 
     Returns:
         str: Full path to the configuration file
@@ -150,7 +158,7 @@ def get_file_path(role):
     """
     if not isinstance(role, str):
         raise ValueError("Role name must be a string")
-    return f"/opt/saltbox/{role}.ini"
+    return f"{base_path}/saltbox/{role}.ini"
 
 def atomic_write(file_path, content, mode, owner, group):
     """
@@ -436,6 +444,7 @@ def run_module():
     - group (str): File group (default: current user)
     - mode (str): File mode in octal string format (default: '0640')
     - overwrite (bool): If True, overwrite existing values; if False, keep existing (default: False)
+    - base_path (str): Base directory path for storing configuration files (required)
     """
     module_args = dict(
         role=dict(type='str', required=True),
@@ -446,7 +455,8 @@ def run_module():
         owner=dict(type='str', required=False),
         group=dict(type='str', required=False),
         mode=dict(type='str', required=False, default='0640'),
-        overwrite=dict(type='bool', required=False, default=False)
+        overwrite=dict(type='bool', required=False, default=False),
+        base_path=dict(type='str', required=True)
     )
 
     result = dict(
@@ -467,13 +477,14 @@ def run_module():
         keys = module.params['keys']
         delete_type = module.params.get('delete_type')
         overwrite = module.params['overwrite']
-        
+        base_path = module.params['base_path']
+
         current_user = get_current_user()
         owner = module.params.get('owner') or current_user
         group = module.params.get('group') or current_user
 
         mode = parse_mode(module.params['mode'])
-        file_path = get_file_path(role)
+        file_path = get_file_path(role, base_path)
 
         if method == 'delete':
             if not delete_type:

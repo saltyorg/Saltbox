@@ -134,12 +134,12 @@
         - "/home/{{ user.name }}/logs"
         - "{{ backup.local.destination }}"
         - "{{ backup.local.destination }}/opt"
-        - "/opt/systemd-backup"
-        - "/opt/crontab-backup"
+        - "{{ server_appdata_path }}/systemd-backup"
+        - "{{ server_appdata_path }}/crontab-backup"
 
     # Check if there is enough space in the local backup destination
-    - name: Get size of opt folder
-      ansible.builtin.shell: "du -sk /opt || true"
+    - name: Get size of {{ server_appdata_path }} folder
+      ansible.builtin.shell: "du -sk {{ server_appdata_path }} || true"
       register: estimated_backup_size
 
     - name: Check existence of exclude folders
@@ -256,7 +256,7 @@
         - restore-service
         - saltbox-restore-service
 
-    - name: "Synchronize '/etc/systemd/system' to '/opt/systemd-backup' for inclusion in backup"
+    - name: "Synchronize '/etc/systemd/system' to '{{ server_appdata_path }}/systemd-backup' for inclusion in backup"
       ansible.builtin.shell: |
         /usr/bin/rsync \
           --delay-updates \
@@ -269,13 +269,13 @@
           --exclude='saltbox_managed_*' \
           --include='*.service' \
           --include='*.mount' \
-          /etc/systemd/system/* /opt/systemd-backup/
+          /etc/systemd/system/* {{ server_appdata_path }}/systemd-backup/
       args:
         executable: /bin/bash
       ignore_errors: true
 
-    - name: "Copying crontabs to '/opt/crontab-backup' for inclusion in backup"
-      ansible.builtin.shell: "cp -f /var/spool/cron/crontabs/* /opt/crontab-backup"
+    - name: "Copying crontabs to '{{ server_appdata_path }}/crontab-backup' for inclusion in backup"
+      ansible.builtin.shell: "cp -f /var/spool/cron/crontabs/* {{ server_appdata_path }}/crontab-backup"
       ignore_errors: true
 
     - name: "Reset permissions of folders"
@@ -287,8 +287,8 @@
         mode: "0775"
         recurse: true
       with_items:
-        - "/opt/systemd-backup"
-        - "/opt/crontab-backup"
+        - "{{ server_appdata_path }}/systemd-backup"
+        - "{{ server_appdata_path }}/crontab-backup"
 
     - name: Populate Service Facts
       ansible.builtin.service_facts:

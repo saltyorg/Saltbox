@@ -76,6 +76,7 @@
       secret_key: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=50) }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
+    base_path: "{{ server_appdata_path }}"
   register: authentik_saltbox_facts
 
 - name: "Wait for {{ lookup('role_var', '_redis_name', role='authentik') }} container to be healthy"

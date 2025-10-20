@@ -10,7 +10,7 @@
 - name: BTRFS Tasks
   ansible.builtin.include_tasks: "btrfs.yml"
   loop:
-    - /opt
+    - "{{ server_appdata_path }}"
     - /mnt/local
   loop_control:
     loop_var: outer_item
@@ -27,8 +27,8 @@
     - /home/{{ user.name }}/logs
     - /home/{{ user.name }}/.config
     - /home/{{ user.name }}/.config/pip
-    - /opt
-    - /opt/saltbox
+    - "{{ server_appdata_path }}"
+    - "{{ server_appdata_path }}/saltbox"
     - /mnt
     - /mnt/local
     - /mnt/local/Media

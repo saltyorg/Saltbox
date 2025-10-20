@@ -16,12 +16,12 @@
     mode: "0775"
     recurse: true
   with_items:
-    - /opt/saltbox_mod
+    - "{{ server_appdata_path }}/saltbox_mod"
 
 - name: Clone saltbox_mod repo
   ansible.builtin.git:
     repo: "{{ saltbox_mod_repo }}"
-    dest: /opt/saltbox_mod
+    dest: "{{ server_appdata_path }}/saltbox_mod"
     clone: true
     version: "{{ saltbox_mod_branch }}"
     force: "{{ saltbox_mod_force_overwrite }}"

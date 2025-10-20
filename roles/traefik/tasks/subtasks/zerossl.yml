@@ -13,7 +13,7 @@
 
 - name: "ZeroSSL | Check if PIN exists"
   ansible.builtin.stat:
-    path: "/opt/saltbox/zerossl.ini"
+    path: "{{ traefik_zerossl_file_ini }}"
   register: zerossl_ini
 
 - name: "ZeroSSL | Existing Credentials Block"
@@ -21,8 +21,8 @@
   block:
     - name: "ZeroSSL | Set ZeroSSL variables"
       ansible.builtin.set_fact:
-        traefik_zerossl_kid: "{{ lookup('ini', 'kid section=zerossl file=/opt/saltbox/zerossl.ini') }}"
-        traefik_zerossl_hmacencoded: "{{ lookup('ini', 'hmacencoded section=zerossl file=/opt/saltbox/zerossl.ini') }}"
+        traefik_zerossl_kid: "{{ lookup('ini', 'kid section=zerossl file=' + traefik_zerossl_file_ini) }}"
+        traefik_zerossl_hmacencoded: "{{ lookup('ini', 'hmacencoded section=zerossl file=' + traefik_zerossl_file_ini) }}"
 
 - name: "ZeroSSL | New Credentials Block"
   when: not zerossl_ini.stat.exists
@@ -56,16 +56,16 @@
 
     - name: "ZeroSSL | Create directories"
       ansible.builtin.file:
-        path: "/opt/saltbox"
+        path: "{{ server_appdata_path }}/saltbox"
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
       when: (zerossl.status == 200) and zerossl.json.success
 
-    - name: "ZeroSSL | Add kid to '/opt/saltbox/zerossl.ini'"
+    - name: "ZeroSSL | Add kid to '{{ traefik_zerossl_file_ini }}'"
       community.general.ini_file:
-        path: /opt/saltbox/zerossl.ini
+        path: "{{ traefik_zerossl_file_ini }}"
         section: "zerossl"
         option: kid
         value: "{{ traefik_zerossl_kid }}"
@@ -74,9 +74,9 @@
         mode: "0664"
       when: (zerossl.status == 200) and zerossl.json.success
 
-    - name: "ZeroSSL | Add hmacencoded to '/opt/saltbox/zerossl.ini'"
+    - name: "ZeroSSL | Add hmacencoded to '{{ traefik_zerossl_file_ini }}'"
       community.general.ini_file:
-        path: /opt/saltbox/zerossl.ini
+        path: "{{ traefik_zerossl_file_ini }}"
         section: "zerossl"
         option: hmacencoded
         value: "{{ traefik_zerossl_hmacencoded }}"

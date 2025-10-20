@@ -15,7 +15,7 @@
 
 - name: Create ddclient directories
   ansible.builtin.file:
-    path: "/opt/ddclient"
+    path: "{{ server_appdata_path }}/ddclient"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -45,7 +45,7 @@
 - name: Import 'ddclient.conf'
   ansible.builtin.template:
     src: "ddclient.conf.j2"
-    dest: "/opt/ddclient/ddclient.conf"
+    dest: "{{ server_appdata_path }}/ddclient/ddclient.conf"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
@@ -61,7 +61,7 @@
       PUID: "{{ uid }}"
       PGID: "{{ gid }}"
     volumes:
-      - "/opt/ddclient:/config"
+      - "{{ server_appdata_path }}/ddclient:/config"
     labels:
       "com.github.saltbox.saltbox_managed": "true"
     networks:

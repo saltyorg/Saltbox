@@ -16,10 +16,10 @@
   with_items: "{{ pre_tasks_saltbox_roles.stdout_lines }}"
 
 - name: Sandbox
-  when: (playbook_dir == "/opt/saltbox_mod")
+  when: (playbook_dir == pre_tasks_saltbox_mod_location)
   block:
     - name: Find Sandbox roles
-      ansible.builtin.shell: "find /opt/sandbox/roles -type d -name 'defaults'"
+      ansible.builtin.shell: "find {{ server_appdata_path }}/sandbox/roles -type d -name 'defaults'"
       register: pre_tasks_sandbox_roles
 
     - name: Include Sandbox role default vars

@@ -7,9 +7,9 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Check for '/opt/mariadb/databases'
+- name: Check for '{{ server_appdata_path }}/mariadb/databases'
   ansible.builtin.stat:
-    path: "/opt/mariadb/databases"
+    path: "{{ server_appdata_path }}/mariadb/databases"
   register: subfolder
 
 - name: Dump and backup databases
@@ -45,7 +45,7 @@
 
     - name: Creating database dump
       ansible.builtin.shell: |
-        docker exec mariadb sh -c 'exec mariadb-dump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > /opt/mariadb/dump.sql
+        docker exec mariadb sh -c 'exec mariadb-dump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > {{ server_appdata_path }}/mariadb/dump.sql
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
@@ -56,16 +56,16 @@
       vars:
         var_prefix: "mariadb"
 
-    - name: Relocate '/opt/mariadb' to '/opt/mariadb_legacy'
-      ansible.builtin.shell: "mv /opt/mariadb /opt/mariadb_legacy"
+    - name: Relocate '{{ server_appdata_path }}/mariadb' to '{{ server_appdata_path }}/mariadb_legacy'
+      ansible.builtin.shell: "mv {{ server_appdata_path }}/mariadb {{ server_appdata_path }}/mariadb_legacy"
       register: relocate
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
         timeout: 5
 
-    - name: Remove '/opt/mariadb/'
+    - name: Remove '{{ server_appdata_path }}/mariadb/'
       ansible.builtin.file:
-        path: /opt/mariadb/
+        path: "{{ server_appdata_path }}/mariadb/"
         state: absent
       when: relocate.rc == 0

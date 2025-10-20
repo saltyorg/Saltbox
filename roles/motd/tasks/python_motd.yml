@@ -10,7 +10,7 @@
 - name: Clone Saltbox MOTD
   ansible.builtin.git:
     repo: https://github.com/saltyorg/motd.git
-    dest: /opt/motd
+    dest: "{{ server_appdata_path }}/motd"
     clone: true
     version: HEAD
     force: true
@@ -19,13 +19,13 @@
 
 - name: Check if 'config.json' exists
   ansible.builtin.stat:
-    path: "/opt/motd/config.json"
+    path: "{{ server_appdata_path }}/motd/config.json"
   register: motd_config
 
 - name: Import default 'config.json'
   ansible.builtin.template:
     src: config.json.j2
-    dest: /opt/motd/config.json
+    dest: "{{ server_appdata_path }}/motd/config.json"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
@@ -36,29 +36,29 @@
   when: motd_config.stat.exists
   block:
     - name: Check value of motd banner
-      ansible.builtin.shell: "jq '.motd.banner_title' /opt/motd/config.json"
+      ansible.builtin.shell: "jq '.motd.banner_title' {{ server_appdata_path }}/motd/config.json"
       register: motd_banner
 
     - name: Migrate value of motd banner
       ansible.builtin.shell: |
-        jq '.motd.banner_title = "Saltbox"' /opt/motd/config.json | sponge /opt/motd/config.json
+        jq '.motd.banner_title = "Saltbox"' {{ server_appdata_path }}/motd/config.json | sponge {{ server_appdata_path }}/motd/config.json
       when: ('Cloudbox' in motd_banner.stdout)
 
 - name: Config path migration
   when: motd_config.stat.exists
   block:
     - name: Check value of disk path
-      ansible.builtin.shell: "jq '.disk.path' /opt/motd/config.json"
+      ansible.builtin.shell: "jq '.disk.path' {{ server_appdata_path }}/motd/config.json"
       register: disk_path
 
     - name: Migrate value of disk path  # noqa jinja[spacing]
       ansible.builtin.shell: |
-        jq --arg disk / '. + {disk: {path: $disk}}' /opt/motd/config.json | sponge /opt/motd/config.json
+        jq --arg disk / '. + {disk: {path: $disk}}' {{ server_appdata_path }}/motd/config.json | sponge {{ server_appdata_path }}/motd/config.json
       when: (disk_path.stdout == 'null')
 
-- name: Touch '/opt/motd/activity.log' file
+- name: Touch '{{ server_appdata_path }}/motd/activity.log' file
   ansible.builtin.file:
-    path: /opt/motd/activity.log
+    path: "{{ server_appdata_path }}/motd/activity.log"
     state: touch
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -66,14 +66,14 @@
 
 - name: Set 'saltbox-motd.py' as executable
   ansible.builtin.file:
-    path: /opt/motd/saltbox-motd.py
+    path: "{{ server_appdata_path }}/motd/saltbox-motd.py"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: a+x
 
 - name: Import dynamic motd files
   ansible.builtin.copy:
-    src: /opt/motd/motd/
+    src: "{{ server_appdata_path }}/motd/motd/"
     dest: /etc/update-motd.d/
     force: true
     mode: "0775"

@@ -87,6 +87,12 @@ traefik_trusted_ips_template: "{{ traefik_trusted_ips
                                else '' }}"
 
 ################################
+# Lookups
+################################
+
+traefik_zerossl_file_ini: "{{ server_appdata_path }}/saltbox/zerossl.ini"
+
+################################
 # Booleans
 ################################
 

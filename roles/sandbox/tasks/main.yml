@@ -9,7 +9,7 @@
 ---
 - name: Create Sandbox directory
   ansible.builtin.file:
-    path: "/opt/sandbox"
+    path: "{{ server_appdata_path }}/sandbox"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
@@ -18,13 +18,13 @@
 
 - name: Check if git repository exists
   ansible.builtin.stat:
-    path: "/opt/sandbox/.git"
+    path: "{{ server_appdata_path }}/sandbox/.git"
   register: git_repo_check
 
 - name: Clone Sandbox repo 'HEAD'
   ansible.builtin.git:
     repo: https://github.com/saltyorg/sandbox.git
-    dest: /opt/sandbox
+    dest: "{{ server_appdata_path }}/sandbox"
     clone: true
     version: HEAD
     force: true
@@ -37,7 +37,7 @@
 - name: Clone Sandbox repo 'master'
   ansible.builtin.git:
     repo: https://github.com/saltyorg/sandbox.git
-    dest: /opt/sandbox
+    dest: "{{ server_appdata_path }}/sandbox"
     clone: true
     version: master
     force: true
@@ -50,24 +50,24 @@
 - name: Import default files when missing
   ansible.builtin.copy:
     src: "{{ item }}"
-    dest: "/opt/sandbox/{{ (item | basename | splitext)[0] }}"
+    dest: "{{ server_appdata_path }}/sandbox/{{ (item | basename | splitext)[0] }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
     force: false
   with_fileglob:
-    - /opt/sandbox/defaults/*.*
+    - "{{ server_appdata_path }}/sandbox/defaults/*.*"
 
 - name: Force overwrite Sandbox ansible.cfg
   ansible.builtin.copy:
-    src: "/opt/sandbox/defaults/ansible.cfg.default"
-    dest: "/opt/sandbox/ansible.cfg"
+    src: "{{ server_appdata_path }}/sandbox/defaults/ansible.cfg.default"
+    dest: "{{ server_appdata_path }}/sandbox/ansible.cfg"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
     force: true
 
 - name: Activate Git Hooks
-  ansible.builtin.shell: bash /opt/sandbox/bin/git/init-hooks
+  ansible.builtin.shell: bash {{ server_appdata_path }}/sandbox/bin/git/init-hooks
   args:
-    chdir: "/opt/sandbox"
+    chdir: "{{ server_appdata_path }}/sandbox"

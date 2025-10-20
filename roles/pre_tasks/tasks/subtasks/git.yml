@@ -23,5 +23,5 @@
   when: ('preinstall' in ansible_run_tags) or (not '/srv/git/sb' in git_config.stdout)
 
 - name: Git | Set Sandbox repository as safe directory
-  ansible.builtin.shell: git config --global --add safe.directory /opt/sandbox
-  when: ('preinstall' in ansible_run_tags) or (not '/opt/sandbox' in git_config.stdout)
+  ansible.builtin.shell: git config --global --add safe.directory {{ server_appdata_path }}/sandbox
+  when: ('preinstall' in ansible_run_tags) or (not server_appdata_path + '/sandbox' in git_config.stdout)

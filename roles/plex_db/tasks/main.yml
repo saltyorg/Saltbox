@@ -7,17 +7,17 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: Delete old '/opt/plexsql'
+- name: "Delete old '{{ server_appdata_path }}/plexsql'"
   ansible.builtin.file:
-    path: "/opt/plexsql"
+    path: "{{ server_appdata_path }}/plexsql"
     state: absent
 
 - name: Copy Plex Binaries out
-  ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ /opt/plexsql"
+  ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ {{ server_appdata_path }}/plexsql"
 
-- name: Set '/opt/plexsql' ownership recursively
+- name: Set '{{ server_appdata_path }}/plexsql' ownership recursively
   ansible.builtin.file:
-    path: "/opt/plexsql"
+    path: "{{ server_appdata_path }}/plexsql"
     state: directory
     recurse: true
     owner: "{{ user.name }}"

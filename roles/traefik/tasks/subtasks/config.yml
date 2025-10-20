@@ -23,7 +23,7 @@
 
 - name: Create auth file
   community.general.htpasswd:
-    path: /opt/traefik/auth
+    path: "{{ server_appdata_path }}/traefik/auth"
     name: "{{ user.name }}"
     password: "{{ user.pass }}"
     owner: "{{ user.name }}"

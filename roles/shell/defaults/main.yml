@@ -26,7 +26,7 @@ shell_misc_argcomplete_command: "activate-global-python-argcomplete"
 ################################
 
 shell_z_git_repo_url: "https://github.com/rupa/z.git"
-shell_z_git_repo_dest: "/opt/z"
+shell_z_git_repo_dest: "{{ server_appdata_path }}/z"
 
 ################################
 # Bash

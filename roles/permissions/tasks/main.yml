@@ -10,8 +10,8 @@
 - name: Permissions | Recursively set permissions for '/mnt/local'
   ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /mnt/local"
 
-- name: Permissions | Recursively set permissions for '/opt'
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /opt"
+- name: Permissions | Recursively set permissions for '{{ server_appdata_path }}'
+  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_appdata_path }}"
 
 - name: Permissions | Recursively set permissions for '/home/{{ user.name }}'
   ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /home/{{ user.name }}"

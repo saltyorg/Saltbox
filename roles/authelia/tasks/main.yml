@@ -65,7 +65,7 @@
 
 - name: Cleanup legacy Redis directory
   ansible.builtin.file:
-    path: "/opt/authelia_redis"
+    path: "{{ server_appdata_path }}/authelia_redis"
     state: absent
 
 - name: "Import Redis Role"
@@ -90,7 +90,7 @@
     authelia_logrotate:
       - path: "{{ authelia_name }}"
         content: |
-          /opt/{{ authelia_name }}/authelia.log {
+          {{ server_appdata_path }}/{{ authelia_name }}/authelia.log {
               su {{ user.name }} {{ user.name }}
               rotate {{ lookup('role_var', '_log_max_backups') }}
               size {{ lookup('role_var', '_log_max_size') }}

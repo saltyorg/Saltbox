@@ -15,7 +15,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
   with_items:
-    - /opt/hetzner_nfs
+    - "{{ server_appdata_path }}/hetzner_nfs"
     - /mnt/feeder
 
 - name: Import 'hosts.deny' file
@@ -46,7 +46,7 @@
 - name: Import 'init_vlan.sh' file
   ansible.builtin.template:
     src: client/init_vlan.sh.j2
-    dest: /opt/hetzner_nfs/init_vlan.sh
+    dest: "{{ server_appdata_path }}/hetzner_nfs/init_vlan.sh"
     owner: '{{ user.name }}'
     group: '{{ user.name }}'
     mode: "0775"

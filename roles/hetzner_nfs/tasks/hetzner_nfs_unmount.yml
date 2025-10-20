@@ -35,7 +35,7 @@
     - "/etc/systemd/system/nfs_vlan.service"
     - "/etc/hosts.allow"
     - "/etc/hosts.deny"
-    - "/opt/hetzner_nfs"
+    - "{{ server_appdata_path }}/hetzner_nfs"
     - "/mnt/feeder"
 
   # mergerfs edits

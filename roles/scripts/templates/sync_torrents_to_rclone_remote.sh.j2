@@ -12,7 +12,7 @@
 
 if ! /usr/bin/screen -list | /bin/grep -q "torrents_sync"; then
 
-	/bin/rm -rfv /opt/scripts/rclone/sync_torrents_to_rclone_remote.log
+	/bin/rm -rfv {{ server_appdata_path }}/scripts/rclone/sync_torrents_to_rclone_remote.log
 
 	/usr/bin/screen -dmS torrents_sync /usr/bin/rclone sync \
 		--user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
@@ -23,7 +23,7 @@ if ! /usr/bin/screen -list | /bin/grep -q "torrents_sync"; then
 		--checkers=16 \
 		--drive-chunk-size=128M \
 		--fast-list \
-		--log-file=/opt/scripts/rclone/sync_torrents_to_rclone_remote.log \
+		--log-file={{ server_appdata_path }}/scripts/rclone/sync_torrents_to_rclone_remote.log \
 		{{ downloads_torrents_path }} {{ rclone_first_remote_name }}:/downloads/torrents
 
 fi

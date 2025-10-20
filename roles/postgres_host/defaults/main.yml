@@ -14,7 +14,7 @@ postgres_host_role_primary_version: "{{ postgres_host_role_versions[0] }}"
 # Data Directory
 ################################
 
-postgres_host_role_data_directory: "/opt/postgresql"
+postgres_host_role_data_directory: "{{ server_appdata_path }}/postgresql"
 
 ################################
 # Root Superuser

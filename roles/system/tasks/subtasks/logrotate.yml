@@ -39,7 +39,7 @@
           }
       - path: "sandbox"
         content: |
-          /opt/sandbox/sandbox.log {
+          {{ server_appdata_path }}/sandbox/sandbox.log {
               su {{ user.name }} {{ user.name }}
               weekly
               rotate 5
@@ -50,7 +50,7 @@
           }
       - path: "saltbox_mod"
         content: |
-          /opt/saltbox_mod/saltbox_mod.log {
+          {{ server_appdata_path }}/saltbox_mod/saltbox_mod.log {
               su {{ user.name }} {{ user.name }}
               weekly
               rotate 5
@@ -61,7 +61,7 @@
           }
       - path: "traefik"
         content: |
-          /opt/traefik/access.log {
+          {{ server_appdata_path }}/traefik/access.log {
               su {{ user.name }} {{ user.name }}
               rotate {{ lookup('role_var', '_log_max_backups', role='traefik') }}
               size {{ lookup('role_var', '_log_max_size', role='traefik') }}

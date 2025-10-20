@@ -14,10 +14,10 @@
   with_items:
     - "{{ ansible_mounts }}"
 
-- name: "Snapshot | Determine '/opt' filesystem type"
+- name: "Snapshot | Determine '{{ server_appdata_path }}' filesystem type"
   ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
-  when: backup_snapshot_enabled and (item.mount == '/opt')
+  when: backup_snapshot_enabled and (item.mount == server_appdata_path)
   with_items:
     - "{{ ansible_mounts }}"
 
@@ -37,14 +37,14 @@
       ansible.builtin.set_fact:
         backup_snapshot_source_path: "/"
         backup_snapshot_destination_path: "/btrfs/snapshots/root"
-        backup_opt_path: "/btrfs/snapshots/root/opt/"
+        backup_opt_path: "/btrfs/snapshots/root{{ server_appdata_path }}/"
       when: (root_fstype is defined) and (root_fstype == 'btrfs')
 
-    - name: "Snapshot | Set '/opt' BTRFS variables"
+    - name: "Snapshot | Set '{{ server_appdata_path }}' BTRFS variables"
       ansible.builtin.set_fact:
-        backup_snapshot_source_path: "/opt"
-        backup_snapshot_destination_path: "/opt/snapshots/opt"
-        backup_opt_path: "/opt/snapshots/opt/"
+        backup_snapshot_source_path: "{{ server_appdata_path }}"
+        backup_snapshot_destination_path: "{{ server_appdata_path }}/snapshots/opt"
+        backup_opt_path: "{{ server_appdata_path }}/snapshots/opt/"
       when: (opt_fstype is defined) and (opt_fstype == 'btrfs')
 
     - name: Snapshot | Check if BTRFS snapshot is mounted

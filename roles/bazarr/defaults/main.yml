@@ -93,7 +93,7 @@ bazarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='ba
 # Volumes
 bazarr_role_docker_volumes_default:
   - "{{ bazarr_role_paths_location }}:/config"
-  - "/opt/scripts:/scripts"
+  - "{{ server_appdata_path }}/scripts:/scripts"
 bazarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"
   - "/mnt/unionfs/Media/TV:/tv"

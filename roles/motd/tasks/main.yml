@@ -44,7 +44,7 @@
     mode: "0775"
     recurse: true
   with_items:
-    - /opt/motd
+    - "{{ server_appdata_path }}/motd"
 
 - name: Check if MOTD news service
   ansible.builtin.stat:

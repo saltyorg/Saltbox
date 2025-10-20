@@ -10,7 +10,7 @@ labels:
   type: syslog
 ---
 filenames:
-  - /opt/traefik/*.log
+  - {{ server_appdata_path }}/traefik/*.log
 labels:
   type: traefik
 ---

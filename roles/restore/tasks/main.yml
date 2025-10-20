@@ -143,7 +143,7 @@
 
 - name: "Delete 'z' opt folder when doing full restore"
   ansible.builtin.file:
-    path: "/opt/z"
+    path: "{{ server_appdata_path }}/z"
     state: absent
   when: (not restore_tar is defined)
 
@@ -159,7 +159,7 @@
 
 - name: "Check for existing backup folders (full restore)"
   ansible.builtin.stat:
-    path: "/opt/{{ (item | basename | splitext)[0] }}_bak"
+    path: "{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}_bak"
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   register: existing_bak_folders_full
@@ -168,55 +168,55 @@
 - name: "Fail if backup folders already exist (full restore)"
   ansible.builtin.fail:
     msg:
-      - "Backup folder '/opt/{{ (item.item | basename | splitext)[0] }}_bak' already exists."
+      - "Backup folder '{{ server_appdata_path }}/{{ (item.item | basename | splitext)[0] }}_bak' already exists."
       - "Please remove or rename existing backup folders before running restore."
       - "This prevents accidental loss of existing backup data."
   with_items: "{{ existing_bak_folders_full.results }}"
   when: (not restore_tar is defined) and item.stat.exists
   loop_control:
-    label: "'/opt/{{ (item.item | basename | splitext)[0] }}_bak'"
+    label: "'{{ server_appdata_path }}/{{ (item.item | basename | splitext)[0] }}_bak'"
 
-- name: "Backup existing folders in '/opt' to prevent overwriting them (full restore)"
-  ansible.builtin.shell: mv '/opt/{{ (item | basename | splitext)[0] }}' '/opt/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
+- name: "Backup existing folders in '{{ server_appdata_path }}' to prevent overwriting them (full restore)"
+  ansible.builtin.shell: mv '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}' '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
-    label: "'/opt/{{ (item | basename | splitext)[0] }}' --> '/opt/{{ (item | basename | splitext)[0] }}_bak'"
+    label: "'{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}' --> '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}_bak'"
   when: (not restore_tar is defined)
 
 - name: "Check for existing backup folder (specific tar restore)"
   ansible.builtin.stat:
-    path: "/opt/{{ (restore_tar | basename | splitext)[0] }}_bak"
+    path: "{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak"
   register: existing_bak_folder_specific
   when: (restore_tar is defined)
 
 - name: "Fail if backup folder already exists (specific tar restore)"
   ansible.builtin.fail:
     msg:
-      - "Backup folder '/opt/{{ (restore_tar | basename | splitext)[0] }}_bak' already exists."
+      - "Backup folder '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak' already exists."
       - "Please remove or rename the existing backup folder before running restore."
       - "This prevents accidental loss of existing backup data."
   when: (restore_tar is defined) and existing_bak_folder_specific.stat.exists
 
-- name: "Backup existing folder in '/opt' to prevent overwriting it (specific tar restore)"
-  ansible.builtin.shell: mv '/opt/{{ (restore_tar | basename | splitext)[0] }}' '/opt/{{ (restore_tar | basename | splitext)[0] }}_bak' 2>/dev/null || true
+- name: "Backup existing folder in '{{ server_appdata_path }}' to prevent overwriting it (specific tar restore)"
+  ansible.builtin.shell: mv '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}' '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak' 2>/dev/null || true
   when: (restore_tar is defined)
 
-- name: "Unarchive backup tarballs into '/opt' (full restore)"
-  ansible.builtin.shell: tar -xf '{{ item }}' -C '/opt/'
+- name: "Unarchive backup tarballs into '{{ server_appdata_path }}' (full restore)"
+  ansible.builtin.shell: tar -xf '{{ item }}' -C '{{ server_appdata_path }}/'
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
-    label: "'{{ item | basename }}' --> '/opt/{{ (item | basename | splitext)[0] }}'"
+    label: "'{{ item | basename }}' --> '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}'"
   register: unarchive
   when: (not restore_tar is defined)
 
-- name: "Unarchive specific backup tarball into '/opt' (specific tar restore)"
-  ansible.builtin.shell: tar -xf '{{ backup.local.destination }}/opt/{{ restore_tar }}' -C '/opt/'
+- name: "Unarchive specific backup tarball into '{{ server_appdata_path }}' (specific tar restore)"
+  ansible.builtin.shell: tar -xf '{{ backup.local.destination }}/opt/{{ restore_tar }}' -C '{{ server_appdata_path }}/'
   register: unarchive
   when: (restore_tar is defined)
 
-- name: "Set '/opt' ownership and permissions"
+- name: "Set '{{ server_appdata_path }}' ownership and permissions"
   ansible.builtin.include_tasks: "permissions.yml"
   tags: opt-permissions-reset
 

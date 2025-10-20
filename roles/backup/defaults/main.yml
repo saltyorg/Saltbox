@@ -21,8 +21,8 @@ backup_instance: "Saltbox"
 ################################
 
 backup_size_exclude_folders:
-  - "/opt/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder"
-  - "/opt/plex/Library/Application Support/Plex Media Server/Cache/Transcode"
+  - "{{ server_appdata_path }}/plex/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder"
+  - "{{ server_appdata_path }}/plex/Library/Application Support/Plex Media Server/Cache/Transcode"
 
 ################################
 # Notifications
@@ -57,5 +57,5 @@ backup_cleanup_custom_rclone_flags: ""
 ################################
 
 snapshot_type: ""
-backup_opt_path: "/opt/"
+backup_opt_path: "{{ server_appdata_path }}/"
 use_snapshot: false

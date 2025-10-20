@@ -1,5 +1,5 @@
 ##########################################################################
-# Title:         Saltbox: Node Exporter | Default Variables              #
+# Title:         Saltbox: pre_tasks | Default Variables                  #
 # Author(s):     salty                                                   #
 # URL:           https://github.com/saltyorg/Saltbox                     #
 # --                                                                     #
@@ -7,11 +7,4 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-node_exporter_path: "{{ server_appdata_path }}/node_exporter"
-
-node_exporter_latest_releases_url: "{{ svm }}https://api.github.com/repos/prometheus/node_exporter/releases/latest"
-
-node_exporter_latest_release_lookup_command: |
-  curl -s {{ node_exporter_latest_releases_url }} \
-    | jq -r ".assets[] |select(.name | test(\"linux-amd64.tar.gz\")) \
-    | .browser_download_url"
+pre_tasks_saltbox_mod_location: "{{ server_appdata_path }}/saltbox_mod"

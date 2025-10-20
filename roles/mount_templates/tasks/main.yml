@@ -16,12 +16,12 @@
     mode: "0775"
     recurse: true
   with_items:
-    - /opt/mount-templates
+    - "{{ server_appdata_path }}/mount-templates"
 
 - name: Clone mount-templates repo 'HEAD'
   ansible.builtin.git:
     repo: https://github.com/saltyorg/mount-templates.git
-    dest: /opt/mount-templates
+    dest: "{{ server_appdata_path }}/mount-templates"
     clone: true
     version: HEAD
     force: true
@@ -33,7 +33,7 @@
 - name: Clone mount-templates repo 'main'
   ansible.builtin.git:
     repo: https://github.com/saltyorg/mount-templates.git
-    dest: /opt/mount-templates
+    dest: "{{ server_appdata_path }}/mount-templates"
     clone: true
     version: main
     force: true

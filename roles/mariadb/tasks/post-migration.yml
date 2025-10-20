@@ -9,7 +9,7 @@
 ---
 - name: Check for 'dump.sql'
   ansible.builtin.stat:
-    path: "/opt/mariadb_legacy/dump.sql"
+    path: "{{ server_appdata_path }}/mariadb_legacy/dump.sql"
   register: dump
 
 - name: Import databases
@@ -21,7 +21,7 @@
 
     - name: Restore data from dump file
       ansible.builtin.shell: |
-        docker exec -i mariadb sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < /opt/mariadb_legacy/dump.sql
+        docker exec -i mariadb sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < {{ server_appdata_path }}/mariadb_legacy/dump.sql
 
     - name: Force MariaDB upgrade
       ansible.builtin.shell: |

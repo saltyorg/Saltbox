@@ -121,6 +121,8 @@ jobs:
       - name: Create basic vars file
         run: |
           echo "continuous_integration: true" > vars.yml
+          echo "server_appdata_path: /opt2" >> vars.yml
+          sudo mkdir -p /opt2
 
       - name: Add Docker Hub info to vars file
         if: github.repository == 'saltyorg/Saltbox' && github.event.repository.fork == false

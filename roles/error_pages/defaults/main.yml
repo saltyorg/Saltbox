@@ -42,7 +42,7 @@ error_pages_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', rol
 
 # Volumes
 error_pages_role_docker_volumes_default:
-  - "/opt/error-pages:/opt/html"
+  - "{{ server_appdata_path }}/error-pages:/opt/html"
 error_pages_role_docker_volumes_custom: []
 error_pages_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='error_pages')
                                      + lookup('role_var', '_docker_volumes_custom', role='error_pages') }}"

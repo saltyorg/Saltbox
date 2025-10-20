@@ -13,7 +13,7 @@
 
 if ! /usr/bin/screen -list | /bin/grep -q "torrents_download"; then
 
-	/bin/rm -rfv /opt/scripts/rclone/download_torrents_from_rclone_remote.log
+	/bin/rm -rfv {{ server_appdata_path }}/scripts/rclone/download_torrents_from_rclone_remote.log
 
 	/usr/bin/screen -dmS torrents_download /usr/bin/rclone copy \
 		--user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' \
@@ -24,7 +24,7 @@ if ! /usr/bin/screen -list | /bin/grep -q "torrents_download"; then
 		--checkers=16 \
 		--drive-chunk-size=128M \
 		--fast-list \
-		--log-file=/opt/scripts/rclone/download_torrents_from_rclone_remote.log \
+		--log-file={{ server_appdata_path }}/scripts/rclone/download_torrents_from_rclone_remote.log \
 		{{ rclone_first_remote_name }}:/downloads/torrents {{ downloads_torrents_path }}
 
 fi

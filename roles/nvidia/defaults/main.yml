@@ -41,7 +41,7 @@ nvidia_patch_download_url: "https://raw.githubusercontent.com/keylase/nvidia-pat
 nvidia_patch_download_dest: "/tmp/NVIDIA-patch.sh"
 
 # Harcoded in the patch script file
-nvidia_patch_backup_file_location: "/opt/nvidia/libnvidia-encode-backup"
+nvidia_patch_backup_file_location: "{{ server_appdata_path }}/nvidia/libnvidia-encode-backup"
 
 ################################
 # Docker
