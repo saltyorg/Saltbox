@@ -237,6 +237,6 @@
   vars:
     postgres_version: "{{ postgres_item }}"
     cluster_port: "{{ postgres_port_assignments[postgres_item] }}"
-  loop: "{{ postgres_host_role_versions }}"
+  loop: "{{ postgres_host_role_versions | unique }}"
   loop_control:
     loop_var: "postgres_item"

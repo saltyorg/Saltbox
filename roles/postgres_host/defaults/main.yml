@@ -7,17 +7,22 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+################################
+# Basics
+################################
+
+# Supports any versions from https://wiki.postgresql.org/wiki/Apt
+# Each version is unique and you cannot specify the same version twice
 postgres_host_role_versions: ["17"]
-postgres_host_role_primary_version: "{{ postgres_host_role_versions[0] }}"
 
 ################################
-# Data Directory
+# Paths
 ################################
 
 postgres_host_role_data_directory: "{{ server_appdata_path }}/postgresql"
 
 ################################
-# Root Superuser
+# Superuser
 ################################
 
 postgres_host_role_create_root_superuser: true
@@ -28,7 +33,6 @@ postgres_host_role_root_superuser_password: "password4321"
 # Per-Version Configuration
 ################################
 
-postgres_host_role_config: {}
 # Example:
 # postgres_host_role_config:
 #   "16":
@@ -60,6 +64,7 @@ postgres_host_role_config: {}
 #       - name: "new_app_database"
 #         users:
 #           - "app_user3"
+postgres_host_role_config: {}
 
 ################################
 # Access Control
@@ -71,7 +76,7 @@ postgres_host_role_allowed_hosts:
 postgres_host_role_auth_method: "scram-sha-256"
 
 ################################
-# Global Fallback Configuration
+# User & Database Configuration
 ################################
 
 postgres_host_role_users:
