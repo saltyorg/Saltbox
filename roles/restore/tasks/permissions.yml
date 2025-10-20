@@ -7,8 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Set '/opt' ownership recursively
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /opt"
+- name: Set '{{ server_appdata_path }}' ownership recursively
+  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_appdata_path }}"
 
-- name: Set '/opt' permissions recursively
-  ansible.builtin.shell: "chmod -R ugo+X /opt"
+- name: Set '{{ server_appdata_path }}' permissions recursively
+  ansible.builtin.shell: "chmod -R ugo+X {{ server_appdata_path }}"

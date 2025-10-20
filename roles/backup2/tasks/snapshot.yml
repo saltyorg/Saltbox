@@ -37,7 +37,7 @@
       ansible.builtin.set_fact:
         backup_snapshot_source_path: "/"
         backup_snapshot_destination_path: "/btrfs/snapshots/root"
-        backup_opt_path: "/btrfs/snapshots/root/opt/"
+        backup_opt_path: "/btrfs/snapshots/root{{ server_appdata_path }}/"
       when: (root_fstype is defined) and (root_fstype == 'btrfs')
 
     - name: "Snapshot | Set '{{ server_appdata_path }}' BTRFS variables"

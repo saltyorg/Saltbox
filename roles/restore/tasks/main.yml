@@ -85,7 +85,7 @@
 - name: BTRFS Tasks
   ansible.builtin.include_tasks: "btrfs.yml"
   loop:
-    - /opt
+    - "{{ server_appdata_path }}"
     - /mnt/local
   loop_control:
     loop_var: outer_item
@@ -98,7 +98,7 @@
     group: "{{ user.name }}"
     mode: "0775"
   with_items:
-    - /opt
+    - "{{ server_appdata_path }}"
     - /mnt/local
 
 - name: "Create backup location '{{ backup.local.destination }}'"
