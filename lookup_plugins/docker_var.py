@@ -1,4 +1,5 @@
 from ansible.plugins.lookup import LookupBase
+from ansible.errors import AnsibleLookupError
 from ansible.utils.display import Display
 from typing import Any, List, Optional, Dict
 import json
@@ -81,7 +82,6 @@ class LookupModule(LookupBase):
             convert_json = True
 
         self._templar.available_variables = variables
-        omit: Any = variables.get('omit')
 
         if '_var_prefix' not in variables:
             raise KeyError("[docker_var] Required variable '_var_prefix' not found")
@@ -168,6 +168,8 @@ class LookupModule(LookupBase):
         if last_error is not None:
             raise last_error
 
-        # Otherwise return omit
-        display.vvv(f"[docker_var] No usable variable found, returning omit")
-        return [omit]
+        # Otherwise raise an error - variable not found and no default provided
+        raise AnsibleLookupError(
+            f"[docker_var] Variable not found and no default provided. "
+            f"Tried the following variables in order: {', '.join(vars_to_check)}"
+        )

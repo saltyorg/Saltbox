@@ -19,6 +19,6 @@
 - name: "Cloudflare | Python | Check if Python needs upgrading"
   ansible.builtin.set_fact:
     cloudflare_reinstall: "{{ (cloudflare_uv_python_path.rc != 0)
-                              or (cloudflare_folder_symlink.stat.islnk | default(false)
-                                 and cloudflare_folder_symlink.stat.lnk_target is defined
+                              or ((cloudflare_folder_symlink.stat.islnk | default(false))
+                                 and (cloudflare_folder_symlink.stat.lnk_target is defined)
                                  and (cloudflare_folder_symlink.stat.lnk_target != cloudflare_uv_python_path.stdout)) }}"
