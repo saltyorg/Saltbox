@@ -7,175 +7,178 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Install mokutil
-  ansible.builtin.apt:
-    name: mokutil
-    state: latest
-
-- name: Check if Secure Boot is enabled
-  ansible.builtin.shell: "mokutil --sb-state | grep -q 'SecureBoot enabled'"
-  register: secure_boot_enabled
-  changed_when: false
-  failed_when: false
-
-- name: Fail if Secure Boot is enabled
-  ansible.builtin.fail:
-    msg: "This role does not support SecureBoot enabled systems."
-  when: secure_boot_enabled.rc == 0
-
-- name: Install pkg-config
-  ansible.builtin.apt:
-    name: pkg-config
-    state: latest
-
-- name: Fetch all Nvidia GPU IDs
-  ansible.builtin.shell: lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1
-  register: nvidia_gpu_ids
-  changed_when: false
-
-- name: Check if any NVIDIA GPUs were found
-  ansible.builtin.set_fact:
-    nvidia_gpus_found: "{{ nvidia_gpu_ids.stdout_lines | length > 0 }}"
-
-- name: Fail if no NVIDIA GPU was detected
-  ansible.builtin.fail:
-    msg: "No Nvidia GPUs could be detected."
-  when: not nvidia_gpus_found
-
-- name: Nvidia Setup block
-  when: nvidia_gpus_found
+- name: Nvidia Tasks
+  when: (nvidia_driver_version | lower != 'ignore')
   block:
-    - name: Fetch detailed info for all Nvidia GPUs
-      ansible.builtin.shell: lspci -s {{ item }}
-      register: nvidia_gpu_info
+    - name: Install mokutil
+      ansible.builtin.apt:
+        name: mokutil
+        state: latest
+
+    - name: Check if Secure Boot is enabled
+      ansible.builtin.shell: "mokutil --sb-state | grep -q 'SecureBoot enabled'"
+      register: secure_boot_enabled
       changed_when: false
-      with_items: "{{ nvidia_gpu_ids.stdout_lines }}"
+      failed_when: false
 
-    - name: Create a list of all GPU details
-      ansible.builtin.set_fact:
-        all_nvidia_gpus: "{{ nvidia_gpu_info.results | map(attribute='stdout') | list }}"
-
-    - name: Check if any GeForce GPUs are present
-      ansible.builtin.set_fact:
-        geforce_gpu_present: "{{ all_nvidia_gpus | select('search', 'GeForce') | list | length > 0 }}"
-
-    - name: Display detected NVIDIA GPUs
-      ansible.builtin.debug:
-        msg:
-          - "Detected {{ all_nvidia_gpus | length }} NVIDIA GPU(s):"
-          - "{{ all_nvidia_gpus }}"
-          - "GeForce GPU present: {{ geforce_gpu_present | default(false) }}"
-
-    - name: Fetch NVIDIA driver patch script
-      ansible.builtin.uri:
-        url: "{{ nvidia_patch_download_url }}"
-        return_content: true
-      register: patch_script
-
-    - name: Extract supported driver versions
-      ansible.builtin.set_fact:
-        supported_versions: >-
-          {{ patch_script.content | regex_findall('\[\"([0-9.]+)\"\]') | map('regex_replace', '\"', '') | unique | sort }}
-
-    - name: Latest supported version
-      ansible.builtin.debug:
-        msg: "Latest supported version is {{ supported_versions[-1] }}"
-
-    - name: Define latest version
-      ansible.builtin.set_fact:
-        nvidia_driver_version: "{{ supported_versions[-1] }}"
-      when: nvidia_driver_version == "latest"
-
-    - name: Check for incompatible version (GeForce patching)
+    - name: Fail if Secure Boot is enabled
       ansible.builtin.fail:
-        msg: "Driver version: {{ nvidia_driver_version }} is not supported by the keylase patch."
-      when: geforce_gpu_present and (nvidia_driver_version != "latest") and nvidia_driver_version not in supported_versions
+        msg: "This role does not support SecureBoot enabled systems."
+      when: secure_boot_enabled.rc == 0
 
-    - name: Get nvidia-smi driver version
-      ansible.builtin.shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
-      register: nvidia_smi_output
-      ignore_errors: true
+    - name: Install pkg-config
+      ansible.builtin.apt:
+        name: pkg-config
+        state: latest
 
-    - name: Set 'nvidia_installed_driver_version' variable
+    - name: Fetch all Nvidia GPU IDs
+      ansible.builtin.shell: lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1
+      register: nvidia_gpu_ids
+      changed_when: false
+
+    - name: Check if any NVIDIA GPUs were found
       ansible.builtin.set_fact:
-        nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout_lines[0] | default('')
-                                          if nvidia_smi_output.rc == 0
-                                          else '' }}"
+        nvidia_gpus_found: "{{ nvidia_gpu_ids.stdout_lines | length > 0 }}"
 
-    - name: Print driver state
-      ansible.builtin.debug:
-        msg:
-          - "Desired driver version: {{ nvidia_driver_version }}"
-          - "Current driver version: {{ nvidia_installed_driver_version
-                                     if (nvidia_installed_driver_version | length > 0)
-                                     else 'not installed' }}"
+    - name: Fail if no NVIDIA GPU was detected
+      ansible.builtin.fail:
+        msg: "No Nvidia GPUs could be detected."
+      when: not nvidia_gpus_found
 
-    - name: Nvidia Purge Drivers Tasks
-      when: ('nvidia-purge' in ansible_run_tags) or ((nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags) and (nvidia_driver_version | lower != 'ignore'))
+    - name: Nvidia Setup block
+      when: nvidia_gpus_found
       block:
-        - name: Purge Nvidia APT packages
-          ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
-          register: dpkg_purge_output
-          ignore_errors: true
+        - name: Fetch detailed info for all Nvidia GPUs
+          ansible.builtin.shell: lspci -s {{ item }}
+          register: nvidia_gpu_info
+          changed_when: false
+          with_items: "{{ nvidia_gpu_ids.stdout_lines }}"
 
-        - name: Remove dependencies that are no longer required
-          ansible.builtin.apt:
-            autoremove: true
+        - name: Create a list of all GPU details
+          ansible.builtin.set_fact:
+            all_nvidia_gpus: "{{ nvidia_gpu_info.results | map(attribute='stdout') | list }}"
 
-        - name: Success message
+        - name: Check if any GeForce GPUs are present
+          ansible.builtin.set_fact:
+            geforce_gpu_present: "{{ all_nvidia_gpus | select('search', 'GeForce') | list | length > 0 }}"
+
+        - name: Display detected NVIDIA GPUs
           ansible.builtin.debug:
             msg:
-              - "Purged Nvidia drivers. System will now reboot."
-              - "You will need to re-run your previous tag after the system has rebooted."
-          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+              - "Detected {{ all_nvidia_gpus | length }} NVIDIA GPU(s):"
+              - "{{ all_nvidia_gpus }}"
+              - "GeForce GPU present: {{ geforce_gpu_present | default(false) }}"
 
-        - name: Prompt user before continuing
-          ansible.builtin.pause:
-            prompt: "Read the instructions above and press enter when you have done so"
-          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+        - name: Fetch NVIDIA driver patch script
+          ansible.builtin.uri:
+            url: "{{ nvidia_patch_download_url }}"
+            return_content: true
+          register: patch_script
 
-        - name: Reboot
-          ansible.builtin.shell: reboot
-          when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+        - name: Extract supported driver versions
+          ansible.builtin.set_fact:
+            supported_versions: >-
+              {{ patch_script.content | regex_findall('\[\"([0-9.]+)\"\]') | map('regex_replace', '\"', '') | unique | sort }}
 
-    - name: Check if 'blacklist-nouveau.conf' exists
-      ansible.builtin.stat:
-        path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
-      register: blacklist_nouveau_conf
+        - name: Latest supported version
+          ansible.builtin.debug:
+            msg: "Latest supported version is {{ supported_versions[-1] }}"
 
-    - name: "Nvidia Kernel Task"
-      ansible.builtin.include_tasks: "subtasks/kernel.yml"
-      when:
-        - (not blacklist_nouveau_conf.stat.exists)
-        - nvidia_kernel_blacklist_nouveau
+        - name: Define latest version
+          ansible.builtin.set_fact:
+            nvidia_driver_version: "{{ supported_versions[-1] }}"
+          when: nvidia_driver_version == "latest"
 
-    - name: Nvidia Driver Tasks
-      when: ((nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_driver_version | lower != 'ignore') and ('nvidia' in ansible_run_tags)) or (nvidia_installed_driver_version | length == 0)
-      block:
-        - name: "Nvidia Driver Task"
-          ansible.builtin.include_tasks: "subtasks/driver.yml"
+        - name: Check for incompatible version (GeForce patching)
+          ansible.builtin.fail:
+            msg: "Driver version: {{ nvidia_driver_version }} is not supported by the keylase patch."
+          when: geforce_gpu_present and (nvidia_driver_version != "latest") and nvidia_driver_version not in supported_versions
 
-        - name: "Cleanup Patch backup"
-          ansible.builtin.file:
-            path: "{{ nvidia_patch_backup_file_location }}"
-            state: absent
+        - name: Get nvidia-smi driver version
+          ansible.builtin.shell: "nvidia-smi --query-gpu=driver_version --format=csv,noheader"
+          register: nvidia_smi_output
+          ignore_errors: true
 
-    - name: Nvidia Driver Patch Tasks
-      when: geforce_gpu_present
-      block:
-        - name: Check to see if patch backup files exist
+        - name: Set 'nvidia_installed_driver_version' variable
+          ansible.builtin.set_fact:
+            nvidia_installed_driver_version: "{{ nvidia_smi_output.stdout_lines[0] | default('')
+                                              if nvidia_smi_output.rc == 0
+                                              else '' }}"
+
+        - name: Print driver state
+          ansible.builtin.debug:
+            msg:
+              - "Desired driver version: {{ nvidia_driver_version }}"
+              - "Current driver version: {{ nvidia_installed_driver_version
+                                        if (nvidia_installed_driver_version | length > 0)
+                                        else 'not installed' }}"
+
+        - name: Nvidia Purge Drivers Tasks
+          when: ('nvidia-purge' in ansible_run_tags) or ((nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags))
+          block:
+            - name: Purge Nvidia APT packages
+              ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
+              register: dpkg_purge_output
+              ignore_errors: true
+
+            - name: Remove dependencies that are no longer required
+              ansible.builtin.apt:
+                autoremove: true
+
+            - name: Success message
+              ansible.builtin.debug:
+                msg:
+                  - "Purged Nvidia drivers. System will now reboot."
+                  - "You will need to re-run your previous tag after the system has rebooted."
+              when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+
+            - name: Prompt user before continuing
+              ansible.builtin.pause:
+                prompt: "Read the instructions above and press enter when you have done so"
+              when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+
+            - name: Reboot
+              ansible.builtin.shell: reboot
+              when: (dpkg_purge_output.stdout | length > 0) and (dpkg_purge_output.rc == 0)
+
+        - name: Check if 'blacklist-nouveau.conf' exists
           ansible.builtin.stat:
-            path: "{{ nvidia_patch_backup_file_location }}"
-          register: nvidia_patch_backup_folder
+            path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
+          register: blacklist_nouveau_conf
 
-        - name: "Nvidia Driver Patch Task"
-          ansible.builtin.include_tasks: "subtasks/patch.yml"
-          when: (not nvidia_patch_backup_folder.stat.exists)
+        - name: "Nvidia Kernel Task"
+          ansible.builtin.include_tasks: "subtasks/kernel.yml"
+          when:
+            - (not blacklist_nouveau_conf.stat.exists)
+            - nvidia_kernel_blacklist_nouveau
 
-    - name: "Nvidia Nvtop Task"
-      ansible.builtin.include_tasks: "subtasks/nvtop.yml"
+        - name: Nvidia Driver Tasks
+          when: ((nvidia_installed_driver_version != nvidia_driver_version) and ('nvidia' in ansible_run_tags)) or (nvidia_installed_driver_version | length == 0)
+          block:
+            - name: "Nvidia Driver Task"
+              ansible.builtin.include_tasks: "subtasks/driver.yml"
 
-    - name: "Install Docker"
-      ansible.builtin.include_role:
-        name: "docker"
-      when: ('nvidia' in ansible_run_tags)
+            - name: "Cleanup Patch backup"
+              ansible.builtin.file:
+                path: "{{ nvidia_patch_backup_file_location }}"
+                state: absent
+
+        - name: Nvidia Driver Patch Tasks
+          when: geforce_gpu_present
+          block:
+            - name: Check to see if patch backup files exist
+              ansible.builtin.stat:
+                path: "{{ nvidia_patch_backup_file_location }}"
+              register: nvidia_patch_backup_folder
+
+            - name: "Nvidia Driver Patch Task"
+              ansible.builtin.include_tasks: "subtasks/patch.yml"
+              when: (not nvidia_patch_backup_folder.stat.exists)
+
+        - name: "Nvidia Nvtop Task"
+          ansible.builtin.include_tasks: "subtasks/nvtop.yml"
+
+        - name: "Install Docker"
+          ansible.builtin.include_role:
+            name: "docker"
+          when: ('nvidia' in ansible_run_tags)
