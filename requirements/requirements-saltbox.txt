@@ -16,6 +16,6 @@ psycopg[binary]==3.2.11
 PyMySQL==1.1.2
 pyOpenSSL==25.3.0
 requests==2.32.5
-ruamel.yaml==0.18.15
+ruamel.yaml==0.18.16
 tld==0.13.1
 uv==0.9.5
