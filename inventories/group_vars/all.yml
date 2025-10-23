@@ -359,6 +359,14 @@ traefik_themepark_labels:
 # Docker
 ################################
 
+# Docker Platform (automatically detected based on architecture)
+docker_platform_map:
+  x86_64: "linux/amd64"
+  amd64: "linux/amd64"
+  aarch64: "linux/arm64"
+  arm64: "linux/arm64"
+docker_default_platform: "{{ docker_platform_map[ansible_architecture] | default('linux/amd64') }}"
+
 # Toggles pruning of dangling images after container creation.
 docker_create_image_prune: true
 
