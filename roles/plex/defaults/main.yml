@@ -120,10 +120,7 @@ plex_role_traefik_api_enabled: false
 plex_role_traefik_api_endpoint: ""
 plex_role_traefik_error_pages_enabled: false
 plex_role_traefik_gzip_enabled: false
-
-plex_role_traefik_middleware_http: "{{ 'globalHeaders@file'
-                                    if lookup('role_var', '_insecure', role='plex')
-                                    else traefik_default_middleware_default_http }}"
+plex_role_traefik_middleware_http_insecure: "{{ lookup('role_var', '_insecure', role='plex') | bool }}"
 plex_role_web_serverstransport: "skipverify@file"
 
 plex_role_webtools_traefik_sso_middleware: ""
