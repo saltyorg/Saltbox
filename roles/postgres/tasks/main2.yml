@@ -21,8 +21,13 @@
         path: "{{ lookup('role_var', '_paths_location', role='postgres') }}"
       register: stat_postgres_path
 
+    - name: "Check if '{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION' exists"
+      ansible.builtin.stat:
+        path: "{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION"
+      register: stat_postgres_version_path
+
     - name: Check for upgrade
-      when: stat_postgres_path.stat.exists
+      when: stat_postgres_path.stat.exists and stat_postgres_version_path.stat.exists
       block:
         - name: Read PG_VERSION file
           ansible.builtin.slurp:
