@@ -180,6 +180,7 @@ authelia_role_password_policy_zxcvbn_min_score: "3"
 
 # Access Control
 authelia_role_access_control_whitelist_host: false
+authelia_role_access_control_whitelist_docker: false
 authelia_role_access_control_default_policy: "deny"
 authelia_role_access_control_rules:
   - domain:
@@ -187,16 +188,36 @@ authelia_role_access_control_rules:
       - "{{ user.domain | lower }}"
     policy: "{{ lookup('role_var', '_access_control_policy', role='authelia') }}"
 
-authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules', role='authelia') if lookup('role_var', '_access_control_whitelist_host', role='authelia') and (dns_ipv4_enabled or dns_ipv6_enabled) else [] }}"
+authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker_lookup', role='authelia')
+                                                         + lookup('role_var', '_access_control_whitelist_rules_host_lookup', role='authelia') }}"
 
-authelia_role_access_control_whitelist_rules:
+
+authelia_role_access_control_whitelist_rules_docker_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker', role='authelia')
+                                                             if lookup('role_var', '_access_control_whitelist_docker', role='authelia')
+                                                             else [] }}"
+
+authelia_role_access_control_whitelist_rules_host_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_host', role='authelia')
+                                                           if lookup('role_var', '_access_control_whitelist_host', role='authelia') and (dns_ipv4_enabled or dns_ipv6_enabled)
+                                                           else [] }}"
+
+authelia_role_access_control_whitelist_rules_host:
   - domain:
       - "{{ '*.' + user.domain }}"
       - "{{ user.domain }}"
     policy: bypass
-    networks: "{{ lookup('role_var', '_access_control_whitelist_networks', role='authelia') | unique | reject('equalto', omit) | list }}"
+    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_host', role='authelia') | unique | reject('equalto', omit) | list }}"
 
-authelia_role_access_control_whitelist_networks:
+authelia_role_access_control_whitelist_rules_docker:
+  - domain:
+      - "{{ '*.' + user.domain }}"
+      - "{{ user.domain }}"
+    policy: bypass
+    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_docker', role='authelia') | unique | reject('equalto', omit) | list }}"
+
+authelia_role_access_control_whitelist_networks_docker:
+  - "172.19.0.0/16"
+
+authelia_role_access_control_whitelist_networks_host:
   - "{{ (ip_address_public + '/32') if dns_ipv4_enabled else omit }}"
   - "{{ (ipv6_address_public + '/128') if dns_ipv6_enabled else omit }}"
 
