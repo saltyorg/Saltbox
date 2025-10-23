@@ -99,16 +99,6 @@
     group: "{{ user.name }}"
     mode: "0644"
 
-- name: "Install Sub-Zero Plugin"
-  ansible.builtin.include_role:
-    name: sub_zero
-  when: lookup('role_var', '_plugin_sub_zero', role='plex')
-
-- name: "Install WebTools Plugin"
-  ansible.builtin.include_role:
-    name: webtools
-  when: lookup('role_var', '_plugin_webtools', role='plex')
-
 - name: Start Docker Container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
   vars:

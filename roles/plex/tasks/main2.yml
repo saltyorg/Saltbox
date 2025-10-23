@@ -22,14 +22,6 @@
     dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
     dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
-- name: Add DNS record
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
-  vars:
-    dns_record: "{{ lookup('role_var', '_webtools_dns_record') }}"
-    dns_zone: "{{ lookup('role_var', '_webtools_dns_zone') }}"
-    dns_proxy: "{{ lookup('role_var', '_webtools_dns_proxy') }}"
-  when: lookup('role_var', '_plugin_webtools', role='plex')
-
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
@@ -79,4 +71,4 @@
 - name: "Execute Plex Extra Tasks role"
   ansible.builtin.include_role:
     name: "plex_extra_tasks"
-  when: (lookup('role_var', '_plugin_sub_zero', role='plex') or lookup('role_var', '_plugin_webtools', role='plex')) and (not continuous_integration)
+  when: (not continuous_integration)

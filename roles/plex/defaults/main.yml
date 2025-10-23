@@ -21,8 +21,6 @@ plex_instances: ["plex"]
 plex_role_open_main_ports: false
 # Do not enable globally if deploying multiple instances
 plex_role_open_local_ports: false
-plex_role_plugin_webtools: false
-plex_role_plugin_sub_zero: false
 # Disables Traefik's HTTP to HTTPS redirect for Plex
 # Allows older clients with certificate issues to connect insecurely
 plex_role_insecure: false
@@ -85,10 +83,6 @@ plex_role_web_http_scheme: "http"
 plex_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
                     if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
                     else lookup('role_var', '_web_domain', role='plex')) }}"
-plex_role_webtools_web_subdomain: "{{ plex_name }}-webtools"
-plex_role_webtools_web_domain: "{{ lookup('role_var', '_web_domain', role='plex') }}"
-plex_role_webtools_web_port: "33400"
-plex_role_webtools_host: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') + '.' + lookup('role_var', '_webtools_web_domain', role='plex') }}"
 plex_role_web_insecure_url: "{{ 'http://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
                              if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
                              else lookup('role_var', '_web_domain', role='plex')) }}"
@@ -100,9 +94,6 @@ plex_role_web_insecure_url: "{{ 'http://' + (lookup('role_var', '_web_subdomain'
 plex_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='plex') }}"
 plex_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='plex') }}"
 plex_role_dns_proxy: "{{ dns_proxied }}"
-plex_role_webtools_dns_record: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') }}"
-plex_role_webtools_dns_zone: "{{ lookup('role_var', '_webtools_web_domain', role='plex') }}"
-plex_role_webtools_dns_proxy: "{{ dns_proxied }}"
 
 ################################
 # Traefik
@@ -122,19 +113,6 @@ plex_role_traefik_error_pages_enabled: false
 plex_role_traefik_gzip_enabled: false
 plex_role_traefik_middleware_http_insecure: "{{ lookup('role_var', '_insecure', role='plex') | bool }}"
 plex_role_web_serverstransport: "skipverify@file"
-
-plex_role_webtools_traefik_sso_middleware: ""
-plex_role_webtools_traefik_middleware_default: "{{ traefik_default_middleware
-                                                   + (',' + lookup('role_var', '_webtools_traefik_sso_middleware', role='plex')
-                                                     if (lookup('role_var', '_webtools_traefik_sso_middleware', role='plex') | length > 0)
-                                                     else '') }}"
-plex_role_webtools_traefik_middleware_custom: ""
-plex_role_webtools_traefik_middleware: "{{ lookup('role_var', '_webtools_traefik_middleware_default', role='plex')
-                                           + (',' + lookup('role_var', '_webtools_traefik_middleware_custom', role='plex')
-                                             if (not lookup('role_var', '_webtools_traefik_middleware_custom', role='plex').startswith(',') and lookup('role_var', '_webtools_traefik_middleware_custom', role='plex') | length > 0)
-                                             else lookup('role_var', '_webtools_traefik_middleware_custom', role='plex')) }}"
-plex_role_webtools_traefik_certresolver: "{{ traefik_default_certresolver }}"
-plex_role_webtools_traefik_router: "{{ lookup('role_var', '_webtools_web_subdomain', role='plex') }}"
 
 ################################
 # Theme
@@ -242,26 +220,11 @@ plex_role_docker_hosts: "{{ lookup('role_var', '_docker_hosts_default', role='pl
                             | combine(lookup('role_var', '_docker_hosts_custom', role='plex')) }}"
 
 # Labels
-plex_role_docker_labels_default:
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.entrypoints": "web" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.service": "{{ lookup("role_var", "_webtools_web_subdomain", role="plex") }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.rule": "Host(`{{ lookup("role_var", "_webtools_host", role="plex") }}`)" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.middlewares": "{{ traefik_default_middleware_http }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}-http.priority": "20" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.entrypoints": "websecure" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.service": "{{ lookup("role_var", "_webtools_web_subdomain", role="plex") }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.rule": "Host(`{{ lookup("role_var", "_webtools_host", role="plex") }}`)" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.tls.certresolver": "{{ plex_role_webtools_traefik_certresolver }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.middlewares": "{{ plex_role_webtools_traefik_middleware }}" }'
-  - '{ "traefik.http.routers.{{ plex_role_webtools_traefik_router }}.priority": "20" }'
-  - '{ "traefik.http.services.{{ plex_role_webtools_traefik_router }}.loadbalancer.server.port": "{{ lookup("role_var", "_web_port", role="plex") }}" }'
 plex_role_docker_labels_custom: {}
-plex_role_docker_labels: "{{ (lookup('role_var', '_docker_labels_default', role='plex') if lookup('role_var', '_plugin_webtools', role='plex') else {})
-                              | combine((traefik_themepark_labels
-                                        if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
-                                        else {}),
-                                        lookup('role_var', '_docker_labels_custom', role='plex')) }}"
+plex_role_docker_labels: "{{ lookup('role_var', '_docker_labels_custom', role='plex')
+                             | combine((traefik_themepark_labels
+                                       if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
+                                       else {})) }}"
 
 # Hostname
 plex_role_docker_hostname: "{{ plex_name }}"
