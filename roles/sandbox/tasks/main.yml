@@ -58,15 +58,6 @@
   with_fileglob:
     - /opt/sandbox/defaults/*.*
 
-- name: Force overwrite Sandbox ansible.cfg
-  ansible.builtin.copy:
-    src: "/opt/sandbox/defaults/ansible.cfg.default"
-    dest: "/opt/sandbox/ansible.cfg"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0664"
-    force: true
-
 - name: Activate Git Hooks
   ansible.builtin.shell: bash /opt/sandbox/bin/git/init-hooks
   args:
