@@ -201,7 +201,6 @@
         mode: "0664"
         force: true
       with_items:
-        - "{{ playbook_dir }}/ansible.cfg"
         - "{{ playbook_dir }}/accounts.yml"
         - "{{ playbook_dir }}/settings.yml"
         - "{{ playbook_dir }}/adv_settings.yml"
@@ -568,7 +567,6 @@
       ansible.builtin.set_fact:
         backup_archive_list:
           - "opt"
-          - "ansible.cfg"
           - "accounts.yml"
           - "settings.yml"
           - "adv_settings.yml"
