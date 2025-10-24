@@ -9,7 +9,7 @@
 ---
 - name: Mounts | Display system mounts
   ansible.builtin.debug:
-    msg: "{{ ansible_mounts }}"
+    msg: "{{ ansible_facts['mounts'] }}"
     verbosity: 1
 
 - name: Mounts | Set opts for '/' ext4 mount
@@ -20,7 +20,7 @@
     fstype: ext4
     src: "{{ item.device }}"
   with_items:
-    - "{{ ansible_mounts }}"
+    - "{{ ansible_facts['mounts'] }}"
   when: (item.mount == '/') and (item.fstype == 'ext4')
 
 - name: "Mounts | Install 'fuse3'"

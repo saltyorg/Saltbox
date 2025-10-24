@@ -18,10 +18,10 @@
     name:
       - linux-tools-common
       - linux-tools-generic
-  when: (ansible_distribution == 'Ubuntu')
+  when: (ansible_facts['distribution'] == 'Ubuntu')
 
-- name: "CPU Frequency | Install 'linux-tools-{{ ansible_kernel }}'"
-  ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_kernel }} | awk '{print $1}' | tail -n 1)"
+- name: "CPU Frequency | Install 'linux-tools-{{ ansible_facts['kernel'] }}'"
+  ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_facts['kernel'] }} | awk '{print $1}' | tail -n 1)"
   ignore_errors: true
 
 - name: CPU Frequency | Ensure 'cpufrequtils' is enabled

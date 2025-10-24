@@ -20,11 +20,11 @@
   ansible.builtin.set_fact:
     expected_system_python: >-
       {{ '3.8'
-      if (ansible_distribution_version is version('20.04', '=='))
+      if (ansible_facts['distribution_version'] is version('20.04', '=='))
       else '3.10'
-        if (ansible_distribution_version is version('22.04', '=='))
+        if (ansible_facts['distribution_version'] is version('22.04', '=='))
         else '3.12'
-          if (ansible_distribution_version is version('24.04', '=='))
+          if (ansible_facts['distribution_version'] is version('24.04', '=='))
           else 'unknown' }}
 
 - name: Assert system Python matches Ubuntu release
@@ -33,11 +33,11 @@
       - system_python_short == expected_system_python
     fail_msg: |
       System Python version mismatch detected!
-      Expected Python {{ expected_system_python }} for Ubuntu {{ ansible_distribution_version }}
+      Expected Python {{ expected_system_python }} for Ubuntu {{ ansible_facts['distribution_version'] }}
       but found Python {{ system_python_short }}.
       The system Python version has been changed from the default.
       This role cannot safely proceed with cleanup.
-    success_msg: "System Python {{ system_python_short }} matches expected version {{ expected_system_python }} for Ubuntu {{ ansible_distribution_version }}"
+    success_msg: "System Python {{ system_python_short }} matches expected version {{ expected_system_python }} for Ubuntu {{ ansible_facts['distribution_version'] }}"
 
 - name: Legacy Deadsnakes cleanup
   when:

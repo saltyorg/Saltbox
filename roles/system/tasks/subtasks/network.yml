@@ -16,7 +16,7 @@
       - ethtool
 
 - name: Network | Network Tasks Block
-  when: (ansible_default_ipv4 is defined) and (ansible_default_ipv4.type == "ether")
+  when: (ansible_facts['default_ipv4'] is defined) and (ansible_facts['default_ipv4']['type'] == "ether")
   block:
     - name: Network | Check for '/etc/vnstat.conf'
       ansible.builtin.stat:
@@ -27,7 +27,7 @@
       ansible.builtin.lineinfile:
         path: "/etc/vnstat.conf"
         regexp: '(Interface)\s?.*'
-        line: '\1 "{{ ansible_default_ipv4.interface }}"'
+        line: '\1 "{{ ansible_facts["default_ipv4"]["interface"] }}"'
         state: present
         backrefs: true
       when: (vnstat_conf.stat.exists)
@@ -52,7 +52,7 @@
         create: false
         marker: "### {mark} SALTBOX MANAGED BLOCK ###"
         block: |
-          ethtool -K {{ ansible_default_ipv4.interface }} tso off gso off
+          ethtool -K {{ ansible_facts['default_ipv4']['interface'] }} tso off gso off
         insertbefore: "^exit 0"
         owner: "root"
         group: "root"

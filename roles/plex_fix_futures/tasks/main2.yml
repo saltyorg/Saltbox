@@ -23,7 +23,7 @@
   block:
     - name: Get items that have a date set in the future
       ansible.builtin.shell: |
-        curl -s '{{ lookup('role_var', '_web_url', role='plex') }}/library/all?X-Plex-Token={{ plex_instance_token.facts.token }}' -H 'Accept: application/json' | jq -c --arg now '{{ ansible_date_time.epoch }}' '.MediaContainer.Metadata[] | select(.addedAt > ($now|tonumber)) | {id: .ratingKey, addedAt: .addedAt, updatedAt: .updatedAt, title: .title, librarySectionID: .librarySectionID, type: .type}'
+        curl -s '{{ lookup('role_var', '_web_url', role='plex') }}/library/all?X-Plex-Token={{ plex_instance_token.facts.token }}' -H 'Accept: application/json' | jq -c --arg now '{{ ansible_facts['date_time']['epoch'] }}' '.MediaContainer.Metadata[] | select(.addedAt > ($now|tonumber)) | {id: .ratingKey, addedAt: .addedAt, updatedAt: .updatedAt, title: .title, librarySectionID: .librarySectionID, type: .type}'
       register: plex_future_items_request
 
     - name: Convert request output into a list of dictionaries

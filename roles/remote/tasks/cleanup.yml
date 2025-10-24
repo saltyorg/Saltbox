@@ -92,7 +92,7 @@
       when: cleanup_mount_path_stat2.stat.exists
 
     - name: "Cleanup | Backup non-empty '{{ cleanup_mount_path }}' path"
-      ansible.builtin.shell: "mv {{ cleanup_mount_path }} {{ cleanup_mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_date_time['epoch'] | int) }}"
+      ansible.builtin.shell: "mv {{ cleanup_mount_path }} {{ cleanup_mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
       ignore_errors: true
       when: cleanup_mount_path_stat2.stat.exists and (cleanup_mount_path_stat_files.matched | int > 0)
 

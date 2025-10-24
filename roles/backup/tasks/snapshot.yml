@@ -12,14 +12,14 @@
     root_fstype: "{{ item.fstype }}"
   when: backup_snapshot_enabled and (item.mount == '/')
   with_items:
-    - "{{ ansible_mounts }}"
+    - "{{ ansible_facts['mounts'] }}"
 
 - name: "Snapshot | Determine '{{ server_appdata_path }}' filesystem type"
   ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
   when: backup_snapshot_enabled and (item.mount == server_appdata_path)
   with_items:
-    - "{{ ansible_mounts }}"
+    - "{{ ansible_facts['mounts'] }}"
 
 # BTRFS
 

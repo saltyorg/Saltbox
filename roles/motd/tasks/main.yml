@@ -23,7 +23,7 @@
     name:
       - update-motd
       - update-notifier-common
-  when: (ansible_distribution | lower == 'ubuntu')
+  when: (ansible_facts['distribution'] | lower == 'ubuntu')
 
 - name: Remove existing motd
   ansible.builtin.file:

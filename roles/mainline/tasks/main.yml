@@ -56,7 +56,7 @@
 
 - name: Add cappelikan/ppa
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_distribution_release }} main"
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_facts['distribution_release'] }} main"
     state: present
     update_cache: true
   register: result

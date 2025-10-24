@@ -18,7 +18,7 @@
     state: latest
 
 - name: Driver | Install gcc12 if kernel is 6.5>= on Jammy
-  when: (ansible_kernel is version('6.5', '>=')) and (ansible_distribution_version is version('22.04', '=='))
+  when: (ansible_facts['kernel'] is version('6.5', '>=')) and (ansible_facts['distribution_version'] is version('22.04', '=='))
   block:
     - name: Driver | Install GCC and G++
       ansible.builtin.apt:

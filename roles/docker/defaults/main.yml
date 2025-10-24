@@ -54,7 +54,7 @@ docker_apt_key_url: https://download.docker.com/linux/ubuntu/gpg
 ################################
 
 docker_apt_repo_version: stable
-docker_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_repo_version }}"  # noqa line-length
+docker_apt_repo_url: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] | lower }} {{ docker_apt_repo_version }}"  # noqa line-length
 docker_apt_repo_filename: docker
 
 ################################
@@ -68,7 +68,7 @@ docker_version: "latest"
 docker_ce_name: "Docker CE"
 docker_ce_package: "{{ 'docker-ce'
                     if (docker_version is defined and docker_version | lower == 'latest')
-                    else 'docker-ce=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
+                    else 'docker-ce=*' + docker_version + '*~' + ansible_facts['distribution'] | lower + '.' + ansible_facts['distribution_version'] + '~' + ansible_facts['distribution_release'] | lower }}"
 docker_ce_filepath: "/usr/bin/dockerd"
 docker_ce_dpkg: "docker-ce"
 
@@ -76,7 +76,7 @@ docker_ce_dpkg: "docker-ce"
 docker_ce_cli_name: "Docker CE CLI"
 docker_ce_cli_package: "{{ 'docker-ce-cli'
                         if (docker_version is defined and docker_version | lower == 'latest')
-                        else 'docker-ce-cli=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
+                        else 'docker-ce-cli=*' + docker_version + '*~' + ansible_facts['distribution'] | lower + '.' + ansible_facts['distribution_version'] + '~' + ansible_facts['distribution_release'] | lower }}"
 docker_ce_cli_filepath: "/usr/bin/docker"
 docker_ce_cli_dpkg: "docker-ce-cli"
 

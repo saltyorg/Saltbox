@@ -15,7 +15,7 @@ plex_auth_token_version: "1.0.0"
 plex_auth_token_product: "Saltbox"
 plex_auth_token_platform: "Linux"
 plex_auth_token_platform_version: "1.0.0"
-plex_auth_token_device: "Ubuntu {{ ansible_distribution_version }} - {{ ansible_kernel }}"
+plex_auth_token_device: "Ubuntu {{ ansible_facts['distribution_version'] }} - {{ ansible_facts['kernel'] }}"
 plex_auth_token_device_name: "Saltbox"
 
 ################################

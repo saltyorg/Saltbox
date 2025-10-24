@@ -40,7 +40,7 @@
   ansible.builtin.dpkg_selections:
     name: "crowdsec"
     selection: install
-  when: ('crowdsec' in ansible_facts.packages)
+  when: ('crowdsec' in ansible_facts['packages'])
 
 - name: Install crowdsec
   ansible.builtin.apt:
@@ -56,7 +56,7 @@
   ansible.builtin.dpkg_selections:
     name: "crowdsec-firewall-bouncer-iptables"
     selection: install
-  when: ('crowdsec-firewall-bouncer-iptables' in ansible_facts.packages)
+  when: ('crowdsec-firewall-bouncer-iptables' in ansible_facts['packages'])
 
 - name: Manage iptables bouncer install
   ansible.builtin.apt:
