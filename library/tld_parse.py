@@ -55,7 +55,7 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-domain:
+fld:
     description: Full domain name (e.g., example.com)
     type: str
     returned: always
@@ -70,6 +70,16 @@ record:
     type: str
     returned: always
     sample: 'www'
+tld:
+    description: Top-level domain (e.g., com, org, co.uk)
+    type: str
+    returned: always
+    sample: 'com'
+domain:
+    description: Domain name without TLD (e.g., example)
+    type: str
+    returned: always
+    sample: 'example'
 '''
 
 
@@ -95,18 +105,22 @@ def main():
         # Parse using tld library
         res = get_tld(full_url, as_object=True)
 
-        # Extract components
-        domain = res.fld
+        # Extract components - use same naming as tld library
+        fld = res.fld
         subdomain = res.subdomain if res.subdomain else ''
+        tld = res.tld
+        domain = res.domain
 
         # Format record for DNS operations
         dns_record = subdomain if subdomain else '@'
 
         module.exit_json(
             changed=False,
-            domain=domain,
+            fld=fld,
             subdomain=subdomain,
-            record=dns_record
+            record=dns_record,
+            tld=tld,
+            domain=domain
         )
 
     except Exception as e:

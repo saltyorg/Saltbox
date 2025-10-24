@@ -8,9 +8,9 @@
 #########################################################################
 ---
 - name: Get FLD
-  ansible.builtin.shell: |
-    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
-  register: fld
+  tld_parse:
+    url: "{{ user.domain }}"
+  register: domain_parsed
 
 - name: Get zones
   ansible.builtin.uri:
@@ -22,7 +22,7 @@
 
 - name: Get zone ID
   ansible.builtin.set_fact:
-    zone_id: "{{ get_zones_result.json.result | selectattr('name', 'equalto', fld.stdout) | map(attribute='id') | first }}"
+    zone_id: "{{ get_zones_result.json.result | selectattr('name', 'equalto', domain_parsed.fld) | map(attribute='id') | first }}"
 
 - name: Get zone records
   ansible.builtin.uri:

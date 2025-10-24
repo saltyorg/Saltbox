@@ -159,12 +159,12 @@ authentication_backend:
     tls:
       skip_verify: true
       minimum_version: TLS1.2
-    base_dn: dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}
+    base_dn: dc={{ authelia_tld_parse.domain }},dc={{ authelia_tld_parse.tld }}
     additional_users_dn: ou=people
     users_filter: "(&({username_attribute}={input})(objectClass=person))"
     additional_groups_dn: ou=groups
     groups_filter: "(member={dn})"
-    user: uid={{ user.name }},ou=people,dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}
+    user: uid={{ user.name }},ou=people,dc={{ authelia_tld_parse.domain }},dc={{ authelia_tld_parse.tld }}
     password: {{ user.pass }}
     attributes:
       group_name: cn

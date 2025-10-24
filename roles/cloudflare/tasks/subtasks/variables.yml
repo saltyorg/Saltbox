@@ -15,13 +15,13 @@
       else '' }}"
 
 - name: Get FLD
-  ansible.builtin.shell: |
-    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ dns_zone | default(user.domain) }}\", as_object=True); print(res.fld)"
-  register: fld
+  tld_parse:
+    url: "{{ dns_zone | default(user.domain) }}"
+  register: domain_parsed
 
 - name: Variables | Fetch Cloudflare Zones
   ansible.builtin.uri:
-    url: 'https://api.cloudflare.com/client/v4/zones?name={{ fld.stdout }}'
+    url: 'https://api.cloudflare.com/client/v4/zones?name={{ domain_parsed.fld }}'
     method: 'GET'
     headers:
       Content-Type: "application/json"

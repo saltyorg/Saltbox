@@ -8,14 +8,9 @@
 ##########################################################################
 ---
 - name: LDAP | Get FLD
-  ansible.builtin.shell: |
-    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ lookup('role_var', '_web_domain') | default(user.domain) }}\", as_object=True); print(res.tld)"
-  register: authelia_tld
-
-- name: LDAP | Get FLD
-  ansible.builtin.shell: |
-    {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ lookup('role_var', '_web_domain') | default(user.domain) }}\", as_object=True); print(res.domain)"
-  register: authelia_domain
+  tld_parse:
+    url: "http://{{ lookup('role_var', '_web_domain', role='authelia') }}"
+  register: authelia_tld_parse
 
 - name: LDAP | Import default 'configuration.yml'
   ansible.builtin.template:
