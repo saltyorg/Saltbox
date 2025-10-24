@@ -58,15 +58,6 @@
   with_fileglob:
     - "{{ server_appdata_path }}/sandbox/defaults/*.*"
 
-- name: Force overwrite Sandbox ansible.cfg
-  ansible.builtin.copy:
-    src: "{{ server_appdata_path }}/sandbox/defaults/ansible.cfg.default"
-    dest: "{{ server_appdata_path }}/sandbox/ansible.cfg"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0664"
-    force: true
-
 - name: Activate Git Hooks
   ansible.builtin.shell: bash {{ server_appdata_path }}/sandbox/bin/git/init-hooks
   args:
