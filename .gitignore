@@ -18,7 +18,6 @@
 /cache.json
 
 # Settings
-/ansible.cfg
 /accounts.yml
 /adv_settings.yml
 /backup_config.yml
