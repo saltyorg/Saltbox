@@ -12,15 +12,6 @@ exclude_paths:
 
 offline: false
 
-mock_modules:
-  - cloudflare_dns_records
-  - cloudflare_ssl
-  - find_open_port
-  - migrate_folder
-  - qbittorrent_passwd
-  - saltbox_facts
-  - tld_parse
-
 skip_list:
   - command-instead-of-module
   - command-instead-of-shell
