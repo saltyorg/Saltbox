@@ -49,7 +49,6 @@
   become_user: "{{ user.name }}"
   ignore_errors: true
   with_items:
-    - "{{ playbook_dir }}/ansible.cfg"
     - "{{ playbook_dir }}/accounts.yml"
     - "{{ playbook_dir }}/settings.yml"
     - "{{ playbook_dir }}/adv_settings.yml"
