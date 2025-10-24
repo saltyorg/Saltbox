@@ -12,13 +12,6 @@ exclude_paths:
 
 offline: false
 
-mock_modules:
-  - find_open_port
-  - saltbox_facts
-  - qbittorrent_passwd
-  - migrate_folder
-  - cloudflare_dns_custom
-
 skip_list:
   - braces
   - git-latest
