@@ -6,7 +6,6 @@ exclude_paths:
   - bin/
   - defaults/
   - filter_plugins/
-  - library/
   - scripts/
   - inventories/host_vars/
 
