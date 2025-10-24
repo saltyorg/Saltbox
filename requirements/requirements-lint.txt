@@ -1,3 +1,0 @@
-ansible==12.1.0
-ansible-lint==25.9.2
-jmespath==1.0.1
