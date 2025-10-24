@@ -123,7 +123,7 @@
           {{ files_upload.results | selectattr('stdout', 'search', 'too large') | map(attribute='item')
           | map('regex_replace', '^/tmp/restore_service/|.enc$', '') | list | sort(case_sensitive=False) | join(', ') }}
 
-    - name: Restore Service | Print error mesage when config file(s) were too large to upload
+    - name: Restore Service | Print error message when config file(s) were too large to upload
       ansible.builtin.debug:
         msg: "The following encrypted config file(s) were too large to upload to the Saltbox Restore Service: '{{ files_too_large_to_upload_list | trim }}'"
       when: (files_too_large_to_upload_list | trim | length > 0)
