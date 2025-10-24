@@ -10,36 +10,12 @@
 - name: Cloudflare API lookup
   when: cloudflare_is_enabled
   block:
-    - name: Check if Cloudflare venv exists
-      ansible.builtin.stat:
-        path: "/srv/cloudflare-helper/venv/bin/python3"
-      register: diagnose_cloudflare_venv
-
-    - name: Include Cloudflare Setup venv role default vars
-      ansible.builtin.include_vars: "{{ resources_path }}/roles/dns/defaults/main.yml"
-      when: not diagnose_cloudflare_venv.stat.exists
-
-    - name: Setup Cloudflare venv
-      ansible.builtin.include_tasks: "{{ resources_path }}/roles/dns/tasks/cloudflare/subtasks/setup.yml"
-      when: not diagnose_cloudflare_venv.stat.exists
-      vars:
-        cloudflare_files:
-          - "{{ resources_path }}/roles/dns/files/fetch_cloudflare_records.py"
-          - "{{ resources_path }}/roles/dns/files/requirements.txt"
-
-    - name: Get FLD
-      ansible.builtin.shell: |
-        {{ saltbox_python }} -c "from tld import get_tld; res = get_tld(\"http://{{ user.domain }}\", as_object=True); print(res.fld)"
-      register: diagnose_fld
-
-    - name: Fetch Record information
-      ansible.builtin.shell: "/srv/cloudflare-helper/venv/bin/python3 {{ diagnose_cloudflare_script_path }} --auth_key '{{ cloudflare.api }}' --auth_email '{{ cloudflare.email }}' --zone_name '{{ diagnose_fld.stdout }}'"
+    - name: Get Cloudflare SSL/TLS mode
+      cloudflare_ssl:
+        auth_email: "{{ cloudflare.email }}"
+        auth_key: "{{ cloudflare.api }}"
+        domain: "{{ user.domain }}"
       register: cloudflare_ssl
-
-    - name: Print Failure Output
-      ansible.builtin.fail:
-        msg: "{{ cloudflare_ssl.stderr }}"
-      when: cloudflare_ssl.rc != 0
 
 - name: Gather mount information
   ansible.builtin.setup:

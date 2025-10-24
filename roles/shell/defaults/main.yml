@@ -64,7 +64,7 @@ shell_zsh_zshrc_block_content1: |
   DISABLE_UPDATE_PROMPT=true
 
 shell_zsh_zshrc_block_content2: |
-  # zsh - allows commmands to run with the un-expanded glob
+  # zsh - allows commands to run with the un-expanded glob
   unsetopt nomatch
   # zsh - set TIMEFMT
   export TIMEFMT=$'

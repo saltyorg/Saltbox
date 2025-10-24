@@ -7,32 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Cloudflare | Cleanup legacy folder
+- name: Cloudflare | Cleanup legacy folders
   ansible.builtin.file:
-    path: "/srv/cloudflare"
+    path: "{{ item }}"
     state: absent
-
-- name: Cloudflare | Check if '{{ cloudflare_path }}' folder exists
-  ansible.builtin.stat:
-    path: "{{ cloudflare_path }}"
-  register: cloudflare_folder
-
-- name: Cloudflare | Check if Python symlink exists
-  ansible.builtin.stat:
-    path: "{{ cloudflare_path }}/venv/bin/python{{ cloudflare_python_version }}"
-  register: cloudflare_folder_symlink
-
-- name: Cloudflare | Python Migration
-  ansible.builtin.include_tasks: "subtasks/python.yml"
-  when: cloudflare_folder_symlink.stat.exists and (not cloudflare_reinstall)
-
-- name: Cloudflare | Checksum
-  ansible.builtin.include_tasks: "subtasks/checksum.yml"
-  when: (not cloudflare_reinstall)
-
-- name: Cloudflare | Setup
-  ansible.builtin.include_tasks: "subtasks/setup.yml"
-  when: (not cloudflare_folder.stat.exists) or (not cloudflare_folder_symlink.stat.exists) or (cloudflare_reinstall | bool)
+  loop:
+    - "/srv/cloudflare"
+    - "/srv/cloudflare-helper"
 
 - name: Set IP variables
   ansible.builtin.set_fact:
