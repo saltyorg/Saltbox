@@ -80,6 +80,7 @@ jellyfin_system_settings_list: "{{ lookup('vars', jellyfin_name + '_system_setti
 
 # Network
 jellyfin_network_settings_default:
+  - { xpath: 'KnownProxies', value: 'traefik' }
   - { xpath: 'PublicPort', value: '80' }
   - { xpath: 'PublicHttpsPort', value: '443' }
   - { xpath: 'PublishedServerUriBySubnet/string', value: 'external={{ jellyfin_web_url }}:443' }
