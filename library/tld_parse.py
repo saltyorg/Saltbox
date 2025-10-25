@@ -100,7 +100,11 @@ def main():
         if record:
             full_url = f"http://{record}.{url}"
         else:
-            full_url = f"http://{url}"
+            # Only add http:// if URL doesn't already have a scheme
+            if not url.startswith(('http://', 'https://')):
+                full_url = f"http://{url}"
+            else:
+                full_url = url
 
         # Parse using tld library
         res = get_tld(full_url, as_object=True)
