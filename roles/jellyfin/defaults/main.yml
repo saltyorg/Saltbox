@@ -80,6 +80,7 @@ jellyfin_role_system_settings_list: "{{ lookup('role_var', '_system_settings_def
 
 # Network
 jellyfin_role_network_settings_default:
+  - { xpath: 'KnownProxies', value: 'traefik' }
   - { xpath: 'PublicPort', value: '80' }
   - { xpath: 'PublicHttpsPort', value: '443' }
   - { xpath: 'PublishedServerUriBySubnet/string', value: 'external={{ lookup("role_var", "_web_url", role="jellyfin") }}:443' }
