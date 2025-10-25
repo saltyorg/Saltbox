@@ -58,9 +58,9 @@ rutorrent_role_dns_proxy: "{{ dns_proxied }}"
 
 rutorrent_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 rutorrent_role_traefik_middleware_default: "{{ traefik_default_middleware
-                                          + (',themepark-' + rutorrent_name
-                                            if (lookup('role_var', '_themepark_enabled', role='rutorrent') and global_themepark_plugin_enabled)
-                                            else '') }}"
+                                               + (',themepark-' + rutorrent_name
+                                                 if (lookup('role_var', '_themepark_enabled', role='rutorrent') and global_themepark_plugin_enabled)
+                                                 else '') }}"
 rutorrent_role_traefik_middleware_custom: ""
 rutorrent_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 rutorrent_role_traefik_enabled: true

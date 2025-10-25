@@ -117,7 +117,7 @@ dozzle_role_docker_commands_custom: []
 dozzle_role_docker_commands: "{{ lookup('role_var', '_docker_commands_agent', role='dozzle')
                                  + lookup('role_var', '_docker_commands_default', role='dozzle')
                                  + lookup('role_var', '_docker_commands_custom', role='dozzle')
-                              if (lookup('role_var', '_agent_mode', role='dozzle'))
+                              if lookup('role_var', '_agent_mode', role='dozzle')
                               else lookup('role_var', '_docker_commands_default', role='dozzle')
                                    + lookup('role_var', '_docker_commands_custom', role='dozzle') }}"
 

@@ -135,14 +135,14 @@ netdata_role_docker_capabilities_default:
   - SYS_ADMIN
 netdata_role_docker_capabilities_custom: []
 netdata_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_default', role='netdata')
-                                     + lookup('role_var', '_docker_capabilities_custom', role='netdata') }}"
+                                      + lookup('role_var', '_docker_capabilities_custom', role='netdata') }}"
 
 # Security Opts
 netdata_role_docker_security_opts_default:
   - apparmor=unconfined
 netdata_role_docker_security_opts_custom: []
 netdata_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts_default', role='netdata')
-                                      + lookup('role_var', '_docker_security_opts_custom', role='netdata') }}"
+                                       + lookup('role_var', '_docker_security_opts_custom', role='netdata') }}"
 
 # Restart Policy
 netdata_role_docker_restart_policy: unless-stopped

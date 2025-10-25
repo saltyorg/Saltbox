@@ -243,9 +243,9 @@ traefik_role_docker_ports_custom: []
 traefik_role_docker_ports: "{{ (lookup('role_var', '_docker_ports_defaults', role='traefik')
                                if not traefik_tailscale_enabled
                                else lookup('role_var', '_docker_ports_tailscale_ipv4_defaults', role='traefik')
-                                   + (lookup('role_var', '_docker_ports_tailscale_ipv6_defaults', role='traefik')
-                                     if dns_ipv6_enabled
-                                     else []))
+                                    + (lookup('role_var', '_docker_ports_tailscale_ipv6_defaults', role='traefik')
+                                      if dns_ipv6_enabled
+                                      else []))
                                + lookup('role_var', '_docker_ports_custom', role='traefik') }}"
 
 # Envs
