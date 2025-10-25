@@ -22,14 +22,30 @@ from typing import List
 class LintError:
     """Represents a single linting error"""
 
-    def __init__(self, file: str, line: int, message: str):
+    def __init__(self, file: str, line: int, message: str, repo_url: str = None, commit_sha: str = None):
         self.file = file
         self.line = line
         self.message = message
+        self.repo_url = repo_url
+        self.commit_sha = commit_sha
 
     def to_github_annotation(self) -> str:
-        """Format error as GitHub Actions annotation"""
-        return f"::error file={self.file},line={self.line}::{self.message}"
+        """
+        Format error as GitHub Actions annotation
+
+        Includes a clickable link to the file at the specific commit in the message,
+        since GitHub's default annotation links only point to the commit page
+        (which doesn't show the file if it wasn't modified in that commit).
+        """
+        # Build GitHub blob URL if we have repo and commit info
+        if self.repo_url and self.commit_sha:
+            # Format: https://github.com/owner/repo/blob/commit_sha/path/to/file.yml#L123
+            github_link = f"{self.repo_url}/blob/{self.commit_sha}/{self.file}#L{self.line}"
+            message_with_link = f"{self.message} - {github_link}"
+        else:
+            message_with_link = self.message
+
+        return f"::error file={self.file},line={self.line}::{message_with_link}"
 
     def __str__(self) -> str:
         return f"{self.file}:{self.line} - {self.message}"
@@ -38,8 +54,10 @@ class LintError:
 class DefaultsLinter:
     """Lints a single defaults/main.yml file"""
 
-    def __init__(self, file_path: Path):
+    def __init__(self, file_path: Path, repo_url: str = None, commit_sha: str = None):
         self.file_path = file_path
+        self.repo_url = repo_url
+        self.commit_sha = commit_sha
         self.lines = file_path.read_text().splitlines()
         self.errors: List[LintError] = []
 
@@ -137,10 +155,18 @@ class DefaultsLinter:
                         if actual_spaces != expected_spaces:
                             diff = actual_spaces - expected_spaces
 
+                            # Get relative path for GitHub annotation
+                            try:
+                                relative_path = str(self.file_path.relative_to(Path.cwd()))
+                            except ValueError:
+                                relative_path = str(self.file_path)
+
                             self.errors.append(LintError(
-                                file=str(self.file_path),
+                                file=relative_path,
                                 line=j + 1,  # Convert to 1-indexed
-                                message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {expected_spaces} (off by {diff:+d})"
+                                message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {expected_spaces} (off by {diff:+d})",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha
                             ))
 
                     # Stop if we've reached the end of the Jinja block
@@ -201,10 +227,18 @@ class DefaultsLinter:
                         if if_indent is not None and else_indent is not None:
                             if if_indent != else_indent:
                                 diff = else_indent - if_indent
+                                # Get relative path for GitHub annotation
+                                try:
+                                    relative_path = str(self.file_path.relative_to(Path.cwd()))
+                                except ValueError:
+                                    relative_path = str(self.file_path)
+
                                 self.errors.append(LintError(
-                                    file=str(self.file_path),
+                                    file=relative_path,
                                     line=jinja_start_line,
-                                    message=f"[ifelse-alignment] 'if' at column {if_indent} doesn't align with 'else' at column {else_indent} (off by {diff:+d})"
+                                    message=f"[ifelse-alignment] 'if' at column {if_indent} doesn't align with 'else' at column {else_indent} (off by {diff:+d})",
+                                    repo_url=self.repo_url,
+                                    commit_sha=self.commit_sha
                                 ))
 
                     # Reset state
@@ -220,6 +254,8 @@ class DefaultsLinter:
 
 def main():
     """Main entry point for the linter"""
+    import os
+
     if len(sys.argv) < 2:
         print("Usage: python3 saltbox-defaults-linter.py <roles_directory>")
         print("\nExample:")
@@ -236,12 +272,21 @@ def main():
         print(f"Error: '{roles_dir}' is not a directory")
         sys.exit(1)
 
+    # Get GitHub repo and commit info from environment variables (set by GitHub Actions)
+    # GITHUB_REPOSITORY format: "owner/repo"
+    # GITHUB_SHA: commit SHA that triggered the workflow
+    github_repo = os.environ.get('GITHUB_REPOSITORY')
+    github_sha = os.environ.get('GITHUB_SHA')
+
+    # Build full repo URL if we have the repository name
+    repo_url = f"https://github.com/{github_repo}" if github_repo else None
+
     all_errors = []
     files_checked = 0
 
     # Find and lint all defaults/main.yml files
     for defaults_file in sorted(roles_dir.glob("*/defaults/main.yml")):
-        linter = DefaultsLinter(defaults_file)
+        linter = DefaultsLinter(defaults_file, repo_url=repo_url, commit_sha=github_sha)
         errors = linter.lint()
         all_errors.extend(errors)
         files_checked += 1
