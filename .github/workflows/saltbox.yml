@@ -55,6 +55,20 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: ansible-lint
 
+  defaults-lint:
+    name: Lint Role Defaults Formatting
+    if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Run Defaults Linter
+        run: python3 scripts/saltbox-defaults-linter.py roles/
+
   find-roles:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
@@ -68,7 +82,7 @@ jobs:
   install:
     name: '${{ matrix.roles }}'
     runs-on: ubuntu-24.04
-    needs: [ansible-lint, find-roles]
+    needs: [ansible-lint, defaults-lint, find-roles]
     strategy:
       matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
       fail-fast: false

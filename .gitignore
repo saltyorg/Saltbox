@@ -42,3 +42,4 @@
 /*.log
 /*.log.*
 .vscode/
+.claude/
