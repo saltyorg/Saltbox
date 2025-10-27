@@ -1,0 +1,20 @@
+################################################################################
+# Title:         Saltbox: Resources | Tasks | Variables | Import Role Vars     #
+# Author(s):     salty                                                         #
+# URL:           https://github.com/saltyorg/Saltbox                           #
+# --                                                                           #
+################################################################################
+#                   GNU General Public License v3.0                            #
+################################################################################
+---
+- name: "Resources | Tasks | Variables | Import Role Vars | Include {{ import_role_name }} role default vars"
+  ansible.builtin.include_vars: "/srv/git/saltbox/roles/{{ import_role_name }}/defaults/main.yml"
+
+- name: "Resources | Tasks | Variables | Import Role Vars | Check if 'localhost.yml' exists"
+  ansible.builtin.stat:
+    path: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  register: localhost_inventory_file
+
+- name: "Resources | Tasks | Variables | Import Role Vars | Import Inventory variables"
+  ansible.builtin.include_vars: "/srv/git/saltbox/inventories/host_vars/localhost.yml"
+  when: localhost_inventory_file.stat.exists
