@@ -43,8 +43,5 @@
   ansible.builtin.include_tasks: "subtasks/locale.yml"
   tags: set-locale
 
-- name: Release Upgrade tasks
-  ansible.builtin.include_tasks: "subtasks/release-upgrade.yml"
-
 - name: flush_handlers
   ansible.builtin.meta: flush_handlers
