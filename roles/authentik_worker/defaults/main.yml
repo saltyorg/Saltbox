@@ -67,7 +67,7 @@ authentik_worker_role_docker_restart_policy: unless-stopped
 authentik_worker_role_docker_state: started
 
 # Dependencies
-authentik_worker_role_depends_on: "{{ authentik_name }}-redis,{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+authentik_worker_role_depends_on: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
 authentik_worker_role_depends_on_delay: "0"
 authentik_worker_role_depends_on_healthchecks: "false"
 

@@ -7,15 +7,20 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Import authentik_worker role variables
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/variables/import_role_vars.yml"
+  vars:
+    import_role_name: authentik_worker
+
 - name: Remove existing Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
     var_prefix: "{{ item }}"
   loop:
     - "{{ authentik_name }}"
-    - "authentik-worker"
-    - "authentik-redis"
-    - "authentik-postgres"
+    - "{{ authentik_worker_name }}"
+    - "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+    - "{{ lookup('role_var', '_redis_name', role='authentik') }}" # Legacy removal
 
 - name: Reset Authentik directory
   ansible.builtin.file:
@@ -35,18 +40,6 @@
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
-
-- name: "Import Redis Role"
-  ansible.builtin.include_role:
-    name: redis
-  vars:
-    redis_instances: ["{{ lookup('role_var', '_redis_name', role='authentik') }}"]
-    redis_role_docker_image_tag: "alpine"
-    redis_role_paths_folder: "{{ lookup('role_var', '_paths_folder', role='authentik') }}/redis"
-    redis_role_paths_location: "{{ server_appdata_path }}/{{ redis_role_paths_folder }}"
-    redis_role_docker_healthcheck: "{{ lookup('role_var', '_redis_docker_healthcheck', role='authentik') }}"
-    redis_role_docker_commands:
-      - "--save 60 1 --loglevel warning"
 
 - name: "Import Postgres Role"
   ansible.builtin.include_role:
@@ -78,14 +71,6 @@
     group: "{{ user.name }}"
     base_path: "{{ server_appdata_path }}"
   register: authentik_saltbox_facts
-
-- name: "Wait for {{ lookup('role_var', '_redis_name', role='authentik') }} container to be healthy"
-  community.docker.docker_container_info:
-    name: "{{ lookup('role_var', '_redis_name', role='authentik') }}"
-  until: "authentik_redis_container_info.container.State.Health.Status == 'healthy'"
-  register: authentik_redis_container_info
-  retries: 15
-  delay: 10
 
 - name: "Wait for {{ lookup('role_var', '_postgres_name', role='authentik') }} container to be healthy"
   community.docker.docker_container_info:

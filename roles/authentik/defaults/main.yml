@@ -28,16 +28,11 @@ authentik_role_email_from: "authentik@localhost"
 authentik_role_access_token_validity: "24" # Hours, only fresh installs use this
 
 ################################
-# Redis
+# Legacy
 ################################
 
+# Do not edit or override using the inventory
 authentik_role_redis_name: "{{ authentik_name }}-redis"
-authentik_role_redis_docker_healthcheck:
-  interval: 30s
-  retries: 5
-  start_period: 20s
-  test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-  timeout: 3s
 
 ################################
 # Postgres
@@ -135,12 +130,11 @@ authentik_role_docker_container: "{{ authentik_name }}"
 # Image
 authentik_role_docker_image_pull: true
 authentik_role_docker_image_repo: "ghcr.io/goauthentik/server"
-authentik_role_docker_image_tag: "2025.8"
+authentik_role_docker_image_tag: "2025.10"
 authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
 
 # Envs
 authentik_role_docker_envs_default:
-  AUTHENTIK_REDIS__HOST: authentik-redis
   AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
   AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik') }}"
   AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
@@ -213,6 +207,6 @@ authentik_role_docker_restart_policy: unless-stopped
 authentik_role_docker_state: started
 
 # Dependencies
-authentik_role_depends_on: "{{ authentik_name }}-redis,{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+authentik_role_depends_on: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
 authentik_role_depends_on_delay: "0"
 authentik_role_depends_on_healthchecks: "true"
