@@ -28,5 +28,5 @@
 
 - name: Configuration Rules | Print result of Cloudflare Configuration Rule Creation
   ansible.builtin.debug:
-    msg: "Successfully created Let's Encrypt Cloudflare configuration rule for '{{ fld.stdout }}'"
+    msg: "Successfully created Let's Encrypt Cloudflare configuration rule for '{{ domain_parsed.fld }}'"
   when: cf_configuration_rule_creation.json.success is defined and cf_configuration_rule_creation.json.success

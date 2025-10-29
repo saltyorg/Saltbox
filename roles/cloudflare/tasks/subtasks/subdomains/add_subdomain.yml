@@ -11,7 +11,7 @@
   community.general.cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
-    zone: "{{ fld.stdout }}"
+    zone: "{{ domain_parsed.fld }}"
     state: present
     solo: true
     proxied: "{{ dns_proxied | default('no') }}"
@@ -24,7 +24,7 @@
   community.general.cloudflare_dns:
     account_api_token: "{{ cloudflare.api }}"
     account_email: "{{ cloudflare.email }}"
-    zone: "{{ fld.stdout }}"
+    zone: "{{ domain_parsed.fld }}"
     state: present
     solo: true
     proxied: "{{ dns_proxied | default('no') }}"

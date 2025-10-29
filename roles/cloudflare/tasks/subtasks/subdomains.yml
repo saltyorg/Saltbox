@@ -8,10 +8,10 @@
 #########################################################################
 ---
 ## Add 'saltbox_type' subdomain
-- name: "Cloudflare | Subdomains | Add '{{ saltbox_type }}' subdomain to '{{ fld.stdout }}'"
+- name: "Cloudflare | Subdomains | Add '{{ saltbox_type }}' subdomain to '{{ domain_parsed.fld }}'"
   ansible.builtin.include_tasks: "subdomains/add_subdomain.yml"
 
 ## Remove 'saltbox' subdomain for Mediabox/Feederbox setups.
-- name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ fld.stdout }}'"
+- name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ domain_parsed.fld }}'"
   ansible.builtin.include_tasks: "subdomains/remove_subdomain.yml"
   when: saltbox_type is regex('mediabox|feederbox')
