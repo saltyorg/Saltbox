@@ -3,25 +3,9 @@
 #                   Authelia configuration                    #
 ###############################################################
 
-identity_validation:
-  reset_password:
-    jwt_lifespan: {{ lookup('role_var', '_identity_validation_reset_password_jwt_lifespan', role='authelia') }}
-    jwt_algorithm: {{ lookup('role_var', '_identity_validation_reset_password_jwt_algorithm', role='authelia') }}
-    jwt_secret: {{ lookup('role_var', '_jwt_secret', role='authelia') }}
-  elevated_session:
-    code_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_code_lifespan', role='authelia') }}
-    elevation_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_elevation_lifespan', role='authelia') }}
-    characters: {{ lookup('role_var', '_identity_validation_elevated_session_characters', role='authelia') }}
-    require_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_require_second_factor', role='authelia') }}
-    skip_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_skip_second_factor', role='authelia') }}
-
 # Options are light, dark, grey or auto
 theme: {{ lookup('role_var', '_theme', role='authelia') }}
 
-{% if lookup('role_var', '_default_redirection_url', role='authelia') | length > 0 %}
-default_redirection_url: {{ lookup('role_var', '_default_redirection_url', role='authelia') }}
-
-{% endif %}
 default_2fa_method: "{{ lookup('role_var', '_default_2fa_method', role='authelia') }}"
 
 server:
@@ -29,7 +13,7 @@ server:
 {% if lookup('role_var', '_server_asset_path', role='authelia') | length > 0 %}
   asset_path: {{ lookup('role_var', '_server_asset_path', role='authelia') }}
 {% endif %}
-  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck', role='authelia') }}
+  disable_healthcheck: {{ lookup('role_var', '_server_disable_healthcheck', role='authelia') | bool | lower }}
   buffers:
     read: {{ lookup('role_var', '_server_buffers_read', role='authelia') }}
     write: {{ lookup('role_var', '_server_buffers_write', role='authelia') }}
@@ -47,11 +31,11 @@ log:
   level: {{ lookup('role_var', '_log_level', role='authelia') }}
   format: {{ lookup('role_var', '_log_format', role='authelia') }}
   file_path: {{ lookup('role_var', '_log_file_path', role='authelia') }}
-  keep_stdout: {{ lookup('role_var', '_log_keep_stdout', role='authelia') }}
+  keep_stdout: {{ lookup('role_var', '_log_keep_stdout', role='authelia') | bool | lower }}
 
 telemetry:
   metrics:
-    enabled: {{ lookup('role_var', '_telemetry_metrics_enabled', role='authelia') }}
+    enabled: {{ lookup('role_var', '_telemetry_metrics_enabled', role='authelia') | bool | lower }}
 {% if lookup('role_var', '_telemetry_metrics_enabled', role='authelia') | bool %}
     address: {{ lookup('role_var', '_telemetry_metrics_address', role='authelia') }}
     buffers:
@@ -64,7 +48,7 @@ telemetry:
 {% endif %}
 
 totp:
-  disable: {{ lookup('role_var', '_totp_disable', role='authelia') }}
+  disable: {{ lookup('role_var', '_totp_disable', role='authelia') | bool | lower }}
   issuer: {{ lookup('role_var', '_totp_issuer', role='authelia') }}
   algorithm: {{ lookup('role_var', '_totp_algorithm', role='authelia') }}
   digits: {{ lookup('role_var', '_totp_digits', role='authelia') }}
@@ -74,36 +58,16 @@ totp:
   allowed_algorithms: {{ lookup('role_var', '_totp_allowed_algorithms', role='authelia') }}
   allowed_digits: {{ lookup('role_var', '_totp_allowed_digits', role='authelia') }}
   allowed_periods: {{ lookup('role_var', '_totp_allowed_periods', role='authelia') }}
-  disable_reuse_security_policy: {{ lookup('role_var', '_totp_disable_reuse_security_policy', role='authelia') }}
-
-{% if lookup('role_var', '_duo_enabled', role='authelia') | bool %}
-duo_api:
-  disable: false
-  hostname: {{ lookup('role_var', '_duo_hostname', role='authelia') }}
-  integration_key: {{ lookup('role_var', '_duo_integration_key', role='authelia') }}
-  secret_key: {{ lookup('role_var', '_duo_secret_key', role='authelia') }}
-  enable_self_enrollment: {{ lookup('role_var', '_duo_self_enrollment', role='authelia') }}
-{% else %}
-#
-# If you want to use Duo Push notifications
-#
-# duo_api:
-#   hostname: api-123456789.example.com
-#   integration_key: ABCDEF
-#   secret_key: 1234567890abcdefghifjkl
-#
-# Read more at https://www.authelia.com/docs/configuration/duo-push-notifications.html
-#
-{% endif %}
+  disable_reuse_security_policy: {{ lookup('role_var', '_totp_disable_reuse_security_policy', role='authelia') | bool | lower }}
 
 webauthn:
-  disable: {{ lookup('role_var', '_webauthn_disable', role='authelia') }}
-  enable_passkey_login: {{ lookup('role_var', '_webauthn_enable_passkey_login', role='authelia') }}
+  disable: {{ lookup('role_var', '_webauthn_disable', role='authelia') | bool | lower }}
+  enable_passkey_login: {{ lookup('role_var', '_webauthn_enable_passkey_login', role='authelia') | bool | lower }}
   display_name: {{ lookup('role_var', '_webauthn_display_name', role='authelia') }}
   attestation_conveyance_preference: {{ lookup('role_var', '_webauthn_attestation_conveyance_preference', role='authelia') }}
   timeout: {{ lookup('role_var', '_webauthn_timeout', role='authelia') }}
   filtering:
-    prohibit_backup_eligibility: {{ lookup('role_var', '_webauthn_filtering_prohibit_backup_eligibility', role='authelia') }}
+    prohibit_backup_eligibility: {{ lookup('role_var', '_webauthn_filtering_prohibit_backup_eligibility', role='authelia') | bool | lower }}
 {% if lookup('role_var', '_webauthn_filtering_permitted_aaguids', role='authelia') | length > 0 %}
     permitted_aaguids: {{ lookup('role_var', '_webauthn_filtering_permitted_aaguids', role='authelia') }}
 {% endif %}
@@ -115,7 +79,7 @@ webauthn:
     discoverability: {{ lookup('role_var', '_webauthn_selection_criteria_discoverability', role='authelia') }}
     user_verification: {{ lookup('role_var', '_webauthn_selection_criteria_user_verification', role='authelia') }}
   metadata:
-    enabled: {{ lookup('role_var', '_webauthn_metadata_enabled', role='authelia') }}
+    enabled: {{ lookup('role_var', '_webauthn_metadata_enabled', role='authelia') | bool | lower }}
 {% if lookup('role_var', '_webauthn_metadata_enabled', role='authelia') | bool %}
     cache_policy: {{ lookup('role_var', '_webauthn_metadata_cache_policy', role='authelia') }}
     validate_trust_anchor: {{ lookup('role_var', '_webauthn_metadata_validate_trust_anchor', role='authelia') }}
@@ -130,17 +94,45 @@ webauthn:
 {% endif %}
 {% endif %}
 
+{% if lookup('role_var', '_duo_enabled', role='authelia') | bool %}
+duo_api:
+  disable: false
+  hostname: {{ lookup('role_var', '_duo_hostname', role='authelia') }}
+  integration_key: {{ lookup('role_var', '_duo_integration_key', role='authelia') }}
+  secret_key: {{ lookup('role_var', '_duo_secret_key', role='authelia') }}
+  enable_self_enrollment: {{ lookup('role_var', '_duo_self_enrollment', role='authelia') | bool | lower }}
+{% endif %}
+
+identity_validation:
+  reset_password:
+    jwt_lifespan: {{ lookup('role_var', '_identity_validation_reset_password_jwt_lifespan', role='authelia') }}
+    jwt_algorithm: {{ lookup('role_var', '_identity_validation_reset_password_jwt_algorithm', role='authelia') }}
+    jwt_secret: {{ lookup('role_var', '_jwt_secret', role='authelia') }}
+  elevated_session:
+    code_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_code_lifespan', role='authelia') }}
+    elevation_lifespan: {{ lookup('role_var', '_identity_validation_elevated_session_elevation_lifespan', role='authelia') }}
+    characters: {{ lookup('role_var', '_identity_validation_elevated_session_characters', role='authelia') }}
+    require_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_require_second_factor', role='authelia') | bool | lower }}
+    skip_second_factor: {{ lookup('role_var', '_identity_validation_elevated_session_skip_second_factor', role='authelia') | bool | lower }}
+
+ntp:
+  address: {{ lookup('role_var', '_ntp_address', role='authelia') }}
+  version: {{ lookup('role_var', '_ntp_version', role='authelia') }}
+  max_desync: {{ lookup('role_var', '_ntp_max_desync', role='authelia') }}
+  disable_startup_check: {{ lookup('role_var', '_ntp_disable_startup_check', role='authelia') | bool | lower }}
+  disable_failure: {{ lookup('role_var', '_ntp_disable_failure', role='authelia') | bool | lower }}
+
 authentication_backend:
   password_change:
-    disable: {{ lookup('role_var', '_authentication_backend_password_change_disable', role='authelia') }}
+    disable: {{ lookup('role_var', '_authentication_backend_password_change_disable', role='authelia') | bool | lower }}
   password_reset:
-    disable: {{ lookup('role_var', '_authentication_backend_password_reset_disable', role='authelia') }}
+    disable: {{ lookup('role_var', '_authentication_backend_password_reset_disable', role='authelia') | bool | lower }}
     custom_url: "{{ lookup('role_var', '_authentication_backend_password_reset_custom_url', role='authelia') }}"
   refresh_interval: {{ lookup('role_var', '_authentication_backend_refresh_interval', role='authelia') }}
 {% if lookup('role_var', '_authentication_backend', role='authelia') == 'file' %}
   file:
     path: {{ lookup('role_var', '_authentication_backend_file_path', role='authelia') }}
-    watch: {{ lookup('role_var', '_authentication_backend_file_watch', role='authelia') }}
+    watch: {{ lookup('role_var', '_authentication_backend_file_watch', role='authelia') | bool | lower }}
     password:
       algorithm: {{ lookup('role_var', '_authentication_backend_file_password_algorithm', role='authelia') }}
       argon2:
@@ -170,12 +162,11 @@ authentication_backend:
       group_name: cn
       display_name: displayName
       mail: mail
-
 {% endif %}
 
 password_policy:
   standard:
-    enabled: {{ lookup('role_var', '_password_policy_standard_enabled', role='authelia') }}
+    enabled: {{ lookup('role_var', '_password_policy_standard_enabled', role='authelia') | bool | lower }}
     min_length: {{ lookup('role_var', '_password_policy_standard_min_length', role='authelia') }}
     max_length: {{ lookup('role_var', '_password_policy_standard_max_length', role='authelia') }}
     require_uppercase: {{ lookup('role_var', '_password_policy_standard_require_uppercase', role='authelia') }}
@@ -183,7 +174,7 @@ password_policy:
     require_number: {{ lookup('role_var', '_password_policy_standard_require_number', role='authelia') }}
     require_special: {{ lookup('role_var', '_password_policy_standard_require_special', role='authelia') }}
   zxcvbn:
-    enabled: {{ lookup('role_var', '_password_policy_zxcvbn_enabled', role='authelia') }}
+    enabled: {{ lookup('role_var', '_password_policy_zxcvbn_enabled', role='authelia') | bool | lower }}
     min_score: {{ lookup('role_var', '_password_policy_zxcvbn_min_score', role='authelia') }}
 
 access_control:
@@ -209,6 +200,9 @@ session:
       inactivity: 5m
       expiration: 1h
       remember_me: 1M
+{% if lookup('role_var', '_default_redirection_url', role='authelia') | length > 0 %}
+      default_redirection_url: {{ lookup('role_var', '_default_redirection_url', role='authelia') }}
+{% endif %}
 
 regulation:
   max_retries: 3
@@ -220,15 +214,8 @@ storage:
   local:
     path: /config/db.sqlite3
 
-ntp:
-  address: "{{ lookup('role_var', '_ntp_address', role='authelia') }}"
-  version: {{ lookup('role_var', '_ntp_version', role='authelia') }}
-  max_desync: {{ lookup('role_var', '_ntp_max_desync', role='authelia') }}
-  disable_startup_check: {{ lookup('role_var', '_ntp_disable_startup_check', role='authelia') }}
-  disable_failure: {{ lookup('role_var', '_ntp_disable_failure', role='authelia') }}
-
 notifier:
-  disable_startup_check: {{ lookup('role_var', '_notifier_disable_startup_check', role='authelia') }}
+  disable_startup_check: {{ lookup('role_var', '_notifier_disable_startup_check', role='authelia') | bool | lower }}
 {% if lookup('role_var', '_notifier', role='authelia') == 'filesystem' %}
   filesystem:
     filename: /config/notification.txt
@@ -250,31 +237,6 @@ notifier:
       server_name: {{ (lookup('role_var', '_notifier_smtp_tls_server_name', role='authelia')) | default(omit) }}
       skip_verify: {{ (lookup('role_var', '_notifier_smtp_tls_skip_verify', role='authelia')) | default(omit) }}
       minimum_version: {{ (lookup('role_var', '_notifier_smtp_tls_minimum_version', role='authelia')) | default(omit) }}
-{% else %}
-#
-# If you want to use email here is a template (Replace the above entry as you can only have one notifier configured)
-#
-# notifier:
-#   disable_startup_check: false
-#   smtp:
-#     host: 127.0.0.1
-#     port: 1025
-#     timeout: 5s
-#     username: test
-#     password: password
-#     sender: admin@example.com
-#     identifier: localhost
-#     subject: "[Authelia] {title}"
-#     startup_check_address: test@authelia.com
-#     disable_require_tls: false
-#     disable_html_emails: false
-#     tls:
-#       server_name: smtp.example.com
-#       skip_verify: false
-#       minimum_version: TLS1.2
-#
-# Read more at https://www.authelia.com/docs/configuration/notifier/smtp.html
-#
 {% endif %}
 
 ...

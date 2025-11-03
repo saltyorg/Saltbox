@@ -17,21 +17,34 @@ authelia_name: authelia
 # Settings
 ################################
 
+# Themes - Sub-section Start
 # Options are light, dark, grey or auto.
 authelia_role_theme: "auto"
+# Themes - Sub-section End
 
-# Logs
+# Logs - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/miscellaneous/logging/
+# [NOGLOBAL] Logrotate configuration variable
 authelia_role_log_max_backups: "3"
+# [NOGLOBAL] Logrotate configuration variable
 authelia_role_log_max_size: "10"
+authelia_role_log_level: "info"
+authelia_role_log_format: "text"
+authelia_role_log_file_path: "/config/authelia.log"
+authelia_role_log_keep_stdout: true
+# Logs - Sub-section End
 
-# Options are file or ldap
+# Authentication Backend - Sub-section Start
+# [GLOBAL] https://www.authelia.com/configuration/first-factor/introduction/
+# [GLOBAL] https://www.authelia.com/configuration/first-factor/file/
+# [NOGLOBAL] Options are file or ldap
 authelia_role_authentication_backend: "file"
 authelia_role_authentication_backend_password_change_disable: false
-authelia_role_authentication_backend_password_reset_disable: "false"
+authelia_role_authentication_backend_password_reset_disable: false
 authelia_role_authentication_backend_password_reset_custom_url: ""
 authelia_role_authentication_backend_refresh_interval: "5m"
 authelia_role_authentication_backend_file_path: "/config/users_database.yml"
-authelia_role_authentication_backend_file_watch: "true"
+authelia_role_authentication_backend_file_watch: true
 authelia_role_authentication_backend_file_password_algorithm: "argon2"
 authelia_role_authentication_backend_file_password_argon2_variant: "argon2id"
 authelia_role_authentication_backend_file_password_argon2_iterations: "3"
@@ -39,21 +52,81 @@ authelia_role_authentication_backend_file_password_argon2_memory: "65536"
 authelia_role_authentication_backend_file_password_argon2_parallelism: "4"
 authelia_role_authentication_backend_file_password_argon2_key_length: "32"
 authelia_role_authentication_backend_file_password_argon2_salt_length: "16"
+# Authentication Backend - Sub-section End
 
+# Access Control - Sub-section Start
 # Setting for default Access Control Policy - recommended options one_factor or two_factor
 # Reference: https://www.authelia.com/configuration/security/access-control/#one_factor
 authelia_role_access_control_policy: "one_factor"
+# Whitelists the host IPv4/IPv6 addresses depending on which are enabled
+authelia_role_access_control_whitelist_host: false
+# Whitelists the saltbox Docker network IP subnet
+authelia_role_access_control_whitelist_docker: false
+# Skip docs
+authelia_role_access_control_default_policy: "deny"
+# Skip docs
+authelia_role_access_control_rules:
+  - domain:
+      - "{{ '*.' + user.domain | lower }}"
+      - "{{ user.domain | lower }}"
+    policy: "{{ lookup('role_var', '_access_control_policy', role='authelia') }}"
 
-# Settings for Duo
-# Reference: https://www.authelia.com/configuration/second-factor/duo/
+# Skip docs
+authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker_lookup', role='authelia')
+                                                         + lookup('role_var', '_access_control_whitelist_rules_host_lookup', role='authelia') }}"
+
+
+# Skip docs
+authelia_role_access_control_whitelist_rules_docker_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker', role='authelia')
+                                                             if lookup('role_var', '_access_control_whitelist_docker', role='authelia')
+                                                             else [] }}"
+
+# Skip docs
+authelia_role_access_control_whitelist_rules_host_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_host', role='authelia')
+                                                           if lookup('role_var', '_access_control_whitelist_host', role='authelia') and (dns_ipv4_enabled or dns_ipv6_enabled)
+                                                           else [] }}"
+
+# Skip docs
+authelia_role_access_control_whitelist_rules_host:
+  - domain:
+      - "{{ '*.' + user.domain }}"
+      - "{{ user.domain }}"
+    policy: bypass
+    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_host', role='authelia') | unique | reject('equalto', omit) | list }}"
+
+# Skip docs
+authelia_role_access_control_whitelist_rules_docker:
+  - domain:
+      - "{{ '*.' + user.domain }}"
+      - "{{ user.domain }}"
+    policy: bypass
+    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_docker', role='authelia') | unique | reject('equalto', omit) | list }}"
+
+# Skip docs
+authelia_role_access_control_whitelist_networks_docker:
+  - "172.19.0.0/16"
+
+# Skip docs
+authelia_role_access_control_whitelist_networks_host:
+  - "{{ (ip_address_public + '/32') if dns_ipv4_enabled else omit }}"
+  - "{{ (ipv6_address_public + '/128') if dns_ipv6_enabled else omit }}"
+# Access Control - Sub-section End
+
+# Second Factor - Sub-section Start
+authelia_role_default_2fa_method: ""
+# Second Factor - Sub-section End
+
+# Second Factor - Duo - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/second-factor/duo/
 authelia_role_duo_enabled: false
 authelia_role_duo_hostname: ""
 authelia_role_duo_integration_key: ""
 authelia_role_duo_secret_key: ""
-authelia_role_duo_self_enrollment: "true"
+authelia_role_duo_self_enrollment: true
+# Second Factor - Duo - Sub-section End
 
-# Settings for Webauthn
-# Reference: https://www.authelia.com/configuration/second-factor/webauthn/
+# Second Factor - Webauthn - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/second-factor/webauthn/
 authelia_role_webauthn_disable: false
 authelia_role_webauthn_enable_passkey_login: false
 authelia_role_webauthn_display_name: "Authelia"
@@ -73,12 +146,13 @@ authelia_role_webauthn_metadata_validate_entry_permit_zero_aaguid: false
 authelia_role_webauthn_metadata_validate_status: true
 authelia_role_webauthn_metadata_validate_status_permitted: []
 authelia_role_webauthn_metadata_validate_status_prohibited: []
+# Second Factor - Webauthn - Sub-section End
 
-# Settings for Notifier
-# Reference: https://www.authelia.com/configuration/notifications/introduction/
+# Notifier - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/notifications/introduction/
 # Options are filesystem or smtp. Options specific to smtp prefixed with smtp
 authelia_role_notifier: "filesystem"
-authelia_role_notifier_disable_startup_check: "false"
+authelia_role_notifier_disable_startup_check: false
 authelia_role_notifier_smtp_host: ""
 authelia_role_notifier_smtp_port: ""
 authelia_role_notifier_smtp_timeout: ""
@@ -93,31 +167,25 @@ authelia_role_notifier_smtp_disable_html_emails: ""
 authelia_role_notifier_smtp_tls_server_name: ""
 authelia_role_notifier_smtp_tls_skip_verify: ""
 authelia_role_notifier_smtp_tls_minimum_version: ""
+# Notifier - Sub-section End
 
-# Settings for Authelia's server
-# Reference: https://www.authelia.com/configuration/miscellaneous/server/
-# https://www.authelia.com/c/server#buffer-sizes
+# Server - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/miscellaneous/server/
 authelia_role_server_address: "0.0.0.0:9091"
 authelia_role_server_asset_path: ""
-authelia_role_server_disable_healthcheck: "false"
+authelia_role_server_disable_healthcheck: false
 authelia_role_server_buffers_read: "10485760"
 authelia_role_server_buffers_write: "10485760"
 authelia_role_server_timeouts_read: "6s"
 authelia_role_server_timeouts_write: "6s"
 authelia_role_server_timeouts_idle: "30s"
-authelia_role_server_endpoints_enable_pprof: "false"
-authelia_role_server_endpoints_enable_expvars: "false"
+authelia_role_server_endpoints_enable_pprof: false
+authelia_role_server_endpoints_enable_expvars: false
 authelia_role_server_headers_csp_template: "default-src 'self' *.{{ user.domain }} {{ user.domain }}; script-src 'self' *.{{ user.domain }} {{ user.domain }}; script-src-elem 'self' *.{{ user.domain }} {{ user.domain }}; script-src-attr 'self' *.{{ user.domain }} {{ user.domain }}; style-src 'self' *.{{ user.domain }} {{ user.domain }} 'nonce-${NONCE}'; style-src-elem 'self' *.{{ user.domain }} {{ user.domain }} 'nonce-${NONCE}'; style-src-attr 'self' *.{{ user.domain }} {{ user.domain }} 'nonce-${NONCE}'; img-src 'self' *.{{ user.domain }} {{ user.domain }}; font-src 'self' *.{{ user.domain }} {{ user.domain }}; connect-src 'self' *.{{ user.domain }} {{ user.domain }}; media-src 'self' *.{{ user.domain }} {{ user.domain }}; object-src 'self' *.{{ user.domain }} {{ user.domain }}; child-src 'self' *.{{ user.domain }} {{ user.domain }}; frame-src 'self' *.{{ user.domain }} {{ user.domain }}; worker-src 'self' *.{{ user.domain }} {{ user.domain }}; frame-ancestors 'self' *.{{ user.domain }} {{ user.domain }}; form-action 'self' *.{{ user.domain }} {{ user.domain }}; base-uri 'self'"
+# Server - Sub-section End
 
-# Settings for Logging
-# Reference: https://www.authelia.com/configuration/miscellaneous/logging/
-authelia_role_log_level: "info"
-authelia_role_log_format: "text"
-authelia_role_log_file_path: "/config/authelia.log"
-authelia_role_log_keep_stdout: "true"
-
-# Settings for Telemetry/Metrics
-# Reference: https://www.authelia.com/configuration/telemetry/metrics/
+# Metrics - Sub-section Start
+# [GLOBAL] Reference: https://www.authelia.com/configuration/telemetry/metrics/
 authelia_role_telemetry_metrics_enabled: false
 authelia_role_telemetry_metrics_address: "tcp://0.0.0.0:9959"
 authelia_role_telemetry_metrics_buffers_read: "4096"
@@ -125,23 +193,23 @@ authelia_role_telemetry_metrics_buffers_write: "4096"
 authelia_role_telemetry_metrics_timeouts_read: "6s"
 authelia_role_telemetry_metrics_timeouts_write: "6s"
 authelia_role_telemetry_metrics_timeouts_idle: "30s"
+# Metrics - Sub-section End
 
-# Identity Validation Settings
-# Reset password flow
+# Identity Validation - Sub-section Start
 authelia_role_identity_validation_reset_password_jwt_lifespan: "5m"
 authelia_role_identity_validation_reset_password_jwt_algorithm: "HS256"
-
-# Elevated session flows
 authelia_role_identity_validation_elevated_session_code_lifespan: "5m"
 authelia_role_identity_validation_elevated_session_elevation_lifespan: "10m"
 authelia_role_identity_validation_elevated_session_characters: "8"
 authelia_role_identity_validation_elevated_session_require_second_factor: false
 authelia_role_identity_validation_elevated_session_skip_second_factor: false
+# Identity Validation - Sub-section End
 
-# JWT
+# JWT - Sub-section Start
 authelia_role_jwt_secret: "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}"
+# JWT - Sub-section End
 
-# TOTP
+# TOTP - Sub-section Start
 authelia_role_totp_disable: false
 authelia_role_totp_issuer: "{{ lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia') }}"
 authelia_role_totp_algorithm: "SHA1"
@@ -153,74 +221,33 @@ authelia_role_totp_allowed_algorithms: ["SHA1"]
 authelia_role_totp_allowed_digits: ["6"]
 authelia_role_totp_allowed_periods: ["30"]
 authelia_role_totp_disable_reuse_security_policy: false
+# TOTP - Sub-section End
 
-# Default redirection
+# Session - Sub-section Start
 authelia_role_default_redirection_url: ""
+# Session - Sub-section End
 
-# Default 2FA Method
-authelia_role_default_2fa_method: ""
-
-# NTP
+# NTP - Sub-section Start
 authelia_role_ntp_address: "time.cloudflare.com:123"
 authelia_role_ntp_version: "3"
 authelia_role_ntp_max_desync: "3s"
-authelia_role_ntp_disable_startup_check: "false"
-authelia_role_ntp_disable_failure: "false"
+authelia_role_ntp_disable_startup_check: false
+authelia_role_ntp_disable_failure: false
+# NTP - Sub-section End
 
-# Password Policy
-authelia_role_password_policy_standard_enabled: "false"
+# Password Policy - Sub-section Start
+authelia_role_password_policy_standard_enabled: false
 authelia_role_password_policy_standard_min_length: "8"
 authelia_role_password_policy_standard_max_length: "0"
-authelia_role_password_policy_standard_require_uppercase: "true"
-authelia_role_password_policy_standard_require_lowercase: "true"
-authelia_role_password_policy_standard_require_number: "true"
-authelia_role_password_policy_standard_require_special: "true"
-authelia_role_password_policy_zxcvbn_enabled: "false"
+authelia_role_password_policy_standard_require_uppercase: true
+authelia_role_password_policy_standard_require_lowercase: true
+authelia_role_password_policy_standard_require_number: true
+authelia_role_password_policy_standard_require_special: true
+authelia_role_password_policy_zxcvbn_enabled: false
 authelia_role_password_policy_zxcvbn_min_score: "3"
+# Password Policy - Sub-section End
 
-# Access Control
-authelia_role_access_control_whitelist_host: false
-authelia_role_access_control_whitelist_docker: false
-authelia_role_access_control_default_policy: "deny"
-authelia_role_access_control_rules:
-  - domain:
-      - "{{ '*.' + user.domain | lower }}"
-      - "{{ user.domain | lower }}"
-    policy: "{{ lookup('role_var', '_access_control_policy', role='authelia') }}"
-
-authelia_role_access_control_whitelist_rules_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker_lookup', role='authelia')
-                                                         + lookup('role_var', '_access_control_whitelist_rules_host_lookup', role='authelia') }}"
-
-
-authelia_role_access_control_whitelist_rules_docker_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_docker', role='authelia')
-                                                             if lookup('role_var', '_access_control_whitelist_docker', role='authelia')
-                                                             else [] }}"
-
-authelia_role_access_control_whitelist_rules_host_lookup: "{{ lookup('role_var', '_access_control_whitelist_rules_host', role='authelia')
-                                                           if lookup('role_var', '_access_control_whitelist_host', role='authelia') and (dns_ipv4_enabled or dns_ipv6_enabled)
-                                                           else [] }}"
-
-authelia_role_access_control_whitelist_rules_host:
-  - domain:
-      - "{{ '*.' + user.domain }}"
-      - "{{ user.domain }}"
-    policy: bypass
-    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_host', role='authelia') | unique | reject('equalto', omit) | list }}"
-
-authelia_role_access_control_whitelist_rules_docker:
-  - domain:
-      - "{{ '*.' + user.domain }}"
-      - "{{ user.domain }}"
-    policy: bypass
-    networks: "{{ lookup('role_var', '_access_control_whitelist_networks_docker', role='authelia') | unique | reject('equalto', omit) | list }}"
-
-authelia_role_access_control_whitelist_networks_docker:
-  - "172.19.0.0/16"
-
-authelia_role_access_control_whitelist_networks_host:
-  - "{{ (ip_address_public + '/32') if dns_ipv4_enabled else omit }}"
-  - "{{ (ipv6_address_public + '/128') if dns_ipv6_enabled else omit }}"
-
+# Skip docs
 authelia_role_response_headers:
   - "Remote-User"
   - "Remote-Groups"
