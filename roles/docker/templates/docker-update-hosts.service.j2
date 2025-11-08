@@ -9,12 +9,15 @@
 #########################################################################
 
 [Unit]
-Description=Saltbox Docker Hosts DNS Resolution Helper
-BindsTo=docker.service
+Description=Saltbox Docker Hosts Manager
 After=docker.service
+Requires=docker.service
 
 [Service]
-ExecStart={{ docker_dns_python_install_path }} /srv/git/saltbox/roles/docker/files/docker-update-hosts.py {{ docker_update_hosts_service_runtime_max }}
+Type=simple
+ExecStart={{ docker_dns_binary_path }} --networks {{ docker_dns_networks | join(',') }} --interval {{ docker_dns_periodic_validation }} --health-port {{ docker_dns_ports_8090 }}
+Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target

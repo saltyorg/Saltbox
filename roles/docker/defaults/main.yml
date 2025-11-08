@@ -136,4 +136,22 @@ docker_controller_venv_path: "/srv/docker-controller/venv"
 # Docker DNS
 ################################
 
-docker_dns_python_version: "3.10"
+docker_dns_binary_path: "/usr/local/bin/sdhm"
+
+docker_dns_releases_url: "{{ svm }}https://api.github.com/repos/saltyorg/sdhm/releases/latest"
+
+docker_dns_releases_download_url: https://github.com/saltyorg/sdhm/releases/download
+
+docker_dns_release_lookup_command: |
+  curl -s {{ docker_dns_releases_url }} \
+    | jq -r ".assets[] | select(.name == \"sdhm_linux_amd64\") \
+    | .browser_download_url"
+
+docker_dns_ports_8090: "{{ port_lookup_8090.meta.port
+                        if (port_lookup_8090.meta.port is defined) and (port_lookup_8090.meta.port | trim | length > 0)
+                        else '8090' }}"
+
+docker_dns_networks:
+  - "saltbox"
+
+docker_dns_periodic_validation: "5m"

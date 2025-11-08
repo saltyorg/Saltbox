@@ -19,29 +19,41 @@
     path: /etc/systemd/system/docker-update-hosts.service
     state: absent
 
-- name: "DNS | Delete 'docker-update-hosts'"
-  ansible.builtin.file:
-    path: "/usr/local/bin/docker-update-hosts"
-    state: absent
+- name: "DNS | Get URL for latest sdhm release"
+  ansible.builtin.shell: "{{ docker_dns_release_lookup_command }}"
+  args:
+    executable: /bin/bash
+  register: docker_dns_download_url
 
-- name: "DNS | Execute Python role"
-  ansible.builtin.include_role:
-    name: "python"
-  vars:
-    python_version: "{{ docker_dns_python_version }}"
-  when: (docker_dns_python_version != docker_controller_python_version)
+- name: "DNS | Download sdhm"
+  ansible.builtin.get_url:
+    url: "{{ docker_dns_download_url.stdout }}"
+    dest: "{{ docker_dns_binary_path }}"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  register: x
+  until: "x is not failed"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
+  delay: 10
 
-- name: "DNS | Lookup Python {{ docker_dns_python_version }} installation"
-  ansible.builtin.command: "{{ python_bin }} python find {{ docker_dns_python_version }} --managed-python"
-  register: docker_dns_python_install_path_lookup
+- name: DNS | Get sdhm binary version
+  ansible.builtin.shell: "{{ docker_dns_binary_path }} --version | awk '{ print $3 }'"
+  register: sdhm_binary_version
   changed_when: false
-  environment: "{{ python_environment }}"
-  become: true
-  become_user: "{{ user.name }}"
 
-- name: "DNS | Set Python version"
-  ansible.builtin.set_fact:
-    docker_dns_python_install_path: "{{ docker_dns_python_install_path_lookup.stdout }}"
+- name: DNS | Display sdhm binary version
+  ansible.builtin.debug:
+    msg: "sdhm {{ sdhm_binary_version.stdout }} installed."
+
+- name: DNS | Get next available port within the range of '8090-8180'
+  find_open_port:
+    low_bound: "8090"
+    high_bound: "8180"
+    protocol: both
+  register: port_lookup_8090
 
 - name: "DNS | Import 'saltbox_managed_docker_update_hosts.service'"
   ansible.builtin.template:
