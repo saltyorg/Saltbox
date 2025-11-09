@@ -7,8 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Cloudflare | Python | Verify Python {{ python_version }} installation"
-  ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
+- name: "Cloudflare | Python | Verify Python {{ cloudflare_python_version }} installation"
+  ansible.builtin.command: "{{ python_bin }} python find {{ cloudflare_python_version }} --managed-python"
   register: cloudflare_uv_python_path
   changed_when: false
   failed_when: false
