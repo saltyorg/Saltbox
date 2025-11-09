@@ -120,3 +120,11 @@ lldap_role_docker_restart_policy: unless-stopped
 
 # State
 lldap_role_docker_state: started
+
+lldap_role_docker_healthcheck:
+  test: ["CMD", "/app/lldap", "healthcheck", "--config-file", "/data/lldap_config.toml"]
+  interval: 30s
+  timeout: 30s
+  retries: 3
+  start_period: 30s
+  start_interval: 1s
