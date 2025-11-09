@@ -39,16 +39,16 @@
             else ansible_retry_count_ci }}"
   delay: 10
 
-- name: DNS | Get sdhm binary version
+- name: "DNS | Get sdhm binary version"
   ansible.builtin.shell: "{{ docker_dns_binary_path }} --version | awk '{ print $3 }'"
   register: sdhm_binary_version
   changed_when: false
 
-- name: DNS | Display sdhm binary version
+- name: "DNS | Display sdhm binary version"
   ansible.builtin.debug:
     msg: "sdhm {{ sdhm_binary_version.stdout }} installed."
 
-- name: DNS | Get next available port within the range of '8090-8180'
+- name: "DNS | Get next available port within the range of '8090-8180'"
   find_open_port:
     low_bound: "8090"
     high_bound: "8180"

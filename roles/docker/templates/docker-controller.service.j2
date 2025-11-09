@@ -14,8 +14,7 @@ After=docker.service
 
 [Service]
 Type=simple
-WorkingDirectory=/srv/git/saltbox/scripts
-ExecStart={{ docker_controller_uvicorn_path }} saltbox_docker_controller:app --host 127.0.0.1 --port 3377
+ExecStart={{ docker_controller_binary_path }} server --host 127.0.0.1 --port 3377
 Restart=on-failure
 RestartSec=5s
 

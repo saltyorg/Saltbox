@@ -129,7 +129,18 @@ compose_cleanup_switch: "{{ compose_install_switch | default(true) }}"
 # Docker Controller
 ################################
 
-docker_controller_python_version: "3.10"
+docker_controller_binary_path: "/usr/local/bin/sdc"
+
+docker_controller_releases_url: "{{ svm }}https://api.github.com/repos/saltyorg/sdc/releases/latest"
+
+docker_controller_releases_download_url: https://github.com/saltyorg/sdc/releases/download
+
+docker_controller_release_lookup_command: |
+  curl -s {{ docker_controller_releases_url }} \
+    | jq -r ".assets[] | select(.name == \"sdc_linux_amd64\") \
+    | .browser_download_url"
+
+# Legacy
 docker_controller_venv_path: "/srv/docker-controller/venv"
 
 ################################

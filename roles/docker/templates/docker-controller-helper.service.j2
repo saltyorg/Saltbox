@@ -15,7 +15,7 @@ Requires=saltbox_managed_docker_controller.service
 After=docker.service saltbox_managed_docker_controller.service
 
 [Service]
-ExecStart=/srv/ansible/venv/bin/python3 /srv/git/saltbox/scripts/saltbox_docker_controller_helper.py
+ExecStart={{ docker_controller_binary_path }} helper --controller-url "http://127.0.0.1:3377"
 
 [Install]
 WantedBy=multi-user.target
