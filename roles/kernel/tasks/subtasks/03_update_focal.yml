@@ -10,6 +10,7 @@
 - name: Update | Update linux kernel
   ansible.builtin.apt:
     name: "{{ kernel_update_apt_package }}"
+    install_recommends: true
     update_cache: true
     state: latest
   register: r
