@@ -38,6 +38,13 @@
       ansible.builtin.set_fact:
         containers_list: "{{ remote_docker_running_containers_ps.stdout }}"
 
+    - name: Check for saltbox_docker_controller:app (legacy controller) in service file
+      ansible.builtin.shell: "grep -q 'saltbox_docker_controller:app' /etc/systemd/system/saltbox_managed_docker_controller.service"
+      register: remote_legacy_docker_controller
+      ignore_errors: true
+      changed_when: false
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+
     - name: Block Docker Controller
       ansible.builtin.uri:
         url: "{{ docker_controller_url }}/block/20"
@@ -50,7 +57,7 @@
       ansible.builtin.systemd_service:
         name: saltbox_managed_docker_controller
         state: restarted
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running and (remote_legacy_docker_controller.rc is not defined or remote_legacy_docker_controller.rc != 0)
 
     - name: Wait until Controller is ready
       ansible.builtin.uri:
