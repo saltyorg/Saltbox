@@ -22,6 +22,10 @@ Requires={{ service_requires }}
 {% if service_wants | length > 0 %}
 Wants={{ service_wants }}
 {% endif %}
+{% set service_partof = lookup('role_var', '_service_partof', role='qbittorrent') %}
+{% if service_partof | length > 0 %}
+PartOf={{ service_partof }}
+{% endif %}
 StartLimitIntervalSec=500s
 StartLimitBurst=5
 
