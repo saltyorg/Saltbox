@@ -55,17 +55,16 @@ docker_apt_repo_filename: docker
 ################################
 
 # Version
-
-docker_version: "latest"
+# Supported formats:
+#   "28"      - Major version (installs latest 28.x.x, auto-updates within 28.x)
+#   "28.5"    - Major.minor version (installs latest 28.5.x, auto-updates within 28.5.x)
+#   "28.5.2"  - Exact version (installs exactly 28.5.2, no auto-updates)
+docker_version: "28"
 
 # Docker CE
 
 docker_ce_name: "Docker CE"
-
-docker_ce_package: "{{ 'docker-ce'
-                    if (docker_version is defined and docker_version | lower == 'latest')
-                    else 'docker-ce=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
-
+docker_ce_package: "docker-ce={{ docker_ce_resolved_version | default('') }}"
 docker_ce_filepath: "/usr/bin/dockerd"
 
 docker_ce_dpkg: "docker-ce"
@@ -73,11 +72,7 @@ docker_ce_dpkg: "docker-ce"
 # Docker CE CLI
 
 docker_ce_cli_name: "Docker CE CLI"
-
-docker_ce_cli_package: "{{ 'docker-ce-cli'
-                        if (docker_version is defined and docker_version | lower == 'latest')
-                        else 'docker-ce-cli=*' + docker_version + '*~' + ansible_distribution | lower + '.' + ansible_distribution_version + '~' + ansible_distribution_release | lower }}"
-
+docker_ce_cli_package: "docker-ce-cli={{ docker_ce_cli_resolved_version | default('') }}"
 docker_ce_cli_filepath: "/usr/bin/docker"
 
 docker_ce_cli_dpkg: "docker-ce-cli"
@@ -113,11 +108,7 @@ docker_rootless_filepath: "/usr/bin/rootlesskit"
 docker_rootless_dpkg: "docker-ce-rootless-extras"
 
 # Misc
-
-docker_package_state: "{{ 'latest'
-                       if (docker_version is defined and docker_version | lower == 'latest')
-                       else 'present' }}"
-
+docker_package_state: "present"
 put_docker_dpkg_into_hold: true
 
 docker_filesystem_path: "/media/docker-volume.img"
