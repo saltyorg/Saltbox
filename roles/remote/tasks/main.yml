@@ -41,7 +41,7 @@
     - name: Check for saltbox_docker_controller:app (legacy controller) in service file
       ansible.builtin.shell: "grep -q 'saltbox_docker_controller:app' /etc/systemd/system/saltbox_managed_docker_controller.service"
       register: remote_legacy_docker_controller
-      ignore_errors: true
+      failed_when: false
       changed_when: false
       when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
