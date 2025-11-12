@@ -70,13 +70,13 @@ docker_version: "28"
 
 # Docker CE
 docker_ce_name: "Docker CE"
-docker_ce_package: "docker-ce={{ docker_ce_resolved_version | default('') }}"
+docker_ce_package: "docker-ce={{ docker_ce_resolved_version }}"
 docker_ce_filepath: "/usr/bin/dockerd"
 docker_ce_dpkg: "docker-ce"
 
 # Docker CE CLI
 docker_ce_cli_name: "Docker CE CLI"
-docker_ce_cli_package: "docker-ce-cli={{ docker_ce_cli_resolved_version | default('') }}"
+docker_ce_cli_package: "docker-ce-cli={{ docker_ce_cli_resolved_version }}"
 docker_ce_cli_filepath: "/usr/bin/docker"
 docker_ce_cli_dpkg: "docker-ce-cli"
 
