@@ -66,6 +66,9 @@
   ansible.builtin.package_facts:
     manager: apt
 
+- name: Binary | Resolve Docker version
+  ansible.builtin.include_tasks: "version_resolver.yml"
+
 - name: Binary | Install Docker binaries
   ansible.builtin.include_tasks: "binary2.yml"
   loop:
