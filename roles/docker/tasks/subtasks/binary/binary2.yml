@@ -16,7 +16,7 @@
 - name: Binary | Install '{{ lookup('vars', item + '_package') }}' # noqa args[module]
   ansible.builtin.apt:
     name: "{{ lookup('vars', item + '_package') }}"
-    state: "{{ docker_package_state }}"
+    state: "{{ docker_package_state if (item == 'docker_ce' or item == 'docker_ce_cli') else 'latest' }}"
     update_cache: true
     allow_downgrade: true
 
