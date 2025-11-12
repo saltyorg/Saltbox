@@ -217,7 +217,7 @@ traefik_role_docker_container: "{{ traefik_name }}"
 # Image
 traefik_role_docker_image_pull: true
 traefik_role_docker_image_repo: "traefik"
-traefik_role_docker_image_tag: "v3.5"
+traefik_role_docker_image_tag: "v3.6"
 traefik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='traefik') }}:{{ lookup('role_var', '_docker_image_tag', role='traefik') }}"
 
 # Ports
