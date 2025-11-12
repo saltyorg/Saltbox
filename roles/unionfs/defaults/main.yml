@@ -60,8 +60,6 @@ mergerfs_mount_policy_action: "epall"
 mergerfs_mount_policy_create: "ff"
 mergerfs_mount_policy_search: "ff"
 
-mergerfs_mount_umask: "002"
-
 mergerfs_mount_xattr: "nosys"
 
 mergerfs_mount_start_command: |-
@@ -69,8 +67,8 @@ mergerfs_mount_start_command: |-
     -o category.create={{ mergerfs_mount_policy_create }},async_read=true,cache.files=partial \
     -o category.action={{ mergerfs_mount_policy_action }},category.search={{ mergerfs_mount_policy_search }} \
     -o dropcacheonclose=true,minfreespace=0,fsname=mergerfs \
-    -o xattr={{ mergerfs_mount_xattr }},statfs=base,statfs_ignore=nc,umask={{ mergerfs_mount_umask }},noatime \
+    -o xattr={{ mergerfs_mount_xattr }},statfs=base,statfs_ignore=nc,noatime \
     -o func.readdir={{ mergerfs_mount_readdir_policy }} \
-    "{{ mergerfs_mount_branches }}" /mnt/unionfs
+    "{{ mergerfs_mount_branches | regex_replace(':$', '') }}" /mnt/unionfs
 
 mergerfs_mount_stop_command: /bin/fusermount3 -uz /mnt/unionfs
