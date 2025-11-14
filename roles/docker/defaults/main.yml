@@ -99,7 +99,6 @@ docker_rootless_filepath: "/usr/bin/rootlesskit"
 docker_rootless_dpkg: "docker-ce-rootless-extras"
 
 # Misc
-docker_package_state: "present"
 put_docker_dpkg_into_hold: true
 docker_filesystem_path: "/media/docker-volume.img"
 docker_filesystem_size: "20G"

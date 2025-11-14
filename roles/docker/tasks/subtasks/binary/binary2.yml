@@ -13,10 +13,10 @@
     selection: install
   when: (vars[item ~ '_dpkg'] in ansible_facts['packages'])
 
-- name: Binary | Install '{{ lookup('vars', item + '_package') }}' # noqa args[module]
+- name: Binary | Install '{{ lookup('vars', item + '_package') }}'
   ansible.builtin.apt:
     name: "{{ lookup('vars', item + '_package') }}"
-    state: "{{ docker_package_state if (item == 'docker_ce' or item == 'docker_ce_cli') else 'latest' }}"
+    state: "{{ 'present' if (item == 'docker_ce' or item == 'docker_ce_cli') else 'latest' }}"
     update_cache: true
     allow_downgrade: true
 
