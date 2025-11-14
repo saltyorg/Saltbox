@@ -1,125 +1,58 @@
 # Saltbox MOTD Configuration Schema
 # This schema validates the motd.yml configuration file
 
-sonarr:
-  type: array
+colors:
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      apikey:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
-
-radarr:
-  type: array
-  required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      apikey:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
-
-lidarr:
-  type: array
-  required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      apikey:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
-
-readarr:
-  type: array
-  required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      apikey:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
-
-plex:
-  type: array
-  required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      token:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
-
-jellyfin:
-  type: array
-  required: false
-  items:
-    type: object
-    properties:
-      name:
-        type: string
-        required: true
-      url:
-        type: url
-        required: false
-      token:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
+  properties:
+    text:
+      type: object
+      required: false
+      properties:
+        app_name:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        label:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        value:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+    status:
+      type: object
+      required: false
+      properties:
+        warning:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        success:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        error:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+    progress_bar:
+      type: object
+      required: false
+      properties:
+        critical:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        high:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        low:
+          type: string
+          required: false
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
 
 emby:
   type: array
@@ -127,39 +60,65 @@ emby:
   items:
     type: object
     properties:
+      enabled:
+        type: boolean
+        required: false
       name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      token:
         type: string
         required: true
       url:
         type: url
-        required: false
-      token:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
+        required: true
 
-sabnzbd:
+jellyfin:
   type: array
   required: false
   items:
     type: object
     properties:
+      enabled:
+        type: boolean
+        required: false
       name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      token:
         type: string
         required: true
       url:
         type: url
-        required: false
+        required: true
+
+lidarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
       apikey:
         type: string
+        required: true
+      enabled:
+        type: boolean
         required: false
-        required_with: ["url"]
+      name:
+        type: string
+        required: true
       timeout:
         type: number
         required: false
+      url:
+        type: url
+        required: true
 
 nzbget:
   type: array
@@ -167,23 +126,46 @@ nzbget:
   items:
     type: object
     properties:
+      enabled:
+        type: boolean
+        required: false
       name:
+        type: string
+        required: true
+      password:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      url:
+        type: url
+        required: true
+      user:
+        type: string
+        required: true
+
+plex:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        required: false
+      name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      token:
         type: string
         required: true
       url:
         type: url
-        required: false
-      user:
-        type: string
-        required: false
-        required_with: ["url"]
-      password:
-        type: string
-        required: false
-        required_with: ["url"]
-      timeout:
-        type: number
-        required: false
+        required: true
 
 qbittorrent:
   type: array
@@ -191,23 +173,68 @@ qbittorrent:
   items:
     type: object
     properties:
+      enabled:
+        type: boolean
+        required: false
       name:
         type: string
         required: true
-      url:
-        type: url
-        required: false
-      user:
-        type: string
-        required: false
-        required_with: ["url"]
       password:
         type: string
-        required: false
-        required_with: ["url"]
+        required: true
       timeout:
         type: number
         required: false
+      url:
+        type: url
+        required: true
+      user:
+        type: string
+        required: true
+
+radarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      apikey:
+        type: string
+        required: true
+      enabled:
+        type: boolean
+        required: false
+      name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      url:
+        type: url
+        required: true
+
+readarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      apikey:
+        type: string
+        required: true
+      enabled:
+        type: boolean
+        required: false
+      name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      url:
+        type: url
+        required: true
 
 rtorrent:
   type: array
@@ -215,18 +242,67 @@ rtorrent:
   items:
     type: object
     properties:
+      enabled:
+        type: boolean
+        required: false
       name:
         type: string
         required: true
-      url:
-        type: url
-        required: false
-      user:
-        type: string
-        required: false
       password:
         type: string
         required: false
+        required_with: ["user"]
       timeout:
         type: number
         required: false
+      url:
+        type: url
+        required: true
+      user:
+        type: string
+        required: false
+        required_with: ["password"]
+
+sabnzbd:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      apikey:
+        type: string
+        required: true
+      enabled:
+        type: boolean
+        required: false
+      name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      url:
+        type: url
+        required: true
+
+sonarr:
+  type: array
+  required: false
+  items:
+    type: object
+    properties:
+      apikey:
+        type: string
+        required: true
+      enabled:
+        type: boolean
+        required: false
+      name:
+        type: string
+        required: true
+      timeout:
+        type: number
+        required: false
+      url:
+        type: url
+        required: true
