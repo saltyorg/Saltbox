@@ -60,7 +60,7 @@ portainer_role_traefik_middleware_custom: ""
 portainer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_role_traefik_enabled: true
 portainer_role_traefik_api_enabled: true
-portainer_role_traefik_api_endpoint: "PathPrefix(`/api/websocket/`)"
+portainer_role_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 ################################
 # Theme
