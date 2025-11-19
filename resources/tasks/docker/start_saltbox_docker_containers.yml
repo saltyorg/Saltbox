@@ -12,8 +12,8 @@
 
 - name: "Resources | Tasks | Docker | Start Saltbox Docker Containers | Get Docker service state"
   ansible.builtin.set_fact:
-    start_docker_service_running: "{{ (services['docker.service'] is defined) and (services['docker.service']['state'] == 'running') }}"
-    start_docker_containers_docker_controller_service_running: "{{ (services['saltbox_managed_docker_controller.service'] is defined) and (services['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
+    start_docker_service_running: "{{ (ansible_facts['services']['docker.service'] is defined) and (ansible_facts['services']['docker.service']['state'] == 'running') }}"
+    start_docker_containers_docker_controller_service_running: "{{ (ansible_facts['services']['saltbox_managed_docker_controller.service'] is defined) and (ansible_facts['services']['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
 
 - name: Resources | Tasks | Docker | Start Saltbox Docker Containers | Run Controller Tasks
   when: start_docker_service_running and start_docker_containers_docker_controller_service_running

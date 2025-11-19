@@ -9,4 +9,4 @@
 ---
 - name: Python Version | Print Python version
   ansible.builtin.debug:
-    msg: "Ansible running on Python version: {{ ansible_python_version }}"
+    msg: "Ansible running on Python version: {{ ansible_facts['python_version'] }}"

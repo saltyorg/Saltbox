@@ -12,7 +12,7 @@
     name: docker-update-hosts
     state: stopped
     enabled: false
-  when: (services['docker-update-hosts.service'] is defined)
+  when: (ansible_facts['services']['docker-update-hosts.service'] is defined)
 
 - name: "DNS | Remove docker-update-hosts.service"
   ansible.builtin.file:

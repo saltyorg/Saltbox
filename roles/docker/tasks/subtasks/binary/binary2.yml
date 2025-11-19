@@ -7,11 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Binary | Release '{{ vars[item ~ '_dpkg'] }}' from hold
+- name: Binary | Release '{{ lookup('vars', item ~ '_dpkg') }}' from hold
   ansible.builtin.dpkg_selections:
-    name: "{{ vars[item ~ '_dpkg'] }}"
+    name: "{{ lookup('vars', item ~ '_dpkg') }}"
     selection: install
-  when: (vars[item ~ '_dpkg'] in ansible_facts['packages'])
+  when: (lookup('vars', item ~ '_dpkg') in ansible_facts['packages'])
 
 - name: Binary | Install '{{ lookup('vars', item + '_package') }}'
   ansible.builtin.apt:
@@ -20,19 +20,19 @@
     update_cache: true
     allow_downgrade: true
 
-- name: Binary | Put '{{ vars[item ~ '_dpkg'] }}' into hold
+- name: Binary | Put '{{ lookup('vars', item ~ '_dpkg') }}' into hold
   ansible.builtin.dpkg_selections:
-    name: "{{ vars[item ~ '_dpkg'] }}"
+    name: "{{ lookup('vars', item ~ '_dpkg') }}"
     selection: hold
   when: put_docker_dpkg_into_hold
 
-- name: Binary | Get '{{ vars[item ~ '_name'] }}' version
-  ansible.builtin.shell: "{{ vars[item ~ '_filepath'] }} '{{ 'version' if item == 'compose_cli' else '--version' }}' | head -n 1 | awk '{ print {{ '$4' if item == 'compose_cli' else '$3' }} }' | sed 's/,$//' | sed 's/v//'"
+- name: Binary | Get '{{ lookup('vars', item ~ '_name') }}' version
+  ansible.builtin.shell: "{{ lookup('vars', item ~ '_filepath') }} '{{ 'version' if item == 'compose_cli' else '--version' }}' | head -n 1 | awk '{ print {{ '$4' if item == 'compose_cli' else '$3' }} }' | sed 's/,$//' | sed 's/v//'"
   register: binary_version
   ignore_errors: true
   changed_when: false
 
-- name: Binary | Display '{{ vars[item ~ '_name'] }}' version
+- name: Binary | Display '{{ lookup('vars', item ~ '_name') }}' version
   ansible.builtin.debug:
-    msg: "{{ vars[item ~ '_name'] }} version {{ binary_version.stdout }} installed."
+    msg: "{{ lookup('vars', item ~ '_name') }} version {{ binary_version.stdout }} installed."
   when: binary_version is defined

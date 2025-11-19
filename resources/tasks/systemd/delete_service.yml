@@ -28,7 +28,7 @@
 
     - name: Resources | Tasks | systemd | Delete Service | get '{{ _service_file }}' state
       ansible.builtin.set_fact:
-        service_running: "{{ (services[_service_file] is defined) and (services[_service_file]['state'] == 'running') }}"
+        service_running: "{{ (ansible_facts['services'][_service_file] is defined) and (ansible_facts['services'][_service_file]['state'] == 'running') }}"
 
     - name: Resources | Tasks | systemd | Delete Service | stop '{{ _service_file }}'
       ansible.builtin.systemd_service:
