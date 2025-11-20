@@ -42,3 +42,7 @@
     msg:
       - "A Plex instance failed the optimization tasks."
   when: plex_db_failed_optimization
+
+- name: "Plex DB tasks completed successfully"
+  ansible.builtin.debug:
+    msg: "Plex DB integrity check and optimization completed successfully for all instances."
