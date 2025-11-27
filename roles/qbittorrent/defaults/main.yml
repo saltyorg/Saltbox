@@ -142,11 +142,11 @@ qbittorrent_role_docker_ports_8080: "{{ port_lookup_8080.meta.port
                                      else '8090' }}"
 qbittorrent_role_web_port_lookup: "{{ lookup('role_var', '_web_port', role='qbittorrent') }}"
 
-qbittorrent_role_docker_ports_defaults:
+qbittorrent_role_docker_ports_default:
   - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
   - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}/udp"
 qbittorrent_role_docker_ports_custom: []
-qbittorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='qbittorrent')
+qbittorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='qbittorrent')
                                    + lookup('role_var', '_docker_ports_custom', role='qbittorrent') }}"
 
 # Envs

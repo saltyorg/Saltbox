@@ -146,7 +146,7 @@ plex_role_docker_ports_32400: "{{ port_lookup_32400.meta.port
                                if (port_lookup_32400.meta.port is defined) and (port_lookup_32400.meta.port | trim | length > 0)
                                else '32400' }}"
 
-plex_role_docker_ports_defaults: []
+plex_role_docker_ports_default: []
 # Skip docs
 plex_role_docker_ports_local:
   - "1900:1900/udp"
@@ -160,7 +160,7 @@ plex_role_docker_ports_local:
 plex_role_docker_ports_ui:
   - "{{ plex_role_docker_ports_32400 }}:{{ lookup('vars', plex_name + '_web_port', default=plex_role_web_port) }}"
 plex_role_docker_ports_custom: []
-plex_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='plex')
+plex_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='plex')
                             + lookup('role_var', '_docker_ports_custom', role='plex')
                             + (plex_role_docker_ports_local
                               if (lookup('role_var', '_open_local_ports', role='plex'))

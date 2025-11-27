@@ -170,12 +170,12 @@ rutorrent_role_docker_ports_6881: "{{ port_lookup_6881.meta.port
                                    if (port_lookup_6881.meta.port is defined) and (port_lookup_6881.meta.port | trim | length > 0)
                                    else '6881' }}"
 
-rutorrent_role_docker_ports_defaults:
+rutorrent_role_docker_ports_default:
   - "{{ lookup('role_var', '_docker_ports_51413', role='rutorrent') }}:{{ lookup('role_var', '_docker_ports_51413', role='rutorrent') }}"
   - "{{ lookup('role_var', '_docker_ports_51413', role='rutorrent') }}:{{ lookup('role_var', '_docker_ports_51413', role='rutorrent') }}/udp"
   - "{{ lookup('role_var', '_docker_ports_6881', role='rutorrent') }}:{{ lookup('role_var', '_docker_ports_6881', role='rutorrent') }}/udp"
 rutorrent_role_docker_ports_custom: []
-rutorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_defaults', role='rutorrent')
+rutorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='rutorrent')
                                  + lookup('role_var', '_docker_ports_custom', role='rutorrent') }}"
 
 # Envs

@@ -221,18 +221,18 @@ traefik_role_docker_image_tag: "v3.6"
 traefik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='traefik') }}:{{ lookup('role_var', '_docker_image_tag', role='traefik') }}"
 
 # Ports
-traefik_role_docker_ports_defaults:
+traefik_role_docker_ports_default:
   - "{{ traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
   - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
   - "{{ traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
-traefik_role_docker_ports_tailscale_ipv4_defaults:
+traefik_role_docker_ports_tailscale_ipv4_default:
   - "{{ lookup('vars', 'traefik_tailscale_bind_ip', default=ip_address_public) + ':' + traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
   - "{{ lookup('vars', 'traefik_tailscale_bind_ip', default=ip_address_public) + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
   - "{{ lookup('vars', 'traefik_tailscale_bind_ip', default=ip_address_public) + ':' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_web_port }}:81/tcp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_websecure_port }}:444/tcp"
   - "{{ tailscale_ipv4 + ':' + traefik_entrypoint_websecure_port }}:444/udp"
-traefik_role_docker_ports_tailscale_ipv6_defaults:
+traefik_role_docker_ports_tailscale_ipv6_default:
   - "{{ '[' + lookup('vars', 'traefik_tailscale_bind_ipv6', default=ipv6_address_public) + ']:' + traefik_entrypoint_web_port }}:{{ traefik_entrypoint_web_port }}/tcp"
   - "{{ '[' + lookup('vars', 'traefik_tailscale_bind_ipv6', default=ipv6_address_public) + ']:' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/tcp"
   - "{{ '[' + lookup('vars', 'traefik_tailscale_bind_ipv6', default=ipv6_address_public) + ']:' + traefik_entrypoint_websecure_port }}:{{ traefik_entrypoint_websecure_port }}/udp"
@@ -240,10 +240,10 @@ traefik_role_docker_ports_tailscale_ipv6_defaults:
   - "{{ '[' + tailscale_ipv6 + ']:' + traefik_entrypoint_websecure_port }}:444/tcp"
   - "{{ '[' + tailscale_ipv6 + ']:' + traefik_entrypoint_websecure_port }}:444/udp"
 traefik_role_docker_ports_custom: []
-traefik_role_docker_ports: "{{ (lookup('role_var', '_docker_ports_defaults', role='traefik')
+traefik_role_docker_ports: "{{ (lookup('role_var', '_docker_ports_default', role='traefik')
                                if not traefik_tailscale_enabled
-                               else lookup('role_var', '_docker_ports_tailscale_ipv4_defaults', role='traefik')
-                                    + (lookup('role_var', '_docker_ports_tailscale_ipv6_defaults', role='traefik')
+                               else lookup('role_var', '_docker_ports_tailscale_ipv4_default', role='traefik')
+                                    + (lookup('role_var', '_docker_ports_tailscale_ipv6_default', role='traefik')
                                       if dns_ipv6_enabled
                                       else []))
                                + lookup('role_var', '_docker_ports_custom', role='traefik') }}"

@@ -54,9 +54,9 @@
   loop: "{{ traefik_entrypoint_custom | dict2items }}"
   when: (traefik_entrypoint_custom | length > 0)
 
-- name: Set 'traefik_role_docker_ports_defaults' variable
+- name: Set 'traefik_role_docker_ports_default' variable
   ansible.builtin.set_fact:
-    traefik_role_docker_ports_defaults: "{{ (traefik_role_docker_ports_defaults + custom_entrypoints_ports) | unique }}"
+    traefik_role_docker_ports_default: "{{ (traefik_role_docker_ports_default + custom_entrypoints_ports) | unique }}"
   when: (traefik_entrypoint_custom | length > 0)
 
 - name: Tailscale block
