@@ -24,10 +24,10 @@ plex_role_open_local_ports: false
 # Disables Traefik's HTTP to HTTPS redirect for Plex
 # Allows older clients with certificate issues to connect insecurely
 plex_role_insecure: false
-# Adds the IP specified here to the advertised urls Plex broadcasts to clients
+# Adds the IP specified here to the advertised URLs Plex broadcasts to clients
 # Useful to avoid traffic going through your WAN when hairpin NAT is not available
 plex_role_lan_ip: ""
-# For instances this works the same as usual plex2_auth_token_proxy for an instance named plex2.
+# Example value "http://gluetun:8888"
 plex_role_auth_token_proxy: ""
 
 ################################
