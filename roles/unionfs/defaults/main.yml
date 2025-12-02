@@ -11,7 +11,7 @@
 # Global
 ################################
 
-local_mount_branch: "/mnt/local=RW:"
+local_mount_branch: "{{ server_local_folder_path }}=RW:"
 
 custom_mount_branch: "" # Format: "/mnt/remote/someremote=NC"
 

@@ -11,7 +11,7 @@
   ansible.builtin.include_tasks: "btrfs.yml"
   loop:
     - "{{ server_appdata_path }}"
-    - /mnt/local
+    - "{{ server_local_folder_path }}"
   loop_control:
     loop_var: outer_item
 
@@ -30,8 +30,8 @@
     - "{{ server_appdata_path }}"
     - "{{ server_appdata_path }}/saltbox"
     - /mnt
-    - /mnt/local
-    - /mnt/local/Media
+    - "{{ server_local_folder_path }}"
+    - "{{ server_local_folder_path }}/Media"
 
 - name: Create common Media directories
   ansible.builtin.file:
@@ -42,9 +42,9 @@
     mode: "0775"
   when: common_create_media_subfolders
   with_items:
-    - /mnt/local/Media/Movies
-    - /mnt/local/Media/Music
-    - /mnt/local/Media/TV
+    - "{{ server_local_folder_path }}/Media/Movies"
+    - "{{ server_local_folder_path }}/Media/Music"
+    - "{{ server_local_folder_path }}/Media/TV"
 
 - name: Check if 'localhost.yml' exists
   ansible.builtin.stat:

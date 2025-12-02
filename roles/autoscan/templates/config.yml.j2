@@ -41,12 +41,12 @@ triggers:
 
       # rewrite inotify path to unified filesystem
       rewrite:
-        - from: ^/mnt/local/Media/
+        - from: {{ '^' + server_local_folder_path }}/Media/
           to: /mnt/unionfs/Media/
 
       # Local filesystem paths to monitor
       paths:
-        - path: /mnt/local/Media
+        - path: {{ server_local_folder_path }}/Media
 
   sonarr:
 {% for instance in sonarr_instances %}

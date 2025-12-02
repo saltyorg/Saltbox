@@ -7,8 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Permissions | Recursively set permissions for '/mnt/local'
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /mnt/local"
+- name: Permissions | Recursively set permissions for '{{ server_local_folder_path }}'
+  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_local_folder_path }}"
 
 - name: Permissions | Recursively set permissions for '{{ server_appdata_path }}'
   ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_appdata_path }}"
