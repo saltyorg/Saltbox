@@ -18,7 +18,7 @@
 - name: Set IP variables
   ansible.builtin.set_fact:
     ipv4_address_public_template: "{{ lookup('vars', ansible_parent_role_names | first + '_dns_ipv4', default=lookup('vars', ansible_parent_role_names | first + '_role_dns_ipv4', default=ip_address_public)) }}"
-    ipv6_address_public_template: "{{ lookup('vars', ansible_parent_role_names | first + '_dns_ipv4', default=lookup('vars', ansible_parent_role_names | first + '_role_dns_ipv4', default=ipv6_address_public)) }}"
+    ipv6_address_public_template: "{{ lookup('vars', ansible_parent_role_names | first + '_dns_ipv4', default=lookup('vars', ansible_parent_role_names | first + '_role_dns_ipv6', default=ipv6_address_public)) }}"
 
 - name: Cloudflare | Tailscale block
   when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
