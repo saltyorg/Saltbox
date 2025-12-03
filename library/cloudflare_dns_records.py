@@ -151,7 +151,11 @@ def fetch_dns_records(client: Cloudflare, zone_id: str, record_name: str, module
         Calls module.fail_json on error
     """
     try:
-        records = client.dns.records.list(zone_id=zone_id, name=record_name).to_dict()
+        records_response = client.dns.records.list(zone_id=zone_id, name={"exact": record_name})
+        if records_response is None:
+            module.fail_json(msg="No response from Cloudflare API")
+
+        records = records_response.to_dict()
         results = records.get("result", [])
         if not isinstance(results, list):
             module.fail_json(msg="Unexpected response format from Cloudflare API")
