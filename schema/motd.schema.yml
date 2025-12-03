@@ -306,3 +306,18 @@ sonarr:
       url:
         type: url
         required: true
+
+systemd:
+  type: object
+  required: false
+  properties:
+    additional_services:
+      type: array
+      required: false
+      items:
+        type: string
+    strip_prefixes:
+      type: array
+      required: false
+      items:
+        type: string
