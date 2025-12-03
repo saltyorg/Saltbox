@@ -51,7 +51,7 @@ changed:
 import base64
 import hashlib
 import os
-import traceback
+from typing import Any
 from ansible.module_utils.basic import AnsibleModule
 
 
@@ -84,25 +84,25 @@ def generate_qbittorrent_hash(plain_passwd: str) -> str:
 
     except Exception as e:
         # Wrap underlying exception for better debugging upstream
-        raise ValueError(f"Error generating password hash: {str(e)}\n{traceback.format_exc()}")
+        raise ValueError(f"Error generating password hash: {str(e)}") from e
 
 
-def main():
+def main() -> None:
     module_args = dict(
         password=dict(type='str', required=True, no_log=True)
     )
 
-    result = dict(
-        changed=False,
-        hash=None,
-    )
+    result: dict[str, Any] = {
+        'changed': False,
+        'hash': '',
+    }
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=False
     )
 
-    plain_password = module.params['password']
+    plain_password: str = module.params['password']
 
     try:
         # Generate the hash using the dedicated function
