@@ -7,21 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Delete 'motd.yml'
-  ansible.builtin.file:
-    path: "/srv/git/saltbox/motd.yml"
-    state: absent
+- name: Generate Config tasks
   when: ('motd-generate-config' in ansible_run_tags)
-
-- name: Check if 'motd.yml' exists
-  ansible.builtin.stat:
-    path: "/srv/git/saltbox/motd.yml"
-  register: cli_motd_config
-
-- name: New Config tasks
-  when: ('motd-generate-config' in ansible_run_tags) or (not cli_motd_config.stat.exists)
   block:
-    - name: Settings | Get Instance Info
+    - name: Get Instance Info
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/instances/get_info.yml"
       vars:
         get_info_list:
@@ -38,7 +27,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
-        force: false
+        force: true
 
 - name: Import '01-motd' template
   ansible.builtin.template:
@@ -47,4 +36,4 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0755"
-    force: false
+    force: true
