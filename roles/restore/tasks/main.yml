@@ -232,7 +232,3 @@
   ansible.builtin.debug:
     msg: Finished restoring the backup. You are now ready to install Saltbox!
   when: (unarchive is succeeded)
-
-- name: Settings Role
-  ansible.builtin.include_role:
-    name: settings
