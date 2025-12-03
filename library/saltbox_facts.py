@@ -101,15 +101,16 @@ Return Values:
 
 from __future__ import annotations
 
-from ansible.module_utils.basic import AnsibleModule
 import configparser
+import grp
 import os
 import pwd
-import grp
-import tempfile
 import shutil
+import tempfile
 from io import StringIO
 from typing import Any
+
+from ansible.module_utils.basic import AnsibleModule
 
 def validate_instance_name(instance: Any) -> None:
     """

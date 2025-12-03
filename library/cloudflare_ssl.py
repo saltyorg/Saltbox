@@ -42,7 +42,14 @@ Return Values:
         returned: always
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansible.module_utils.basic import AnsibleModule
+
+if TYPE_CHECKING:
+    from cloudflare import Cloudflare
 
 DOCUMENTATION = """
 ---
@@ -108,7 +115,7 @@ EXAMPLES = """
 """
 
 
-def get_zone_id(client, zone_name, module):
+def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> str:
     """
     Fetch the zone ID for a given zone name from Cloudflare.
 
@@ -133,7 +140,7 @@ def get_zone_id(client, zone_name, module):
         raise # Unreachable - Pylance silencer
 
 
-def get_ssl_tls_mode(client, zone_id, module):
+def get_ssl_tls_mode(client: Cloudflare, zone_id: str, module: AnsibleModule) -> str:
     """
     Get the SSL/TLS settings for a zone.
 
@@ -149,7 +156,11 @@ def get_ssl_tls_mode(client, zone_id, module):
         Calls module.fail_json on error
     """
     try:
-        ssl_settings = client.zones.settings.get(setting_id='ssl', zone_id=zone_id).to_dict()
+        ssl_response = client.zones.settings.get(setting_id='ssl', zone_id=zone_id)
+        if ssl_response is None:
+            module.fail_json(msg="No response from Cloudflare API")
+
+        ssl_settings = ssl_response.to_dict()
         ssl_mode = ssl_settings.get('value')
 
         if ssl_mode is None:
@@ -161,7 +172,7 @@ def get_ssl_tls_mode(client, zone_id, module):
         raise # Unreachable - Pylance silencer
 
 
-def run_module():
+def run_module() -> None:
     """
     Main module execution.
 
@@ -249,7 +260,7 @@ def run_module():
         module.fail_json(msg=f"Unexpected error: {str(e)}")
 
 
-def main():
+def main() -> None:
     """
     Module entry point.
     """

@@ -10,11 +10,15 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 
-from typing import Any, cast
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from ansible.module_utils.basic import AnsibleModule
 from tld import get_tld
-from tld.utils import Result
+
+if TYPE_CHECKING:
+    from tld.utils import Result
 
 DOCUMENTATION = r'''
 ---
@@ -111,7 +115,7 @@ def main() -> None:
                 full_url = url
 
         # Parse using tld library
-        res: Result = cast(Result, get_tld(full_url, as_object=True))
+        res: Result = get_tld(full_url, as_object=True)  # type: ignore[assignment]
 
         # Extract components - use same naming as tld library
         fld: str = res.fld
