@@ -2,7 +2,6 @@
 
 from ansible.module_utils.basic import AnsibleModule
 import subprocess
-import json
 
 DOCUMENTATION = """
 ---
@@ -36,6 +35,10 @@ EXAMPLES = """
 
 def find_port(module, low_bound, high_bound, protocol):
     try:
+        if low_bound < 1:
+            module.fail_json(msg="Low bound must be at least 1")
+        if high_bound > 65535:
+            module.fail_json(msg="High bound must be at most 65535")
         if high_bound <= low_bound:
             module.fail_json(msg="High bound must be higher than low bound")
 
@@ -46,14 +49,17 @@ def find_port(module, low_bound, high_bound, protocol):
         if protocol == 'tcp':
             cmd = "ss -Htan"
             awk_cmd = "awk '{print $4}'"
+            state_filter = "grep LISTEN"
         elif protocol == 'udp':
             cmd = "ss -Huan"
             awk_cmd = "awk '{print $4}'"
+            state_filter = "grep UNCONN"
         else:  # both
             cmd = "ss -Htuan"
             awk_cmd = "awk '{print $5}'"
+            state_filter = "grep -E 'LISTEN|UNCONN'"
 
-        cmd += " | grep LISTEN | " + awk_cmd + " | grep -Eo '[0-9]+$' | sort -u"
+        cmd += " | " + state_filter + " | " + awk_cmd + " | grep -Eo '[0-9]+$' | sort -u"
 
         # Run command to get ports in use
         ports_in_use = subprocess.check_output(cmd, shell=True)
@@ -67,10 +73,12 @@ def find_port(module, low_bound, high_bound, protocol):
             candidate = min(available_ports)
             return False, {"port": candidate}
         else:
-            return False, {"msg": "No available port found in the specified range"}
+            return True, {"msg": "No available port found in the specified range"}
 
-    except Exception as e:
-        module.fail_json(msg=str(e))
+    except subprocess.CalledProcessError as e:
+        module.fail_json(msg=f"Failed to execute ss command: {e}")
+    except ValueError as e:
+        module.fail_json(msg=f"Failed to parse port numbers: {e}")
 
 def main():
     module = AnsibleModule(
