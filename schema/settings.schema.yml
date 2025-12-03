@@ -53,6 +53,9 @@ rclone:
               mount:
                 type: ansible_bool
                 required: true
+              name:
+                type: string
+                required: false
               template:
                 type: rclone_template
                 required: true
