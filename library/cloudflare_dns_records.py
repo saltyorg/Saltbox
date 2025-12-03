@@ -38,10 +38,14 @@ Return Values:
         returned: always
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ansible.module_utils.basic import AnsibleModule
-import datetime
-import json
-from typing import List, cast
+
+if TYPE_CHECKING:
+    from cloudflare import Cloudflare
 
 DOCUMENTATION = """
 ---
@@ -106,15 +110,7 @@ EXAMPLES = """
 """
 
 
-class CustomJSONEncoder(json.JSONEncoder):
-    """Custom JSON encoder that handles datetime objects."""
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        return json.JSONEncoder.default(self, obj)
-
-
-def get_zone_id(client, zone_name, module):
+def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> str:
     """
     Fetch the zone ID for a given zone name from Cloudflare.
 
@@ -138,7 +134,7 @@ def get_zone_id(client, zone_name, module):
         module.fail_json(msg=f"Error fetching zone ID: {str(e)}")
 
 
-def fetch_dns_records(client, zone_id, record_name, module):
+def fetch_dns_records(client: Cloudflare, zone_id: str, record_name: str, module: AnsibleModule) -> list[dict[str, object]]:
     """
     Fetch DNS records from Cloudflare.
 
@@ -156,13 +152,15 @@ def fetch_dns_records(client, zone_id, record_name, module):
     """
     try:
         records = client.dns.records.list(zone_id=zone_id, name=record_name).to_dict()
-        results = cast(List[dict], records["result"])
+        results = records.get("result", [])
+        if not isinstance(results, list):
+            module.fail_json(msg="Unexpected response format from Cloudflare API")
         return results
     except Exception as e:
         module.fail_json(msg=f"Error fetching DNS records: {str(e)}")
 
 
-def run_module():
+def run_module() -> None:
     """
     Main module execution.
 
@@ -177,11 +175,11 @@ def run_module():
         record=dict(type='str', required=True),
     )
 
-    result = dict(
-        changed=False,
-        records=[],
-        zone_id='',
-    )
+    result: dict[str, bool | str | list[dict[str, object]]] = {
+        'changed': False,
+        'records': [],
+        'zone_id': '',
+    }
 
     module = AnsibleModule(
         argument_spec=module_args,
@@ -227,7 +225,7 @@ def run_module():
         module.fail_json(msg=f"Unexpected error: {str(e)}")
 
 
-def main():
+def main() -> None:
     """
     Module entry point.
     """
