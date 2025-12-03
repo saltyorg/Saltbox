@@ -113,3 +113,10 @@
     regexp: '^PrintLastLog\s?'
     line: 'PrintLastLog no'
     state: present
+  register: print_last_log
+
+- name: Restart SSH service
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: restarted
+  when: print_last_log is changed
