@@ -105,12 +105,13 @@ import pwd
 import grp
 import stat
 import traceback
+from typing import Any, Optional, Tuple
 
 from ansible.module_utils.basic import AnsibleModule
 
 
 # Helper to safely get UID/GID
-def get_id_info(module, owner=None, group=None):
+def get_id_info(module: AnsibleModule, owner: Optional[str] = None, group: Optional[str] = None) -> Tuple[int, int]:
     uid = -1
     gid = -1
     if owner is not None:
@@ -126,21 +127,23 @@ def get_id_info(module, owner=None, group=None):
     return uid, gid
 
 # Helper to validate and convert mode
-def validate_mode(module, mode_str):
+def validate_mode(module: AnsibleModule, mode_str: Optional[str]) -> Optional[int]:
     if mode_str is None:
         return None
     try:
         # Ensure it's treated as octal
-        if not isinstance(mode_str, str):
-             mode_str = str(mode_str)
-        if not mode_str.startswith('0'):
-             mode_str = '0' + mode_str # Ensure octal interpretation for int()
-        return int(mode_str, 8)
+        mode_value = mode_str
+        if not isinstance(mode_value, str):
+            mode_value = str(mode_value)
+        if not mode_value.startswith('0'):
+            mode_value = '0' + mode_value  # Ensure octal interpretation for int()
+        return int(mode_value, 8)
     except (ValueError, TypeError):
         module.fail_json(msg=f"Invalid mode '{mode_str}' specified. Must be an octal number string (e.g., '0775').")
+        return None  # This line is unreachable but satisfies type checker
 
 
-def run_module():
+def run_module() -> None:
     module_args = dict(
         legacy_path=dict(type='str', required=True),
         new_path=dict(type='str', required=True),
@@ -150,7 +153,7 @@ def run_module():
         recurse=dict(type='bool', required=False, default=False)
     )
 
-    result = dict(
+    result: dict[str, Any] = dict(
         changed=False,
         moved=False,
         created=False,
@@ -181,18 +184,15 @@ def run_module():
     # Check path statuses and types
     legacy_exists = os.path.lexists(legacy_path)
     new_exists = os.path.lexists(new_path)
-    legacy_is_dir = False
-    new_is_dir = False
 
-    if legacy_exists:
-        if not os.path.isdir(legacy_path):
-             module.fail_json(msg=f"Legacy path '{legacy_path}' exists but is not a directory.")
-        legacy_is_dir = True
+    if legacy_exists and not os.path.isdir(legacy_path):
+        module.fail_json(msg=f"Legacy path '{legacy_path}' exists but is not a directory.")
 
-    if new_exists:
-        if not os.path.isdir(new_path):
-             module.fail_json(msg=f"New path '{new_path}' exists but is not a directory.")
-        new_is_dir = True
+    if new_exists and not os.path.isdir(new_path):
+        module.fail_json(msg=f"New path '{new_path}' exists but is not a directory.")
+
+    legacy_is_dir = legacy_exists and os.path.isdir(legacy_path)
+    new_is_dir = new_exists and os.path.isdir(new_path)
 
     # --- Check Mode Early Exit ---
     if module.check_mode:
@@ -241,20 +241,19 @@ def run_module():
         try:
             # Ensure all parent directories exist before moving
             parent_dir = os.path.dirname(new_path)
-            created_dirs = []
-            
+
             if parent_dir and not os.path.exists(parent_dir):
                 # Find which directories we'll need to create
                 path_to_create = parent_dir
-                dirs_to_create = []
-                
+                dirs_to_create: list[str] = []
+
                 while path_to_create and path_to_create != '/' and path_to_create != '' and not os.path.exists(path_to_create):
                     dirs_to_create.append(path_to_create)
                     path_to_create = os.path.dirname(path_to_create)
-                
+
                 # Create parent directories
                 os.makedirs(parent_dir, exist_ok=True)
-                
+
                 # Apply ownership and permissions only to directories we just created
                 if (owner is not None or group is not None or mode_int is not None) and dirs_to_create:
                     for created_dir in dirs_to_create:
@@ -262,7 +261,7 @@ def run_module():
                             try:
                                 if owner is not None or group is not None:
                                     current_stat = os.stat(created_dir)
-                                    os.chown(created_dir, 
+                                    os.chown(created_dir,
                                             uid if uid != -1 else current_stat.st_uid,
                                             gid if gid != -1 else current_stat.st_gid)
                                 if mode_int is not None:
@@ -349,7 +348,7 @@ def run_module():
     # --- Exit ---
     module.exit_json(**result)
 
-def main():
+def main() -> None:
     run_module()
 
 if __name__ == '__main__':
