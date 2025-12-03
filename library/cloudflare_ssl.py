@@ -130,6 +130,7 @@ def get_zone_id(client, zone_name, module):
         return zone.result[0].id
     except Exception as e:
         module.fail_json(msg=f"Error fetching zone ID: {str(e)}")
+        raise # Unreachable - Pylance silencer
 
 
 def get_ssl_tls_mode(client, zone_id, module):
@@ -149,10 +150,15 @@ def get_ssl_tls_mode(client, zone_id, module):
     """
     try:
         ssl_settings = client.zones.settings.get(setting_id='ssl', zone_id=zone_id).to_dict()
-        ssl_mode = ssl_settings['value']
-        return ssl_mode
+        ssl_mode = ssl_settings.get('value')
+
+        if ssl_mode is None:
+            module.fail_json(msg="SSL/TLS mode value not found in API response")
+
+        return str(ssl_mode)
     except Exception as e:
         module.fail_json(msg=f"Error fetching SSL/TLS settings: {str(e)}")
+        raise # Unreachable - Pylance silencer
 
 
 def run_module():
@@ -210,11 +216,17 @@ def run_module():
             try:
                 from tld import get_tld
                 res = get_tld(f"http://{domain}", as_object=True)
-                zone_name = res.fld
+                zone_name = getattr(res, 'fld', None)
+                if not zone_name:
+                    module.fail_json(msg=f"Failed to extract zone name from domain '{domain}'")
             except ImportError:
                 module.fail_json(msg="The 'tld' Python library is required for domain parsing. Install it with: pip install tld")
             except Exception as e:
                 module.fail_json(msg=f"Failed to parse domain '{domain}': {str(e)}")
+
+        # Ensure zone_name is set
+        if not zone_name:
+            module.fail_json(msg="Zone name could not be determined from provided parameters")
 
         # Initialize Cloudflare client
         if auth_token:
