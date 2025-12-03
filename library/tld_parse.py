@@ -10,8 +10,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 
+from typing import Any, cast
+
 from ansible.module_utils.basic import AnsibleModule
 from tld import get_tld
+from tld.utils import Result
 
 DOCUMENTATION = r'''
 ---
@@ -83,8 +86,8 @@ domain:
 '''
 
 
-def main():
-    module = AnsibleModule(
+def main() -> None:
+    module: Any = AnsibleModule(
         argument_spec=dict(
             url=dict(type='str', required=True),
             record=dict(type='str', default='')
@@ -92,11 +95,12 @@ def main():
         supports_check_mode=True
     )
 
-    url = module.params['url']
-    record = module.params['record']
+    url: str = module.params['url']
+    record: str = module.params['record']
 
     try:
         # Build the full URL
+        full_url: str
         if record:
             full_url = f"http://{record}.{url}"
         else:
@@ -107,16 +111,16 @@ def main():
                 full_url = url
 
         # Parse using tld library
-        res = get_tld(full_url, as_object=True)
+        res: Result = cast(Result, get_tld(full_url, as_object=True))
 
         # Extract components - use same naming as tld library
-        fld = res.fld
-        subdomain = res.subdomain if res.subdomain else ''
-        tld = res.tld
-        domain = res.domain
+        fld: str = res.fld
+        subdomain: str = res.subdomain if res.subdomain else ''
+        tld: str = res.tld
+        domain: str = res.domain
 
         # Format record for DNS operations
-        dns_record = subdomain if subdomain else '@'
+        dns_record: str = subdomain if subdomain else '@'
 
         module.exit_json(
             changed=False,
@@ -128,7 +132,7 @@ def main():
         )
 
     except Exception as e:
-        module.fail_json(msg=f"Failed to parse domain: {str(e)}")
+        module.fail_json(msg=f"Failed to parse domain: {e!s}")
 
 
 if __name__ == '__main__':
