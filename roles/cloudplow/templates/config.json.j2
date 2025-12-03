@@ -8,7 +8,7 @@
   "notifications": {},
   "nzbget": {
     "enabled": false,
-    "url": "{{ nzbget_web_local_url_web_login }}"
+    "url": "{{ nzbget_role_web_local_url_web_login }}"
   },
   "plex": {
     "enabled": false,
@@ -28,7 +28,7 @@
       "url": "http://localhost:7949"
     },
     "token": "{{ plex_auth_token | default('') }}",
-    "url": "{{ plex_web_url }}"
+    "url": "{{ plex_role_web_url }}"
   },
   "remotes": {
 {% for item in cloudplow_remotes %}
@@ -57,16 +57,16 @@
       },
       "remove_empty_dir_depth": 2,
       "sync_remote": "{{ (item | filter_rclone_remote_with_path)
-                          + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
-                          if (item.settings.template != 'nfs')
-                          else ('/mnt/remote/' + (item | filter_rclone_remote_name))
-                          + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}",
+                         + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
+                      if (item.settings.template != 'nfs')
+                      else ('/mnt/remote/' + (item | filter_rclone_remote_name))
+                           + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}",
       "upload_folder": "{{ item.settings.upload_from }}",
       "upload_remote": "{{ (item | filter_rclone_remote_with_path)
-                            + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
-                            if (item.settings.template != 'nfs')
-                            else ('/mnt/remote/' + (item | filter_rclone_remote_name))
-                            + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}"
+                           + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder)
+                        if (item.settings.template != 'nfs')
+                        else ('/mnt/remote/' + (item | filter_rclone_remote_name))
+                             + lookup('vars', 'cloudplow_remote_' + (item | filter_rclone_remote_name) + '_folder', default=cloudplow_remote_default_folder) }}"
     {% if loop.index == loop.length %}}{% else %}},{{ '\n' }}{% endif %}
 {% endfor %}
 
