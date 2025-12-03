@@ -1,4 +1,6 @@
 def filter_rclone_remote_name(item):
+    # 'name' is an optional field in settings.yml, only used when template is 'nfs'.
+    # If not provided, falls back to extracting the name from the remote string.
     if 'settings' in item and 'name' in item['settings'] and item['settings']['template'] == 'nfs':
         return item['settings']['name']
     else:
