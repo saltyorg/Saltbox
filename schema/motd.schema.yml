@@ -316,8 +316,8 @@ systemd:
       required: false
       items:
         type: string
-    strip_prefixes:
-      type: array
+    display_names:
+      type: object
       required: false
-      items:
+      additionalProperties:
         type: string
