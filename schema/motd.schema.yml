@@ -4,6 +4,9 @@
 colors:
   type: object
   required: false
+  description: |
+    Custom color scheme (all values are hex colors)
+    These are the default values
   properties:
     text:
       type: object
@@ -25,7 +28,7 @@ colors:
       type: object
       required: false
       properties:
-        warning:
+        error:
           type: string
           required: false
           pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
@@ -33,7 +36,7 @@ colors:
           type: string
           required: false
           pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
-        error:
+        warning:
           type: string
           required: false
           pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
@@ -55,269 +58,433 @@ colors:
           pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
 
 emby:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      token:
-        type: string
-        required: true
-      url:
-        type: url
-        required: true
+  description: "Emby instances for streaming information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Emby"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          token:
+            type: string
+            required: true
+            example: "your-api-token-here"
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8096"
 
 jellyfin:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      token:
-        type: string
-        required: true
-      url:
-        type: url
-        required: true
+  description: "Jellyfin instances for streaming information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Jellyfin"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          token:
+            type: string
+            required: true
+            example: "your-api-token-here"
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8096"
 
 lidarr:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      apikey:
-        type: string
-        required: true
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
+  description: "Lidarr instances for download queue information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          apikey:
+            type: string
+            required: true
+            example: "your-api-key-here"
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Lidarr"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8686"
 
 nzbget:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      password:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
-      user:
-        type: string
-        required: true
+  description: "NZBGet instances for download information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "NZBGet"
+          password:
+            type: string
+            required: true
+            example: "your-password"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:6789"
+          user:
+            type: string
+            required: true
+            example: "your-username"
 
 plex:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      token:
-        type: string
-        required: true
-      url:
-        type: url
-        required: true
+  description: "Plex instances for streaming information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Plex"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          token:
+            type: string
+            required: true
+            example: "your-plex-token-here"
+          url:
+            type: url
+            required: true
+            example: "http://localhost:32400"
 
 qbittorrent:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      password:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
-      user:
-        type: string
-        required: true
+  description: "qBittorrent instances for torrent information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "qBittorrent"
+          password:
+            type: string
+            required: true
+            example: "your-password"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8080"
+          user:
+            type: string
+            required: true
+            example: "your-username"
 
 radarr:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      apikey:
-        type: string
-        required: true
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
+  description: "Radarr instances for download queue information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          apikey:
+            type: string
+            required: true
+            example: "your-api-key-here"
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Radarr"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:7878"
 
 readarr:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      apikey:
-        type: string
-        required: true
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
+  description: "Readarr instances for download queue information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          apikey:
+            type: string
+            required: true
+            example: "your-api-key-here"
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Readarr"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8787"
 
 rtorrent:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      password:
-        type: string
-        required: false
-        required_with: ["user"]
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
-      user:
-        type: string
-        required: false
-        required_with: ["password"]
+  description: "rTorrent instances for torrent information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "rTorrent"
+          password:
+            type: string
+            required: false
+            required_with: ["user"]
+            example: "your-password"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8080"
+          user:
+            type: string
+            required: false
+            required_with: ["password"]
+            example: "your-username"
 
 sabnzbd:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      apikey:
-        type: string
-        required: true
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
+  description: "SABnzbd instances for download information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          apikey:
+            type: string
+            required: true
+            example: "your-api-key-here"
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "SABnzbd"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8080"
 
 sonarr:
-  type: array
+  type: object
   required: false
-  items:
-    type: object
-    properties:
-      apikey:
-        type: string
-        required: true
-      enabled:
-        type: boolean
-        required: false
-      name:
-        type: string
-        required: true
-      timeout:
-        type: number
-        required: false
-      url:
-        type: url
-        required: true
+  description: "Sonarr instances for download queue information"
+  properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
+    instances:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          apikey:
+            type: string
+            required: true
+            example: "your-api-key-here"
+          enabled:
+            type: boolean
+            required: false
+            example: false
+          name:
+            type: string
+            required: true
+            example: "Sonarr"
+          timeout:
+            type: number
+            required: false
+            example: 5
+          url:
+            type: url
+            required: true
+            example: "http://localhost:8989"
 
 systemd:
   type: object
   required: false
+  description: "Systemd services monitoring"
   properties:
+    enabled:
+      type: boolean
+      required: false
+      example: false
     additional_services:
       type: array
       required: false
+      example: []
       items:
         type: string
     display_names:
       type: object
       required: false
+      example: {}
       additionalProperties:
         type: string
