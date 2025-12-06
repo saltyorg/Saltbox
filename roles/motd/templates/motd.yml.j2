@@ -110,9 +110,10 @@
 {% endif %}
 {# Multi-instance services with username/password using direct lookup (e.g., rutorrent) #}
 {% elif service.type == 'multi_instance_userpass' %}
+{% set config_key = motd_config_mapping[service_name] | default(service_name) %}
 {% set instances_list = lookup('vars', service.instances_var, default=[service_name]) %}
 {% set url_suffix = service.url_suffix | default('') %}
-{{ service_name }}:
+{{ config_key }}:
   enabled: true
   instances:
 {% for instance in instances_list %}

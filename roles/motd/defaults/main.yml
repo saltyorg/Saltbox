@@ -89,3 +89,6 @@ motd_systemd:
   enabled: true
   additional_services: []
   display_names: {}
+
+motd_config_mapping:
+  rutorrent: rtorrent
