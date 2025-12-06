@@ -36,8 +36,12 @@ nzbget_role_paths_config_location: "{{ nzbget_role_paths_location }}/nzbget.conf
 nzbget_role_web_subdomain: "{{ nzbget_name }}"
 nzbget_role_web_domain: "{{ user.domain }}"
 nzbget_role_web_port: "6789"
+nzbget_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='nzbget') + '.' + lookup('role_var', '_web_domain', role='nzbget')
+                      if (lookup('role_var', '_web_subdomain', role='nzbget') | length > 0)
+                      else lookup('role_var', '_web_domain', role='nzbget')) }}"
 nzbget_role_web_login: "{{ user.name }}:{{ user.pass }}"
 nzbget_role_web_url_with_login: "{{ 'https://' + lookup('role_var', '_web_login', role='nzbget') + '@' + lookup('role_var', '_web_subdomain', role='nzbget') + '.' + lookup('role_var', '_web_domain', role='nzbget') }}"
+nzbget_role_web_local_url: "{{ 'http://' + nzbget_name + ':' + lookup('role_var', '_web_port', role='nzbget') }}"
 nzbget_role_web_local_url_web_login: "{{ 'http://' + lookup('role_var', '_web_login', role='nzbget') + '@' + nzbget_name + ':' + lookup('role_var', '_web_port', role='nzbget') }}"
 
 ################################
