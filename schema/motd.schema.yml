@@ -83,7 +83,7 @@ emby:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           token:
             type: string
             required: true
@@ -119,7 +119,7 @@ jellyfin:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           token:
             type: string
             required: true
@@ -159,7 +159,7 @@ lidarr:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -195,7 +195,7 @@ nzbget:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -231,7 +231,7 @@ plex:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           token:
             type: string
             required: true
@@ -271,7 +271,7 @@ qbittorrent:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -311,7 +311,7 @@ radarr:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -347,7 +347,7 @@ readarr:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -384,7 +384,7 @@ rtorrent:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -425,7 +425,7 @@ sabnzbd:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
@@ -461,7 +461,7 @@ sonarr:
           timeout:
             type: number
             required: false
-            example: 5
+            example: 0
           url:
             type: url
             required: true
