@@ -30,13 +30,30 @@ jobs:
             echo "attempt_allowed=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Sleep for 60 seconds
+      - name: Check for lint failures
+        id: check_lint
         if: steps.check_attempts.outputs.attempt_allowed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          failed_jobs=$(gh run view ${{ github.event.workflow_run.id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
+
+          if echo "$failed_jobs" | grep -qE '^(ansible-lint|defaults-lint)$'; then
+            echo "Lint job failed - skipping retry"
+            echo "skip_retry=true" >> $GITHUB_OUTPUT
+          else
+            echo "No lint failures detected"
+            echo "skip_retry=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sleep for 60 seconds
+        if: steps.check_attempts.outputs.attempt_allowed == 'true' && steps.check_lint.outputs.skip_retry != 'true'
         run: sleep 60s
         shell: bash
 
       - name: rerun ${{ github.event.workflow_run.id }}
-        if: steps.check_attempts.outputs.attempt_allowed == 'true'
+        if: steps.check_attempts.outputs.attempt_allowed == 'true' && steps.check_lint.outputs.skip_retry != 'true'
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
