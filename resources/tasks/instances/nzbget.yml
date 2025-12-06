@@ -1,0 +1,43 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get NZBGet Info #
+# Author(s):     salty                                                    #
+# URL:           https://github.com/saltyorg/Saltbox                      #
+# --                                                                      #
+#########################################################################
+#                   GNU General Public License v3.0                       #
+#########################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Check if NZBGet exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
+  register: nzbget_role_paths_config_location_stat
+
+- name: Resources | Tasks | Instances | Get Info | NZBGet tasks
+  when: nzbget_role_paths_config_location_stat.stat.exists
+  block:
+    - name: Resources | Tasks | Instances | Get Info | Fetch NZBGet ControlUsername
+      ansible.builtin.shell: "grep -oP '^ControlUsername=\\K.*' {{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
+      register: nzbget_username_result
+      changed_when: false
+
+    - name: Resources | Tasks | Instances | Get Info | Fetch NZBGet ControlPassword
+      ansible.builtin.shell: "grep -oP '^ControlPassword=\\K.*' {{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
+      register: nzbget_password_result
+      changed_when: false
+
+    - name: Resources | Tasks | Instances | Get Info | Set 'nzbget_info' variable
+      ansible.builtin.set_fact:
+        nzbget_info:
+          name: nzbget
+          url: "{{ lookup('role_var', '_web_url', role='nzbget') }}"
+          username: "{{ nzbget_username_result.stdout }}"
+          password: "{{ nzbget_password_result.stdout }}"
+
+- name: Resources | Tasks | Instances | Get Info | Set 'nzbget_info' variable
+  ansible.builtin.set_fact:
+    nzbget_info:
+      name: nzbget
+      url: "{{ lookup('role_var', '_web_url', role='nzbget') }}"
+      username: "not installed"
+      password: "not installed"
+  when: (not nzbget_role_paths_config_location_stat.stat.exists)

@@ -1,0 +1,36 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get SABnzbd Info #
+# Author(s):     salty                                                     #
+# URL:           https://github.com/saltyorg/Saltbox                       #
+# --                                                                       #
+#########################################################################
+#                   GNU General Public License v3.0                        #
+#########################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Check if SABnzbd exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
+  register: sabnzbd_role_paths_config_location_stat
+
+- name: Resources | Tasks | Instances | Get Info | SABnzbd API Key tasks
+  when: sabnzbd_role_paths_config_location_stat.stat.exists
+  block:
+    - name: Resources | Tasks | Instances | Get Info | Fetch SABnzbd API Key
+      ansible.builtin.shell: "grep -oP '^api_key = \\K.*' {{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
+      register: sabnzbd_api_key_result
+      changed_when: false
+
+    - name: Resources | Tasks | Instances | Get Info | Set 'sabnzbd_info' variable
+      ansible.builtin.set_fact:
+        sabnzbd_info:
+          name: sabnzbd
+          url: "{{ lookup('role_var', '_web_url', role='sabnzbd') }}"
+          api_key: "{{ sabnzbd_api_key_result.stdout }}"
+
+- name: Resources | Tasks | Instances | Get Info | Set 'sabnzbd_info' variable
+  ansible.builtin.set_fact:
+    sabnzbd_info:
+      name: sabnzbd
+      url: "{{ lookup('role_var', '_web_url', role='sabnzbd') }}"
+      api_key: "not installed"
+  when: (not sabnzbd_role_paths_config_location_stat.stat.exists)

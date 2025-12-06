@@ -17,7 +17,7 @@
   block:
     - name: Resources | Tasks | Instances | Get Info | Fetch Overseerr API Key
       ansible.builtin.set_fact:
-        jsondata: "{{ lookup('ansible.builtin.file', lookup('role_var', '_paths_config_location', role='overseerr')) }}"
+        jsondata: "{{ lookup('ansible.builtin.file', lookup('role_var', '_paths_config_location', role='overseerr')) | from_json }}"
 
     - name: Resources | Tasks | Instances | Get Info | Set 'overseerr_info' variable
       ansible.builtin.set_fact:
