@@ -14,3 +14,78 @@ motd_install: true
 motd_use_python: true
 motd_cli_path: "/usr/local/bin/sb2"
 motd_cli_flags: "--all --title 'Saltbox' --font ivrit --type parchment"
+
+################################
+# Service Definitions
+################################
+
+# Service types:
+#   - multi_instance_apikey: Multiple instances with API key (sonarr, radarr, lidarr, readarr, overseerr)
+#   - multi_instance_token: Multiple instances with token (plex)
+#   - single_instance_apikey: Single instance with API key (sabnzbd)
+#   - single_instance_userpass: Single instance with username/password (nzbget)
+#   - multi_instance_userpass: Multiple instances with username/password (qbittorrent)
+#   - disabled: Statically disabled services (jellyfin, emby, rtorrent)
+
+motd_services:
+  - name: colors
+    type: colors
+  - name: emby
+    type: multi_instance_token
+    check_field: token
+    output_field: token
+  - name: jellyfin
+    type: multi_instance_token
+    check_field: token
+    output_field: token
+  - name: lidarr
+    type: multi_instance_apikey
+    check_field: api_key
+    output_field: apikey
+  - name: nzbget
+    type: single_instance_userpass
+    check_field: username
+  - name: plex
+    type: multi_instance_token
+    check_field: token
+    output_field: token
+  - name: qbittorrent
+    type: multi_instance_userpass_info
+    check_field: username
+  - name: radarr
+    type: multi_instance_apikey
+    check_field: api_key
+    output_field: apikey
+  - name: rutorrent
+    type: multi_instance_userpass
+    instances_var: rutorrent_instances
+    url_suffix: "/RPC2"
+  - name: sabnzbd
+    type: single_instance_apikey
+    check_field: api_key
+    output_field: apikey
+  - name: sonarr
+    type: multi_instance_apikey
+    check_field: api_key
+    output_field: apikey
+  - name: systemd
+    type: systemd
+
+motd_colors:
+  text:
+    label: "#FF79D0"
+    value: "#12C78F"
+    app_name: "#BF976F"
+  status:
+    warning: "#F5EF34"
+    success: "#12C78F"
+    error: "#EB4268"
+  progress_bar:
+    low: "#A8CC8C"
+    high: "#DBAB79"
+    critical: "#E88388"
+
+motd_systemd:
+  enabled: true
+  additional_services: []
+  display_names: {}

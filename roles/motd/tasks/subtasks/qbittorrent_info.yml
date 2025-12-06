@@ -1,0 +1,12 @@
+#########################################################################
+# Title:         Saltbox: MOTD | Build qBittorrent Info                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Set 'qbittorrent_info' variable
+  ansible.builtin.set_fact:
+    qbittorrent_info: "{{ qbittorrent_info | default({}) | combine({qbittorrent_name: {'name': qbittorrent_name, 'url': lookup('role_var', '_web_url', role=qbittorrent_name), 'username': user.name, 'password': user.pass}}) }}"

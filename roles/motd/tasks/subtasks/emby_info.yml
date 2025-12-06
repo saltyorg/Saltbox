@@ -1,0 +1,12 @@
+#########################################################################
+# Title:         Saltbox: MOTD | Build Emby Info                       #
+# Author(s):     salty                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                   #
+# --                                                                   #
+#########################################################################
+#                   GNU General Public License v3.0                    #
+#########################################################################
+---
+- name: Set 'emby_info' variable
+  ansible.builtin.set_fact:
+    emby_info: "{{ emby_info | default({}) | combine({emby_name: {'name': emby_name, 'url': lookup('role_var', '_web_url', role=emby_name), 'token': 'not installed'}}) }}"

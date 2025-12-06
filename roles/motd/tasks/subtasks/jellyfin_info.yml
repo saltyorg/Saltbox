@@ -1,0 +1,12 @@
+#########################################################################
+# Title:         Saltbox: MOTD | Build Jellyfin Info                   #
+# Author(s):     salty                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                   #
+# --                                                                   #
+#########################################################################
+#                   GNU General Public License v3.0                    #
+#########################################################################
+---
+- name: Set 'jellyfin_info' variable
+  ansible.builtin.set_fact:
+    jellyfin_info: "{{ jellyfin_info | default({}) | combine({jellyfin_name: {'name': jellyfin_name, 'url': lookup('role_var', '_web_url', role=jellyfin_name), 'token': 'not installed'}}) }}"

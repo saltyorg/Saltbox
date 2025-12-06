@@ -1,33 +1,150 @@
 ---
-{% set services = ['lidarr', 'plex', 'radarr', 'sonarr'] %}
-{% for service in services %}
-{% set service_info_var = service + '_info' %}
+{% for service in motd_services %}
+{% set service_name = service.name %}
+{% set service_info_var = service_name + '_info' %}
 {% set installed_instances = [] %}
-{% if vars[service_info_var] is defined %}
-{% for instance_name, instance_data in vars[service_info_var].items() %}
-{% if service == 'plex' %}
-{% if instance_data.token != 'not installed' %}
-{% set _ = installed_instances.append({'name': instance_data.name, 'url': instance_data.url, 'token': instance_data.token}) %}
-{% endif %}
-{% else %}
-{% if instance_data.api_key != 'not installed' %}
-{% set _ = installed_instances.append({'name': instance_data.name, 'url': instance_data.url, 'apikey': instance_data.api_key}) %}
-{% endif %}
+{# Multi-instance services with API key or token #}
+{% if service.type in ['multi_instance_apikey', 'multi_instance_token'] %}
+{% set has_installed = [] %}
+{% if lookup('vars', service_info_var, default=None) is not none %}
+{% for instance_name, instance_data in lookup('vars', service_info_var).items() %}
+{% set instance_entry = {'name': instance_data.name, 'url': instance_data.url} %}
+{% set _ = instance_entry.update({service.output_field: instance_data[service.check_field]}) %}
+{% set _ = installed_instances.append(instance_entry) %}
+{% if instance_data[service.check_field] != 'not installed' %}
+{% set _ = has_installed.append(true) %}
 {% endif %}
 {% endfor %}
 {% endif %}
 {% if installed_instances %}
-{{ service }}:
+{{ service_name }}:
+  enabled: {{ (has_installed | length > 0) | lower }}
+  instances:
 {% for instance in installed_instances %}
-  - name: {{ instance.name }}
-    url: {{ instance.url }}
-{% if service == 'plex' %}
-    token: {{ instance.token }}
-{% else %}
-    apikey: {{ instance.apikey }}
-{% endif %}
+    - name: {{ instance.name }}
+      url: {{ instance.url }}
+      {{ service.output_field }}: {{ instance[service.output_field] if instance[service.output_field] != 'not installed' else 'your-' + service.output_field + '-here' }}
+      enabled: true
 {% endfor %}
 {% else %}
-{{ service }}: []
+{{ service_name }}:
+  enabled: false
+  instances:
+    - name: {{ service_name | capitalize }}
+      url: http://localhost:8080
+      {{ service.output_field }}: your-{{ service.output_field }}-here
+      enabled: true
+{% endif %}
+{# Single-instance services with API key #}
+{% elif service.type == 'single_instance_apikey' %}
+{% set service_info = lookup('vars', service_info_var, default=None) %}
+{% if service_info is not none and service_info[service.check_field] != 'not installed' %}
+{{ service_name }}:
+  enabled: true
+  instances:
+    - name: {{ service_info.name }}
+      url: {{ service_info.url }}
+      {{ service.output_field }}: {{ service_info[service.check_field] }}
+      enabled: true
+{% else %}
+{{ service_name }}:
+  enabled: false
+  instances:
+    - name: {{ service_name | capitalize }}
+      url: http://localhost:8080
+      {{ service.output_field }}: your-{{ service.output_field }}-here
+      enabled: true
+{% endif %}
+{# Single-instance services with username/password #}
+{% elif service.type == 'single_instance_userpass' %}
+{% set service_info = lookup('vars', service_info_var, default=None) %}
+{% if service_info is not none and service_info[service.check_field] != 'not installed' %}
+{{ service_name }}:
+  enabled: true
+  instances:
+    - name: {{ service_info.name }}
+      url: {{ service_info.url }}
+      user: {{ service_info.username }}
+      password: {{ service_info.password }}
+      enabled: true
+{% else %}
+{{ service_name }}:
+  enabled: false
+  instances:
+    - name: {{ service_name | capitalize }}
+      url: http://localhost:6789
+      user: {{ service_name }}
+      password: your-password-here
+      enabled: true
+{% endif %}
+{# Multi-instance services with username/password using info dict (e.g., qbittorrent) #}
+{% elif service.type == 'multi_instance_userpass_info' %}
+{% if lookup('vars', service_info_var, default=None) is not none %}
+{% for instance_name, instance_data in lookup('vars', service_info_var).items() %}
+{% if instance_data[service.check_field] != 'not installed' %}
+{% set instance_entry = {'name': instance_data.name, 'url': instance_data.url, 'username': instance_data.username, 'password': instance_data.password} %}
+{% set _ = installed_instances.append(instance_entry) %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if installed_instances %}
+{{ service_name }}:
+  enabled: true
+  instances:
+{% for instance in installed_instances %}
+    - name: {{ instance.name }}
+      url: {{ instance.url }}
+      user: {{ instance.username }}
+      password: {{ instance.password }}
+      enabled: true
+{% endfor %}
+{% else %}
+{{ service_name }}:
+  enabled: false
+  instances:
+    - name: {{ service_name | capitalize }}
+      url: http://localhost:8080
+      user: your-username-here
+      password: your-password-here
+      enabled: true
+{% endif %}
+{# Multi-instance services with username/password using direct lookup (e.g., rutorrent) #}
+{% elif service.type == 'multi_instance_userpass' %}
+{% set instances_list = lookup('vars', service.instances_var, default=[service_name]) %}
+{% set url_suffix = service.url_suffix | default('') %}
+{{ service_name }}:
+  enabled: true
+  instances:
+{% for instance in instances_list %}
+    - name: {{ instance }}
+      url: {{ lookup('role_var', '_web_url', role=instance) + url_suffix }}
+      user: {{ user.name }}
+      password: {{ user.pass }}
+      enabled: true
+{% endfor %}
+{# Systemd service #}
+{% elif service.type == 'systemd' %}
+{{ service_name }}:
+  enabled: {{ motd_systemd.enabled | lower }}
+  additional_services: {{ motd_systemd.additional_services | to_json }}
+  display_names: {{ motd_systemd.display_names | to_json }}
+{# Colors #}
+{% elif service.type == 'colors' %}
+{{ service_name }}:
+  text:
+    label: "{{ motd_colors.text.label }}"
+    value: "{{ motd_colors.text.value }}"
+    app_name: "{{ motd_colors.text.app_name }}"
+  status:
+    warning: "{{ motd_colors.status.warning }}"
+    success: "{{ motd_colors.status.success }}"
+    error: "{{ motd_colors.status.error }}"
+  progress_bar:
+    low: "{{ motd_colors.progress_bar.low }}"
+    high: "{{ motd_colors.progress_bar.high }}"
+    critical: "{{ motd_colors.progress_bar.critical }}"
+{% endif %}
+{% if not loop.last %}
+
 {% endif %}
 {% endfor %}

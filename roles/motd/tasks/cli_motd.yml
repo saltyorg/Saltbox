@@ -18,6 +18,26 @@
           - sonarr
           - radarr
           - lidarr
+          - nzbget
+          - sabnzbd
+
+    - name: Build emby_info dict
+      ansible.builtin.include_tasks: subtasks/emby_info.yml
+      vars:
+        emby_name: "{{ item }}"
+      loop: "{{ emby_instances | default(['emby']) }}"
+
+    - name: Build jellyfin_info dict
+      ansible.builtin.include_tasks: subtasks/jellyfin_info.yml
+      vars:
+        jellyfin_name: "{{ item }}"
+      loop: "{{ jellyfin_instances | default(['jellyfin']) }}"
+
+    - name: Build qbittorrent_info dict
+      ansible.builtin.include_tasks: subtasks/qbittorrent_info.yml
+      vars:
+        qbittorrent_name: "{{ item }}"
+      loop: "{{ qbittorrent_instances | default(['qbittorrent']) }}"
 
     - name: Import 'motd.yml' template
       ansible.builtin.template:
