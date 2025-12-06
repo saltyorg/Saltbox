@@ -18,4 +18,4 @@
 
 - name: "Continue when Plex Docker container exists"
   ansible.builtin.include_tasks: "main2.yml"
-  when: (plex_docker_container in docker_installed_containers_list)
+  when: (lookup('role_var', '_docker_container', role='plex') in docker_installed_containers_list)
