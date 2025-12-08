@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
           cache: 'pip'
           cache-dependency-path: 'requirements/requirements-saltbox.txt'
 
@@ -63,7 +63,7 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
 
       - name: Run Defaults Linter
         run: python3 scripts/saltbox-defaults-linter.py roles/
