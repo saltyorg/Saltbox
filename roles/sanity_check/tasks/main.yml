@@ -16,6 +16,9 @@
 - name: Python Version Check
   ansible.builtin.include_tasks: "subtasks/03_python_version.yml"
 
+- name: UFW Check
+  ansible.builtin.include_tasks: "subtasks/04_ufw.yml"
+
 - name: Backup Lock Check
   ansible.builtin.include_tasks: "subtasks/05_backup.yml"
 
