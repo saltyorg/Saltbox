@@ -1,0 +1,34 @@
+#########################################################################
+# Title:         Saltbox: Sanity Check | UFW Check                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: UFW Check | Check if ufw is installed
+  ansible.builtin.command: which ufw
+  register: ufw_installed
+  changed_when: false
+  failed_when: false
+
+- name: UFW Check | Check if ufw is active
+  ansible.builtin.command: ufw status
+  register: ufw_status
+  changed_when: false
+  failed_when: false
+  when: ufw_installed.rc == 0
+
+- name: UFW Check | Ensure UFW is not active
+  ansible.builtin.assert:
+    that:
+      - "'Status: active' not in ufw_status.stdout"
+    fail_msg: >-
+      UFW is currently enabled on this system. UFW and Docker are fundamentally
+      incompatible because UFW manages iptables rules that Docker bypasses entirely,
+      leading to unexpected network behavior and security gaps. Please disable UFW
+      with 'sudo ufw disable' before continuing.
+      See https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-and-ufw
+    success_msg: "UFW is not active."
+  when: ufw_installed.rc == 0
