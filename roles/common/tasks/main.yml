@@ -102,6 +102,7 @@
       - "moreutils"
       - "unrar"
       - "python3-virtualenv"
+      - "bash-completion"
 
 - name: Install extra packages
   ansible.builtin.apt:
