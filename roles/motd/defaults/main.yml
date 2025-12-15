@@ -12,5 +12,5 @@ motd_install: true
 # Requires the new golang CLI to be installed and in the location set below
 # if you set motd_use_python to false.
 motd_use_python: true
-motd_cli_path: "/usr/local/bin/sb2"
+motd_cli_path: "/usr/local/bin/sb"
 motd_cli_flags: "--all --title 'Saltbox' --font ivrit --type parchment"
