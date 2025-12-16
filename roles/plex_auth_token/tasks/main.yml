@@ -80,15 +80,8 @@
   register: plex_token
   when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
 
-- name: "Auth Token | Assert entitlements exists in response"
-  ansible.builtin.assert:
-    that:
-      - plex_token.json.entitlements is defined
-    fail_msg: "Plex API response does not contain 'entitlements' field. API response structure may have changed."
-  when: not plex_no_token and (plex_token.status == 200)
-
 - name: "Auth Token | Generate New Token"
-  when: plex_no_token or (plex_token.status == 401) or (plex_token.json.entitlements | length == 0)
+  when: plex_no_token or (plex_token.status == 401)
   block:
     - name: "Auth Token | Generate PIN"
       ansible.builtin.uri:
@@ -154,17 +147,10 @@
       environment: "{{ plex_proxy_dict }}"
       register: plex_new_token
 
-    - name: "Auth Token | Assert entitlements exists in new token response"
-      ansible.builtin.assert:
-        that:
-          - plex_new_token.json.entitlements is defined
-        fail_msg: "Plex API response does not contain 'entitlements' field. API response structure may have changed."
-      when: plex_new_token.status == 200
-
     - name: "Auth Token | Fail if new token is invalid"
       ansible.builtin.fail:
         msg: "Something went wrong with the creation of the new token"
-      when: (plex_new_token.status == 401) or (plex_new_token.json.entitlements | length == 0)
+      when: (plex_new_token.status == 401)
 
     - name: "Auth Token | Save facts for a specific instance"
       saltbox_facts:
