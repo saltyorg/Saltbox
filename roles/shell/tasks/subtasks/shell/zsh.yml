@@ -115,7 +115,7 @@
       ansible.builtin.shell: "curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin/"
 
     - name: "Install Meslo Nerd Font"
-      ansible.builtin.shell: "oh-my-posh font install meslo"
+      ansible.builtin.shell: "script -q -c '/usr/local/bin/oh-my-posh font install meslo --plain' /dev/null"
 
     - name: ZSH | Add Oh My Posh to '{{ shell_zsh_zshrc_path }}'
       ansible.builtin.blockinfile:
