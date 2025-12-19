@@ -36,10 +36,10 @@
     shell: "{{ shell_bash_binary_path }}"
   register: shell_update_task
 
-- name: Bash | Set Bash as default shell
+- name: Bash | Print Bash shell status
   ansible.builtin.debug:
     msg:
-      - "Set Bash as default shell"
+      - "Bash was set as default shell"
   when: (shell_update_task is changed)
 
 - name: Bash | Default shell set to Bash

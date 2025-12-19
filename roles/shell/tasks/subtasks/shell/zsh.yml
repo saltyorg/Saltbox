@@ -27,7 +27,7 @@
     path: "{{ shell_zsh_zshrc_path }}"
   register: existing_zshrc
 
-- name: ZSH | Create '{{ shell_zsh_zshrc_path }}' file
+- name: "ZSH | Create '{{ shell_zsh_zshrc_path }}' file"
   ansible.builtin.copy:
     src: "{{ shell_zsh_zshrc_template_path }}"
     dest: "{{ shell_zsh_zshrc_path }}"
@@ -36,7 +36,7 @@
     mode: "0664"
   when: (not existing_zshrc.stat.exists)
 
-- name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
+- name: "ZSH | Add items to '{{ shell_zsh_zshrc_path }}'"
   ansible.builtin.blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
     marker: "### SALTBOX MANAGED BLOCK 1 - {mark} ###"
@@ -48,7 +48,7 @@
     group: "{{ user.name }}"
     mode: "0664"
 
-- name: ZSH | Add items to '{{ shell_zsh_zshrc_path }}'
+- name: "ZSH | Add items to '{{ shell_zsh_zshrc_path }}'"
   ansible.builtin.blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
     marker: "### SALTBOX MANAGED BLOCK 2 - {mark} ###"
@@ -59,7 +59,7 @@
     group: "{{ user.name }}"
     mode: "0664"
 
-- name: ZSH | Add custom items to '{{ shell_zsh_zshrc_path }}'
+- name: "ZSH | Add custom items to '{{ shell_zsh_zshrc_path }}'"
   ansible.builtin.blockinfile:
     path: "{{ shell_zsh_zshrc_path }}"
     marker: "### SALTBOX MANAGED BLOCK CUSTOM - {mark} ###"
@@ -89,7 +89,7 @@
     path: "{{ shell_zsh_binary_path }}"
   register: shell_zsh_binary_path_stat
 
-- name: ZSH | Create an 'alternatives link' to '{{ shell_zsh_binary_path }}'
+- name: "ZSH | Create an 'alternatives link' to '{{ shell_zsh_binary_path }}'"
   community.general.alternatives:
     name: zsh
     link: "{{ shell_zsh_binary_path }}"
@@ -103,21 +103,21 @@
     shell: "{{ shell_zsh_binary_path }}"
   register: shell_update_task
 
-- name: ZSH | Set ZSH as default shell
+- name: ZSH | Print ZSH shell status
   ansible.builtin.debug:
-    msg: "Set ZSH as default shell"
+    msg: "ZSH was set as default shell"
   when: (shell_update_task is changed)
 
-- name: "Oh My Posh Block"
+- name: ZSH | Oh My Posh Block
   when: shell_ohmyposh_enabled
   block:
-    - name: "Install Oh My Posh"
+    - name: ZSH | Install Oh My Posh
       ansible.builtin.shell: "curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin/"
 
-    - name: "Install Meslo Nerd Font"
+    - name: ZSH | Install Meslo Nerd Font
       ansible.builtin.shell: "script -q -c '/usr/local/bin/oh-my-posh font install meslo --plain' /dev/null"
 
-    - name: ZSH | Add Oh My Posh to '{{ shell_zsh_zshrc_path }}'
+    - name: "ZSH | Add Oh My Posh to '{{ shell_zsh_zshrc_path }}'"
       ansible.builtin.blockinfile:
         path: "{{ shell_zsh_zshrc_path }}"
         marker: "### SALTBOX MANAGED BLOCK 3 - {mark} ###"

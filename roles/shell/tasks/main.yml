@@ -13,5 +13,5 @@
 - name: Import 'z' subtask
   ansible.builtin.include_tasks: "subtasks/z.yml"
 
-- name: Import '{{ shell_type }}' subtask
+- name: "Import '{{ shell_type }}' subtask"
   ansible.builtin.include_tasks: "subtasks/shell/{{ shell_type }}.yml"
