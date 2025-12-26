@@ -56,9 +56,9 @@ traefik_enable_http_validation: "{{ traefik_http or (traefik.cert.http_validatio
 traefik_enable_zerossl: true
 # Path is internal to the container, so a host path of /opt/traefik/ban.html becomes /etc/traefik/ban.html
 traefik_crowdsec_ban_filepath: "/etc/traefik/ban.html"
-# Entrypoint HTTP Settings
+# Entrypoint Path Sanitization Settings
 traefik_sanitize_path: true
-# Encoded characters settings (applied to all entrypoints)
+# Entrypoint Encoded characters settings (applied to all entrypoints)
 traefik_encoded_allow_slash: true
 traefik_encoded_allow_backslash: true
 traefik_encoded_allow_null: true
