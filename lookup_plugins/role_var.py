@@ -1,8 +1,14 @@
 from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleLookupError
+from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
 from ansible.utils.display import Display
 from typing import Any, List, Optional, Dict
 import json
+
+# Try to import Jinja2's Undefined types to detect undefined variables in results
+try:
+    from jinja2 import Undefined
+except ImportError:
+    Undefined = type(None)  # Fallback if import fails
 
 display = Display()
 
@@ -75,6 +81,26 @@ class LookupModule(LookupBase):
         display.vvv(f"[role_var] Converted JSON list to dict with {len(combined_dict)} keys using manual parsing")
         return combined_dict
 
+    def _check_for_undefined(self, value: Any, var_name: str) -> None:
+        """Recursively check for undefined variables in a result and raise a clear error if found"""
+        if isinstance(value, Undefined):
+            undefined_name = getattr(value, '_undefined_name', str(value))
+            raise AnsibleUndefinedVariable(
+                f"[role_var] Variable '{var_name}' contains undefined variable: {undefined_name}"
+            )
+        # Check for CapturedExceptionMarker or similar sentinel types
+        type_name = type(value).__name__
+        if 'Captured' in type_name or 'Undefined' in type_name or 'Marker' in type_name:
+            raise AnsibleUndefinedVariable(
+                f"[role_var] Variable '{var_name}' references an undefined variable (found {type_name})"
+            )
+        if isinstance(value, list):
+            for i, item in enumerate(value):
+                self._check_for_undefined(item, f"{var_name}[{i}]")
+        elif isinstance(value, dict):
+            for k, v in value.items():
+                self._check_for_undefined(v, f"{var_name}.{k}")
+
     def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:
         if variables is None:
             variables = {}
@@ -142,43 +168,43 @@ class LookupModule(LookupBase):
             display.vvv(f"[role_var] Relevant vars: {debug_keys}")
 
         # Try each variable name in order
-        last_error: Optional[Exception] = None
         for var_name in vars_to_check:
             if var_name in variables:
                 raw_value = variables.get(var_name)
                 if raw_value is None:
                     display.vvv(f"[role_var] Skipping {var_name} (value is None)")
                     continue
+                # Variable exists - if templating fails, that's an error (don't fall back to default)
+                # This ensures that variables referencing undefined vars are caught
                 try:
                     result = self._templar.template(raw_value, fail_on_undefined=True)
-                    if result is not None:
-                        # Check if we should convert JSON list to dict
-                        if convert_json and self._is_json_string_list(result):
-                            display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
-                            converted = self._convert_json_list_to_dict(result)
-                            if converted is not None:
-                                return [converted]
-                            else:
-                                display.vvv(f"[role_var] Conversion failed, returning original list")
-
-                        display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
-                        return [result]
-                    else:
-                        display.vvv(f"[role_var] {var_name} is None after templating, skipping")
                 except Exception as e:
-                    display.vvv(f"[role_var] Error templating {var_name}: {e}")
-                    last_error = e
+                    raise AnsibleLookupError(
+                        f"[role_var] Failed to resolve '{var_name}': {e}"
+                    ) from e
+                # Check for undefined variables that got captured instead of raising
+                self._check_for_undefined(result, var_name)
+                if result is not None:
+                    # Check if we should convert JSON list to dict
+                    if convert_json and self._is_json_string_list(result):
+                        display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
+                        converted = self._convert_json_list_to_dict(result)
+                        if converted is not None:
+                            return [converted]
+                        else:
+                            display.vvv(f"[role_var] Conversion failed, returning original list")
+
+                    display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
+                    return [result]
+                else:
+                    display.vvv(f"[role_var] {var_name} is None after templating, skipping")
             else:
                 display.vvv(f"[role_var] {var_name} not found in variables — skipping")
 
-        # If we have a default, use it
+        # If we have a default, use it (only reached if no variable existed)
         if default is not None:
             display.vvv(f"[role_var] No usable variable found, returning default: {default}")
             return [default]
-
-        # If all attempts failed with errors, raise the last error
-        if last_error is not None:
-            raise last_error
 
         # Otherwise raise an error - variable not found and no default provided
         raise AnsibleLookupError(
