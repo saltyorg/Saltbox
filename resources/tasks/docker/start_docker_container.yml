@@ -20,7 +20,9 @@
 - name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    name: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }}"
+    name: "{{ container_name
+           if (container_name is defined)
+           else lookup('docker_var', '_docker_container', default=_var_prefix) }}"
     state: started
     tls_hostname: localhost
     comparisons:
