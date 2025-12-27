@@ -7,11 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Import authentik_worker role variables
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/variables/import_role_vars.yml"
-  vars:
-    import_role_name: authentik_worker
-
 - name: Remove existing Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
