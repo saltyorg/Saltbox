@@ -426,7 +426,7 @@ traefik_docker_commands_tailscale:
   - "--entrypoints.tailscale-websecure.http.encodedCharacters.allowEncodedPercent={{ traefik_encoded_allow_percent | string | lower }}"
   - "--entrypoints.tailscale-websecure.http.encodedCharacters.allowEncodedQuestionMark={{ traefik_encoded_allow_question_mark | string | lower }}"
   - "--entrypoints.tailscale-websecure.http.encodedCharacters.allowEncodedHash={{ traefik_encoded_allow_hash | string | lower }}"
-traefik_role_docker_commands_crowdsec:
+traefik_docker_commands_crowdsec:
   - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
   - "--experimental.plugins.bouncer.version=v1.4.4"
 traefik_docker_commands_custom: []
