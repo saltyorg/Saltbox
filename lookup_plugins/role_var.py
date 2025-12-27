@@ -187,17 +187,6 @@ class LookupModule(LookupBase):
                     display.vvv(f"[role_var] Skipping {var_name} (value is None)")
                     continue
 
-                # Check if this is a role fallback variable (contains '_role_')
-                # Role fallback variables depend on the role's _name variable being defined.
-                # If the _name variable doesn't exist, skip this fallback since the role's
-                # context isn't properly established.
-                if '_role_' in var_name:
-                    role_prefix = var_name.split('_role_')[0]
-                    role_name_var = role_prefix + '_name'
-                    if role_name_var not in variables:
-                        display.vvv(f"[role_var] Skipping role fallback {var_name} because {role_name_var} is not defined")
-                        continue
-
                 # Variable exists - if templating fails, that's an error (don't fall back to default)
                 # This ensures that variables referencing undefined vars are caught
                 try:
