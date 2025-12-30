@@ -35,7 +35,6 @@
       - nzbget
       - sabnzbd
       - prowlarr
-      - rutorrent
       - jackett
       - nzbhydra2
       - sonarr

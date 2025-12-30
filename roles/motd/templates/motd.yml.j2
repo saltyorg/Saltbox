@@ -108,7 +108,7 @@
       password: your-password-here
       enabled: true
 {% endif %}
-{# Multi-instance services with username/password using direct lookup (e.g., rutorrent) #}
+{# Multi-instance services with username/password using direct lookup (e.g., qbittorrent) #}
 {% elif service.type == 'multi_instance_userpass' %}
 {% set config_key = motd_config_mapping[service_name] | default(service_name) %}
 {% set instances_list = lookup('vars', service.instances_var, default=[service_name]) %}

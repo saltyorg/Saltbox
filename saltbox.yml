@@ -93,7 +93,6 @@
     - { role: python, tags: ['python'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }
     - { role: redis, tags: ['redis'] }
-    - { role: rutorrent, tags: ['rutorrent'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: scrutiny, tags: ['scrutiny'] }
     - { role: subliminal, tags: ['subliminal'] }

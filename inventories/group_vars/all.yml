@@ -575,7 +575,6 @@ reverse_proxy_apps:
 torrent_apps_saltbox:
   - "{{ deluge_instances | default('deluge') }}"
   - "{{ qbittorrent_instances | default('qbittorrent') }}"
-  - "{{ rutorrent_name | default('rutorrent') }}"
 
 torrent_apps_sandbox:
   - "{{ delugevpn_name | default('delugevpn') }}"

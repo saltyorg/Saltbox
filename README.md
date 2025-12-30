@@ -32,7 +32,6 @@ NOTE: Saltbox does not have a dashboard or GUI of its own. All Saltbox-specific 
 - Lidarr
 - Rclone
 - SABnzbd
-- ruTorrent
 - Tautulli
 - NZBHydra2
 - Jackett
