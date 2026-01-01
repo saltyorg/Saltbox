@@ -17,7 +17,14 @@ emby_instances: ["emby"]
 # Settings
 ################################
 
-emby_role_config_cache_size: 1024
+emby_role_config_settings_is_behind_proxy: "true"
+emby_role_config_settings_wan_ddns: "{{ lookup('role_var', '_web_subdomain', role='emby') }}.{{ lookup('role_var', '_web_domain', role='emby') }}"
+emby_role_config_settings_public_port: "80"
+emby_role_config_settings_public_https_port: "443"
+emby_role_config_settings_enable_https: "true"
+emby_role_config_settings_require_https: "false"
+emby_role_config_settings_enable_upnp: "false"
+emby_role_config_settings_database_cache_size_mb: "1024"
 
 ################################
 # Paths
@@ -85,14 +92,22 @@ emby_role_themepark_addons: []
 ################################
 
 emby_role_config_settings_default:
-  - { xpath: 'IsBehindProxy', value: 'true' }
-  - { xpath: 'WanDdns', value: '{{ lookup("role_var", "_web_subdomain", role="emby") }}.{{ lookup("role_var", "_web_domain", role="emby") }}' }
-  - { xpath: 'PublicPort', value: '80' }
-  - { xpath: 'PublicHttpsPort', value: '443' }
-  - { xpath: 'EnableHttps', value: 'true' }
-  - { xpath: 'RequireHttps', value: 'false' }
-  - { xpath: 'EnableUPnP', value: 'false' }
-  - { xpath: 'DatabaseCacheSizeMB', value: '{{ lookup("role_var", "_config_cache_size", role="emby") | string }}' }
+  - xpath: 'IsBehindProxy'
+    value: "{{ lookup('role_var', '_config_settings_is_behind_proxy', role='emby') }}"
+  - xpath: 'WanDdns'
+    value: "{{ lookup('role_var', '_config_settings_wan_ddns', role='emby') }}"
+  - xpath: 'PublicPort'
+    value: "{{ lookup('role_var', '_config_settings_public_port', role='emby') }}"
+  - xpath: 'PublicHttpsPort'
+    value: "{{ lookup('role_var', '_config_settings_public_https_port', role='emby') }}"
+  - xpath: 'EnableHttps'
+    value: "{{ lookup('role_var', '_config_settings_enable_https', role='emby') }}"
+  - xpath: 'RequireHttps'
+    value: "{{ lookup('role_var', '_config_settings_require_https', role='emby') }}"
+  - xpath: 'EnableUPnP'
+    value: "{{ lookup('role_var', '_config_settings_enable_upnp', role='emby') }}"
+  - xpath: 'DatabaseCacheSizeMB'
+    value: "{{ lookup('role_var', '_config_settings_database_cache_size_mb', role='emby') }}"
 
 emby_role_config_settings_custom: []
 

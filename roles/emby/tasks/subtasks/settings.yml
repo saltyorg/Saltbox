@@ -20,6 +20,7 @@
     path: "{{ lookup('role_var', '_paths_config_location', role='emby') }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
     value: "{{ item.value }}"
+    pretty_print: true
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_config_settings_list', role='emby') }}"
