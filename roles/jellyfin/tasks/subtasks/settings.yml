@@ -30,16 +30,29 @@
   community.general.xml:
     path: "{{ lookup('role_var', '_paths_sys_xml_location', role='jellyfin') }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
-    value: "{{ item.value }}"
+    value: "{{ item.value | default(omit) }}"
+    set_children: "{{ item.set_children | default(omit) }}"
+    pretty_print: true
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_system_settings_list', role='jellyfin') }}"
+
+- name: Settings | Migrate 'KnownProxies' to new format in 'network.xml'
+  community.general.xml:
+    path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
+    xpath: /NetworkConfiguration/KnownProxies
+    value: ''
+    pretty_print: true
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Settings | Update 'network.xml' file
   community.general.xml:
     path: "{{ lookup('role_var', '_paths_net_xml_location', role='jellyfin') }}"
     xpath: "/NetworkConfiguration/{{ item.xpath }}"
-    value: "{{ item.value }}"
+    value: "{{ item.value | default(omit) }}"
+    set_children: "{{ item.set_children | default(omit) }}"
+    pretty_print: true
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_network_settings_list', role='jellyfin') }}"

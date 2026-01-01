@@ -14,6 +14,25 @@
 jellyfin_instances: ["jellyfin"]
 
 ################################
+# Settings
+################################
+
+# System
+jellyfin_role_system_settings_public_port: "80"
+jellyfin_role_system_settings_public_https_port: "443"
+jellyfin_role_system_settings_enable_folder_view: "true"
+jellyfin_role_system_settings_quick_connect_available: "true"
+jellyfin_role_system_settings_enable_remote_access: "true"
+jellyfin_role_system_settings_server_name: "saltbox"
+
+# Network
+jellyfin_role_network_settings_public_https_port: "443"
+jellyfin_role_network_settings_known_proxies:
+  - traefik
+jellyfin_role_network_settings_published_server_uri_by_subnet:
+  - "external={{ lookup('role_var', '_web_url', role='jellyfin') }}:443"
+
+################################
 # Paths
 ################################
 
@@ -67,23 +86,29 @@ jellyfin_role_traefik_gzip_enabled: false
 # Config
 ################################
 
-# System
 jellyfin_role_system_settings_default:
-  - { xpath: 'PublicPort', value: '80' }
-  - { xpath: 'PublicHttpsPort', value: '443' }
-  - { xpath: 'EnableFolderView', value: 'true' }
-  - { xpath: 'QuickConnectAvailable', value: 'true' }
-  - { xpath: 'EnableRemoteAccess', value: 'true' }
-  - { xpath: 'ServerName', value: 'saltbox' }
+  - xpath: 'PublicPort'
+    value: "{{ lookup('role_var', '_system_settings_public_port', role='jellyfin') }}"
+  - xpath: 'PublicHttpsPort'
+    value: "{{ lookup('role_var', '_system_settings_public_https_port', role='jellyfin') }}"
+  - xpath: 'EnableFolderView'
+    value: "{{ lookup('role_var', '_system_settings_enable_folder_view', role='jellyfin') }}"
+  - xpath: 'QuickConnectAvailable'
+    value: "{{ lookup('role_var', '_system_settings_quick_connect_available', role='jellyfin') }}"
+  - xpath: 'EnableRemoteAccess'
+    value: "{{ lookup('role_var', '_system_settings_enable_remote_access', role='jellyfin') }}"
+  - xpath: 'ServerName'
+    value: "{{ lookup('role_var', '_system_settings_server_name', role='jellyfin') }}"
 jellyfin_role_system_settings_custom: []
 jellyfin_role_system_settings_list: "{{ lookup('role_var', '_system_settings_default', role='jellyfin') + lookup('role_var', '_system_settings_custom', role='jellyfin') }}"
 
-# Network
 jellyfin_role_network_settings_default:
-  - { xpath: 'KnownProxies', value: 'traefik' }
-  - { xpath: 'PublicPort', value: '80' }
-  - { xpath: 'PublicHttpsPort', value: '443' }
-  - { xpath: 'PublishedServerUriBySubnet/string', value: 'external={{ lookup("role_var", "_web_url", role="jellyfin") }}:443' }
+  - xpath: 'PublicHttpsPort'
+    value: "{{ lookup('role_var', '_network_settings_public_https_port', role='jellyfin') }}"
+  - xpath: 'KnownProxies'
+    set_children: "{{ lookup('role_var', '_network_settings_known_proxies', role='jellyfin') | map('community.general.dict_kv', 'string') | list }}"
+  - xpath: 'PublishedServerUriBySubnet'
+    set_children: "{{ lookup('role_var', '_network_settings_published_server_uri_by_subnet', role='jellyfin') | map('community.general.dict_kv', 'string') | list }}"
 jellyfin_role_network_settings_custom: []
 jellyfin_role_network_settings_list: "{{ lookup('role_var', '_network_settings_default', role='jellyfin') + lookup('role_var', '_network_settings_custom', role='jellyfin') }}"
 
