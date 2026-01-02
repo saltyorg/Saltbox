@@ -26,6 +26,7 @@ jellyfin_role_system_settings_enable_remote_access: "true"
 jellyfin_role_system_settings_server_name: "saltbox"
 
 # Network
+jellyfin_role_network_settings_public_http_port: "80"
 jellyfin_role_network_settings_public_https_port: "443"
 jellyfin_role_network_settings_known_proxies:
   - traefik
@@ -103,6 +104,8 @@ jellyfin_role_system_settings_custom: []
 jellyfin_role_system_settings_list: "{{ lookup('role_var', '_system_settings_default', role='jellyfin') + lookup('role_var', '_system_settings_custom', role='jellyfin') }}"
 
 jellyfin_role_network_settings_default:
+  - xpath: 'PublicPort'
+    value: "{{ lookup('role_var', '_network_settings_public_http_port', role='jellyfin') }}"
   - xpath: 'PublicHttpsPort'
     value: "{{ lookup('role_var', '_network_settings_public_https_port', role='jellyfin') }}"
   - xpath: 'KnownProxies'
