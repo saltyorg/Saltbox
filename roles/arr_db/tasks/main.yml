@@ -13,8 +13,8 @@
       - "You must enable at least one of the role variables to run this role."
       - "Use the Saltbox inventory to enable."
   when: not (arr_db_sonarr_enabled or arr_db_lidarr_enabled
-             or arr_db_readarr_enabled or arr_db_whisparr_enabled
-             or arr_db_prowlarr_enabled or arr_db_tautulli_enabled)
+             or arr_db_whisparr_enabled or arr_db_prowlarr_enabled
+             or arr_db_tautulli_enabled)
 
 - name: Install SQLite3
   ansible.builtin.apt:
@@ -48,16 +48,6 @@
     lidarr_name: "{{ instance }}"
     arr_type: "lidarr"
   with_items: "{{ lidarr_instances }}"
-  loop_control:
-    loop_var: instance
-
-- name: "Execute Readarr DB tasks"
-  ansible.builtin.include_tasks: arr.yml
-  when: arr_db_readarr_enabled
-  vars:
-    readarr_name: "{{ instance }}"
-    arr_type: "readarr"
-  with_items: "{{ readarr_instances }}"
   loop_control:
     loop_var: instance
 

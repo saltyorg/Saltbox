@@ -28,13 +28,6 @@
   with_items: "{{ lidarr_instances }}"
   when: ('lidarr' in get_info_list)
 
-- name: Resources | Tasks | Instances | Get Info | Run Readarr Tasks
-  ansible.builtin.include_tasks: readarr.yml
-  vars:
-    readarr_name: "{{ item }}"
-  with_items: "{{ readarr_instances }}"
-  when: ('readarr' in get_info_list)
-
 - name: Resources | Tasks | Instances | Get Info | Run Plex Tasks
   ansible.builtin.include_tasks: plex.yml
   vars:

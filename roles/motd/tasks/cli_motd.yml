@@ -18,7 +18,6 @@
           - sonarr
           - radarr
           - lidarr
-          - readarr
 
     - name: Import 'motd.yml' template
       ansible.builtin.template:

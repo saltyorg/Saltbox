@@ -91,7 +91,6 @@
     - { role: prowlarr, tags: ['prowlarr'] }
     - { role: python, tags: ['python'] }
     - { role: qbittorrent, tags: ['qbittorrent'] }
-    - { role: readarr, tags: ['readarr'] }
     - { role: redis, tags: ['redis'] }
     - { role: rutorrent, tags: ['rutorrent'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
