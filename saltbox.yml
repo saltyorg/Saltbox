@@ -59,6 +59,7 @@
     - { role: authentik, tags: ['authentik', 'authentik-reset'] }
     - { role: autobrr, tags: ['autobrr'] }
     - { role: autoheal, tags: ['autoheal'] }
+    - { role: autoplow, tags: ['autoplow'] }
     - { role: autoscan, tags: ['autoscan'] }
     - { role: bazarr, tags: ['bazarr'] }
     - { role: btrfsmaintenance, tags: ['btrfsmaintenance'] }

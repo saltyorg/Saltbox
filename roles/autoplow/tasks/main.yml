@@ -1,0 +1,75 @@
+#########################################################################
+# Title:         Saltbox: Autoplow Role                                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Add DNS record
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ lookup('role_var', '_dns_record') }}"
+    dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
+    dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
+
+- name: Stop Service
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/stop_service.yml"
+  vars:
+    _service_name: "{{ autoplow_service_name }}"
+
+- name: Get next available port within the range of '8300-8399' # noqa fqcn[action]
+  find_open_port:
+    low_bound: 8300
+    high_bound: 8399
+    protocol: both
+  register: autoplow_port_lookup
+
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: "Get URL for latest Autoplow release"
+  ansible.builtin.shell: "{{ autoplow_latest_release_lookup_command }}"
+  args:
+    executable: /bin/bash
+  register: autoplow_latest_download_url
+  changed_when: false
+
+- name: "Download Autoplow binary"
+  ansible.builtin.get_url:
+    url: "{{ autoplow_latest_download_url.stdout }}"
+    dest: "{{ autoplow_binary_path }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0775"
+    force: true
+  register: x
+  until: "x is not failed"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
+  delay: 10
+
+- name: Import 'autoplow.yml' Traefik file provider
+  ansible.builtin.template:
+    src: "autoplow.yml.j2"
+    dest: "{{ server_appdata_path }}/traefik/{{ autoplow_name }}.yml"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0644"
+    force: true
+
+- name: "Import '{{ autoplow_service_name }}.service'"
+  ansible.builtin.template:
+    src: autoplow.service.j2
+    dest: "/etc/systemd/system/{{ autoplow_service_name }}.service"
+    mode: "0644"
+    force: true
+
+- name: Start service
+  ansible.builtin.systemd_service:
+    name: "{{ autoplow_service_name }}"
+    state: started
+    enabled: true
+    daemon_reload: true

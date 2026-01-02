@@ -1,0 +1,25 @@
+# /etc/systemd/system/{{ autoplow_service_name }}.service
+#########################################################################
+# Title:         Saltbox: Autoplow Service                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+Description=Autoplow
+After=network-online.target docker.service
+
+[Service]
+User={{ user.name }}
+Group={{ user.name }}
+Type=simple
+WorkingDirectory={{ autoplow_path }}/
+ExecStart={{ autoplow_binary_path }} {{ autoplow_run_flags | join(' ') }}
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

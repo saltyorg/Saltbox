@@ -1,0 +1,90 @@
+##########################################################################
+# Title:         Saltbox: Autoplow | Default Variables                   #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+autoplow_name: autoplow
+
+################################
+# Paths
+################################
+
+autoplow_path: "/srv/binaries/autoplow"
+autoplow_binary_path: "{{ autoplow_path }}/autoplow"
+autoplow_db_path: "/opt/autoplow"
+autoplow_db_file: "{{ autoplow_db_path }}/autoplow.db"
+autoplow_role_paths_folders_list:
+  - "/srv/binaries"
+  - "{{ autoplow_path }}"
+  - "{{ autoplow_db_path }}"
+
+################################
+# Web
+################################
+
+autoplow_role_web_subdomain: "{{ autoplow_name }}"
+autoplow_role_web_domain: "{{ user.domain }}"
+autoplow_role_web_port: "{{ autoplow_port_lookup.meta.port }}"
+
+################################
+# GitHub
+################################
+
+autoplow_latest_releases_url: "{{ svm }}https://api.github.com/repos/saltyorg/autoplow/releases/latest"
+autoplow_latest_release_lookup_command: |
+  curl -s {{ autoplow_latest_releases_url }} \
+    | jq -r ".assets[] | select(.name | test(\"linux.*amd64\")) | .browser_download_url"
+
+################################
+# Systemd
+################################
+
+autoplow_service_name: "saltbox_managed_{{ autoplow_name }}"
+
+################################
+# Run Flags
+################################
+
+autoplow_run_flags_default:
+  - "--port {{ autoplow_role_web_port }}"
+  - "--bind 0.0.0.0"
+  - "--db {{ autoplow_db_file }}"
+  - "--allow-subnet 172.19.0.0/16"
+autoplow_run_flags_custom: []
+
+# Logging level: INFO (default), DEBUG (-v), TRACE (-vv)
+autoplow_log_level: "INFO"
+autoplow_log_level_map:
+  INFO: ""
+  DEBUG: "-v"
+  TRACE: "-vv"
+autoplow_verbosity: "{{ autoplow_log_level_map[autoplow_log_level] | default('') }}"
+
+autoplow_run_flags: "{{ autoplow_run_flags_default + autoplow_run_flags_custom + ([autoplow_verbosity] if autoplow_verbosity else []) }}"
+
+################################
+# DNS
+################################
+
+autoplow_role_dns_record: "{{ autoplow_role_web_subdomain }}"
+autoplow_role_dns_zone: "{{ autoplow_role_web_domain }}"
+autoplow_role_dns_proxy: "{{ dns_proxied }}"
+
+################################
+# Traefik
+################################
+
+autoplow_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+autoplow_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+autoplow_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+autoplow_role_traefik_enabled: true
+autoplow_role_traefik_api_enabled: true
+autoplow_role_traefik_api_endpoint: "PathPrefix(`/api`)"

@@ -1,0 +1,47 @@
+http:
+  routers:
+    {{ autoplow_name }}-http:
+      entryPoints:
+        - "web"
+      rule: "{{ traefik_host_template }}"
+      middlewares:
+        {{ traefik_default_middleware_http.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ autoplow_name }}"
+
+    {{ autoplow_name }}:
+      entryPoints:
+        - "websecure"
+      rule: "{{ traefik_host_template }}"
+      middlewares:
+        {{ traefik_middleware.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ autoplow_name }}"
+      tls:
+        options: securetls@file
+        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='autoplow') }}
+{% if lookup('role_var', '_traefik_api_enabled', role='autoplow') %}
+
+    {{ autoplow_name }}-api-http:
+      entryPoints:
+        - "web"
+      rule: "{{ traefik_host_template }} && ({{ lookup('role_var', '_traefik_api_endpoint', role='autoplow') }})"
+      middlewares:
+        {{ traefik_default_middleware_http_api.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ autoplow_name }}"
+
+    {{ autoplow_name }}-api:
+      entryPoints:
+        - "websecure"
+      rule: "{{ traefik_host_template }} && ({{ lookup('role_var', '_traefik_api_endpoint', role='autoplow') }})"
+      middlewares:
+        {{ traefik_default_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
+      service: "{{ autoplow_name }}"
+      tls:
+        options: securetls@file
+        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='autoplow') }}
+{% endif %}
+
+  services:
+    {{ autoplow_name }}:
+      loadBalancer:
+        servers:
+          - url: "http://172.19.0.1:{{ lookup('role_var', '_web_port', role='autoplow') }}"
