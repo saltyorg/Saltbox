@@ -30,16 +30,29 @@
   community.general.xml:
     path: "{{ jellyfin_paths_sys_xml_location }}"
     xpath: "/ServerConfiguration/{{ item.xpath }}"
-    value: "{{ item.value }}"
+    value: "{{ item.value | default(omit) }}"
+    set_children: "{{ item.set_children | default(omit) }}"
+    pretty_print: true
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ jellyfin_system_settings_list }}"
+
+- name: Settings | Migrate 'KnownProxies' to new format in 'network.xml'
+  community.general.xml:
+    path: "{{ jellyfin_paths_net_xml_location }}"
+    xpath: /NetworkConfiguration/KnownProxies
+    value: ''
+    pretty_print: true
+  become: true
+  become_user: "{{ user.name }}"
 
 - name: Settings | Update 'network.xml' file
   community.general.xml:
     path: "{{ jellyfin_paths_net_xml_location }}"
     xpath: "/NetworkConfiguration/{{ item.xpath }}"
-    value: "{{ item.value }}"
+    value: "{{ item.value | default(omit) }}"
+    set_children: "{{ item.set_children | default(omit) }}"
+    pretty_print: true
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ jellyfin_network_settings_list }}"
