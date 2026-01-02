@@ -61,7 +61,7 @@ autoplow_run_flags_default:
 autoplow_run_flags_custom: []
 
 # Logging level: INFO (default), DEBUG (-v), TRACE (-vv)
-autoplow_log_level: "INFO"
+autoplow_log_level: "TRACE"
 autoplow_log_level_map:
   INFO: ""
   DEBUG: "-v"
