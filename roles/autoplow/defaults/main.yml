@@ -59,16 +59,7 @@ autoplow_run_flags_default:
   - "--db {{ autoplow_db_file }}"
   - "--allow-subnet 172.19.0.0/16"
 autoplow_run_flags_custom: []
-
-# Logging level: INFO (default), DEBUG (-v), TRACE (-vv)
-autoplow_log_level: "TRACE"
-autoplow_log_level_map:
-  INFO: ""
-  DEBUG: "-v"
-  TRACE: "-vv"
-autoplow_verbosity: "{{ autoplow_log_level_map[autoplow_log_level] | default('') }}"
-
-autoplow_run_flags: "{{ autoplow_run_flags_default + autoplow_run_flags_custom + ([autoplow_verbosity] if autoplow_verbosity else []) }}"
+autoplow_run_flags: "{{ autoplow_run_flags_default + autoplow_run_flags_custom }}"
 
 ################################
 # DNS
