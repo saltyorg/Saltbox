@@ -11,6 +11,8 @@
 [Unit]
 Description=Autoplow
 After=network-online.target docker.service
+StartLimitIntervalSec=500s
+StartLimitBurst=5
 
 [Service]
 User={{ user.name }}
@@ -18,8 +20,8 @@ Group={{ user.name }}
 Type=simple
 WorkingDirectory={{ autoplow_path }}/
 ExecStart={{ autoplow_binary_path }} {{ autoplow_run_flags | join(' ') }}
-Restart=always
-RestartSec=10
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=default.target
