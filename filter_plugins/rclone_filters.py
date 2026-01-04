@@ -5,9 +5,14 @@ def filter_rclone_remote_name(item):
         remote = item['remote']
         return remote.split(':')[0] if ':' in remote else remote
 
+def _is_local_path(remote):
+    return remote.startswith('/') or remote.startswith('./') or remote.startswith('../') or remote.startswith('~')
+
 def filter_rclone_remote_with_path(item):
     remote = item['remote']
-    return remote if ':' in remote else remote + ':'
+    if ':' in remote or _is_local_path(remote):
+        return remote
+    return remote + ':'
 
 def filter_rclone_first_remote_name(rclone):
     remote = rclone['remotes'][0]['remote']
@@ -15,7 +20,9 @@ def filter_rclone_first_remote_name(rclone):
 
 def filter_rclone_first_remote_name_with_path(rclone):
     remote = rclone['remotes'][0]['remote']
-    return remote if ':' in remote else remote + ':Media'
+    if ':' in remote or _is_local_path(remote):
+        return remote
+    return remote + ':Media'
 
 class FilterModule(object):
     def filters(self):
