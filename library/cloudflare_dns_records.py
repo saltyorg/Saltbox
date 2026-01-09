@@ -15,7 +15,7 @@ Example Usage:
         record: "subdomain.example.com"
       register: dns_records
 
-    # Fetch DNS records using API token (recommended)
+    # Fetch DNS records using API token
     - name: Fetch Cloudflare DNS records with token
       cloudflare_dns_records:
         auth_token: "token_here"
@@ -69,7 +69,7 @@ options:
         type: str
     auth_token:
         description:
-            - API token for Cloudflare (recommended over auth_key)
+            - API token for Cloudflare
             - Can be used instead of auth_email and auth_key
         required: false
         type: str
@@ -95,7 +95,7 @@ EXAMPLES = """
     record: "app.example.com"
   register: dns_records
 
-# Fetch DNS records using API token (recommended)
+# Fetch DNS records using API token
 - name: Fetch Cloudflare DNS records with token
   cloudflare_dns_records:
     auth_token: "{{ cloudflare_api_token }}"
@@ -193,6 +193,9 @@ def run_module() -> None:
         ],
         required_together=[
             ['auth_email', 'auth_key']
+        ],
+        mutually_exclusive=[
+            ['auth_token', 'auth_key']
         ],
     )
 
