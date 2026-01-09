@@ -19,6 +19,7 @@ DOCUMENTATION = """
     short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
       - This lookup replicates lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
+      - For the '_name' suffix, the fallback uses role_name + '_name' instead of role_name + '_role_name'
       - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
       - For _name variables with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
@@ -113,7 +114,7 @@ class LookupModule(LookupBase):
             for k, v in value.items():
                 self._check_for_undefined(v, f"{var_name}.{k}")
 
-    def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:
+    def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:  # type: ignore[override]
         if variables is None:
             variables = {}
 
@@ -125,6 +126,8 @@ class LookupModule(LookupBase):
         if convert_json is None:
             convert_json = True
 
+        if self._templar is None:
+            raise AnsibleLookupError("[role_var] Templar is not initialized")
         self._templar.available_variables = variables
 
         # Use specified role if provided, otherwise fall back to role_name

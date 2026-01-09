@@ -19,6 +19,7 @@ DOCUMENTATION = """
     short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
       - This lookup replicates lookup('vars', _instance_name + suffix, default=lookup('vars', _var_prefix + '_role' + suffix))
+      - For the '_name' suffix, the fallback uses _var_prefix + '_name' instead of _var_prefix + '_role_name'
       - For instance names or var prefixes with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
     options:
@@ -108,7 +109,7 @@ class LookupModule(LookupBase):
             for k, v in value.items():
                 self._check_for_undefined(v, f"{var_name}.{k}")
 
-    def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:
+    def run(self, terms: List[str], variables: Optional[Dict[str, Any]] = None, **kwargs: Any) -> List[Any]:  # type: ignore[override]
         if variables is None:
             variables = {}
         
@@ -119,6 +120,8 @@ class LookupModule(LookupBase):
         if convert_json is None:
             convert_json = True
 
+        if self._templar is None:
+            raise AnsibleLookupError("[docker_var] Templar is not initialized")
         self._templar.available_variables = variables
 
         if '_var_prefix' not in variables:
