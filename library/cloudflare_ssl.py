@@ -74,7 +74,7 @@ options:
         type: str
     auth_token:
         description:
-            - API token for Cloudflare (recommended over auth_key)
+            - API token for Cloudflare
             - Can be used instead of auth_email and auth_key
         required: false
         type: str
@@ -104,7 +104,8 @@ EXAMPLES = """
 # Get SSL/TLS mode using explicit zone name
 - name: Get Cloudflare SSL mode with zone
   cloudflare_ssl:
-    auth_token: "{{ cloudflare_api_token }}"
+    auth_email: "user@example.com"
+    auth_key: "{{ cloudflare_api_key }}"
     zone_name: "example.com"
   register: ssl_mode
 
@@ -205,6 +206,7 @@ def run_module() -> None:
             ['auth_email', 'auth_key']
         ],
         mutually_exclusive=[
+            ['auth_token', 'auth_key'],
             ['domain', 'zone_name']
         ],
     )
