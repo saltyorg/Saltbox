@@ -6,7 +6,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: qbittorrent_password_hash
+module: qbittorrent_passwd
 short_description: Generates a password hash compatible with qBittorrent.
 description:
     - Takes a plain text password and generates a salted hash using the PBKDF2-HMAC-SHA512 algorithm.
