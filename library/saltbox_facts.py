@@ -162,6 +162,10 @@ def get_file_path(role: str, base_path: str) -> str:
     """
     if not isinstance(role, str):
         raise ValueError("Role name must be a string")
+    if os.path.sep in role or (os.path.altsep and os.path.altsep in role):
+        raise ValueError("Role name must not contain path separators")
+    if role in ('.', '..') or role.strip() == '':
+        raise ValueError("Role name must be a non-empty name")
     return f"{base_path}/saltbox/{role}.ini"
 
 def atomic_write(file_path: str, content: str, mode: int, owner: str, group: str) -> None:
@@ -470,8 +474,7 @@ def run_module() -> None:
     )
 
     module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
+        argument_spec=module_args
     )
 
     try:
