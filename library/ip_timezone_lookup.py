@@ -58,7 +58,7 @@ timezone:
     returned: always
     sample: "Europe/Helsinki"
 confidence:
-    description: Confidence level of the result (high/medium/low)
+    description: Confidence level of the result (high/medium/low/none)
     type: str
     returned: always
     sample: "high"
@@ -277,7 +277,12 @@ def main():
         ),
         supports_check_mode=True
     )
-    
+
+    if module.params['timeout'] <= 0:
+        module.fail_json(msg="timeout must be a positive integer")
+    if module.params['min_consensus'] < 1:
+        module.fail_json(msg="min_consensus must be at least 1")
+
     if module.check_mode:
         module.exit_json(changed=False)
     
