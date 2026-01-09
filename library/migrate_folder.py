@@ -164,8 +164,7 @@ def run_module() -> None:
     )
 
     module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
+        argument_spec=module_args
     )
 
     legacy_path = module.params['legacy_path']
@@ -182,6 +181,14 @@ def run_module() -> None:
     uid, gid = get_id_info(module, owner, group)
 
     # Check path statuses and types
+    legacy_path_normalized = os.path.normpath(os.path.abspath(legacy_path))
+    new_path_normalized = os.path.normpath(os.path.abspath(new_path))
+    if legacy_path_normalized == new_path_normalized:
+        module.fail_json(msg=f"Legacy path '{legacy_path}' and new path '{new_path}' refer to the same location.")
+
+    if os.path.islink(legacy_path) or os.path.islink(new_path):
+        module.fail_json(msg="Symlink paths are not supported for migration.")
+
     legacy_exists = os.path.lexists(legacy_path)
     new_exists = os.path.lexists(new_path)
 
@@ -193,38 +200,6 @@ def run_module() -> None:
 
     legacy_is_dir = legacy_exists and os.path.isdir(legacy_path)
     new_is_dir = new_exists and os.path.isdir(new_path)
-
-    # --- Check Mode Early Exit ---
-    if module.check_mode:
-        # Predict changes
-        if legacy_exists and new_exists:
-            # This is an error condition, but check mode shouldn't fail
-            result['skipped'] = True
-            result['msg'] = f"Both paths exist ({legacy_path}, {new_path}). Migration cannot proceed."
-            module.exit_json(**result)
-
-        changed = False
-        if legacy_is_dir and not new_exists:
-            changed = True # Will move
-            result['moved'] = True
-        elif not legacy_exists and not new_exists:
-            changed = True # Will create
-            result['created'] = True
-        else: # new_path exists, legacy_path doesn't
-             # Check if attributes need changing
-            try:
-                current_stat = os.stat(new_path)
-                current_mode = stat.S_IMODE(current_stat.st_mode)
-                if (uid != -1 and current_stat.st_uid != uid) or \
-                   (gid != -1 and current_stat.st_gid != gid) or \
-                   (mode_int is not None and current_mode != mode_int):
-                    changed = True
-            except OSError:
-                 # Handle case where stat fails (e.g. permissions) - assume change needed
-                 changed = True
-
-        result['changed'] = changed
-        module.exit_json(**result)
 
     # --- Main Logic ---
 
