@@ -53,13 +53,19 @@ def find_port(module, low_bound, high_bound, protocol):
         elif protocol == 'udp':
             cmd = "ss -Huan"
             awk_cmd = "awk '{print $4}'"
-            state_filter = "grep UNCONN"
+            state_filter = ""
         else:  # both
             cmd = "ss -Htuan"
             awk_cmd = "awk '{print $5}'"
-            state_filter = "grep -E 'LISTEN|UNCONN'"
+            state_filter = "grep -E '^(udp|tcp +LISTEN)'"
 
-        cmd += " | " + state_filter + " | " + awk_cmd + " | grep -Eo '[0-9]+$' | sort -u"
+        cmd_parts = [cmd]
+        if state_filter:
+            cmd_parts.append(state_filter)
+        cmd_parts.append(awk_cmd)
+        cmd_parts.append("grep -Eo '[0-9]+$'")
+        cmd_parts.append("sort -u")
+        cmd = " | ".join(cmd_parts)
 
         # Run command to get ports in use
         ports_in_use = subprocess.check_output(cmd, shell=True)
