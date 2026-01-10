@@ -11,7 +11,7 @@ plex_db_integrity_check_only: false
 plex_db_failed_integrity: false
 plex_db_failed_optimization: false
 
-# Do not enable globally if deploying multiple instances
+# Do not edit or override using the inventory
 plex_db_files:
   - "com.plexapp.plugins.library.db"
   - "com.plexapp.plugins.library.blobs.db"
