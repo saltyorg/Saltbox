@@ -43,7 +43,7 @@
     - name: "Change trim schedule to 'weekly'"
       ansible.builtin.lineinfile:
         path: "/etc/default/btrfsmaintenance"
-        regexp: '^BTRFS_TRIM_PERIOD="nine"\s?='
+        regexp: '^BTRFS_TRIM_PERIOD="none"'
         line: 'BTRFS_TRIM_PERIOD="weekly"'
         state: present
 
