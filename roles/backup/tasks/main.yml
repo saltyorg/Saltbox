@@ -232,12 +232,22 @@
         force: true
       when: backup_excludes_list.stat.exists
 
+    - name: "Render default 'backup_excludes_list.txt'"
+      ansible.builtin.template:
+        src: "backup_excludes_list.txt.j2"
+        dest: "/tmp/backup_excludes_list.txt"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+        force: true
+      when: not backup_excludes_list.stat.exists
+
     - name: Set 'backup_excludes_list_path' variable
       ansible.builtin.set_fact:
         backup_excludes_list_path: "{{
           (playbook_dir + '/backup_excludes_list.txt')
           if ((backup_excludes_list is defined) and (backup_excludes_list.stat.exists))
-          else (playbook_dir + '/roles/backup/files/backup_excludes_list.txt') }}"
+          else '/tmp/backup_excludes_list.txt' }}"
 
     - name: Saltbox Restore Service
       ansible.builtin.include_tasks: "restore_service.yml"
