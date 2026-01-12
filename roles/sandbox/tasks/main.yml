@@ -47,17 +47,6 @@
     - not git_repo_check.stat.exists
     - sandbox_clone_status is failed
 
-- name: Import default files when missing
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ server_appdata_path }}/sandbox/{{ (item | basename | splitext)[0] }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0664"
-    force: false
-  with_fileglob:
-    - "{{ server_appdata_path }}/sandbox/defaults/*.*"
-
 - name: Activate Git Hooks
   ansible.builtin.shell: bash {{ server_appdata_path }}/sandbox/bin/git/init-hooks
   args:
