@@ -7,6 +7,28 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check Authelia master health endpoint
+  ansible.builtin.uri:
+    url: "{{ lookup('role_var', '_web_url', role='authelia') }}/api/health"
+    method: GET
+    status_code: 200
+  register: authelia_master_health
+  until: authelia_master_health.status == 200
+  retries: 10
+  delay: 6
+  when: lookup('role_var', '_authelia_enabled', role='traefik') and (not authelia_is_master)
+
+- name: Check Authentik master health endpoint
+  ansible.builtin.uri:
+    url: "{{ lookup('role_var', '_web_url', role='authentik') }}/-/health/ready/"
+    method: GET
+    status_code: 200
+  register: authentik_master_health
+  until: authentik_master_health.status == 200
+  retries: 10
+  delay: 6
+  when: lookup('role_var', '_authentik_enabled', role='traefik') and (not authentik_is_master)
+
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
