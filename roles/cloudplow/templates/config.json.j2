@@ -41,7 +41,10 @@
         "*.db"
       ],
       "rclone_extras": {
-        {{ lookup('vars', 'cloudplow_rclone_' + item.settings.template + '_template', default=cloudplow_rclone_google_template) | indent(width=8, first=false) }}
+        {{ (cloudplow_rclone_google_template
+           if (item.settings.template | regex_search('^/'))
+           else lookup('vars', 'cloudplow_rclone_' + item.settings.template + '_template', default=cloudplow_rclone_google_template)
+           ) | indent(width=8, first=false) }}
       },
       "rclone_sleeps": {
         "Failed to copy: googleapi: Error 403: User rate limit exceeded": {
