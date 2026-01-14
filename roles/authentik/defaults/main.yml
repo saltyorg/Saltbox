@@ -61,7 +61,8 @@ authentik_role_paths_folder: "{{ authentik_name }}"
 authentik_role_paths_location: "{{ server_appdata_path }}/{{ authentik_role_paths_folder }}"
 authentik_role_paths_folders_list:
   - "{{ authentik_role_paths_location }}"
-  - "{{ authentik_role_paths_location }}/media"
+  - "{{ authentik_role_paths_location }}/data"
+  - "{{ authentik_role_paths_location }}/data/media"
   - "{{ authentik_role_paths_location }}/custom-templates"
   - "{{ authentik_role_paths_location }}/certs"
 
@@ -130,7 +131,7 @@ authentik_role_docker_container: "{{ authentik_name }}"
 # Image
 authentik_role_docker_image_pull: true
 authentik_role_docker_image_repo: "ghcr.io/goauthentik/server"
-authentik_role_docker_image_tag: "2025.10"
+authentik_role_docker_image_tag: "2025.12"
 authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
 
 # Envs
@@ -163,7 +164,7 @@ authentik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default
 
 # Volumes
 authentik_role_docker_volumes_default:
-  - "{{ authentik_role_paths_location }}/media:/media"
+  - "{{ authentik_role_paths_location }}/data:/data"
   - "{{ authentik_role_paths_location }}/custom-templates:/templates"
 authentik_role_docker_volumes_custom: []
 authentik_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authentik')

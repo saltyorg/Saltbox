@@ -41,7 +41,7 @@ authentik_worker_role_docker_commands: "{{ lookup('role_var', '_docker_commands_
 
 # Volumes
 authentik_worker_role_docker_volumes_default:
-  - "{{ authentik_role_paths_location }}/media:/media"
+  - "{{ authentik_role_paths_location }}/data:/data"
   - "{{ authentik_role_paths_location }}/custom-templates:/templates"
   - "{{ authentik_role_paths_location }}/certs:/certs"
   - "/var/run/docker.sock:/var/run/docker.sock"

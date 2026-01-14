@@ -61,7 +61,7 @@
     body:
       name: "admins"
       is_superuser: true
-      parent: null
+      parents: []
       users:
         - "{{ new_user_response.json.pk }}"
     status_code: 201
@@ -116,6 +116,14 @@
       Accept: "application/json"
     status_code: 200
   register: flow_instances
+  retries: 60
+  delay: 10
+  until: >-
+    (flow_instances.json.results | default([]) | selectattr('slug', 'equalto', 'default-provider-authorization-implicit-consent')
+    | list | length > 0)
+    and
+    (flow_instances.json.results | default([]) | selectattr('slug', 'equalto', 'default-provider-invalidation-flow')
+    | list | length > 0)
 
 - name: Set authorization flow
   ansible.builtin.set_fact:
