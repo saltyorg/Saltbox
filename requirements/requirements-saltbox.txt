@@ -1,6 +1,6 @@
 aiohttp==3.13.2
 ansible==13.0.0
-ansible-lint==25.11.0
+ansible-lint==26.1.1
 apprise==1.9.5
 argon2_cffi==25.1.0
 certbot==5.1.0
