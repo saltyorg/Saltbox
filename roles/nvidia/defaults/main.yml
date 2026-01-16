@@ -90,10 +90,14 @@ nvidia_docker_env:
   NVIDIA_DRIVER_CAPABILITIES: "compute,video,utility"
   NVIDIA_VISIBLE_DEVICES: "all"
 
-nvidia_docker_config:
+nvidia_docker_config_default:
   default-runtime: "nvidia"
   exec-opts: ["native.cgroupdriver=cgroupfs"]
   runtimes:
     nvidia:
       path: "/usr/bin/nvidia-container-runtime"
       runtimeArgs: []
+
+nvidia_docker_config: "{{ {}
+                       if ('nvidia-purge' in ansible_run_tags)
+                       else nvidia_docker_config_default }}"

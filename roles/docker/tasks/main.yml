@@ -104,7 +104,7 @@
 
 - name: "Import Nvidia tasks"
   ansible.builtin.include_tasks: "subtasks/nvidia.yml"
-  when: use_nvidia
+  when: use_nvidia and (not 'nvidia-purge' in ansible_run_tags)
 
 - name: Block Docker Controller
   ansible.builtin.uri:

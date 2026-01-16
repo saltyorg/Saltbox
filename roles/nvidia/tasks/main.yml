@@ -125,6 +125,10 @@
               ansible.builtin.apt:
                 autoremove: true
 
+            - name: "Install Docker"
+              ansible.builtin.include_role:
+                name: "docker"
+
             - name: Success message
               ansible.builtin.debug:
                 msg:
