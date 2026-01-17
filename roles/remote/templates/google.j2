@@ -36,11 +36,15 @@ ExecStart=/usr/bin/rclone mount \
     --drive-skip-gdocs \
     --poll-interval=15s \
     --rc \
-    --rc-addr=localhost:{{ rclone_remort_port }} \
 {% if (rclone_enable_metrics | bool) %}
-    --metrics-addr=172.19.0.1:{{ rclone_remort_port }} \
-{% endif %}
+    --rc-addr=0.0.0.0:{{ rclone_remort_port }} \
+    --rc-enable-metrics \
+    --rc-user='{{ user.name }}' \
+    --rc-pass='{{ user.pass }}' \
+{% else %}
+    --rc-addr=127.0.0.1:{{ rclone_remort_port }} \
     --rc-no-auth \
+{% endif %}
     --syslog \
     --timeout=10m \
     --umask=002 \

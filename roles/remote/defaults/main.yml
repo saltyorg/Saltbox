@@ -41,6 +41,7 @@ rclone_first_remote_name: "{{ rclone | filter_rclone_first_remote_name }}"
 rclone_first_remote_name_with_path: "{{ rclone | filter_rclone_first_remote_name_with_path }}"
 
 remote_update_rclone: true
+# Enforces the use of auth (your accounts.yml credentials) on rclone rc when enabled
 rclone_enable_metrics: false
 
 ################################
@@ -48,8 +49,9 @@ rclone_enable_metrics: false
 ################################
 
 rclone_vfs_refresh_interval: 10800
+rclone_vfs_refresh_auth_args: " --user='{{ user.name }}' --pass='{{ user.pass }}'"
 rclone_vfs_refresh_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://localhost:{{ rclone_remort_port }} _async=true
+  /usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_remort_port }}{{ rclone_vfs_refresh_auth_args if (rclone_enable_metrics | bool) else '' }} _async=true
 
 ################################
 # NFS
