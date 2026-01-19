@@ -1,14 +1,13 @@
-#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-from ansible.module_utils.basic import AnsibleModule
-import subprocess
+from __future__ import annotations
 
 DOCUMENTATION = """
 ---
 module: find_open_port
-short_description: Find an available port in a given range
 description:
     - "This module finds an available port between a low and high bound."
+author: salty
 options:
     low_bound:
         description:
@@ -33,7 +32,18 @@ EXAMPLES = """
     protocol: tcp
 """
 
-def find_port(module, low_bound, high_bound, protocol):
+RETURN = """
+meta:
+    description: Result metadata including the selected port.
+    type: dict
+    returned: success
+    sample: {"port": 5432}
+"""
+
+from ansible.module_utils.basic import AnsibleModule
+import subprocess
+
+def find_port(module: AnsibleModule, low_bound: int, high_bound: int, protocol: str) -> tuple[bool, dict[str, object]]:
     try:
         if low_bound < 1:
             module.fail_json(msg="Low bound must be at least 1")
@@ -86,7 +96,7 @@ def find_port(module, low_bound, high_bound, protocol):
     except ValueError as e:
         module.fail_json(msg=f"Failed to parse port numbers: {e}")
 
-def main():
+def main() -> None:
     module = AnsibleModule(
         argument_spec=dict(
             low_bound=dict(type='int', required=True),

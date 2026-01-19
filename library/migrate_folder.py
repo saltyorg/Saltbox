@@ -1,14 +1,10 @@
-#!/usr/bin/python
-
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = r'''
+DOCUMENTATION = """
 ---
 module: migrate_folder
-short_description: Migrate a directory from one location to another
 description:
     - Ensures a directory exists at the new location, migrating from old location if needed.
     - If the legacy path exists, it is moved to the new path.
@@ -17,6 +13,7 @@ description:
     - Errors if both old and new locations exist to prevent potential data merging issues or loss.
     - Errors if the legacy path exists but is not a directory.
     - Errors if the new path exists but is not a directory.
+author: salty
 options:
     legacy_path:
         description: Old directory path to migrate from.
@@ -52,11 +49,9 @@ options:
         required: false
         type: bool
         default: false
-author:
-    - Salty
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = """
 - name: Migrate error pages directory with recursive ownership
   migrate_folder:
     legacy_path: /opt/error_pages
@@ -65,9 +60,9 @@ EXAMPLES = r'''
     group: www-data
     mode: '0775'
     recurse: true
-'''
+"""
 
-RETURN = r'''
+RETURN = """
 moved:
     description: Whether the directory was moved from legacy_path to new_path.
     type: bool
@@ -97,8 +92,8 @@ mode:
     description: Permissions of the directory as an octal string.
     type: str
     returned: on success
-    sample: '0775'
-'''
+    sample: "0775"
+"""
 
 import os
 import pwd

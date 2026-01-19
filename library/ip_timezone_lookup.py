@@ -1,17 +1,16 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-DOCUMENTATION = '''
+from __future__ import annotations
+
+DOCUMENTATION = """
 ---
 module: ip_timezone_lookup
-short_description: Fetch timezone based on IP address from multiple sources
 description:
     - Fetches timezone information from multiple IP geolocation services
     - Returns a consensus timezone when multiple sources agree
     - Provides individual results from each source for verification
     - Returns only valid IANA timezone identifiers suitable for timedatectl
-version_added: "2.9"
-author: "Custom Module"
+author: salty
 options:
     ip_address:
         description:
@@ -30,9 +29,9 @@ options:
         required: false
         default: 2
         type: int
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: Get timezone for specific IP
   ip_timezone_lookup:
     ip_address: "8.8.8.8"
@@ -49,9 +48,9 @@ EXAMPLES = '''
 - name: Display all source results
   debug:
     msg: "{{ tz_result.sources }}"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 timezone:
     description: The consensus timezone in IANA format (suitable for timedatectl)
     type: str
@@ -90,23 +89,24 @@ ip_used:
     type: str
     returned: always
     sample: "8.8.8.8"
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 import json
 from collections import Counter
 import asyncio
+from typing import Any, Awaitable, Callable, Optional
 import aiohttp
 
 class IPTimezoneLookup:
-    def __init__(self, module):
-        self.module = module
-        self.ip_address = module.params['ip_address']
-        self.timeout = module.params['timeout']
-        self.min_consensus = module.params['min_consensus']
-        self.results = {}
+    def __init__(self, module: AnsibleModule) -> None:
+        self.module: AnsibleModule = module
+        self.ip_address: str = module.params['ip_address']
+        self.timeout: int = module.params['timeout']
+        self.min_consensus: int = module.params['min_consensus']
+        self.results: dict[str, dict[str, object]] = {}
         
-    async def make_request(self, session, url, headers=None):
+    async def make_request(self, session: aiohttp.ClientSession, url: str, headers: Optional[dict[str, str]] = None) -> Optional[dict[str, Any]]:
         """Make async HTTP request with error handling"""
         try:
             async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=self.timeout)) as response:
@@ -116,7 +116,7 @@ class IPTimezoneLookup:
         except (aiohttp.ClientError, asyncio.TimeoutError, json.JSONDecodeError) as e:
             return None
     
-    async def fetch_ipapi(self, session):
+    async def fetch_ipapi(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ip-api.com (free, reliable)"""
         url = f"http://ip-api.com/json/{self.ip_address}"
         data = await self.make_request(session, url)
@@ -124,7 +124,7 @@ class IPTimezoneLookup:
             return data.get('timezone')
         return None
 
-    async def fetch_ipinfo(self, session):
+    async def fetch_ipinfo(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ipinfo.io (free tier, reliable)"""
         url = f"https://ipinfo.io/{self.ip_address}/json"
         data = await self.make_request(session, url)
@@ -132,7 +132,7 @@ class IPTimezoneLookup:
             return data.get('timezone')
         return None
 
-    async def fetch_ipapi_co(self, session):
+    async def fetch_ipapi_co(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ipapi.co (reliable)"""
         url = f"https://ipapi.co/{self.ip_address}/json/"
         data = await self.make_request(session, url)
@@ -140,7 +140,7 @@ class IPTimezoneLookup:
             return data.get('timezone')
         return None
 
-    async def fetch_freegeoip(self, session):
+    async def fetch_freegeoip(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from freegeoip.app (reliable)"""
         url = f"https://freegeoip.app/json/{self.ip_address}"
         data = await self.make_request(session, url)
@@ -148,7 +148,7 @@ class IPTimezoneLookup:
             return data.get('time_zone')
         return None
 
-    async def fetch_ipwhois(self, session):
+    async def fetch_ipwhois(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ipwhois.app (reliable)"""
         url = f"https://ipwhois.app/json/{self.ip_address}"
         data = await self.make_request(session, url)
@@ -156,7 +156,7 @@ class IPTimezoneLookup:
             return data.get('timezone')
         return None
 
-    async def fetch_geojs(self, session):
+    async def fetch_geojs(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from geojs.io (reliable)"""
         url = f"https://get.geojs.io/v1/ip/geo/{self.ip_address}.json"
         data = await self.make_request(session, url)
@@ -164,7 +164,7 @@ class IPTimezoneLookup:
             return data.get('timezone')
         return None
 
-    async def fetch_ipregistry(self, session):
+    async def fetch_ipregistry(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ipregistry.co (reliable with tryout key)"""
         url = f"https://api.ipregistry.co/{self.ip_address}?key=tryout"
         data = await self.make_request(session, url)
@@ -174,7 +174,7 @@ class IPTimezoneLookup:
                 return tz_info.get('id')
         return None
 
-    async def fetch_ipapi_is(self, session):
+    async def fetch_ipapi_is(self, session: aiohttp.ClientSession) -> Optional[str]:
         """Fetch from ipapi.is (reliable)"""
         url = f"https://api.ipapi.is/?q={self.ip_address}"
         data = await self.make_request(session, url)
@@ -184,7 +184,12 @@ class IPTimezoneLookup:
                 return location.get('timezone')
         return None
     
-    async def _fetch_from_source(self, session, source_name, lookup_func):
+    async def _fetch_from_source(
+        self,
+        session: aiohttp.ClientSession,
+        source_name: str,
+        lookup_func: Callable[[aiohttp.ClientSession], Awaitable[Optional[str]]]
+    ) -> tuple[str, dict[str, object]]:
         """Fetch timezone from a single source with error handling"""
         try:
             timezone = await lookup_func(session)
@@ -206,7 +211,7 @@ class IPTimezoneLookup:
                 'error': str(e)
             }
 
-    async def _run_lookups_async(self):
+    async def _run_lookups_async(self) -> None:
         """Run all timezone lookups concurrently"""
         # Only include sources that returned valid results in testing
         lookup_methods = {
@@ -232,11 +237,11 @@ class IPTimezoneLookup:
             for source_name, result in results:
                 self.results[source_name] = result
 
-    def run_lookups(self):
+    def run_lookups(self) -> None:
         """Run all timezone lookups (synchronous wrapper for async operations)"""
         asyncio.run(self._run_lookups_async())
     
-    def determine_consensus(self):
+    def determine_consensus(self) -> tuple[Optional[str], str, int]:
         """Determine the consensus timezone"""
         # Collect all successful timezones
         timezones = []
@@ -254,21 +259,21 @@ class IPTimezoneLookup:
         consensus_tz = most_common[0]
         consensus_count = most_common[1]
         
+        if consensus_count < self.min_consensus:
+            return None, 'low', consensus_count
+
         # Determine confidence
         total_valid = len(timezones)
-        if consensus_count >= self.min_consensus:
-            if consensus_count >= total_valid * 0.7:
-                confidence = 'high'
-            elif consensus_count >= total_valid * 0.5:
-                confidence = 'medium'
-            else:
-                confidence = 'low'
+        if consensus_count >= total_valid * 0.7:
+            confidence = 'high'
+        elif consensus_count >= total_valid * 0.5:
+            confidence = 'medium'
         else:
             confidence = 'low'
-        
+
         return consensus_tz, confidence, consensus_count
 
-def main():
+def main() -> None:
     module = AnsibleModule(
         argument_spec=dict(
             ip_address=dict(type='str', required=True),
@@ -306,8 +311,14 @@ def main():
     
     if consensus_tz:
         module.exit_json(**result)
-    else:
+
+    if successful_lookups == 0:
         module.fail_json(msg="Could not determine timezone from any source", **result)
+
+    module.fail_json(
+        msg=f"Could not reach minimum consensus of {lookup.min_consensus}",
+        **result
+    )
 
 if __name__ == '__main__':
     main()

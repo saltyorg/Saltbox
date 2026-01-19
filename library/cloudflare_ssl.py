@@ -1,64 +1,15 @@
-#!/usr/bin/python
-"""
-Ansible module for retrieving Cloudflare SSL/TLS encryption mode.
-
-This module provides functionality to get the SSL/TLS encryption mode
-for a specific Cloudflare zone. It can automatically parse domain names
-to extract the zone using the tld library.
-
-Example Usage:
-    # Get SSL/TLS mode for a zone (automatically parses domain)
-    - name: Get Cloudflare SSL mode
-      cloudflare_ssl:
-        auth_email: "user@example.com"
-        auth_key: "api_key_here"
-        domain: "subdomain.example.com"
-      register: ssl_mode
-
-    # Get SSL/TLS mode with explicit zone name
-    - name: Get Cloudflare SSL mode with zone
-      cloudflare_ssl:
-        auth_token: "token_here"
-        zone_name: "example.com"
-      register: ssl_mode
-
-Return Values:
-    ssl_mode:
-        description: The SSL/TLS encryption mode for the zone
-        type: str
-        returned: success
-        sample: 'full'
-    zone_id:
-        description: The Cloudflare zone ID for the specified zone
-        type: str
-        returned: success
-    zone_name:
-        description: The zone name that was queried
-        type: str
-        returned: success
-    changed:
-        description: Whether any changes were made (always False for this read-only module)
-        type: bool
-        returned: always
-"""
+# -*- coding: utf-8 -*-
 
 from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-from ansible.module_utils.basic import AnsibleModule
-
-if TYPE_CHECKING:
-    from cloudflare import Cloudflare
 
 DOCUMENTATION = """
 ---
 module: cloudflare_ssl
-short_description: Retrieve Cloudflare SSL/TLS encryption mode for a zone
 description:
     - "This module retrieves the SSL/TLS encryption mode for a specific Cloudflare zone."
     - "It supports both API key and API token authentication methods."
     - "Can automatically extract the zone from a domain using the tld library."
+author: salty
 options:
     auth_email:
         description:
@@ -115,8 +66,35 @@ EXAMPLES = """
     msg: "SSL/TLS mode: {{ ssl_mode.ssl_mode }}"
 """
 
+RETURN = """
+ssl_mode:
+    description: The SSL/TLS encryption mode for the zone
+    type: str
+    returned: success
+    sample: "full"
+zone_id:
+    description: The Cloudflare zone ID for the specified zone
+    type: str
+    returned: success
+zone_name:
+    description: The zone name that was queried
+    type: str
+    returned: success
+changed:
+    description: Whether any changes were made (always False for this read-only module)
+    type: bool
+    returned: always
+"""
 
-def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> str:
+from typing import TYPE_CHECKING
+
+from ansible.module_utils.basic import AnsibleModule
+
+if TYPE_CHECKING:
+    from cloudflare import Cloudflare
+
+
+def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> str:
     """
     Fetch the zone ID for a given zone name from Cloudflare.
 
@@ -141,7 +119,7 @@ def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> st
         raise # Unreachable - Pylance silencer
 
 
-def get_ssl_tls_mode(client: Cloudflare, zone_id: str, module: AnsibleModule) -> str:
+def get_ssl_tls_mode(client: "Cloudflare", zone_id: str, module: AnsibleModule) -> str:
     """
     Get the SSL/TLS settings for a zone.
 

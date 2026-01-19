@@ -1,30 +1,26 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+from __future__ import annotations
 
-DOCUMENTATION = r'''
+DOCUMENTATION = """
 ---
 module: qbittorrent_passwd
-short_description: Generates a password hash compatible with qBittorrent.
 description:
     - Takes a plain text password and generates a salted hash using the PBKDF2-HMAC-SHA512 algorithm.
     - Uses 100,000 iterations and a 16-byte random salt, matching qBittorrent's expected format.
     - The output format is "@ByteArray(SALT_BASE64:HASH_BASE64)".
     - This module is useful for generating password hashes to be placed in qBittorrent configuration files non-interactively.
     - The input password parameter has `no_log=True` set for security.
+author: salty
 options:
     password:
         description: The plain text password to hash.
         type: str
         required: true
         no_log: true
-author:
-    - Salty
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = """
 - name: Generate qBittorrent password hash
   qbittorrent_passwd:
     password: "supersecretpassword"
@@ -33,9 +29,9 @@ EXAMPLES = r'''
 - name: Display the generated hash
   debug:
     var: qbit_hash_result.hash
-'''
+"""
 
-RETURN = r'''
+RETURN = """
 hash:
     description: The generated qBittorrent-compatible password hash string.
     type: str
@@ -46,7 +42,7 @@ changed:
     type: bool
     returned: always
     sample: false
-'''
+"""
 
 import base64
 import hashlib

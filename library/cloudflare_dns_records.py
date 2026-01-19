@@ -1,59 +1,14 @@
-#!/usr/bin/python
-"""
-Ansible module for fetching Cloudflare DNS records.
-
-This module provides functionality to fetch DNS records from Cloudflare
-for a specific zone and record name.
-
-Example Usage:
-    # Fetch DNS records for a domain
-    - name: Fetch Cloudflare DNS records
-      cloudflare_dns_records:
-        auth_email: "user@example.com"
-        auth_key: "api_key_here"
-        zone_name: "example.com"
-        record: "subdomain.example.com"
-      register: dns_records
-
-    # Fetch DNS records using API token
-    - name: Fetch Cloudflare DNS records with token
-      cloudflare_dns_records:
-        auth_token: "token_here"
-        zone_name: "example.com"
-        record: "subdomain.example.com"
-      register: dns_records
-
-Return Values:
-    records:
-        description: List of DNS records matching the query
-        type: list
-        returned: success
-    zone_id:
-        description: The Cloudflare zone ID for the specified zone
-        type: str
-        returned: success
-    changed:
-        description: Whether any changes were made (always False for this read-only module)
-        type: bool
-        returned: always
-"""
+# -*- coding: utf-8 -*-
 
 from __future__ import annotations
-
-from typing import TYPE_CHECKING
-
-from ansible.module_utils.basic import AnsibleModule
-
-if TYPE_CHECKING:
-    from cloudflare import Cloudflare
 
 DOCUMENTATION = """
 ---
 module: cloudflare_dns_records
-short_description: Fetch DNS records from Cloudflare
 description:
     - "This module fetches DNS records from Cloudflare for a specific zone and record name."
     - "It supports both API key and API token authentication methods."
+author: salty
 options:
     auth_email:
         description:
@@ -109,8 +64,30 @@ EXAMPLES = """
     var: dns_records.records
 """
 
+RETURN = """
+records:
+    description: List of DNS records matching the query
+    type: list
+    returned: success
+zone_id:
+    description: The Cloudflare zone ID for the specified zone
+    type: str
+    returned: success
+changed:
+    description: Whether any changes were made (always False for this read-only module)
+    type: bool
+    returned: always
+"""
 
-def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> str:
+from typing import TYPE_CHECKING
+
+from ansible.module_utils.basic import AnsibleModule
+
+if TYPE_CHECKING:
+    from cloudflare import Cloudflare
+
+
+def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> str:
     """
     Fetch the zone ID for a given zone name from Cloudflare.
 
@@ -134,7 +111,7 @@ def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> st
         module.fail_json(msg=f"Error fetching zone ID: {str(e)}")
 
 
-def fetch_dns_records(client: Cloudflare, zone_id: str, record_name: str, module: AnsibleModule) -> list[dict[str, object]]:
+def fetch_dns_records(client: "Cloudflare", zone_id: str, record_name: str, module: AnsibleModule) -> list[dict[str, object]]:
     """
     Fetch DNS records from Cloudflare.
 

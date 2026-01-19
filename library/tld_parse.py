@@ -1,33 +1,15 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-#########################################################################
-# Title:         Saltbox: Library | TLD Parse                          #
-# Author(s):     salty                                                  #
-# URL:           https://github.com/saltyorg/Saltbox                    #
-# --                                                                    #
-#########################################################################
-#                   GNU General Public License v3.0                     #
-#########################################################################
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-from ansible.module_utils.basic import AnsibleModule
-from tld import get_tld
-
-if TYPE_CHECKING:
-    from tld.utils import Result
-
-DOCUMENTATION = r'''
+DOCUMENTATION = """
 ---
 module: tld_parse
-short_description: Parse domain names for DNS operations
 description:
     - Parses a domain name into components needed for DNS record management
     - Extracts the full domain and subdomain portions
     - Uses the tld Python library for parsing
+author: salty
 options:
     url:
         description:
@@ -40,11 +22,9 @@ options:
         required: false
         type: str
         default: ''
-author:
-    - Saltbox Team
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = """
 - name: Parse domain
   tld_parse:
     url: "{{ user.domain }}"
@@ -59,35 +39,43 @@ EXAMPLES = r'''
 - name: Use parsed values
   debug:
     msg: "Domain: {{ domain_info.domain }}, Record: {{ domain_info.record }}"
-'''
+"""
 
-RETURN = r'''
+RETURN = """
 fld:
     description: Full domain name (e.g., example.com)
     type: str
     returned: always
-    sample: 'example.com'
+    sample: "example.com"
 subdomain:
     description: Subdomain portion (empty string if none)
     type: str
     returned: always
-    sample: 'www'
+    sample: "www"
 record:
     description: DNS record format (subdomain or '@' for root domain)
     type: str
     returned: always
-    sample: 'www'
+    sample: "www"
 tld:
     description: Top-level domain (e.g., com, org, co.uk)
     type: str
     returned: always
-    sample: 'com'
+    sample: "com"
 domain:
     description: Domain name without TLD (e.g., example)
     type: str
     returned: always
-    sample: 'example'
-'''
+    sample: "example"
+"""
+
+from typing import TYPE_CHECKING, Any
+
+from ansible.module_utils.basic import AnsibleModule
+from tld import get_tld
+
+if TYPE_CHECKING:
+    from tld.utils import Result
 
 
 def main() -> None:

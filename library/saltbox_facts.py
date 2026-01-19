@@ -1,105 +1,165 @@
-#!/usr/bin/python
-"""
-Ansible module for managing Saltbox configuration facts.
-
-This module provides functionality to load, save, and delete configuration facts
-for Saltbox roles. By default, it loads existing values and only saves new ones
-if the keys don't exist yet.
-
-Example Usage:
-    # Save facts (loads existing, only saves new keys)
-    - name: Save facts for role
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        keys:
-          key1: value1
-          key2: value2
-        owner: user1
-        group: group1
-        mode: "0640"
-        base_path: "{{ server_appdata_path }}"
-      register: register_var
-
-    # Save facts with overwrite (ignores existing values)
-    - name: Save facts with overwrite
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        keys:
-          key1: value1
-          key2: value2
-        base_path: "{{ server_appdata_path }}"
-        overwrite: true
-      register: register_var
-
-    # Delete specific keys from instance
-    - name: Delete specific keys
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        method: delete
-        delete_type: key
-        keys:
-          key1: ""
-          key2: ""
-        base_path: "{{ server_appdata_path }}"
-
-    # Delete entire instance
-    - name: Delete instance
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        method: delete
-        delete_type: instance
-        base_path: "{{ server_appdata_path }}"
-
-    # Delete entire role (removes configuration file)
-    - name: Delete role
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        method: delete
-        delete_type: role
-        base_path: "{{ server_appdata_path }}"
-
-    # Save with default owner/group (current user)
-    - name: Save facts with defaults
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        keys:
-          key1: value1
-        base_path: "{{ server_appdata_path }}"
-      register: register_var
-
-    # Save with specific file permissions
-    - name: Save facts with custom permissions
-      saltbox_facts:
-        role: myapp
-        instance: instance1
-        keys:
-          key1: value1
-        mode: "0600"
-        base_path: "{{ server_appdata_path }}"
-      register: register_var
-
-Return Values:
-    facts:
-        description: Dictionary containing the loaded or saved facts
-        type: dict
-        returned: When method is 'save' or when keys are processed
-    changed:
-        description: Whether any changes were made
-        type: bool
-        returned: always
-    message:
-        description: Informational or error message
-        type: str
-        returned: when applicable
-"""
+# -*- coding: utf-8 -*-
 
 from __future__ import annotations
+
+DOCUMENTATION = """
+---
+module: saltbox_facts
+description:
+    - Loads, saves, or deletes configuration facts for Saltbox roles.
+    - By default, loads existing values and only saves new keys if they do not exist.
+author: salty
+options:
+    role:
+        description:
+            - Name of the role.
+        required: true
+        type: str
+    instance:
+        description:
+            - Instance name for the role.
+        required: true
+        type: str
+    method:
+        description:
+            - Operation to perform.
+            - Use C(delete) to remove facts; omit to save/load.
+        required: false
+        type: str
+        choices:
+            - delete
+    keys:
+        description:
+            - Dictionary of key/value pairs to save or delete.
+        required: false
+        type: dict
+        default: {}
+    delete_type:
+        description:
+            - Type of deletion to perform when C(method=delete).
+        required: false
+        type: str
+        choices:
+            - role
+            - instance
+            - key
+    owner:
+        description:
+            - File owner for the facts file.
+            - Defaults to the current user when omitted.
+        required: false
+        type: str
+    group:
+        description:
+            - File group for the facts file.
+            - Defaults to the current user when omitted.
+        required: false
+        type: str
+    mode:
+        description:
+            - File mode as a quoted octal string (e.g., '0640').
+        required: false
+        type: str
+        default: "0640"
+    overwrite:
+        description:
+            - Whether to overwrite existing values instead of preserving them.
+        required: false
+        type: bool
+        default: false
+    base_path:
+        description:
+            - Base directory path for storing configuration files.
+        required: true
+        type: str
+"""
+
+EXAMPLES = """
+- name: Save facts for role
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    keys:
+      key1: value1
+      key2: value2
+    owner: user1
+    group: group1
+    mode: "0640"
+    base_path: "{{ server_appdata_path }}"
+  register: register_var
+
+- name: Save facts with overwrite
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    keys:
+      key1: value1
+      key2: value2
+    base_path: "{{ server_appdata_path }}"
+    overwrite: true
+  register: register_var
+
+- name: Delete specific keys from instance
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    method: delete
+    delete_type: key
+    keys:
+      key1: ""
+      key2: ""
+    base_path: "{{ server_appdata_path }}"
+
+- name: Delete instance
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    method: delete
+    delete_type: instance
+    base_path: "{{ server_appdata_path }}"
+
+- name: Delete role
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    method: delete
+    delete_type: role
+    base_path: "{{ server_appdata_path }}"
+
+- name: Save facts with defaults
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    keys:
+      key1: value1
+    base_path: "{{ server_appdata_path }}"
+  register: register_var
+
+- name: Save facts with custom permissions
+  saltbox_facts:
+    role: myapp
+    instance: instance1
+    keys:
+      key1: value1
+    mode: "0600"
+    base_path: "{{ server_appdata_path }}"
+  register: register_var
+"""
+
+RETURN = """
+facts:
+    description: Dictionary containing the loaded or saved facts
+    type: dict
+    returned: When method is 'save' or when keys are processed
+changed:
+    description: Whether any changes were made
+    type: bool
+    returned: always
+message:
+    description: Informational or error message
+    type: str
+    returned: when applicable
+"""
 
 import configparser
 import grp
