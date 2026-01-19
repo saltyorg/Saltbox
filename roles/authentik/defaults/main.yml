@@ -25,7 +25,8 @@ authentik_role_email_tls: "false"
 authentik_role_email_ssl: "false"
 authentik_role_email_timeout: "10"
 authentik_role_email_from: "authentik@localhost"
-authentik_role_access_token_validity: "24" # Hours, only fresh installs use this
+# Hours, only fresh installs use this
+authentik_role_access_token_validity: "24"
 
 ################################
 # Legacy
