@@ -484,17 +484,23 @@ docker_labels_traefik_main:
 
 docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.entrypoints": "{{ traefik_entrypoint_web }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api-http.service": "{{ traefik_router }}-api-http" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.rule": "{{ traefik_host_template }} && ({{ lookup("role_var", "_traefik_api_endpoint", role=role_var_role, default=omit) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api-http.middlewares": "{{ lookup("role_var", "_traefik_api_middleware_http", role=role_var_role, default=traefik_default_middleware_http_api) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.entrypoints": "{{ traefik_entrypoint_websecure }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}-api" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "{{ traefik_host_template }} && ({{ lookup("role_var", "_traefik_api_endpoint", role=role_var_role, default=omit) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("role_var", "_traefik_certresolver", role=role_var_role, default=traefik_default_certresolver) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("role_var", "_traefik_api_middleware", role=role_var_role, default=traefik_default_middleware_api) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.server.port": "{{ lookup("role_var", "_web_api_http_port", role=role_var_role, default=lookup("role_var", "_web_api_port", role=role_var_role, default=traefik_loadbalancer_port)) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.server.scheme": "{{ lookup("role_var", "_web_api_http_scheme", role=role_var_role, default=lookup("role_var", "_web_api_scheme", role=role_var_role, default=traefik_loadbalancer_scheme)) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.serverstransport": "{{ lookup("role_var", "_web_api_http_serverstransport", role=role_var_role, default=omit) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api.loadbalancer.server.port": "{{ lookup("role_var", "_web_api_port", role=role_var_role, default=traefik_loadbalancer_port) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api.loadbalancer.server.scheme": "{{ lookup("role_var", "_web_api_scheme", role=role_var_role, default=traefik_loadbalancer_scheme) }}" }'
+  - '{ "traefik.http.services.{{ traefik_router }}-api.loadbalancer.serverstransport": "{{ lookup("role_var", "_web_api_serverstransport", role=role_var_role, default=omit) }}" }'
 
 docker_labels_traefik_main_dict: "{{ docker_labels_traefik_main | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
 docker_labels_traefik_api_dict: "{{ docker_labels_traefik_api | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
