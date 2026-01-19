@@ -28,12 +28,12 @@ ExecStart=/usr/bin/rclone mount \
     --max-read-ahead=200M \
     --rc \
 {% if (rclone_enable_metrics | bool) %}
-    --rc-addr=0.0.0.0:{{ rclone_remort_port }} \
+    --rc-addr=0.0.0.0:{{ rclone_remote_port }} \
     --rc-enable-metrics \
     --rc-user='{{ user.name }}' \
     --rc-pass='{{ user.pass }}' \
 {% else %}
-    --rc-addr=127.0.0.1:{{ rclone_remort_port }} \
+    --rc-addr=127.0.0.1:{{ rclone_remote_port }} \
     --rc-no-auth \
 {% endif %}
     --sftp-chunk-size={{ rclone_sftp_chunk_size }} \

@@ -29,10 +29,10 @@ rclone_service_template: "saltbox_managed_rclone_"
 rclone_port_lookup: "{{ port_lookup_rclone.meta.port
                      if (port_lookup_rclone.meta.port is defined) and (port_lookup_rclone.meta.port | trim | length > 0)
                      else '5572' }}"
-rclone_remort_port: "{{ lookup('vars', 'rclone_remote_' + rclone_remote_name + '_port', default=rclone_port_lookup) }}"
+rclone_remote_port: "{{ lookup('vars', 'rclone_remote_' + rclone_remote_name + '_port', default=rclone_port_lookup) }}"
 
-rclone_remort_port_low_bound: 5572
-rclone_remort_port_high_bound: 6072
+rclone_remote_port_low_bound: 5572
+rclone_remote_port_high_bound: 6072
 
 rclone_remote_name: "{{ item | filter_rclone_remote_name }}"
 rclone_remote_with_path: "{{ item | filter_rclone_remote_with_path }}"
@@ -51,7 +51,7 @@ rclone_enable_metrics: false
 rclone_vfs_refresh_interval: 10800
 rclone_vfs_refresh_auth_args: " --user='{{ user.name }}' --pass='{{ user.pass }}'"
 rclone_vfs_refresh_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_remort_port }}{{ rclone_vfs_refresh_auth_args if (rclone_enable_metrics | bool) else '' }} _async=true
+  /usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_remote_port }}{{ rclone_vfs_refresh_auth_args if (rclone_enable_metrics | bool) else '' }} _async=true
 
 ################################
 # NFS
