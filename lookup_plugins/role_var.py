@@ -1,28 +1,16 @@
-from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
-from ansible.utils.display import Display
-from typing import Any, List, Optional, Dict
-import json
+# -*- coding: utf-8 -*-
 
-# Try to import Jinja2's Undefined types to detect undefined variables in results
-try:
-    from jinja2 import Undefined
-except ImportError:
-    Undefined = type(None)  # Fallback if import fails
-
-display = Display()
+from __future__ import annotations
 
 DOCUMENTATION = """
     name: role_var
-    author: salty
-    version_added: "N/A"
-    short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
       - This lookup replicates lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
       - For the '_name' suffix, the fallback uses role_name + '_name' instead of role_name + '_role_name'
       - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
       - For _name variables with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
+    author: salty
     options:
       _terms:
         description: The suffix to append (e.g. '_dns_record')
@@ -41,6 +29,25 @@ DOCUMENTATION = """
         required: false
         default: true
 """
+
+EXAMPLES = """
+- name: Look up a role variable with fallback
+  vars:
+    role_name: "traefik"
+    traefik_role_var: "traefik"
+  debug:
+    msg: "{{ lookup('role_var', '_name', default=role_name) }}"
+"""
+
+from ansible.plugins.lookup import LookupBase
+from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
+from ansible.utils.display import Display
+from typing import Any, List, Optional, Dict
+import json
+
+from jinja2 import Undefined
+
+display = Display()
 
 class LookupModule(LookupBase):
 

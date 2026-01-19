@@ -1,27 +1,15 @@
-from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
-from ansible.utils.display import Display
-from typing import Any, List, Optional, Dict
-import json
+# -*- coding: utf-8 -*-
 
-# Try to import Jinja2's Undefined types to detect undefined variables in results
-try:
-    from jinja2 import Undefined
-except ImportError:
-    Undefined = type(None)  # Fallback if import fails
-
-display = Display()
+from __future__ import annotations
 
 DOCUMENTATION = """
     name: docker_var
-    author: salty
-    version_added: "N/A"
-    short_description: Look up a role variable with automatic fallback and JSON conversion
     description:
       - This lookup replicates lookup('vars', _instance_name + suffix, default=lookup('vars', _var_prefix + '_role' + suffix))
       - For the '_name' suffix, the fallback uses _var_prefix + '_name' instead of _var_prefix + '_role_name'
       - For instance names or var prefixes with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
+    author: salty
     options:
       _terms:
         description: The suffix to append (e.g. '_docker_network_mode')
@@ -36,6 +24,25 @@ DOCUMENTATION = """
         required: false
         default: true
 """
+
+EXAMPLES = """
+- name: Look up a docker variable with fallback
+  vars:
+    _var_prefix: "myapp"
+    _instance_name: "myapp"
+  debug:
+    msg: "{{ lookup('docker_var', '_docker_container', default=_var_prefix) }}"
+"""
+
+from ansible.plugins.lookup import LookupBase
+from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
+from ansible.utils.display import Display
+from typing import Any, List, Optional, Dict
+import json
+
+from jinja2 import Undefined
+
+display = Display()
 
 class LookupModule(LookupBase):
 
