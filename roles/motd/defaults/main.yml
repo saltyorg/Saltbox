@@ -7,6 +7,10 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
+################################
+# Basics
+################################
+
 motd_install: true
 
 # Requires the new golang CLI to be installed and in the location set below
