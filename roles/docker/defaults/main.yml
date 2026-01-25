@@ -66,7 +66,7 @@ docker_apt_repo_filename: docker
 #   "28"      - Major version (installs latest 28.x.x, auto-updates within 28.x)
 #   "28.5"    - Major.minor version (installs latest 28.5.x, auto-updates within 28.5.x)
 #   "28.5.2"  - Exact version (installs exactly 28.5.2, no auto-updates)
-docker_version: "28"
+docker_version: "29"
 
 # Docker CE
 docker_ce_name: "Docker CE"
