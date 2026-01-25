@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Pre-Install | Get next available port within the range of '58112-58132' # noqa fqcn[action]
+- name: Pre-Install | Get next available port within the range of '58112-58132'
   find_open_port:
     low_bound: 58112
     high_bound: 58132

@@ -13,7 +13,7 @@
     _service_refresh: "{{ rclone_service_template + rclone_remote_name }}_refresh"
     mount_path: "/mnt/remote/{{ rclone_remote_name }}"
 
-- name: Remote | Get next available port within the range of '5572-5672' # noqa fqcn[action]
+- name: Remote | Get next available port within the range of '5572-5672'
   find_open_port:
     low_bound: "{{ rclone_remote_port_low_bound }}"
     high_bound: "{{ rclone_remote_port_high_bound }}"
