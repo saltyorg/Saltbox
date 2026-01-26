@@ -70,6 +70,7 @@ postgres_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 # Volumes
 postgres_role_docker_volumes_default:
   - "{{ postgres_role_paths_location }}:/data"
+  - "{{ postgres_role_paths_location }}:/var/lib/postgresql/data"
   - "/etc/passwd:/etc/passwd:ro"
 postgres_role_docker_volumes_custom: []
 postgres_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='postgres')
