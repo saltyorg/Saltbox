@@ -1,0 +1,99 @@
+##########################################################################
+# Title:         Saltbox: TimescaleDB | Default Variables                #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+timescaledb_instances: ["timescaledb"]
+
+################################
+# Settings
+################################
+
+timescaledb_role_docker_env_password: "password4321"
+timescaledb_role_docker_env_user: "{{ user.name }}"
+timescaledb_role_docker_env_db: "saltbox"
+
+# Do not edit or override using the inventory
+timescaledb_role_docker_env_password_include: ""
+# Do not edit or override using the inventory
+timescaledb_role_docker_env_user_include: ""
+# Do not edit or override using the inventory
+timescaledb_role_docker_env_password_effective: "{{ timescaledb_role_docker_env_password_include
+                                                if (timescaledb_role_docker_env_password_include | length > 0)
+                                                else lookup('role_var', '_docker_env_password', role='timescaledb') }}"
+# Do not edit or override using the inventory
+timescaledb_role_docker_env_user_effective: "{{ timescaledb_role_docker_env_user_include
+                                            if (timescaledb_role_docker_env_user_include | length > 0)
+                                            else lookup('role_var', '_docker_env_user', role='timescaledb') }}"
+
+################################
+# Paths
+################################
+
+timescaledb_role_paths_folder: "{{ timescaledb_name }}"
+timescaledb_role_paths_location: "{{ server_appdata_path }}/{{ timescaledb_role_paths_folder }}"
+timescaledb_role_paths_folders_list:
+  - "{{ timescaledb_role_paths_location }}"
+
+################################
+# Docker
+################################
+
+# Container
+timescaledb_role_docker_container: "{{ timescaledb_name }}"
+
+# Image
+timescaledb_role_docker_image_pull: true
+timescaledb_role_docker_image_tag: "pg18-all-amd64"
+timescaledb_role_docker_image_repo: "timescale/timescaledb-ha"
+timescaledb_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='timescaledb') }}:{{ lookup('role_var', '_docker_image_tag', role='timescaledb') }}"
+
+# Envs
+timescaledb_role_docker_envs_default:
+  TZ: "{{ tz }}"
+  PGDATA: "/pgdata"
+  POSTGRES_PASSWORD: "{{ timescaledb_role_docker_env_password_effective }}"
+  POSTGRES_USER: "{{ timescaledb_role_docker_env_user_effective }}"
+  POSTGRES_DB: "{{ lookup('role_var', '_docker_env_db', role='timescaledb', default=timescaledb_role_docker_env_db) }}"
+timescaledb_role_docker_envs_custom: {}
+timescaledb_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='timescaledb')
+                                  | combine(lookup('role_var', '_docker_envs_custom', role='timescaledb')) }}"
+
+# Volumes
+timescaledb_role_docker_volumes_default:
+  - "{{ timescaledb_role_paths_location }}:/pgdata"
+  - "/etc/passwd:/etc/passwd:ro"
+timescaledb_role_docker_volumes_custom: []
+timescaledb_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='timescaledb')
+                                     + lookup('role_var', '_docker_volumes_custom', role='timescaledb') }}"
+
+# Hostname
+timescaledb_role_docker_hostname: "{{ timescaledb_name }}"
+
+# Networks
+timescaledb_role_docker_networks_alias: "{{ timescaledb_name }}"
+timescaledb_role_docker_networks_default: []
+timescaledb_role_docker_networks_custom: []
+timescaledb_role_docker_networks: "{{ docker_networks_common
+                                      + lookup('role_var', '_docker_networks_default', role='timescaledb')
+                                      + lookup('role_var', '_docker_networks_custom', role='timescaledb') }}"
+
+# Restart Policy
+timescaledb_role_docker_restart_policy: unless-stopped
+
+# State
+timescaledb_role_docker_state: started
+
+# User
+timescaledb_role_docker_user: "{{ uid }}:{{ gid }}"
+
+# SHM size
+timescaledb_role_docker_shm_size: "128M"

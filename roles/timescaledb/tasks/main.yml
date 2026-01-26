@@ -1,0 +1,16 @@
+#########################################################################
+# Title:         Saltbox: TimescaleDB Role                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Execute TimescaleDB roles"
+  ansible.builtin.include_tasks: main2.yml
+  vars:
+    timescaledb_name: "{{ instance }}"
+  with_items: "{{ timescaledb_instances }}"
+  loop_control:
+    loop_var: instance
