@@ -42,13 +42,15 @@ authentik_role_redis_name: "{{ authentik_name }}-redis"
 # Authentik will always require postgres, this just allows you to skip the one Saltbox deploys
 authentik_role_postgres_deploy: true
 authentik_role_postgres_name: "{{ authentik_name }}-postgres"
-authentik_role_postgres_user: "{{ postgres_role_docker_env_user }}"
-authentik_role_postgres_password: "{{ postgres_role_docker_env_password }}"
+# If empty it will fallback to postgres role default
+authentik_role_postgres_user: ""
+# If empty it will fallback to postgres role default
+authentik_role_postgres_password: ""
 authentik_role_postgres_docker_env_db: "authentik"
 authentik_role_postgres_docker_image_tag: "16-alpine"
 authentik_role_postgres_docker_image_repo: "postgres"
 authentik_role_postgres_docker_healthcheck:
-  test: ["CMD-SHELL", "pg_isready -d {{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }} -U {{ postgres_role_docker_env_user }}"]
+  test: ["CMD-SHELL", "pg_isready -d {{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }} -U {{ lookup('role_var', '_postgres_user', role='authentik') if (lookup('role_var', '_postgres_user', role='authentik') | length > 0) else lookup('role_var', '_docker_env_user', role='postgres') }}"]
   start_period: 20s
   interval: 30s
   retries: 5
@@ -138,11 +140,17 @@ authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='
 # Envs
 authentik_role_docker_envs_default:
   AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik')
+                               if (lookup('role_var', '_postgres_user', role='authentik') | length > 0)
+                               else lookup('role_var', '_docker_env_user', role='postgres') }}"
   AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik')
+                                   if (lookup('role_var', '_postgres_password', role='authentik') | length > 0)
+                                   else lookup('role_var', '_docker_env_password', role='postgres') }}"
   AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
-  AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit if authentik_data_folder.stat.exists else authentik_bootstrap_token }}"
+  AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit
+                              if authentik_data_folder.stat.exists
+                              else authentik_bootstrap_token }}"
   AUTHENTIK_EMAIL__HOST: "{{ lookup('role_var', '_email_host', role='authentik') }}"
   AUTHENTIK_EMAIL__PORT: "{{ lookup('role_var', '_email_port', role='authentik') }}"
   AUTHENTIK_EMAIL__USERNAME: "{{ lookup('role_var', '_email_username', role='authentik') }}"

@@ -60,6 +60,8 @@
     postgres_role_paths_folder: "{{ lookup('role_var', '_paths_folder', role='authentik') }}/postgres"
     postgres_role_paths_location: "{{ server_appdata_path }}/{{ postgres_role_paths_folder }}"
     postgres_role_docker_env_db: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
+    postgres_role_docker_env_user_include: "{{ lookup('role_var', '_postgres_user', role='authentik') }}"
+    postgres_role_docker_env_password_include: "{{ lookup('role_var', '_postgres_password', role='authentik') }}"
     postgres_role_docker_healthcheck: "{{ lookup('role_var', '_postgres_docker_healthcheck', role='authentik') }}"
   when: lookup('role_var', '_postgres_deploy', role='authentik')
 
