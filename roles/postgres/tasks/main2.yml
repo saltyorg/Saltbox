@@ -116,7 +116,7 @@
 
         - name: Update user password for SCRAM authentication in new container
           ansible.builtin.shell: |
-            docker exec {{ postgres_name }}_new psql -U {{ lookup('role_var', '_docker_env_user', role='postgres') }} -d {{ lookup('role_var', '_docker_env_db', role='postgres') }} -c "ALTER USER {{ lookup('role_var', '_docker_env_user', role='postgres') }} WITH PASSWORD '{{ lookup('role_var', '_docker_env_password', role='postgres') }}';"
+            docker exec {{ postgres_name }}_new psql -U {{ postgres_role_docker_env_user_effective }} -d {{ lookup('role_var', '_docker_env_db', role='postgres') }} -c "ALTER USER {{ postgres_role_docker_env_user_effective }} WITH PASSWORD '{{ postgres_role_docker_env_password_effective }}';"
           when: (postgres_major_version | int < 14) and (postgres_docker_tag_major_version | int >= 14)
 
         - name: Remove temporary containers

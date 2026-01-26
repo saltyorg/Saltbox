@@ -21,6 +21,19 @@ postgres_role_docker_env_password: "password4321"
 postgres_role_docker_env_user: "{{ user.name }}"
 postgres_role_docker_env_db: "saltbox"
 
+# Do not edit or override using the inventory
+postgres_role_docker_env_password_include: ""
+# Do not edit or override using the inventory
+postgres_role_docker_env_user_include: ""
+# Do not edit or override using the inventory
+postgres_role_docker_env_password_effective: "{{ postgres_role_docker_env_password_include
+                                              if (postgres_role_docker_env_password_include | length > 0)
+                                              else lookup('role_var', '_docker_env_password', role='postgres') }}"
+# Do not edit or override using the inventory
+postgres_role_docker_env_user_effective: "{{ postgres_role_docker_env_user_include
+                                          if (postgres_role_docker_env_user_include | length > 0)
+                                          else lookup('role_var', '_docker_env_user', role='postgres') }}"
+
 ################################
 # Paths
 ################################
@@ -47,8 +60,8 @@ postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='p
 postgres_role_docker_envs_default:
   TZ: "{{ tz }}"
   PGDATA: "/data"
-  POSTGRES_PASSWORD: "{{ lookup('role_var', '_docker_env_password', role='postgres') }}"
-  POSTGRES_USER: "{{ lookup('role_var', '_docker_env_user', role='postgres') }}"
+  POSTGRES_PASSWORD: "{{ postgres_role_docker_env_password_effective }}"
+  POSTGRES_USER: "{{ postgres_role_docker_env_user_effective }}"
   POSTGRES_DB: "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
 postgres_role_docker_envs_custom: {}
 postgres_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='postgres')
