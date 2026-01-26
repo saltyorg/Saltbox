@@ -136,101 +136,129 @@ class LookupModule(LookupBase):
         if self._templar is None:
             raise AnsibleLookupError("[role_var] Templar is not initialized")
         self._templar.available_variables = variables
+        stack_key = "__saltbox_role_var_stack__"
+        stack_prev = variables.get(stack_key)
+        stack_owner = False
+        if not isinstance(stack_prev, list):
+            variables[stack_key] = []
+            stack_owner = True
+        stack = variables[stack_key]
 
-        # Use specified role if provided, otherwise fall back to role_name
-        if specified_role:
-            role_name: str = self._templar.template(specified_role, fail_on_undefined=True)
-        else:
-            if 'role_name' not in variables:
-                raise KeyError("[role_var] Required variable 'role_name' not found")
-            role_name: str = self._templar.template(variables['role_name'], fail_on_undefined=True)
-        
-        # If a custom role is specified, we need to construct the appropriate traefik_role_var for that role
-        traefik_role_var: str
-        if specified_role:
-            # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
-            custom_role_name_var: str = role_name + '_name'
-            if custom_role_name_var in variables:
-                traefik_role_var = self._templar.template(variables[custom_role_name_var], fail_on_undefined=True)
+        try:
+            # Use specified role if provided, otherwise fall back to role_name
+            if specified_role:
+                role_name: str = self._templar.template(specified_role, fail_on_undefined=True)
             else:
-                traefik_role_var = role_name
-            display.vvv(f"[role_var] Using custom traefik_role_var for role '{role_name}': {traefik_role_var}")
-        else:
-            if 'traefik_role_var' not in variables:
-                raise KeyError("[role_var] Required variable 'traefik_role_var' not found")
-            traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=True)
-
-        # Build the variable names to check
-        primary_var: str
-        fallback_var: str
-        if suffix == '_name':
-            primary_var = traefik_role_var + suffix
-            fallback_var = role_name + suffix
-        else:
-            primary_var = traefik_role_var + suffix
-            fallback_var = role_name + '_role' + suffix
-
-        # Create list of all variable names to check (including dash/underscore variants)
-        vars_to_check: List[str] = []
-        
-        for var_name in [primary_var, fallback_var]:
-            vars_to_check.append(var_name)
-            # If the variable name contains dashes, also check the underscore version
-            if '-' in var_name:
-                underscore_var = var_name.replace('-', '_')
-                vars_to_check.append(underscore_var)
-                display.vvv(f"[role_var] Added underscore variant: {underscore_var} for {var_name}")
-
-        display.vvv(f"[role_var] Checking these keys in order: {vars_to_check}")
-        if display.verbosity >= 3:
-            debug_keys = sorted([
-                k for k in variables
-                if suffix in k or k.endswith(suffix) or k.startswith((traefik_role_var, role_name))
-            ])
-            display.vvv(f"[role_var] Relevant vars: {debug_keys}")
-
-        # Try each variable name in order
-        for var_name in vars_to_check:
-            if var_name in variables:
-                raw_value = variables.get(var_name)
-                if raw_value is None:
-                    display.vvv(f"[role_var] Skipping {var_name} (value is None)")
-                    continue
-
-                # Variable exists - if templating fails, that's an error (don't fall back to default)
-                # This ensures that variables referencing undefined vars are caught
-                try:
-                    result = self._templar.template(raw_value, fail_on_undefined=True)
-                except Exception as e:
-                    raise AnsibleLookupError(
-                        f"[role_var] Failed to resolve '{var_name}': {e}"
-                    ) from e
-                # Check for undefined variables that got captured instead of raising
-                self._check_for_undefined(result, var_name)
-                if result is not None:
-                    # Check if we should convert JSON list to dict
-                    if convert_json and self._is_json_string_list(result):
-                        display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
-                        converted = self._convert_json_list_to_dict(result)
-                        if converted is not None:
-                            return [converted]
-                        else:
-                            display.vvv(f"[role_var] Conversion failed, returning original list")
-
-                    display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
-                    return [result]
+                if 'role_name' not in variables:
+                    raise KeyError("[role_var] Required variable 'role_name' not found")
+                role_name: str = self._templar.template(variables['role_name'], fail_on_undefined=True)
+            
+            # If a custom role is specified, we need to construct the appropriate traefik_role_var for that role
+            traefik_role_var: str
+            if specified_role:
+                # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
+                custom_role_name_var: str = role_name + '_name'
+                if custom_role_name_var in variables:
+                    traefik_role_var = self._templar.template(variables[custom_role_name_var], fail_on_undefined=True)
                 else:
-                    display.vvv(f"[role_var] {var_name} is None after templating, skipping")
+                    traefik_role_var = role_name
+                display.vvv(f"[role_var] Using custom traefik_role_var for role '{role_name}': {traefik_role_var}")
             else:
-                display.vvv(f"[role_var] {var_name} not found in variables — skipping")
+                if 'traefik_role_var' not in variables:
+                    raise KeyError("[role_var] Required variable 'traefik_role_var' not found")
+                traefik_role_var = self._templar.template(variables['traefik_role_var'], fail_on_undefined=True)
 
-        # If we have a default, use it (only reached if no variable existed)
-        if default is not None:
-            display.vvv(f"[role_var] No usable variable found, returning default: {default}")
-            return [default]
+            # Build the variable names to check
+            primary_var: str
+            fallback_var: str
+            if suffix == '_name':
+                primary_var = traefik_role_var + suffix
+                fallback_var = role_name + suffix
+            else:
+                primary_var = traefik_role_var + suffix
+                fallback_var = role_name + '_role' + suffix
 
-        # Otherwise raise an error - variable not found and no default provided
-        raise AnsibleLookupError(
-            f"[role_var] Variable not found and no default provided. "
-            f"Tried the following variables in order: {', '.join(vars_to_check)}"
-        )
+            # Create list of all variable names to check (including dash/underscore variants)
+            vars_to_check: List[str] = []
+            
+            for var_name in [primary_var, fallback_var]:
+                vars_to_check.append(var_name)
+                # If the variable name contains dashes, also check the underscore version
+                if '-' in var_name:
+                    underscore_var = var_name.replace('-', '_')
+                    vars_to_check.append(underscore_var)
+                    display.vvv(f"[role_var] Added underscore variant: {underscore_var} for {var_name}")
+
+            display.vvv(f"[role_var] Checking these keys in order: {vars_to_check}")
+            if display.verbosity >= 3:
+                debug_keys = sorted([
+                    k for k in variables
+                    if suffix in k or k.endswith(suffix) or k.startswith((traefik_role_var, role_name))
+                ])
+                display.vvv(f"[role_var] Relevant vars: {debug_keys}")
+
+            # Try each variable name in order
+            for var_name in vars_to_check:
+                if var_name in variables:
+                    raw_value = variables.get(var_name)
+                    if raw_value is None:
+                        display.vvv(f"[role_var] Skipping {var_name} (value is None)")
+                        continue
+
+                    guard_id = f"role_var:{role_name}:{suffix}:{var_name}"
+                    if guard_id in stack:
+                        cycle = " -> ".join(stack + [guard_id])
+                        raise AnsibleLookupError(
+                            f"[role_var] Circular reference detected while resolving '{var_name}' "
+                            f"(role='{role_name}', suffix='{suffix}'). Stack: {cycle}"
+                        )
+                    stack.append(guard_id)
+                    try:
+                        # Variable exists - if templating fails, that's an error (don't fall back to default)
+                        # This ensures that variables referencing undefined vars are caught
+                        try:
+                            result = self._templar.template(raw_value, fail_on_undefined=True)
+                        except Exception as e:
+                            raise AnsibleLookupError(
+                                f"[role_var] Failed to resolve '{var_name}': {e}"
+                            ) from e
+                        # Check for undefined variables that got captured instead of raising
+                        self._check_for_undefined(result, var_name)
+                        if result is not None:
+                            # Check if we should convert JSON list to dict
+                            if convert_json and self._is_json_string_list(result):
+                                display.vvv(f"[role_var] Found JSON string list for {var_name}, converting to dict")
+                                converted = self._convert_json_list_to_dict(result)
+                                if converted is not None:
+                                    return [converted]
+                                else:
+                                    display.vvv(f"[role_var] Conversion failed, returning original list")
+
+                            display.vvv(f"[role_var] Returning templated value for {var_name}: {result}")
+                            return [result]
+                        else:
+                            display.vvv(f"[role_var] {var_name} is None after templating, skipping")
+                    finally:
+                        if stack and stack[-1] == guard_id:
+                            stack.pop()
+                        elif guard_id in stack:
+                            stack.remove(guard_id)
+                else:
+                    display.vvv(f"[role_var] {var_name} not found in variables — skipping")
+
+            # If we have a default, use it (only reached if no variable existed)
+            if default is not None:
+                display.vvv(f"[role_var] No usable variable found, returning default: {default}")
+                return [default]
+
+            # Otherwise raise an error - variable not found and no default provided
+            raise AnsibleLookupError(
+                f"[role_var] Variable not found and no default provided. "
+                f"Tried the following variables in order: {', '.join(vars_to_check)}"
+            )
+        finally:
+            if stack_owner:
+                if stack_prev is None:
+                    variables.pop(stack_key, None)
+                else:
+                    variables[stack_key] = stack_prev

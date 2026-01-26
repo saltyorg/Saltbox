@@ -130,95 +130,123 @@ class LookupModule(LookupBase):
         if self._templar is None:
             raise AnsibleLookupError("[docker_var] Templar is not initialized")
         self._templar.available_variables = variables
+        stack_key = "__saltbox_docker_var_stack__"
+        stack_prev = variables.get(stack_key)
+        stack_owner = False
+        if not isinstance(stack_prev, list):
+            variables[stack_key] = []
+            stack_owner = True
+        stack = variables[stack_key]
 
-        if '_var_prefix' not in variables:
-            raise KeyError("[docker_var] Required variable '_var_prefix' not found")
-        if '_instance_name' not in variables:
-            raise KeyError("[docker_var] Required variable '_instance_name' not found")
+        try:
+            if '_var_prefix' not in variables:
+                raise KeyError("[docker_var] Required variable '_var_prefix' not found")
+            if '_instance_name' not in variables:
+                raise KeyError("[docker_var] Required variable '_instance_name' not found")
 
-        var_prefix: str = self._templar.template(variables['_var_prefix'], fail_on_undefined=True)
-        instance_name: str = self._templar.template(variables['_instance_name'], fail_on_undefined=True)
-        
-        # Create lists of prefixes to try (including dash/underscore variants)
-        instance_names_to_try: List[str] = [instance_name]
-        if '-' in instance_name:
-            underscore_instance: str = instance_name.replace('-', '_')
-            instance_names_to_try.append(underscore_instance)
-            display.vvv(f"[docker_var] Added underscore variant for instance: {underscore_instance}")
+            var_prefix: str = self._templar.template(variables['_var_prefix'], fail_on_undefined=True)
+            instance_name: str = self._templar.template(variables['_instance_name'], fail_on_undefined=True)
+            
+            # Create lists of prefixes to try (including dash/underscore variants)
+            instance_names_to_try: List[str] = [instance_name]
+            if '-' in instance_name:
+                underscore_instance: str = instance_name.replace('-', '_')
+                instance_names_to_try.append(underscore_instance)
+                display.vvv(f"[docker_var] Added underscore variant for instance: {underscore_instance}")
 
-        var_prefixes_to_try: List[str] = [var_prefix]
-        if '-' in var_prefix:
-            underscore_prefix: str = var_prefix.replace('-', '_')
-            var_prefixes_to_try.append(underscore_prefix)
-            display.vvv(f"[docker_var] Added underscore variant for prefix: {underscore_prefix}")
+            var_prefixes_to_try: List[str] = [var_prefix]
+            if '-' in var_prefix:
+                underscore_prefix: str = var_prefix.replace('-', '_')
+                var_prefixes_to_try.append(underscore_prefix)
+                display.vvv(f"[docker_var] Added underscore variant for prefix: {underscore_prefix}")
 
-        # Build the variable names to check
-        vars_to_check: List[str] = []
-        
-        # For each instance name variant, add the primary variable
-        for inst_name in instance_names_to_try:
-            primary_var: str = inst_name + suffix
-            vars_to_check.append(primary_var)
+            # Build the variable names to check
+            vars_to_check: List[str] = []
+            
+            # For each instance name variant, add the primary variable
+            for inst_name in instance_names_to_try:
+                primary_var: str = inst_name + suffix
+                vars_to_check.append(primary_var)
 
-        # For each var prefix variant, add the fallback variable
-        for var_pref in var_prefixes_to_try:
-            fallback_var: str
-            if suffix == '_name':
-                fallback_var = var_pref + suffix
-            else:
-                fallback_var = var_pref + '_role' + suffix
-            vars_to_check.append(fallback_var)
-
-        display.vvv(f"[docker_var] Checking these keys in order: {vars_to_check}")
-        if display.verbosity >= 3:
-            debug_keys = sorted([
-                k for k in variables
-                if suffix in k or k.endswith(suffix) or any(k.startswith(prefix) for prefix in instance_names_to_try + var_prefixes_to_try)
-            ])
-            display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
-        
-        # Try each variable name in order
-        for var_name in vars_to_check:
-            if var_name in variables:
-                raw_value = variables.get(var_name)
-                if raw_value is None:
-                    display.vvv(f"[docker_var] Skipping {var_name} (value is None)")
-                    continue
-
-                # Variable exists - if templating fails, that's an error (don't fall back to default)
-                # This ensures that variables referencing undefined vars are caught
-                try:
-                    result = self._templar.template(raw_value, fail_on_undefined=True)
-                except Exception as e:
-                    raise AnsibleLookupError(
-                        f"[docker_var] Failed to resolve '{var_name}': {e}"
-                    ) from e
-                # Check for undefined variables that got captured instead of raising
-                self._check_for_undefined(result, var_name)
-                if result is not None:
-                    # Check if we should convert JSON list to dict
-                    if convert_json and self._is_json_string_list(result):
-                        display.vvv(f"[docker_var] Found JSON string list for {var_name}, converting to dict")
-                        converted = self._convert_json_list_to_dict(result)
-                        if converted is not None:
-                            return [converted]
-                        else:
-                            display.vvv(f"[docker_var] Conversion failed, returning original list")
-
-                    display.vvv(f"[docker_var] Returning templated value for {var_name}: {result}")
-                    return [result]
+            # For each var prefix variant, add the fallback variable
+            for var_pref in var_prefixes_to_try:
+                fallback_var: str
+                if suffix == '_name':
+                    fallback_var = var_pref + suffix
                 else:
-                    display.vvv(f"[docker_var] {var_name} is None after templating, skipping")
-            else:
-                display.vvv(f"[docker_var] {var_name} not found in variables — skipping")
+                    fallback_var = var_pref + '_role' + suffix
+                vars_to_check.append(fallback_var)
 
-        # If we have a default, use it (only reached if no variable existed)
-        if default is not None:
-            display.vvv(f"[docker_var] No usable variable found, returning default: {default}")
-            return [default]
+            display.vvv(f"[docker_var] Checking these keys in order: {vars_to_check}")
+            if display.verbosity >= 3:
+                debug_keys = sorted([
+                    k for k in variables
+                    if suffix in k or k.endswith(suffix) or any(k.startswith(prefix) for prefix in instance_names_to_try + var_prefixes_to_try)
+                ])
+                display.vvv(f"[docker_var] Relevant vars: {debug_keys}")
+            
+            # Try each variable name in order
+            for var_name in vars_to_check:
+                if var_name in variables:
+                    raw_value = variables.get(var_name)
+                    if raw_value is None:
+                        display.vvv(f"[docker_var] Skipping {var_name} (value is None)")
+                        continue
 
-        # Otherwise raise an error - variable not found and no default provided
-        raise AnsibleLookupError(
-            f"[docker_var] Variable not found and no default provided. "
-            f"Tried the following variables in order: {', '.join(vars_to_check)}"
-        )
+                    guard_id = f"docker_var:{var_prefix}:{instance_name}:{suffix}:{var_name}"
+                    if guard_id in stack:
+                        cycle = " -> ".join(stack + [guard_id])
+                        raise AnsibleLookupError(
+                            f"[docker_var] Circular reference detected while resolving '{var_name}' "
+                            f"(prefix='{var_prefix}', instance='{instance_name}', suffix='{suffix}'). Stack: {cycle}"
+                        )
+                    stack.append(guard_id)
+                    try:
+                        # Variable exists - if templating fails, that's an error (don't fall back to default)
+                        # This ensures that variables referencing undefined vars are caught
+                        try:
+                            result = self._templar.template(raw_value, fail_on_undefined=True)
+                        except Exception as e:
+                            raise AnsibleLookupError(
+                                f"[docker_var] Failed to resolve '{var_name}': {e}"
+                            ) from e
+                        # Check for undefined variables that got captured instead of raising
+                        self._check_for_undefined(result, var_name)
+                        if result is not None:
+                            # Check if we should convert JSON list to dict
+                            if convert_json and self._is_json_string_list(result):
+                                display.vvv(f"[docker_var] Found JSON string list for {var_name}, converting to dict")
+                                converted = self._convert_json_list_to_dict(result)
+                                if converted is not None:
+                                    return [converted]
+                                else:
+                                    display.vvv(f"[docker_var] Conversion failed, returning original list")
+
+                            display.vvv(f"[docker_var] Returning templated value for {var_name}: {result}")
+                            return [result]
+                        else:
+                            display.vvv(f"[docker_var] {var_name} is None after templating, skipping")
+                    finally:
+                        if stack and stack[-1] == guard_id:
+                            stack.pop()
+                        elif guard_id in stack:
+                            stack.remove(guard_id)
+                else:
+                    display.vvv(f"[docker_var] {var_name} not found in variables — skipping")
+
+            # If we have a default, use it (only reached if no variable existed)
+            if default is not None:
+                display.vvv(f"[docker_var] No usable variable found, returning default: {default}")
+                return [default]
+
+            # Otherwise raise an error - variable not found and no default provided
+            raise AnsibleLookupError(
+                f"[docker_var] Variable not found and no default provided. "
+                f"Tried the following variables in order: {', '.join(vars_to_check)}"
+            )
+        finally:
+            if stack_owner:
+                if stack_prev is None:
+                    variables.pop(stack_key, None)
+                else:
+                    variables[stack_key] = stack_prev
