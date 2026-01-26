@@ -35,7 +35,7 @@ EXAMPLES = """
 """
 
 from ansible.plugins.lookup import LookupBase
-from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable
+from ansible.errors import AnsibleLookupError, AnsibleUndefinedVariable, AnsibleValueOmittedError
 from ansible.utils.display import Display
 from typing import Any, List, Optional, Dict
 import json
@@ -126,6 +126,7 @@ class LookupModule(LookupBase):
         convert_json: Optional[bool] = self.get_option('convert_json')
         if convert_json is None:
             convert_json = True
+        omit_token = variables.get('omit')
 
         if self._templar is None:
             raise AnsibleLookupError("[docker_var] Templar is not initialized")
@@ -192,6 +193,9 @@ class LookupModule(LookupBase):
                     if raw_value is None:
                         display.vvv(f"[docker_var] Skipping {var_name} (value is None)")
                         continue
+                    if omit_token is not None and raw_value is omit_token:
+                        display.vvv(f"[docker_var] {var_name} is omit — returning omit")
+                        return [omit_token]
 
                     guard_id = f"docker_var:{var_prefix}:{instance_name}:{suffix}:{var_name}"
                     if guard_id in stack:
@@ -206,10 +210,16 @@ class LookupModule(LookupBase):
                         # This ensures that variables referencing undefined vars are caught
                         try:
                             result = self._templar.template(raw_value, fail_on_undefined=True)
+                        except AnsibleValueOmittedError:
+                            display.vvv(f"[docker_var] {var_name} templated to omit — returning omit")
+                            return [omit_token]
                         except Exception as e:
                             raise AnsibleLookupError(
                                 f"[docker_var] Failed to resolve '{var_name}': {e}"
                             ) from e
+                        if omit_token is not None and result is omit_token:
+                            display.vvv(f"[docker_var] {var_name} resolved to omit — returning omit")
+                            return [omit_token]
                         # Check for undefined variables that got captured instead of raising
                         self._check_for_undefined(result, var_name)
                         if result is not None:
