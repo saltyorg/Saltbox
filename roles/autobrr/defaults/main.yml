@@ -22,6 +22,7 @@ autobrr_paths_location: "{{ server_appdata_path }}/{{ autobrr_paths_folder }}"
 autobrr_paths_config_location: "{{ autobrr_paths_location }}/config.toml"
 autobrr_paths_folders_list:
   - "{{ autobrr_paths_location }}"
+autobrr_paths_recursive: true
 
 ################################
 # Web
@@ -74,8 +75,7 @@ autobrr_docker_ports: "{{ autobrr_docker_ports_defaults
 
 # Envs
 autobrr_docker_envs_default:
-  PUID: "{{ uid }}"
-  PGID: "{{ gid }}"
+  AUTOBRR__LOG_PATH: "/config/logs"
   TZ: "{{ tz }}"
 autobrr_docker_envs_custom: {}
 autobrr_docker_envs: "{{ autobrr_docker_envs_default
@@ -142,3 +142,6 @@ autobrr_docker_restart_policy: unless-stopped
 
 # State
 autobrr_docker_state: started
+
+# User
+autobrr_docker_user: "{{ uid }}:{{ gid }}"
