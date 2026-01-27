@@ -70,7 +70,7 @@ autobrr_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='au
 
 # Envs
 autobrr_role_docker_envs_default:
-  AUTOBRR__LOG_PATH: "/config/logs"
+  AUTOBRR__LOG_PATH: "/config/autobrr.log"
   TZ: "{{ tz }}"
 autobrr_role_docker_envs_custom: {}
 autobrr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='autobrr')
