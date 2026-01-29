@@ -17,103 +17,277 @@
   ansible.builtin.set_fact:
     _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
 
+- name: Resources | Tasks | Docker | Create Docker Container | Resolve docker vars (bulk)
+  ansible.builtin.set_fact:
+    _docker_vars: "{{ lookup('docker_vars', specs=_docker_var_specs) }}"
+  vars:
+    _docker_var_specs:
+      _docker_commands:
+        default: []
+      _docker_cpus:
+        default: "{{ docker_cpus_default }}"
+      _docker_envs:
+        default: {}
+      _docker_hosts_use_common:
+        default: true
+      _docker_hosts:
+        default: {}
+      _docker_network_mode:
+        default: "{{ docker_networks_name_common }}"
+      _docker_exposed_ports:
+        default: []
+      _docker_hostname:
+        default: ""
+      _docker_labels_use_common:
+        default: true
+      _docker_labels:
+        default: {}
+      _docker_log_driver:
+        default: ""
+      _docker_log_options:
+        default: {}
+      _docker_memory:
+        default: "{{ docker_memory_default }}"
+      _docker_networks:
+        default: []
+      _docker_ports:
+        default: []
+      _docker_volumes:
+        default: []
+      _docker_volumes_global:
+        default: true
+      _docker_auto_remove:
+        omit: true
+      _docker_blkio_weight:
+        omit: true
+      _docker_cap_drop:
+        omit: true
+      _docker_capabilities:
+        omit: true
+      _docker_cgroup_parent:
+        omit: true
+      _docker_cgroupns_mode:
+        omit: true
+      _docker_cleanup:
+        omit: true
+      _docker_cpu_period:
+        omit: true
+      _docker_cpu_quota:
+        omit: true
+      _docker_cpu_shares:
+        omit: true
+      _docker_cpuset_cpus:
+        omit: true
+      _docker_cpuset_mems:
+        omit: true
+      _docker_device_cgroup_rules:
+        omit: true
+      _docker_device_read_bps:
+        omit: true
+      _docker_device_read_iops:
+        omit: true
+      _docker_device_requests:
+        omit: true
+      _docker_device_write_bps:
+        omit: true
+      _docker_device_write_iops:
+        omit: true
+      _docker_devices:
+        omit: true
+      _docker_dns_opts:
+        omit: true
+      _docker_dns_search_domains:
+        omit: true
+      _docker_dns_servers:
+        omit: true
+      _docker_domainname:
+        omit: true
+      _docker_entrypoint:
+        omit: true
+      _docker_env_file:
+        omit: true
+      _docker_groups:
+        omit: true
+      _docker_healthcheck:
+        omit: true
+      _docker_healthy_wait_timeout:
+        default: 300
+      _docker_image:
+        required: true
+      _docker_init:
+        omit: true
+      _docker_ipc_mode:
+        omit: true
+      _docker_keep_volumes:
+        omit: true
+      _docker_kernel_memory:
+        omit: true
+      _docker_kill_signal:
+        omit: true
+      _docker_links:
+        omit: true
+      _docker_memory_reservation:
+        omit: true
+      _docker_memory_swap:
+        omit: true
+      _docker_memory_swappiness:
+        omit: true
+      _docker_mounts:
+        omit: true
+      _docker_container:
+        default: "{{ _instance_name }}"
+      _docker_oom_killer:
+        omit: true
+      _docker_oom_score_adj:
+        omit: true
+      _docker_output_logs:
+        omit: true
+      _docker_paused:
+        omit: true
+      _docker_pid_mode:
+        omit: true
+      _docker_privileged:
+        omit: true
+      _docker_image_pull:
+        default: true
+      _docker_read_only:
+        omit: true
+      _docker_recreate:
+        omit: true
+      _docker_restart_policy:
+        default: "unless-stopped"
+      _docker_restart_retries:
+        omit: true
+      _docker_runtime:
+        omit: true
+      _docker_security_opts:
+        omit: true
+      _docker_shm_size:
+        omit: true
+      _docker_stop_signal:
+        omit: true
+      _docker_stop_timeout:
+        default: "10"
+      _docker_storage_opts:
+        omit: true
+      _docker_sysctls:
+        omit: true
+      _docker_tmpfs:
+        omit: true
+      _docker_ulimits:
+        omit: true
+      _docker_user:
+        omit: true
+      _docker_userns_mode:
+        omit: true
+      _docker_uts:
+        omit: true
+      _docker_volume_driver:
+        omit: true
+      _docker_volumes_from:
+        omit: true
+      _docker_working_dir:
+        omit: true
+      _docker_create_timeout:
+        default: 120
+
 - name: Resources | Tasks | Docker | Create Docker Container | Set variables that need omit handling
   ansible.builtin.set_fact:
-    _docker_command: "{{ (lookup('docker_var', '_docker_commands', default=[]) | reject('equalto', omit) | list) }}"
-    _docker_cpus: "{{ lookup('docker_var', '_docker_cpus', default=docker_cpus_default) }}"
-    _docker_env: "{{ (nvidia_docker_env if use_nvidia else {}) | combine(lookup('docker_var', '_docker_envs', default={})) }}"
-    _docker_etc_hosts: "{{ (docker_hosts_common if lookup('docker_var', '_docker_hosts_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_hosts', default={}))
-                        if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
+    _docker_command: "{{ (_docker_vars['_docker_commands']['value'] | reject('equalto', omit) | list) }}"
+    _docker_cpus: "{{ _docker_vars['_docker_cpus']['value'] }}"
+    _docker_env: "{{ (nvidia_docker_env if use_nvidia else {}) | combine(_docker_vars['_docker_envs']['value']) }}"
+    _docker_etc_hosts: "{{ (docker_hosts_common if _docker_vars['_docker_hosts_use_common']['value'] else {}) | combine(_docker_vars['_docker_hosts']['value'])
+                        if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                         else {} }}"
-    _docker_exposed_ports: "{{ (lookup('docker_var', '_docker_exposed_ports', default=[]) | unique | reject('equalto', omit) | list)
-                            if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
+    _docker_exposed_ports: "{{ (_docker_vars['_docker_exposed_ports']['value'] | unique | reject('equalto', omit) | list)
+                            if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                             else [] }}"
-    _docker_hostname: "{{ lookup('docker_var', '_docker_hostname', default='')
-                       if (lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common) == docker_networks_name_common)
+    _docker_hostname: "{{ _docker_vars['_docker_hostname']['value']
+                       if (_docker_vars['_docker_network_mode']['value'] == docker_networks_name_common)
                        else '' }}"
-    _docker_labels: "{{ (docker_labels_common if lookup('docker_var', '_docker_labels_use_common', default=true) else {}) | combine(lookup('docker_var', '_docker_labels', default={})) }}"
-    _docker_log_driver: "{{ docker_log_driver if (docker_log_driver != 'default') else lookup('docker_var', '_docker_log_driver', default='') }}"
-    _docker_log_options: "{{ docker_log_options if (docker_log_options != 'default') else lookup('docker_var', '_docker_log_options', default={}) }}"
-    _docker_memory: "{{ lookup('docker_var', '_docker_memory', default=docker_memory_default) }}"
-    _docker_networks: "{{ lookup('docker_var', '_docker_networks', default=[])
-                       if not ((lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common) == 'host') or ('container' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common)))
+    _docker_labels: "{{ (docker_labels_common if _docker_vars['_docker_labels_use_common']['value'] else {}) | combine(_docker_vars['_docker_labels']['value']) }}"
+    _docker_log_driver: "{{ docker_log_driver if (docker_log_driver != 'default') else _docker_vars['_docker_log_driver']['value'] }}"
+    _docker_log_options: "{{ docker_log_options if (docker_log_options != 'default') else _docker_vars['_docker_log_options']['value'] }}"
+    _docker_memory: "{{ _docker_vars['_docker_memory']['value'] }}"
+    _docker_networks: "{{ _docker_vars['_docker_networks']['value']
+                       if not ((_docker_vars['_docker_network_mode']['value'] == 'host') or ('container' in _docker_vars['_docker_network_mode']['value']))
                        else [] }}"
-    _docker_published_ports: "{{ (lookup('docker_var', '_docker_ports', default=[]) | unique | reject('equalto', omit) | list)
-                              if not ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
+    _docker_published_ports: "{{ (_docker_vars['_docker_ports']['value'] | unique | reject('equalto', omit) | list)
+                              if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                               else [] }}"
-    _docker_volumes: "{{ ((docker_volumes_common + lookup('docker_var', '_docker_volumes', default=[]))
-                      if (lookup('docker_var', '_docker_volumes_global', default=true) | bool)
-                      else lookup('docker_var', '_docker_volumes', default=[])) | unique | reject('equalto', omit) | list }}"
+    _docker_volumes: "{{ ((docker_volumes_common + _docker_vars['_docker_volumes']['value'])
+                      if (_docker_vars['_docker_volumes_global']['value'] | bool)
+                      else _docker_vars['_docker_volumes']['value']) | unique | reject('equalto', omit) | list }}"
 
 - name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
-  when: ('container:' in lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common))
+  when: ('container:' in _docker_vars['_docker_network_mode']['value'])
 
 - name: Resources | Tasks | Docker | Create Docker Container | Create Docker Container # noqa args[module]
   community.docker.docker_container:
-    auto_remove: "{{ lookup('docker_var', '_docker_auto_remove', default=omit) }}"
-    blkio_weight: "{{ lookup('docker_var', '_docker_blkio_weight', default=omit) }}"
-    cap_drop: "{{ lookup('docker_var', '_docker_cap_drop', default=omit) }}"
-    capabilities: "{{ lookup('docker_var', '_docker_capabilities', default=omit) }}"
-    cgroup_parent: "{{ lookup('docker_var', '_docker_cgroup_parent', default=omit) }}"
-    cgroupns_mode: "{{ lookup('docker_var', '_docker_cgroupns_mode', default=omit) }}"
-    cleanup: "{{ lookup('docker_var', '_docker_cleanup', default=omit) }}"
+    auto_remove: "{{ (_docker_vars['_docker_auto_remove']['value'] if not _docker_vars['_docker_auto_remove']['omit'] else omit) }}"
+    blkio_weight: "{{ (_docker_vars['_docker_blkio_weight']['value'] if not _docker_vars['_docker_blkio_weight']['omit'] else omit) }}"
+    cap_drop: "{{ (_docker_vars['_docker_cap_drop']['value'] if not _docker_vars['_docker_cap_drop']['omit'] else omit) }}"
+    capabilities: "{{ (_docker_vars['_docker_capabilities']['value'] if not _docker_vars['_docker_capabilities']['omit'] else omit) }}"
+    cgroup_parent: "{{ (_docker_vars['_docker_cgroup_parent']['value'] if not _docker_vars['_docker_cgroup_parent']['omit'] else omit) }}"
+    cgroupns_mode: "{{ (_docker_vars['_docker_cgroupns_mode']['value'] if not _docker_vars['_docker_cgroupns_mode']['omit'] else omit) }}"
+    cleanup: "{{ (_docker_vars['_docker_cleanup']['value'] if not _docker_vars['_docker_cleanup']['omit'] else omit) }}"
     command: "{{ _docker_command
               if (_docker_command | length > 0)
               else omit }}"
     command_handling: compatibility
     container_default_behavior: compatibility
-    cpu_period: "{{ lookup('docker_var', '_docker_cpu_period', default=omit) }}"
-    cpu_quota: "{{ lookup('docker_var', '_docker_cpu_quota', default=omit) }}"
-    cpu_shares: "{{ lookup('docker_var', '_docker_cpu_shares', default=omit) }}"
+    cpu_period: "{{ (_docker_vars['_docker_cpu_period']['value'] if not _docker_vars['_docker_cpu_period']['omit'] else omit) }}"
+    cpu_quota: "{{ (_docker_vars['_docker_cpu_quota']['value'] if not _docker_vars['_docker_cpu_quota']['omit'] else omit) }}"
+    cpu_shares: "{{ (_docker_vars['_docker_cpu_shares']['value'] if not _docker_vars['_docker_cpu_shares']['omit'] else omit) }}"
     cpus: "{{ _docker_cpus
            if (_docker_cpus | length > 0)
            else omit }}"
-    cpuset_cpus: "{{ lookup('docker_var', '_docker_cpuset_cpus', default=omit) }}"
-    cpuset_mems: "{{ lookup('docker_var', '_docker_cpuset_mems', default=omit) }}"
+    cpuset_cpus: "{{ (_docker_vars['_docker_cpuset_cpus']['value'] if not _docker_vars['_docker_cpuset_cpus']['omit'] else omit) }}"
+    cpuset_mems: "{{ (_docker_vars['_docker_cpuset_mems']['value'] if not _docker_vars['_docker_cpuset_mems']['omit'] else omit) }}"
     default_host_ip: ""
     detach: true
-    device_cgroup_rules: "{{ lookup('docker_var', '_docker_device_cgroup_rules', default=omit) }}"
-    device_read_bps: "{{ lookup('docker_var', '_docker_device_read_bps', default=omit) }}"
-    device_read_iops: "{{ lookup('docker_var', '_docker_device_read_iops', default=omit) }}"
-    device_requests: "{{ lookup('docker_var', '_docker_device_requests', default=omit) }}"
-    device_write_bps: "{{ lookup('docker_var', '_docker_device_write_bps', default=omit) }}"
-    device_write_iops: "{{ lookup('docker_var', '_docker_device_write_iops', default=omit) }}"
-    devices: "{{ lookup('docker_var', '_docker_devices', default=omit) }}"
-    dns_opts: "{{ lookup('docker_var', '_docker_dns_opts', default=omit) }}"
-    dns_search_domains: "{{ lookup('docker_var', '_docker_dns_search_domains', default=omit) }}"
-    dns_servers: "{{ lookup('docker_var', '_docker_dns_servers', default=omit) }}"
-    domainname: "{{ lookup('docker_var', '_docker_domainname', default=omit) }}"
-    entrypoint: "{{ lookup('docker_var', '_docker_entrypoint', default=omit) }}"
+    device_cgroup_rules: "{{ (_docker_vars['_docker_device_cgroup_rules']['value'] if not _docker_vars['_docker_device_cgroup_rules']['omit'] else omit) }}"
+    device_read_bps: "{{ (_docker_vars['_docker_device_read_bps']['value'] if not _docker_vars['_docker_device_read_bps']['omit'] else omit) }}"
+    device_read_iops: "{{ (_docker_vars['_docker_device_read_iops']['value'] if not _docker_vars['_docker_device_read_iops']['omit'] else omit) }}"
+    device_requests: "{{ (_docker_vars['_docker_device_requests']['value'] if not _docker_vars['_docker_device_requests']['omit'] else omit) }}"
+    device_write_bps: "{{ (_docker_vars['_docker_device_write_bps']['value'] if not _docker_vars['_docker_device_write_bps']['omit'] else omit) }}"
+    device_write_iops: "{{ (_docker_vars['_docker_device_write_iops']['value'] if not _docker_vars['_docker_device_write_iops']['omit'] else omit) }}"
+    devices: "{{ (_docker_vars['_docker_devices']['value'] if not _docker_vars['_docker_devices']['omit'] else omit) }}"
+    dns_opts: "{{ (_docker_vars['_docker_dns_opts']['value'] if not _docker_vars['_docker_dns_opts']['omit'] else omit) }}"
+    dns_search_domains: "{{ (_docker_vars['_docker_dns_search_domains']['value'] if not _docker_vars['_docker_dns_search_domains']['omit'] else omit) }}"
+    dns_servers: "{{ (_docker_vars['_docker_dns_servers']['value'] if not _docker_vars['_docker_dns_servers']['omit'] else omit) }}"
+    domainname: "{{ (_docker_vars['_docker_domainname']['value'] if not _docker_vars['_docker_domainname']['omit'] else omit) }}"
+    entrypoint: "{{ (_docker_vars['_docker_entrypoint']['value'] if not _docker_vars['_docker_entrypoint']['omit'] else omit) }}"
     env: "{{ _docker_env
           if (_docker_env | length > 0)
           else omit }}"
-    env_file: "{{ lookup('docker_var', '_docker_env_file', default=omit) }}"
+    env_file: "{{ (_docker_vars['_docker_env_file']['value'] if not _docker_vars['_docker_env_file']['omit'] else omit) }}"
     etc_hosts: "{{ _docker_etc_hosts
                 if (_docker_etc_hosts | length > 0)
                 else omit }}"
     exposed_ports: "{{ _docker_exposed_ports
                     if (_docker_exposed_ports | length > 0)
                     else omit }}"
-    groups: "{{ lookup('docker_var', '_docker_groups', default=omit) }}"
-    healthcheck: "{{ lookup('docker_var', '_docker_healthcheck', default=omit) }}"
-    healthy_wait_timeout: "{{ lookup('docker_var', '_docker_healthy_wait_timeout', default=300) }}"
+    groups: "{{ (_docker_vars['_docker_groups']['value'] if not _docker_vars['_docker_groups']['omit'] else omit) }}"
+    healthcheck: "{{ (_docker_vars['_docker_healthcheck']['value'] if not _docker_vars['_docker_healthcheck']['omit'] else omit) }}"
+    healthy_wait_timeout: "{{ _docker_vars['_docker_healthy_wait_timeout']['value'] }}"
     hostname: "{{ _docker_hostname
                if (_docker_hostname | length > 0)
                else omit }}"
-    image: "{{ lookup('docker_var', '_docker_image') }}"
+    image: "{{ _docker_vars['_docker_image']['value'] }}"
     image_comparison: "desired-image"
     image_label_mismatch: "ignore"
     image_name_mismatch: "recreate"
-    init: "{{ lookup('docker_var', '_docker_init', default=omit) }}"
-    ipc_mode: "{{ lookup('docker_var', '_docker_ipc_mode', default=omit) }}"
-    keep_volumes: "{{ lookup('docker_var', '_docker_keep_volumes', default=omit) }}"
-    kernel_memory: "{{ lookup('docker_var', '_docker_kernel_memory', default=omit) }}"
-    kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
+    init: "{{ (_docker_vars['_docker_init']['value'] if not _docker_vars['_docker_init']['omit'] else omit) }}"
+    ipc_mode: "{{ (_docker_vars['_docker_ipc_mode']['value'] if not _docker_vars['_docker_ipc_mode']['omit'] else omit) }}"
+    keep_volumes: "{{ (_docker_vars['_docker_keep_volumes']['value'] if not _docker_vars['_docker_keep_volumes']['omit'] else omit) }}"
+    kernel_memory: "{{ (_docker_vars['_docker_kernel_memory']['value'] if not _docker_vars['_docker_kernel_memory']['omit'] else omit) }}"
+    kill_signal: "{{ (_docker_vars['_docker_kill_signal']['value'] if not _docker_vars['_docker_kill_signal']['omit'] else omit) }}"
     labels: "{{ _docker_labels
              if (_docker_labels | length > 0)
              else omit }}"
-    links: "{{ lookup('docker_var', '_docker_links', default=omit) }}"
+    links: "{{ (_docker_vars['_docker_links']['value'] if not _docker_vars['_docker_links']['omit'] else omit) }}"
     log_driver: "{{ _docker_log_driver
                  if (_docker_log_driver | length > 0)
                  else omit }}"
@@ -123,56 +297,56 @@
     memory: "{{ _docker_memory
              if (_docker_memory | length > 0)
              else omit }}"
-    memory_reservation: "{{ lookup('docker_var', '_docker_memory_reservation', default=omit) }}"
-    memory_swap: "{{ lookup('docker_var', '_docker_memory_swap', default=omit) }}"
-    memory_swappiness: "{{ lookup('docker_var', '_docker_memory_swappiness', default=omit) }}"
-    mounts: "{{ lookup('docker_var', '_docker_mounts', default=omit) }}"
-    name: "{{ lookup('docker_var', '_docker_container', default=_instance_name) }}"
-    network_mode: "{{ lookup('docker_var', '_docker_network_mode', default=docker_networks_name_common) }}"
+    memory_reservation: "{{ (_docker_vars['_docker_memory_reservation']['value'] if not _docker_vars['_docker_memory_reservation']['omit'] else omit) }}"
+    memory_swap: "{{ (_docker_vars['_docker_memory_swap']['value'] if not _docker_vars['_docker_memory_swap']['omit'] else omit) }}"
+    memory_swappiness: "{{ (_docker_vars['_docker_memory_swappiness']['value'] if not _docker_vars['_docker_memory_swappiness']['omit'] else omit) }}"
+    mounts: "{{ (_docker_vars['_docker_mounts']['value'] if not _docker_vars['_docker_mounts']['omit'] else omit) }}"
+    name: "{{ _docker_vars['_docker_container']['value'] }}"
+    network_mode: "{{ _docker_vars['_docker_network_mode']['value'] }}"
     networks: "{{ _docker_networks
                if (_docker_networks | length > 0)
                else omit }}"
     networks_cli_compatible: true
-    oom_killer: "{{ lookup('docker_var', '_docker_oom_killer', default=omit) }}"
-    oom_score_adj: "{{ lookup('docker_var', '_docker_oom_score_adj', default=omit) }}"
-    output_logs: "{{ lookup('docker_var', '_docker_output_logs', default=omit) }}"
-    paused: "{{ lookup('docker_var', '_docker_paused', default=omit) }}"
-    pid_mode: "{{ lookup('docker_var', '_docker_pid_mode', default=omit) }}"
-    privileged: "{{ lookup('docker_var', '_docker_privileged', default=omit) }}"
+    oom_killer: "{{ (_docker_vars['_docker_oom_killer']['value'] if not _docker_vars['_docker_oom_killer']['omit'] else omit) }}"
+    oom_score_adj: "{{ (_docker_vars['_docker_oom_score_adj']['value'] if not _docker_vars['_docker_oom_score_adj']['omit'] else omit) }}"
+    output_logs: "{{ (_docker_vars['_docker_output_logs']['value'] if not _docker_vars['_docker_output_logs']['omit'] else omit) }}"
+    paused: "{{ (_docker_vars['_docker_paused']['value'] if not _docker_vars['_docker_paused']['omit'] else omit) }}"
+    pid_mode: "{{ (_docker_vars['_docker_pid_mode']['value'] if not _docker_vars['_docker_pid_mode']['omit'] else omit) }}"
+    privileged: "{{ (_docker_vars['_docker_privileged']['value'] if not _docker_vars['_docker_privileged']['omit'] else omit) }}"
     published_ports: "{{ _docker_published_ports
                       if (_docker_published_ports | length > 0)
                       else omit }}"
-    pull: "{{ lookup('docker_var', '_docker_image_pull', default=true) | bool }}"
+    pull: "{{ _docker_vars['_docker_image_pull']['value'] | bool }}"
     pull_check_mode_behavior: "image_not_present"
-    read_only: "{{ lookup('docker_var', '_docker_read_only', default=omit) }}"
-    recreate: "{{ lookup('docker_var', '_docker_recreate', default=omit) }}"
-    restart_policy: "{{ lookup('docker_var', '_docker_restart_policy', default='unless-stopped') }}"
-    restart_retries: "{{ lookup('docker_var', '_docker_restart_retries', default=omit) }}"
-    runtime: "{{ lookup('docker_var', '_docker_runtime', default=omit) }}"
-    security_opts: "{{ lookup('docker_var', '_docker_security_opts', default=omit) }}"
-    shm_size: "{{ lookup('docker_var', '_docker_shm_size', default=omit) }}"
+    read_only: "{{ (_docker_vars['_docker_read_only']['value'] if not _docker_vars['_docker_read_only']['omit'] else omit) }}"
+    recreate: "{{ (_docker_vars['_docker_recreate']['value'] if not _docker_vars['_docker_recreate']['omit'] else omit) }}"
+    restart_policy: "{{ _docker_vars['_docker_restart_policy']['value'] }}"
+    restart_retries: "{{ (_docker_vars['_docker_restart_retries']['value'] if not _docker_vars['_docker_restart_retries']['omit'] else omit) }}"
+    runtime: "{{ (_docker_vars['_docker_runtime']['value'] if not _docker_vars['_docker_runtime']['omit'] else omit) }}"
+    security_opts: "{{ (_docker_vars['_docker_security_opts']['value'] if not _docker_vars['_docker_security_opts']['omit'] else omit) }}"
+    shm_size: "{{ (_docker_vars['_docker_shm_size']['value'] if not _docker_vars['_docker_shm_size']['omit'] else omit) }}"
     state: started
-    stop_signal: "{{ lookup('docker_var', '_docker_stop_signal', default=omit) }}"
-    stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='10') }}"
-    storage_opts: "{{ lookup('docker_var', '_docker_storage_opts', default=omit) }}"
-    sysctls: "{{ lookup('docker_var', '_docker_sysctls', default=omit) }}"
+    stop_signal: "{{ (_docker_vars['_docker_stop_signal']['value'] if not _docker_vars['_docker_stop_signal']['omit'] else omit) }}"
+    stop_timeout: "{{ _docker_vars['_docker_stop_timeout']['value'] }}"
+    storage_opts: "{{ (_docker_vars['_docker_storage_opts']['value'] if not _docker_vars['_docker_storage_opts']['omit'] else omit) }}"
+    sysctls: "{{ (_docker_vars['_docker_sysctls']['value'] if not _docker_vars['_docker_sysctls']['omit'] else omit) }}"
     tls_hostname: localhost
-    tmpfs: "{{ lookup('docker_var', '_docker_tmpfs', default=omit) }}"
-    ulimits: "{{ lookup('docker_var', '_docker_ulimits', default=omit) }}"
-    user: "{{ lookup('docker_var', '_docker_user', default=omit) }}"
-    userns_mode: "{{ lookup('docker_var', '_docker_userns_mode', default=omit) }}"
-    uts: "{{ lookup('docker_var', '_docker_uts', default=omit) }}"
-    volume_driver: "{{ lookup('docker_var', '_docker_volume_driver', default=omit) }}"
+    tmpfs: "{{ (_docker_vars['_docker_tmpfs']['value'] if not _docker_vars['_docker_tmpfs']['omit'] else omit) }}"
+    ulimits: "{{ (_docker_vars['_docker_ulimits']['value'] if not _docker_vars['_docker_ulimits']['omit'] else omit) }}"
+    user: "{{ (_docker_vars['_docker_user']['value'] if not _docker_vars['_docker_user']['omit'] else omit) }}"
+    userns_mode: "{{ (_docker_vars['_docker_userns_mode']['value'] if not _docker_vars['_docker_userns_mode']['omit'] else omit) }}"
+    uts: "{{ (_docker_vars['_docker_uts']['value'] if not _docker_vars['_docker_uts']['omit'] else omit) }}"
+    volume_driver: "{{ (_docker_vars['_docker_volume_driver']['value'] if not _docker_vars['_docker_volume_driver']['omit'] else omit) }}"
     volumes: "{{ _docker_volumes
               if (_docker_volumes | length > 0)
               else omit }}"
-    volumes_from: "{{ lookup('docker_var', '_docker_volumes_from', default=omit) }}"
-    working_dir: "{{ lookup('docker_var', '_docker_working_dir', default=omit) }}"
+    volumes_from: "{{ (_docker_vars['_docker_volumes_from']['value'] if not _docker_vars['_docker_volumes_from']['omit'] else omit) }}"
+    working_dir: "{{ (_docker_vars['_docker_working_dir']['value'] if not _docker_vars['_docker_working_dir']['omit'] else omit) }}"
   register: create_docker_result
   retries: "{{ ansible_retry_count
             if (not continuous_integration)
             else ansible_retry_count_ci }}"
-  timeout: "{{ lookup('docker_var', '_docker_create_timeout', default=120)
+  timeout: "{{ _docker_vars['_docker_create_timeout']['value']
             if continuous_integration
             else omit }}"
   delay: 10
