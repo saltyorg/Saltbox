@@ -26,6 +26,7 @@
            if (container_name is defined)
            else lookup('docker_var', '_docker_container', default=_var_prefix) }}"
     state: stopped
+    stop_signal: "{{ lookup('docker_var', '_docker_stop_signal', default=omit) }}"
     stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='180') }}"
     tls_hostname: localhost
     comparisons:

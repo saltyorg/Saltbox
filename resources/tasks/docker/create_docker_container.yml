@@ -152,6 +152,7 @@
     security_opts: "{{ lookup('docker_var', '_docker_security_opts', default=omit) }}"
     shm_size: "{{ lookup('docker_var', '_docker_shm_size', default=omit) }}"
     state: started
+    stop_signal: "{{ lookup('docker_var', '_docker_stop_signal', default=omit) }}"
     stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='10') }}"
     storage_opts: "{{ lookup('docker_var', '_docker_storage_opts', default=omit) }}"
     sysctls: "{{ lookup('docker_var', '_docker_sysctls', default=omit) }}"
