@@ -79,7 +79,7 @@ portainer_role_docker_container: "{{ portainer_name }}"
 
 # Image
 portainer_role_docker_image_pull: true
-portainer_role_docker_image_tag: "latest"
+portainer_role_docker_image_tag: "alpine"
 portainer_role_docker_image_repo: "{{ 'portainer/portainer-ee'
                                    if lookup('role_var', '_business_edition', role='portainer')
                                    else 'portainer/portainer-ce' }}"
