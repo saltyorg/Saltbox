@@ -390,7 +390,7 @@ traefik_role_docker_commands_metrics:
   - "--metrics.prometheus.manualrouting=true"
 traefik_role_docker_commands_cloudflarewarp_plugin:
   - "--experimental.plugins.cloudflarewarp.modulename=github.com/saltyorg/cloudflarewarp"
-  - "--experimental.plugins.cloudflarewarp.version=v1.0.0"
+  - "--experimental.plugins.cloudflarewarp.version=v1.3.3"
 traefik_role_docker_commands_themepark_plugin:
   - "--experimental.plugins.themepark.modulename=github.com/packruler/traefik-themepark"
   - "--experimental.plugins.themepark.version=v1.4.2"
