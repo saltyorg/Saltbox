@@ -11,7 +11,7 @@
     "ansible": {
         "enabled": false
     },
-    "baseBranches": [
+    "baseBranchPatterns": [
         "$default",
         "role-refactor"
     ],
