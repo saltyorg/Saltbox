@@ -36,6 +36,7 @@
 /rclone.conf
 /settings.yml
 /motd.yml
+/announcements-empty.yml
 
 ### Misc ###
 /.idea

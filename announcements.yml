@@ -1,0 +1,14 @@
+---
+announcements:
+  - date: "2026-02-01"
+    title: "Breaking Changes"
+    message: |
+      ## Feature Update
+
+      A milestone release, 9 months in the making, is now live for the Saltbox and Sandbox repositories. Dubbed Role Refactor, the update focuses on enhancing customization of apps, with many other features added along the way.
+
+      Full details: https://docs.saltbox.dev/saltbox/upgrade/role-refactor
+
+      Action may be required following the upgrade, so be sure to review the article to find out if your configuration is affected.
+
+      If you encounter any issues, please report them on Discord.
