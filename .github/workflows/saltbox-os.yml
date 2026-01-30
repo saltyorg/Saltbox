@@ -8,7 +8,7 @@ jobs:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -29,7 +29,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - id: set-matrix
         run: |
           ROLES=$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|nvidia\|nvidia-purge\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\|crowdsec\).,//g")
@@ -43,7 +43,7 @@ jobs:
       matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Create Directories
         run: sudo mkdir -p /srv/ansible /srv/git/sb
