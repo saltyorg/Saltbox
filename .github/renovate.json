@@ -100,5 +100,40 @@
     "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
     "lockFileMaintenance": {
         "enabled": true
-    }
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "description": "Traefik cloudflarewarp plugin",
+            "managerFilePatterns": ["roles/traefik/defaults/main.yml"],
+            "matchStrings": [
+                "plugins\\.cloudflarewarp\\.version=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+            ],
+            "depNameTemplate": "saltyorg/cloudflarewarp",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
+            "description": "Traefik themepark plugin",
+            "managerFilePatterns": ["roles/traefik/defaults/main.yml"],
+            "matchStrings": [
+                "plugins\\.themepark\\.version=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+            ],
+            "depNameTemplate": "packruler/traefik-themepark",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
+            "description": "Traefik crowdsec bouncer plugin",
+            "managerFilePatterns": ["roles/traefik/defaults/main.yml"],
+            "matchStrings": [
+                "plugins\\.bouncer\\.version=(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+            ],
+            "depNameTemplate": "maxlerebourg/crowdsec-bouncer-traefik-plugin",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
+        }
+    ]
 }
