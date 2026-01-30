@@ -7,6 +7,24 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if Autoplow data directory exists
+  ansible.builtin.stat:
+    path: "{{ autoplow_db_path }}"
+  register: autoplow_db_directory
+
+- name: Prompt block
+  when: (not continuous_integration) and (not autoplow_db_directory.stat.exists)
+  block:
+    - name: Prompt for alpha software acceptance
+      ansible.builtin.pause:
+        prompt: "Autoplow is alpha software and may be unstable. Do you want to continue? (y/yes)"
+      register: autoplow_alpha_accept
+
+    - name: Fail if alpha software acceptance not provided
+      ansible.builtin.fail:
+        msg: "Autoplow install aborted by user."
+      when: (autoplow_alpha_accept.user_input | trim | lower) not in ['y', 'yes']
+
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
