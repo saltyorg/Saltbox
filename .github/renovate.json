@@ -12,7 +12,8 @@
         "enabled": false
     },
     "baseBranches": [
-        "$default"
+        "$default",
+        "role-refactor"
     ],
     "labels": [
         "dependencies"
