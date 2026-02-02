@@ -90,7 +90,7 @@
     authelia_logrotate:
       - path: "{{ authelia_name }}"
         content: |
-          {{ server_appdata_path }}/{{ authelia_name }}/authelia.log {
+          {{ lookup('role_var', '_paths_location', role='authelia') }}/authelia.log {
               su {{ user.name }} {{ user.name }}
               rotate {{ lookup('role_var', '_log_max_backups') }}
               size {{ lookup('role_var', '_log_max_size') }}

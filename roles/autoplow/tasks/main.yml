@@ -72,7 +72,7 @@
 - name: Import 'autoplow.yml' Traefik file provider
   ansible.builtin.template:
     src: "autoplow.yml.j2"
-    dest: "{{ server_appdata_path }}/traefik/{{ autoplow_name }}.yml"
+    dest: "{{ lookup('role_var', '_paths_location', role='traefik') }}/{{ autoplow_name }}.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"

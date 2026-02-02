@@ -25,9 +25,9 @@ whisparr_role_external_auth: true
 
 whisparr_paths_folder: "{{ whisparr_name }}"
 whisparr_paths_location: "{{ server_appdata_path }}/{{ whisparr_paths_folder }}"
+whisparr_paths_config_location: "{{ whisparr_paths_location }}/config.xml"
 whisparr_paths_folders_list:
   - "{{ whisparr_paths_location }}"
-whisparr_paths_config_location: "{{ whisparr_paths_location }}/config.xml"
 
 ################################
 # Web

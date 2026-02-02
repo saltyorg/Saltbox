@@ -9,7 +9,7 @@
 ---
 - name: Auth | Wait for 'config.xml' to be created
   ansible.builtin.wait_for:
-    path: "{{ server_appdata_path }}/{{ whisparr_name }}/config.xml"
+    path: "{{ lookup('role_var', '_paths_config_location', role='whisparr') }}"
     state: present
 
 - name: Auth | Wait for 10 seconds
@@ -18,7 +18,7 @@
 
 - name: Auth | Lookup AuthenticationMethod value
   community.general.xml:
-    path: "{{ server_appdata_path }}/{{ whisparr_name }}/config.xml"
+    path: "{{ lookup('role_var', '_paths_config_location', role='whisparr') }}"
     xpath: "/Config/AuthenticationMethod"
     content: "text"
   register: xmlresp
@@ -28,7 +28,7 @@
   block:
     - name: Auth | Change the 'AuthenticationMethod' attribute to 'External'
       community.general.xml:
-        path: "{{ server_appdata_path }}/{{ whisparr_name }}/config.xml"
+        path: "{{ lookup('role_var', '_paths_config_location', role='whisparr') }}"
         xpath: "/Config/AuthenticationMethod"
         value: "External"
 

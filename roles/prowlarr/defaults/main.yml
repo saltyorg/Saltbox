@@ -25,6 +25,7 @@ prowlarr_role_external_auth: true
 
 prowlarr_role_paths_folder: "{{ prowlarr_name }}"
 prowlarr_role_paths_location: "{{ server_appdata_path }}/{{ prowlarr_role_paths_folder }}"
+prowlarr_role_paths_config_location: "{{ prowlarr_role_paths_location }}/config.xml"
 prowlarr_role_paths_folders_list:
   - "{{ prowlarr_role_paths_location }}"
 
