@@ -195,7 +195,7 @@
   ansible.builtin.set_fact:
     _docker_command: "{{ (_docker_vars['_docker_commands']['value'] | reject('equalto', omit) | list) }}"
     _docker_cpus: "{{ _docker_vars['_docker_cpus']['value'] }}"
-    _docker_env: "{{ (nvidia_docker_env if use_nvidia else {}) | combine(_docker_vars['_docker_envs']['value']) }}"
+    _docker_env: "{{ (nvidia_docker_env if use_nvidia and dev_dri is defined else {}) | combine(_docker_vars['_docker_envs']['value']) }}"
     _docker_etc_hosts: "{{ (docker_hosts_common if _docker_vars['_docker_hosts_use_common']['value'] else {}) | combine(_docker_vars['_docker_hosts']['value'])
                         if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                         else {} }}"
