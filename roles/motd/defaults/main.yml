@@ -11,12 +11,12 @@
 # Basics
 ################################
 
+# Setting this to false will skip the motd management and you can manage it manually
 motd_install: true
-
-# Requires the new golang CLI to be installed and in the location set below
-# if you set motd_use_python to false.
-motd_use_python: true
+# Setting this to true will switch back to the old python motd
+motd_use_python: false
 motd_cli_path: "/usr/local/bin/sb"
+# Run sb motd --help to view what you can customize in terms of flags
 motd_cli_flags: "--all --title 'Saltbox' --font ivrit --type parchment"
 
 ################################
