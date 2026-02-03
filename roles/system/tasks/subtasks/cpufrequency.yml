@@ -68,4 +68,4 @@
     enabled: false
     daemon_reload: true
   ignore_errors: true
-  when: ('ondemand.service' in services and ansible_facts['services']['ondemand.service']['status'] == 'enabled')
+  when: ('ondemand.service' in ansible_facts['services'] and ansible_facts['services']['ondemand.service']['status'] == 'enabled')
