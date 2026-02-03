@@ -67,7 +67,7 @@
             rule: "{{ traefik_host_template }}"
             middlewares:
       {% for item in traefik_default_middleware_http.split(',') %}
-              - {{ item.strip() }}
+              - {{ item.strip() | string | to_json }}
       {% endfor %}
             service: "{{ traefik_file_template_name }}"
 
@@ -77,45 +77,45 @@
             rule: "{{ traefik_host_template }}"
             middlewares:
       {% for item in traefik_default_middleware.split(',') %}
-              - {{ item.strip() }}
+              - {{ item.strip() | string | to_json }}
       {% endfor %}
             service: "{{ traefik_file_template_name }}"
             tls:
-              options: securetls@file
+              options: "securetls@file"
               certResolver: "{{ traefik_default_certresolver }}"
-      {% if traefik_file_template_traefik_api_enabled %}
+      {% if traefik_file_template_role_traefik_api_enabled %}
           {{ traefik_file_template_name }}-api-http:
             entrypoints:
               - "web"
-            rule: "{{ traefik_host_template }} && ({{ traefik_file_template_traefik_api_endpoint }})"
+            rule: "{{ traefik_host_template }} && ({{ traefik_file_template_role_traefik_api_endpoint }})"
             middlewares:
       {% for item in traefik_default_middleware_http_api.split(',') %}
-              - {{ item.strip() }}
+              - {{ item.strip() | string | to_json }}
       {% endfor %}
             service: "{{ traefik_file_template_name }}"
 
           {{ traefik_file_template_name }}-api:
             entrypoints:
               - "websecure"
-            rule: "{{ traefik_host_template }} && ({{ traefik_file_template_traefik_api_endpoint }})"
+            rule: "{{ traefik_host_template }} && ({{ traefik_file_template_role_traefik_api_endpoint }})"
             middlewares:
       {% for item in traefik_default_middleware_api.split(',') %}
-              - {{ item.strip() }}
+              - {{ item.strip() | string | to_json }}
       {% endfor %}
             service: "{{ traefik_file_template_name }}"
             tls:
-              options: securetls@file
+              options: "securetls@file"
               certResolver: "{{ traefik_default_certresolver }}"
       {% endif %}
 
         services:
           {{ traefik_file_template_name }}:
             loadBalancer:
-      {% if traefik_file_template_web_scheme == "https" %}
-              serversTransport: skipverify@file
+      {% if traefik_file_template_role_web_scheme == "https" %}
+              serversTransport: "skipverify@file"
       {% endif %}
               servers:
-                - url: "{{ traefik_file_template_web_scheme }}://{{ traefik_file_template_web_ip }}:{{ traefik_file_template_web_port }}"
+                - url: "{{ traefik_file_template_role_web_scheme }}://{{ traefik_file_template_role_web_ip }}:{{ traefik_file_template_role_web_port }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"
