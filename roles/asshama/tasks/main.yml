@@ -18,7 +18,7 @@
     docker_running_containers: "{{ (docker_running_containers.stdout).split() }}"
 
 - name: Loop tasks
-  ansible.builtin.include_tasks: subtasks/loop.yml
+  ansible.builtin.include_tasks: "subtasks/loop.yml"
   loop: "{{ plex_instances }}"
   loop_control:
     loop_var: plex_instance
