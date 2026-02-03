@@ -18,7 +18,9 @@
     dest: "/etc/apt/keyrings/flexiondotorg.asc"
     mode: "0644"
   register: result
-  retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
   when: ansible_facts['distribution_release'] in ['jammy', 'focal']
