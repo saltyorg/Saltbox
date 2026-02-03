@@ -49,7 +49,7 @@ jwt_secret = "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits
 ## The sample value is for "example.com", but you can extend it with as
 ## many "dc" as you want, and you don't actually need to own the domain
 ## name.
-ldap_base_dn = "dc={{ authelia_domain.stdout }},dc={{ authelia_tld.stdout }}"
+ldap_base_dn = "dc={{ authelia_tld_parse.domain }},dc={{ authelia_tld_parse.tld }}"
 
 ## Admin username.
 ## For the LDAP interface, a value of "admin" here will create the LDAP
