@@ -222,10 +222,10 @@ traefik_dns_provider_powerdns:
 # Traefik
 ################################
 
-traefik_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
-traefik_traefik_certresolver: "{{ traefik_default_certresolver }}"
-traefik_traefik_enabled: true
-traefik_traefik_autodetect_enabled: true
+traefik_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+traefik_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+traefik_role_traefik_enabled: true
+traefik_role_traefik_autodetect_enabled: true
 
 ################################
 # Docker
