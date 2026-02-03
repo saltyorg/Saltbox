@@ -25,6 +25,7 @@
 
 - name: Import preinstall task
   ansible.builtin.include_tasks: "subtasks/preinstall.yml"
+  when: (not continuous_integration)
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
@@ -32,4 +33,5 @@
 - name: Import postinstall task
   ansible.builtin.include_tasks: "subtasks/postinstall.yml"
   when:
+    - (not continuous_integration)
     - (not jellyfin_existing_install.stat.exists)
