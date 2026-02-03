@@ -13,9 +13,9 @@
   register: nzbhydra2_sabnzbd_yml_stat
 
 - name: Post-Install | SABnzbd tasks
-  ansible.builtin.include_tasks: "sabnzbd.yml"
+  ansible.builtin.include_tasks: "subtasks/post-install/sabnzbd.yml"
   when: (not nzbhydra2_yml_stat.stat.exists) and nzbhydra2_sabnzbd_yml_stat.stat.exists
 
 - name: Post-Install | Settings Tweaks
-  ansible.builtin.include_tasks: "settings.yml"
+  ansible.builtin.include_tasks: "subtasks/post-install/settings.yml"
   when: (not nzbhydra2_yml_stat.stat.exists)
