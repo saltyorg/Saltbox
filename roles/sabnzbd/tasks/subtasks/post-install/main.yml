@@ -8,9 +8,9 @@
 #########################################################################
 ---
 - name: Post-Install | Settings Task
-  ansible.builtin.include_tasks: "settings.yml"
+  ansible.builtin.include_tasks: "subtasks/post-install/settings.yml"
   when: (not sabnzbd_conf_stat.stat.exists)
 
 - name: Post-Install | Web Task
-  ansible.builtin.include_tasks: "web.yml"
+  ansible.builtin.include_tasks: "subtasks/post-install/web.yml"
   when: sabnzbd_conf_stat.stat.exists
