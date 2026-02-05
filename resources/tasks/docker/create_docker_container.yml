@@ -218,6 +218,7 @@
     _docker_volumes: "{{ ((docker_volumes_common + _docker_vars['_docker_volumes']['value'])
                       if (_docker_vars['_docker_volumes_global']['value'] | bool)
                       else _docker_vars['_docker_volumes']['value']) | unique | reject('equalto', omit) | list }}"
+    _docker_dev_dri: "{{ lookup('docker_var', '_docker_dev_dri', default=false) }}"
 
 - name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
@@ -253,7 +254,9 @@
     device_requests: "{{ (_docker_vars['_docker_device_requests']['value'] if not _docker_vars['_docker_device_requests']['omit'] else omit) }}"
     device_write_bps: "{{ (_docker_vars['_docker_device_write_bps']['value'] if not _docker_vars['_docker_device_write_bps']['omit'] else omit) }}"
     device_write_iops: "{{ (_docker_vars['_docker_device_write_iops']['value'] if not _docker_vars['_docker_device_write_iops']['omit'] else omit) }}"
-    devices: "{{ (_docker_vars['_docker_devices']['value'] if not _docker_vars['_docker_devices']['omit'] else omit) }}"
+    devices: "{{ ((_docker_vars['_docker_devices']['value'] + (['/dev/dri:/dev/dri'] if _docker_dev_dri is defined and _docker_dev_dri else [])) | unique)
+              if (not _docker_vars['_docker_devices']['omit'])
+              else (['/dev/dri:/dev/dri'] if _docker_dev_dri is defined and _docker_dev_dri else omit) }}"
     dns_opts: "{{ (_docker_vars['_docker_dns_opts']['value'] if not _docker_vars['_docker_dns_opts']['omit'] else omit) }}"
     dns_search_domains: "{{ (_docker_vars['_docker_dns_search_domains']['value'] if not _docker_vars['_docker_dns_search_domains']['omit'] else omit) }}"
     dns_servers: "{{ (_docker_vars['_docker_dns_servers']['value'] if not _docker_vars['_docker_dns_servers']['omit'] else omit) }}"
