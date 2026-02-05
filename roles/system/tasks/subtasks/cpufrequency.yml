@@ -46,7 +46,7 @@
     mode: "0644"
     no_extra_spaces: true
 
-- name: CPU Frequency | Remove mispelled 'GOVENOR' entry
+- name: CPU Frequency | Remove misspelled 'GOVENOR' entry
   community.general.ini_file:
     path: "/etc/default/cpufrequtils"
     section: null
