@@ -8,6 +8,9 @@
 ##########################################################################
 ---
 run_sysctl_tasks: true
+
+# Performance mode sets the CPU to run at its maximum frequency
+# Set to false to enable dynamic CPU frequency scaling instead
 cpu_performance_mode: true
 
 system_inotify: "524288"
@@ -22,6 +25,7 @@ system_language: "en_US.UTF-8"
 
 saltbox_max_log_size: 2M
 
+# Skip docs
 sysctl_settings:
   fs.inotify.max_user_watches: "{{ system_inotify }}"
   net.core.default_qdisc: fq
