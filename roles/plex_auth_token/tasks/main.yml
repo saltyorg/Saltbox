@@ -7,9 +7,18 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Check if Plex instance is defined
+- name: "Auth Token | Check if Plex instance is defined"
   ansible.builtin.set_fact:
     plex_name: "{{ plex_name | default(plex_instances[0]) }}"
+
+- name: "Auth Token | Validate Proxy and Network Mode when in use"
+  ansible.builtin.assert:
+    that:
+      - "'container:' in lookup('role_var', '_docker_network_mode', role='plex', default=docker_networks_name_common)"
+    fail_msg:
+      - "Using {{ plex_name }}_auth_token_proxy assumes {{ plex_name }}_docker_network_mode is defined and it is not set correctly."
+      - "Ensure that you have removed _default from {{ plex_name }}_docker_network_mode if you have previously used {{ plex_name }}_docker_network_mode_default in the inventory"
+  when: (plex_role_proxy_lookup | length > 0)
 
 - name: "Auth Token | Create directories"
   ansible.builtin.file:
@@ -168,7 +177,7 @@
   ansible.builtin.debug:
     msg: "Plex Auth Token: {{ plex_auth_token }}"
 
-- name: Change permissions
+- name: "Auth Token | Change permissions"
   ansible.builtin.file:
     path: "{{ server_appdata_path }}/saltbox"
     owner: "{{ user.name }}"
