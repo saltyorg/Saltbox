@@ -7,6 +7,15 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Validate Proxy and Network Mode when in use"
+  ansible.builtin.assert:
+    that:
+      - "'container:' in lookup('role_var', '_docker_network_mode', role='plex', default=docker_networks_name_common)"
+    fail_msg:
+      - "Using {{ plex_name }}_auth_token_proxy assumes {{ plex_name }}_docker_network_mode is defined and it is not set correctly."
+      - "Ensure that you have removed _default from {{ plex_name }}_docker_network_mode if you have previously used {{ plex_name }}_docker_network_mode_default in the inventory"
+  when: (plex_role_proxy_lookup | length > 0)
+
 - name: Ensure that ports aren't opened when using multiple instances
   ansible.builtin.assert:
     that:
