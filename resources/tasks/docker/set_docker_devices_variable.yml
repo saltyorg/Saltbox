@@ -24,7 +24,7 @@
 
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set '_dev_dri_var_name' temp variable
   ansible.builtin.set_fact:
-    _dev_dri_var_name: "{{ _instance_name + '_docker_dev_dri' }}"
+    _dev_dri_var_name: "{{ (_instance_name | replace('-', '_')) + '_docker_dev_dri' }}"
 
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set '_dev_dri_var_name' variable # noqa var-naming[no-jinja]
   ansible.builtin.set_fact:
