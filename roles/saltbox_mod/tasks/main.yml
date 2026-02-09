@@ -7,16 +7,19 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Resources | Tasks | Docker | Set Docker Devices Variable | Check if '/dev/dri' exists
+  ansible.builtin.stat:
+    path: "{{ server_appdata_path }}/saltbox_mod"
+  register: saltbox_mod_stat
+
 - name: Create saltbox_mod directory
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ server_appdata_path }}/saltbox_mod"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
     recurse: true
-  with_items:
-    - "{{ server_appdata_path }}/saltbox_mod"
 
 - name: Clone saltbox_mod repo
   ansible.builtin.git:
@@ -24,6 +27,7 @@
     dest: "{{ server_appdata_path }}/saltbox_mod"
     clone: true
     version: "{{ saltbox_mod_branch }}"
-    force: "{{ saltbox_mod_force_overwrite }}"
+    force: true
   become: true
   become_user: "{{ user.name }}"
+  when: (not saltbox_mod_stat.stat.exists) or saltbox_mod_force_overwrite
