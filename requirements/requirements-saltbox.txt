@@ -3,7 +3,7 @@ ansible==13.3.0
 ansible-lint==26.1.1
 apprise==1.9.7
 argon2_cffi==25.1.0
-certbot==5.2.2
+certbot==5.3.1
 cloudflare==4.3.1
 dnspython==2.8.0
 docker==7.1.0
@@ -20,4 +20,4 @@ pyOpenSSL==25.3.0
 requests==2.32.5
 ruamel.yaml==0.19.1
 tld==0.13.1
-uv==0.9.28
+uv==0.10.2
