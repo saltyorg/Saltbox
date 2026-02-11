@@ -12,7 +12,7 @@
     plex_role_network_modes: "{{ plex_role_network_modes + [plex_lookup] }}"
   vars:
     plex_name: "{{ item }}"
-    plex_lookup: "{{ lookup('role_var', '_docker_network_mode', role='plex') }}"
+    plex_lookup: "{{ lookup('role_var', '_docker_network_mode', role='plex', default=docker_networks_name_common) }}"
   loop: "{{ plex_instances }}"
   when: (plex_instances | length > 1) and ('container:' in plex_lookup)
 
