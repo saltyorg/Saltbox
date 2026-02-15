@@ -25,6 +25,13 @@
   with_items: "{{ overseerr_instances }}"
   when: ('overseerr' in get_info_list)
 
+- name: Resources | Tasks | Instances | Get Info | Run Seerr Tasks
+  ansible.builtin.include_tasks: seerr.yml
+  vars:
+    seerr_name: "{{ item }}"
+  with_items: "{{ seerr_instances }}"
+  when: ('seerr' in get_info_list)
+
 - name: Resources | Tasks | Instances | Get Info | Run Plex Tasks
   ansible.builtin.include_tasks: plex.yml
   vars:

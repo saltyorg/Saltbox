@@ -1,0 +1,29 @@
+##########################################################################
+# Title:         Saltbox: Resources | Tasks | Instances | Get Seerr Info #
+# Author(s):     salty, keldian                                          #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Resources | Tasks | Instances | Get Info | Check if Seerr exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_config_location', role='seerr') }}"
+  register: seerr_role_paths_config_location_stat
+
+- name: Resources | Tasks | Instances | Get Info | Seerr API Key tasks
+  when: seerr_role_paths_config_location_stat.stat.exists
+  block:
+    - name: Resources | Tasks | Instances | Get Info | Fetch Seerr API Key
+      ansible.builtin.set_fact:
+        jsondata: "{{ lookup('ansible.builtin.file', lookup('role_var', '_paths_config_location', role='seerr')) | from_json }}"
+
+    - name: Resources | Tasks | Instances | Get Info | Set 'seerr_info' variable
+      ansible.builtin.set_fact:
+        seerr_info: "{{ seerr_info | default({}) | combine({seerr_name: {'name': seerr_name, 'url': lookup('role_var', '_web_url', role='seerr'), 'api_key': jsondata.main.apiKey}}) }}"
+
+- name: Resources | Tasks | Instances | Get Info | Set 'seerr_info' variable
+  ansible.builtin.set_fact:
+    seerr_info: "{{ seerr_info | default({}) | combine({seerr_name: {'name': seerr_name, 'url': lookup('role_var', '_web_url', role='seerr'), 'api_key': 'not installed'}}) }}"
+  when: (not seerr_role_paths_config_location_stat.stat.exists)

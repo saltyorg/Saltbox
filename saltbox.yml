@@ -42,7 +42,7 @@
     - { role: download_clients, tags: ['download-clients'] }
     - { role: download_indexers, tags: ['download-indexers'] }
     - { role: tautulli, tags: ['tautulli'] }
-    - { role: overseerr, tags: ['overseerr'] }
+    - { role: seerr, tags: ['seerr'] }
     - { role: portainer, tags: ['portainer'] }
     - { role: organizr, tags: ['organizr'] }
     - { role: cloudplow, tags: ['saltbox', 'feederbox', 'cloudplow', 'cloudplow-reset'], when: ['use_cloudplow'] }
@@ -84,6 +84,7 @@
     - { role: nzbget, tags: ['nzbget'] }
     - { role: nzbhydra2, tags: ['nzbhydra2'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
+    - { role: overseerr, tags: ['overseerr'] }
     - { role: petio, tags: ['petio'] }
     - { role: plex, tags: ['plex', 'plex-reset-codecs', 'plex-reclaim'] }
     - { role: plex_db, tags: ['plex-db'] }
