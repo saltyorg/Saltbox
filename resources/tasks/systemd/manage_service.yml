@@ -1,0 +1,27 @@
+###############################################################################
+# Title:         Saltbox: Resources | Tasks | systemd | Manage Service        #
+# Author(s):     salty                                                        #
+# URL:           https://github.com/saltyorg/Saltbox                          #
+# --                                                                          #
+###############################################################################
+#                   GNU General Public License v3.0                           #
+###############################################################################
+---
+- name: Resources | Tasks | systemd | Manage Service | manage '{{ _service_name }}'
+  ansible.builtin.systemd_service:
+    name: "{{ _service_name }}"
+    state: "{{ _service_state | default(omit) }}"
+    enabled: "{{ _service_enabled | default(omit) }}"
+    daemon_reload: "{{ _service_daemon_reload | default(omit) }}"
+    daemon_reexec: "{{ _service_daemon_reexec | default(omit) }}"
+    masked: "{{ _service_masked | default(omit) }}"
+    no_block: "{{ _service_no_block | default(omit) }}"
+    force: "{{ _service_force | default(omit) }}"
+    scope: "{{ _service_scope | default(omit) }}"
+
+- name: Resources | Tasks | systemd | Manage Service | reenable '{{ _service_name }}'
+  ansible.builtin.command: "systemctl reenable {{ _service_name }}"
+  when:
+    - (_service_reenable | default(false) | bool)
+    - (_service_enabled | default(false) | bool)
+  changed_when: false

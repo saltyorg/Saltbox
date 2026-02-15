@@ -78,10 +78,12 @@
     daemon_reload: true
 
 - name: Systemd start 'node_exporter.service'
-  ansible.builtin.systemd_service:
-    name: node_exporter.service
-    state: started
-    enabled: true
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+  vars:
+    _service_name: node_exporter.service
+    _service_state: started
+    _service_enabled: true
+    _service_reenable: true
 
 - name: "Cleanup tmp folder"
   ansible.builtin.file:

@@ -49,11 +49,13 @@
     force: true
 
 - name: Controller | Enable 'saltbox_managed_docker_controller.service'
-  ansible.builtin.systemd_service:
-    name: saltbox_managed_docker_controller
-    enabled: true
-    state: restarted
-    daemon_reload: true
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+  vars:
+    _service_name: saltbox_managed_docker_controller
+    _service_enabled: true
+    _service_state: restarted
+    _service_daemon_reload: true
+    _service_reenable: true
 
 - name: Controller | Wait until Controller is ready
   ansible.builtin.uri:
@@ -79,11 +81,13 @@
     force: true
 
 - name: Controller | Enable 'saltbox_managed_docker_controller_helper.service'
-  ansible.builtin.systemd_service:
-    name: saltbox_managed_docker_controller_helper.service
-    enabled: true
-    state: restarted
-    daemon_reload: true
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+  vars:
+    _service_name: saltbox_managed_docker_controller_helper.service
+    _service_enabled: true
+    _service_state: restarted
+    _service_daemon_reload: true
+    _service_reenable: true
 
 - name: "Controller | Wait for 10 seconds before commencing"
   ansible.builtin.wait_for:

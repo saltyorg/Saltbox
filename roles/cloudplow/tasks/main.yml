@@ -115,11 +115,13 @@
         force: true
 
     - name: Start service
-      ansible.builtin.systemd_service:
-        name: "{{ cloudplow_service_name }}"
-        state: started
-        enabled: true
-        daemon_reload: true
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+      vars:
+        _service_name: "{{ cloudplow_service_name }}"
+        _service_state: started
+        _service_enabled: true
+        _service_daemon_reload: true
+        _service_reenable: true
 
 - name: Cloudplow Skipped
   ansible.builtin.debug:

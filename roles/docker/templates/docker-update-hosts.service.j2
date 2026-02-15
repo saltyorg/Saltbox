@@ -11,7 +11,7 @@
 [Unit]
 Description=Saltbox Docker Hosts Manager
 After=docker.service
-Requires=docker.service
+BindsTo=docker.service
 
 [Service]
 Type=simple
@@ -20,4 +20,4 @@ Restart=always
 RestartSec=10
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=docker.service

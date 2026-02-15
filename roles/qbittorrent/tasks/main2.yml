@@ -101,10 +101,12 @@
         daemon_reload: true
 
     - name: Start '{{ qbittorrent_role_service_name }}'
-      ansible.builtin.systemd_service:
-        name: "{{ qbittorrent_role_service_name }}"
-        state: started
-        enabled: true
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+      vars:
+        _service_name: "{{ qbittorrent_role_service_name }}"
+        _service_state: started
+        _service_enabled: true
+        _service_reenable: true
 
 - name: Docker Install
   when: not lookup('role_var', '_host_install', role='qbittorrent')

@@ -21,10 +21,11 @@
   when: not lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Post-Install | Stop '{{ lookup('role_var', '_service_name', role='qbittorrent') }}'
-  ansible.builtin.systemd_service:
-    name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
-    state: stopped
-    enabled: true
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+  vars:
+    _service_name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
+    _service_state: stopped
+    _service_enabled: true
   when: lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Post-Install | Settings Task
@@ -35,8 +36,9 @@
   when: not lookup('role_var', '_host_install', role='qbittorrent')
 
 - name: Post-Install | Start '{{ lookup('role_var', '_service_name', role='qbittorrent') }}'
-  ansible.builtin.systemd_service:
-    name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
-    state: started
-    enabled: true
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
+  vars:
+    _service_name: "{{ lookup('role_var', '_service_name', role='qbittorrent') }}"
+    _service_state: started
+    _service_enabled: true
   when: lookup('role_var', '_host_install', role='qbittorrent')

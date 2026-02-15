@@ -18,4 +18,4 @@ After=docker.service saltbox_managed_docker_controller.service
 ExecStart={{ docker_controller_binary_path }} helper --controller-url "http://127.0.0.1:3377"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=docker.service saltbox_managed_docker_controller.service
