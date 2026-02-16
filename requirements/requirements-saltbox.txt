@@ -20,4 +20,4 @@ pyOpenSSL==25.3.0
 requests==2.32.5
 ruamel.yaml==0.19.1
 tld==0.13.1
-uv==0.10.2
+uv==0.10.3
