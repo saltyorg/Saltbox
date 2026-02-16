@@ -16,10 +16,51 @@
   ansible.builtin.set_fact:
     mount_path: "/mnt/remote/{{ rclone_remote_name }}"
 
+- name: "Remote (NFS) | Check if '{{ mount_path }}' is a mountpoint"
+  ansible.builtin.command: "mountpoint -q -- '{{ mount_path }}'"
+  register: mount_path_mountpoint_initial
+  failed_when: false
+  changed_when: false
+
+- name: "Remote (NFS) | Get mounted source for '{{ mount_path }}'"
+  ansible.builtin.command: "findmnt -rn --target '{{ mount_path }}' --output SOURCE"
+  register: mount_path_source
+  failed_when: false
+  changed_when: false
+  when: mount_path_mountpoint_initial.rc == 0
+
+- name: "Remote (NFS) | Get mounted fstype for '{{ mount_path }}'"
+  ansible.builtin.command: "findmnt -rn --target '{{ mount_path }}' --output FSTYPE"
+  register: mount_path_fstype
+  failed_when: false
+  changed_when: false
+  when: mount_path_mountpoint_initial.rc == 0
+
+- name: "Remote (NFS) | Set mount match state for '{{ mount_path }}'"
+  ansible.builtin.set_fact:
+    mount_path_matches_expected_nfs: "{{ (mount_path_source.stdout | trim == rclone_remote_with_path) and ((mount_path_fstype.stdout | trim) is regex('^nfs')) }}"
+  when: mount_path_mountpoint_initial.rc == 0
+
+- name: "Remote (NFS) | Refuse to manage mounted unmanaged path '{{ mount_path }}'"
+  ansible.builtin.fail:
+    msg:
+      - "'{{ mount_path }}' is already mounted by '{{ mount_path_source.stdout | default('unknown') | trim }}' ({{ mount_path_fstype.stdout | default('unknown') | trim }})."
+      - "Expected '{{ rclone_remote_with_path }}' (nfs)."
+      - "'/mnt/remote' and subfolders are fully managed by Saltbox. Do not manually mount anything under '/mnt/remote'."
+      - "Please remove or move manual mounts and rerun."
+  when: (mount_path_mountpoint_initial.rc == 0) and (not (mount_path_matches_expected_nfs | default(false)))
+
 - name: "Remote (NFS) | Ensure '{{ mount_path }}' is not mounted"
   ansible.posix.mount:
     path: "{{ mount_path }}"
     state: unmounted
+  when: (mount_path_mountpoint_initial.rc == 0) and (mount_path_matches_expected_nfs | default(false))
+
+- name: "Remote (NFS) | Re-check if '{{ mount_path }}' is a mountpoint"
+  ansible.builtin.command: "mountpoint -q -- '{{ mount_path }}'"
+  register: mount_path_mountpoint
+  failed_when: false
+  changed_when: false
 
 - name: "Remote (NFS) | Check if '{{ mount_path }}' exists"
   ansible.builtin.stat:
@@ -28,7 +69,7 @@
   ignore_errors: true
 
 - name: "Remote (NFS) | Tasks for '{{ mount_path }}' path"
-  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)
+  when: ((mount_path_stat is failed) or (mount_path_stat.stat.exists)) and (mount_path_mountpoint.rc != 0)
   block:
     - name: "Remote (NFS) | Remove empty directories in '{{ mount_path }}'"
       ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"

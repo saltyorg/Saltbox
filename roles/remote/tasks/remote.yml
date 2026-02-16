@@ -13,6 +13,24 @@
     _service_refresh: "{{ rclone_service_template + rclone_remote_name }}_refresh"
     mount_path: "/mnt/remote/{{ rclone_remote_name }}"
 
+- name: "Remote | Set mount ownership state for '{{ mount_path }}'"
+  ansible.builtin.set_fact:
+    mount_path_managed_service_exists: "{{ _service_file in (saltbox_managed_rclone_services | default({})) }}"
+
+- name: "Remote | Check if '{{ mount_path }}' is a mountpoint"
+  ansible.builtin.command: "mountpoint -q -- '{{ mount_path }}'"
+  register: mount_path_mountpoint_initial
+  failed_when: false
+  changed_when: false
+
+- name: "Remote | Refuse to manage mounted unmanaged path '{{ mount_path }}'"
+  ansible.builtin.fail:
+    msg:
+      - "'{{ mount_path }}' is already mounted but '{{ _service_file }}' is not a Saltbox-managed service."
+      - "'/mnt/remote' and subfolders are fully managed by Saltbox. Do not manually mount anything under '/mnt/remote'."
+      - "Please remove or move manual mounts and rerun."
+  when: (mount_path_mountpoint_initial.rc == 0) and (not mount_path_managed_service_exists)
+
 - name: Remote | Get next available port within the range of '5572-5672'
   find_open_port:
     low_bound: "{{ rclone_remote_port_low_bound }}"
@@ -23,6 +41,13 @@
 - name: "Remote | Force unmount '{{ mount_path }}'"
   ansible.builtin.shell: "/bin/umount -f '{{ mount_path }}' 2>/dev/null || :"
   ignore_errors: true
+  when: (mount_path_mountpoint_initial.rc == 0) and mount_path_managed_service_exists
+
+- name: "Remote | Re-check if '{{ mount_path }}' is a mountpoint"
+  ansible.builtin.command: "mountpoint -q -- '{{ mount_path }}'"
+  register: mount_path_mountpoint
+  failed_when: false
+  changed_when: false
 
 - name: "Remote | Check if '{{ mount_path }}' exists"
   ansible.builtin.stat:
@@ -31,7 +56,7 @@
   ignore_errors: true
 
 - name: "Remote | Tasks for '{{ mount_path }}' path"
-  when: (mount_path_stat is failed) or (mount_path_stat.stat.exists)
+  when: ((mount_path_stat is failed) or (mount_path_stat.stat.exists)) and (mount_path_mountpoint.rc != 0)
   block:
     - name: "Remote | Remove empty directories in '{{ mount_path }}'"
       ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"

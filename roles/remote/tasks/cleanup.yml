@@ -71,8 +71,22 @@
     path: "{{ cleanup_mount_path }}"
   register: cleanup_mount_path_stat
 
+- name: "Cleanup | Check if '{{ cleanup_mount_path }}' is a mountpoint"
+  ansible.builtin.command: "mountpoint -q -- '{{ cleanup_mount_path }}'"
+  register: cleanup_mount_path_mountpoint
+  failed_when: false
+  changed_when: false
+
+- name: "Cleanup | Fail mounted '{{ cleanup_mount_path }}'"
+  ansible.builtin.fail:
+    msg:
+      - "'{{ cleanup_mount_path }}' is currently mounted."
+      - "'/mnt/remote' and subfolders are fully managed by Saltbox. Do not manually mount anything under '/mnt/remote'."
+      - "Please remove or move manual mounts and rerun."
+  when: cleanup_mount_path_mountpoint.rc == 0
+
 - name: "Cleanup | Tasks for '{{ cleanup_mount_path }}' path"
-  when: (cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists)
+  when: ((cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists)) and (cleanup_mount_path_mountpoint.rc != 0)
   block:
     - name: "Cleanup | Remove empty directories in '{{ cleanup_mount_path }}'"
       ansible.builtin.shell: "find '{{ cleanup_mount_path }}' -type d -empty -delete"
