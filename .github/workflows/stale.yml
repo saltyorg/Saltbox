@@ -28,3 +28,155 @@ jobs:
           stale-pr-label: 'no-pr-activity'
           exempt-pr-labels: 'work-in-progress,no-stale'
           operations-per-run: 1000
+
+      - name: Reopen stale closed issues that got comments after closure
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // ---- MUST MATCH YOUR STALE CONFIG ----
+            const issueStaleLabel = 'no-issue-activity';
+            const prStaleLabel    = 'no-pr-activity';
+            const exemptLabels    = new Set(['work-in-progress', 'no-stale']);
+
+            // Bound the scan so you don't walk the whole repo every day
+            const lookbackDays = 30;
+            const sinceYMD = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .slice(0, 10); // YYYY-MM-DD
+
+            // ---- LOGGING ----
+            const log  = (m) => core.info(m);
+            const warn = (m) => core.warning(m);
+
+            log(`Reopen sweep: lookbackDays=${lookbackDays}, since=${sinceYMD}`);
+
+            function normalizeLabels(labels) {
+              return labels.map(l => (typeof l === 'string' ? { name: l } : l));
+            }
+
+            function hasExemptLabel(labels) {
+              return labels.some(l => exemptLabels.has(l.name));
+            }
+
+            function isBotUser(u) {
+              const login = (u?.login || '').toLowerCase();
+              return u?.type === 'Bot' || login.endsWith('[bot]') || login === 'github-actions';
+            }
+
+            async function searchClosedWithLabel(label) {
+              const q = `repo:${owner}/${repo} is:closed label:"${label}" updated:>=${sinceYMD}`;
+              log(`Search: ${q}`);
+
+              const items = [];
+              for await (const resp of github.paginate.iterator(
+                github.rest.search.issuesAndPullRequests,
+                { q, per_page: 100 }
+              )) {
+                items.push(...resp.data);
+              }
+
+              log(`Search results for '${label}': ${items.length}`);
+              return items;
+            }
+
+            async function getIssue(number) {
+              // Works for issues and PRs (PRs are issues in this endpoint)
+              return await github.rest.issues.get({ owner, repo, issue_number: number });
+            }
+
+            async function hasHumanCommentAfterClosure(number, closedAtIso) {
+              // CRITICAL: do NOT assume comment ordering. Use `since` so GitHub only returns
+              // comments created after closedAtIso, then scan them all.
+              let total = 0;
+
+              for await (const resp of github.paginate.iterator(
+                github.rest.issues.listComments,
+                { owner, repo, issue_number: number, per_page: 100, since: closedAtIso }
+              )) {
+                for (const c of resp.data) {
+                  total++;
+                  const who = c.user?.login || 'unknown';
+                  const bot = isBotUser(c.user);
+                  const bodyPreview = (c.body || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+                  log(`  #${number} comment since close: ${c.created_at} by=${who} bot=${bot} "${bodyPreview}"`);
+                  if (!bot) {
+                    log(`  #${number} => human comment detected after closure`);
+                    return true;
+                  }
+                }
+              }
+
+              log(`  #${number} => ${total} comments since close, none by humans`);
+              return false;
+            }
+
+            async function reopenAndClear(number, staleLabel) {
+              await github.rest.issues.update({
+                owner, repo, issue_number: number, state: 'open'
+              });
+
+              try {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: number, name: staleLabel
+                });
+              } catch (e) {
+                if (e.status !== 404) throw e;
+              }
+            }
+
+            async function process(label, wantPR) {
+              const items = await searchClosedWithLabel(label);
+
+              let considered = 0;
+              let reopened = 0;
+
+              for (const item of items) {
+                const isPR = !!item.pull_request;
+                if (isPR !== wantPR) continue;
+
+                considered++;
+
+                const labels = normalizeLabels(item.labels);
+                if (hasExemptLabel(labels)) {
+                  log(`#${item.number} skip: exempt label present`);
+                  continue;
+                }
+
+                if (!item.closed_at) {
+                  log(`#${item.number} skip: missing closed_at`);
+                  continue;
+                }
+
+                // Pull full issue data to get state_reason and updated_at
+                const full = await getIssue(item.number);
+                const stateReason = full.data.state_reason || null;
+
+                log(`#${item.number} state_reason=${stateReason} closed_at=${full.data.closed_at} updated_at=${full.data.updated_at}`);
+
+                // "Only care about ones closed by stale":
+                // - state_reason is "not_planned" for your stale-closed sample
+                // - and the stale label is still present (because we searched by label)
+                if (stateReason !== 'not_planned') {
+                  log(`#${item.number} skip: not closed as not_planned`);
+                  continue;
+                }
+
+                const commentedAfter = await hasHumanCommentAfterClosure(item.number, full.data.closed_at);
+                if (!commentedAfter) {
+                  log(`#${item.number} skip: no human comment after closure`);
+                  continue;
+                }
+
+                log(`#${item.number} REOPEN: closed-by-stale + human comment after closure`);
+                await reopenAndClear(item.number, label);
+                reopened++;
+              }
+
+              log(`Done '${label}' (${wantPR ? 'PRs' : 'issues'}): considered=${considered}, reopened=${reopened}`);
+            }
+
+            await process(issueStaleLabel, false);
+            await process(prStaleLabel, true);
