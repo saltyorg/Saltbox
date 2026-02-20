@@ -417,7 +417,7 @@ traefik_role_docker_commands_tailscale:
   - "--entrypoints.tailscale-websecure.http.encodedCharacters.allowEncodedHash={{ traefik_encoded_allow_hash | string | lower }}"
 traefik_role_docker_commands_crowdsec:
   - "--experimental.plugins.bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
-  - "--experimental.plugins.bouncer.version=v1.5.0"
+  - "--experimental.plugins.bouncer.version=v1.5.1"
 traefik_role_docker_commands_custom: []
 traefik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default', role='traefik')
                                   + lookup('role_var', '_docker_commands_custom', role='traefik')
