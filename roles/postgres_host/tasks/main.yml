@@ -111,16 +111,33 @@
   changed_when: false
   failed_when: false
 
+- name: Calculate desired port assignments based on version order
+  ansible.builtin.set_fact:
+    postgres_port_assignments: "{{ postgres_port_assignments | default({}) | combine({item: (5432 + my_idx)}) }}"
+  loop: "{{ postgres_host_role_versions }}"
+  loop_control:
+    index_var: my_idx
+
+- name: Ensure PostgreSQL log directory ownership
+  ansible.builtin.file:
+    path: /var/log/postgresql
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    recurse: true
+
 - name: Update port in postgresql.conf for existing clusters
   ansible.builtin.lineinfile:
-    path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
+    path: "{{ postgres_host_role_data_directory }}/{{ item.item }}/main/postgresql.conf"
     regexp: "^#?port ="
-    line: "port = {{ postgres_port_assignments[item] }}"
+    line: "port = {{ postgres_port_assignments[item.item] }}"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: '0644'
-  loop: "{{ postgres_host_role_versions }}"
-  when: postgres_port_assignments[item] is defined
+  loop: "{{ clusters_configured.results }}"
+  when:
+    - postgres_port_assignments[item.item] is defined
+    - ('not_found' not in item.stdout)
 
 - name: Create clusters with custom data directory and user
   ansible.builtin.command: >
@@ -128,10 +145,21 @@
     --datadir={{ postgres_host_role_data_directory }}/{{ item.item }}/data
     --user={{ user.name }}
     --port={{ postgres_port_assignments[item.item] }}
+    --socketdir={{ postgres_host_role_socket_directory }}
   loop: "{{ clusters_configured.results }}"
   become: true
   become_user: "{{ user.name }}"
   when: ('not_found' in item.stdout)
+
+- name: Override socket directory in postgresql.conf for all configured versions
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
+    regexp: "^#?unix_socket_directories ="
+    line: "unix_socket_directories = '{{ postgres_host_role_socket_directory }}'"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0644'
+  loop: "{{ postgres_host_role_versions }}"
 
 - name: Create systemd override directory for PostgreSQL service
   ansible.builtin.file:
@@ -166,13 +194,6 @@
   ansible.builtin.systemd:
     daemon_reload: true
   when: postgres_systemd_override.changed
-
-- name: Calculate desired port assignments based on version order
-  ansible.builtin.set_fact:
-    postgres_port_assignments: "{{ postgres_port_assignments | default({}) | combine({item: (5432 + my_idx)}) }}"
-  loop: "{{ postgres_host_role_versions }}"
-  loop_control:
-    index_var: my_idx
 
 - name: Stop all PostgreSQL services before port validation
   ansible.builtin.systemd:

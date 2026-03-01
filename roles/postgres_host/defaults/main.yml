@@ -20,6 +20,7 @@ postgres_host_role_versions: ["17"]
 ################################
 
 postgres_host_role_data_directory: "{{ server_appdata_path }}/postgresql"
+postgres_host_role_socket_directory: "/var/run/postgresql"
 
 ################################
 # Superuser

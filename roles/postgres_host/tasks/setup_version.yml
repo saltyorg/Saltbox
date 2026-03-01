@@ -27,6 +27,17 @@
     group: "{{ user.name }}"
     mode: '0640'
 
+- name: Wait for PostgreSQL to be ready for version {{ postgres_version }}
+  ansible.builtin.command: >
+    pg_isready -p {{ cluster_port }}
+  register: postgres_ready_check
+  changed_when: false
+  retries: 30
+  delay: 2
+  until: postgres_ready_check.rc == 0
+  become: true
+  become_user: "{{ user.name }}"
+
 - name: Create default user database for version {{ postgres_version }}
   community.postgresql.postgresql_db:
     name: "{{ user.name }}"
