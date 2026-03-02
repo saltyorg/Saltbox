@@ -219,8 +219,12 @@ traefik_default_gzip: false
 traefik_default_autodetect: false
 traefik_default_cloudflarewarp: "{{ lookup('role_var', '_dns_proxy', role=role_var_role, default=dns_proxied) and cloudflare_is_enabled and traefik_plugin_cloudflarewarp_enabled }}"
 
-traefik_default_middleware_default: "{{ traefik_error_pages_middleware
-                                        + 'globalHeaders@file,secureHeaders@file'
+traefik_default_middleware_default_lookup:
+  - "{{ traefik_error_pages_middleware }}"
+  - "globalHeaders@file"
+  - "secureHeaders@file"
+
+traefik_default_middleware_default: "{{ (traefik_default_middleware_default_lookup | select() | join(','))
                                         + (',autodetect@docker'
                                           if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
                                           else '')
