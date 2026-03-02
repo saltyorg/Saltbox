@@ -52,6 +52,7 @@
     name:
       - apt-utils
       - byobu
+      - pciutils
 
 - name: APT | APT update
   ansible.builtin.apt:

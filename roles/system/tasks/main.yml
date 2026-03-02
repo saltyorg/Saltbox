@@ -13,6 +13,9 @@
 - name: APT tasks
   ansible.builtin.include_tasks: "subtasks/apt.yml"
 
+- name: Devices tasks
+  ansible.builtin.include_tasks: "subtasks/devices.yml"
+
 - name: Network tasks
   ansible.builtin.include_tasks: "subtasks/network.yml"
 
