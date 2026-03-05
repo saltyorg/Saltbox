@@ -161,6 +161,16 @@
     mode: '0644'
   loop: "{{ postgres_host_role_versions }}"
 
+- name: Set listen_addresses in postgresql.conf for all configured versions
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
+    regexp: "^#?listen_addresses ="
+    line: "listen_addresses = '*'"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0644'
+  loop: "{{ postgres_host_role_versions }}"
+
 - name: Create systemd override directory for PostgreSQL service
   ansible.builtin.file:
     path: "/etc/systemd/system/postgresql@.service.d"
