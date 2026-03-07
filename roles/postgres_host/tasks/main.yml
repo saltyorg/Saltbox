@@ -29,6 +29,14 @@
     group: "{{ user.name }}"
     mode: '0755'
 
+- name: Create PostgreSQL run directory
+  ansible.builtin.file:
+    path: "/var/run/postgresql"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0755'
+
 - name: Create symlink for entire PostgreSQL directory
   ansible.builtin.file:
     src: "{{ postgres_host_role_data_directory }}"
@@ -142,14 +150,25 @@
 - name: Create clusters with custom data directory and user
   ansible.builtin.command: >
     pg_createcluster {{ item.item }} main
-    --datadir={{ postgres_host_role_data_directory }}/{{ item.item }}/data
-    --user={{ user.name }}
-    --port={{ postgres_port_assignments[item.item] }}
-    --socketdir={{ postgres_host_role_socket_directory }}
+    -d={{ postgres_host_role_data_directory }}/{{ item.item }}/data
+    -u={{ user.name }}
+    -g={{ user.name }}
+    -p={{ postgres_port_assignments[item.item] }}
+    -s={{ postgres_host_role_socket_directory }}
   loop: "{{ clusters_configured.results }}"
   become: true
   become_user: "{{ user.name }}"
   when: ('not_found' in item.stdout)
+
+- name: Override data directory in postgresql.conf for all configured versions
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
+    regexp: "^#?data_directory ="
+    line: "data_directory = '{{ postgres_host_role_data_directory }}/{{ item }}/data'"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0644'
+  loop: "{{ postgres_host_role_versions }}"
 
 - name: Override socket directory in postgresql.conf for all configured versions
   ansible.builtin.lineinfile:
