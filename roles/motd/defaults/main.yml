@@ -29,7 +29,7 @@ motd_cli_flags: "--all --title 'Saltbox' --font ivrit --type parchment"
 #   - single_instance_apikey: Single instance with API key (sabnzbd)
 #   - single_instance_userpass: Single instance with username/password (nzbget)
 #   - multi_instance_userpass: Multiple instances with username/password (qbittorrent)
-#   - disabled: Statically disabled services (jellyfin, emby, rtorrent)
+#   - placeholder_userpass: Statically disabled username/password placeholder (rtorrent)
 
 motd_services:
   - name: colors
@@ -56,6 +56,11 @@ motd_services:
   - name: qbittorrent
     type: multi_instance_userpass_info
     check_field: username
+  - name: rtorrent
+    type: placeholder_userpass
+    placeholder_name: rutorrent
+    placeholder_url: https://rutorrent.{{ user.domain }}/RPC2
+    placeholder_user: "{{ user.name }}"
   - name: radarr
     type: multi_instance_apikey
     check_field: api_key

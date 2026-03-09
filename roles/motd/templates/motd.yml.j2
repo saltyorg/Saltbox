@@ -8,11 +8,13 @@
 {% set has_installed = [] %}
 {% if lookup('vars', service_info_var, default=None) is not none %}
 {% for instance_name, instance_data in lookup('vars', service_info_var).items() %}
+{% if instance_data.exists | default(true) %}
 {% set instance_entry = {'name': instance_data.name, 'url': instance_data.url} %}
 {% set _ = instance_entry.update({service.output_field: instance_data[service.check_field]}) %}
 {% set _ = installed_instances.append(instance_entry) %}
 {% if instance_data[service.check_field] != 'not installed' %}
 {% set _ = has_installed.append(true) %}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -71,17 +73,27 @@
 {{ service_name }}:
   enabled: false
   instances:
-    - name: {{ service_name | capitalize }}
-      url: http://localhost:6789
-      user: {{ service_name }}
+    - name: {{ service.placeholder_name | default(service_name | capitalize) }}
+      url: {{ service.placeholder_url | default('http://localhost:6789') }}
+      user: {{ service.placeholder_user | default(service_name) }}
       password: your-password-here
       enabled: true
 {% endif %}
+{# Static username/password placeholder #}
+{% elif service.type == 'placeholder_userpass' %}
+{{ service_name }}:
+  enabled: false
+  instances:
+    - name: {{ service.placeholder_name | default(service_name | capitalize) }}
+      url: {{ service.placeholder_url | default('http://localhost:6789') }}
+      user: {{ service.placeholder_user | default(service_name) }}
+      password: your-password-here
+      enabled: true
 {# Multi-instance services with username/password using info dict (e.g., qbittorrent) #}
 {% elif service.type == 'multi_instance_userpass_info' %}
 {% if lookup('vars', service_info_var, default=None) is not none %}
 {% for instance_name, instance_data in lookup('vars', service_info_var).items() %}
-{% if instance_data[service.check_field] != 'not installed' %}
+{% if instance_data.exists | default(true) and instance_data[service.check_field] != 'not installed' %}
 {% set instance_entry = {'name': instance_data.name, 'url': instance_data.url, 'username': instance_data.username, 'password': instance_data.password} %}
 {% set _ = installed_instances.append(instance_entry) %}
 {% endif %}
@@ -117,8 +129,11 @@
   enabled: true
   instances:
 {% for instance in instances_list %}
+{% if service_name == 'qbittorrent' %}
+{% set qbittorrent_name = instance %}
+{% endif %}
     - name: {{ instance }}
-      url: {{ lookup('role_var', '_web_url', role=instance) + url_suffix }}
+      url: {{ lookup('role_var', '_web_url', role=service_name) + url_suffix }}
       user: {{ user.name }}
       password: {{ user.pass }}
       enabled: true

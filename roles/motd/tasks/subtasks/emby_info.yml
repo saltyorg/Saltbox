@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                    #
 #########################################################################
 ---
+- name: Check if Emby instance exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_location', role='emby') }}"
+  register: emby_role_paths_location_stat
+
 - name: Set 'emby_info' variable
   ansible.builtin.set_fact:
-    emby_info: "{{ emby_info | default({}) | combine({emby_name: {'name': emby_name, 'url': lookup('role_var', '_web_url', role=emby_name), 'token': 'not installed'}}) }}"
+    emby_info: "{{ emby_info | default({}) | combine({emby_name: {'name': emby_name, 'url': lookup('role_var', '_web_url', role='emby'), 'token': 'not installed', 'exists': emby_role_paths_location_stat.stat.exists}}) }}"

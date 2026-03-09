@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                    #
 #########################################################################
 ---
+- name: Check if Jellyfin instance exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_location', role='jellyfin') }}"
+  register: jellyfin_role_paths_location_stat
+
 - name: Set 'jellyfin_info' variable
   ansible.builtin.set_fact:
-    jellyfin_info: "{{ jellyfin_info | default({}) | combine({jellyfin_name: {'name': jellyfin_name, 'url': lookup('role_var', '_web_url', role=jellyfin_name), 'token': 'not installed'}}) }}"
+    jellyfin_info: "{{ jellyfin_info | default({}) | combine({jellyfin_name: {'name': jellyfin_name, 'url': lookup('role_var', '_web_url', role='jellyfin'), 'token': 'not installed', 'exists': jellyfin_role_paths_location_stat.stat.exists}}) }}"

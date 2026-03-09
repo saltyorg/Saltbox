@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Check if qBittorrent instance exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_location', role='qbittorrent') }}"
+  register: qbittorrent_role_paths_location_stat
+
 - name: Set 'qbittorrent_info' variable
   ansible.builtin.set_fact:
-    qbittorrent_info: "{{ qbittorrent_info | default({}) | combine({qbittorrent_name: {'name': qbittorrent_name, 'url': lookup('role_var', '_web_url', role=qbittorrent_name), 'username': user.name, 'password': user.pass}}) }}"
+    qbittorrent_info: "{{ qbittorrent_info | default({}) | combine({qbittorrent_name: {'name': qbittorrent_name, 'url': lookup('role_var', '_web_url', role='qbittorrent'), 'username': user.name, 'password': user.pass, 'exists': qbittorrent_role_paths_location_stat.stat.exists}}) }}"
