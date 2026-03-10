@@ -116,12 +116,6 @@ docker_daemon_storage_driver: "{{ ('zfs' in var_lib_file_system.stdout) | ternar
 docker_daemon_template_force: true
 
 ################################
-# Docker Compose
-################################
-
-compose_cleanup_switch: "{{ compose_install_switch | default(true) }}"
-
-################################
 # Docker Controller
 ################################
 
