@@ -217,11 +217,7 @@
   when: (restore_tar is defined)
 
 - name: "Set '{{ server_appdata_path }}' ownership and permissions"
-  ansible.builtin.include_tasks:
-    file: permissions.yml
-    apply:
-      tags:
-        - opt-permissions-reset
+  ansible.builtin.import_tasks: "permissions.yml"
   tags: opt-permissions-reset
 
 - name: Cleanup backup location

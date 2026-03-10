@@ -152,11 +152,7 @@
   ansible.builtin.include_tasks: "subtasks/network.yml"
 
 - name: "Import Docker Housekeeping tasks"
-  ansible.builtin.include_tasks:
-    file: subtasks/housekeeping.yml
-    apply:
-      tags:
-        - docker-housekeeping
+  ansible.builtin.import_tasks: "subtasks/housekeeping.yml"
   tags: docker-housekeeping
 
 - name: Check if system needs to reboot
@@ -199,11 +195,7 @@
       ignore_errors: true
 
 - name: "Import Docker Hub tasks"
-  ansible.builtin.include_tasks:
-    file: subtasks/dockerhub.yml
-    apply:
-      tags:
-        - dockerhub
+  ansible.builtin.import_tasks: "subtasks/dockerhub.yml"
   tags: dockerhub
   when: dockerhub_is_enabled
 
@@ -211,17 +203,11 @@
   ansible.builtin.include_tasks: "subtasks/dns.yml"
 
 - name: "Import Compose tasks"
-  ansible.builtin.include_tasks:
-    file: subtasks/compose.yml
-    apply:
-      tags:
-        - docker-compose
+  ansible.builtin.import_tasks: "subtasks/compose.yml"
+  tags: docker-compose
 
 - name: "Install ctop"
-  ansible.builtin.include_role:
+  ansible.builtin.import_role:
     name: ctop
-    apply:
-      tags:
-        - ctop
   tags:
     - ctop
