@@ -134,9 +134,9 @@ docker_dns_binary_path: "/usr/local/bin/sdhm"
 
 docker_dns_releases_url: "https://api.github.com/repos/saltyorg/sdhm/releases/latest"
 
-docker_dns_ports_8090: "{{ port_lookup_8090.meta.port
-                        if (port_lookup_8090.meta.port is defined) and (port_lookup_8090.meta.port | trim | length > 0)
-                        else '8090' }}"
+docker_dns_ports_8190: "{{ port_lookup_8190.meta.port
+                        if (port_lookup_8190.meta.port is defined) and (port_lookup_8190.meta.port | trim | length > 0)
+                        else '8190' }}"
 
 docker_dns_networks:
   - "saltbox"

@@ -56,12 +56,12 @@
   ansible.builtin.debug:
     msg: "sdhm {{ sdhm_binary_version.stdout }} installed."
 
-- name: "DNS | Get next available port within the range of '8090-8180'"
+- name: "DNS | Get next available port within the range of '8190-8180'"
   find_open_port:
-    low_bound: "8090"
-    high_bound: "8180"
+    low_bound: "8190"
+    high_bound: "8280"
     protocol: both
-  register: port_lookup_8090
+  register: port_lookup_8190
 
 - name: "DNS | Import 'saltbox_managed_docker_update_hosts.service'"
   ansible.builtin.template:
