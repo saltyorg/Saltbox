@@ -1,0 +1,14 @@
+#########################################################################
+# Title:         Saltbox: qBittorrent | Host Installs                   #
+# Author(s):     OpenAI                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Collect '{{ qbittorrent_name }}' host install instance
+  ansible.builtin.set_fact:
+    qbittorrent_role_host_install_instances: "{{ qbittorrent_role_host_install_instances + [qbittorrent_name] }}"
+  changed_when: false
+  when: lookup('role_var', '_host_install', role='qbittorrent')

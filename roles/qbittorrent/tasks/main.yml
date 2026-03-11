@@ -7,10 +7,26 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Initialize qBittorrent host install instances
+  ansible.builtin.set_fact:
+    qbittorrent_role_host_install_instances: []
+  changed_when: false
+
+- name: Collect qBittorrent host install instances
+  ansible.builtin.include_tasks: subtasks/host_installs.yml
+  vars:
+    qbittorrent_name: "{{ instance }}"
+  loop: "{{ qbittorrent_instances }}"
+  loop_control:
+    loop_var: instance
+
 - name: "Execute qBittorrent roles"
   ansible.builtin.include_tasks: main2.yml
   vars:
     qbittorrent_name: "{{ instance }}"
-  with_items: "{{ qbittorrent_instances }}"
+  loop: "{{ qbittorrent_instances }}"
   loop_control:
     loop_var: instance
+
+- name: Manage qBittorrent hosts entries
+  ansible.builtin.include_tasks: subtasks/hosts.yml

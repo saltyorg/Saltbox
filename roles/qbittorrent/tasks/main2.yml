@@ -6,12 +6,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove '{{ qbittorrent_name }}' from hosts
-  ansible.builtin.blockinfile:
-    path: "/etc/hosts"
-    marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
-    block: ""
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
@@ -68,13 +62,6 @@
 - name: Host Install
   when: lookup('role_var', '_host_install', role='qbittorrent')
   block:
-    - name: Add '{{ qbittorrent_name }}' to hosts
-      ansible.builtin.blockinfile:
-        path: "/etc/hosts"
-        marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
-        block: |
-          172.19.0.1 {{ qbittorrent_name }}
-
     - name: Get Download Url
       ansible.builtin.shell: "{{ lookup('role_var', '_host_version', role='qbittorrent') }}"
       register: qbittorrent_release_version
@@ -109,14 +96,8 @@
         _service_reenable: true
 
 - name: Docker Install
-  when: not lookup('role_var', '_host_install', role='qbittorrent')
+  when: (not lookup('role_var', '_host_install', role='qbittorrent'))
   block:
-    - name: Remove '{{ qbittorrent_name }}' from hosts
-      ansible.builtin.blockinfile:
-        path: "/etc/hosts"
-        marker: "# {mark} ANSIBLE {{ qbittorrent_name }} MANAGED BLOCK"
-        state: absent
-
     - name: Create Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
