@@ -92,7 +92,6 @@
       - "ufw"
       - "ncdu"
       - "mc"
-      - "speedtest-cli"
       - "dnsutils"
       - "screen"
       - "tmux"
