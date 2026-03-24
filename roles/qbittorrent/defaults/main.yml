@@ -29,7 +29,7 @@ qbittorrent_role_torrent_content_remove_option: "Delete"
 ################################
 
 # Options are: libtorrent1 (latest), libtorrent2 (latest) or legacy (4.3.9)
-qbittorrent_role_host_branch: libtorrent1
+qbittorrent_role_host_branch: libtorrent2
 # Example being "release-4.4.5_v1.2.18"
 # If this is set then the above branch logic is ignored
 qbittorrent_role_host_specific_version: ""
