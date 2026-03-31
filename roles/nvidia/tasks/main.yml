@@ -31,6 +31,20 @@
         name: pkg-config
         state: latest
 
+    - name: Download Nvidia driver installer
+      ansible.builtin.get_url:
+        url: "{{ nvidia_driver_download_url }}"
+        dest: "{{ nvidia_driver_download_dest }}"
+        mode: "0775"
+        owner: root
+        group: root
+        force: true
+        validate_certs: false
+      register: driver_download
+      until: "driver_download is not failed"
+      retries: 5
+      delay: 10
+
     - name: Fetch all Nvidia GPU IDs
       ansible.builtin.shell: lspci | grep -E '.*VGA.*NVIDIA|.*3D controller.*NVIDIA' | cut -d' ' -f 1
       register: nvidia_gpu_ids
@@ -116,6 +130,11 @@
         - name: Nvidia Purge Drivers Tasks
           when: ('nvidia-purge' in ansible_run_tags) or ((nvidia_installed_driver_version != nvidia_driver_version) and (nvidia_installed_driver_version | length > 0) and ('nvidia' in ansible_run_tags))
           block:
+            - name: Run Nvidia drivers uninstall
+              ansible.builtin.shell: "{{ nvidia_driver_uninstall_command }}"
+              register: driver_uninstall
+              ignore_errors: true
+
             - name: Purge Nvidia APT packages
               ansible.builtin.shell: "dpkg --force-depends -P $(dpkg -l | grep nvidia | awk '{print $2}')"
               register: dpkg_purge_output
@@ -128,6 +147,8 @@
             - name: "Install Docker"
               ansible.builtin.include_role:
                 name: "docker"
+              vars:
+                use_nvidia: false
 
             - name: Success message
               ansible.builtin.debug:
