@@ -68,6 +68,12 @@ postgres_host_role_root_superuser_password: "password4321"
 postgres_host_role_config: {}
 
 ################################
+# Networking
+################################
+
+postgres_host_role_listen_addresses: "localhost,172.19.0.1"
+
+################################
 # Access Control
 ################################
 

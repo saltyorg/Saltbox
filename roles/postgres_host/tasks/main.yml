@@ -184,7 +184,7 @@
   ansible.builtin.lineinfile:
     path: "{{ postgres_host_role_data_directory }}/{{ item }}/main/postgresql.conf"
     regexp: "^#?listen_addresses ="
-    line: "listen_addresses = '*'"
+    line: "listen_addresses = '{{ postgres_host_role_listen_addresses }}'"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: '0644'
@@ -201,6 +201,10 @@
 - name: Create systemd override for PostgreSQL service
   ansible.builtin.copy:
     content: |
+      [Unit]
+      BindsTo=docker.service
+      After=docker.service
+
       [Service]
       User={{ user.name }}
       Group={{ user.name }}
@@ -213,6 +217,9 @@
       # Ensure log directory has correct ownership
       ExecStartPre=+/bin/mkdir -p /var/run/postgresql
       ExecStartPre=+/bin/chown -R {{ user.name }}:{{ user.name }} /var/log/postgresql
+
+      [Install]
+      WantedBy=docker.service
     dest: "/etc/systemd/system/postgresql@.service.d/override.conf"
     owner: root
     group: root
