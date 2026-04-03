@@ -122,6 +122,9 @@ jobs:
       - name: Install Dependencies
         run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
+      - name: Print installed pip packages
+        run: /srv/ansible/venv/bin/pip freeze
+
       - name: Edit accounts.yml
         run: sed -i 's/seed/runner/g' accounts.yml
 
