@@ -1,6 +1,6 @@
-aiohttp==3.13.4
+aiohttp==3.13.5
 ansible==13.5.0
-ansible-lint==26.3.0
+ansible-lint==26.4.0
 apprise==1.9.9
 argon2_cffi==25.1.0
 certbot==5.4.0
@@ -17,7 +17,7 @@ pexpect==4.9.0
 psycopg[binary]==3.3.3
 PyMySQL==1.1.2
 pyOpenSSL==26.0.0
-requests==2.33.0
+requests==2.33.1
 ruamel.yaml==0.19.1
 tld==0.13.2
-uv==0.11.2
+uv==0.11.3
