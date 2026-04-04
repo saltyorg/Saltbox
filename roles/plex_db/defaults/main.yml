@@ -10,6 +10,8 @@
 plex_db_integrity_check_only: false
 plex_db_failed_integrity: false
 plex_db_failed_optimization: false
+plex_db_run_vacuum: true
+plex_db_run_reindex: false
 
 # Do not edit or override using the inventory
 plex_db_files:

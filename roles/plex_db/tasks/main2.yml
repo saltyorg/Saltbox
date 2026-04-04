@@ -65,25 +65,31 @@
       ansible.builtin.shell: "cp '{{ lookup('role_var', '_paths_plugin_support_location', role='plex') }}/Databases/{{ item }}' /tmp/{{ plex_name }}_backup/"
       loop: "{{ plex_db_files }}"
 
-    - name: "Vacuum '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
-      ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'VACUUM;'"
-      register: plex_db_vacuum
-      failed_when: (plex_db_vacuum.rc != 0)
+    - name: Vacuum tasks
+      when: plex_db_run_vacuum
+      block:
+        - name: "Vacuum '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
+          ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'VACUUM;'"
+          register: plex_db_vacuum
+          failed_when: (plex_db_vacuum.rc != 0)
 
-    - name: "Vacuum '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
-      ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'VACUUM;'"
-      register: plex_db_blobs_vacuum
-      failed_when: (plex_db_blobs_vacuum.rc != 0)
+        - name: "Vacuum '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
+          ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'VACUUM;'"
+          register: plex_db_blobs_vacuum
+          failed_when: (plex_db_blobs_vacuum.rc != 0)
 
-    - name: "Reindex '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
-      ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'REINDEX;'"
-      register: plex_db_reindex
-      failed_when: (plex_db_reindex.rc != 0)
+    - name: Reindex tasks
+      when: plex_db_run_reindex
+      block:
+        - name: "Reindex '{{ lookup('role_var', '_paths_db_location', role='plex') | basename }}' database"
+          ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_location', role='plex') }}' 'REINDEX;'"
+          register: plex_db_reindex
+          failed_when: (plex_db_reindex.rc != 0)
 
-    - name: "Reindex '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
-      ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'REINDEX;'"
-      register: plex_db_blobs_reindex
-      failed_when: (plex_db_blobs_reindex.rc != 0)
+        - name: "Reindex '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') | basename }}' database"
+          ansible.builtin.shell: "'{{ server_appdata_path }}/plexsql/Plex SQLite' '{{ lookup('role_var', '_paths_db_blobs_location', role='plex') }}' 'REINDEX;'"
+          register: plex_db_blobs_reindex
+          failed_when: (plex_db_blobs_reindex.rc != 0)
 
   rescue:
     - name: Set Fact
