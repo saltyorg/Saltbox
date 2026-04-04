@@ -40,15 +40,21 @@
     - name: "Tautulli | Backup databases"
       ansible.builtin.shell: "cp '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' /tmp/{{ tautulli_name }}_backup/"
 
-    - name: "Tautulli | Vacuum '{{ arr_db_tautulli_database | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'VACUUM;'"
-      register: arr_db_vacuum
-      failed_when: (arr_db_vacuum.rc != 0)
+    - name: Vacuum tasks
+      when: arr_db_run_vacuum
+      block:
+        - name: "Tautulli | Vacuum '{{ arr_db_tautulli_database | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'VACUUM;'"
+          register: arr_db_vacuum
+          failed_when: (arr_db_vacuum.rc != 0)
 
-    - name: "Tautulli | Reindex '{{ arr_db_tautulli_database | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'REINDEX;'"
-      register: arr_db_reindex
-      failed_when: (arr_db_reindex.rc != 0)
+    - name: Reindex tasks
+      when: arr_db_run_reindex
+      block:
+        - name: "Tautulli | Reindex '{{ arr_db_tautulli_database | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'REINDEX;'"
+          register: arr_db_reindex
+          failed_when: (arr_db_reindex.rc != 0)
 
   rescue:
     - name: "Tautulli | Delete wal and shm files"

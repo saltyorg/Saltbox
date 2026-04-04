@@ -51,25 +51,31 @@
       ansible.builtin.shell: "cp '{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}' /tmp/{{ lookup('vars', arr_type + '_name') }}_backup/"
       loop: "{{ arr_db_files }}"
 
-    - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_main_db | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'VACUUM;'"
-      register: arr_db_vacuum
-      failed_when: (arr_db_vacuum.rc != 0)
+    - name: Vacuum tasks
+      when: arr_db_run_vacuum
+      block:
+        - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_main_db | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'VACUUM;'"
+          register: arr_db_vacuum
+          failed_when: (arr_db_vacuum.rc != 0)
 
-    - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_logs_db | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'VACUUM;'"
-      register: arr_logs_db_vacuum
-      failed_when: (arr_logs_db_vacuum.rc != 0)
+        - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_logs_db | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'VACUUM;'"
+          register: arr_logs_db_vacuum
+          failed_when: (arr_logs_db_vacuum.rc != 0)
 
-    - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_main_db | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'REINDEX;'"
-      register: arr_db_reindex
-      failed_when: (arr_db_reindex.rc != 0)
+    - name: Reindex tasks
+      when: arr_db_run_reindex
+      block:
+        - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_main_db | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'REINDEX;'"
+          register: arr_db_reindex
+          failed_when: (arr_db_reindex.rc != 0)
 
-    - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_logs_db | basename }}' database"
-      ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'REINDEX;'"
-      register: arr_logs_db_reindex
-      failed_when: (arr_logs_db_reindex.rc != 0)
+        - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_logs_db | basename }}' database"
+          ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'REINDEX;'"
+          register: arr_logs_db_reindex
+          failed_when: (arr_logs_db_reindex.rc != 0)
 
   rescue:
     - name: "{{ arr_type | capitalize }} | Delete wal and shm files"
