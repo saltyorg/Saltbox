@@ -30,7 +30,7 @@ jobs:
           operations-per-run: 1000
 
       - name: Reopen stale closed issues that got comments after closure
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
