@@ -24,14 +24,14 @@
 
 - name: Version Resolver | Get available docker-ce versions
   ansible.builtin.shell: |
-    apt-cache madison docker-ce | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\.' | head -1
+    apt-cache madison docker-ce | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
   register: resolved_docker_version
   changed_when: false
   failed_when: resolved_docker_version.stdout == ""
 
 - name: Version Resolver | Get available docker-ce-cli versions
   ansible.builtin.shell: |
-    apt-cache madison docker-ce-cli | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\.' | head -1
+    apt-cache madison docker-ce-cli | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
   register: resolved_docker_cli_version
   changed_when: false
   failed_when: resolved_docker_cli_version.stdout == ""
