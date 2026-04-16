@@ -16,6 +16,8 @@ arr_db_lidarr_enabled: false
 arr_db_whisparr_enabled: false
 arr_db_prowlarr_enabled: false
 arr_db_tautulli_enabled: false
+arr_db_run_vacuum: true
+arr_db_run_reindex: false
 
 ################################
 # Variables
