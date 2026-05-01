@@ -16,7 +16,7 @@
 - name: "btop | Resolve btop download URL"
   ansible.builtin.set_fact:
     btop_download_url: "{{ ((btop_release_api.content | from_json).assets
-                           | selectattr('name', 'search', 'btop-x86_64-(unknown-)?linux-musl.tbz')
+                           | selectattr('name', 'search', 'btop-x86_64-(unknown-)?linux-musl.tar.gz')
                            | map(attribute='browser_download_url')
                            | first) }}"
   changed_when: false
@@ -44,7 +44,7 @@
   delay: 10
 
 - name: "btop | Unpack btop"
-  ansible.builtin.shell: "tar -xjf btop-x86_64-*linux-musl.tbz"
+  ansible.builtin.shell: "tar -xzf btop-x86_64-*linux-musl.tar.gz"
   args:
     chdir: "/tmp/btop"
 

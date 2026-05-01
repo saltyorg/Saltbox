@@ -9,7 +9,7 @@
 ---
 btop_releases_url: "https://api.github.com/repos/aristocratos/btop/releases/latest"
 
-btop_releases_download_url: https://github.com/aristocratos/btop/releases/download
+btop_releases_download_url: "https://github.com/aristocratos/btop/releases/download"
 
 btop_version_lock: false
-btop_version_lock_url: https://github.com/aristocratos/btop/releases/download/v1.4.6/btop-x86_64-unknown-linux-musl.tbz
+btop_version_lock_url: "https://github.com/aristocratos/btop/releases/download/v1.4.7/btop-x86_64-unknown-linux-musl.tar.gz"
