@@ -27,7 +27,7 @@ If issue occurs during Ansible playbook, run playbook with `-vv` to output detai
 
 **System Information**
 
- - Operating System: [e.g. Ubuntu Server 20.04 LTS]
+ - Operating System: [e.g. Ubuntu Server 24.04 LTS]
  - Linux Kernel: [e.g. 5.8]
 
 **Additional context**

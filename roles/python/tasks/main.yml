@@ -25,7 +25,9 @@
         if (ansible_facts['distribution_version'] is version('22.04', '=='))
         else '3.12'
           if (ansible_facts['distribution_version'] is version('24.04', '=='))
-          else 'unknown' }}
+          else '3.14'
+            if (ansible_facts['distribution_version'] is version('26.04', '=='))
+            else 'unknown' }}
 
 - name: Assert system Python matches Ubuntu release
   ansible.builtin.assert:

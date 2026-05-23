@@ -32,3 +32,6 @@ kernel_update_apt_package_22: linux-generic-hwe-22.04
 
 # Do not edit or override using the inventory
 kernel_update_apt_package_24: linux-generic-hwe-24.04
+
+# Do not edit or override using the inventory
+kernel_update_apt_package_26: linux-generic-hwe-26.04

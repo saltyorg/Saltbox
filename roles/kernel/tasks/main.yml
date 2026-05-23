@@ -44,6 +44,16 @@
     - (not continuous_integration)
     - kernel_install_hwe
 
+# Ubuntu 26.04 HWE Update
+- name: Ubuntu 26.04 Update Tasks
+  ansible.builtin.include_tasks: "subtasks/07_update_resolute.yml"
+  when:
+    - (ansible_facts['distribution'] == 'Ubuntu')
+    - (ansible_facts['distribution_version'] is version('26.04', '=='))
+    - (ansible_facts['kernel'] is version('7.0', '<'))
+    - (not continuous_integration)
+    - kernel_install_hwe
+
 - name: Restart Tasks
   ansible.builtin.include_tasks: "subtasks/06_restart.yml"
   when:
