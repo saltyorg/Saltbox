@@ -18,7 +18,7 @@
 - name: Repository | Check Git Origin Hash
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/github_api_request.yml"
   vars:
-    github_api_url: "https://api.github.com/repos/saltyorg/Saltbox/commits?sha={{ git_branch.stdout }}"
+    github_api_url: "https://api.github.com/repos/{{ saltbox_repo | default('saltyorg/Saltbox') }}/commits?sha={{ git_branch.stdout }}"
     github_api_result_var: git_origin_commits_api
     github_api_timeout: 3
     github_api_headers:
