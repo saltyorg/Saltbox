@@ -13,9 +13,11 @@
 
 - name: Setup | Create Saltbox user
   ansible.builtin.uri:
-    url: "http://{{ portainer_name }}:{{ portainer_role_web_port }}/api/users/admin/init"
+    url: "http://{{ portainer_name }}:{{ lookup('role_var', '_web_port', role='portainer') }}/api/users/admin/init"
     method: POST
     return_content: true
+    headers:
+      X-Setup-Token: "{{ portainer_init_setup_token }}"
     body_format: json
     body: {"Username": "{{ user.name }}", "Password": "{{ user.pass }}"}
   no_log: true

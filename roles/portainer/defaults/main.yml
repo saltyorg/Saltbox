@@ -88,6 +88,9 @@ portainer_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='
 # Envs
 portainer_role_docker_envs_default:
   TZ: "{{ tz }}"
+  PORTAINER_SETUP_TOKEN: "{{ portainer_init_setup_token
+                          if (not portainer_config_stat.stat.exists)
+                          else omit }}"
 portainer_role_docker_envs_custom: {}
 portainer_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='portainer')
                                 | combine(lookup('role_var', '_docker_envs_custom', role='portainer')) }}"

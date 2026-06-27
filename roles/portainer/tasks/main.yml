@@ -25,9 +25,14 @@
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
+- name: Create Setup Token
+  ansible.builtin.set_fact:
+    portainer_init_setup_token: "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=64) }}"
+  when: (not portainer_config_stat.stat.exists) and (user.pass | length >= 12) and (user.pass | length <= 72)
+
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
 - name: Setup Tasks
   ansible.builtin.include_tasks: "subtasks/setup.yml"
-  when: not portainer_config_stat.stat.exists and (user.pass | length >= 12) and (user.pass | length <= 72)
+  when: (not portainer_config_stat.stat.exists) and (user.pass | length >= 12) and (user.pass | length <= 72)
