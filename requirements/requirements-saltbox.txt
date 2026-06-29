@@ -1,5 +1,5 @@
 aiohttp==3.14.1
-ansible==13.8.0
+ansible==14.1.0
 ansible-lint==26.4.0
 apprise==1.11.0
 argon2_cffi==25.1.0
