@@ -1,6 +1,6 @@
 aiohttp==3.14.1
 ansible==13.8.0
-ansible-lint==26.4.0
+ansible-lint==26.6.0
 apprise==1.11.0
 argon2_cffi==25.1.0
 certbot==5.6.0
@@ -20,4 +20,4 @@ pyOpenSSL==26.3.0
 requests==2.34.2
 ruamel.yaml==0.19.1
 tld==0.13.2
-uv==0.11.25
+uv==0.11.26
