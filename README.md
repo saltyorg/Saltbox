@@ -130,13 +130,6 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/JigSawFr>
-            <img src=https://avatars.githubusercontent.com/u/5781907?v=4 width="100;"  alt=JigSaw/>
-            <br />
-            <sub style="font-size:14px"><b>JigSaw</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/BeansIsFat>
             <img src=https://avatars.githubusercontent.com/u/24848012?v=4 width="100;"  alt=Beans Baxter/>
             <br />
@@ -144,21 +137,21 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/TABLE272>
-            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
+        <a href=https://github.com/JigSawFr>
+            <img src=https://avatars.githubusercontent.com/u/5781907?v=4 width="100;"  alt=JigSaw/>
             <br />
-            <sub style="font-size:14px"><b>TABLE272</b></sub>
+            <sub style="font-size:14px"><b>JigSaw</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/kbgvirus>
+            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
+            <br />
+            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
         </a>
     </td>
 </tr>
 <tr>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/maximuskowalski>
-            <img src=https://avatars.githubusercontent.com/u/13492750?v=4 width="100;"  alt=Max Kowalski/>
-            <br />
-            <sub style="font-size:14px"><b>Max Kowalski</b></sub>
-        </a>
-    </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/andrewkhunn>
             <img src=https://avatars.githubusercontent.com/u/116436?v=4 width="100;"  alt=Andrew Hunn/>
@@ -167,10 +160,17 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/kbgvirus>
-            <img src=https://avatars.githubusercontent.com/u/20810766?v=4 width="100;"  alt=Alon Nitzan/>
+        <a href=https://github.com/maximuskowalski>
+            <img src=https://avatars.githubusercontent.com/u/13492750?v=4 width="100;"  alt=Max Kowalski/>
             <br />
-            <sub style="font-size:14px"><b>Alon Nitzan</b></sub>
+            <sub style="font-size:14px"><b>Max Kowalski</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/TABLE272>
+            <img src=https://avatars.githubusercontent.com/u/11992630?v=4 width="100;"  alt=TABLE272/>
+            <br />
+            <sub style="font-size:14px"><b>TABLE272</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -204,10 +204,47 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Aethenn>
-            <img src=https://avatars.githubusercontent.com/u/58144688?v=4 width="100;"  alt=Aethenn/>
+        <a href=https://github.com/v8eta>
+            <img src=https://avatars.githubusercontent.com/u/85236239?v=4 width="100;"  alt=v8eta/>
             <br />
-            <sub style="font-size:14px"><b>Aethenn</b></sub>
+            <sub style="font-size:14px"><b>v8eta</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/powerdude>
+            <img src=https://avatars.githubusercontent.com/u/780882?v=4 width="100;"  alt=powerdude/>
+            <br />
+            <sub style="font-size:14px"><b>powerdude</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/bandwith>
+            <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
+            <br />
+            <sub style="font-size:14px"><b>bandwith</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/patricksindelka>
+            <img src=https://avatars.githubusercontent.com/u/9056550?v=4 width="100;"  alt=Patrick Sindelka/>
+            <br />
+            <sub style="font-size:14px"><b>Patrick Sindelka</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/ldub>
+            <img src=https://avatars.githubusercontent.com/u/3114081?v=4 width="100;"  alt=Lev Dubinets/>
+            <br />
+            <sub style="font-size:14px"><b>Lev Dubinets</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Arcanemagus>
+            <img src=https://avatars.githubusercontent.com/u/427137?v=4 width="100;"  alt=Landon Abney/>
+            <br />
+            <sub style="font-size:14px"><b>Landon Abney</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
@@ -218,40 +255,10 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Arcanemagus>
-            <img src=https://avatars.githubusercontent.com/u/427137?v=4 width="100;"  alt=Landon Abney/>
+        <a href=https://github.com/Aethenn>
+            <img src=https://avatars.githubusercontent.com/u/58144688?v=4 width="100;"  alt=Aethenn/>
             <br />
-            <sub style="font-size:14px"><b>Landon Abney</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/ldub>
-            <img src=https://avatars.githubusercontent.com/u/3114081?v=4 width="100;"  alt=Lev Dubinets/>
-            <br />
-            <sub style="font-size:14px"><b>Lev Dubinets</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/patricksindelka>
-            <img src=https://avatars.githubusercontent.com/u/9056550?v=4 width="100;"  alt=Patrick Sindelka/>
-            <br />
-            <sub style="font-size:14px"><b>Patrick Sindelka</b></sub>
-        </a>
-    </td>
-</tr>
-<tr>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/bandwith>
-            <img src=https://avatars.githubusercontent.com/u/62576?v=4 width="100;"  alt=bandwith/>
-            <br />
-            <sub style="font-size:14px"><b>bandwith</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/powerdude>
-            <img src=https://avatars.githubusercontent.com/u/780882?v=4 width="100;"  alt=powerdude/>
-            <br />
-            <sub style="font-size:14px"><b>powerdude</b></sub>
+            <sub style="font-size:14px"><b>Aethenn</b></sub>
         </a>
     </td>
 </tr>
