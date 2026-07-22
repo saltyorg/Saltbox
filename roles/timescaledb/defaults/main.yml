@@ -97,3 +97,6 @@ timescaledb_role_docker_user: "{{ uid }}:{{ gid }}"
 
 # SHM size
 timescaledb_role_docker_shm_size: "128M"
+
+# CI
+timescaledb_role_docker_create_timeout: 300
