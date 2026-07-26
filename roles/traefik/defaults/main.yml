@@ -541,7 +541,7 @@ traefik_role_docker_labels_crowdsec:
   traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapischeme: "http"
   traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapihost: "172.19.0.1:{{ traefik_crowdsec_port }}"
   traefik.http.middlewares.crowdsec.plugin.bouncer.forwardedheaderstrustedips: "{{ traefik_trusted_ips_template if (traefik_trusted_ips_template | length > 0) else omit }}"
-  traefik.http.middlewares.crowdsec.plugin.bouncer.banhtmlfilepath: "{{ traefik_crowdsec_ban_filepath }}"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.banfilepath: "{{ traefik_crowdsec_ban_filepath }}"
 
 traefik_role_docker_labels_custom: {}
 traefik_role_docker_labels: "{{ docker_labels_saltbox
