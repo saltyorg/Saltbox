@@ -16,6 +16,7 @@ ignored_tags:
   - "download-indexers"
   - "hetzner"
   - "kernel"
+  - "lldap-reset"
   - "media-server"
   - "motd"
   - "motd-generate-config"
