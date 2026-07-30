@@ -14,8 +14,8 @@
 
 - name: nvtop | Add signing key to /etc/apt/keyrings
   ansible.builtin.get_url:
-    url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x824A27DD09DEDA33BF7835962EA8F35793D8809A"
-    dest: "/etc/apt/keyrings/flexiondotorg.asc"
+    url: "{{ nvidia_nvtop_apt_key_url }}"
+    dest: "{{ nvidia_nvtop_apt_repo_signed_by }}"
     mode: "0644"
   register: result
   retries: "{{ ansible_retry_count
@@ -23,20 +23,38 @@
             else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
-  when: ansible_facts['distribution_release'] in ['jammy', 'focal']
+  when: ansible_facts['distribution_release'] in ['jammy', 'noble']
 
-- name: Nvidia | Remove old repository list
+- name: nvtop | Remove legacy flexiondotorg repository and signing key
   ansible.builtin.file:
-    path: "{{ nvidia_nvtop_apt_repo_file }}"
+    path: "{{ item }}"
     state: absent
+  loop: "{{ nvidia_nvtop_apt_legacy_paths }}"
+  register: nvidia_nvtop_legacy_repository_files
 
-- name: nvtop | Add flexiondotorg/nvtop repository
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/flexiondotorg.asc] https://ppa.launchpadcontent.net/flexiondotorg/nvtop/{{ ansible_facts['distribution'] | lower }} {{ ansible_facts['distribution_release'] }} main"
-    filename: "flexiondotorg"
+- name: nvtop | Add quentiumyt/nvtop repository
+  ansible.builtin.deb822_repository:
+    name: "{{ nvidia_nvtop_apt_repo_name }}"
+    types:
+      - deb
+    uris: "{{ nvidia_nvtop_apt_repo_uris }}"
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}"
+    components:
+      - main
+    architectures:
+      - amd64
+    signed_by: "{{ nvidia_nvtop_apt_repo_signed_by }}"
     state: present
+  register: nvidia_nvtop_apt_repository_result
+  when: ansible_facts['distribution_release'] in ['jammy', 'noble']
+
+- name: nvtop | Update APT package index after repository change
+  ansible.builtin.apt:
     update_cache: true
-  when: ansible_facts['distribution_release'] in ['jammy', 'focal']
+  when:
+    - ansible_facts['distribution_release'] in ['jammy', 'noble']
+    - (nvidia_nvtop_legacy_repository_files is changed) or (nvidia_nvtop_apt_repository_result is changed)
 
 - name: nvtop | Install nvtop
   ansible.builtin.apt:

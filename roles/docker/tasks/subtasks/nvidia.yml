@@ -29,12 +29,21 @@
   until: result is succeeded
 
 - name: Nvidia | Add 'nvidia-container-toolkit' APT list
-  ansible.builtin.apt_repository:
-    repo: "{{ nvidia_docker_apt_repo_url }}"
-    filename: "{{ nvidia_docker_runtime_apt_repo_file }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ nvidia_docker_runtime_apt_repo_file }}"
+    types:
+      - deb
+    uris: "{{ nvidia_docker_apt_repo_uris }}"
+    suites: "{{ nvidia_docker_apt_repo_suites }}"
+    signed_by: "{{ nvidia_docker_apt_repo_signed_by }}"
     state: present
     mode: "0644"
+  register: nvidia_docker_apt_repository_result
+
+- name: Nvidia | Update APT package index after repository change
+  ansible.builtin.apt:
     update_cache: true
+  when: (nvidia_docker_apt_repository_result is changed)
 
 - name: Nvidia | Remove 'nvidia-container-runtime'
   ansible.builtin.apt:

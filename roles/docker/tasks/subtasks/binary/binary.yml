@@ -11,6 +11,8 @@
   ansible.builtin.find:
     paths: /etc/apt/sources.list.d/
     recurse: false
+    patterns:
+      - "*.list"
   register: apt_source_files
 
 - name: Binary | Check if file contains 'download.docker.com'
@@ -24,11 +26,8 @@
     path: "{{ item.item.path }}"
     state: absent
   loop: "{{ file_contents.results }}"
-  when: "'download.docker.com' in item.content | b64decode"
-
-- name: Binary | Update APT package index
-  ansible.builtin.apt:
-    update_cache: true
+  when: ('download.docker.com' in item.content | b64decode)
+  register: docker_legacy_apt_sources
 
 - name: Binary | Ensure '/etc/apt/keyrings' exists
   ansible.builtin.file:
@@ -51,10 +50,22 @@
   until: result is succeeded
 
 - name: Binary | Add official repository
-  ansible.builtin.apt_repository:
-    repo: "{{ docker_apt_repo_url }}"
-    filename: "{{ docker_apt_repo_filename }}"
+  ansible.builtin.deb822_repository:
+    name: "{{ docker_apt_repo_filename }}"
+    types:
+      - deb
+    uris: "{{ docker_apt_repo_uris }}"
+    suites: "{{ docker_apt_repo_suites }}"
+    components: "{{ docker_apt_repo_components }}"
+    architectures: "{{ docker_apt_repo_architectures }}"
+    signed_by: "{{ docker_apt_repo_signed_by }}"
+    state: present
+  register: docker_apt_repository_result
+
+- name: Binary | Update APT package index after repository change
+  ansible.builtin.apt:
     update_cache: true
+  when: (docker_legacy_apt_sources is changed) or (docker_apt_repository_result is changed)
   register: result
   retries: "{{ ansible_retry_count
             if (not continuous_integration)

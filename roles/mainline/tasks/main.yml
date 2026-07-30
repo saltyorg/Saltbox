@@ -15,6 +15,8 @@
   ansible.builtin.find:
     paths: /etc/apt/sources.list.d/
     recurse: false
+    patterns:
+      - "*.list"
   register: apt_source_files
 
 - name: Check if file contains 'cappelikan'
@@ -28,11 +30,8 @@
     path: "{{ item.item.path }}"
     state: absent
   loop: "{{ file_contents.results }}"
-  when: "'cappelikan' in item.content | b64decode"
-
-- name: Update APT package index
-  ansible.builtin.apt:
-    update_cache: true
+  when: ('cappelikan' in item.content | b64decode)
+  register: mainline_legacy_apt_sources
 
 - name: Ensure '/etc/apt/keyrings' exists
   ansible.builtin.file:
@@ -55,10 +54,26 @@
   until: result is succeeded
 
 - name: Add cappelikan/ppa
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/cappelikan.asc] https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu {{ ansible_facts['distribution_release'] }} main"
+  ansible.builtin.deb822_repository:
+    name: "cappelikan"
+    types:
+      - deb
+    uris:
+      - "https://ppa.launchpadcontent.net/cappelikan/ppa/ubuntu"
+    suites:
+      - "{{ ansible_facts['distribution_release'] }}"
+    components:
+      - main
+    architectures:
+      - amd64
+    signed_by: "/etc/apt/keyrings/cappelikan.asc"
     state: present
+  register: mainline_apt_repository_result
+
+- name: Update APT package index after cappelikan/ppa change
+  ansible.builtin.apt:
     update_cache: true
+  when: (mainline_legacy_apt_sources is changed) or (mainline_apt_repository_result is changed)
   register: result
   retries: "{{ ansible_retry_count
             if (not continuous_integration)

@@ -51,7 +51,12 @@ nvidia_docker_runtime_apt_key_url: https://nvidia.github.io/libnvidia-container/
 
 nvidia_docker_runtime_apt_repo_list_url: "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list"
 
-nvidia_docker_apt_repo_url: "deb [signed-by=/etc/apt/keyrings/nvidia.asc] https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /"
+nvidia_docker_apt_repo_uris:
+  - "https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH)"
+
+nvidia_docker_apt_repo_suites:
+  - "/"
+nvidia_docker_apt_repo_signed_by: "/etc/apt/keyrings/nvidia.asc"
 
 nvidia_docker_runtime_apt_repo_file_old: nvidia-container-runtime
 
@@ -80,7 +85,15 @@ nvidia_nvtop_binary_version_lookup_command: |
   {{ nvidia_nvtop_binary_path }} --version \
       | head -n 1 | awk '{print $3}' | cut -f1,2 -d'-'
 
-nvidia_nvtop_apt_repo_file: "/etc/apt/sources.list.d/flexiondotorg.list"
+nvidia_nvtop_apt_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x841D3BCEAB2EAB90D9FBCD98C39C03E944854141"
+nvidia_nvtop_apt_repo_name: "quentiumyt-nvtop"
+nvidia_nvtop_apt_repo_uris:
+  - "https://ppa.launchpadcontent.net/quentiumyt/nvtop/ubuntu"
+nvidia_nvtop_apt_repo_signed_by: "/etc/apt/keyrings/quentiumyt-nvtop.asc"
+nvidia_nvtop_apt_legacy_paths:
+  - "/etc/apt/sources.list.d/flexiondotorg.list"
+  - "/etc/apt/sources.list.d/flexiondotorg.sources"
+  - "/etc/apt/keyrings/flexiondotorg.asc"
 
 ################################
 # Docker

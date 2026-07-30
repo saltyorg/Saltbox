@@ -7,21 +7,30 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Network | Get list of docker networks"
-  ansible.builtin.shell: docker network ls --format '{{ '{{' }} .Name{{ '}}' }}'
-  register: docker_networks_list
-  changed_when: false
-  until: "docker_networks_list is not failed"
+- name: "Network | Inspect saltbox docker network"
+  community.docker.docker_network_info:
+    name: saltbox
+  register: docker_saltbox_network
+  until: "docker_saltbox_network is not failed"
   retries: 10
   delay: 10
 
-- name: "Network | Get saltbox docker network gateway"
-  ansible.builtin.shell: docker network inspect saltbox -f '{{ '{{' }}.EnableIPv6{{ '}}' }}'
-  register: docker_network_ipv6
-  when: ('saltbox' in docker_networks_list.stdout_lines)
+- name: "Network | Inspect bridge docker network"
+  community.docker.docker_network_info:
+    name: bridge
+  register: docker_bridge_network
+
+- name: "Network | Get containers configured for saltbox network"
+  community.docker.docker_host_info:
+    containers: true
+    containers_all: true
+    containers_filters:
+      network: saltbox
+  register: docker_saltbox_containers
+  when: docker_saltbox_network.exists
 
 - name: "Network (IPv6) | Create new IPv6 saltbox docker network block"
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and docker_ipv6
+  when: (not docker_saltbox_network.exists) and docker_ipv6
   block:
     - name: "Network (IPv6) | Create saltbox network"
       community.docker.docker_network:
@@ -33,7 +42,7 @@
           - subnet: fd00:dead:beef::/48
 
 - name: "Network (IPv4) | Create new IPv4 saltbox docker network block"
-  when: ('saltbox' not in docker_networks_list.stdout_lines) and (not docker_ipv6)
+  when: (not docker_saltbox_network.exists) and (not docker_ipv6)
   block:
     - name: "Network (IPv4) | Create saltbox network"
       community.docker.docker_network:
@@ -44,31 +53,40 @@
           - subnet: 172.19.0.0/16
 
 - name: "Network (IPv6) | Migrating existing saltbox docker network block to IPv6"
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'false') and docker_ipv6
+  when: docker_saltbox_network.exists and (not docker_saltbox_network.network.EnableIPv6) and docker_ipv6
   block:
-    - name: "Network (IPv6) | Get list of containers on saltbox network"
-      ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
-      register: docker_containers
-      changed_when: false
-
-    - name: "Network (IPv6) | Inspect containers for Aliases"
-      ansible.builtin.shell: "docker inspect {{ item }} | jq '.[].NetworkSettings.Networks.saltbox.Aliases'"
-      register: docker_containers_aliases
-      loop: "{{ docker_containers.stdout_lines }}"
-
-    - name: "Network (IPv6) | Parse containers"
-      ansible.builtin.set_fact:
-        parsed_docker_containers: "{{ parsed_docker_containers | default({}) | combine({item.item: (item.stdout | from_json)}) }}"
-      loop: "{{ docker_containers_aliases.results }}"
+    - name: "Network (IPv6) | Inspect containers for aliases"
+      community.docker.docker_container_info:
+        name: "{{ docker_network_container.Id }}"
+      register: docker_ipv6_container_info
+      loop: "{{ docker_saltbox_containers.containers }}"
+      loop_control:
+        loop_var: docker_network_container
+        label: "{{ docker_network_container.Names | first | regex_replace('^/', '') }}"
 
     - name: "Network (IPv6) | Disconnect containers from bridge network"
-      ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
-      with_items: "{{ docker_containers.stdout_lines }}"
+      community.docker.docker_network:
+        name: bridge
+        connected: >-
+          {{
+            (docker_bridge_network.network.Containers | default({}) | dict2items
+              | map(attribute='value.Name') | list)
+            | difference(
+                docker_saltbox_containers.containers
+                  | map(attribute='Names') | map('first')
+                  | map('regex_replace', '^/', '') | list
+              )
+          }}
       register: disconnect_containers
-      failed_when: disconnect_containers.rc > 1
       ignore_errors: true
+      when: docker_bridge_network.exists
 
-    - name: "Network (IPv6) | Rebuild saltbox network"
+    - name: "Network (IPv6) | Remove saltbox network"
+      community.docker.docker_network:
+        name: saltbox
+        state: absent
+
+    - name: "Network (IPv6) | Create saltbox network"
       community.docker.docker_network:
         name: saltbox
         state: present
@@ -78,38 +96,69 @@
           - subnet: fd00:dead:beef::/48
 
     - name: "Network (IPv6) | Connect containers to saltbox network"
-      ansible.builtin.shell: docker network connect saltbox {{ item.key }} {{ (([item.key] + (item.value | default([]))) | unique) | map('regex_replace', '^', '--alias ') | join(' ') }}
-      with_dict: "{{ parsed_docker_containers }}"
+      ansible.builtin.shell: >-
+        docker network connect saltbox
+        {{ docker_network_container.container.Name | regex_replace('^/', '') }}
+        {{
+          (
+            [docker_network_container.container.Name | regex_replace('^/', '')]
+            | union(
+                docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
+                  | default([], true)
+              )
+          )
+          | map('regex_replace', '^', '--alias ')
+          | join(' ')
+        }}
+      loop: >-
+        {{
+          docker_ipv6_container_info.results
+            | selectattr('container', 'defined')
+            | rejectattr('container', 'none')
+            | list
+        }}
+      loop_control:
+        loop_var: docker_network_container
+        label: "{{ docker_network_container.container.Name | regex_replace('^/', '') }}"
       register: connect_containers
       failed_when: connect_containers.rc > 1
       ignore_errors: true
 
 - name: "Network (IPv4) | Migrating existing saltbox docker network block to IPv4"
-  when: ('saltbox' in docker_networks_list.stdout_lines) and (docker_network_ipv6.stdout == 'true') and (not docker_ipv6)
+  when: docker_saltbox_network.exists and docker_saltbox_network.network.EnableIPv6 and (not docker_ipv6)
   block:
-    - name: "Network (IPv4) | Get list of containers on saltbox network"
-      ansible.builtin.shell: docker ps -a --filter network=saltbox --format '{{ '{{' }}.Names{{ '}}' }}'
-      register: docker_containers
-      changed_when: false
-
-    - name: "Network (IPv4) | Inspect containers for Aliases"
-      ansible.builtin.shell: "docker inspect {{ item }} | jq '.[].NetworkSettings.Networks.saltbox.Aliases'"
-      register: docker_containers_aliases
-      loop: "{{ docker_containers.stdout_lines }}"
-
-    - name: "Network (IPv4) | Parse containers"
-      ansible.builtin.set_fact:
-        parsed_docker_containers: "{{ parsed_docker_containers | default({}) | combine({item.item: (item.stdout | from_json)}) }}"
-      loop: "{{ docker_containers_aliases.results }}"
+    - name: "Network (IPv4) | Inspect containers for aliases"
+      community.docker.docker_container_info:
+        name: "{{ docker_network_container.Id }}"
+      register: docker_ipv4_container_info
+      loop: "{{ docker_saltbox_containers.containers }}"
+      loop_control:
+        loop_var: docker_network_container
+        label: "{{ docker_network_container.Names | first | regex_replace('^/', '') }}"
 
     - name: "Network (IPv4) | Disconnect containers from bridge network"
-      ansible.builtin.shell: docker network disconnect -f bridge {{ item }}
-      with_items: "{{ docker_containers.stdout_lines }}"
+      community.docker.docker_network:
+        name: bridge
+        connected: >-
+          {{
+            (docker_bridge_network.network.Containers | default({}) | dict2items
+              | map(attribute='value.Name') | list)
+            | difference(
+                docker_saltbox_containers.containers
+                  | map(attribute='Names') | map('first')
+                  | map('regex_replace', '^/', '') | list
+              )
+          }}
       register: disconnect_containers
-      failed_when: disconnect_containers.rc > 1
       ignore_errors: true
+      when: docker_bridge_network.exists
 
-    - name: "Network (IPv4) | Rebuild saltbox network"
+    - name: "Network (IPv4) | Remove saltbox network"
+      community.docker.docker_network:
+        name: saltbox
+        state: absent
+
+    - name: "Network (IPv4) | Create saltbox network"
       community.docker.docker_network:
         name: saltbox
         state: present
@@ -118,8 +167,30 @@
           - subnet: 172.19.0.0/16
 
     - name: "Network (IPv4) | Connect containers to saltbox network"
-      ansible.builtin.shell: docker network connect saltbox {{ item.key }} {{ (([item.key] + (item.value | default([]))) | unique) | map('regex_replace', '^', '--alias ') | join(' ') }}
-      with_dict: "{{ parsed_docker_containers }}"
+      ansible.builtin.shell: >-
+        docker network connect saltbox
+        {{ docker_network_container.container.Name | regex_replace('^/', '') }}
+        {{
+          (
+            [docker_network_container.container.Name | regex_replace('^/', '')]
+            | union(
+                docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
+                  | default([], true)
+              )
+          )
+          | map('regex_replace', '^', '--alias ')
+          | join(' ')
+        }}
+      loop: >-
+        {{
+          docker_ipv4_container_info.results
+            | selectattr('container', 'defined')
+            | rejectattr('container', 'none')
+            | list
+        }}
+      loop_control:
+        loop_var: docker_network_container
+        label: "{{ docker_network_container.container.Name | regex_replace('^/', '') }}"
       register: connect_containers
       failed_when: connect_containers.rc > 1
       ignore_errors: true
@@ -131,5 +202,8 @@
 
 - name: "Network | Unset variables"
   ansible.builtin.set_fact:
-    docker_networks_list:
-    docker_containers:
+    docker_saltbox_network:
+    docker_bridge_network:
+    docker_saltbox_containers:
+    docker_ipv6_container_info:
+    docker_ipv4_container_info:

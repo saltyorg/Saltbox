@@ -10,7 +10,7 @@
 - name: Fail if no Crowdsec Console Enrollment key defined
   ansible.builtin.fail:
     msg: "A Crowdsec Console Enrollment key is required, check the Saltbox documentation for Crowdsec."
-  when: not (crowdsec_console_enrollment_key | length > 0)
+  when: (not crowdsec_console_enrollment_key | length > 0)
 
 - name: Add 'crowdsec' APT Repo Key
   ansible.builtin.get_url:
@@ -25,13 +25,28 @@
   delay: 10
   until: result is succeeded
 
+- name: Remove legacy 'crowdsec' APT list
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/crowdsec.list"
+    state: absent
+
 - name: Add 'crowdsec' APT list
-  ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/crowdsec.asc] https://packagecloud.io/crowdsec/crowdsec/any/ any main"
-    filename: "crowdsec"
+  ansible.builtin.deb822_repository:
+    name: "crowdsec"
+    types:
+      - deb
+    uris:
+      - "https://packagecloud.io/crowdsec/crowdsec/any/"
+    suites:
+      - any
+    components:
+      - main
+    architectures:
+      - amd64
+    signed_by: "/etc/apt/keyrings/crowdsec.asc"
     state: present
     mode: "0644"
-    update_cache: true
+  register: crowdsec_apt_repository_result
 
 - name: Add CrowdSec APT pinning override for Ubuntu ESM
   ansible.builtin.copy:
@@ -43,10 +58,10 @@
       Pin-Priority: 1001
   register: crowdsec_esm_override_result
 
-- name: Update APT cache after CrowdSec ESM override change
+- name: Update APT cache after CrowdSec repository or ESM override change
   ansible.builtin.apt:
     update_cache: true
-  when: crowdsec_esm_override_result is changed
+  when: (crowdsec_apt_repository_result is changed) or (crowdsec_esm_override_result is changed)
 
 - name: Gather package facts
   ansible.builtin.package_facts:
