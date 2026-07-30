@@ -195,6 +195,7 @@
   ansible.builtin.set_fact:
     _docker_command: "{{ (_docker_vars['_docker_commands']['value'] | reject('equalto', omit) | list) }}"
     _docker_cpus: "{{ _docker_vars['_docker_cpus']['value'] }}"
+    _docker_dev_dri: "{{ lookup('docker_var', '_docker_dev_dri', default=false) }}"
     _docker_env: "{{ (nvidia_docker_env if use_nvidia and dev_dri is defined else {}) | combine(_docker_vars['_docker_envs']['value']) }}"
     _docker_etc_hosts: "{{ (docker_hosts_common if _docker_vars['_docker_hosts_use_common']['value'] else {}) | combine(_docker_vars['_docker_hosts']['value'])
                         if not ('container:' in _docker_vars['_docker_network_mode']['value'])
@@ -202,6 +203,9 @@
     _docker_exposed_ports: "{{ (_docker_vars['_docker_exposed_ports']['value'] | unique | reject('equalto', omit) | list)
                             if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                             else [] }}"
+    _docker_groups: "{{ _docker_vars['_docker_groups']['value']
+                     if (not _docker_vars['_docker_groups']['omit'])
+                     else [] }}"
     _docker_hostname: "{{ _docker_vars['_docker_hostname']['value']
                        if (_docker_vars['_docker_network_mode']['value'] == docker_networks_name_common)
                        else '' }}"
@@ -218,7 +222,15 @@
     _docker_volumes: "{{ ((docker_volumes_common + _docker_vars['_docker_volumes']['value'])
                       if (_docker_vars['_docker_volumes_global']['value'] | bool)
                       else _docker_vars['_docker_volumes']['value']) | unique | reject('equalto', omit) | list }}"
-    _docker_dev_dri: "{{ lookup('docker_var', '_docker_dev_dri', default=false) }}"
+
+- name: Resources | Tasks | Docker | Create Docker Container | Add GPU groups for non-root user
+  ansible.builtin.set_fact:
+    _docker_groups: "{{ (_docker_groups + [vgid, rgid]) | unique }}"
+  when:
+    - (_docker_dev_dri | bool)
+    - (not _docker_vars['_docker_user']['omit'])
+    - (_docker_vars['_docker_user']['value'] | string | length > 0)
+    - ((_docker_vars['_docker_user']['value'] | string).split(':') | first) not in ['root', '0']
 
 - name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
@@ -272,7 +284,9 @@
     exposed_ports: "{{ _docker_exposed_ports
                     if (_docker_exposed_ports | length > 0)
                     else omit }}"
-    groups: "{{ (_docker_vars['_docker_groups']['value'] if not _docker_vars['_docker_groups']['omit'] else omit) }}"
+    groups: "{{ _docker_groups
+             if (_docker_groups | length > 0)
+             else omit }}"
     healthcheck: "{{ (_docker_vars['_docker_healthcheck']['value'] if not _docker_vars['_docker_healthcheck']['omit'] else omit) }}"
     healthy_wait_timeout: "{{ _docker_vars['_docker_healthy_wait_timeout']['value'] }}"
     hostname: "{{ _docker_hostname
