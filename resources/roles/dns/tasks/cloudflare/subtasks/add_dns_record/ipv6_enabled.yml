@@ -19,7 +19,7 @@
     zone: "{{ dns_zone }}"
     state: present
     solo: true
-    proxied: "{{ dns_proxy }}"
+    proxied: "{{ dns_proxy and not _dns_using_tailscale }}"
     type: AAAA
     value: "{{ ipv6_address_public_template
             if (not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false)))
@@ -36,4 +36,4 @@
 
     - name: Cloudflare | Add DNS Record | IPv6 | Display DNS Record creation status
       ansible.builtin.debug:
-        msg: "DNS AAAA Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public_template }}' was added. Proxy: {{ dns_proxy }}"
+        msg: "DNS AAAA Record for '{{ dns_record_print }}' set to '{{ ipv6_address_public_template }}' was added. Proxy: {{ dns_proxy and not _dns_using_tailscale }}"

@@ -19,6 +19,7 @@
   ansible.builtin.set_fact:
     ipv4_address_public_template: "{{ lookup('vars', ansible_parent_role_names | first + '_dns_ipv4', default=lookup('vars', ansible_parent_role_names | first + '_role_dns_ipv4', default=ip_address_public)) }}"
     ipv6_address_public_template: "{{ lookup('vars', ansible_parent_role_names | first + '_dns_ipv4', default=lookup('vars', ansible_parent_role_names | first + '_role_dns_ipv6', default=ipv6_address_public)) }}"
+    _dns_using_tailscale: false
 
 - name: Cloudflare | Tailscale block
   when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
@@ -32,6 +33,7 @@
       ansible.builtin.set_fact:
         dns_tailscale_ipv4: "{{ dns_tailscale_ips.stdout_lines[0] }}"
         dns_tailscale_ipv6: "{{ dns_tailscale_ips.stdout_lines[1] }}"
+        _dns_using_tailscale: true
 
 - name: Cloudflare | Add DNS Record
   ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"

@@ -12,7 +12,7 @@
     msg:
       - "You cannot use CDN proxy with a nested subdomain with a free account."
       - "If you have paid for the feature set 'cloudflare_allow_nested_proxy: true' using the inventory."
-  when: (not cloudflare_allow_nested_proxy) and ("." in dns_record) and dns_proxy
+  when: (not cloudflare_allow_nested_proxy) and ("." in dns_record) and dns_proxy and (not _dns_using_tailscale)
 
 - name: Cloudflare | Add DNS Record | Fetch Record information
   cloudflare_dns_records:
@@ -72,7 +72,7 @@
 - name: Cloudflare | Add DNS Record | IPv4 Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_enabled.yml"
   when: dns_ipv4_enabled and
-        ((not (((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)) and (cloudflare_ipv4_record.content == ipv4_address_public_template) and (cloudflare_ipv4_record.proxied == dns_proxy)))
+        ((not (((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)) and (cloudflare_ipv4_record.content == ipv4_address_public_template) and (cloudflare_ipv4_record.proxied == (dns_proxy and not _dns_using_tailscale))))
          or not ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv4 Disable Tasks
@@ -82,7 +82,7 @@
 - name: Cloudflare | Add DNS Record | IPv6 Enabled Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_enabled.yml"
   when: dns_ipv6_enabled and
-        ((not (((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)) and (cloudflare_ipv6_record.content == ipv6_address_public_template) and (cloudflare_ipv6_record.proxied == dns_proxy)))
+        ((not (((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)) and (cloudflare_ipv6_record.content == ipv6_address_public_template) and (cloudflare_ipv6_record.proxied == (dns_proxy and not _dns_using_tailscale))))
          or not ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)))
 
 - name: Cloudflare | Add DNS Record | IPv6 Disable Block
