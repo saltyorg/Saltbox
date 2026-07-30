@@ -7,7 +7,18 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Validate bootstrap token (retry until Authentik is ready)
+- name: Wait for Authentik containers to be healthy
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: authentik_container_info
+  until: "authentik_container_info.container.State.Health.Status == 'healthy'"
+  retries: 60
+  delay: 10
+  loop:
+    - "{{ authentik_name }}"
+    - "{{ authentik_worker_name }}"
+
+- name: Validate bootstrap token
   ansible.builtin.uri:
     url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/me/"
     method: GET
@@ -15,7 +26,7 @@
       Authorization: "Bearer {{ authentik_bootstrap_token }}"
       Accept: "application/json"
     status_code: 200
-  retries: 999
+  retries: 60
   delay: 10
 
 - name: Create new admin user
@@ -256,7 +267,18 @@
   ansible.builtin.include_role:
     name: authentik_worker
 
-- name: Validate Saltbox token (retry until Authentik is ready)
+- name: Wait for Authentik containers to be healthy
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: authentik_container_info
+  until: "authentik_container_info.container.State.Health.Status == 'healthy'"
+  retries: 60
+  delay: 10
+  loop:
+    - "{{ authentik_name }}"
+    - "{{ authentik_worker_name }}"
+
+- name: Validate Saltbox token
   ansible.builtin.uri:
     url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/me/"
     method: GET
@@ -264,7 +286,7 @@
       Authorization: "Bearer {{ authentik_admin_token }}"
       Accept: "application/json"
     status_code: 200
-  retries: 999
+  retries: 60
   delay: 10
 
 - name: Delete authentik-bootstrap-token
