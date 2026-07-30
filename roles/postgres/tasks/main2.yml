@@ -10,7 +10,10 @@
 - name: Initialize variables
   ansible.builtin.set_fact:
     postgres_major_version: ""
+    postgres_docker_tag_version: ""
     postgres_docker_tag_major_version: ""
+    postgres_migration_started: false
+    postgres_migration_source_path: "{{ lookup('role_var', '_paths_location', role='postgres') }}"
     postgres_original_image_repo: "{{ true if lookup('role_var', '_docker_image_repo', role='postgres') == 'postgres' else false }}"
 
 - name: Supported image repository
@@ -26,6 +29,82 @@
         path: "{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION"
       register: stat_postgres_version_path
 
+    - name: Check for previous PostgreSQL data folder
+      ansible.builtin.stat:
+        path: "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+      register: stat_postgres_backup_path
+
+    - name: Check for previous PostgreSQL version file
+      ansible.builtin.stat:
+        path: "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup/PG_VERSION"
+      register: stat_postgres_backup_version_path
+
+    - name: Recover interrupted PostgreSQL data folder activation
+      when:
+        - not stat_postgres_path.stat.exists
+        - stat_postgres_backup_version_path.stat.exists
+      block:
+        - name: Restore previous PostgreSQL data folder after interrupted activation
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+
+        - name: Read restored PostgreSQL version
+          ansible.builtin.slurp:
+            src: "{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION"
+          register: postgres_interrupted_recovery_version_file
+
+        - name: Define restored PostgreSQL version
+          ansible.builtin.set_fact:
+            postgres_interrupted_recovery_version: "{{ postgres_interrupted_recovery_version_file.content | b64decode | trim }}"
+
+        - name: Recreate previous PostgreSQL container after interrupted activation
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          vars:
+            postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres')
+                                            + ':' + postgres_interrupted_recovery_version }}"
+
+        - name: Wait for PostgreSQL container after interrupted activation
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}"
+            argv:
+              - pg_isready
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
+          register: postgres_interrupted_recovery_ready
+          changed_when: false
+          retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+          delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+          until: postgres_interrupted_recovery_ready.rc == 0
+
+        - name: Report recovered interrupted PostgreSQL migration
+          ansible.builtin.fail:
+            msg: >-
+              An interrupted PostgreSQL migration was detected. PostgreSQL
+              {{ postgres_interrupted_recovery_version }} data was restored from
+              '{{ lookup('role_var', '_paths_location', role='postgres') }}_backup'
+              and its container is running. Any migrated data at
+              '{{ lookup('role_var', '_paths_location', role='postgres') }}_new'
+              was preserved for inspection. Run the role again to retry the
+              migration; the preserved temporary data will then be replaced.
+
+    - name: Refuse ambiguous PostgreSQL backup state
+      ansible.builtin.fail:
+        msg: >-
+          PostgreSQL data at '{{ lookup('role_var', '_paths_location', role='postgres') }}'
+          does not contain PG_VERSION, while a previous data folder exists at
+          '{{ lookup('role_var', '_paths_location', role='postgres') }}_backup'.
+          The role will not overwrite or move either folder automatically.
+          Inspect both paths and restore the valid PostgreSQL data folder before
+          running the role again.
+      when:
+        - not stat_postgres_version_path.stat.exists
+        - stat_postgres_backup_path.stat.exists
+
     - name: Check for upgrade
       when: stat_postgres_path.stat.exists and stat_postgres_version_path.stat.exists
       block:
@@ -34,10 +113,14 @@
             src: "{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION"
           register: pg_version_file
 
-        - name: Define installed and desired Postgres versions
+        - name: Define installed and desired Postgres image versions
           ansible.builtin.set_fact:
             postgres_major_version: "{{ pg_version_file['content'] | b64decode | trim }}"
-            postgres_docker_tag_major_version: "{{ lookup('role_var', '_docker_image_tag', role='postgres').split('-')[0] | regex_replace('^([0-9]+).*', '\\1') }}"
+            postgres_docker_tag_version: "{{ lookup('role_var', '_docker_image_tag', role='postgres').split('-')[0] }}"
+
+        - name: Normalize desired Postgres major version
+          ansible.builtin.set_fact:
+            postgres_docker_tag_major_version: "{{ postgres_docker_tag_version.split('.')[0] }}"
 
         - name: Display PostgreSQL version
           ansible.builtin.debug:
@@ -46,9 +129,17 @@
         - name: Validate Docker tag version
           ansible.builtin.assert:
             that:
+              - postgres_docker_tag_version is regex("^[0-9]+(?:\\.[0-9]+)*$")
               - postgres_docker_tag_major_version is regex("^[0-9]+$")
             fail_msg: "Invalid version specified for 'postgres_docker_image_tag': {{ lookup('role_var', '_docker_image_tag', role='postgres') }}"
             success_msg: "Valid version specified for 'postgres_docker_image_tag': {{ lookup('role_var', '_docker_image_tag', role='postgres') }}"
+
+        - name: Validate supported Postgres version range
+          ansible.builtin.assert:
+            that:
+              - postgres_major_version is version('12', '>=')
+              - postgres_docker_tag_major_version is version('12', '>=')
+            fail_msg: "Automated PostgreSQL migration supports PostgreSQL 12 and newer."
 
     - name: Upgrade PostgreSQL
       when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
@@ -56,70 +147,27 @@
         - name: Fail if downgrade
           ansible.builtin.fail:
             msg: "Downgrade of PostgreSQL is not supported."
-          when: postgres_major_version > postgres_docker_tag_major_version
+          when: postgres_major_version is version(postgres_docker_tag_major_version, '>')
+
+        - name: Fail if backup location already exists
+          ansible.builtin.fail:
+            msg: >-
+              PostgreSQL backup data already exists at
+              '{{ lookup('role_var', '_paths_location', role='postgres') }}_backup'.
+              The role will not overwrite it. If it is from a completed migration,
+              verify the active database and remove the backup manually before
+              retrying another major-version migration. If its origin is uncertain,
+              keep it and investigate before making any changes.
+          when: stat_postgres_backup_path.stat.exists
+
+        - name: Mark PostgreSQL migration as started
+          ansible.builtin.set_fact:
+            postgres_migration_started: true
 
         - name: Remove existing Docker container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
-        - name: "Check if '{{ lookup('role_var', '_paths_location', role='postgres') }}_backup' exists"
-          ansible.builtin.stat:
-            path: "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
-          register: stat_postgres_backup_path
-
-        - name: Fail if backup location already exists
-          ansible.builtin.fail:
-            msg:
-              - "A backup of the postgres folder already exists, clean it up if it was from a previously successful upgrade. Otherwise ask for help on the discord."
-              - "Path is {{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
-          when: stat_postgres_backup_path.stat.exists
-
-        - name: Move Postgres data folder
-          ansible.builtin.shell: mv "{{ lookup('role_var', '_paths_location', role='postgres') }}" "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
-
-        - name: Create directories
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
-
-        - name: "Create Docker container (Desired tag: {{ lookup('role_var', '_docker_image_tag', role='postgres') }})"
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
-          vars:
-            postgres_role_docker_container: "{{ postgres_name + '_new' }}"
-            postgres_role_docker_networks_alias: "{{ postgres_name + '_new' }}"
-
-        - name: "Create Docker container (Previous tag: {{ postgres_major_version }}-alpine)"
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
-          vars:
-            postgres_role_docker_container: "{{ postgres_name + '_old' }}"
-            postgres_role_docker_networks_alias: "{{ postgres_name + '_old' }}"
-            postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres')
-                                            + ':' + postgres_major_version + '-alpine' }}"
-            postgres_role_docker_volumes_default:
-              - "{{ postgres_role_paths_location }}_backup:/data"
-              - "/etc/passwd:/etc/passwd:ro"
-
-        - name: Sleep for 60 seconds
-          ansible.builtin.wait_for:
-            timeout: 60
-
-        - name: Perform database migration
-          ansible.builtin.shell: |
-            set -eo pipefail
-            docker exec {{ postgres_name }}_old pg_dumpall | docker exec -i {{ postgres_name }}_new psql -d postgres
-          args:
-            executable: /bin/bash
-          register: postgres_migration_result
-          failed_when: false
-
-        - name: Check migration result
-          ansible.builtin.fail:
-            msg: "Migration failed: {{ postgres_migration_result.stderr }}"
-          when: postgres_migration_result.rc != 0
-
-        - name: Update user password for SCRAM authentication in new container
-          ansible.builtin.shell: |
-            docker exec {{ postgres_name }}_new psql -U {{ postgres_role_docker_env_user_effective }} -d {{ lookup('role_var', '_docker_env_db', role='postgres') }} -c "ALTER USER {{ postgres_role_docker_env_user_effective }} WITH PASSWORD '{{ postgres_role_docker_env_password_effective }}';"
-          when: (postgres_major_version | int < 14) and (postgres_docker_tag_major_version | int >= 14)
-
-        - name: Remove temporary containers
+        - name: Remove stale temporary containers
           community.docker.docker_container:
             name: "{{ item }}"
             state: absent
@@ -130,12 +178,394 @@
             - "{{ postgres_name }}_old"
             - "{{ postgres_name }}_new"
 
+        - name: Remove stale new Postgres data folder
+          ansible.builtin.file:
+            path: "{{ lookup('role_var', '_paths_location', role='postgres') }}_new"
+            state: absent
+
+        - name: Create new Postgres data folder
+          ansible.builtin.file:
+            path: "{{ lookup('role_var', '_paths_location', role='postgres') }}_new"
+            state: directory
+            owner: "{{ user.name }}"
+            group: "{{ user.name }}"
+            mode: "0775"
+
+        - name: "Create Docker container (Desired tag: {{ lookup('role_var', '_docker_image_tag', role='postgres') }})"
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          vars:
+            postgres_role_docker_container: "{{ postgres_name + '_new' }}"
+            postgres_role_docker_networks_alias: "{{ postgres_name + '_new' }}"
+            postgres_role_docker_labels_use_common: false
+            postgres_role_paths_location: "{{ postgres_migration_source_path }}_new"
+            postgres_role_docker_env_db: "postgres"
+            postgres_role_docker_healthcheck:
+              test: ["CMD-SHELL", "pg_isready -d postgres -U {{ postgres_role_docker_env_user_effective }}"]
+              start_period: 10s
+              interval: 10s
+              retries: 30
+              timeout: 5s
+
+        - name: "Create Docker container (Previous version: {{ postgres_major_version }})"
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          vars:
+            postgres_role_docker_container: "{{ postgres_name + '_old' }}"
+            postgres_role_docker_networks_alias: "{{ postgres_name + '_old' }}"
+            postgres_role_docker_labels_use_common: false
+            postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres') + ':' + postgres_major_version }}"
+
+        - name: Wait for previous PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_old"
+            argv:
+              - pg_isready
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+          register: postgres_old_ready
+          changed_when: false
+          retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+          delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+          until: postgres_old_ready.rc == 0
+
+        - name: Wait for new PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - pg_isready
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+          register: postgres_new_ready
+          changed_when: false
+          retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+          delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+          until: postgres_new_ready.rc == 0
+
+        - name: Read quoted source bootstrap role
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_old"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --tuples-only
+              - --no-align
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+              - --command
+              - "SELECT chr(34) || replace(current_user, chr(34), chr(34) || chr(34)) || chr(34)"
+          register: postgres_source_bootstrap_role
+          changed_when: false
+
+        - name: Perform database migration
+          ansible.builtin.shell: |
+            set -eo pipefail
+            # The new cluster already has the source bootstrap role. Remove only
+            # its CREATE statement so every other restore error remains fatal.
+            docker exec {{ (postgres_name + '_old') | quote }} \
+              pg_dumpall --username={{ postgres_role_docker_env_user_effective | quote }} --quote-all-identifiers |
+              grep --fixed-strings --line-regexp --invert-match -- \
+                {{ ('CREATE ROLE ' + postgres_source_bootstrap_role.stdout + ';') | quote }} |
+              docker exec -i {{ (postgres_name + '_new') | quote }} \
+                psql --no-psqlrc --set=ON_ERROR_STOP=1 \
+                  --username={{ postgres_role_docker_env_user_effective | quote }} --dbname=postgres
+          args:
+            executable: /bin/bash
+
+        - name: Update user password for SCRAM authentication in new container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - sh
+              - -eu
+              - -c
+              - >-
+                exec psql --no-psqlrc --set=ON_ERROR_STOP=1
+                --set=role="$POSTGRES_USER" --set=password="$POSTGRES_PASSWORD"
+                --username="$POSTGRES_USER" --dbname=postgres
+            stdin: "ALTER USER :\"role\" WITH PASSWORD :'password';"
+          when:
+            - postgres_major_version is version('14', '<')
+            - postgres_docker_tag_major_version is version('14', '>=')
+
+        - name: Validate updated user password in new container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - sh
+              - -eu
+              - -c
+              - >-
+                exec env PGPASSWORD="$POSTGRES_PASSWORD"
+                psql --no-psqlrc --set=ON_ERROR_STOP=1
+                --host=127.0.0.1 --username="$POSTGRES_USER"
+                --dbname=postgres --command="SELECT 1"
+          changed_when: false
+          when:
+            - postgres_major_version is version('14', '<')
+            - postgres_docker_tag_major_version is version('14', '>=')
+
+        - name: Read databases from previous PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_old"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --tuples-only
+              - --no-align
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+              - --command
+              - "SELECT datname FROM pg_database ORDER BY datname"
+          register: postgres_old_databases
+          changed_when: false
+
+        - name: Read databases from new PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --tuples-only
+              - --no-align
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+              - --command
+              - "SELECT datname FROM pg_database ORDER BY datname"
+          register: postgres_new_databases
+          changed_when: false
+
+        - name: Read roles from previous PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_old"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --tuples-only
+              - --no-align
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+              - --command
+              - "SELECT rolname FROM pg_roles ORDER BY rolname"
+          register: postgres_old_roles
+          changed_when: false
+
+        - name: Read roles from new PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --tuples-only
+              - --no-align
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - postgres
+              - --command
+              - "SELECT rolname FROM pg_roles ORDER BY rolname"
+          register: postgres_new_roles
+          changed_when: false
+
+        - name: Validate migrated databases and roles
+          ansible.builtin.assert:
+            that:
+              - (postgres_old_databases.stdout_lines | sort) == (postgres_new_databases.stdout_lines | sort)
+              - (postgres_old_roles.stdout_lines | difference(postgres_new_roles.stdout_lines) | length) == 0
+            fail_msg: "The PostgreSQL migration did not reproduce all source databases and roles."
+
+        - name: Validate configured database and user
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}_new"
+            argv:
+              - psql
+              - --no-psqlrc
+              - --set
+              - ON_ERROR_STOP=1
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
+              - --command
+              - "SELECT 1"
+          changed_when: false
+
+        - name: Remove migration containers
+          community.docker.docker_container:
+            name: "{{ item }}"
+            state: absent
+            container_default_behavior: compatibility
+            stop_timeout: "{{ lookup('role_var', '_docker_stop_timeout', default='180') }}"
+            tls_hostname: localhost
+          loop:
+            - "{{ postgres_name }}_old"
+            - "{{ postgres_name }}_new"
+
+        - name: Activate migrated Postgres data folder
+          block:
+            - name: Preserve previous Postgres data folder
+              ansible.builtin.command:
+                argv:
+                  - mv
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+
+            - name: Activate new Postgres data folder
+              ansible.builtin.command:
+                argv:
+                  - mv
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}_new"
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+          rescue:
+            - name: Check Postgres data folders after activation failure
+              ansible.builtin.stat:
+                path: "{{ item }}"
+              loop:
+                - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+                - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+              register: postgres_activation_paths
+
+            - name: Restore previous Postgres data folder
+              ansible.builtin.command:
+                argv:
+                  - mv
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+                  - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+              when:
+                - (not postgres_activation_paths.results[0].stat.exists)
+                - postgres_activation_paths.results[1].stat.exists
+
+            - name: Report Postgres data folder activation failure
+              ansible.builtin.fail:
+                msg: "Unable to activate the migrated PostgreSQL data folder. The previous data remains available at its original or backup path."
+
         - name: Create Docker container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
-        - name: Sleep for 30 seconds
-          ansible.builtin.wait_for:
-            timeout: 30
+        - name: Wait for PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}"
+            argv:
+              - pg_isready
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
+          register: postgres_ready
+          changed_when: false
+          retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+          delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+          until: postgres_ready.rc == 0
+
+        - name: Report retained PostgreSQL backup
+          ansible.builtin.debug:
+            msg: >-
+              PostgreSQL migration completed successfully. Previous data is
+              retained at '{{ lookup('role_var', '_paths_location', role='postgres') }}_backup'.
+              Verify the migrated database and its applications before removing
+              this folder manually. It must be removed before a future
+              major-version migration can run.
+
+      rescue:
+        - name: Remove PostgreSQL containers after migration failure
+          community.docker.docker_container:
+            name: "{{ item }}"
+            state: absent
+            container_default_behavior: compatibility
+            stop_timeout: "{{ lookup('role_var', '_docker_stop_timeout', default='180') }}"
+            tls_hostname: localhost
+          loop:
+            - "{{ postgres_name }}"
+            - "{{ postgres_name }}_old"
+            - "{{ postgres_name }}_new"
+          when: (postgres_migration_started | bool)
+
+        - name: Check PostgreSQL data folders after migration failure
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          loop:
+            - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+            - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+            - "{{ lookup('role_var', '_paths_location', role='postgres') }}_new"
+          register: postgres_recovery_paths
+          when: (postgres_migration_started | bool)
+
+        - name: Preserve failed migrated PostgreSQL data folder
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}_new"
+          register: postgres_failed_target_preserved
+          when:
+            - (postgres_migration_started | bool)
+            - postgres_recovery_paths.results[0].stat.exists
+            - postgres_recovery_paths.results[1].stat.exists
+            - (not postgres_recovery_paths.results[2].stat.exists)
+
+        - name: Restore previous PostgreSQL data folder after migration failure
+          ansible.builtin.command:
+            argv:
+              - mv
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}_backup"
+              - "{{ lookup('role_var', '_paths_location', role='postgres') }}"
+          when:
+            - (postgres_migration_started | bool)
+            - postgres_recovery_paths.results[1].stat.exists
+            - (not postgres_recovery_paths.results[0].stat.exists) or (postgres_failed_target_preserved is defined and postgres_failed_target_preserved is changed)
+
+        - name: Verify previous PostgreSQL data folder is available
+          ansible.builtin.slurp:
+            src: "{{ lookup('role_var', '_paths_location', role='postgres') }}/PG_VERSION"
+          register: postgres_recovered_version_file
+          when: (postgres_migration_started | bool)
+
+        - name: Validate recovered PostgreSQL version
+          ansible.builtin.assert:
+            that:
+              - (postgres_recovered_version_file.content | b64decode | trim) == postgres_major_version
+            fail_msg: "The previous PostgreSQL data folder could not be restored automatically."
+          when: (postgres_migration_started | bool)
+
+        - name: Recreate previous PostgreSQL container after migration failure
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          vars:
+            postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres') + ':' + postgres_major_version }}"
+          when: (postgres_migration_started | bool)
+
+        - name: Wait for recovered PostgreSQL container
+          community.docker.docker_container_exec:
+            container: "{{ postgres_name }}"
+            argv:
+              - pg_isready
+              - --username
+              - "{{ postgres_role_docker_env_user_effective }}"
+              - --dbname
+              - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
+          register: postgres_recovered_ready
+          changed_when: false
+          retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+          delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+          until: postgres_recovered_ready.rc == 0
+          when: (postgres_migration_started | bool)
+
+        - name: Report PostgreSQL migration failure
+          ansible.builtin.fail:
+            msg: >-
+              PostgreSQL migration failed during '{{ ansible_failed_task.name }}'.
+              {{ 'The previous PostgreSQL container has been restored.'
+              if (postgres_migration_started | bool)
+              else 'No PostgreSQL data or container changes were made.' }}
 
 - name: Regular Postgres flow
   when: (not postgres_original_image_repo) or (not stat_postgres_path.stat.exists) or (postgres_major_version == postgres_docker_tag_major_version)
@@ -149,6 +579,17 @@
     - name: Create Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
-    - name: Sleep for 30 seconds
-      ansible.builtin.wait_for:
-        timeout: 30
+    - name: Wait for PostgreSQL container
+      community.docker.docker_container_exec:
+        container: "{{ postgres_name }}"
+        argv:
+          - pg_isready
+          - --username
+          - "{{ postgres_role_docker_env_user_effective }}"
+          - --dbname
+          - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
+      register: postgres_regular_ready
+      changed_when: false
+      retries: "{{ lookup('role_var', '_ready_retries', role='postgres') }}"
+      delay: "{{ lookup('role_var', '_ready_delay', role='postgres') }}"
+      until: postgres_regular_ready.rc == 0

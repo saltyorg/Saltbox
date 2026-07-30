@@ -21,6 +21,9 @@ postgres_role_docker_env_password: "password4321"
 postgres_role_docker_env_user: "{{ user.name }}"
 postgres_role_docker_env_db: "saltbox"
 
+postgres_role_ready_retries: 60
+postgres_role_ready_delay: 5
+
 # Do not edit or override using the inventory
 postgres_role_docker_env_password_include: ""
 # Do not edit or override using the inventory
