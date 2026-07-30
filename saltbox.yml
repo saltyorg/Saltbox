@@ -97,7 +97,6 @@
     - { role: redis, tags: ['redis'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: scrutiny, tags: ['scrutiny'] }
-    - { role: subliminal, tags: ['subliminal'] }
     - { role: transfer, tags: ['transfer'] }
     - { role: unpackerr, tags: ['unpackerr'] }
     - { role: whisparr, tags: ['whisparr'] }
