@@ -1,0 +1,31 @@
+#########################################################################
+# Title:         Saltbox: Docker | GitHub Binary Preflight              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: GitHub Binary Preflight | Check release status
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/subtasks/github_binary/release_status.yml"
+  loop:
+    - name: sdc
+      path: "{{ docker_controller_binary_path }}"
+      releases_url: "{{ docker_controller_releases_url }}"
+      asset_name: sdc_linux_amd64
+      download_url_fact: docker_controller_download_url
+      checksum_fact: docker_controller_release_checksum
+      version_fact: docker_controller_release_version
+      update_required_fact: docker_controller_update_required
+    - name: sdhm
+      path: "{{ docker_dns_binary_path }}"
+      releases_url: "{{ docker_dns_releases_url }}"
+      asset_name: sdhm_linux_amd64
+      download_url_fact: docker_dns_download_url
+      checksum_fact: docker_dns_release_checksum
+      version_fact: docker_dns_release_version
+      update_required_fact: docker_dns_update_required
+  loop_control:
+    loop_var: docker_github_binary
+    label: "{{ docker_github_binary.name }}"

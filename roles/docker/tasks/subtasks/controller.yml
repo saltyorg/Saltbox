@@ -12,42 +12,15 @@
     path: "{{ docker_controller_venv_path }}"
     state: absent
 
-- name: Controller | Get latest sdc release metadata
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/github_api_request.yml"
+- name: Controller | Install sdc release
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/subtasks/github_binary/install.yml"
   vars:
-    github_api_url: "{{ docker_controller_releases_url }}"
-    github_api_result_var: docker_controller_release_api
-
-- name: Controller | Resolve sdc download URL
-  ansible.builtin.set_fact:
-    docker_controller_download_url: "{{ ((docker_controller_release_api.content | from_json).assets
-                                        | selectattr('name', 'equalto', 'sdc_linux_amd64')
-                                        | map(attribute='browser_download_url')
-                                        | first) }}"
-  changed_when: false
-
-- name: Controller | Download sdc
-  ansible.builtin.get_url:
-    url: "{{ docker_controller_download_url }}"
-    dest: "{{ docker_controller_binary_path }}"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-  register: x
-  until: "x is not failed"
-  retries: "{{ ansible_retry_count
-            if (not continuous_integration)
-            else ansible_retry_count_ci }}"
-  delay: 10
-
-- name: Controller | Get sdc binary version
-  ansible.builtin.shell: "{{ docker_controller_binary_path }} --version | awk '{ print $3 }'"
-  register: sdc_binary_version
-  changed_when: false
-
-- name: Controller | Display sdc binary version
-  ansible.builtin.debug:
-    msg: "sdc {{ sdc_binary_version.stdout }} installed."
+    docker_github_binary_install:
+      name: sdc
+      path: "{{ docker_controller_binary_path }}"
+      download_url: "{{ docker_controller_download_url }}"
+      checksum: "{{ docker_controller_release_checksum }}"
+      update_required: "{{ docker_controller_update_required }}"
 
 - name: Controller | Import 'saltbox_managed_docker_controller.service'
   ansible.builtin.template:

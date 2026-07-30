@@ -15,6 +15,7 @@
 /backup.lock
 /ansible_facts.d/saltbox.fact
 /.ansible/*
+/tests/
 
 # Vars
 /inventories/host_vars/*

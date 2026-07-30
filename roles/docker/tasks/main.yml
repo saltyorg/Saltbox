@@ -33,6 +33,12 @@
     docker_service_running: "{{ (ansible_facts['services']['docker.service'] is defined) and (ansible_facts['services']['docker.service']['state'] == 'running') }}"
     docker_controller_service_running: "{{ (ansible_facts['services']['saltbox_managed_docker_controller.service'] is defined) and (ansible_facts['services']['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
 
+- name: Import Docker Binary preflight tasks
+  ansible.builtin.include_tasks: "subtasks/binary/preflight.yml"
+
+- name: Import GitHub Binary preflight tasks
+  ansible.builtin.include_tasks: "subtasks/github_binary/preflight.yml"
+
 - name: Tasks for when Docker exists and is running
   when: docker_service_check
   block:

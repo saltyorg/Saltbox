@@ -7,24 +7,39 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Binary | Release '{{ lookup('vars', item ~ '_dpkg') }}' from hold
-  ansible.builtin.dpkg_selections:
-    name: "{{ lookup('vars', item ~ '_dpkg') }}"
-    selection: install
-  when: (lookup('vars', item ~ '_dpkg') in ansible_facts['packages'])
+- name: Binary | Check '{{ lookup('vars', item ~ '_name') }}' package status
+  ansible.builtin.include_tasks: "package_status.yml"
 
-- name: Binary | Install '{{ lookup('vars', item + '_package') }}'
-  ansible.builtin.apt:
-    name: "{{ lookup('vars', item + '_package') }}"
-    state: "{{ 'present' if (item == 'docker_ce' or item == 'docker_ce_cli') else 'latest' }}"
-    update_cache: true
-    allow_downgrade: true
+- name: Binary | Converge '{{ lookup('vars', item ~ '_name') }}'
+  block:
+    - name: Binary | Release '{{ docker_binary_dpkg_name }}' from hold
+      ansible.builtin.dpkg_selections:
+        name: "{{ docker_binary_dpkg_name }}"
+        selection: install
+      when:
+        - docker_binary_currently_held
+        - docker_binary_version_change_required or (not put_docker_dpkg_into_hold)
 
-- name: Binary | Put '{{ lookup('vars', item ~ '_dpkg') }}' into hold
-  ansible.builtin.dpkg_selections:
-    name: "{{ lookup('vars', item ~ '_dpkg') }}"
-    selection: hold
-  when: put_docker_dpkg_into_hold
+    - name: Binary | Install '{{ docker_binary_dpkg_name }}={{ docker_binary_target_version }}'
+      ansible.builtin.apt:
+        name: "{{ docker_binary_dpkg_name }}={{ docker_binary_target_version }}"
+        state: present
+        allow_downgrade: true
+      register: docker_binary_install_result
+      when: docker_binary_version_change_required
+
+  always:
+    - name: Binary | Put '{{ docker_binary_dpkg_name }}' into hold
+      ansible.builtin.dpkg_selections:
+        name: "{{ docker_binary_dpkg_name }}"
+        selection: hold
+      when:
+        - put_docker_dpkg_into_hold
+        - docker_binary_version_change_required or (not docker_binary_currently_held)
+        - (docker_binary_installed
+          or (docker_binary_install_result is defined
+          and docker_binary_install_result is succeeded
+          and docker_binary_install_result is not skipped))
 
 - name: Binary | Get '{{ lookup('vars', item ~ '_name') }}' version
   ansible.builtin.shell: "{{ lookup('vars', item ~ '_filepath') }} '{{ 'version' if item == 'compose_cli' else '--version' }}' | head -n 1 | awk '{ print {{ '$4' if item == 'compose_cli' else '$3' }} }' | sed 's/,$//' | sed 's/v//'"
@@ -34,5 +49,7 @@
 
 - name: Binary | Display '{{ lookup('vars', item ~ '_name') }}' version
   ansible.builtin.debug:
-    msg: "{{ lookup('vars', item ~ '_name') }} version {{ binary_version.stdout }} installed."
-  when: binary_version is defined
+    msg: "{{ lookup('vars', item ~ '_name') }} version {{ binary_version.stdout }} {{ 'installed'
+                                                                                   if (docker_binary_install_result is defined and docker_binary_install_result is changed)
+                                                                                   else 'unchanged' }}."
+  when: (binary_version is defined)

@@ -19,42 +19,15 @@
     path: /etc/systemd/system/docker-update-hosts.service
     state: absent
 
-- name: "DNS | Get latest sdhm release metadata"
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/github_api_request.yml"
+- name: "DNS | Install sdhm release"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/subtasks/github_binary/install.yml"
   vars:
-    github_api_url: "{{ docker_dns_releases_url }}"
-    github_api_result_var: docker_dns_release_api
-
-- name: "DNS | Resolve sdhm download URL"
-  ansible.builtin.set_fact:
-    docker_dns_download_url: "{{ ((docker_dns_release_api.content | from_json).assets
-                                 | selectattr('name', 'equalto', 'sdhm_linux_amd64')
-                                 | map(attribute='browser_download_url')
-                                 | first) }}"
-  changed_when: false
-
-- name: "DNS | Download sdhm"
-  ansible.builtin.get_url:
-    url: "{{ docker_dns_download_url }}"
-    dest: "{{ docker_dns_binary_path }}"
-    owner: "root"
-    group: "root"
-    mode: "0755"
-  register: x
-  until: "x is not failed"
-  retries: "{{ ansible_retry_count
-            if (not continuous_integration)
-            else ansible_retry_count_ci }}"
-  delay: 10
-
-- name: "DNS | Get sdhm binary version"
-  ansible.builtin.shell: "{{ docker_dns_binary_path }} --version | awk '{ print $3 }'"
-  register: sdhm_binary_version
-  changed_when: false
-
-- name: "DNS | Display sdhm binary version"
-  ansible.builtin.debug:
-    msg: "sdhm {{ sdhm_binary_version.stdout }} installed."
+    docker_github_binary_install:
+      name: sdhm
+      path: "{{ docker_dns_binary_path }}"
+      download_url: "{{ docker_dns_download_url }}"
+      checksum: "{{ docker_dns_release_checksum }}"
+      update_required: "{{ docker_dns_update_required }}"
 
 - name: "DNS | Get next available port within the range of '8190-8180'"
   find_open_port:

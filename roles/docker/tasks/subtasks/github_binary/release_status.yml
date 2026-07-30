@@ -1,0 +1,62 @@
+#########################################################################
+# Title:         Saltbox: Docker | GitHub Binary Release Status         #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: GitHub Binary Preflight | Get latest {{ docker_github_binary.name }} release metadata
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/github_api_request.yml"
+  vars:
+    github_api_url: "{{ docker_github_binary.releases_url }}"
+    github_api_result_var: docker_github_binary_release_api
+
+- name: GitHub Binary Preflight | Parse {{ docker_github_binary.name }} release metadata
+  ansible.builtin.set_fact:
+    docker_github_binary_release: "{{ docker_github_binary_release_api.content | from_json }}"
+  changed_when: false
+
+- name: GitHub Binary Preflight | Find {{ docker_github_binary.name }} release asset
+  ansible.builtin.set_fact:
+    docker_github_binary_release_assets: "{{ docker_github_binary_release.assets | selectattr('name', 'equalto', docker_github_binary.asset_name) | list }}"
+  changed_when: false
+
+- name: GitHub Binary Preflight | Validate {{ docker_github_binary.name }} release asset
+  ansible.builtin.assert:
+    that:
+      - docker_github_binary_release.tag_name is defined
+      - docker_github_binary_release.tag_name | length > 0
+      - docker_github_binary_release_assets | length == 1
+    fail_msg: "GitHub release '{{ docker_github_binary_release.tag_name | default('unknown') }}' does not contain exactly one '{{ docker_github_binary.asset_name }}' asset."
+
+- name: GitHub Binary Preflight | Select {{ docker_github_binary.name }} release asset
+  ansible.builtin.set_fact:
+    docker_github_binary_release_asset: "{{ docker_github_binary_release_assets | first }}"
+  changed_when: false
+
+- name: GitHub Binary Preflight | Validate {{ docker_github_binary.name }} release checksum
+  ansible.builtin.assert:
+    that:
+      - docker_github_binary_release_asset.browser_download_url is defined
+      - docker_github_binary_release_asset.browser_download_url | length > 0
+      - docker_github_binary_release_asset.digest is defined
+      - docker_github_binary_release_asset.digest is string
+      - docker_github_binary_release_asset.digest is match('^sha256:[0-9a-f]{64}$')
+    fail_msg: "GitHub release asset '{{ docker_github_binary.asset_name }}' does not provide a valid SHA-256 digest."
+
+- name: GitHub Binary Preflight | Inspect installed {{ docker_github_binary.name }} binary
+  ansible.builtin.stat:
+    path: "{{ docker_github_binary.path }}"
+    checksum_algorithm: sha256
+  register: docker_github_binary_installed
+
+- name: GitHub Binary Preflight | Save {{ docker_github_binary.name }} release status
+  ansible.builtin.set_fact:
+    "{{ docker_github_binary.download_url_fact }}": "{{ docker_github_binary_release_asset.browser_download_url }}"
+    "{{ docker_github_binary.checksum_fact }}": "{{ docker_github_binary_release_asset.digest }}"
+    "{{ docker_github_binary.version_fact }}": "{{ docker_github_binary_release.tag_name }}"
+    "{{ docker_github_binary.update_required_fact }}": "{{ (not docker_github_binary_installed.stat.exists)
+                                                           or (('sha256:' ~ (docker_github_binary_installed.stat.checksum | default(''))) != docker_github_binary_release_asset.digest) }}"
+  changed_when: false

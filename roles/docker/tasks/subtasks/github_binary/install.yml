@@ -1,0 +1,46 @@
+#########################################################################
+# Title:         Saltbox: Docker | GitHub Binary Install                #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: GitHub Binary | Download {{ docker_github_binary_install.name }}
+  ansible.builtin.get_url:
+    url: "{{ docker_github_binary_install.download_url }}"
+    dest: "{{ docker_github_binary_install.path }}"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+    checksum: "{{ docker_github_binary_install.checksum }}"
+  register: docker_github_binary_download_result
+  until: docker_github_binary_download_result is succeeded
+  retries: "{{ ansible_retry_count
+            if (not continuous_integration)
+            else ansible_retry_count_ci }}"
+  delay: 10
+  when: docker_github_binary_install.update_required
+
+- name: GitHub Binary | Set {{ docker_github_binary_install.name }} permissions
+  ansible.builtin.file:
+    path: "{{ docker_github_binary_install.path }}"
+    state: file
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: GitHub Binary | Get {{ docker_github_binary_install.name }} version
+  ansible.builtin.command:
+    argv:
+      - "{{ docker_github_binary_install.path }}"
+      - --version
+  register: docker_github_binary_version
+  changed_when: false
+
+- name: GitHub Binary | Display {{ docker_github_binary_install.name }} version
+  ansible.builtin.debug:
+    msg: "{{ docker_github_binary_install.name }} {{ docker_github_binary_version.stdout.split()[2] }} {{ 'installed'
+                                                                                                       if docker_github_binary_download_result is changed
+                                                                                                       else 'unchanged' }}."

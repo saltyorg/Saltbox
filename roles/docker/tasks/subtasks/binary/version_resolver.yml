@@ -7,34 +7,27 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Version Resolver | Validate docker_version format
-  ansible.builtin.assert:
-    that:
-      - docker_version is defined
-      - docker_version is string
-      - docker_version | length > 0
-      - docker_version is match('^[0-9]+$') or docker_version is match('^[0-9]+\.[0-9]+$') or docker_version is match('^[0-9]+\.[0-9]+\.[0-9]+$')
-    fail_msg: |
-      Invalid docker_version format: '{{ docker_version }}'
-      Supported formats:
-        - Major version: "28" (installs latest 28.x.x)
-        - Major.minor version: "28.5" (installs latest 28.5.x)
-        - Exact version: "28.5.2" (installs exactly 28.5.2)
-    success_msg: "docker_version '{{ docker_version }}' format is valid"
-
 - name: Version Resolver | Get available docker-ce versions
   ansible.builtin.shell: |
     apt-cache madison docker-ce | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
   register: resolved_docker_version
   changed_when: false
-  failed_when: resolved_docker_version.stdout == ""
 
 - name: Version Resolver | Get available docker-ce-cli versions
   ansible.builtin.shell: |
     apt-cache madison docker-ce-cli | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
   register: resolved_docker_cli_version
   changed_when: false
-  failed_when: resolved_docker_cli_version.stdout == ""
+
+- name: Version Resolver | Validate resolved package versions
+  ansible.builtin.assert:
+    that:
+      - resolved_docker_version.stdout | length > 0
+      - resolved_docker_cli_version.stdout | length > 0
+    fail_msg: |
+      Docker version '{{ docker_version }}' is not available for both required packages.
+      docker-ce: {{ resolved_docker_version.stdout | default('not found', true) }}
+      docker-ce-cli: {{ resolved_docker_cli_version.stdout | default('not found', true) }}
 
 - name: Version Resolver | Set resolved version facts
   ansible.builtin.set_fact:

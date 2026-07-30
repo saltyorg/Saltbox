@@ -1,0 +1,76 @@
+#########################################################################
+# Title:         Saltbox: Docker | Package Status                       #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Binary | Set package details for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.set_fact:
+    docker_binary_dpkg_name: "{{ lookup('vars', item ~ '_dpkg') }}"
+    docker_binary_exact_version: "{{ item in ['docker_ce', 'docker_ce_cli'] }}"
+    docker_binary_installed: "{{ lookup('vars', item ~ '_dpkg') in ansible_facts['packages'] }}"
+    docker_binary_installed_version: "{{ ansible_facts['packages'][lookup('vars', item ~ '_dpkg')][0].version
+                                      if lookup('vars', item ~ '_dpkg') in ansible_facts['packages']
+                                      else '' }}"
+
+- name: Binary | Get APT candidate for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.command:
+    argv:
+      - apt-cache
+      - policy
+      - "{{ docker_binary_dpkg_name }}"
+  register: docker_binary_apt_policy
+  changed_when: false
+  when: not docker_binary_exact_version
+
+- name: Binary | Set target version for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.set_fact:
+    docker_binary_target_version: "{{ lookup('vars', item ~ '_resolved_version')
+                                   if docker_binary_exact_version
+                                   else (docker_binary_apt_policy.stdout | regex_findall('(?m)^[ \t]*Candidate:[ \t]+([^ \t\r\n]+)') | first | default('') | trim) }}"
+
+- name: Binary | Validate target version for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.assert:
+    that:
+      - docker_binary_target_version | length > 0
+      - docker_binary_target_version != '(none)'
+    fail_msg: "No installable APT version was found for '{{ docker_binary_dpkg_name }}'."
+
+- name: Binary | Compare installed and target versions for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --compare-versions
+      - "{{ docker_binary_installed_version }}"
+      - "{{ 'eq'
+         if docker_binary_exact_version
+         else 'lt' }}"
+      - "{{ docker_binary_target_version }}"
+  register: docker_binary_version_comparison
+  changed_when: false
+  failed_when: (docker_binary_version_comparison.rc not in [0, 1])
+  when: docker_binary_installed
+
+- name: Binary | Set version change requirement for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.set_fact:
+    docker_binary_version_change_required: "{{ (not docker_binary_installed)
+                                               or (docker_binary_exact_version and docker_binary_version_comparison.rc != 0)
+                                               or ((not docker_binary_exact_version) and docker_binary_version_comparison.rc == 0) }}"
+
+- name: Binary | Get dpkg selection for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --get-selections
+      - "{{ docker_binary_dpkg_name }}"
+  register: docker_binary_dpkg_selection
+  changed_when: false
+  failed_when: (docker_binary_dpkg_selection.rc != 0) or (docker_binary_dpkg_selection.stdout | length == 0)
+  when: docker_binary_installed
+
+- name: Binary | Set hold state for '{{ lookup('vars', item ~ '_name') }}'
+  ansible.builtin.set_fact:
+    docker_binary_currently_held: "{{ docker_binary_installed and (docker_binary_dpkg_selection.stdout.split() | last) == 'hold' }}"
