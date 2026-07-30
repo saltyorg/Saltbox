@@ -7,6 +7,8 @@ jobs:
   ansible-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
 
@@ -23,6 +25,9 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: ansible-lint
 
+      - id: set-matrix
+        run: echo "matrix=$(python3 .github/scripts/ci-role-matrix.py --os 22.04 24.04)" >> "$GITHUB_OUTPUT"
+
   defaults-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
@@ -36,24 +41,12 @@ jobs:
       - name: Run Defaults Linter
         run: python3 scripts/saltbox-defaults-linter.py roles/
 
-  find-roles:
-    if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
-    runs-on: ubuntu-24.04
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v7
-      - id: set-matrix
-        run: |
-          ROLES=$(awk '/# Core/{flag=1;next}/# Apps End/{flag=0}flag' saltbox.yml | awk '!/#/' | awk -F'[][]' '{print $2}' | tr '\n' ',' | sed 's/,*$//' | awk -F',' '{ for( i=1; i<=NF; i++ ) print $i }' | awk '{ gsub(/ /,""); print }'| sort -u | awk -vORS=, '{ print $1 }' | sed 's/,$/\n/' | sed "s/.\(roles\|common\|hetzner\|kernel\|motd\|mounts\|nvidia\|nvidia-purge\|preinstall\|rclone\|scripts\|shell\|system\|traefik\|traefik-reset-certs\|user\|cloudflare\|plex-db\|arr-db\|ddns\|cloudplow\|cloudplow-reset\|btrfsmaintenance\|download-clients\|download-indexers\|media-server\|python\|yyq\|crowdsec\|postgres-host\).,//g")
-          echo "matrix={\"roles\":[$ROLES],\"os\":[\"22.04\",\"24.04\"]}" >> $GITHUB_OUTPUT
-
   install:
     name: '${{ matrix.roles }}-${{ matrix.os }}'
     runs-on: ubuntu-${{ matrix.os }}
-    needs: [ansible-lint, defaults-lint, find-roles]
+    needs: [ansible-lint, defaults-lint]
     strategy:
-      matrix: ${{ fromJson(needs.find-roles.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.ansible-lint.outputs.matrix) }}
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
