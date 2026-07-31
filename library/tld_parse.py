@@ -10,6 +10,8 @@ description:
     - Extracts the full domain and subdomain portions
     - Uses the tld Python library for parsing
 author: salty
+requirements:
+    - tld==0.13.2
 options:
     url:
         description:
@@ -18,7 +20,7 @@ options:
         type: str
     record:
         description:
-            - Optional DNS record to prepend to the domain
+            - Optional DNS record to prepend to the URL hostname
         required: false
         type: str
         default: ''
@@ -37,7 +39,7 @@ EXAMPLES = """
   register: domain_info
 
 - name: Use parsed values
-  debug:
+  ansible.builtin.debug:
     msg: "Domain: {{ domain_info.domain }}, Record: {{ domain_info.record }}"
 """
 
@@ -69,17 +71,47 @@ domain:
     sample: "example"
 """
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+from urllib.parse import urlsplit
 
 from ansible.module_utils.basic import AnsibleModule
-from tld import get_tld
 
 if TYPE_CHECKING:
     from tld.utils import Result
 
 
+def build_parse_url(url: str, record: str, module: AnsibleModule) -> str:
+    """
+    Build a URL containing the hostname that should be parsed.
+
+    The input may be a bare domain or a URL. Schemes, ports, paths, queries,
+    and fragments are discarded because only the hostname is relevant.
+    """
+    normalized_url = url.strip()
+    if not normalized_url:
+        module.fail_json(msg="url must not be empty")
+
+    parsed_url = urlsplit(normalized_url if '://' in normalized_url else f"//{normalized_url}")
+    hostname = parsed_url.hostname
+    if not hostname:
+        module.fail_json(msg=f"Could not extract a hostname from '{url}'")
+
+    if hostname.endswith('.'):
+        hostname = hostname[:-1]
+    if not hostname:
+        module.fail_json(msg=f"Could not extract a hostname from '{url}'")
+
+    normalized_record = record.strip()
+    if normalized_record.endswith('.'):
+        normalized_record = normalized_record[:-1]
+    if normalized_record:
+        hostname = f"{normalized_record}.{hostname}"
+
+    return f"http://{hostname}"
+
+
 def main() -> None:
-    module: Any = AnsibleModule(
+    module = AnsibleModule(
         argument_spec=dict(
             url=dict(type='str', required=True),
             record=dict(type='str', default='')
@@ -91,18 +123,12 @@ def main() -> None:
     record: str = module.params['record']
 
     try:
-        # Build the full URL
-        full_url: str
-        if record:
-            full_url = f"http://{record}.{url}"
-        else:
-            # Only add http:// if URL doesn't already have a scheme
-            if not url.startswith(('http://', 'https://')):
-                full_url = f"http://{url}"
-            else:
-                full_url = url
+        try:
+            from tld import get_tld
+        except ImportError:
+            module.fail_json(msg="The 'tld' Python library is required. Install it with: pip install tld")
 
-        # Parse using tld library
+        full_url = build_parse_url(url, record, module)
         res: Result = get_tld(full_url, as_object=True)  # type: ignore[assignment]
 
         # Extract components - use same naming as tld library
