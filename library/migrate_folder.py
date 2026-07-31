@@ -13,6 +13,7 @@ description:
     - Errors if both old and new locations exist to prevent potential data merging issues or loss.
     - Errors if the legacy path exists but is not a directory.
     - Errors if the new path exists but is not a directory.
+    - Errors before migration when the source and destination are on different filesystems.
 author: salty
 options:
     legacy_path:
@@ -43,9 +44,8 @@ options:
     recurse:
         description: >
             Recursively set ownership for contents of the directory.
-            Note: This module primarily manages the top-level directory.
-            Recursive ownership is applied via 'chown -R' logic if owner/group changes.
-            Mode changes are NOT applied recursively by this module.
+            Symbolic links are not followed.
+            Mode changes are not applied recursively.
         required: false
         type: bool
         default: false
@@ -99,14 +99,12 @@ import os
 import pwd
 import grp
 import stat
-import traceback
-from typing import Any, Optional, Tuple
 
 from ansible.module_utils.basic import AnsibleModule
 
 
 # Helper to safely get UID/GID
-def get_id_info(module: AnsibleModule, owner: Optional[str] = None, group: Optional[str] = None) -> Tuple[int, int]:
+def get_id_info(module: AnsibleModule, owner: str | None = None, group: str | None = None) -> tuple[int, int]:
     uid = -1
     gid = -1
     if owner is not None:
@@ -122,7 +120,7 @@ def get_id_info(module: AnsibleModule, owner: Optional[str] = None, group: Optio
     return uid, gid
 
 # Helper to validate and convert mode
-def validate_mode(module: AnsibleModule, mode_str: Optional[str]) -> Optional[int]:
+def validate_mode(module: AnsibleModule, mode_str: str | None) -> int | None:
     if mode_str is None:
         return None
     try:
@@ -138,6 +136,40 @@ def validate_mode(module: AnsibleModule, mode_str: Optional[str]) -> Optional[in
         return None  # This line is unreachable but satisfies type checker
 
 
+def get_existing_parent(path: str) -> str:
+    """
+    Return the closest existing parent for a path.
+    """
+    parent = os.path.abspath(path)
+    while not os.path.exists(parent):
+        next_parent = os.path.dirname(parent)
+        if next_parent == parent:
+            break
+        parent = next_parent
+    return parent
+
+
+def set_recursive_ownership(
+    module: AnsibleModule,
+    path: str,
+    owner: str | None,
+    group: str | None,
+    changed: bool
+) -> bool:
+    """
+    Recursively apply owner and group without following symbolic links.
+    """
+    def raise_walk_error(error: OSError) -> None:
+        raise error
+
+    for root, directories, files in os.walk(path, followlinks=False, onerror=raise_walk_error):
+        for name in directories + files:
+            child_path = os.path.join(root, name)
+            changed = module.set_owner_if_different(child_path, owner, changed)
+            changed = module.set_group_if_different(child_path, group, changed)
+    return changed
+
+
 def run_module() -> None:
     module_args = dict(
         legacy_path=dict(type='str', required=True),
@@ -148,7 +180,7 @@ def run_module() -> None:
         recurse=dict(type='bool', required=False, default=False)
     )
 
-    result: dict[str, Any] = dict(
+    result: dict[str, object] = dict(
         changed=False,
         moved=False,
         created=False,
@@ -178,7 +210,9 @@ def run_module() -> None:
     # Check path statuses and types
     legacy_path_normalized = os.path.normpath(os.path.abspath(legacy_path))
     new_path_normalized = os.path.normpath(os.path.abspath(new_path))
-    if legacy_path_normalized == new_path_normalized:
+    legacy_path_real = os.path.realpath(legacy_path_normalized)
+    new_path_real = os.path.realpath(new_path_normalized)
+    if legacy_path_real == new_path_real:
         module.fail_json(msg=f"Legacy path '{legacy_path}' and new path '{new_path}' refer to the same location.")
 
     if os.path.islink(legacy_path) or os.path.islink(new_path):
@@ -195,6 +229,20 @@ def run_module() -> None:
 
     legacy_is_dir = legacy_exists and os.path.isdir(legacy_path)
     new_is_dir = new_exists and os.path.isdir(new_path)
+
+    if (
+        legacy_is_dir
+        and not new_exists
+        and os.path.commonpath((legacy_path_real, new_path_real)) == legacy_path_real
+    ):
+        module.fail_json(msg=f"New path '{new_path}' must not be inside legacy path '{legacy_path}'.")
+
+    if legacy_is_dir and not new_exists:
+        destination_parent = get_existing_parent(os.path.dirname(new_path_normalized))
+        if os.stat(legacy_path).st_dev != os.stat(destination_parent).st_dev:
+            module.fail_json(
+                msg=f"Cannot migrate directory '{legacy_path}' to '{new_path}' across filesystems."
+            )
 
     # --- Main Logic ---
 
@@ -242,8 +290,8 @@ def run_module() -> None:
             module.atomic_move(legacy_path, new_path)
             result['moved'] = True
             result['changed'] = True
-        except (OSError, IOError) as e:
-            module.fail_json(msg=f"Failed to move directory '{legacy_path}' to '{new_path}': {str(e)}\n{traceback.format_exc()}", **result)
+        except Exception as e:
+            module.fail_json(msg=f"Failed to move directory '{legacy_path}' to '{new_path}': {str(e)}", **result)
         # Update state after move
         new_exists = True
         new_is_dir = True
@@ -263,7 +311,7 @@ def run_module() -> None:
             result['created'] = True
             result['changed'] = True
         except OSError as e:
-            module.fail_json(msg=f"Failed to create directory '{new_path}': {str(e)}\n{traceback.format_exc()}", **result)
+            module.fail_json(msg=f"Failed to create directory '{new_path}': {str(e)}", **result)
         # Update state after create
         new_exists = True
         new_is_dir = True
@@ -276,8 +324,7 @@ def run_module() -> None:
     # --- Ensure Final State (Attributes) ---
     if new_is_dir: # Only proceed if the target exists as a directory now
         # Prepare args for setting attributes - start with common file arguments
-        file_args = module.load_file_common_arguments(module.params)
-        file_args['path'] = new_path
+        file_args = module.load_file_common_arguments(module.params, path=new_path)
         
         # Only set attributes that were explicitly provided by the user
         if owner is not None:
@@ -295,14 +342,18 @@ def run_module() -> None:
         file_args['seuser'] = None
         file_args['attributes'] = None
         
-        # Handle recursive ownership
-        if recurse and (owner is not None or group is not None):
-            file_args['recurse'] = True
-
         # Let Ansible handle idempotency and setting attributes
         try:
             changed_attributes = module.set_fs_attributes_if_different(file_args, result['changed'])
             result['changed'] = result['changed'] or changed_attributes
+            if recurse and (owner is not None or group is not None):
+                result['changed'] = set_recursive_ownership(
+                    module,
+                    new_path,
+                    owner,
+                    group,
+                    bool(result['changed'])
+                )
         except Exception as e:
             module.fail_json(msg=f"Failed to set attributes on {new_path}: {str(e)}", **result)
 
