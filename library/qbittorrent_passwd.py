@@ -23,12 +23,8 @@ options:
 EXAMPLES = """
 - name: Generate qBittorrent password hash
   qbittorrent_passwd:
-    password: "supersecretpassword"
+    password: "{{ user.pass }}"
   register: qbit_hash_result
-
-- name: Display the generated hash
-  debug:
-    var: qbit_hash_result.hash
 """
 
 RETURN = """
@@ -47,40 +43,28 @@ changed:
 import base64
 import hashlib
 import os
-from typing import Any
+
 from ansible.module_utils.basic import AnsibleModule
+
+
+ITERATIONS = 100_000
+SALT_SIZE = 16
 
 
 def generate_qbittorrent_hash(plain_passwd: str) -> str:
     """
     Generates a qBittorrent compatible password hash (PBKDF2-HMAC-SHA512).
     """
-    ITERATIONS = 100_000  # Standard iteration count for qBittorrent
-    SALT_SIZE = 16        # Standard salt size (bytes)
-
-    try:
-        salt = os.urandom(SALT_SIZE)
-        # Ensure password is bytes for hashing
-        password_bytes = plain_passwd.encode()
-        
-        # Generate the hash
-        derived_key = hashlib.pbkdf2_hmac(
-            hash_name='sha512',
-            password=password_bytes,
-            salt=salt,
-            iterations=ITERATIONS
-        )
-        
-        # Encode salt and hash in Base64
-        salt_b64 = base64.b64encode(salt).decode()
-        hash_b64 = base64.b64encode(derived_key).decode()
-        
-        # Format according to qBittorrent's expectation
-        return f"@ByteArray({salt_b64}:{hash_b64})"
-
-    except Exception as e:
-        # Wrap underlying exception for better debugging upstream
-        raise ValueError(f"Error generating password hash: {str(e)}") from e
+    salt = os.urandom(SALT_SIZE)
+    derived_key = hashlib.pbkdf2_hmac(
+        hash_name='sha512',
+        password=plain_passwd.encode(),
+        salt=salt,
+        iterations=ITERATIONS
+    )
+    salt_b64 = base64.b64encode(salt).decode()
+    hash_b64 = base64.b64encode(derived_key).decode()
+    return f"@ByteArray({salt_b64}:{hash_b64})"
 
 
 def main() -> None:
@@ -88,32 +72,23 @@ def main() -> None:
         password=dict(type='str', required=True, no_log=True)
     )
 
-    result: dict[str, Any] = {
+    result: dict[str, bool | str] = {
         'changed': False,
         'hash': '',
     }
 
     module = AnsibleModule(
         argument_spec=module_args,
-        supports_check_mode=False
+        supports_check_mode=True
     )
 
     plain_password: str = module.params['password']
 
     try:
-        # Generate the hash using the dedicated function
-        generated_hash = generate_qbittorrent_hash(plain_password)
-        result['hash'] = generated_hash
-    
-    except ValueError as err:
-        # If the hashing function raised ValueError, fail the module
-        module.fail_json(msg=f"Failed to generate qBittorrent hash: {str(err)}", **result)
+        result['hash'] = generate_qbittorrent_hash(plain_password)
     except Exception as e:
-         # Catch any other unexpected errors during execution
-         module.fail_json(msg=f"An unexpected error occurred: {str(e)}", **result)
+        module.fail_json(msg=f"Failed to generate qBittorrent hash: {str(e)}", **result)
 
-
-    # Exit successfully, returning the hash
     module.exit_json(**result)
 
 if __name__ == '__main__':
