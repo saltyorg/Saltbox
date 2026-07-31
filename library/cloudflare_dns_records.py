@@ -9,6 +9,8 @@ description:
     - "This module fetches DNS records from Cloudflare for a specific zone and record name."
     - "It supports both API key and API token authentication methods."
 author: salty
+requirements:
+    - cloudflare==5.6.0
 options:
     auth_email:
         description:
@@ -35,7 +37,9 @@ options:
         type: str
     record:
         description:
-            - DNS record name to fetch (e.g., subdomain.example.com)
+            - Fully qualified DNS record name to fetch (e.g., subdomain.example.com)
+            - A trailing DNS dot is accepted and removed before querying Cloudflare
+            - C(@) and C(@.example.com) are accepted as zone-apex records
         required: true
         type: str
 """
@@ -60,15 +64,35 @@ EXAMPLES = """
 
 # Access the records
 - name: Display records
-  debug:
+  ansible.builtin.debug:
     var: dns_records.records
 """
 
 RETURN = """
 records:
-    description: List of DNS records matching the query
+    description:
+        - List of DNS records matching the query
+        - An empty list is returned when no records match
     type: list
+    elements: dict
     returned: success
+    contains:
+        name:
+            description: Fully qualified DNS record name
+            type: str
+            returned: success
+        type:
+            description: DNS record type
+            type: str
+            returned: success
+        content:
+            description: DNS record content
+            type: str
+            returned: success
+        proxied:
+            description: Whether Cloudflare proxies the record
+            type: bool
+            returned: when supported by the record type
 zone_id:
     description: The Cloudflare zone ID for the specified zone
     type: str
@@ -85,6 +109,31 @@ from ansible.module_utils.basic import AnsibleModule
 
 if TYPE_CHECKING:
     from cloudflare import Cloudflare
+
+
+def normalize_dns_name(value: str, parameter: str, module: AnsibleModule) -> str:
+    """
+    Normalize a DNS name accepted by the module.
+
+    Surrounding whitespace and one optional terminal DNS dot are removed.
+    Empty values are rejected before making a Cloudflare API request.
+    """
+    normalized = value.strip()
+    if normalized.endswith('.'):
+        normalized = normalized[:-1]
+    if not normalized:
+        module.fail_json(msg=f"{parameter} must not be empty")
+    return normalized
+
+
+def normalize_record_name(value: str, zone_name: str, module: AnsibleModule) -> str:
+    """
+    Normalize a DNS record name, including Cloudflare's apex convention.
+    """
+    normalized = normalize_dns_name(value, 'record', module)
+    if normalized in ('@', f"@.{zone_name}"):
+        return zone_name
+    return normalized
 
 
 def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> str:
@@ -132,11 +181,10 @@ def fetch_dns_records(client: "Cloudflare", zone_id: str, record_name: str, modu
         if records_response is None:
             module.fail_json(msg="No response from Cloudflare API")
 
-        records = records_response.to_dict()
-        results = records.get("result", [])
-        if not isinstance(results, list):
-            module.fail_json(msg="Unexpected response format from Cloudflare API")
-        return results
+        records: list[dict[str, object]] = []
+        for page in records_response.iter_pages():
+            records.extend(record.to_dict() for record in page.result)
+        return records
     except Exception as e:
         module.fail_json(msg=f"Error fetching DNS records: {str(e)}")
 
@@ -186,8 +234,8 @@ def run_module() -> None:
         auth_email = module.params.get('auth_email')
         auth_key = module.params.get('auth_key')
         auth_token = module.params.get('auth_token')
-        zone_name = module.params['zone_name']
-        record = module.params['record']
+        zone_name = normalize_dns_name(module.params['zone_name'], 'zone_name', module)
+        record = normalize_record_name(module.params['record'], zone_name, module)
 
         # Initialize Cloudflare client
         if auth_token:
