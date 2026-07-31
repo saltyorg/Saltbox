@@ -10,6 +10,9 @@ description:
     - "It supports both API key and API token authentication methods."
     - "Can automatically extract the zone from a domain using the tld library."
 author: salty
+requirements:
+    - cloudflare==5.6.0
+    - tld==0.13.2
 options:
     auth_email:
         description:
@@ -62,7 +65,7 @@ EXAMPLES = """
 
 # Display the SSL mode
 - name: Display SSL mode
-  debug:
+  ansible.builtin.debug:
     msg: "SSL/TLS mode: {{ ssl_mode.ssl_mode }}"
 """
 
@@ -92,6 +95,21 @@ from ansible.module_utils.basic import AnsibleModule
 
 if TYPE_CHECKING:
     from cloudflare import Cloudflare
+
+
+def normalize_dns_name(value: str, parameter: str, module: AnsibleModule) -> str:
+    """
+    Normalize a domain or zone name accepted by the module.
+
+    Surrounding whitespace and one optional terminal DNS dot are removed.
+    Empty values are rejected before parsing or querying Cloudflare.
+    """
+    normalized = value.strip()
+    if normalized.endswith('.'):
+        normalized = normalized[:-1]
+    if not normalized:
+        module.fail_json(msg=f"{parameter} must not be empty")
+    return normalized
 
 
 def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> str:
@@ -139,8 +157,7 @@ def get_ssl_tls_mode(client: "Cloudflare", zone_id: str, module: AnsibleModule) 
         if ssl_response is None:
             module.fail_json(msg="No response from Cloudflare API")
 
-        ssl_settings = ssl_response.to_dict()
-        ssl_mode = ssl_settings.get('value')
+        ssl_mode = getattr(ssl_response, 'value', None)
 
         if ssl_mode is None:
             module.fail_json(msg="SSL/TLS mode value not found in API response")
@@ -204,6 +221,7 @@ def run_module() -> None:
 
         # Parse domain to get zone name if domain is provided
         if domain:
+            domain = normalize_dns_name(domain, 'domain', module)
             try:
                 from tld import get_tld
                 res = get_tld(f"http://{domain}", as_object=True)
@@ -214,6 +232,8 @@ def run_module() -> None:
                 module.fail_json(msg="The 'tld' Python library is required for domain parsing. Install it with: pip install tld")
             except Exception as e:
                 module.fail_json(msg=f"Failed to parse domain '{domain}': {str(e)}")
+        elif zone_name:
+            zone_name = normalize_dns_name(zone_name, 'zone_name', module)
 
         # Ensure zone_name is set
         if not zone_name:
