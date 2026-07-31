@@ -52,7 +52,7 @@ options:
     group:
         description:
             - File group for the facts file.
-            - Defaults to the current user when omitted.
+            - Defaults to the current user's primary group when omitted.
         required: false
         type: str
     mode:
@@ -165,12 +165,45 @@ import configparser
 import grp
 import os
 import pwd
-import shutil
+import stat
 import tempfile
 from io import StringIO
 from typing import Any
 
 from ansible.module_utils.basic import AnsibleModule
+
+
+def create_config_parser() -> configparser.ConfigParser:
+    """
+    Create a consistently configured, case-sensitive INI parser.
+    """
+    config = configparser.ConfigParser(
+        interpolation=None,
+        comment_prefixes=('#',),
+        inline_comment_prefixes=None,
+        default_section='DEFAULT',
+        delimiters=('=',),
+        empty_lines_in_values=False
+    )
+    config.optionxform = str
+    return config
+
+
+def read_config(file_path: str) -> configparser.ConfigParser:
+    """
+    Read an INI file while surfacing filesystem and parsing errors.
+    """
+    config = create_config_parser()
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as config_file:
+                config.read_file(config_file)
+        except configparser.Error as error:
+            raise ValueError(f"Configuration parsing error in '{file_path}': {error}") from error
+        except OSError as error:
+            raise OSError(f"Unable to read configuration file '{file_path}': {error}") from error
+    return config
+
 
 def validate_instance_name(instance: Any) -> None:
     """
@@ -184,8 +217,29 @@ def validate_instance_name(instance: Any) -> None:
     """
     if not isinstance(instance, str):
         raise ValueError("Instance name must be a string")
+    if not instance.strip():
+        raise ValueError("Instance name must be non-empty")
+    if instance == configparser.DEFAULTSECT:
+        raise ValueError(f"Instance name must not be '{configparser.DEFAULTSECT}'")
+    if any(character in instance for character in ('\r', '\n', '[', ']')):
+        raise ValueError("Instance name must not contain line breaks or square brackets")
 
-def validate_keys(keys: Any) -> None:
+
+def validate_key_name(key: Any) -> None:
+    """
+    Validate that a key can be represented without changing its INI identity.
+    """
+    if not isinstance(key, str):
+        raise ValueError(f"Invalid key '{key}': must be a string")
+    if not key.strip():
+        raise ValueError("Configuration keys must be non-empty")
+    if any(character in key for character in ('\r', '\n', '=')):
+        raise ValueError(f"Invalid key '{key}': must not contain line breaks or '='")
+    if key.lstrip().startswith('#'):
+        raise ValueError(f"Invalid key '{key}': must not be interpreted as a comment")
+
+
+def validate_keys(keys: Any, validate_values: bool = True) -> None:
     """
     Validate configuration keys and values.
 
@@ -199,12 +253,12 @@ def validate_keys(keys: Any) -> None:
         raise ValueError("Keys must be a dictionary")
 
     for key, value in keys.items():
-        if not isinstance(key, str):
-            raise ValueError(f"Invalid key '{key}': must be a string")
-        if not isinstance(value, (str, int, float, bool)):
+        validate_key_name(key)
+        if validate_values and not isinstance(value, (str, int, float, bool)):
             raise ValueError(
                 f"Invalid value type for key '{key}': must be string, number, or boolean"
             )
+
 
 def get_file_path(role: str, base_path: str) -> str:
     """
@@ -226,9 +280,14 @@ def get_file_path(role: str, base_path: str) -> str:
         raise ValueError("Role name must not contain path separators")
     if role in ('.', '..') or role.strip() == '':
         raise ValueError("Role name must be a non-empty name")
-    return f"{base_path}/saltbox/{role}.ini"
+    if not isinstance(base_path, str) or not base_path.strip():
+        raise ValueError("Base path must be a non-empty string")
+    if not os.path.isabs(base_path):
+        raise ValueError("Base path must be absolute")
+    return os.path.join(os.path.normpath(base_path), 'saltbox', f'{role}.ini')
 
-def atomic_write(file_path: str, content: str, mode: int, owner: str, group: str) -> None:
+
+def atomic_write(file_path: str, content: str, mode: int, uid: int, gid: int) -> None:
     """
     Write content to file atomically with proper permissions.
 
@@ -236,8 +295,8 @@ def atomic_write(file_path: str, content: str, mode: int, owner: str, group: str
         file_path (str): Path to the target file
         content (str): Content to write to the file
         mode (int): File permissions mode in octal
-        owner (str): Username of the file owner
-        group (str): Group name for the file
+        uid (int): Numerical ID of the file owner
+        gid (int): Numerical ID of the file group
 
     Raises:
         OSError: If file operations fail
@@ -248,19 +307,39 @@ def atomic_write(file_path: str, content: str, mode: int, owner: str, group: str
 
     temp_fd, temp_path = tempfile.mkstemp(dir=directory)
     try:
-        with os.fdopen(temp_fd, 'w') as temp_file:
+        with os.fdopen(temp_fd, 'w', encoding='utf-8', newline='\n') as temp_file:
             temp_file.write(content)
+            temp_file.flush()
+            os.fsync(temp_file.fileno())
 
+        os.chown(temp_path, uid, gid)
         os.chmod(temp_path, mode)
-        os.chown(temp_path,
-                pwd.getpwnam(owner).pw_uid,
-                grp.getgrnam(group).gr_gid)
 
-        shutil.move(temp_path, file_path)
+        os.replace(temp_path, file_path)
     except Exception:
-        if os.path.exists(temp_path):
+        if os.path.lexists(temp_path):
             os.unlink(temp_path)
         raise
+
+
+def ensure_file_attributes(file_path: str, mode: int, uid: int, gid: int) -> bool:
+    """
+    Ensure ownership and mode without rewriting file contents.
+    """
+    file_stat = os.stat(file_path)
+    changed = False
+
+    if file_stat.st_uid != uid or file_stat.st_gid != gid:
+        os.chown(file_path, uid, gid)
+        changed = True
+
+    current_mode = stat.S_IMODE(os.stat(file_path).st_mode)
+    if current_mode != mode:
+        os.chmod(file_path, mode)
+        changed = True
+
+    return changed
+
 
 def load_existing_facts(file_path: str, instance: str) -> dict[str, str]:
     """
@@ -273,42 +352,28 @@ def load_existing_facts(file_path: str, instance: str) -> dict[str, str]:
     Returns:
         dict: Dictionary of existing facts for the instance
 
-    Raises:
-        Exception: With detailed error message for various failure scenarios
     """
-    try:
-        validate_instance_name(instance)
+    validate_instance_name(instance)
+    config = read_config(file_path)
+    existing_facts: dict[str, str] = {}
 
-        config = configparser.ConfigParser(
-            interpolation=None,
-            comment_prefixes=('#',),
-            inline_comment_prefixes=('#',),
-            default_section='DEFAULT',
-            delimiters=('=',),
-            empty_lines_in_values=False
-        )
+    if config.has_section(instance):
+        for key, value in config._sections[instance].items():
+            if value != 'None':
+                existing_facts[key] = value
 
-        config.optionxform = lambda optionstr: optionstr  # Preserve case sensitivity for config keys
+    return existing_facts
 
-        existing_facts: dict[str, str] = {}
 
-        if os.path.exists(file_path):
-            config.read(file_path)
-            if config.has_section(instance):
-                for key in config.options(instance):
-                    if key != 'DEFAULT':  # Skip DEFAULT section items
-                        value = config.get(instance, key)
-                        if value != 'None':
-                            existing_facts[key] = value
-
-        return existing_facts
-
-    except configparser.Error as e:
-        raise Exception(f"Configuration parsing error: {str(e)}")
-    except Exception as e:
-        raise Exception(f"Unexpected error: {str(e)}")
-
-def process_facts(file_path: str, instance: str, keys: dict[str, Any], owner: str, group: str, mode: int, overwrite: bool = False) -> tuple[dict[str, str], bool]:
+def process_facts(
+    file_path: str,
+    instance: str,
+    keys: dict[str, Any],
+    uid: int,
+    gid: int,
+    mode: int,
+    overwrite: bool = False
+) -> tuple[dict[str, str], bool]:
     """
     Process facts by loading existing values and saving new ones as needed.
 
@@ -316,90 +381,58 @@ def process_facts(file_path: str, instance: str, keys: dict[str, Any], owner: st
         file_path (str): Path to the configuration file
         instance (str): Name of the instance
         keys (dict): Dictionary of keys and values to process
-        owner (str): Username of the file owner
-        group (str): Group name for the file
+        uid (int): Numerical ID of the file owner
+        gid (int): Numerical ID of the file group
         mode (int): File permissions mode in octal
         overwrite (bool): If True, overwrite existing values; if False, keep existing values
 
     Returns:
         tuple: (dict of final facts, bool indicating if changes were made)
 
-    Raises:
-        Exception: With detailed error message for various failure scenarios
     """
-    try:
-        validate_instance_name(instance)
-        validate_keys(keys)
+    validate_instance_name(instance)
+    validate_keys(keys)
 
-        # Load existing facts first
-        existing_facts = load_existing_facts(file_path, instance)
+    existing_facts = load_existing_facts(file_path, instance)
+    final_facts: dict[str, str] = {}
+    keys_to_save: dict[str, str] = {}
 
-        # Determine final facts based on overwrite setting
-        final_facts: dict[str, str] = {}
-        keys_to_save: dict[str, str] = {}
+    if overwrite:
+        final_facts.update(existing_facts)
+        final_facts.update({key: str(value) for key, value in keys.items()})
+        keys_to_save = {key: str(value) for key, value in keys.items()}
+    else:
+        final_facts.update({key: str(value) for key, value in keys.items()})
+        final_facts.update(existing_facts)
+        for key, value in keys.items():
+            if key not in existing_facts:
+                keys_to_save[key] = str(value)
 
-        if overwrite:
-            # Overwrite mode: use provided keys, keep existing keys not in provided keys
-            final_facts.update(existing_facts)
-            final_facts.update({k: str(v) for k, v in keys.items()})
-            keys_to_save = {k: str(v) for k, v in keys.items()}
-        else:
-            # Default mode: keep existing values, only add new keys
-            final_facts.update({k: str(v) for k, v in keys.items()})
-            final_facts.update(existing_facts)  # Existing values override new ones
+    if not keys_to_save:
+        return final_facts, False
 
-            # Only save keys that don't exist yet
-            for key, value in keys.items():
-                if key not in existing_facts:
-                    keys_to_save[key] = str(value)
+    config = read_config(file_path)
+    changed = False
 
-        # If no new keys to save, return existing facts without changes
-        if not keys_to_save:
-            return final_facts, False
+    if not config.has_section(instance):
+        config.add_section(instance)
+        changed = True
 
-        # Save new/updated keys
-        config = configparser.ConfigParser(
-            interpolation=None,
-            comment_prefixes=('#',),
-            inline_comment_prefixes=('#',),
-            default_section='DEFAULT',
-            delimiters=('=',),
-            empty_lines_in_values=False
-        )
-
-        config.optionxform = lambda optionstr: optionstr  # Preserve case sensitivity for config keys
-
-        if os.path.exists(file_path):
-            config.read(file_path)
-
-        changed = False
-
-        if not config.has_section(instance):
-            config.add_section(instance)
+    for key, value in keys_to_save.items():
+        section_values = config._sections[instance]
+        if key not in section_values or section_values[key] != value:
+            config.set(instance, key, value)
             changed = True
 
-        for key, value in keys_to_save.items():
-            if (not config.has_section(instance) or
-                not config.has_option(instance, key) or
-                config.get(instance, key) != str(value)):
-                config.set(instance, key, str(value))
-                changed = True
+    if changed:
+        with StringIO() as string_buffer:
+            config.write(string_buffer)
+            config_str = string_buffer.getvalue()
 
-        if changed:
-            with StringIO() as string_buffer:
-                config.write(string_buffer)
-                config_str = string_buffer.getvalue()
+        atomic_write(file_path, config_str, mode, uid, gid)
 
-            atomic_write(file_path, config_str, mode, owner, group)
+    return final_facts, changed
 
-        return final_facts, changed
-
-    except (OSError, IOError) as e:
-        raise Exception(f"File operation error: {str(e)}")
-    except configparser.Error as e:
-        raise Exception(f"Configuration parsing error: {str(e)}")
-    except Exception as e:
-        raise Exception(f"Unexpected error: {str(e)}")
 
 def delete_facts(file_path: str, delete_type: str, instance: str, keys: dict[str, Any]) -> bool:
     """
@@ -414,52 +447,46 @@ def delete_facts(file_path: str, delete_type: str, instance: str, keys: dict[str
     Returns:
         bool: True if changes were made, False otherwise
 
-    Raises:
-        Exception: With detailed error message for various failure scenarios
     """
-    try:
-        if delete_type == 'role':
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                return True
-            return False
+    validate_instance_name(instance)
+    validate_keys(keys, validate_values=False)
 
-        if not os.path.exists(file_path):
-            return False
+    if delete_type == 'role':
+        if os.path.lexists(file_path):
+            os.remove(file_path)
+            return True
+        return False
 
-        config = configparser.ConfigParser(interpolation=None)
-        config.optionxform = lambda optionstr: optionstr  # Preserve case sensitivity for config keys
-        config.read(file_path)
-        changed = False
+    if not os.path.exists(file_path):
+        return False
 
-        if delete_type == 'instance':
-            if config.has_section(instance):
-                config.remove_section(instance)
-                changed = True
-        elif delete_type == 'key' and config.has_section(instance):
-            for key in keys:
-                if config.has_option(instance, key):
-                    config.remove_option(instance, key)
-                    changed = True
+    config = read_config(file_path)
+    changed = False
 
-        if changed:
-            with StringIO() as string_buffer:
-                config.write(string_buffer)
-                config_str = string_buffer.getvalue()
+    if delete_type == 'instance':
+        changed = config.remove_section(instance)
+    elif delete_type == 'key' and config.has_section(instance):
+        section_values = config._sections[instance]
+        for key in keys:
+            if key in section_values:
+                changed = config.remove_option(instance, key) or changed
 
-            stat = os.stat(file_path)
-            atomic_write(file_path, config_str, stat.st_mode,
-                        pwd.getpwuid(stat.st_uid).pw_name,
-                        grp.getgrgid(stat.st_gid).gr_name)
+    if changed:
+        with StringIO() as string_buffer:
+            config.write(string_buffer)
+            config_str = string_buffer.getvalue()
 
-        return changed
+        file_stat = os.stat(file_path)
+        atomic_write(
+            file_path,
+            config_str,
+            stat.S_IMODE(file_stat.st_mode),
+            file_stat.st_uid,
+            file_stat.st_gid
+        )
 
-    except (OSError, IOError) as e:
-        raise Exception(f"File operation error: {str(e)}")
-    except configparser.Error as e:
-        raise Exception(f"Configuration parsing error: {str(e)}")
-    except Exception as e:
-        raise Exception(f"Unexpected error: {str(e)}")
+    return changed
+
 
 def parse_mode(mode: Any) -> int:
     """
@@ -479,20 +506,42 @@ def parse_mode(mode: Any) -> int:
     mode = mode.strip()
     if mode.startswith('0'):
         try:
-            return int(mode, 8)
+            parsed_mode = int(mode, 8)
         except ValueError:
             raise ValueError(f"Invalid octal mode: {mode}")
+        if parsed_mode > 0o7777:
+            raise ValueError("Mode must not exceed '07777'.")
+        return parsed_mode
     else:
         raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0640').")
 
-def get_current_user() -> str:
+
+def get_current_identity() -> tuple[str, str]:
     """
-    Get current user name.
+    Get the current user and that user's primary group.
 
     Returns:
-        str: Name of the current user
+        tuple: Current user name and primary group name
     """
-    return pwd.getpwuid(os.getuid()).pw_name
+    current_user = pwd.getpwuid(os.geteuid())
+    current_group = grp.getgrgid(current_user.pw_gid)
+    return current_user.pw_name, current_group.gr_name
+
+
+def resolve_ownership(owner: str, group: str) -> tuple[int, int]:
+    """
+    Resolve owner and group names before making filesystem changes.
+    """
+    try:
+        uid = pwd.getpwnam(owner).pw_uid
+    except KeyError as error:
+        raise ValueError(f"User '{owner}' not found on the system") from error
+    try:
+        gid = grp.getgrnam(group).gr_gid
+    except KeyError as error:
+        raise ValueError(f"Group '{group}' not found on the system") from error
+    return uid, gid
+
 
 def run_module() -> None:
     """
@@ -509,7 +558,7 @@ def run_module() -> None:
     - keys (dict): Configuration keys and values (default: {})
     - delete_type (str): Type of deletion ('role', 'instance', 'key')
     - owner (str): File owner (default: current user)
-    - group (str): File group (default: current user)
+    - group (str): File group (default: current user's primary group)
     - mode (str): File mode in octal string format (default: '0640')
     - overwrite (bool): If True, overwrite existing values; if False, keep existing (default: False)
     - base_path (str): Base directory path for storing configuration files (required)
@@ -546,9 +595,9 @@ def run_module() -> None:
         overwrite: bool = module.params['overwrite']
         base_path: str = module.params['base_path']
 
-        current_user = get_current_user()
+        current_user, current_group = get_current_identity()
         owner: str = module.params.get('owner') or current_user
-        group: str = module.params.get('group') or current_user
+        group: str = module.params.get('group') or current_group
 
         mode = parse_mode(module.params['mode'])
         file_path = get_file_path(role, base_path)
@@ -558,21 +607,29 @@ def run_module() -> None:
                 module.fail_json(msg="delete_type is required for delete method.")
             result['changed'] = delete_facts(file_path, delete_type, instance, keys)
         else:
-            # Default behavior: process facts (load existing, save new ones)
-            result['facts'], result['changed'] = process_facts(
-                file_path, instance, keys, owner, group, mode, overwrite
+            uid, gid = resolve_ownership(owner, group)
+            result['facts'], content_changed = process_facts(
+                file_path, instance, keys, uid, gid, mode, overwrite
             )
+            attribute_changed = (
+                ensure_file_attributes(file_path, mode, uid, gid)
+                if os.path.exists(file_path)
+                else False
+            )
+            result['changed'] = content_changed or attribute_changed
 
         module.exit_json(**result)
-        
-    except Exception as e:
-        module.fail_json(msg=str(e))
+
+    except Exception as error:
+        module.fail_json(msg=str(error))
+
 
 def main() -> None:
     """
     Module entry point.
     """
     run_module()
+
 
 if __name__ == '__main__':
     main()
