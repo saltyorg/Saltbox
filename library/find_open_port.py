@@ -13,15 +13,18 @@ options:
         description:
             - The lowest port to consider
         required: true
+        type: int
     high_bound:
         description:
             - The highest port to consider
         required: true
+        type: int
     protocol:
         description:
-            - The protocol to consider: tcp, udp, or both
+            - "The protocol to consider: tcp, udp, or both"
         required: false
         default: both
+        type: str
 """
 
 EXAMPLES = """
@@ -38,10 +41,60 @@ meta:
     type: dict
     returned: success
     sample: {"port": 5432}
+    contains:
+        port:
+            description: Lowest observed unused port in the inclusive range.
+            type: int
+            returned: success
 """
 
 from ansible.module_utils.basic import AnsibleModule
-import subprocess
+
+
+def parse_ports_in_use(output: str, protocol: str) -> set[int]:
+    """
+    Parse listening TCP ports and all bound UDP ports from ``ss -Htuan`` output.
+    """
+    ports: set[int] = set()
+
+    for line in output.splitlines():
+        fields = line.split()
+        if not fields:
+            continue
+        if len(fields) < 5:
+            raise ValueError(f"Unexpected ss output: {line}")
+
+        socket_protocol = fields[0]
+        if socket_protocol not in ('tcp', 'udp'):
+            continue
+        if protocol != 'both' and socket_protocol != protocol:
+            continue
+        if socket_protocol == 'tcp' and fields[1] != 'LISTEN':
+            continue
+
+        port_text = fields[4].rsplit(':', 1)[-1]
+        if not port_text.isdigit():
+            raise ValueError(f"Could not parse port from ss output: {line}")
+
+        port = int(port_text)
+        if not 1 <= port <= 65535:
+            raise ValueError(f"Invalid port in ss output: {port}")
+        ports.add(port)
+
+    return ports
+
+
+def get_ports_in_use(module: AnsibleModule, protocol: str) -> set[int]:
+    """
+    Fetch TCP and UDP sockets from ``ss``.
+    """
+    ss_path = module.get_bin_path('ss', required=True)
+    rc, stdout, stderr = module.run_command([ss_path, '-Htuan'])
+    if rc != 0:
+        module.fail_json(msg=f"Failed to execute ss command: {stderr.strip() or stdout.strip()}")
+
+    return parse_ports_in_use(stdout, protocol)
+
 
 def find_port(module: AnsibleModule, low_bound: int, high_bound: int, protocol: str) -> tuple[bool, dict[str, object]]:
     try:
@@ -49,52 +102,20 @@ def find_port(module: AnsibleModule, low_bound: int, high_bound: int, protocol: 
             module.fail_json(msg="Low bound must be at least 1")
         if high_bound > 65535:
             module.fail_json(msg="High bound must be at most 65535")
-        if high_bound <= low_bound:
-            module.fail_json(msg="High bound must be higher than low bound")
+        if high_bound < low_bound:
+            module.fail_json(msg="High bound must be greater than or equal to low bound")
 
-        # Generate sequence
         seq = set(range(low_bound, high_bound + 1))
-
-        # Determine command based on protocol
-        if protocol == 'tcp':
-            cmd = "ss -Htan"
-            awk_cmd = "awk '{print $4}'"
-            state_filter = "grep LISTEN"
-        elif protocol == 'udp':
-            cmd = "ss -Huan"
-            awk_cmd = "awk '{print $4}'"
-            state_filter = ""
-        else:  # both
-            cmd = "ss -Htuan"
-            awk_cmd = "awk '{print $5}'"
-            state_filter = "grep -E '^(udp|tcp +LISTEN)'"
-
-        cmd_parts = [cmd]
-        if state_filter:
-            cmd_parts.append(state_filter)
-        cmd_parts.append(awk_cmd)
-        cmd_parts.append("grep -Eo '[0-9]+$'")
-        cmd_parts.append("sort -u")
-        cmd = " | ".join(cmd_parts)
-
-        # Run command to get ports in use
-        ports_in_use = subprocess.check_output(cmd, shell=True)
-        ports_in_use = set(int(port) for port in ports_in_use.decode().split())
-
-        # Find available ports
+        ports_in_use = get_ports_in_use(module, protocol)
         available_ports = seq - ports_in_use
 
-        # Check if there's at least one available port
         if available_ports:
             candidate = min(available_ports)
             return False, {"port": candidate}
-        else:
-            return True, {"msg": "No available port found in the specified range"}
+        return True, {"msg": "No available port found in the specified range"}
 
-    except subprocess.CalledProcessError as e:
-        module.fail_json(msg=f"Failed to execute ss command: {e}")
     except ValueError as e:
-        module.fail_json(msg=f"Failed to parse port numbers: {e}")
+        module.fail_json(msg=f"Failed to parse ss output: {e}")
 
 def main() -> None:
     module = AnsibleModule(
