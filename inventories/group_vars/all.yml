@@ -595,6 +595,8 @@ torrent_apps_saltbox:
 torrent_apps_sandbox:
   - "{{ delugevpn_name | default('delugevpn') }}"
   - "{{ qbittorrentvpn_instances | default('qbittorrentvpn') }}"
+  - "{{ rutorrent_name | default('rutorrent') }}"
+  - "{{ rflood_instances | default('rflood') }}"
   - "{{ transmission_instances | default('transmission') }}"
   - "{{ transmissionvpn_name | default('transmissionvpn') }}"
 
