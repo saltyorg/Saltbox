@@ -2,16 +2,19 @@ name: 'Close stale issues and PRs'
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *'
-
-permissions:
-  actions: write
-  issues: write
-  pull-requests: write
+    - cron: '17 1 * * *'
+  issue_comment:
+    types:
+      - created
 
 jobs:
   stale:
+    if: github.event_name != 'issue_comment'
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/stale@v11
         with:
@@ -29,154 +32,69 @@ jobs:
           exempt-pr-labels: 'work-in-progress,no-stale'
           operations-per-run: 1000
 
-      - name: Reopen stale closed issues that got comments after closure
+  unstale:
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.comment.user.type != 'Bot' &&
+      !contains(github.event.issue.labels.*.name, 'work-in-progress') &&
+      !contains(github.event.issue.labels.*.name, 'no-stale') &&
+      (contains(github.event.issue.labels.*.name, 'no-issue-activity') ||
+       contains(github.event.issue.labels.*.name, 'no-pr-activity'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Reopen or unstale after a human comment
         uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
-            const repo  = context.repo.repo;
+            const repo = context.repo.repo;
+            const issue = context.payload.issue;
+            const isPullRequest = Boolean(issue.pull_request);
+            const staleLabel = isPullRequest ? 'no-pr-activity' : 'no-issue-activity';
+            const labels = issue.labels.map((label) => label.name);
+            const apiHeaders = { 'X-GitHub-Api-Version': '2026-03-10' };
 
-            // ---- MUST MATCH YOUR STALE CONFIG ----
-            const issueStaleLabel = 'no-issue-activity';
-            const prStaleLabel    = 'no-pr-activity';
-            const exemptLabels    = new Set(['work-in-progress', 'no-stale']);
-
-            // Bound the scan so you don't walk the whole repo every day
-            const lookbackDays = 30;
-            const sinceYMD = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .slice(0, 10); // YYYY-MM-DD
-
-            // ---- LOGGING ----
-            const log  = (m) => core.info(m);
-            const warn = (m) => core.warning(m);
-
-            log(`Reopen sweep: lookbackDays=${lookbackDays}, since=${sinceYMD}`);
-
-            function normalizeLabels(labels) {
-              return labels.map(l => (typeof l === 'string' ? { name: l } : l));
+            if (!labels.includes(staleLabel)) {
+              core.info(`#${issue.number} does not have the expected '${staleLabel}' label.`);
+              return;
             }
 
-            function hasExemptLabel(labels) {
-              return labels.some(l => exemptLabels.has(l.name));
-            }
-
-            function isBotUser(u) {
-              const login = (u?.login || '').toLowerCase();
-              return u?.type === 'Bot' || login.endsWith('[bot]') || login === 'github-actions';
-            }
-
-            async function searchClosedWithLabel(label) {
-              const q = `repo:${owner}/${repo} is:closed label:"${label}" updated:>=${sinceYMD}`;
-              log(`Search: ${q}`);
-
-              const items = [];
-              for await (const resp of github.paginate.iterator(
-                github.rest.search.issuesAndPullRequests,
-                { q, per_page: 100 }
-              )) {
-                items.push(...resp.data);
+            if (issue.state === 'closed' && isPullRequest && issue.pull_request.merged_at) {
+              core.info(`PR #${issue.number} is merged; leaving it closed.`);
+            } else if (issue.state === 'closed') {
+              if (!isPullRequest && issue.state_reason !== 'not_planned') {
+                core.info(`#${issue.number} was not closed as not planned; leaving it closed.`);
+                return;
               }
 
-              log(`Search results for '${label}': ${items.length}`);
-              return items;
-            }
+              const route = isPullRequest
+                ? 'PATCH /repos/{owner}/{repo}/pulls/{pull_number}'
+                : 'PATCH /repos/{owner}/{repo}/issues/{issue_number}';
+              const numberField = isPullRequest
+                ? { pull_number: issue.number }
+                : { issue_number: issue.number, state_reason: 'reopened' };
 
-            async function getIssue(number) {
-              // Works for issues and PRs (PRs are issues in this endpoint)
-              return await github.rest.issues.get({ owner, repo, issue_number: number });
-            }
-
-            async function hasHumanCommentAfterClosure(number, closedAtIso) {
-              // CRITICAL: do NOT assume comment ordering. Use `since` so GitHub only returns
-              // comments created after closedAtIso, then scan them all.
-              let total = 0;
-
-              for await (const resp of github.paginate.iterator(
-                github.rest.issues.listComments,
-                { owner, repo, issue_number: number, per_page: 100, since: closedAtIso }
-              )) {
-                for (const c of resp.data) {
-                  total++;
-                  const who = c.user?.login || 'unknown';
-                  const bot = isBotUser(c.user);
-                  const bodyPreview = (c.body || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-                  log(`  #${number} comment since close: ${c.created_at} by=${who} bot=${bot} "${bodyPreview}"`);
-                  if (!bot) {
-                    log(`  #${number} => human comment detected after closure`);
-                    return true;
-                  }
-                }
-              }
-
-              log(`  #${number} => ${total} comments since close, none by humans`);
-              return false;
-            }
-
-            async function reopenAndClear(number, staleLabel) {
-              await github.rest.issues.update({
-                owner, repo, issue_number: number, state: 'open'
+              await github.request(route, {
+                owner,
+                repo,
+                ...numberField,
+                state: 'open',
+                headers: apiHeaders
               });
-
-              try {
-                await github.rest.issues.removeLabel({
-                  owner, repo, issue_number: number, name: staleLabel
-                });
-              } catch (e) {
-                if (e.status !== 404) throw e;
-              }
+              core.info(`Reopened ${isPullRequest ? 'PR' : 'issue'} #${issue.number}.`);
             }
 
-            async function process(label, wantPR) {
-              const items = await searchClosedWithLabel(label);
-
-              let considered = 0;
-              let reopened = 0;
-
-              for (const item of items) {
-                const isPR = !!item.pull_request;
-                if (isPR !== wantPR) continue;
-
-                considered++;
-
-                const labels = normalizeLabels(item.labels);
-                if (hasExemptLabel(labels)) {
-                  log(`#${item.number} skip: exempt label present`);
-                  continue;
-                }
-
-                if (!item.closed_at) {
-                  log(`#${item.number} skip: missing closed_at`);
-                  continue;
-                }
-
-                // Pull full issue data to get state_reason and updated_at
-                const full = await getIssue(item.number);
-                const stateReason = full.data.state_reason || null;
-
-                log(`#${item.number} state_reason=${stateReason} closed_at=${full.data.closed_at} updated_at=${full.data.updated_at}`);
-
-                // "Only care about ones closed by stale":
-                // - state_reason is "not_planned" for your stale-closed sample
-                // - and the stale label is still present (because we searched by label)
-                if (stateReason !== 'not_planned') {
-                  log(`#${item.number} skip: not closed as not_planned`);
-                  continue;
-                }
-
-                const commentedAfter = await hasHumanCommentAfterClosure(item.number, full.data.closed_at);
-                if (!commentedAfter) {
-                  log(`#${item.number} skip: no human comment after closure`);
-                  continue;
-                }
-
-                log(`#${item.number} REOPEN: closed-by-stale + human comment after closure`);
-                await reopenAndClear(item.number, label);
-                reopened++;
+            await github.request(
+              'DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}',
+              {
+                owner,
+                repo,
+                issue_number: issue.number,
+                name: staleLabel,
+                headers: apiHeaders
               }
-
-              log(`Done '${label}' (${wantPR ? 'PRs' : 'issues'}): considered=${considered}, reopened=${reopened}`);
-            }
-
-            await process(issueStaleLabel, false);
-            await process(prStaleLabel, true);
+            );
+            core.info(`Removed '${staleLabel}' from #${issue.number}.`);
