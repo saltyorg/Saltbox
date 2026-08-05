@@ -10,7 +10,8 @@ Rules:
      subsequent operators within that else branch align with content after 'else '
    - Context resets when if/else blocks close (marked by )) or )))
 
-2. If/Else Alignment: if and else keywords must align vertically within {{ }} brackets
+2. If/Else Alignment: if and else keywords must align with the opening {{ brackets,
+   the innermost unmatched grouping (, or the content inside a function call
 """
 
 import re
@@ -182,17 +183,32 @@ class DefaultsLinter:
 
     def check_ifelse_alignment(self):
         """
-        Rule 2: Check if/else keywords align within same {{ }} brackets
+        Rule 2: Check if/else keywords align with their expression context
 
         Example:
             variable: "{{ value
                        if condition
                        else other_value }}"
-                       ^ if and else must align vertically
+                       ^ if and else must align with the opening {{ brackets
+
+        Nested conditionals align with their innermost unmatched opening parenthesis:
+            variable: "{{ value
+                        + (nested_value
+                           if condition
+                           else fallback) }}"
+                           ^ Aligns with the opening parenthesis
+
+        Conditionals inside function calls align with the function content:
+            variable: "{{ value
+                        | function(nested_value
+                                   if condition
+                                   else fallback) }}"
+                                   ^ Aligns one column after the opening parenthesis
         """
         in_multiline_jinja = False
         jinja_lines = []
         jinja_start_line = 0
+        jinja_bracket_indent = 0
 
         for i, line in enumerate(self.lines, 1):
             # Detect start of multi-line Jinja expression
@@ -200,46 +216,105 @@ class DefaultsLinter:
                 in_multiline_jinja = True
                 jinja_lines = [line]
                 jinja_start_line = i
+                jinja_bracket_indent = line.index('{{')
 
             elif in_multiline_jinja:
                 jinja_lines.append(line)
 
                 # Check if we've reached the end of the Jinja block
                 if '}}' in line:
-                    # Find lines containing 'if' and 'else'
-                    if_lines = [l for l in jinja_lines if ' if ' in l or l.strip().startswith('if ')]
-                    else_lines = [l for l in jinja_lines if ' else ' in l or l.strip().startswith('else ')]
+                    # Parentheses opened on the first line wrap the top-level
+                    # expression, so only continuation-line parentheses create
+                    # a nested alignment context.
+                    parenthesis_contexts = []
+                    if_indent = None
+                    else_indent = None
+                    if_expected_indent = None
+                    else_expected_indent = None
+                    if_context = None
+                    else_context = None
 
-                    # Only check if both if and else exist in the same block
-                    if if_lines and else_lines:
-                        # Find indentation of 'if' and 'else' keywords
-                        if_indent = None
-                        else_indent = None
+                    for continuation_line in jinja_lines[1:]:
+                        stripped_line = continuation_line.strip()
+                        expected_indent = (parenthesis_contexts[-1][0]
+                                           if parenthesis_contexts
+                                           else jinja_bracket_indent)
+                        context = (parenthesis_contexts[-1][1]
+                                   if parenthesis_contexts
+                                   else '{{')
 
-                        for l in jinja_lines:
-                            if ' if ' in l:
-                                # Calculate column position where 'if' appears
-                                if_indent = len(l) - len(l.lstrip())
-                            if ' else ' in l or l.strip().startswith('else '):
-                                else_indent = len(l) - len(l.lstrip())
+                        # Inline conditionals do not have a continuation-line
+                        # alignment requirement.
+                        if stripped_line.startswith('if '):
+                            if_indent = len(continuation_line) - len(continuation_line.lstrip())
+                            if_expected_indent = expected_indent
+                            if_context = context
+                        elif stripped_line.startswith('else '):
+                            else_indent = len(continuation_line) - len(continuation_line.lstrip())
+                            else_expected_indent = expected_indent
+                            else_context = context
 
-                        # Check if if and else align
-                        if if_indent is not None and else_indent is not None:
-                            if if_indent != else_indent:
-                                diff = else_indent - if_indent
-                                # Get relative path for GitHub annotation
-                                try:
-                                    relative_path = str(self.file_path.relative_to(Path.cwd()))
-                                except ValueError:
-                                    relative_path = str(self.file_path)
+                        quote = None
+                        escaped = False
+                        for column, char in enumerate(continuation_line):
+                            if escaped:
+                                escaped = False
+                            elif char == '\\' and quote is not None:
+                                escaped = True
+                            elif quote is not None:
+                                if char == quote:
+                                    quote = None
+                            elif char in ("'", '"'):
+                                quote = char
+                            elif char == '(':
+                                previous_char = (continuation_line[column - 1]
+                                                 if column > 0
+                                                 else '')
+                                is_function_call = (previous_char.isalnum()
+                                                    or previous_char in '_])')
+                                if is_function_call:
+                                    parenthesis_contexts.append((column + 1, 'function content'))
+                                else:
+                                    parenthesis_contexts.append((column, '('))
+                            elif char == ')' and parenthesis_contexts:
+                                parenthesis_contexts.pop()
 
-                                self.errors.append(LintError(
-                                    file=relative_path,
-                                    line=jinja_start_line,
-                                    message=f"[ifelse-alignment] 'if' at column {if_indent} doesn't align with 'else' at column {else_indent} (off by {diff:+d})",
-                                    repo_url=self.repo_url,
-                                    commit_sha=self.commit_sha
-                                ))
+                    # Check if if and else align
+                    if if_indent is not None and else_indent is not None:
+                        try:
+                            relative_path = str(self.file_path.relative_to(Path.cwd()))
+                        except ValueError:
+                            relative_path = str(self.file_path)
+
+                        if if_indent != else_indent:
+                            diff = else_indent - if_indent
+                            self.errors.append(LintError(
+                                file=relative_path,
+                                line=jinja_start_line,
+                                message=f"[ifelse-alignment] 'if' at column {if_indent} doesn't align with 'else' at column {else_indent} (off by {diff:+d})",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha
+                            ))
+
+                        elif (if_expected_indent != else_expected_indent
+                              or if_context != else_context):
+                            self.errors.append(LintError(
+                                file=relative_path,
+                                line=jinja_start_line,
+                                message="[ifelse-alignment] 'if' and 'else' are in different expression contexts",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha
+                            ))
+
+                        elif if_indent != if_expected_indent:
+                            diff = if_indent - if_expected_indent
+                            self.errors.append(LintError(
+                                file=relative_path,
+                                line=jinja_start_line,
+                                message=f"[ifelse-alignment] 'if' and 'else' at column {if_indent} don't align with '{if_context}' at column {if_expected_indent} (off by {diff:+d})",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha
+                            ))
 
                     # Reset state
                     in_multiline_jinja = False
