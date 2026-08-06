@@ -1,0 +1,50 @@
+#########################################################################
+# Title:         Saltbox: Tautulli | Settings Task                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Settings | Wait for config file to be created
+  ansible.builtin.wait_for:
+    path: "{{ tautulli_role_paths_config_location }}"
+    state: present
+
+- name: Settings | Set config settings update status
+  ansible.builtin.set_fact:
+    tautulli_config_settings_update_required: false
+
+- name: Settings | Check config settings
+  ansible.builtin.set_fact:
+    tautulli_config_settings_update_required: true
+  vars:
+    _tautulli_config_setting_current_value: "{{ lookup('ansible.builtin.ini', item.option, section=item.section, file=tautulli_role_paths_config_location, default='__saltbox_missing__') }}"
+  loop: "{{ tautulli_role_config_settings_list }}"
+  loop_control:
+    label: "{{ item.section }} | {{ item.option }}"
+  when: (_tautulli_config_setting_current_value != (item.value | string))
+
+- name: Settings | Update config settings
+  when: tautulli_config_settings_update_required
+  block:
+    - name: Settings | Stop Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+
+    - name: Settings | Update config settings
+      community.general.ini_file:
+        path: "{{ tautulli_role_paths_config_location }}"
+        section: "{{ item.section }}"
+        option: "{{ item.option }}"
+        value: "{{ item.value }}"
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      loop: "{{ tautulli_role_config_settings_list }}"
+      loop_control:
+        label: "{{ item.section }} | {{ item.option }}"
+
+    - name: Settings | Start Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

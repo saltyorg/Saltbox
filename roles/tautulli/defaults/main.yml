@@ -19,10 +19,23 @@ tautulli_instances: ["tautulli"]
 
 tautulli_role_paths_folder: "{{ tautulli_name }}"
 tautulli_role_paths_location: "{{ server_appdata_path }}/{{ tautulli_role_paths_folder }}"
+tautulli_role_paths_config_location: "{{ tautulli_role_paths_location }}/config.ini"
 tautulli_role_paths_scripts_location: "{{ server_appdata_path }}/scripts/tautulli"
 tautulli_role_paths_folders_list:
   - "{{ tautulli_role_paths_location }}"
   - "{{ tautulli_role_paths_scripts_location }}"
+
+################################
+# Config
+################################
+
+tautulli_role_config_settings_default:
+  - { section: "Advanced", option: "allow_mounted_folders", value: "1" }
+
+tautulli_role_config_settings_custom: []
+
+tautulli_role_config_settings_list: "{{ lookup('role_var', '_config_settings_default', role='tautulli')
+                                        + lookup('role_var', '_config_settings_custom', role='tautulli') }}"
 
 ################################
 # Web
