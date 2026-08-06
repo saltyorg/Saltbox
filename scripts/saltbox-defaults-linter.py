@@ -17,21 +17,33 @@ Rules:
    directory name
 """
 
+import os
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
-from typing import List
+from typing import override
+
+ParenthesisContext = tuple[int, str]
+JinjaBlock = tuple[int, int, list[str]]
 
 
 class LintError:
     """Represents a single linting error"""
 
-    def __init__(self, file: str, line: int, message: str, repo_url: str = None, commit_sha: str = None):
-        self.file = file
-        self.line = line
-        self.message = message
-        self.repo_url = repo_url
-        self.commit_sha = commit_sha
+    def __init__(
+        self,
+        file: str,
+        line: int,
+        message: str,
+        repo_url: str | None = None,
+        commit_sha: str | None = None,
+    ) -> None:
+        self.file: str = file
+        self.line: int = line
+        self.message: str = message
+        self.repo_url: str | None = repo_url
+        self.commit_sha: str | None = commit_sha
 
     def to_github_annotation(self) -> str:
         """
@@ -44,13 +56,22 @@ class LintError:
         # Build GitHub blob URL if we have repo and commit info
         if self.repo_url and self.commit_sha:
             # Format: https://github.com/owner/repo/blob/commit_sha/path/to/file.yml#L123
-            github_link = f"{self.repo_url}/blob/{self.commit_sha}/{self.file}#L{self.line}"
+            github_link = (
+                f"{self.repo_url}/blob/{self.commit_sha}/{self.file}#L{self.line}"
+            )
             message_with_link = f"{self.message} - {github_link}"
         else:
             message_with_link = self.message
 
         return f"::error file={self.file},line={self.line}::{message_with_link}"
 
+    def github_link(self) -> str:
+        """Return a direct link to this finding when running in GitHub Actions."""
+        if not self.repo_url or not self.commit_sha:
+            return ""
+        return f"{self.repo_url}/blob/{self.commit_sha}/{self.file}#L{self.line}"
+
+    @override
     def __str__(self) -> str:
         return f"{self.file}:{self.line} - {self.message}"
 
@@ -58,14 +79,19 @@ class LintError:
 class DefaultsLinter:
     """Lints a single defaults/main.yml file"""
 
-    def __init__(self, file_path: Path, repo_url: str = None, commit_sha: str = None):
-        self.file_path = file_path
-        self.repo_url = repo_url
-        self.commit_sha = commit_sha
-        self.lines = file_path.read_text().splitlines()
-        self.errors: List[LintError] = []
+    def __init__(
+        self,
+        file_path: Path,
+        repo_url: str | None = None,
+        commit_sha: str | None = None,
+    ) -> None:
+        self.file_path: Path = file_path
+        self.repo_url: str | None = repo_url
+        self.commit_sha: str | None = commit_sha
+        self.lines: list[str] = file_path.read_text(encoding="utf-8").splitlines()
+        self.errors: list[LintError] = []
 
-    def check_operator_alignment(self):
+    def check_operator_alignment(self) -> None:
         """
         Rule 1: Check | and + operators align with first character after '{{ '
 
@@ -107,7 +133,7 @@ class DefaultsLinter:
             # Only process if:
             # 1. Line matches pattern
             # 2. Line doesn't end with }} (multi-line expression)
-            if match and '}}' not in curr_line:
+            if match and "}}" not in curr_line:
                 var_name = match.group(1)
 
                 # This is the start of a multi-line expression
@@ -126,7 +152,9 @@ class DefaultsLinter:
 
                     # Check if this line closes an if/else block (ends with )) or }))
                     # This resets alignment context back to base
-                    if in_else_context and re.search(r'\)\)(?:\)|$)', continuation_line.rstrip()):
+                    if in_else_context and re.search(
+                        r"\)\)(?:\)|$)", continuation_line.rstrip()
+                    ):
                         current_alignment = expected_alignment
                         in_else_context = False
 
@@ -134,20 +162,22 @@ class DefaultsLinter:
                     # This creates a new alignment context for subsequent operators
                     # Pattern: else followed by lookup/variable (not just closing like '])')
                     # BUT: only if the else block doesn't close on the same line
-                    else_match = re.match(r'^(\s+)else (lookup|[a-z_]+)', continuation_line)
+                    else_match = re.match(
+                        r"^(\s+)else (lookup|[a-z_]+)", continuation_line
+                    )
                     if else_match:
                         # Check if this line also closes the if/else block (contains )))
                         # If so, don't set a persistent context
-                        closes_immediately = re.search(r'\)\)\)', continuation_line)
+                        closes_immediately = re.search(r"\)\)\)", continuation_line)
 
                         if not closes_immediately:
                             # New alignment context: content after 'else '
                             # Only persists if the line doesn't close the block
-                            current_alignment = len(else_match.group(1)) + len('else ')
+                            current_alignment = len(else_match.group(1)) + len("else ")
                             in_else_context = True
 
                     # Check if this line has an operator
-                    op_match = re.match(r'^(\s+)([|+]) ', continuation_line)
+                    op_match = re.match(r"^(\s+)([|+]) ", continuation_line)
 
                     if op_match:
                         actual_spaces = len(op_match.group(1))
@@ -161,20 +191,24 @@ class DefaultsLinter:
 
                             # Get relative path for GitHub annotation
                             try:
-                                relative_path = str(self.file_path.relative_to(Path.cwd()))
+                                relative_path = str(
+                                    self.file_path.relative_to(Path.cwd())
+                                )
                             except ValueError:
                                 relative_path = str(self.file_path)
 
-                            self.errors.append(LintError(
-                                file=relative_path,
-                                line=j + 1,  # Convert to 1-indexed
-                                message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {expected_spaces} (off by {diff:+d})",
-                                repo_url=self.repo_url,
-                                commit_sha=self.commit_sha
-                            ))
+                            self.errors.append(
+                                LintError(
+                                    file=relative_path,
+                                    line=j + 1,  # Convert to 1-indexed
+                                    message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {expected_spaces} (off by {diff:+d})",
+                                    repo_url=self.repo_url,
+                                    commit_sha=self.commit_sha,
+                                )
+                            )
 
                     # Stop if we've reached the end of the Jinja block
-                    if '}}' in continuation_line:
+                    if "}}" in continuation_line:
                         break
 
                     j += 1
@@ -184,18 +218,18 @@ class DefaultsLinter:
 
             i += 1
 
-    def check_variable_prefix(self):
+    def check_variable_prefix(self) -> None:
         """Rule 3: Check top-level role defaults use the role's prefix."""
         role_name = self.file_path.parent.parent.name
         expected_prefix = f"{role_name}_"
 
         for line_number, line in enumerate(self.lines, 1):
-            match = re.match(r'^([a-z][a-z0-9_]*):(?:\s|$)', line)
+            match = re.match(r"^([a-z][a-z0-9_]*):(?:\s|$)", line)
             if not match:
                 continue
 
             variable_name = match.group(1)
-            if '_role_' not in variable_name:
+            if "_role_" not in variable_name:
                 continue
 
             if variable_name.startswith(expected_prefix):
@@ -206,30 +240,32 @@ class DefaultsLinter:
             except ValueError:
                 relative_path = str(self.file_path)
 
-            self.errors.append(LintError(
-                file=relative_path,
-                line=line_number,
-                message=f"[variable-prefix] Variable '{variable_name}' must start with '{expected_prefix}'",
-                repo_url=self.repo_url,
-                commit_sha=self.commit_sha
-            ))
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=f"[variable-prefix] Variable '{variable_name}' must start with '{expected_prefix}'",
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
 
-    def iter_multiline_jinja_blocks(self):
+    def iter_multiline_jinja_blocks(self) -> Iterator[JinjaBlock]:
         """Yield every multiline Jinja block, including blocks embedded in strings."""
-        start_line = None
-        bracket_indent = None
-        block_lines = []
+        start_line: int | None = None
+        bracket_indent: int | None = None
+        block_lines: list[str] = []
 
         for line_number, line in enumerate(self.lines, 1):
             search_column = 0
 
             while search_column < len(line):
                 if start_line is None:
-                    open_column = line.find('{{', search_column)
+                    open_column = line.find("{{", search_column)
                     if open_column == -1:
                         break
 
-                    close_column = line.find('}}', open_column + 2)
+                    close_column = line.find("}}", open_column + 2)
                     if close_column != -1:
                         search_column = close_column + 2
                         continue
@@ -239,12 +275,14 @@ class DefaultsLinter:
                     block_lines = [line]
                     break
 
-                close_column = line.find('}}', search_column)
+                close_column = line.find("}}", search_column)
                 if close_column == -1:
                     block_lines.append(line)
                     break
 
                 block_lines.append(line)
+                assert start_line is not None
+                assert bracket_indent is not None
                 yield start_line, bracket_indent, block_lines
 
                 start_line = None
@@ -253,34 +291,37 @@ class DefaultsLinter:
                 search_column = close_column + 2
 
     @staticmethod
-    def update_parenthesis_contexts(line, parenthesis_contexts, start_column=0):
+    def update_parenthesis_contexts(
+        line: str,
+        parenthesis_contexts: list[ParenthesisContext],
+        start_column: int = 0,
+    ) -> None:
         """Update unmatched parenthesis contexts found in one expression line."""
-        quote = None
+        quote: str | None = None
         escaped = False
 
         for column in range(start_column, len(line)):
             char = line[column]
             if escaped:
                 escaped = False
-            elif char == '\\' and quote is not None:
+            elif char == "\\" and quote is not None:
                 escaped = True
             elif quote is not None:
                 if char == quote:
                     quote = None
             elif char in ("'", '"'):
                 quote = char
-            elif char == '(':
-                previous_char = line[column - 1] if column > 0 else ''
-                is_function_call = (previous_char.isalnum()
-                                    or previous_char in '_])')
+            elif char == "(":
+                previous_char = line[column - 1] if column > 0 else ""
+                is_function_call = previous_char.isalnum() or previous_char in "_])"
                 if is_function_call:
-                    parenthesis_contexts.append((column + 1, 'function content'))
+                    parenthesis_contexts.append((column + 1, "function content"))
                 else:
-                    parenthesis_contexts.append((column + 1, 'grouping content'))
-            elif char == ')' and parenthesis_contexts:
-                parenthesis_contexts.pop()
+                    parenthesis_contexts.append((column + 1, "grouping content"))
+            elif char == ")" and parenthesis_contexts:
+                _ = parenthesis_contexts.pop()
 
-    def check_ifelse_alignment(self):
+    def check_ifelse_alignment(self) -> None:
         """
         Rule 2: Check if/else keywords align with their expression context
 
@@ -304,14 +345,14 @@ class DefaultsLinter:
                                      else fallback) }}"
                                      ^ Aligns one column after the opening parenthesis
         """
-        for (jinja_start_line,
-             jinja_bracket_indent,
-             jinja_lines) in self.iter_multiline_jinja_blocks():
-            parenthesis_contexts = []
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            parenthesis_contexts: list[ParenthesisContext] = []
             self.update_parenthesis_contexts(
-                jinja_lines[0],
-                parenthesis_contexts,
-                jinja_bracket_indent + len('{{')
+                jinja_lines[0], parenthesis_contexts, jinja_bracket_indent + len("{{")
             )
             try:
                 relative_path = str(self.file_path.relative_to(Path.cwd()))
@@ -320,39 +361,42 @@ class DefaultsLinter:
 
             for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
                 stripped_line = continuation_line.strip()
-                expected_indent = (parenthesis_contexts[-1][0]
-                                   if parenthesis_contexts
-                                   else jinja_bracket_indent)
-                context = (parenthesis_contexts[-1][1]
-                           if parenthesis_contexts
-                           else '{{')
+                expected_indent = (
+                    parenthesis_contexts[-1][0]
+                    if parenthesis_contexts
+                    else jinja_bracket_indent
+                )
+                context = parenthesis_contexts[-1][1] if parenthesis_contexts else "{{"
 
                 # Inline conditionals do not have a continuation-line
                 # alignment requirement.
-                keyword = None
-                if stripped_line.startswith('if '):
-                    keyword = 'if'
-                elif stripped_line.startswith('else '):
-                    keyword = 'else'
+                keyword: str | None = None
+                if stripped_line.startswith("if "):
+                    keyword = "if"
+                elif stripped_line.startswith("else "):
+                    keyword = "else"
 
                 if keyword is not None:
-                    actual_indent = len(continuation_line) - len(continuation_line.lstrip())
+                    actual_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
                     if actual_indent != expected_indent:
                         diff = actual_indent - expected_indent
-                        self.errors.append(LintError(
-                            file=relative_path,
-                            line=jinja_start_line + line_offset,
-                            message=f"[ifelse-alignment] '{keyword}' at column {actual_indent} doesn't align with '{context}' at column {expected_indent} (off by {diff:+d})",
-                            repo_url=self.repo_url,
-                            commit_sha=self.commit_sha
-                        ))
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=jinja_start_line + line_offset,
+                                message=f"[ifelse-alignment] '{keyword}' at column {actual_indent} doesn't align with '{context}' at column {expected_indent} (off by {diff:+d})",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
 
                 self.update_parenthesis_contexts(
-                    continuation_line,
-                    parenthesis_contexts
+                    continuation_line, parenthesis_contexts
                 )
 
-    def lint(self) -> List[LintError]:
+    def lint(self) -> list[LintError]:
         """Run all lint checks and return list of errors"""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
@@ -360,10 +404,51 @@ class DefaultsLinter:
         return self.errors
 
 
-def main():
-    """Main entry point for the linter"""
-    import os
+def markdown_cell(value: str) -> str:
+    """Escape content for use in a GitHub Markdown table cell."""
+    return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
 
+
+def write_github_summary(errors: list[LintError], files_checked: int) -> None:
+    """Append a defaults-lint report to the GitHub Actions job summary."""
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not summary_path:
+        return
+
+    passed = not errors
+    result = "✅ Passed" if passed else "❌ Failed"
+    lines = [
+        "## Defaults lint report",
+        "",
+        "| Result | Files checked | Findings |",
+        "| --- | ---: | ---: |",
+        f"| {result} | {files_checked} | {len(errors)} |",
+    ]
+
+    if errors:
+        lines.extend(
+            [
+                "",
+                "### Findings",
+                "",
+                "| File | Line | Finding |",
+                "| --- | ---: | --- |",
+            ]
+        )
+        for error in errors:
+            file_name = markdown_cell(error.file)
+            github_link = error.github_link()
+            file_cell = f"[{file_name}]({github_link})" if github_link else file_name
+            lines.append(
+                f"| {file_cell} | {error.line} | {markdown_cell(error.message)} |"
+            )
+
+    with Path(summary_path).open("a", encoding="utf-8") as summary_file:
+        _ = summary_file.write("\n".join(lines) + "\n")
+
+
+def main() -> None:
+    """Main entry point for the linter"""
     if len(sys.argv) < 2:
         print("Usage: python3 saltbox-defaults-linter.py <roles_directory>")
         print("\nExample:")
@@ -383,13 +468,13 @@ def main():
     # Get GitHub repo and commit info from environment variables (set by GitHub Actions)
     # GITHUB_REPOSITORY format: "owner/repo"
     # GITHUB_SHA: commit SHA that triggered the workflow
-    github_repo = os.environ.get('GITHUB_REPOSITORY')
-    github_sha = os.environ.get('GITHUB_SHA')
+    github_repo = os.environ.get("GITHUB_REPOSITORY")
+    github_sha = os.environ.get("GITHUB_SHA")
 
     # Build full repo URL if we have the repository name
     repo_url = f"https://github.com/{github_repo}" if github_repo else None
 
-    all_errors = []
+    all_errors: list[LintError] = []
     files_checked = 0
 
     # Find and lint all defaults/main.yml files
@@ -401,13 +486,17 @@ def main():
 
     # Output results
     if all_errors:
-        print(f"❌ Found {len(all_errors)} formatting error(s) in {files_checked} file(s):\n")
+        print(
+            f"❌ Found {len(all_errors)} formatting error(s) in {files_checked} file(s):\n"
+        )
         for error in all_errors:
             print(error.to_github_annotation())
         print(f"\nTotal: {len(all_errors)} error(s)")
+        write_github_summary(all_errors, files_checked)
         sys.exit(1)
     else:
         print(f"✅ All {files_checked} role defaults files pass formatting checks")
+        write_github_summary(all_errors, files_checked)
         sys.exit(0)
 
 
