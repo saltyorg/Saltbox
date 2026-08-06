@@ -1,0 +1,24 @@
+name: Trigger Documentation Automation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'roles/**'
+      - 'resources/tasks/docker/**'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  trigger:
+    if: github.repository == 'saltyorg/Saltbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Trigger documentation automation
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: gh workflow run automation.yml --repo saltyorg/docs
