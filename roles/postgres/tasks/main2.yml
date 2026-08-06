@@ -72,7 +72,7 @@
             argv:
               - pg_isready
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
           register: postgres_interrupted_recovery_ready
@@ -200,7 +200,7 @@
             postgres_role_paths_location: "{{ postgres_migration_source_path }}_new"
             postgres_role_docker_env_db: "postgres"
             postgres_role_docker_healthcheck:
-              test: ["CMD-SHELL", "pg_isready -d postgres -U {{ postgres_role_docker_env_user_effective }}"]
+              test: ["CMD-SHELL", "pg_isready -d postgres -U {{ postgres_role_docker_env_user_lookup }}"]
               start_period: 10s
               interval: 10s
               retries: 30
@@ -220,7 +220,7 @@
             argv:
               - pg_isready
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
           register: postgres_old_ready
@@ -235,7 +235,7 @@
             argv:
               - pg_isready
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
           register: postgres_new_ready
@@ -253,7 +253,7 @@
               - --tuples-only
               - --no-align
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
               - --command
@@ -267,12 +267,12 @@
             # The new cluster already has the source bootstrap role. Remove only
             # its CREATE statement so every other restore error remains fatal.
             docker exec {{ (postgres_name + '_old') | quote }} \
-              pg_dumpall --username={{ postgres_role_docker_env_user_effective | quote }} --quote-all-identifiers |
+              pg_dumpall --username={{ postgres_role_docker_env_user_lookup | quote }} --quote-all-identifiers |
               grep --fixed-strings --line-regexp --invert-match -- \
                 {{ ('CREATE ROLE ' + postgres_source_bootstrap_role.stdout + ';') | quote }} |
               docker exec -i {{ (postgres_name + '_new') | quote }} \
                 psql --no-psqlrc --set=ON_ERROR_STOP=1 \
-                  --username={{ postgres_role_docker_env_user_effective | quote }} --dbname=postgres
+                  --username={{ postgres_role_docker_env_user_lookup | quote }} --dbname=postgres
           args:
             executable: /bin/bash
 
@@ -318,7 +318,7 @@
               - --tuples-only
               - --no-align
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
               - --command
@@ -335,7 +335,7 @@
               - --tuples-only
               - --no-align
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
               - --command
@@ -352,7 +352,7 @@
               - --tuples-only
               - --no-align
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
               - --command
@@ -369,7 +369,7 @@
               - --tuples-only
               - --no-align
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - postgres
               - --command
@@ -393,7 +393,7 @@
               - --set
               - ON_ERROR_STOP=1
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
               - --command
@@ -458,7 +458,7 @@
             argv:
               - pg_isready
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
           register: postgres_ready
@@ -549,7 +549,7 @@
             argv:
               - pg_isready
               - --username
-              - "{{ postgres_role_docker_env_user_effective }}"
+              - "{{ postgres_role_docker_env_user_lookup }}"
               - --dbname
               - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
           register: postgres_recovered_ready
@@ -585,7 +585,7 @@
         argv:
           - pg_isready
           - --username
-          - "{{ postgres_role_docker_env_user_effective }}"
+          - "{{ postgres_role_docker_env_user_lookup }}"
           - --dbname
           - "{{ lookup('role_var', '_docker_env_db', role='postgres') }}"
       register: postgres_regular_ready

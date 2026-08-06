@@ -81,9 +81,9 @@ qbittorrent_role_paths_folders_list:
 qbittorrent_role_web_subdomain: "{{ qbittorrent_name }}"
 qbittorrent_role_web_domain: "{{ user.domain }}"
 qbittorrent_role_web_port: "8080"
-qbittorrent_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='qbittorrent') + '.' + lookup('role_var', '_web_domain', role='qbittorrent')
-                           if (lookup('role_var', '_web_subdomain', role='qbittorrent') | length > 0)
-                           else lookup('role_var', '_web_domain', role='qbittorrent')) }}"
+qbittorrent_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='qbittorrent') + '.' + lookup('role_var', '_web_domain', role='qbittorrent')
+                                   if (lookup('role_var', '_web_subdomain', role='qbittorrent') | length > 0)
+                                   else lookup('role_var', '_web_domain', role='qbittorrent') }}"
 
 ################################
 # DNS
@@ -100,8 +100,8 @@ qbittorrent_role_dns_proxy: "{{ dns_proxied }}"
 qbittorrent_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 qbittorrent_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                  + (',themepark-' + qbittorrent_name
-                                                   if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
-                                                   else '') }}"
+                                                    if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                                    else '') }}"
 qbittorrent_role_traefik_middleware_custom: ""
 qbittorrent_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 qbittorrent_role_traefik_enabled: true
@@ -173,8 +173,8 @@ qbittorrent_role_docker_labels_default: {}
 qbittorrent_role_docker_labels_custom: {}
 qbittorrent_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='qbittorrent')
                                     | combine((traefik_themepark_labels
-                                              if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
-                                              else {}),
+                                               if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
+                                               else {}),
                                               lookup('role_var', '_docker_labels_custom', role='qbittorrent')) }}"
 
 # Hostname

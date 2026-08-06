@@ -76,12 +76,12 @@ authentik_role_paths_folders_list:
 authentik_role_web_subdomain: "auth"
 authentik_role_web_domain: "{{ user.domain }}"
 authentik_role_web_port: "9000"
-authentik_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='authentik') + '.' + lookup('role_var', '_web_domain', role='authentik')
-                         if (lookup('role_var', '_web_subdomain', role='authentik') | length > 0)
-                         else lookup('role_var', '_web_domain', role='authentik')) }}"
+authentik_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='authentik') + '.' + lookup('role_var', '_web_domain', role='authentik')
+                                 if (lookup('role_var', '_web_subdomain', role='authentik') | length > 0)
+                                 else lookup('role_var', '_web_domain', role='authentik') }}"
 authentik_role_web_host: "{{ (lookup('role_var', '_web_subdomain', role='authentik') + '.' + lookup('role_var', '_web_domain', role='authentik')
-                          if (lookup('role_var', '_web_subdomain', role='authentik') | length > 0)
-                          else lookup('role_var', '_web_domain', role='authentik')) }}"
+                              if (lookup('role_var', '_web_subdomain', role='authentik') | length > 0)
+                              else lookup('role_var', '_web_domain', role='authentik')) }}"
 authentik_role_web_outpost_rule: "Host(`{{ lookup('role_var', '_web_host', role='authentik') }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
 
 ################################

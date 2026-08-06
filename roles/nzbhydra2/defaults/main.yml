@@ -31,9 +31,9 @@ nzbhydra2_role_paths_config_location: "{{ nzbhydra2_role_paths_location }}/nzbhy
 nzbhydra2_role_web_subdomain: "{{ nzbhydra2_name }}"
 nzbhydra2_role_web_domain: "{{ user.domain }}"
 nzbhydra2_role_web_port: "5076"
-nzbhydra2_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='nzbhydra2') + '.' + lookup('role_var', '_web_domain', role='nzbhydra2')
-                         if (lookup('role_var', '_web_subdomain', role='nzbhydra2') | length > 0)
-                         else lookup('role_var', '_web_domain', role='nzbhydra2')) }}"
+nzbhydra2_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='nzbhydra2') + '.' + lookup('role_var', '_web_domain', role='nzbhydra2')
+                                 if (lookup('role_var', '_web_subdomain', role='nzbhydra2') | length > 0)
+                                 else lookup('role_var', '_web_domain', role='nzbhydra2') }}"
 
 ################################
 # DNS
@@ -50,8 +50,8 @@ nzbhydra2_role_dns_proxy: "{{ dns_proxied }}"
 nzbhydra2_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 nzbhydra2_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                + (',themepark-' + nzbhydra2_name
-                                                 if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
-                                                 else '') }}"
+                                                  if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
+                                                  else '') }}"
 nzbhydra2_role_traefik_middleware_custom: ""
 nzbhydra2_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 nzbhydra2_role_traefik_enabled: true
@@ -135,8 +135,8 @@ nzbhydra2_role_docker_labels_default: {}
 nzbhydra2_role_docker_labels_custom: {}
 nzbhydra2_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='nzbhydra2')
                                   | combine((traefik_themepark_labels
-                                            if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
-                                            else {}),
+                                             if (lookup('role_var', '_themepark_enabled', role='nzbhydra2') and global_themepark_plugin_enabled)
+                                             else {}),
                                             lookup('role_var', '_docker_labels_custom', role='nzbhydra2')) }}"
 
 # Hostname

@@ -270,9 +270,9 @@ authelia_role_paths_folders_list:
 authelia_role_web_subdomain: "{{ authelia.subdomain }}"
 authelia_role_web_domain: "{{ user.domain }}"
 authelia_role_web_port: "9091"
-authelia_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia')
-                        if (lookup('role_var', '_web_subdomain', role='authelia') | length > 0)
-                        else lookup('role_var', '_web_domain', role='authelia')) }}"
+authelia_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia')
+                                if (lookup('role_var', '_web_subdomain', role='authelia') | length > 0)
+                                else lookup('role_var', '_web_domain', role='authelia') }}"
 
 ################################
 # DNS

@@ -35,9 +35,9 @@ portainer_role_paths_folders_list:
 portainer_role_web_subdomain: "{{ portainer_name }}"
 portainer_role_web_domain: "{{ user.domain }}"
 portainer_role_web_port: "9000"
-portainer_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='portainer') + '.' + lookup('role_var', '_web_domain', role='portainer')
-                         if (lookup('role_var', '_web_subdomain', role='portainer') | length > 0)
-                         else lookup('role_var', '_web_domain', role='portainer')) }}"
+portainer_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='portainer') + '.' + lookup('role_var', '_web_domain', role='portainer')
+                                 if (lookup('role_var', '_web_subdomain', role='portainer') | length > 0)
+                                 else lookup('role_var', '_web_domain', role='portainer') }}"
 
 ################################
 # DNS
@@ -54,8 +54,8 @@ portainer_role_dns_proxy: "{{ dns_proxied }}"
 portainer_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 portainer_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                + (',themepark-' + portainer_name
-                                                 if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
-                                                 else '') }}"
+                                                  if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
+                                                  else '') }}"
 portainer_role_traefik_middleware_custom: ""
 portainer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_role_traefik_enabled: true
@@ -107,8 +107,8 @@ portainer_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default',
 portainer_role_docker_labels_custom: {}
 portainer_role_docker_labels: "{{ lookup('role_var', '_docker_labels_custom', role='portainer')
                                   | combine((traefik_themepark_labels
-                                            if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
-                                            else {})) }}"
+                                             if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
+                                             else {})) }}"
 
 # Hostname
 portainer_role_docker_hostname: "{{ portainer_name }}"

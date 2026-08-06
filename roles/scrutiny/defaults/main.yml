@@ -31,9 +31,9 @@ scrutiny_role_paths_folders_list:
 scrutiny_role_web_subdomain: "{{ scrutiny_name }}"
 scrutiny_role_web_domain: "{{ user.domain }}"
 scrutiny_role_web_port: "8080"
-scrutiny_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='scrutiny') + '.' + lookup('role_var', '_web_domain', role='scrutiny')
-                        if (lookup('role_var', '_web_subdomain', role='scrutiny') | length > 0)
-                        else lookup('role_var', '_web_domain', role='scrutiny')) }}"
+scrutiny_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='scrutiny') + '.' + lookup('role_var', '_web_domain', role='scrutiny')
+                                if (lookup('role_var', '_web_subdomain', role='scrutiny') | length > 0)
+                                else lookup('role_var', '_web_domain', role='scrutiny') }}"
 
 ################################
 # DNS

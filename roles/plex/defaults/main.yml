@@ -80,12 +80,12 @@ plex_role_web_scheme: "https"
 plex_role_web_http_port: "32400"
 # Do not edit or override using the inventory
 plex_role_web_http_scheme: "http"
-plex_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
-                    if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
-                    else lookup('role_var', '_web_domain', role='plex')) }}"
+plex_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
+                            if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
+                            else lookup('role_var', '_web_domain', role='plex') }}"
 plex_role_web_insecure_url: "{{ 'http://' + (lookup('role_var', '_web_subdomain', role='plex') + '.' + lookup('role_var', '_web_domain', role='plex')
-                             if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
-                             else lookup('role_var', '_web_domain', role='plex')) }}"
+                                             if (lookup('role_var', '_web_subdomain', role='plex') | length > 0)
+                                             else lookup('role_var', '_web_domain', role='plex')) }}"
 
 ################################
 # DNS
@@ -102,8 +102,8 @@ plex_role_dns_proxy: "{{ dns_proxied }}"
 plex_role_traefik_sso_middleware: ""
 plex_role_traefik_middleware_default: "{{ traefik_default_middleware
                                           + (',themepark-' + plex_name
-                                            if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
-                                            else '') }}"
+                                             if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
+                                             else '') }}"
 plex_role_traefik_middleware_custom: ""
 plex_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 plex_role_traefik_enabled: true
@@ -163,11 +163,11 @@ plex_role_docker_ports_custom: []
 plex_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='plex')
                             + lookup('role_var', '_docker_ports_custom', role='plex')
                             + (plex_role_docker_ports_local
-                              if (lookup('role_var', '_open_local_ports', role='plex'))
-                              else [])
+                               if (lookup('role_var', '_open_local_ports', role='plex'))
+                               else [])
                             + (plex_role_docker_ports_ui
-                              if lookup('role_var', '_open_main_ports', role='plex')
-                              else []) }}"
+                               if lookup('role_var', '_open_main_ports', role='plex')
+                               else []) }}"
 
 # Envs
 plex_role_docker_envs_advertise_ip_url: "{{ lookup('role_var', '_web_url', role='plex') + ':443,' + lookup('role_var', '_web_insecure_url', role='plex') + ':80'
@@ -199,8 +199,8 @@ plex_role_docker_volumes_custom: []
 plex_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='plex')
                               + lookup('role_var', '_docker_volumes_custom', role='plex')
                               + (lookup('role_var', '_docker_volumes_legacy', role='plex')
-                                if docker_legacy_volume
-                                else []) }}"
+                                 if docker_legacy_volume
+                                 else []) }}"
 
 # Mounts
 plex_role_docker_mounts_default:
@@ -223,8 +223,8 @@ plex_role_docker_hosts: "{{ lookup('role_var', '_docker_hosts_default', role='pl
 plex_role_docker_labels_custom: {}
 plex_role_docker_labels: "{{ lookup('role_var', '_docker_labels_custom', role='plex')
                              | combine((traefik_themepark_labels
-                                       if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
-                                       else {})) }}"
+                                        if (lookup('role_var', '_themepark_enabled', role='plex') and global_themepark_plugin_enabled)
+                                        else {})) }}"
 
 # Hostname
 plex_role_docker_hostname: "{{ plex_name }}"

@@ -36,9 +36,9 @@ deluge_role_paths_folders_list:
 deluge_role_web_subdomain: "{{ deluge_name }}"
 deluge_role_web_domain: "{{ user.domain }}"
 deluge_role_web_port: "8112"
-deluge_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='deluge') + '.' + lookup('role_var', '_web_domain', role='deluge')
-                      if (lookup('role_var', '_web_subdomain', role='deluge') | length > 0)
-                      else lookup('role_var', '_web_domain', role='deluge')) }}"
+deluge_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='deluge') + '.' + lookup('role_var', '_web_domain', role='deluge')
+                              if (lookup('role_var', '_web_subdomain', role='deluge') | length > 0)
+                              else lookup('role_var', '_web_domain', role='deluge') }}"
 
 ################################
 # DNS
@@ -55,8 +55,8 @@ deluge_role_dns_proxy: "{{ dns_proxied }}"
 deluge_role_traefik_sso_middleware: ""
 deluge_role_traefik_middleware_default: "{{ traefik_default_middleware
                                             + (',themepark-' + deluge_name
-                                              if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
-                                              else '') }}"
+                                               if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
+                                               else '') }}"
 deluge_role_traefik_middleware_custom: ""
 deluge_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 deluge_role_traefik_enabled: true
@@ -122,8 +122,8 @@ deluge_role_docker_labels_default: {}
 deluge_role_docker_labels_custom: {}
 deluge_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='deluge')
                                | combine((traefik_themepark_labels
-                                         if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
-                                         else {}),
+                                          if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
+                                          else {}),
                                          lookup('role_var', '_docker_labels_custom', role='deluge')) }}"
 
 # Hostname

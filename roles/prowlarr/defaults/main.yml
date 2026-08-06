@@ -36,9 +36,9 @@ prowlarr_role_paths_folders_list:
 prowlarr_role_web_subdomain: "{{ prowlarr_name }}"
 prowlarr_role_web_domain: "{{ user.domain }}"
 prowlarr_role_web_port: "9696"
-prowlarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='prowlarr') + '.' + lookup('role_var', '_web_domain', role='prowlarr')
-                        if (lookup('role_var', '_web_subdomain', role='prowlarr') | length > 0)
-                        else lookup('role_var', '_web_domain', role='prowlarr')) }}"
+prowlarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='prowlarr') + '.' + lookup('role_var', '_web_domain', role='prowlarr')
+                                if (lookup('role_var', '_web_subdomain', role='prowlarr') | length > 0)
+                                else lookup('role_var', '_web_domain', role='prowlarr') }}"
 
 ################################
 # DNS
@@ -55,8 +55,8 @@ prowlarr_role_dns_proxy: "{{ dns_proxied }}"
 prowlarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 prowlarr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                               + (',themepark-' + prowlarr_name
-                                                if (lookup('role_var', '_themepark_enabled', role='prowlarr') and global_themepark_plugin_enabled)
-                                                else '') }}"
+                                                 if (lookup('role_var', '_themepark_enabled', role='prowlarr') and global_themepark_plugin_enabled)
+                                                 else '') }}"
 prowlarr_role_traefik_middleware_custom: ""
 prowlarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prowlarr_role_traefik_enabled: true
@@ -109,8 +109,8 @@ prowlarr_role_docker_labels_default: {}
 prowlarr_role_docker_labels_custom: {}
 prowlarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='prowlarr')
                                  | combine((traefik_themepark_labels
-                                           if (lookup('role_var', '_themepark_enabled', role='prowlarr') and global_themepark_plugin_enabled)
-                                           else {}),
+                                            if (lookup('role_var', '_themepark_enabled', role='prowlarr') and global_themepark_plugin_enabled)
+                                            else {}),
                                            lookup('role_var', '_docker_labels_custom', role='prowlarr')) }}"
 
 # Hostname

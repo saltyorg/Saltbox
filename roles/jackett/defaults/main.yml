@@ -29,9 +29,9 @@ jackett_role_paths_folders_list:
 jackett_role_web_subdomain: "{{ jackett_name }}"
 jackett_role_web_domain: "{{ user.domain }}"
 jackett_role_web_port: "9117"
-jackett_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='jackett') + '.' + lookup('role_var', '_web_domain', role='jackett')
-                       if (lookup('role_var', '_web_subdomain', role='jackett') | length > 0)
-                       else lookup('role_var', '_web_domain', role='jackett')) }}"
+jackett_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='jackett') + '.' + lookup('role_var', '_web_domain', role='jackett')
+                               if (lookup('role_var', '_web_subdomain', role='jackett') | length > 0)
+                               else lookup('role_var', '_web_domain', role='jackett') }}"
 
 ################################
 # DNS
@@ -48,8 +48,8 @@ jackett_role_dns_proxy: "{{ dns_proxied }}"
 jackett_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 jackett_role_traefik_middleware_default: "{{ traefik_default_middleware
                                              + (',themepark-' + jackett_name
-                                               if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
-                                               else '') }}"
+                                                if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
+                                                else '') }}"
 jackett_role_traefik_middleware_custom: ""
 jackett_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 jackett_role_traefik_enabled: true
@@ -102,8 +102,8 @@ jackett_role_docker_labels_default: {}
 jackett_role_docker_labels_custom: {}
 jackett_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='jackett')
                                 | combine((traefik_themepark_labels
-                                          if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
-                                          else {}),
+                                           if (lookup('role_var', '_themepark_enabled', role='jackett') and global_themepark_plugin_enabled)
+                                           else {}),
                                           lookup('role_var', '_docker_labels_custom', role='jackett')) }}"
 
 # Hostname

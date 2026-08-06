@@ -38,9 +38,9 @@ seerr_role_paths_config_location: "{{ seerr_role_paths_location }}/settings.json
 seerr_role_web_subdomain: "{{ seerr_name }}"
 seerr_role_web_domain: "{{ user.domain }}"
 seerr_role_web_port: "5055"
-seerr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='seerr') + '.' + lookup('role_var', '_web_domain', role='seerr')
-                     if (lookup('role_var', '_web_subdomain', role='seerr') | length > 0)
-                     else lookup('role_var', '_web_domain', role='seerr')) }}"
+seerr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='seerr') + '.' + lookup('role_var', '_web_domain', role='seerr')
+                             if (lookup('role_var', '_web_subdomain', role='seerr') | length > 0)
+                             else lookup('role_var', '_web_domain', role='seerr') }}"
 
 ################################
 # DNS

@@ -36,9 +36,9 @@ radarr_role_paths_config_location: "{{ radarr_role_paths_location }}/config.xml"
 radarr_role_web_subdomain: "{{ radarr_name }}"
 radarr_role_web_domain: "{{ user.domain }}"
 radarr_role_web_port: "7878"
-radarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='radarr') + '.' + lookup('role_var', '_web_domain', role='radarr')
-                      if (lookup('role_var', '_web_subdomain', role='radarr') | length > 0)
-                      else lookup('role_var', '_web_domain', role='radarr')) }}"
+radarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='radarr') + '.' + lookup('role_var', '_web_domain', role='radarr')
+                              if (lookup('role_var', '_web_subdomain', role='radarr') | length > 0)
+                              else lookup('role_var', '_web_domain', role='radarr') }}"
 
 ################################
 # DNS
@@ -55,8 +55,8 @@ radarr_role_dns_proxy: "{{ dns_proxied }}"
 radarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 radarr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                             + (',themepark-' + radarr_name
-                                              if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
-                                              else '') }}"
+                                               if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
+                                               else '') }}"
 radarr_role_traefik_middleware_custom: ""
 radarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 radarr_role_traefik_enabled: true
@@ -107,16 +107,16 @@ radarr_role_docker_volumes_custom: []
 radarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='radarr')
                                 + lookup('role_var', '_docker_volumes_custom', role='radarr')
                                 + (lookup('role_var', '_docker_volumes_legacy', role='radarr')
-                                  if docker_legacy_volume
-                                  else []) }}"
+                                   if docker_legacy_volume
+                                   else []) }}"
 
 # Labels
 radarr_role_docker_labels_default: {}
 radarr_role_docker_labels_custom: {}
 radarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='radarr')
                                | combine((traefik_themepark_labels
-                                         if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
-                                         else {}),
+                                          if (lookup('role_var', '_themepark_enabled', role='radarr') and global_themepark_plugin_enabled)
+                                          else {}),
                                          lookup('role_var', '_docker_labels_custom', role='radarr')) }}"
 
 # Hostname

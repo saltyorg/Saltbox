@@ -31,9 +31,9 @@ autobrr_role_paths_recursive: true
 autobrr_role_web_subdomain: "{{ autobrr_name }}"
 autobrr_role_web_domain: "{{ user.domain }}"
 autobrr_role_web_port: "7474"
-autobrr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='autobrr') + '.' + lookup('role_var', '_web_domain', role='autobrr')
-                       if (lookup('role_var', '_web_subdomain', role='autobrr') | length > 0)
-                       else lookup('role_var', '_web_domain', role='autobrr')) }}"
+autobrr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='autobrr') + '.' + lookup('role_var', '_web_domain', role='autobrr')
+                               if (lookup('role_var', '_web_subdomain', role='autobrr') | length > 0)
+                               else lookup('role_var', '_web_domain', role='autobrr') }}"
 
 ################################
 # DNS

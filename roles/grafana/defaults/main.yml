@@ -35,9 +35,9 @@ grafana_role_paths_folders_list:
 grafana_role_web_subdomain: "{{ grafana_name }}"
 grafana_role_web_domain: "{{ user.domain }}"
 grafana_role_web_port: "3000"
-grafana_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='grafana') + '.' + lookup('role_var', '_web_domain', role='grafana')
-                       if (lookup('role_var', '_web_subdomain', role='grafana') | length > 0)
-                       else lookup('role_var', '_web_domain', role='grafana')) }}"
+grafana_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='grafana') + '.' + lookup('role_var', '_web_domain', role='grafana')
+                               if (lookup('role_var', '_web_subdomain', role='grafana') | length > 0)
+                               else lookup('role_var', '_web_domain', role='grafana') }}"
 
 ################################
 # DNS

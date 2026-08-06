@@ -36,9 +36,9 @@ lidarr_role_paths_config_location: "{{ lidarr_role_paths_location }}/config.xml"
 lidarr_role_web_subdomain: "{{ lidarr_name }}"
 lidarr_role_web_domain: "{{ user.domain }}"
 lidarr_role_web_port: "8686"
-lidarr_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='lidarr') + '.' + lookup('role_var', '_web_domain', role='lidarr')
-                      if (lookup('role_var', '_web_subdomain', role='lidarr') | length > 0)
-                      else lookup('role_var', '_web_domain', role='lidarr')) }}"
+lidarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='lidarr') + '.' + lookup('role_var', '_web_domain', role='lidarr')
+                              if (lookup('role_var', '_web_subdomain', role='lidarr') | length > 0)
+                              else lookup('role_var', '_web_domain', role='lidarr') }}"
 
 ################################
 # DNS
@@ -55,8 +55,8 @@ lidarr_role_dns_proxy: "{{ dns_proxied }}"
 lidarr_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
 lidarr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                             + (',themepark-' + lidarr_name
-                                              if (lookup('role_var', '_themepark_enabled', role='lidarr') and global_themepark_plugin_enabled)
-                                              else '') }}"
+                                               if (lookup('role_var', '_themepark_enabled', role='lidarr') and global_themepark_plugin_enabled)
+                                               else '') }}"
 lidarr_role_traefik_middleware_custom: ""
 lidarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_role_traefik_enabled: true
@@ -107,16 +107,16 @@ lidarr_role_docker_volumes_custom: []
 lidarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='lidarr')
                                 + lookup('role_var', '_docker_volumes_custom', role='lidarr')
                                 + (lookup('role_var', '_docker_volumes_legacy', role='lidarr')
-                                  if docker_legacy_volume
-                                  else []) }}"
+                                   if docker_legacy_volume
+                                   else []) }}"
 
 # Labels
 lidarr_role_docker_labels_default: {}
 lidarr_role_docker_labels_custom: {}
 lidarr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='lidarr')
                                | combine((traefik_themepark_labels
-                                         if (lookup('role_var', '_themepark_enabled', role='lidarr') and global_themepark_plugin_enabled)
-                                         else {}),
+                                          if (lookup('role_var', '_themepark_enabled', role='lidarr') and global_themepark_plugin_enabled)
+                                          else {}),
                                          lookup('role_var', '_docker_labels_custom', role='lidarr')) }}"
 
 # Hostname

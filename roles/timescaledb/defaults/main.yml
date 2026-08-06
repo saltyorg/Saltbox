@@ -25,14 +25,14 @@ timescaledb_role_docker_env_db: "saltbox"
 timescaledb_role_docker_env_password_include: ""
 # Do not edit or override using the inventory
 timescaledb_role_docker_env_user_include: ""
-# Do not edit or override using the inventory
-timescaledb_role_docker_env_password_effective: "{{ timescaledb_role_docker_env_password_include
-                                                 if (timescaledb_role_docker_env_password_include | length > 0)
-                                                 else lookup('role_var', '_docker_env_password', role='timescaledb') }}"
-# Do not edit or override using the inventory
-timescaledb_role_docker_env_user_effective: "{{ timescaledb_role_docker_env_user_include
-                                             if (timescaledb_role_docker_env_user_include | length > 0)
-                                             else lookup('role_var', '_docker_env_user', role='timescaledb') }}"
+# Skip docs
+timescaledb_role_docker_env_password_lookup: "{{ timescaledb_role_docker_env_password_include
+                                              if (timescaledb_role_docker_env_password_include | length > 0)
+                                              else lookup('role_var', '_docker_env_password', role='timescaledb') }}"
+# Skip docs
+timescaledb_role_docker_env_user_lookup: "{{ timescaledb_role_docker_env_user_include
+                                          if (timescaledb_role_docker_env_user_include | length > 0)
+                                          else lookup('role_var', '_docker_env_user', role='timescaledb') }}"
 
 ################################
 # Paths
@@ -60,8 +60,8 @@ timescaledb_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role
 timescaledb_role_docker_envs_default:
   TZ: "{{ tz }}"
   PGDATA: "/pgdata"
-  POSTGRES_PASSWORD: "{{ timescaledb_role_docker_env_password_effective }}"
-  POSTGRES_USER: "{{ timescaledb_role_docker_env_user_effective }}"
+  POSTGRES_PASSWORD: "{{ timescaledb_role_docker_env_password_lookup }}"
+  POSTGRES_USER: "{{ timescaledb_role_docker_env_user_lookup }}"
   POSTGRES_DB: "{{ lookup('role_var', '_docker_env_db', role='timescaledb', default=timescaledb_role_docker_env_db) }}"
 timescaledb_role_docker_envs_custom: {}
 timescaledb_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='timescaledb')

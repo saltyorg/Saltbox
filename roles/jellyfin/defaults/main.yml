@@ -58,9 +58,9 @@ jellyfin_role_paths_xml_location_old: "{{ jellyfin_role_paths_location }}/app/co
 jellyfin_role_web_subdomain: "{{ jellyfin_name }}"
 jellyfin_role_web_domain: "{{ user.domain }}"
 jellyfin_role_web_port: "8096"
-jellyfin_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='jellyfin') + '.' + lookup('role_var', '_web_domain', role='jellyfin')
-                        if (lookup('role_var', '_web_subdomain', role='jellyfin') | length > 0)
-                        else lookup('role_var', '_web_domain', role='jellyfin')) }}"
+jellyfin_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='jellyfin') + '.' + lookup('role_var', '_web_domain', role='jellyfin')
+                                if (lookup('role_var', '_web_subdomain', role='jellyfin') | length > 0)
+                                else lookup('role_var', '_web_domain', role='jellyfin') }}"
 
 ################################
 # DNS
@@ -150,8 +150,8 @@ jellyfin_role_docker_volumes_custom: []
 jellyfin_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='jellyfin')
                                   + lookup('role_var', '_docker_volumes_custom', role='jellyfin')
                                   + (lookup('role_var', '_docker_volumes_legacy', role='jellyfin')
-                                    if docker_legacy_volume
-                                    else []) }}"
+                                     if docker_legacy_volume
+                                     else []) }}"
 
 # Mounts
 jellyfin_role_docker_mounts_default:

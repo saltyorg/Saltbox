@@ -29,9 +29,9 @@ nginx_role_paths_folders_list:
 nginx_role_web_subdomain: "{{ nginx_name }}"
 nginx_role_web_domain: "{{ user.domain }}"
 nginx_role_web_port: "80"
-nginx_role_web_url: "{{ 'https://' + (lookup('role_var', '_web_subdomain', role='nginx') + '.' + lookup('role_var', '_web_domain', role='nginx')
-                     if (lookup('role_var', '_web_subdomain', role='nginx') | length > 0)
-                     else lookup('role_var', '_web_domain', role='nginx')) }}"
+nginx_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='nginx') + '.' + lookup('role_var', '_web_domain', role='nginx')
+                             if (lookup('role_var', '_web_subdomain', role='nginx') | length > 0)
+                             else lookup('role_var', '_web_domain', role='nginx') }}"
 
 ################################
 # DNS
