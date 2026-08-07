@@ -69,13 +69,17 @@ jobs:
           uv python install --managed-python --no-bin "$(< .python-version)"
           uv venv --python "$(< .python-version)" --managed-python --no-project .venv
           uv pip sync --python .venv/bin/python --require-hashes requirements/requirements-saltbox.txt
+          venv_bin=$(readlink -f .venv/bin)
+          echo "$venv_bin" >> "$GITHUB_PATH"
 
       - name: Run ansible linter
         working-directory: ${{ github.workspace }}
-        run: .venv/bin/ansible-lint
+        run: ansible-lint
 
       - id: set-matrix
-        run: echo "matrix=$(python3 .github/scripts/ci-role-matrix.py)" >> "$GITHUB_OUTPUT"
+        run: |
+          matrix=$(.venv/bin/python .github/scripts/ci-role-matrix.py)
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   defaults-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
