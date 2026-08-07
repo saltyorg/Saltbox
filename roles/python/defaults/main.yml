@@ -19,7 +19,7 @@ python_version: "3.8"
 ################################
 
 # Do not edit or override using the inventory
-python_bin: "/srv/ansible/venv/bin/uv"
+python_bin: "/usr/local/bin/uv"
 # Do not edit or override using the inventory
 python_python_install_dir: "/srv/python"
 # Do not edit or override using the inventory

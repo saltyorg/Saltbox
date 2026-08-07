@@ -4,6 +4,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  python-environment:
+    name: 'Python environment-${{ matrix.os }}'
+    runs-on: ubuntu-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['22.04', '24.04']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          version-file: '.uv-version'
+          enable-cache: true
+
+      - name: Install source-build prerequisites
+        run: sudo apt-get update && sudo apt-get install -y build-essential libffi-dev
+
+      - name: Validate locked Python environment
+        run: .github/scripts/check-python-environment.sh
+
   ansible-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
@@ -12,18 +33,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - uses: astral-sh/setup-uv@v9.0.0
         with:
-          python-version: '3.14'
-          cache: 'pip'
-          cache-dependency-path: 'requirements/requirements-saltbox.txt'
+          version-file: '.uv-version'
+          enable-cache: true
 
       - name: Install packages
-        run: pip install -r ./requirements/requirements-saltbox.txt
+        run: |
+          uv python install --managed-python --no-bin "$(< .python-version)"
+          uv venv --python "$(< .python-version)" --managed-python --no-project .venv
+          uv pip sync --python .venv/bin/python --require-hashes requirements/requirements-saltbox.txt
 
       - name: Run ansible linter
         working-directory: ${{ github.workspace }}
-        run: ansible-lint
+        run: .venv/bin/ansible-lint
 
       - id: set-matrix
         run: echo "matrix=$(python3 .github/scripts/ci-role-matrix.py --os 22.04 24.04)" >> "$GITHUB_OUTPUT"
@@ -44,7 +67,7 @@ jobs:
   install:
     name: '${{ matrix.roles }}-${{ matrix.os }}'
     runs-on: ubuntu-${{ matrix.os }}
-    needs: [ansible-lint, defaults-lint]
+    needs: [ansible-lint, defaults-lint, python-environment]
     strategy:
       matrix: ${{ fromJson(needs.ansible-lint.outputs.matrix) }}
       fail-fast: false
@@ -86,7 +109,7 @@ jobs:
         run: /usr/local/bin/sb gha && /srv/ansible/venv/bin/ansible --version
 
       - name: Print installed pip packages
-        run: /srv/ansible/venv/bin/pip freeze
+        run: /usr/local/bin/uv pip freeze --python /srv/ansible/venv/bin/python
 
       - name: Edit accounts.yml
         run: sed -i 's/seed/runner/g' accounts.yml

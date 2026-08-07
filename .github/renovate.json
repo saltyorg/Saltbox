@@ -14,10 +14,39 @@
     "baseBranchPatterns": [
         "$default"
     ],
+    "constraints": {
+        "uv": "0.12.3"
+    },
+    "pip-compile": {
+        "managerFilePatterns": [
+            "/(^|/)requirements/requirements-saltbox\\.txt$/"
+        ]
+    },
     "labels": [
         "dependencies"
     ],
     "packageRules": [
+        {
+            "description": "Saltbox compiled Python requirements",
+            "matchManagers": [
+                "pip_requirements"
+            ],
+            "matchFileNames": [
+                "requirements/requirements-saltbox.in",
+                "requirements/requirements-saltbox.txt"
+            ],
+            "enabled": false
+        },
+        {
+            "description": "Python is updated from the sb-go uv catalogue",
+            "matchManagers": [
+                "pyenv"
+            ],
+            "matchFileNames": [
+                ".python-version"
+            ],
+            "enabled": false
+        },
         {
             "description": "Major pip requirements updates",
             "matchManagers": [
@@ -98,7 +127,10 @@
     "commitMessageExtra": "to {{newVersion}}",
     "prBodyTemplate": "{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
     "lockFileMaintenance": {
-        "enabled": true
+        "enabled": true,
+        "schedule": [
+            "before 5am on Monday"
+        ]
     },
     "customManagers": [
         {
