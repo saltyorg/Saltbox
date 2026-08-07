@@ -16,9 +16,9 @@ passlib==1.7.4
 pexpect==4.9.0
 psycopg[binary]==3.3.4
 PyMySQL==1.2.0
-pyOpenSSL==26.3.0
+pyOpenSSL==26.4.0
 python-debian==1.1.1
 requests==2.34.2
 ruamel.yaml==0.19.1
 tld==0.13.2
-uv==0.12.0
+uv==0.12.3
