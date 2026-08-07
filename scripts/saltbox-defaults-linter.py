@@ -15,6 +15,38 @@ Rules:
 
 3. Variable Prefix: top-level *_role_* defaults must start with the role
    directory name
+
+4. Docker Layer Composition: aggregates with matching _default and _custom
+   companions must use explicit role_var lookups in default-before-custom order
+
+5. Web URL Composition: role web URLs with matching subdomain and domain
+   defaults must access both through explicit role_var lookups
+
+6. Docker Image Composition: role images must define repository and tag
+   defaults and access both through explicit role_var lookups
+
+7. Explicit Role Target: every role_var lookup in defaults must specify role=
+
+8. Docker Network Formula: network aggregates must use either the standard
+   common/default/custom formula or the supported interface-pinned variant
+
+9. Section Structure: canonical major sections must not repeat and must appear
+   in their established relative order
+
+10. Web URL Literal Prefix: standard web URLs must keep literal https://
+    outside their Jinja expression
+
+11. Docker Envs Custom Usage: _docker_envs_custom may only be the final
+    combine layer of its corresponding Docker environment aggregate
+
+12. Lookup Documentation: role-local computed defaults ending in _lookup must
+    have a supported documentation-exclusion directive immediately above them
+
+13. Redundant Docker Layers: non-network default/custom pairs may not both be
+    empty when their aggregate only combines those two layers
+
+14. Docker Hosts Formula: host mappings must compose only their role-local
+    default and custom layers
 """
 
 import os
@@ -26,6 +58,18 @@ from typing import override
 
 ParenthesisContext = tuple[int, str]
 JinjaBlock = tuple[int, int, list[str]]
+TopLevelVariable = tuple[str, int, list[str]]
+DEFAULTS_SECTION_ORDER = (
+    "Basics",
+    "Settings",
+    "Postgres",
+    "Paths",
+    "Web",
+    "DNS",
+    "Traefik",
+    "Docker",
+    "Dependencies",
+)
 
 
 class LintError:
@@ -122,101 +166,74 @@ class DefaultsLinter:
                                             | combine(lookup('role_var', '_docker_labels_custom', role='traefik')) }}"
                                             ^ All | remain at base position - inline if/else doesn't change context
         """
-        i = 0
-        while i < len(self.lines):
-            curr_line = self.lines[i]
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            first_line = jinja_lines[0]
+            variable_match = re.match(r"^([a-z][a-z0-9_]*):(?:\s|$)", first_line)
+            if not variable_match:
+                continue
 
-            # Match variable definitions starting multi-line Jinja expressions
-            # Pattern: variable_name: "{{ <content>
-            match = re.match(r'^([a-z_]+): "{{ (.+)', curr_line)
+            # Operator alignment applies to top-level defaults expressions that
+            # begin on the variable's definition line. Multiline Jinja embedded
+            # in a block scalar retains its existing formatting semantics.
+            if jinja_bracket_indent < variable_match.end():
+                continue
 
-            # Only process if:
-            # 1. Line matches pattern
-            # 2. Line doesn't end with }} (multi-line expression)
-            if match and "}}" not in curr_line:
-                var_name = match.group(1)
+            expression_start = jinja_bracket_indent + len("{{")
+            if not first_line.startswith(" ", expression_start):
+                continue
 
-                # This is the start of a multi-line expression
-                # Track the expected alignment position for continuation lines
-                expected_alignment = len(curr_line.split('"{{')[0] + '"{{ ')
+            var_name = variable_match.group(1)
+            expected_alignment = expression_start + 1
+            current_alignment = expected_alignment
+            in_else_context = False
 
-                # Now check all continuation lines until we hit }}
-                j = i + 1
-                # Track alignment context - changes when we encounter 'else' with content
-                # and resets when if/else blocks close
-                current_alignment = expected_alignment
-                in_else_context = False
+            try:
+                relative_path = str(self.file_path.relative_to(Path.cwd()))
+            except ValueError:
+                relative_path = str(self.file_path)
 
-                while j < len(self.lines):
-                    continuation_line = self.lines[j]
+            for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                # Closing an if/else block resets alignment context to the base.
+                if in_else_context and re.search(
+                    r"\)\)(?:\)|$)", continuation_line.rstrip()
+                ):
+                    current_alignment = expected_alignment
+                    in_else_context = False
 
-                    # Check if this line closes an if/else block (ends with )) or }))
-                    # This resets alignment context back to base
-                    if in_else_context and re.search(
-                        r"\)\)(?:\)|$)", continuation_line.rstrip()
-                    ):
-                        current_alignment = expected_alignment
-                        in_else_context = False
+                # An else branch whose content continues on following lines creates
+                # a temporary alignment context for those continuation operators.
+                else_match = re.match(
+                    r"^(\s+)else (lookup|[a-z_]+)", continuation_line
+                )
+                if else_match:
+                    closes_immediately = re.search(r"\)\)\)", continuation_line)
+                    if not closes_immediately:
+                        current_alignment = len(else_match.group(1)) + len("else ")
+                        in_else_context = True
 
-                    # Check if this line starts with 'else' followed by content that continues
-                    # This creates a new alignment context for subsequent operators
-                    # Pattern: else followed by lookup/variable (not just closing like '])')
-                    # BUT: only if the else block doesn't close on the same line
-                    else_match = re.match(
-                        r"^(\s+)else (lookup|[a-z_]+)", continuation_line
+                op_match = re.match(r"^(\s+)([|+]) ", continuation_line)
+                if not op_match:
+                    continue
+
+                actual_spaces = len(op_match.group(1))
+                operator = op_match.group(2)
+                if actual_spaces == current_alignment:
+                    continue
+
+                diff = actual_spaces - current_alignment
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=jinja_start_line + line_offset,
+                        message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {current_alignment} (off by {diff:+d})",
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
                     )
-                    if else_match:
-                        # Check if this line also closes the if/else block (contains )))
-                        # If so, don't set a persistent context
-                        closes_immediately = re.search(r"\)\)\)", continuation_line)
-
-                        if not closes_immediately:
-                            # New alignment context: content after 'else '
-                            # Only persists if the line doesn't close the block
-                            current_alignment = len(else_match.group(1)) + len("else ")
-                            in_else_context = True
-
-                    # Check if this line has an operator
-                    op_match = re.match(r"^(\s+)([|+]) ", continuation_line)
-
-                    if op_match:
-                        actual_spaces = len(op_match.group(1))
-                        operator = op_match.group(2)
-
-                        # Use current alignment context (changes after 'else', resets after closing parens)
-                        expected_spaces = current_alignment
-
-                        if actual_spaces != expected_spaces:
-                            diff = actual_spaces - expected_spaces
-
-                            # Get relative path for GitHub annotation
-                            try:
-                                relative_path = str(
-                                    self.file_path.relative_to(Path.cwd())
-                                )
-                            except ValueError:
-                                relative_path = str(self.file_path)
-
-                            self.errors.append(
-                                LintError(
-                                    file=relative_path,
-                                    line=j + 1,  # Convert to 1-indexed
-                                    message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {expected_spaces} (off by {diff:+d})",
-                                    repo_url=self.repo_url,
-                                    commit_sha=self.commit_sha,
-                                )
-                            )
-
-                    # Stop if we've reached the end of the Jinja block
-                    if "}}" in continuation_line:
-                        break
-
-                    j += 1
-
-                # Skip ahead past the multi-line block we just processed
-                i = j
-
-            i += 1
+                )
 
     def check_variable_prefix(self) -> None:
         """Rule 3: Check top-level role defaults use the role's prefix."""
@@ -250,14 +267,899 @@ class DefaultsLinter:
                 )
             )
 
+    def check_docker_layer_composition(self) -> None:
+        """Rule 4: Check explicit, ordered access to Docker aggregate layers."""
+        role_name = self.file_path.parent.parent.name
+        docker_prefix = f"{role_name}_role_docker_"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for variable_name, (line_number, variable_lines) in variables.items():
+            if not variable_name.startswith(docker_prefix) or variable_name.endswith(
+                ("_default", "_custom")
+            ):
+                continue
+
+            default_name = f"{variable_name}_default"
+            custom_name = f"{variable_name}_custom"
+            if default_name not in variables or custom_name not in variables:
+                continue
+
+            lookup_base = variable_name.removeprefix(f"{role_name}_role")
+            default_lookup = self.explicit_role_var_lookup_pattern(
+                f"{lookup_base}_default", role_name
+            )
+            custom_lookup = self.explicit_role_var_lookup_pattern(
+                f"{lookup_base}_custom", role_name
+            )
+            expression = "\n".join(variable_lines)
+            default_match = default_lookup.search(expression)
+            custom_match = custom_lookup.search(expression)
+
+            missing_layers: list[str] = []
+            if default_match is None:
+                missing_layers.append("_default")
+            if custom_match is None:
+                missing_layers.append("_custom")
+
+            if missing_layers:
+                message = (
+                    f"[docker-layer-composition] Variable '{variable_name}' must "
+                    "access its "
+                    f"{' and '.join(missing_layers)} layer(s) with explicit "
+                    f"role_var lookups using role='{role_name}'"
+                )
+            elif default_match.start() > custom_match.start():
+                message = (
+                    f"[docker-layer-composition] Variable '{variable_name}' must "
+                    "access its _default layer before its _custom layer"
+                )
+            else:
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=message,
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_web_url_composition(self) -> None:
+        """Rule 5: Check explicit access to web URL subdomain and domain defaults."""
+        role_name = self.file_path.parent.parent.name
+        web_url_name = f"{role_name}_role_web_url"
+        web_subdomain_name = f"{role_name}_role_web_subdomain"
+        web_domain_name = f"{role_name}_role_web_domain"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        if not all(
+            variable_name in variables
+            for variable_name in (web_url_name, web_subdomain_name, web_domain_name)
+        ):
+            return
+
+        line_number, variable_lines = variables[web_url_name]
+        expression = "\n".join(variable_lines)
+        missing_components = [
+            suffix
+            for suffix in ("_web_subdomain", "_web_domain")
+            if self.explicit_role_var_lookup_pattern(
+                suffix, role_name
+            ).search(expression)
+            is None
+        ]
+        if not missing_components:
+            return
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=(
+                    f"[web-url-composition] Variable '{web_url_name}' must access "
+                    f"its {' and '.join(missing_components)} default(s) with "
+                    f"explicit role_var lookups using role='{role_name}'"
+                ),
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
+    def check_web_url_literal_prefix(self) -> None:
+        """Rule 10: Check standard web URLs start with literal https://."""
+        role_name = self.file_path.parent.parent.name
+        web_url_name = f"{role_name}_role_web_url"
+        required_variables = (
+            web_url_name,
+            f"{role_name}_role_web_subdomain",
+            f"{role_name}_role_web_domain",
+        )
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        if not all(variable_name in variables for variable_name in required_variables):
+            return
+
+        line_number, variable_lines = variables[web_url_name]
+        if re.match(
+            "^" + re.escape(web_url_name) + r":\s*['\"]https://\{\{",
+            variable_lines[0],
+        ):
+            return
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=(
+                    f"[web-url-literal-prefix] Variable '{web_url_name}' must "
+                    "keep literal 'https://' outside the Jinja expression"
+                ),
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
+    def check_docker_image_composition(self) -> None:
+        """Rule 6: Check explicit access to Docker image repository and tag."""
+        role_name = self.file_path.parent.parent.name
+        image_name = f"{role_name}_role_docker_image"
+        image_repo_name = f"{role_name}_role_docker_image_repo"
+        image_tag_name = f"{role_name}_role_docker_image_tag"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        if image_name not in variables:
+            return
+
+        line_number, variable_lines = variables[image_name]
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        missing_defaults = [
+            variable_name
+            for variable_name in (image_repo_name, image_tag_name)
+            if variable_name not in variables
+        ]
+        if missing_defaults:
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[docker-image-composition] Variable '{image_name}' must "
+                        f"define companion default(s): {', '.join(missing_defaults)}"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+            return
+
+        expression = "\n".join(variable_lines)
+        missing_components = [
+            suffix
+            for suffix in ("_docker_image_repo", "_docker_image_tag")
+            if self.explicit_role_var_lookup_pattern(
+                suffix, role_name
+            ).search(expression)
+            is None
+        ]
+        if not missing_components:
+            return
+
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=(
+                    f"[docker-image-composition] Variable '{image_name}' must "
+                    f"access its {' and '.join(missing_components)} default(s) "
+                    f"with explicit role_var lookups using role='{role_name}'"
+                ),
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
+    def check_explicit_role_var_target(self) -> None:
+        """Rule 7: Check every role_var lookup specifies its target role."""
+        source = "\n".join(self.lines)
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for call_start, call in self.iter_lookup_calls(source):
+            if re.match(r"lookup\s*\(\s*(['\"])role_var\1\s*,", call) is None:
+                continue
+            if self.call_has_keyword_argument(call, "role"):
+                continue
+
+            line_start = source.rfind("\n", 0, call_start) + 1
+            if source[line_start:call_start].lstrip().startswith("#"):
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=source.count("\n", 0, call_start) + 1,
+                    message=(
+                        "[role-var-target] role_var lookup must specify an "
+                        "explicit role= target"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_docker_network_formula(self) -> None:
+        """Rule 8: Check Docker networks use a supported composition variant."""
+        role_name = self.file_path.parent.parent.name
+        networks_name = f"{role_name}_role_docker_networks"
+        networks_default_name = f"{networks_name}_default"
+        networks_custom_name = f"{networks_name}_custom"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        if networks_name not in variables:
+            return
+
+        line_number, variable_lines = variables[networks_name]
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        missing_defaults = [
+            variable_name
+            for variable_name in (networks_default_name, networks_custom_name)
+            if variable_name not in variables
+        ]
+        if missing_defaults:
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[docker-network-formula] Variable '{networks_name}' must "
+                        f"define companion default(s): {', '.join(missing_defaults)}"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+            return
+
+        expression = self.variable_jinja_expression(line_number, variable_lines)
+        default_lookup = self.explicit_role_var_lookup_pattern(
+            "_docker_networks_default", role_name
+        ).search(expression)
+        custom_lookup = self.explicit_role_var_lookup_pattern(
+            "_docker_networks_custom", role_name
+        ).search(expression)
+        if default_lookup is None or custom_lookup is None:
+            return
+
+        prefix = expression[: default_lookup.start()]
+        between_lookups = expression[default_lookup.end() : custom_lookup.start()]
+        suffix = expression[custom_lookup.end() :]
+        standard_prefix = re.compile(
+            "^"
+            + re.escape(networks_name)
+            + r":\s*['\"]\{\{\s*docker_networks_common\s*\+\s*"
+        )
+        pinned_prefix = re.compile(
+            "^"
+            + re.escape(networks_name)
+            + r":\s*['\"]\{\{\s*\(\s*docker_networks_common\s*"
+            r"\|\s*map\(\s*['\"]combine['\"]\s*,\s*"
+            r"\{\s*['\"]driver_opts['\"]\s*:\s*"
+            r"\{\s*['\"]com\.docker\.network\.endpoint\.ifname['\"]\s*:\s*"
+            r"['\"](?P<common_interface>[^'\"]+)['\"]\s*\}\s*\}\s*\)\s*"
+            r"\|\s*list\s*\)\s*\+\s*"
+        )
+        standard_match = standard_prefix.fullmatch(prefix)
+        pinned_match = pinned_prefix.fullmatch(prefix)
+        has_standard_tail = (
+            re.fullmatch(r"\s*\+\s*", between_lookups) is not None
+            and re.fullmatch(r"\s*\}\}['\"]\s*", suffix) is not None
+        )
+
+        message: str | None = None
+        if not has_standard_tail or (standard_match is None and pinned_match is None):
+            message = (
+                f"[docker-network-formula] Variable '{networks_name}' must use "
+                "the standard or interface-pinned network composition variant"
+            )
+        elif pinned_match is not None:
+            _, default_lines = variables[networks_default_name]
+            default_interfaces = re.findall(
+                r"^\s+com\.docker\.network\.endpoint\.ifname:\s*"
+                r"['\"]?([^'\"\s#]+)",
+                "\n".join(default_lines),
+                flags=re.MULTILINE,
+            )
+            common_interface = pinned_match.group("common_interface")
+            if not default_interfaces:
+                message = (
+                    f"[docker-network-formula] Variable '{networks_default_name}' "
+                    "must pin its application network interface when the common "
+                    "networks are interface-pinned"
+                )
+            elif common_interface in default_interfaces:
+                message = (
+                    f"[docker-network-formula] Variable '{networks_name}' must use "
+                    "distinct interface names for common and application networks"
+                )
+
+        if message is None:
+            return
+
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=message,
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
+    def check_section_structure(self) -> None:
+        """Rule 9: Check canonical sections are unique and relatively ordered."""
+        section_positions = {
+            section_name: position
+            for position, section_name in enumerate(DEFAULTS_SECTION_ORDER)
+        }
+        seen_sections: dict[str, int] = {}
+        previous_section: str | None = None
+        previous_position = -1
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for line_index, line in enumerate(self.lines):
+            match = re.fullmatch(r"# ([A-Za-z][A-Za-z0-9 ]*)", line)
+            if match is None:
+                continue
+
+            if (
+                line_index == 0
+                or line_index + 1 >= len(self.lines)
+                or self.lines[line_index - 1] != "################################"
+                or self.lines[line_index + 1] != "################################"
+            ):
+                continue
+
+            section_name = match.group(1)
+            if section_name not in section_positions:
+                continue
+
+            line_number = line_index + 1
+
+            if section_name in seen_sections:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=line_number,
+                        message=(
+                            f"[section-structure] Duplicate '{section_name}' "
+                            f"section; first declared at line "
+                            f"{seen_sections[section_name]}"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            seen_sections[section_name] = line_number
+            current_position = section_positions[section_name]
+            if current_position < previous_position:
+                assert previous_section is not None
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=line_number,
+                        message=(
+                            f"[section-structure] Section '{section_name}' must "
+                            f"appear before '{previous_section}'"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            previous_section = section_name
+            previous_position = current_position
+
+    def check_docker_envs_custom_usage(self) -> None:
+        """Rule 11: Check Docker custom envs remain the final override layer."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        role_var_custom_pattern = re.compile(
+            r"lookup\s*\(\s*(['\"])role_var\1\s*,\s*"
+            r"(['\"])_docker_envs_custom\2\s*,"
+        )
+        direct_custom_pattern = re.compile(
+            r"\b([a-z][a-z0-9_]*)_role_docker_envs_custom\b"
+        )
+
+        for variable_name, line_number, variable_lines in self.iter_top_level_variables():
+            expression = "\n".join(variable_lines)
+
+            for line_offset, line in enumerate(variable_lines):
+                if line.lstrip().startswith("#"):
+                    continue
+                for direct_match in direct_custom_pattern.finditer(line):
+                    direct_name = direct_match.group(0)
+                    if line_offset == 0 and variable_name == direct_name:
+                        continue
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=line_number + line_offset,
+                            message=(
+                                f"[docker-envs-custom-usage] Variable '{direct_name}' "
+                                "must only be accessed through an explicit role_var "
+                                "lookup in its final Docker environment aggregate"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+
+            for call_start, call in self.iter_lookup_calls(expression):
+                if role_var_custom_pattern.match(call) is None:
+                    continue
+
+                call_line_start = expression.rfind("\n", 0, call_start) + 1
+                if expression[call_line_start:call_start].lstrip().startswith("#"):
+                    continue
+
+                call_line = line_number + expression.count("\n", 0, call_start)
+                role_match = re.search(
+                    r",\s*role\s*=\s*(['\"])([a-z][a-z0-9_]*)\1", call
+                )
+                if role_match is None:
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=call_line,
+                            message=(
+                                "[docker-envs-custom-usage] _docker_envs_custom "
+                                "lookup must use a literal role target"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+                    continue
+
+                target_role = role_match.group(2)
+                expected_aggregate = f"{target_role}_role_docker_envs"
+                if variable_name != expected_aggregate:
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=call_line,
+                            message=(
+                                "[docker-envs-custom-usage] _docker_envs_custom for "
+                                f"role '{target_role}' may only be accessed in "
+                                f"'{expected_aggregate}'"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+                    continue
+
+                before_lookup = expression[:call_start]
+                after_lookup = expression[call_start + len(call) :]
+                if re.search(r"\|\s*combine\(\s*$", before_lookup) and re.match(
+                    r"\s*\)\s*\}\}['\"]", after_lookup
+                ):
+                    continue
+
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=call_line,
+                        message=(
+                            "[docker-envs-custom-usage] _docker_envs_custom must be "
+                            "the final combine layer of its Docker environment "
+                            "aggregate"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+    def check_lookup_documentation(self) -> None:
+        """Rule 12: Check role-local lookup defaults are excluded from docs."""
+        role_name = self.file_path.parent.parent.name
+        exclusion_directives = {
+            "# Skip docs",
+            "# Do not edit or override using the inventory",
+        }
+        variable_pattern = re.compile(
+            "^" + re.escape(role_name) + r"_role_[a-z0-9_]*_lookup$"
+        )
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for variable_name, line_number, _ in self.iter_top_level_variables():
+            if variable_pattern.fullmatch(variable_name) is None:
+                continue
+            if (
+                line_number > 1
+                and self.lines[line_number - 2] in exclusion_directives
+            ):
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[lookup-documentation] Variable '{variable_name}' must "
+                        "have a supported documentation-exclusion directive "
+                        "immediately above it"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_redundant_docker_layers(self) -> None:
+        """Rule 13: Check empty Docker layers have another meaningful source."""
+        role_name = self.file_path.parent.parent.name
+        docker_prefix = f"{role_name}_role_docker_"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for default_name, (_, default_lines) in variables.items():
+            if not default_name.startswith(docker_prefix) or not default_name.endswith(
+                "_default"
+            ):
+                continue
+
+            aggregate_name = default_name.removesuffix("_default")
+            if aggregate_name.endswith("_docker_networks"):
+                continue
+
+            custom_name = f"{aggregate_name}_custom"
+            if custom_name not in variables:
+                continue
+
+            default_value = re.fullmatch(
+                re.escape(default_name) + r":\s*(\{\}|\[\])", default_lines[0]
+            )
+            _, custom_lines = variables[custom_name]
+            custom_value = re.fullmatch(
+                re.escape(custom_name) + r":\s*(\{\}|\[\])", custom_lines[0]
+            )
+            if (
+                default_value is None
+                or custom_value is None
+                or default_value.group(1) != custom_value.group(1)
+            ):
+                continue
+
+            if aggregate_name not in variables:
+                line_number, _ = variables[default_name]
+                is_redundant = True
+            else:
+                line_number, aggregate_lines = variables[aggregate_name]
+                expression = self.variable_jinja_expression(
+                    line_number, aggregate_lines
+                )
+                lookup_base = aggregate_name.removeprefix(f"{role_name}_role")
+                default_lookup = self.explicit_role_var_lookup_pattern(
+                    f"{lookup_base}_default", role_name
+                ).search(expression)
+                custom_lookup = self.explicit_role_var_lookup_pattern(
+                    f"{lookup_base}_custom", role_name
+                ).search(expression)
+                if default_lookup is None or custom_lookup is None:
+                    continue
+
+                prefix = expression[: default_lookup.start()]
+                between_lookups = expression[
+                    default_lookup.end() : custom_lookup.start()
+                ]
+                suffix = expression[custom_lookup.end() :]
+                has_direct_prefix = re.fullmatch(
+                    "^" + re.escape(aggregate_name) + r":\s*['\"]\{\{\s*",
+                    prefix,
+                )
+                if default_value.group(1) == "[]":
+                    is_redundant = (
+                        has_direct_prefix is not None
+                        and re.fullmatch(r"\s*\+\s*", between_lookups) is not None
+                        and re.fullmatch(r"\s*\}\}['\"]\s*", suffix) is not None
+                    )
+                else:
+                    is_redundant = (
+                        has_direct_prefix is not None
+                        and re.fullmatch(
+                            r"\s*\|\s*combine\(\s*", between_lookups
+                        )
+                        is not None
+                        and re.fullmatch(r"\s*\)\s*\}\}['\"]\s*", suffix)
+                        is not None
+                    )
+
+            if not is_redundant:
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[redundant-docker-layers] Variable '{aggregate_name}' "
+                        "only combines empty default and custom layers; omit the "
+                        "unused Docker section"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_docker_hosts_formula(self) -> None:
+        """Rule 14: Check Docker hosts use only role-local mapping layers."""
+        role_name = self.file_path.parent.parent.name
+        hosts_name = f"{role_name}_role_docker_hosts"
+        hosts_default_name = f"{hosts_name}_default"
+        hosts_custom_name = f"{hosts_name}_custom"
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+        if hosts_name not in variables:
+            return
+
+        line_number, hosts_lines = variables[hosts_name]
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        missing_defaults = [
+            variable_name
+            for variable_name in (hosts_default_name, hosts_custom_name)
+            if variable_name not in variables
+        ]
+        if missing_defaults:
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[docker-hosts-formula] Variable '{hosts_name}' must "
+                        f"define companion default(s): {', '.join(missing_defaults)}"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+            return
+
+        expression = self.variable_jinja_expression(line_number, hosts_lines)
+        default_lookup = self.explicit_role_var_lookup_pattern(
+            "_docker_hosts_default", role_name
+        ).search(expression)
+        custom_lookup = self.explicit_role_var_lookup_pattern(
+            "_docker_hosts_custom", role_name
+        ).search(expression)
+        if default_lookup is None or custom_lookup is None:
+            return
+
+        prefix = expression[: default_lookup.start()]
+        between_lookups = expression[default_lookup.end() : custom_lookup.start()]
+        suffix = expression[custom_lookup.end() :]
+        is_supported = (
+            re.fullmatch(
+                "^" + re.escape(hosts_name) + r":\s*['\"]\{\{\s*", prefix
+            )
+            is not None
+            and re.fullmatch(r"\s*\|\s*combine\(\s*", between_lookups) is not None
+            and re.fullmatch(r"\s*\)\s*\}\}['\"]\s*", suffix) is not None
+        )
+        if is_supported:
+            return
+
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=(
+                    f"[docker-hosts-formula] Variable '{hosts_name}' must only "
+                    "combine its role-local default and custom host mappings"
+                ),
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
+    def variable_jinja_expression(
+        self, line_number: int, variable_lines: list[str]
+    ) -> str:
+        """Return the first complete Jinja expression for a top-level variable."""
+        for jinja_start_line, _, jinja_lines in self.iter_multiline_jinja_blocks():
+            if jinja_start_line == line_number:
+                return "\n".join(jinja_lines)
+        return variable_lines[0]
+
+    @staticmethod
+    def iter_lookup_calls(source: str) -> Iterator[tuple[int, str]]:
+        """Yield balanced lookup() calls while respecting quoted content."""
+        search_column = 0
+        while match := re.search(r"\blookup\s*\(", source[search_column:]):
+            call_start = search_column + match.start()
+            open_parenthesis = source.find("(", call_start)
+            depth = 0
+            quote: str | None = None
+            escaped = False
+            call_end: int | None = None
+
+            for column in range(open_parenthesis, len(source)):
+                char = source[column]
+                if escaped:
+                    escaped = False
+                elif char == "\\" and quote is not None:
+                    escaped = True
+                elif quote is not None:
+                    if char == quote:
+                        quote = None
+                elif char in ("'", '"'):
+                    quote = char
+                elif char == "(":
+                    depth += 1
+                elif char == ")":
+                    depth -= 1
+                    if depth == 0:
+                        call_end = column + 1
+                        break
+
+            if call_end is None:
+                return
+
+            yield call_start, source[call_start:call_end]
+            search_column = call_end
+
+    @staticmethod
+    def call_has_keyword_argument(call: str, keyword: str) -> bool:
+        """Return whether a function call has a top-level keyword argument."""
+        depth = 0
+        quote: str | None = None
+        escaped = False
+        column = 0
+
+        while column < len(call):
+            char = call[column]
+            if escaped:
+                escaped = False
+            elif char == "\\" and quote is not None:
+                escaped = True
+            elif quote is not None:
+                if char == quote:
+                    quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+            elif depth == 1 and call.startswith(keyword, column):
+                before = call[column - 1] if column > 0 else ""
+                after_keyword = column + len(keyword)
+                after = call[after_keyword] if after_keyword < len(call) else ""
+                if not (before.isalnum() or before == "_") and not (
+                    after.isalnum() or after == "_"
+                ):
+                    equals_column = after_keyword
+                    while (
+                        equals_column < len(call)
+                        and call[equals_column].isspace()
+                    ):
+                        equals_column += 1
+                    if equals_column < len(call) and call[equals_column] == "=":
+                        return True
+
+            column += 1
+
+        return False
+
+    @staticmethod
+    def explicit_role_var_lookup_pattern(suffix: str, role_name: str) -> re.Pattern[str]:
+        """Return a pattern for the repository's explicit role_var lookup form."""
+        return re.compile(
+            rf"lookup\(\s*(['\"])role_var\1\s*,\s*(['\"]){re.escape(suffix)}\2"
+            rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\3\s*\)"
+        )
+
+    def iter_top_level_variables(self) -> Iterator[TopLevelVariable]:
+        """Yield each top-level defaults variable and all lines in its YAML block."""
+        variable_name: str | None = None
+        start_line: int | None = None
+        variable_lines: list[str] = []
+
+        for line_number, line in enumerate(self.lines, 1):
+            match = re.match(r"^([a-z][a-z0-9_]*):(?:\s|$)", line)
+            if match:
+                if variable_name is not None and start_line is not None:
+                    yield variable_name, start_line, variable_lines
+                variable_name = match.group(1)
+                start_line = line_number
+                variable_lines = [line]
+            elif variable_name is not None:
+                variable_lines.append(line)
+
+        if variable_name is not None and start_line is not None:
+            yield variable_name, start_line, variable_lines
+
     def iter_multiline_jinja_blocks(self) -> Iterator[JinjaBlock]:
-        """Yield every multiline Jinja block, including blocks embedded in strings."""
+        """Yield multiline Jinja blocks without confusing mapping braces for }}."""
         start_line: int | None = None
         bracket_indent: int | None = None
         block_lines: list[str] = []
+        quote: str | None = None
+        escaped = False
+        mapping_depth = 0
 
         for line_number, line in enumerate(self.lines, 1):
             search_column = 0
+            line_added = False
 
             while search_column < len(line):
                 if start_line is None:
@@ -265,30 +1167,56 @@ class DefaultsLinter:
                     if open_column == -1:
                         break
 
-                    close_column = line.find("}}", open_column + 2)
-                    if close_column != -1:
-                        search_column = close_column + 2
-                        continue
-
                     start_line = line_number
                     bracket_indent = open_column
                     block_lines = [line]
-                    break
-
-                close_column = line.find("}}", search_column)
-                if close_column == -1:
+                    quote = None
+                    escaped = False
+                    mapping_depth = 0
+                    search_column = open_column + len("{{")
+                    line_added = True
+                elif not line_added:
                     block_lines.append(line)
+                    line_added = True
+
+                close_column: int | None = None
+                while search_column < len(line):
+                    char = line[search_column]
+                    if escaped:
+                        escaped = False
+                    elif char == "\\" and quote is not None:
+                        escaped = True
+                    elif quote is not None:
+                        if char == quote:
+                            quote = None
+                    elif char in ("'", '"'):
+                        quote = char
+                    elif char == "{":
+                        mapping_depth += 1
+                    elif char == "}":
+                        if mapping_depth > 0:
+                            mapping_depth -= 1
+                        elif line.startswith("}}", search_column):
+                            close_column = search_column
+                            break
+
+                    search_column += 1
+
+                if close_column is None:
                     break
 
-                block_lines.append(line)
                 assert start_line is not None
                 assert bracket_indent is not None
-                yield start_line, bracket_indent, block_lines
+                if start_line != line_number:
+                    yield start_line, bracket_indent, block_lines
 
                 start_line = None
                 bracket_indent = None
                 block_lines = []
-                search_column = close_column + 2
+                quote = None
+                escaped = False
+                mapping_depth = 0
+                search_column = close_column + len("}}")
 
     @staticmethod
     def update_parenthesis_contexts(
@@ -401,6 +1329,17 @@ class DefaultsLinter:
         self.check_operator_alignment()
         self.check_ifelse_alignment()
         self.check_variable_prefix()
+        self.check_docker_layer_composition()
+        self.check_web_url_composition()
+        self.check_web_url_literal_prefix()
+        self.check_docker_image_composition()
+        self.check_explicit_role_var_target()
+        self.check_docker_network_formula()
+        self.check_section_structure()
+        self.check_docker_envs_custom_usage()
+        self.check_lookup_documentation()
+        self.check_redundant_docker_layers()
+        self.check_docker_hosts_formula()
         return self.errors
 
 
