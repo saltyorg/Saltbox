@@ -93,12 +93,6 @@ seerr_role_docker_volumes_custom: []
 seerr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='seerr')
                                + lookup('role_var', '_docker_volumes_custom', role='seerr') }}"
 
-# Labels
-seerr_role_docker_labels_default: {}
-seerr_role_docker_labels_custom: {}
-seerr_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='seerr')
-                              | combine(lookup('role_var', '_docker_labels_custom', role='seerr')) }}"
-
 # Hostname
 seerr_role_docker_hostname: "{{ seerr_name }}"
 

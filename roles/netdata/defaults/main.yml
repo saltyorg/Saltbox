@@ -112,12 +112,6 @@ netdata_role_docker_volumes_custom: []
 netdata_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='netdata')
                                  + lookup('role_var', '_docker_volumes_custom', role='netdata') }}"
 
-# Labels
-netdata_role_docker_labels_default: {}
-netdata_role_docker_labels_custom: {}
-netdata_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='netdata')
-                                | combine(lookup('role_var', '_docker_labels_custom', role='netdata')) }}"
-
 # Hostname
 netdata_role_docker_hostname: "{{ netdata_name }}"
 

@@ -46,6 +46,7 @@ qbittorrent_role_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-
                                     else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
 qbittorrent_role_host_lookup_libtorrent1: 'release-\(.qbittorrent)_v\(.libtorrent_1_2)'
 qbittorrent_role_host_lookup_libtorrent2: 'release-\(.qbittorrent)_v\(.libtorrent_2_0)'
+# Skip docs
 qbittorrent_role_host_release_lookup: "{{ qbittorrent_role_host_lookup_libtorrent2
                                        if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
                                        else qbittorrent_role_host_lookup_libtorrent1 }}"
@@ -140,6 +141,7 @@ qbittorrent_role_docker_ports_56881: "{{ port_lookup_56881.meta.port
 qbittorrent_role_docker_ports_8080: "{{ port_lookup_8080.meta.port
                                      if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
                                      else '8090' }}"
+# Skip docs
 qbittorrent_role_web_port_lookup: "{{ lookup('role_var', '_web_port', role='qbittorrent') }}"
 
 qbittorrent_role_docker_ports_default:

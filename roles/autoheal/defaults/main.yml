@@ -22,8 +22,9 @@ autoheal_role_docker_container: "{{ autoheal_name }}"
 
 # Image
 autoheal_role_docker_image_pull: true
+autoheal_role_docker_image_repo: "willfarrell/autoheal"
 autoheal_role_docker_image_tag: "latest"
-autoheal_role_docker_image: "willfarrell/autoheal:{{ autoheal_role_docker_image_tag }}"
+autoheal_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='autoheal') }}:{{ lookup('role_var', '_docker_image_tag', role='autoheal') }}"
 
 # Envs
 autoheal_role_docker_envs_default:

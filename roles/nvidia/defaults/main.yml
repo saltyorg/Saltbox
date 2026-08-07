@@ -44,7 +44,7 @@ nvidia_patch_download_dest: "/tmp/NVIDIA-patch.sh"
 nvidia_patch_backup_file_location: "{{ server_appdata_path }}/nvidia/libnvidia-encode-backup"
 
 ################################
-# Docker
+# Docker Runtime
 ################################
 
 nvidia_docker_runtime_apt_key_url: https://nvidia.github.io/libnvidia-container/gpgkey
@@ -96,7 +96,7 @@ nvidia_nvtop_apt_legacy_paths:
   - "/etc/apt/keyrings/flexiondotorg.asc"
 
 ################################
-# Docker
+# Docker Configuration
 ################################
 
 nvidia_docker_env:
