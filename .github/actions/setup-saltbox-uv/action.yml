@@ -1,0 +1,22 @@
+name: Setup Saltbox uv
+description: Install the uv release pinned by Saltbox
+
+runs:
+  using: composite
+  steps:
+    - name: Read pinned uv version
+      id: version
+      shell: bash
+      run: |
+        uv_version=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/.uv-version")
+        if [[ ! "$uv_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Invalid uv version: $uv_version" >&2
+          exit 1
+        fi
+        echo "version=$uv_version" >> "$GITHUB_OUTPUT"
+
+    - name: Install pinned uv
+      uses: astral-sh/setup-uv@v9.0.0
+      with:
+        version: ${{ steps.version.outputs.version }}
+        enable-cache: true
