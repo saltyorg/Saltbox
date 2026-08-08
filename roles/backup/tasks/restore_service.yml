@@ -51,6 +51,7 @@
   with_items:
     - "{{ playbook_dir }}/accounts.yml"
     - "{{ playbook_dir }}/settings.yml"
+    - "{{ playbook_dir }}/motd.yml"
     - "{{ playbook_dir }}/adv_settings.yml"
     - "{{ playbook_dir }}/backup_config.yml"
     - "{{ playbook_dir }}/providers.yml"
