@@ -22,10 +22,12 @@
           - "Backup Role cannot run without a tag."
           - "Use backup or backup2 tag."
 
-- name: Import cloudplow role variables
+- name: Import backup dependency role variables
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/variables/import_role_vars.yml"
   vars:
-    import_role_name: cloudplow
+    import_role_names:
+      - cloudplow
+      - postgres_host
 
 - name: Backup
   block:
@@ -400,6 +402,9 @@
             state: stopped
           when: cloudplow_service_running
 
+    - name: Stop PostgreSQL host services for backup
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/stop_postgres_host_for_backup.yml"
+
     # Create snapshot
 
     - name: Create Snapshot
@@ -420,6 +425,10 @@
         - name: Snapshot | Display new backup source location in snapshot
           ansible.builtin.debug:
             msg: "Backup will now archive folders from '{{ backup_opt_path }}'"
+
+    - name: Snapshot | Start PostgreSQL host services
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/start_postgres_host_after_backup.yml"
+      when: use_snapshot
 
     # Start Docker containers when snapshot is enabled
 
@@ -542,6 +551,10 @@
 
     # Start Docker containers when snapshot is not enabled
 
+    - name: Start PostgreSQL host services
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/start_postgres_host_after_backup.yml"
+      when: (not use_snapshot)
+
     - name: Start Docker Containers
       when: docker_service_running and (not use_snapshot)
       block:
@@ -551,19 +564,19 @@
 
         - name: Start Saltbox Docker containers
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Start all previously running Docker containers"
           ansible.builtin.shell: 'docker start {{ docker_containers_string }}'
           ignore_errors: true
-          when: (docker_containers_string | trim | length > 0)
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0)
 
         - name: "Notify | Saltbox Backup: Started Docker containers"
           ansible.builtin.include_role:
             name: notify
           vars:
             message: "{{ backup_instance }} Backup: Started Docker containers."
-          when: (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
+          when: (docker_containers_string is defined) and (docker_containers_string | trim | length > 0) and backup_notify_start_docker_containers
 
     - name: "Wait for 10 seconds before uploads"
       ansible.builtin.wait_for:
@@ -714,6 +727,9 @@
         msg: "Backup Completed Successfully."
 
   rescue:
+    - name: Restore PostgreSQL host services after backup failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/start_postgres_host_after_backup.yml"
+
     - name: Snapshot | Cleanup Tasks
       when: use_snapshot and (snapshot_type == 'btrfs')
       block:
@@ -742,7 +758,10 @@
       ignore_errors: true
 
     - name: Start Docker Containers
-      when: docker_service_running and (not use_snapshot)
+      when:
+        - (docker_service_running | default(false))
+        - (docker_containers_string is defined)
+        - (docker_containers_string | trim | length > 0)
       block:
         - name: "Wait for 5 seconds before starting Docker containers"
           ansible.builtin.wait_for:

@@ -7,8 +7,11 @@
 #                   GNU General Public License v3.0                            #
 ################################################################################
 ---
-- name: "Resources | Tasks | Variables | Import Role Vars | Include {{ import_role_name }} role default vars"
-  ansible.builtin.include_vars: "/srv/git/saltbox/roles/{{ import_role_name }}/defaults/main.yml"
+- name: Resources | Tasks | Variables | Import Role Vars | Include role default vars
+  ansible.builtin.include_vars: "/srv/git/saltbox/roles/{{ item }}/defaults/main.yml"
+  loop: "{{ import_role_names if import_role_names is defined else [import_role_name] }}"
+  loop_control:
+    label: "{{ item }}"
 
 - name: "Resources | Tasks | Variables | Import Role Vars | Check if 'localhost.yml' exists"
   ansible.builtin.stat:

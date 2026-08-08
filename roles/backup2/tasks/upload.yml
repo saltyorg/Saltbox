@@ -1,5 +1,16 @@
+#########################################################################
+# Title:         Saltbox: Backup2 | Upload                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
 - name: Async tar and upload
   ansible.builtin.shell: |
+    set -o pipefail
+
     tar \
       --ignore-failed-read \
       --warning=no-file-changed \
@@ -7,20 +18,23 @@
       --exclude='./snapshots' \
       --exclude-from '{{ backup_excludes_list_path }}' \
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
-      | /usr/bin/rclone rcat \
-      {{ "--user-agent='" + backup2_user_agent + "'" if (backup2_user_agent | length > 0) else "" }} \
-      {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} \
-      --stats=30s \
-      {{ '--bind=' + ansible_facts['default_ipv4']['address'] if rclone_mounts_ipv4_only else '' }} \
-      --bwlimit={{ backup2_rclone_upload_speed_limit }} \
-      -vv \
-      --log-file='{{ playbook_dir }}/backup_rclone.log' \
-      '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'
+      | /usr/sbin/runuser \
+        --user {{ user.name | quote }} \
+        -- \
+        /usr/bin/rclone \
+          --config '/home/{{ user.name }}/.config/rclone/rclone.conf' \
+          rcat \
+          {{ "--user-agent='" + backup2_user_agent + "'" if (backup2_user_agent | length > 0) else "" }} \
+          {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} \
+          --stats=30s \
+          {{ '--bind=' + ansible_facts['default_ipv4']['address'] if rclone_mounts_ipv4_only else '' }} \
+          --bwlimit={{ backup2_rclone_upload_speed_limit }} \
+          -vv \
+          --log-file='{{ playbook_dir }}/backup_rclone.log' \
+          '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'
   args:
     executable: /bin/bash
   environment: "{{ backup2_rclone_env }}"
-  become: true
-  become_user: "{{ user.name }}"
   async: 43200
   poll: 0
   loop: "{{ folders }}"
@@ -35,8 +49,6 @@
   loop_control:
     loop_var: "async_result_item"
   register: async_poll_results
-  become: true
-  become_user: "{{ user.name }}"
   until: async_poll_results.finished
   retries: 9999
   delay: 5

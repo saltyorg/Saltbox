@@ -1,0 +1,44 @@
+##########################################################################################
+# Title:         Saltbox: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup  #
+# Author(s):     salty                                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                                     #
+# --                                                                                     #
+##########################################################################################
+#                   GNU General Public License v3.0                                      #
+##########################################################################################
+---
+- name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Initialize running services
+  ansible.builtin.set_fact:
+    postgres_host_backup_services_running: []
+
+- name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Record running services
+  ansible.builtin.set_fact:
+    postgres_host_backup_services_running: "{{ postgres_host_backup_services_running + [_postgres_host_backup_service] }}"
+  vars:
+    _postgres_host_backup_service: "postgresql@{{ item }}-main.service"
+  loop: "{{ postgres_host_role_versions | unique }}"
+  when:
+    - ansible_facts['services'][_postgres_host_backup_service] is defined
+    - ansible_facts['services'][_postgres_host_backup_service]['state'] == 'running'
+
+- name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Stop running services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ postgres_host_backup_services_running }}"
+
+- name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Verify stopped services
+  when: postgres_host_backup_services_running | length > 0
+  block:
+    - name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Refresh service facts
+      ansible.builtin.service_facts:
+
+    - name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Assert services are stopped
+      ansible.builtin.assert:
+        that:
+          - (ansible_facts['services'][item] is defined) and (ansible_facts['services'][item]['state'] != 'running')
+        fail_msg: "PostgreSQL host service '{{ item }}' is still running; refusing to continue the backup."
+      loop: "{{ postgres_host_backup_services_running }}"
