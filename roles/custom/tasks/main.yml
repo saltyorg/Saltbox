@@ -23,6 +23,6 @@
   loop: "{{ custom_deb }}"
 
 - name: Install custom pip modules
-  ansible.builtin.shell: "pip install {{ item }}"
+  ansible.builtin.shell: "/usr/bin/pip install {{ item }}"
   loop: "{{ custom_pip }}"
   when: ansible_facts['distribution_version'] is version('22.04', '<=')
