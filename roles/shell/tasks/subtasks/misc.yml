@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Misc | Install argcomplete
-  ansible.builtin.shell: "pip install {{ shell_misc_argcomplete_pip_package }}"
+  ansible.builtin.shell: "/usr/bin/pip install {{ shell_misc_argcomplete_pip_package }}"
   when: ansible_facts['distribution_version'] is version('22.04', '<=')
 
 - name: Misc | Install argcomplete
