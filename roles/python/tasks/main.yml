@@ -8,7 +8,7 @@
 #########################################################################
 ---
 - name: Migration - Get system Python version
-  ansible.builtin.command: python3 --version
+  ansible.builtin.command: /usr/bin/python3 --version
   register: system_python_version
   changed_when: false
 
