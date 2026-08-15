@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['22.04', '24.04']
+        os: ['22.04', '24.04', '26.04']
     steps:
       - uses: actions/checkout@v7
 

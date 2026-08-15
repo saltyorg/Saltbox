@@ -14,4 +14,3 @@
 - name: Preinstall | Set default preinstall variables
   ansible.builtin.set_fact:
     preinstall_kernel_restart: false
-    preinstall_user_relogin: false

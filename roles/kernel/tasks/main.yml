@@ -14,19 +14,9 @@
 - name: Cron Tasks
   ansible.builtin.include_tasks: "subtasks/02_cron.yml"
 
-# Ubuntu 20.04 HWE Update
-- name: Ubuntu 20.04 HWE Update Tasks
-  ansible.builtin.include_tasks: "subtasks/03_update_focal.yml"
-  when:
-    - (ansible_facts['distribution'] == 'Ubuntu')
-    - (ansible_facts['distribution_version'] is version('20.04', '=='))
-    - (ansible_facts['kernel'] is version('5.8', '<'))
-    - (not continuous_integration)
-    - kernel_install_hwe
-
 # Ubuntu 22.04 HWE Update
 - name: Ubuntu 22.04 Update Tasks
-  ansible.builtin.include_tasks: "subtasks/04_update_jammy.yml"
+  ansible.builtin.include_tasks: "subtasks/03_update_jammy.yml"
   when:
     - (ansible_facts['distribution'] == 'Ubuntu')
     - (ansible_facts['distribution_version'] is version('22.04', '=='))
@@ -36,11 +26,20 @@
 
 # Ubuntu 24.04 HWE Update
 - name: Ubuntu 24.04 Update Tasks
-  ansible.builtin.include_tasks: "subtasks/05_update_noble.yml"
+  ansible.builtin.include_tasks: "subtasks/04_update_noble.yml"
   when:
     - (ansible_facts['distribution'] == 'Ubuntu')
     - (ansible_facts['distribution_version'] is version('24.04', '=='))
     - (ansible_facts['kernel'] is version('6.11', '<'))
+    - (not continuous_integration)
+    - kernel_install_hwe
+
+# Ubuntu 26.04 HWE Update
+- name: Ubuntu 26.04 Update Tasks
+  ansible.builtin.include_tasks: "subtasks/05_update_resolute.yml"
+  when:
+    - (ansible_facts['distribution'] == 'Ubuntu')
+    - (ansible_facts['distribution_version'] is version('26.04', '=='))
     - (not continuous_integration)
     - kernel_install_hwe
 

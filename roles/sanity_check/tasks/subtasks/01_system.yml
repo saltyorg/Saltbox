@@ -7,14 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: System | Ensure Ansible is running on Ubuntu 20.04+
+- name: System | Ensure Ansible is running on a supported Ubuntu LTS release
   ansible.builtin.assert:
     that:
-      - ((ansible_facts['distribution'] == 'Ubuntu') and (ansible_facts['distribution_version'] is version('20.04', '>=')))
-    fail_msg: >-
-      Saltbox was designed for use on Ubuntu servers running version 20.04+.
-    success_msg: >-
-      System is running {{ ansible_facts['lsb']['description'] }}.
+      - ansible_facts['distribution'] == 'Ubuntu'
+      - ansible_facts['distribution_version'] in ['22.04', '24.04', '26.04']
+    fail_msg: "Saltbox supports Ubuntu Server 22.04, 24.04, and 26.04 LTS."
+    success_msg: "System is running {{ ansible_facts['lsb']['description'] }}."
 
 - name: System | Virtualization Check
   ansible.builtin.command: "systemd-detect-virt"

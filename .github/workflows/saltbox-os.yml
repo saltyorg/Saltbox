@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['22.04', '24.04']
+        os: ['22.04', '24.04', '26.04']
     steps:
       - uses: actions/checkout@v7
 
@@ -46,7 +46,7 @@ jobs:
 
       - id: set-matrix
         run: |
-          matrix=$(.venv/bin/python .github/scripts/ci-role-matrix.py --os 22.04 24.04)
+          matrix=$(.venv/bin/python .github/scripts/ci-role-matrix.py --os 22.04 24.04 26.04)
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   defaults-lint:

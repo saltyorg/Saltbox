@@ -1,6 +1,6 @@
 #########################################################################
-# Title:         Saltbox: Kernel | Focal Update Tasks                   #
-# Author(s):     desimaniac                                             #
+# Title:         Saltbox: Kernel | Noble Update Tasks                   #
+# Author(s):     salty                                                  #
 # URL:           https://github.com/saltyorg/Saltbox                    #
 # --                                                                    #
 #########################################################################
@@ -9,7 +9,7 @@
 ---
 - name: Update | Update linux kernel
   ansible.builtin.apt:
-    name: "{{ kernel_update_apt_package }}"
+    name: "{{ kernel_update_apt_package_24 }}"
     install_recommends: true
     update_cache: true
     state: latest
