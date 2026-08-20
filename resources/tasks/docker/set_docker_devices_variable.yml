@@ -25,7 +25,12 @@
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set '_dev_dri_var_name' temp variable
   ansible.builtin.set_fact:
     _dev_dri_var_name: "{{ (_instance_name | replace('-', '_')) + '_docker_dev_dri' }}"
+    _nvidia_var_name: "{{ (_instance_name | replace('-', '_')) + '_docker_nvidia' }}"
 
 - name: Resources | Tasks | Docker | Set Docker Devices Variable | Set '_dev_dri_var_name' variable # noqa var-naming[no-jinja]
   ansible.builtin.set_fact:
     "{{ _dev_dri_var_name }}": "{{ dev_dri.stat.exists }}"
+
+- name: Resources | Tasks | Docker | Set Docker Devices Variable | Set Nvidia opt-in variable # noqa var-naming[no-jinja]
+  ansible.builtin.set_fact:
+    "{{ _nvidia_var_name }}": "{{ lookup('docker_var', '_docker_nvidia', default=use_nvidia) | bool }}"

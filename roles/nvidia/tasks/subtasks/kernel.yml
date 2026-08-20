@@ -7,30 +7,51 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Kernel | Copy 'blacklist-nouveau.conf' # noqa template-instead-of-copy
+- name: Kernel | Converge nouveau blacklist # noqa template-instead-of-copy
   ansible.builtin.copy:
     content: "{{ nvidia_kernel_blacklist_nouveau_conf_content }}"
     dest: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
-    owner: "root"
-    group: "root"
-    mode: "0664"
-  register: r
+    owner: root
+    group: root
+    mode: "0644"
+  register: nvidia_nouveau_blacklist
+  when: nvidia_kernel_blacklist_nouveau
 
-- name: Kernel | Continue with tasks
-  when: r.changed
+- name: Kernel | Update initramfs after nouveau blacklist change
+  ansible.builtin.command: "update-initramfs -u"
+  when:
+    - nvidia_kernel_blacklist_nouveau
+    - nvidia_nouveau_blacklist is changed
+
+- name: Kernel | Check whether nouveau is loaded
+  ansible.builtin.command: "lsmod"
+  register: nvidia_loaded_modules
+  changed_when: false
+
+- name: Kernel | Restart tasks
+  when:
+    - nvidia_kernel_blacklist_nouveau
+    - nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0
   block:
-    - name: Kernel | Update initramfs
-      ansible.builtin.command: "update-initramfs -u"
-
-    - name: Kernel | Success message
+    - name: Kernel | Restart message
       ansible.builtin.debug:
         msg:
-          - "Disabled nouveau driver. System will now reboot."
-          - "You will need to re-run your previous tag after the system has rebooted."
+          - "Nouveau was disabled."
+          - "Restarting the server to apply changes..."
+          - "Rerun the original Saltbox install command after reconnecting."
 
-    - name: Kernel | Prompt user before continuing
-      ansible.builtin.pause:
-        prompt: "Read the instructions above and press enter when you have done so."
-
-    - name: Kernel | Reboot command
+    - name: Kernel | Reboot
       ansible.builtin.shell: reboot
+
+    - name: Kernel | Manual reboot message
+      ansible.builtin.debug:
+        msg:
+          - "Failed to reboot automatically."
+          - "Restart the server yourself, then rerun the original Saltbox install command."
+
+- name: Kernel | Reject loaded nouveau when blacklist management is disabled
+  ansible.builtin.fail:
+    msg: "Nouveau is loaded and nvidia_kernel_blacklist_nouveau is disabled. Unload or blacklist nouveau, reboot, then rerun the original Saltbox install command."
+  when:
+    - not nvidia_kernel_blacklist_nouveau
+    - nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0

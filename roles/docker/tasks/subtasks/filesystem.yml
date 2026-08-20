@@ -1,0 +1,13 @@
+#########################################################################
+# Title:         Saltbox: Docker | Filesystem Tasks                     #
+# Author(s):     l3uddz, desimaniac, EnorMOZ                            #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Filesystem | Check filesystem of '/var/lib/' path
+  ansible.builtin.shell: stat -f -c %T /var/lib/
+  register: var_lib_file_system
+  changed_when: false

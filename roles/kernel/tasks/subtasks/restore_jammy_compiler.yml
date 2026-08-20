@@ -1,0 +1,51 @@
+#########################################################################
+# Title:         Saltbox: Kernel | Restore Jammy Compiler Tasks         #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Compiler | Inspect GCC alternatives
+  ansible.builtin.command: "update-alternatives --query gcc"
+  register: kernel_jammy_gcc_alternatives
+  changed_when: false
+  failed_when: false
+
+- name: Compiler | Restore Jammy defaults
+  when:
+    - "kernel_jammy_gcc_alternatives.rc == 0"
+    - "kernel_jammy_gcc_alternatives.stdout | regex_findall('(?m)^Alternative: .+$') | length == 1"
+    - "'Alternative: /usr/bin/gcc-12' in kernel_jammy_gcc_alternatives.stdout"
+    - "'Priority: 12' in kernel_jammy_gcc_alternatives.stdout"
+    - "' g++ /usr/bin/g++' in kernel_jammy_gcc_alternatives.stdout"
+    - "' g++ /usr/bin/g++-12' in kernel_jammy_gcc_alternatives.stdout"
+  block:
+    - name: Compiler | Check Jammy default compiler binaries
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "/usr/bin/gcc-11"
+        - "/usr/bin/g++-11"
+      register: kernel_jammy_default_compilers
+
+    - name: Compiler | Validate Jammy default compiler binaries
+      ansible.builtin.assert:
+        that:
+          - "kernel_jammy_default_compilers.results | map(attribute='stat.exists') | min"
+        fail_msg: "Cannot restore the Jammy compiler default because gcc-11 or g++-11 is missing."
+
+    - name: Compiler | Remove legacy Saltbox GCC alternative
+      ansible.builtin.command: "update-alternatives --remove-all gcc"
+      changed_when: true
+
+    - name: Compiler | Restore Jammy compiler links
+      ansible.builtin.file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+        force: true
+      loop:
+        - { src: "gcc-11", dest: "/usr/bin/gcc" }
+        - { src: "g++-11", dest: "/usr/bin/g++" }

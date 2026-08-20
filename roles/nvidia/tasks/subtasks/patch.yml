@@ -7,35 +7,29 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Patch | Download Nvidia patch
-  ansible.builtin.get_url:
-    url: "{{ nvidia_patch_download_url }}"
-    dest: "{{ nvidia_patch_download_dest }}"
-    mode: "0775"
-    owner: root
-    group: root
-    force: true
-    validate_certs: false
-  register: x
-  until: "x is not failed"
-  retries: 5
-  delay: 10
+- name: Patch | Verify selected version is supported
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - "{{ nvidia_patch_download_dest }}"
+      - -c
+      - "{{ nvidia_driver_resolution.resolved_version }}"
+  changed_when: false
 
-- name: Patch | Install Nvidia patch
-  ansible.builtin.shell: "{{ nvidia_patch_download_dest }}"
-  args:
-    executable: /bin/bash
-  register: patch_install
-  ignore_errors: true
+- name: Patch | Apply Nvidia encode patch
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - "{{ nvidia_patch_download_dest }}"
+      - -d
+      - "{{ nvidia_driver_resolution.resolved_version }}"
+  register: nvidia_patch_install
+  changed_when: "'Patched!' in nvidia_patch_install.stdout"
 
-- name: Patch | Nvidia patch installed
-  ansible.builtin.debug:
-    msg: "Nvidia patch installed!"
-  when: (patch_install is succeeded) and ('Patched!' in patch_install.stdout)
-
-- name: Patch | Nvidia patch did not install
-  ansible.builtin.fail:
-    msg:
-      - "Nvidia patch did not install!"
-      - "{{ patch_install.stdout }}"
-  when: (patch_install is failed) or ('Patched!' not in patch_install.stdout)
+- name: Patch | Verify Nvidia patch backup
+  ansible.builtin.find:
+    paths: "{{ nvidia_patch_backup_file_location }}"
+    patterns: "libnvidia-encode.so.{{ nvidia_driver_resolution.resolved_version }}"
+    file_type: file
+  register: nvidia_patch_backup
+  failed_when: nvidia_patch_backup.matched != 1

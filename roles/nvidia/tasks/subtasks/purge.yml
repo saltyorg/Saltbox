@@ -1,0 +1,223 @@
+#########################################################################
+# Title:         Saltbox: Nvidia | Purge Tasks                          #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Purge | Gather services
+  ansible.builtin.service_facts:
+
+- name: Purge | Reject custom Nvidia Docker configuration
+  ansible.builtin.assert:
+    that:
+      - "'nvidia' not in (docker_config_custom | default({})).get('runtimes', {})"
+      - "(docker_config_custom | default({})).get('default-runtime', '') != 'nvidia'"
+    fail_msg: "Remove the Nvidia runtime from docker_config_custom before running nvidia-purge."
+
+- name: Purge | Stop Docker socket
+  ansible.builtin.systemd_service:
+    name: "docker.socket"
+    state: stopped
+  when: "'docker.socket' in ansible_facts['services']"
+
+- name: Purge | Stop Docker
+  ansible.builtin.systemd_service:
+    name: "docker.service"
+    state: stopped
+  when: "'docker.service' in ansible_facts['services']"
+
+- name: Purge | Stop Nvidia persistence daemon
+  ansible.builtin.systemd_service:
+    name: "nvidia-persistenced.service"
+    state: stopped
+  when: "'nvidia-persistenced.service' in ansible_facts['services']"
+
+- name: Purge | Check for pinned Keylase patch
+  ansible.builtin.stat:
+    path: "{{ nvidia_patch_download_dest }}"
+  register: nvidia_purge_patch
+
+- name: Purge | Check installed driver state
+  ansible.builtin.command: "nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits"
+  register: nvidia_purge_driver_query
+  changed_when: false
+  failed_when: false
+
+- name: Purge | Restore Keylase-patched library
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - "{{ nvidia_patch_download_dest }}"
+      - -r
+  register: nvidia_purge_patch_restore
+  changed_when: "'Restore from backup' in nvidia_purge_patch_restore.stdout"
+  failed_when: false
+  when:
+    - nvidia_purge_patch.stat.exists
+    - nvidia_purge_driver_query.rc == 0
+
+- name: Purge | Check for runfile uninstaller
+  ansible.builtin.stat:
+    path: "/usr/bin/nvidia-uninstall"
+  register: nvidia_purge_uninstaller
+
+- name: Purge | Uninstall runfile Nvidia driver
+  ansible.builtin.command: "{{ nvidia_driver_uninstall_command }}"
+  register: nvidia_purge_runfile
+  changed_when: true
+  when: nvidia_purge_uninstaller.stat.exists
+
+- name: Purge | Gather installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Purge | Define Nvidia packages
+  ansible.builtin.set_fact:
+    nvidia_purge_driver_packages: "{{ ((ansible_facts['packages'].keys() | select('match', nvidia_package_purge_regex) | list) + (ansible_facts['packages'].keys() | select('match', nvidia_driver_package_purge_regex) | list)) | unique }}"
+    nvidia_purge_toolkit_packages: "{{ [nvidia_driver_assistant_cuda_keyring_package, 'libnvidia-container-dev', 'libnvidia-container-tools', 'libnvidia-container1', 'libnvidia-container1-dbg', 'nvidia-container-runtime', 'nvidia-container-toolkit', 'nvidia-container-toolkit-base', 'nvidia-docker2', nvidia_driver_assistant_package, 'nvtop'] | select('in', ansible_facts['packages'].keys()) | list }}"
+
+- name: Purge | Remove all Nvidia packages
+  ansible.builtin.apt:
+    name: "{{ (nvidia_purge_driver_packages + nvidia_purge_toolkit_packages) | unique }}"
+    state: absent
+    purge: true
+    autoremove: true
+  when: (nvidia_purge_driver_packages + nvidia_purge_toolkit_packages) | length > 0
+
+- name: Purge | Remove Nvidia repositories, keys, and cache
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/apt/sources.list.d/{{ nvidia_docker_runtime_apt_repo_file }}.sources"
+    - "/etc/apt/sources.list.d/{{ nvidia_docker_runtime_apt_repo_file }}.list"
+    - "/etc/apt/sources.list.d/{{ nvidia_docker_runtime_apt_repo_file_old }}.list"
+    - "/etc/apt/sources.list.d/{{ nvidia_nvtop_apt_repo_name }}.sources"
+    - "{{ nvidia_docker_apt_repo_signed_by }}"
+    - "{{ nvidia_nvtop_apt_repo_signed_by }}"
+    - "{{ nvidia_driver_cache_path }}"
+    - "{{ nvidia_patch_backup_file_location }}"
+    - "/etc/nvidia-container-runtime"
+    - "/var/lib/nvidia-container"
+    - "/tmp/NVIDIA-driver.run"
+    - "/tmp/NVIDIA-patch.sh"
+
+- name: Purge | Remove legacy Nvidia and nvtop repository files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ nvidia_driver_assistant_cuda_repository_paths + nvidia_driver_assistant_legacy_repository_paths + ['/etc/apt/sources.list.d/nvidia-container-toolkit.list', '/etc/apt/sources.list.d/nvidia-container-runtime.list'] + nvidia_nvtop_apt_legacy_paths }}"
+
+- name: Purge | Remove empty Keylase parent directory
+  ansible.builtin.command: "rmdir /opt/nvidia"
+  register: nvidia_purge_keylase_parent
+  changed_when: nvidia_purge_keylase_parent.rc == 0
+  failed_when: false
+
+- name: Purge | Remove role-managed nouveau blacklist
+  ansible.builtin.file:
+    path: "{{ nvidia_kernel_blacklist_nouveau_conf_location }}"
+    state: absent
+  register: nvidia_purge_nouveau_blacklist
+
+- name: Purge | Rebuild initramfs after removing nouveau blacklist
+  ansible.builtin.command: "update-initramfs -u"
+  when: nvidia_purge_nouveau_blacklist is changed
+
+- name: Purge | Inspect Docker filesystem
+  ansible.builtin.include_role:
+    name: "docker"
+    tasks_from: "subtasks/filesystem.yml"
+
+- name: Purge | Configure Docker without Nvidia
+  ansible.builtin.include_role:
+    name: "docker"
+    tasks_from: "subtasks/daemon.yml"
+  vars:
+    use_nvidia: false
+
+- name: Purge | Restore Docker socket state
+  ansible.builtin.systemd_service:
+    name: "docker.socket"
+    state: started
+  when:
+    - "'docker.socket' in ansible_facts['services']"
+    - ansible_facts['services']['docker.socket']['state'] == 'running'
+
+- name: Purge | Restore Docker service state
+  ansible.builtin.systemd_service:
+    name: "docker.service"
+    state: started
+  when:
+    - "'docker.service' in ansible_facts['services']"
+    - ansible_facts['services']['docker.service']['state'] == 'running'
+
+- name: Purge | Check whether Nvidia modules remain loaded
+  ansible.builtin.command: "lsmod"
+  register: nvidia_purge_loaded_modules
+  changed_when: false
+
+- name: Purge | Verify Nvidia kernel module is absent
+  ansible.builtin.command: "modinfo nvidia"
+  register: nvidia_purge_module_check
+  changed_when: false
+  failed_when: nvidia_purge_module_check.rc == 0
+
+- name: Purge | Refresh installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Purge | Define remaining Nvidia packages
+  ansible.builtin.set_fact:
+    nvidia_purge_remaining_packages: "{{ ((ansible_facts['packages'].keys() | select('match', nvidia_package_purge_regex) | list) + (ansible_facts['packages'].keys() | select('match', nvidia_driver_package_purge_regex) | list) + ([nvidia_driver_assistant_cuda_keyring_package, 'nvtop'] | select('in', ansible_facts['packages'].keys()) | list)) | unique }}"
+
+- name: Purge | Find remaining Nvidia binaries
+  ansible.builtin.find:
+    paths:
+      - "/usr/bin"
+      - "/usr/sbin"
+    patterns:
+      - "nvidia-*"
+    excludes:
+      - "nvidia-detector"
+    file_type: any
+    recurse: false
+  register: nvidia_purge_binary_checks
+
+- name: Purge | Check nvtop binary
+  ansible.builtin.stat:
+    path: "{{ nvidia_nvtop_binary_path }}"
+  register: nvidia_purge_nvtop_binary
+
+- name: Purge | Verify complete Nvidia role uninstall
+  ansible.builtin.assert:
+    that:
+      - nvidia_purge_remaining_packages | length == 0
+      - nvidia_purge_binary_checks.matched == 0
+      - not nvidia_purge_nvtop_binary.stat.exists
+    fail_msg:
+      - "Nvidia role uninstall is incomplete."
+      - "Remaining packages: {{ nvidia_purge_remaining_packages }}"
+      - "Remaining binaries: {{ nvidia_purge_binary_checks.files | map(attribute='path') | list }}"
+      - "nvtop remains: {{ nvidia_purge_nvtop_binary.stat.exists }}"
+
+- name: Purge | Restart tasks
+  when: nvidia_purge_loaded_modules.stdout_lines | select('match', '^nvidia') | list | length > 0
+  block:
+    - name: Purge | Restart message
+      ansible.builtin.debug:
+        msg:
+          - "The Nvidia role is uninstalled on disk, but Nvidia kernel modules remain loaded."
+          - "Restarting the server to complete the runtime unload..."
+
+    - name: Purge | Reboot
+      ansible.builtin.shell: reboot
+
+    - name: Purge | Manual reboot message
+      ansible.builtin.debug:
+        msg:
+          - "Failed to reboot automatically."
+          - "Restart the server yourself to complete the Nvidia uninstall."

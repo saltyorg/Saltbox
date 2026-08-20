@@ -1,0 +1,65 @@
+#########################################################################
+# Title:         Saltbox: Nvidia | Validation Tasks                     #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Validate | Query Nvidia driver versions
+  ansible.builtin.command: "nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits"
+  register: nvidia_validation_versions
+  changed_when: false
+
+- name: Validate | Query Nvidia PCI bus addresses
+  ansible.builtin.command: "nvidia-smi --query-gpu=pci.bus_id --format=csv,noheader,nounits"
+  register: nvidia_validation_addresses
+  changed_when: false
+
+- name: Validate | Query Nvidia kernel module version
+  ansible.builtin.command: "modinfo -F version nvidia"
+  register: nvidia_validation_module_version
+  changed_when: false
+
+- name: Validate | Query Nvidia kernel module license
+  ansible.builtin.command: "modinfo -F license nvidia"
+  register: nvidia_validation_module_license
+  changed_when: false
+
+- name: Validate | Normalize Nvidia validation results
+  ansible.builtin.set_fact:
+    nvidia_validated_driver_versions: "{{ nvidia_validation_versions.stdout_lines | map('trim') | reject('equalto', '') | unique | list }}"
+    nvidia_validated_addresses: "{{ nvidia_validation_addresses.stdout_lines | map('trim') | map('lower') | map('regex_replace', '^00000000:', '0000:') | sort | list }}"
+    nvidia_expected_addresses: "{{ nvidia_driver_resolution.devices | map(attribute='address') | map('lower') | sort | list }}"
+
+- name: Validate | Assert Nvidia driver health
+  ansible.builtin.assert:
+    that:
+      - nvidia_validated_driver_versions | length == 1
+      - nvidia_validated_addresses == nvidia_expected_addresses
+      - nvidia_validation_module_version.stdout | trim == nvidia_validated_driver_versions | first
+      - nvidia_driver_resolution.mode == 'external' or nvidia_validated_driver_versions | first == nvidia_driver_resolution.resolved_version
+      - nvidia_driver_resolution.mode == 'external' or nvidia_driver_resolution.module_flavor != 'open' or ('MIT' in nvidia_validation_module_license.stdout or 'GPL' in nvidia_validation_module_license.stdout)
+      - nvidia_driver_resolution.mode == 'external' or nvidia_driver_resolution.module_flavor != 'proprietary' or ('MIT' not in nvidia_validation_module_license.stdout and 'GPL' not in nvidia_validation_module_license.stdout)
+    fail_msg:
+      - "Nvidia driver validation failed."
+      - "Expected devices: {{ nvidia_expected_addresses }}"
+      - "Detected devices: {{ nvidia_validated_addresses }}"
+      - "Driver versions: {{ nvidia_validated_driver_versions }}"
+      - "Kernel module version: {{ nvidia_validation_module_version.stdout | trim }}"
+      - "Kernel module license: {{ nvidia_validation_module_license.stdout | trim }}"
+
+- name: Validate | Check managed Nvidia DKMS status
+  ansible.builtin.command:
+    argv:
+      - dkms
+      - status
+      - -m
+      - nvidia
+      - -v
+      - "{{ nvidia_driver_resolution.resolved_version }}"
+  register: nvidia_validation_dkms
+  changed_when: false
+  failed_when: "nvidia_validation_dkms.rc != 0 or ': installed' not in nvidia_validation_dkms.stdout"
+  when: nvidia_driver_resolution.mode == 'managed'

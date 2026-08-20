@@ -7,10 +7,8 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Check filesystem of '/var/lib/' path
-  ansible.builtin.shell: stat -f -c %T /var/lib/
-  register: var_lib_file_system
-  changed_when: false
+- name: Import filesystem inspection tasks
+  ansible.builtin.include_tasks: "subtasks/filesystem.yml"
 
 - name: Check to see if docker is installed
   ansible.builtin.stat:
@@ -110,7 +108,7 @@
 
 - name: "Import Nvidia tasks"
   ansible.builtin.include_tasks: "subtasks/nvidia.yml"
-  when: use_nvidia and (not 'nvidia-purge' in ansible_run_tags)
+  when: use_nvidia
 
 - name: Block Docker Controller
   ansible.builtin.uri:

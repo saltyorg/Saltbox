@@ -55,3 +55,8 @@
     name: "nvidia-container-toolkit"
     update_cache: true
     state: latest
+
+- name: Nvidia | Validate container toolkit GPU discovery
+  ansible.builtin.command: "nvidia-container-cli info"
+  register: nvidia_container_toolkit_validation
+  changed_when: false

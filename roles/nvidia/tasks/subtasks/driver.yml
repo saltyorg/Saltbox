@@ -7,37 +7,55 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Driver | Install 'build-essential'
+- name: Driver | Read running kernel GCC version
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/awk
+      - -F=
+      - '/^CONFIG_GCC_VERSION=/{ print int($2 / 10000); found=1 } END { if (!found) exit 1 }'
+      - "/boot/config-{{ ansible_facts['kernel'] }}"
+  register: nvidia_kernel_gcc_query
+  changed_when: false
+  failed_when: false
+
+- name: Driver | Read running kernel build string
+  ansible.builtin.command: "cat /proc/version"
+  register: nvidia_kernel_build_string
+  changed_when: false
+  when: nvidia_kernel_gcc_query.rc != 0
+
+- name: Driver | Resolve running kernel GCC major
+  ansible.builtin.set_fact:
+    nvidia_kernel_gcc_major: "{{ nvidia_kernel_gcc_query.stdout | int
+                              if nvidia_kernel_gcc_query.rc == 0
+                              else (nvidia_kernel_build_string.stdout
+                                 | regex_findall('gcc[^,]*?([0-9]+)\\.[0-9]+\\.[0-9]+')
+                                 | first | default('0') | int) }}"
+
+- name: Driver | Validate running kernel GCC major
+  ansible.builtin.assert:
+    that:
+      - nvidia_kernel_gcc_major | int > 0
+    fail_msg: "Unable to determine the GCC major used to build kernel {{ ansible_facts['kernel'] }}."
+
+- name: Driver | Check for running kernel compiler
+  ansible.builtin.stat:
+    path: "/usr/bin/gcc-{{ nvidia_kernel_gcc_major }}"
+  register: nvidia_kernel_gcc
+
+- name: Driver | Install running kernel compiler
   ansible.builtin.apt:
-    name: build-essential
-    state: latest
+    name: "gcc-{{ nvidia_kernel_gcc_major }}"
+    state: present
+  when: not nvidia_kernel_gcc.stat.exists
 
-- name: Driver | Install 'dkms'
-  ansible.builtin.apt:
-    name: dkms
-    state: latest
+- name: Driver | Install Nvidia driver
+  ansible.builtin.command: "{{ nvidia_driver_install_command }}"
+  environment:
+    CC: "/usr/bin/gcc-{{ nvidia_kernel_gcc_major }}"
+  register: nvidia_driver_install
+  changed_when: true
 
-- name: Driver | Install gcc12 if kernel is 6.5>= on Jammy
-  when: (ansible_facts['kernel'] is version('6.5', '>=')) and (ansible_facts['distribution_version'] is version('22.04', '=='))
-  block:
-    - name: Driver | Install GCC and G++
-      ansible.builtin.apt:
-        name:
-          - gcc-12
-          - g++-12
-        state: latest
-
-    - name: Driver | Update alternatives for GCC and G++
-      ansible.builtin.shell: update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 --slave /usr/bin/g++ g++ /usr/bin/g++-12
-
-- name: Driver | Install Nvidia drivers
-  ansible.builtin.shell: "{{ nvidia_driver_install_command }}"
-  register: driver_install
-  ignore_errors: true
-
-- name: Driver | Nvidia driver did not install
-  ansible.builtin.fail:
-    msg:
-      - "{{ driver_install.stdout }}"
-      - "Nvidia driver did not install"
-  when: (driver_install is failed) or ('ERROR' in driver_install.stdout)
+- name: Driver | Display Nvidia installer output
+  ansible.builtin.debug:
+    var: nvidia_driver_install.stdout_lines

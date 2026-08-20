@@ -11,37 +11,105 @@
 # Toggles
 ################################
 
-# Set to true to enable Nvidia
+# Enables NVIDIA driver, container runtime, and monitoring support.
 nvidia_enabled: false
 
-# Fetches the latest supported driver version supported by the keylase patch when set to "latest"
-# If set to "ignore" then driver installation and patching will be skipped.
-# Otherwise specify a valid driver like this (it being a quoted string is important):
-# nvidia_driver_version: "555.58.02"
+# Legacy compatibility selector retained for existing inventories. "latest" uses
+# nvidia_driver_branch policy, "ignore" validates an externally managed driver,
+# and a complete quoted version such as "580.95.05" pins that exact release.
 nvidia_driver_version: "latest"
+
+# Selects the NVIDIA driver branch. Use "auto" to prefer the newest compatible
+# LTS branch and fall back to the production branch only when necessary. To pin a
+# branch, provide its quoted number, for example "580".
+nvidia_driver_branch: "auto"
+
+# Selects the NVIDIA kernel module implementation. Use "auto" to choose a module
+# supported by every detected GPU, or force "open" or "proprietary" when needed.
+# The role stops with an error if the requested implementation is incompatible.
+nvidia_driver_module_flavor: "auto"
+
+# Controls the Keylase NVENC session-limit patch. It is enabled by default for
+# supported GeForce driver versions and is never applied to data-center-only hosts.
+# Set this to false to install an unpatched GeForce driver.
+nvidia_patch_enabled: true
 
 ################################
 # Driver
 ################################
 
-nvidia_driver_download_url: "https://download.nvidia.com/XFree86/Linux-x86_64/{{ nvidia_driver_version }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_version }}.run"
+nvidia_driver_minimum_legacy_branch: 580
 
-nvidia_driver_download_dest: "/tmp/NVIDIA-driver.run"
+nvidia_driver_cache_path: "/var/cache/saltbox/nvidia"
 
-nvidia_driver_uninstall_command: "{{ nvidia_driver_download_dest }} --uninstall --silent"
+nvidia_driver_releases_url: "https://docs.nvidia.com/datacenter/tesla/drivers/releases.json"
 
-nvidia_driver_install_command: "{{ nvidia_driver_download_dest }} --dkms --silent"
+nvidia_driver_releases_path: "{{ nvidia_driver_cache_path }}/releases.json"
+
+nvidia_driver_download_url: "{{ nvidia_driver_resolution.driver_url }}"
+
+nvidia_driver_checksum_url: "{{ nvidia_driver_resolution.checksum_url }}"
+
+nvidia_driver_supported_products_url: "https://download.nvidia.com/XFree86/Linux-x86_64/{{ nvidia_driver_resolution.resolved_version }}/README/supportedchips.html"
+
+nvidia_driver_supported_products_path: "{{ nvidia_driver_cache_path }}/supportedchips-{{ nvidia_driver_resolution.resolved_version }}.html"
+
+nvidia_driver_download_dest: "{{ nvidia_driver_cache_path }}/NVIDIA-Linux-x86_64-{{ nvidia_driver_resolution.resolved_version }}.run"
+
+nvidia_driver_uninstall_command: "/usr/bin/nvidia-uninstall --silent"
+
+nvidia_driver_package_purge_regex: "^(cuda-drivers(-[0-9]+)?|libnvidia-[^:]+|nvidia-(compute-utils|dkms|driver|firmware|headless|kernel-common|kernel-source|kernel-open|modprobe|open|persistenced|prime|settings|utils)(-[0-9]+)?|xserver-xorg-video-nvidia(-[0-9]+)?)(:[^:]+)?$"
+
+nvidia_package_purge_regex: "^.*nvidia.*$"
+
+nvidia_driver_install_command: "{{ nvidia_driver_download_dest }} --dkms --silent --kernel-module-type={{ nvidia_driver_resolution.module_flavor }}"
+
+################################
+# Driver Assistant
+################################
+
+nvidia_driver_assistant_cuda_keyring_version: "1.1-1"
+
+nvidia_driver_assistant_cuda_keyring_checksums:
+  "22.04": "sha256:d93190d50b98ad4699ff40f4f7af50f16a76dac3bb8da1eaaf366d47898ff8df"
+  "24.04": "sha256:d2a6b11c096396d868758b86dab1823b25e14d70333f1dfa74da5ddaf6a06dba"
+  "26.04": "sha256:f7f474b5f6a4adf987aa587920df00e713285958ef6a913dda1945a544a3099e"
+
+nvidia_driver_assistant_cuda_keyring_url: "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{{ ansible_facts['distribution_version'] | replace('.', '') }}/x86_64/cuda-keyring_{{ nvidia_driver_assistant_cuda_keyring_version }}_all.deb"
+
+nvidia_driver_assistant_cuda_keyring_path: "{{ nvidia_driver_cache_path }}/cuda-keyring_{{ nvidia_driver_assistant_cuda_keyring_version }}_ubuntu{{ ansible_facts['distribution_version'] | replace('.', '') }}_all.deb"
+
+nvidia_driver_assistant_cuda_keyring_package: "cuda-keyring"
+
+nvidia_driver_assistant_cuda_repository_paths:
+  - "/etc/apt/preferences.d/cuda-repository-pin-600"
+  - "/etc/apt/sources.list.d/cuda-ubuntu2204-x86_64.list"
+  - "/etc/apt/sources.list.d/cuda-ubuntu2404-x86_64.list"
+  - "/etc/apt/sources.list.d/cuda-ubuntu2604-x86_64.list"
+  - "/usr/share/keyrings/cuda-archive-keyring.gpg"
+
+nvidia_driver_assistant_legacy_repository_paths:
+  - "/etc/apt/sources.list.d/nvidia-cuda.sources"
+  - "/etc/apt/sources.list.d/nvidia-cuda.list"
+  - "/etc/apt/keyrings/nvidia-cuda.asc"
+
+nvidia_driver_assistant_package: "nvidia-driver-assistant"
+
+nvidia_driver_assistant_catalog_path: "/usr/share/nvidia-driver-assistant/supported-gpus/supported-gpus.json"
 
 ################################
 # Patch
 ################################
 
-nvidia_patch_download_url: "https://raw.githubusercontent.com/keylase/nvidia-patch/master/patch.sh"
+nvidia_patch_revision: "e7a28468a9ed1c105b141fc046ca14e05b6e1d46"
 
-nvidia_patch_download_dest: "/tmp/NVIDIA-patch.sh"
+nvidia_patch_download_url: "https://raw.githubusercontent.com/keylase/nvidia-patch/{{ nvidia_patch_revision }}/patch.sh"
 
-# Harcoded in the patch script file
-nvidia_patch_backup_file_location: "{{ server_appdata_path }}/nvidia/libnvidia-encode-backup"
+nvidia_patch_download_dest: "{{ nvidia_driver_cache_path }}/patch-{{ nvidia_patch_revision }}.sh"
+
+nvidia_patch_checksum: "sha256:f17ad6fa1afe56fa74d9eaee27cd9fbae6ff0b4c4797dc21a1ef0917fbe4840f"
+
+nvidia_patch_backup_file_location: "/opt/nvidia/libnvidia-encode-backup"
 
 ################################
 # Docker Runtime
@@ -103,14 +171,15 @@ nvidia_docker_env:
   NVIDIA_DRIVER_CAPABILITIES: "compute,video,utility"
   NVIDIA_VISIBLE_DEVICES: "all"
 
-nvidia_docker_config_default:
-  default-runtime: "nvidia"
+nvidia_docker_device_request:
+  driver: "nvidia"
+  count: -1
+  capabilities:
+    - ["gpu"]
+
+nvidia_docker_config:
   exec-opts: ["native.cgroupdriver=cgroupfs"]
   runtimes:
     nvidia:
       path: "/usr/bin/nvidia-container-runtime"
       runtimeArgs: []
-
-nvidia_docker_config: "{{ {}
-                       if ('nvidia-purge' in ansible_run_tags)
-                       else nvidia_docker_config_default }}"
