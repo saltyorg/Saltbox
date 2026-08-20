@@ -206,6 +206,8 @@ plex_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role
 plex_role_docker_mounts_default:
   - target: /tmp
     type: tmpfs
+    tmpfs_options:
+      - exec: null
 plex_role_docker_mounts_custom: []
 plex_role_docker_mounts: "{{ lookup('role_var', '_docker_mounts_default', role='plex')
                              + lookup('role_var', '_docker_mounts_custom', role='plex') }}"
