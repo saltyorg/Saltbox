@@ -38,7 +38,10 @@
       "rclone_excludes": [
         "**partial~",
         "**_HIDDEN~",
-        "*.db"
+        "*.db",
+        "*.db-wal",
+        "*.db-shm",
+        "*.db-journal"
       ],
       "rclone_extras": {
         {{ (cloudplow_rclone_google_template
