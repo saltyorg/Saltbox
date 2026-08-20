@@ -15,7 +15,7 @@
         "$default"
     ],
     "constraints": {
-        "uv": "0.12.4"
+        "uv": "0.12.3"
     },
     "pip-compile": {
         "managerFilePatterns": [
@@ -44,6 +44,16 @@
             ],
             "matchFileNames": [
                 ".python-version"
+            ],
+            "enabled": false
+        },
+        {
+            "description": "uv is managed by sb-go releases",
+            "matchManagers": [
+                "renovate-config"
+            ],
+            "matchPackageNames": [
+                "uv"
             ],
             "enabled": false
         },
