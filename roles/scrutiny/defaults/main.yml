@@ -96,8 +96,5 @@ scrutiny_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 scrutiny_role_docker_restart_policy: unless-stopped
 
-# State
-scrutiny_role_docker_state: started
-
 # Privileged
 scrutiny_role_docker_privileged: true

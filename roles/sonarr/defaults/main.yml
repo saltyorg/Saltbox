@@ -132,6 +132,3 @@ sonarr_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 sonarr_role_docker_restart_policy: unless-stopped
-
-# State
-sonarr_role_docker_state: started

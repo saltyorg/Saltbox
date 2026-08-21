@@ -141,9 +141,6 @@ netdata_role_docker_security_opts: "{{ lookup('role_var', '_docker_security_opts
 # Restart Policy
 netdata_role_docker_restart_policy: unless-stopped
 
-# State
-netdata_role_docker_state: started
-
 # PID Mode
 netdata_role_docker_pid_mode: "host"
 

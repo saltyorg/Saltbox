@@ -88,8 +88,5 @@ cadvisor_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 cadvisor_role_docker_restart_policy: unless-stopped
 
-# State
-cadvisor_role_docker_state: started
-
 # Privileged
 cadvisor_role_docker_privileged: true

@@ -63,8 +63,5 @@ docker_socket_proxy_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 docker_socket_proxy_role_docker_restart_policy: unless-stopped
 
-# State
-docker_socket_proxy_role_docker_state: started
-
 # Read Only Filesystem
 docker_socket_proxy_role_docker_read_only: true

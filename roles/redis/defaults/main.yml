@@ -63,8 +63,5 @@ redis_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 redis_role_docker_restart_policy: unless-stopped
 
-# State
-redis_role_docker_state: started
-
 # User
 redis_role_docker_user: "{{ uid }}:{{ gid }}"

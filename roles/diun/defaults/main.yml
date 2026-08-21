@@ -74,6 +74,3 @@ diun_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 diun_role_docker_restart_policy: unless-stopped
-
-# State
-diun_role_docker_state: started

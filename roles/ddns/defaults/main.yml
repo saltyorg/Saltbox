@@ -74,9 +74,6 @@ ddns_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 ddns_role_docker_restart_policy: unless-stopped
 
-# State
-ddns_role_docker_state: started
-
 # Init
 ddns_role_docker_init: true
 

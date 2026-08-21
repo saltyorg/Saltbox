@@ -142,6 +142,3 @@ deluge_role_docker_restart_policy: unless-stopped
 
 # Stop Timeout
 deluge_role_docker_stop_timeout: 900
-
-# State
-deluge_role_docker_state: started

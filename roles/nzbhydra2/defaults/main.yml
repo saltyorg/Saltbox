@@ -152,6 +152,3 @@ nzbhydra2_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 nzbhydra2_role_docker_restart_policy: unless-stopped
-
-# State
-nzbhydra2_role_docker_state: started

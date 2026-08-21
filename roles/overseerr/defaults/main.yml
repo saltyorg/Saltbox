@@ -128,8 +128,5 @@ overseerr_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 overseerr_role_docker_restart_policy: unless-stopped
 
-# State
-overseerr_role_docker_state: started
-
 # User
 overseerr_role_docker_user: "{{ uid }}:{{ gid }}"

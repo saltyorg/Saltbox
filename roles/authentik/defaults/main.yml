@@ -214,9 +214,6 @@ authentik_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 authentik_role_docker_restart_policy: unless-stopped
 
-# State
-authentik_role_docker_state: started
-
 # Dependencies
 authentik_role_depends_on: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
 authentik_role_depends_on_delay: "0"

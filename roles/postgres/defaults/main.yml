@@ -93,9 +93,6 @@ postgres_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 postgres_role_docker_restart_policy: unless-stopped
 
-# State
-postgres_role_docker_state: started
-
 # User
 postgres_role_docker_user: "{{ uid }}:{{ gid }}"
 

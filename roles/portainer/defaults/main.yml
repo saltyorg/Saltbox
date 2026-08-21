@@ -123,6 +123,3 @@ portainer_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 portainer_role_docker_restart_policy: unless-stopped
-
-# State
-portainer_role_docker_state: started

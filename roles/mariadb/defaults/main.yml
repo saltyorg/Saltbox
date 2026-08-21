@@ -85,8 +85,5 @@ mariadb_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 mariadb_role_docker_restart_policy: unless-stopped
 
-# State
-mariadb_role_docker_state: started
-
 # User
 mariadb_role_docker_user: "{{ uid }}:{{ gid }}"

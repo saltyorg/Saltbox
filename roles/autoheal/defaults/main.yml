@@ -54,6 +54,3 @@ autoheal_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 autoheal_role_docker_restart_policy: unless-stopped
-
-# State
-autoheal_role_docker_state: started

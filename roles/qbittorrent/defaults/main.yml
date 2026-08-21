@@ -195,6 +195,3 @@ qbittorrent_role_docker_restart_policy: unless-stopped
 
 # Stop Timeout
 qbittorrent_role_docker_stop_timeout: 900
-
-# State
-qbittorrent_role_docker_state: started

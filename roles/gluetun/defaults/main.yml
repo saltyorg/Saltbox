@@ -476,6 +476,3 @@ gluetun_role_docker_capabilities: "{{ lookup('role_var', '_docker_capabilities_d
 
 # Restart Policy
 gluetun_role_docker_restart_policy: unless-stopped
-
-# State
-gluetun_role_docker_state: started

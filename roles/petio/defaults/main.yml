@@ -100,9 +100,6 @@ petio_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 petio_role_docker_restart_policy: unless-stopped
 
-# State
-petio_role_docker_state: started
-
 # User
 petio_role_docker_user: "{{ uid }}:{{ gid }}"
 

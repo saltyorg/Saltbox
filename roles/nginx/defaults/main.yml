@@ -95,6 +95,3 @@ nginx_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 nginx_role_docker_restart_policy: unless-stopped
-
-# State
-nginx_role_docker_state: started

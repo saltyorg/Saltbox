@@ -337,9 +337,6 @@ authelia_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 authelia_role_docker_restart_policy: unless-stopped
 
-# State
-authelia_role_docker_state: started
-
 # Dependencies
 authelia_role_depends_on: "{{ 'authelia-redis,lldap'
                            if (lookup('role_var', '_authentication_backend', role='authelia') == 'ldap')

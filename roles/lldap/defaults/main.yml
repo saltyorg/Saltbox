@@ -118,9 +118,6 @@ lldap_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 lldap_role_docker_restart_policy: unless-stopped
 
-# State
-lldap_role_docker_state: started
-
 lldap_role_docker_healthcheck:
   test: ["CMD", "/app/lldap", "healthcheck", "--config-file", "/data/lldap_config.toml"]
   interval: 30s
