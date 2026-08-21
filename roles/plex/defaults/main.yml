@@ -135,6 +135,9 @@ plex_role_themepark_addons: []
 # Container
 plex_role_docker_container: "{{ plex_name }}"
 
+# GPU
+plex_role_docker_gpu_enabled: true
+
 # Image
 plex_role_docker_image_pull: true
 plex_role_docker_image_repo: "plexinc/pms-docker"

@@ -120,6 +120,9 @@ emby_role_config_settings_list: "{{ lookup('role_var', '_config_settings_default
 # Container
 emby_role_docker_container: "{{ emby_name }}"
 
+# GPU
+emby_role_docker_gpu_enabled: true
+
 # Image
 emby_role_docker_image_pull: true
 emby_role_docker_image_repo: "lscr.io/linuxserver/emby"

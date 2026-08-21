@@ -50,7 +50,7 @@
         default: "{{ docker_memory_default }}"
       _docker_networks:
         default: []
-      _docker_nvidia:
+      _docker_gpu_enabled:
         default: false
       _docker_ports:
         default: []
@@ -193,34 +193,19 @@
       _docker_create_timeout:
         default: 120
 
-- name: Resources | Tasks | Docker | Create Docker Container | Check Nvidia DRI device
-  ansible.builtin.stat:
-    path: "/dev/dri"
-  register: _docker_nvidia_dev_dri
-  when: _docker_vars['_docker_nvidia']['value'] | bool
+- name: Resources | Tasks | Docker | Create Docker Container | Resolve GPU variables
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/set_docker_gpu_variables.yml"
 
 - name: Resources | Tasks | Docker | Create Docker Container | Set variables that need omit handling
   ansible.builtin.set_fact:
     _docker_command: "{{ (_docker_vars['_docker_commands']['value'] | reject('equalto', omit) | list) }}"
     _docker_cpus: "{{ _docker_vars['_docker_cpus']['value'] }}"
-    _docker_device_requests: "{{ _docker_vars['_docker_device_requests']['value']
-                              if not _docker_vars['_docker_device_requests']['omit']
-                              else [] }}"
-    _docker_nvidia: "{{ _docker_vars['_docker_nvidia']['value'] | bool }}"
-    _docker_dev_dri: "{{ (lookup('docker_var', '_docker_dev_dri', default=false) | bool)
-                      or ((_docker_vars['_docker_nvidia']['value'] | bool)
-                      and (_docker_nvidia_dev_dri.stat.exists | default(false))) }}"
-    _docker_env: "{{ (nvidia_docker_env if (_docker_vars['_docker_nvidia']['value'] | bool) else {})
-                     | combine(_docker_vars['_docker_envs']['value']) }}"
     _docker_etc_hosts: "{{ (docker_hosts_common if _docker_vars['_docker_hosts_use_common']['value'] else {}) | combine(_docker_vars['_docker_hosts']['value'])
                         if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                         else {} }}"
     _docker_exposed_ports: "{{ (_docker_vars['_docker_exposed_ports']['value'] | unique | reject('equalto', omit) | list)
                             if not ('container:' in _docker_vars['_docker_network_mode']['value'])
                             else [] }}"
-    _docker_groups: "{{ _docker_vars['_docker_groups']['value']
-                     if (not _docker_vars['_docker_groups']['omit'])
-                     else [] }}"
     _docker_hostname: "{{ _docker_vars['_docker_hostname']['value']
                        if (_docker_vars['_docker_network_mode']['value'] == docker_networks_name_common)
                        else '' }}"
@@ -237,22 +222,6 @@
     _docker_volumes: "{{ ((docker_volumes_common + _docker_vars['_docker_volumes']['value'])
                           if (_docker_vars['_docker_volumes_global']['value'] | bool)
                           else _docker_vars['_docker_volumes']['value']) | unique | reject('equalto', omit) | list }}"
-
-- name: Resources | Tasks | Docker | Create Docker Container | Add default Nvidia device request
-  ansible.builtin.set_fact:
-    _docker_device_requests: "{{ _docker_device_requests + [nvidia_docker_device_request] }}"
-  when:
-    - _docker_nvidia
-    - _docker_device_requests | selectattr('driver', 'defined') | selectattr('driver', 'equalto', 'nvidia') | list | length == 0
-
-- name: Resources | Tasks | Docker | Create Docker Container | Add GPU groups for non-root user
-  ansible.builtin.set_fact:
-    _docker_groups: "{{ (_docker_groups + [vgid, rgid]) | unique }}"
-  when:
-    - (_docker_dev_dri | bool)
-    - (not _docker_vars['_docker_user']['omit'])
-    - (_docker_vars['_docker_user']['value'] | string | length > 0)
-    - ((_docker_vars['_docker_user']['value'] | string).split(':') | first) not in ['root', '0']
 
 - name: Resources | Tasks | Docker | Create Docker Container | Network Container Health Status
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
@@ -286,13 +255,13 @@
     device_read_bps: "{{ (_docker_vars['_docker_device_read_bps']['value'] if not _docker_vars['_docker_device_read_bps']['omit'] else omit) }}"
     device_read_iops: "{{ (_docker_vars['_docker_device_read_iops']['value'] if not _docker_vars['_docker_device_read_iops']['omit'] else omit) }}"
     device_requests: "{{ _docker_device_requests
-                      if (_docker_nvidia or not _docker_vars['_docker_device_requests']['omit'])
+                      if _docker_device_requests_enabled
                       else omit }}"
     device_write_bps: "{{ (_docker_vars['_docker_device_write_bps']['value'] if not _docker_vars['_docker_device_write_bps']['omit'] else omit) }}"
     device_write_iops: "{{ (_docker_vars['_docker_device_write_iops']['value'] if not _docker_vars['_docker_device_write_iops']['omit'] else omit) }}"
-    devices: "{{ ((_docker_vars['_docker_devices']['value'] + (['/dev/dri:/dev/dri'] if _docker_dev_dri is defined and _docker_dev_dri else [])) | unique)
-              if (not _docker_vars['_docker_devices']['omit'])
-              else (['/dev/dri:/dev/dri'] if _docker_dev_dri is defined and _docker_dev_dri else omit) }}"
+    devices: "{{ _docker_devices
+              if _docker_devices_enabled
+              else omit }}"
     dns_opts: "{{ (_docker_vars['_docker_dns_opts']['value'] if not _docker_vars['_docker_dns_opts']['omit'] else omit) }}"
     dns_search_domains: "{{ (_docker_vars['_docker_dns_search_domains']['value'] if not _docker_vars['_docker_dns_search_domains']['omit'] else omit) }}"
     dns_servers: "{{ (_docker_vars['_docker_dns_servers']['value'] if not _docker_vars['_docker_dns_servers']['omit'] else omit) }}"

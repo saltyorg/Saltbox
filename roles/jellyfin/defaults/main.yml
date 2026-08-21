@@ -122,6 +122,9 @@ jellyfin_role_network_settings_list: "{{ lookup('role_var', '_network_settings_d
 # Container
 jellyfin_role_docker_container: "{{ jellyfin_name }}"
 
+# GPU
+jellyfin_role_docker_gpu_enabled: true
+
 # Image
 jellyfin_role_docker_image_pull: true
 jellyfin_role_docker_image_repo: "ghcr.io/hotio/jellyfin"

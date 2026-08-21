@@ -1,0 +1,65 @@
+######################################################################################
+# Title:         Saltbox: Resources | Tasks | Docker | Set Docker GPU Variables      #
+# Author(s):     desimaniac, salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                                 #
+# --                                                                                 #
+######################################################################################
+#                   GNU General Public License v3.0                                  #
+######################################################################################
+---
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Check if '/dev/dri' exists
+  ansible.builtin.stat:
+    path: "/dev/dri"
+  register: _docker_gpu_dev_dri
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Set GPU variables
+  ansible.builtin.set_fact:
+    _docker_gpu_enabled: "{{ (_docker_vars['_docker_gpu_enabled']['value'] | bool) and
+                             ((use_intel | bool) or (use_nvidia | bool)) }}"
+    _docker_nvidia: "{{ (_docker_vars['_docker_gpu_enabled']['value'] | bool) and
+                        (use_nvidia | bool) and
+                        not (lookup('docker_var', '_docker_nvidia_disabled', default=false) | bool) }}"
+    _docker_dev_dri: "{{ (_docker_vars['_docker_gpu_enabled']['value'] | bool) and
+                         ((use_intel | bool) or (use_nvidia | bool)) and
+                         not (lookup('docker_var', '_docker_dev_dri_disabled', default=false) | bool) and
+                         (_docker_gpu_dev_dri.stat.exists | bool) }}"
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Initialize Docker GPU outputs
+  ansible.builtin.set_fact:
+    _docker_device_requests: "{{ _docker_vars['_docker_device_requests']['value']
+                              if not _docker_vars['_docker_device_requests']['omit']
+                              else [] }}"
+    _docker_devices: "{{ _docker_vars['_docker_devices']['value']
+                      if not _docker_vars['_docker_devices']['omit']
+                      else [] }}"
+    _docker_env: "{{ (nvidia_docker_env if _docker_nvidia else {})
+                     | combine(_docker_vars['_docker_envs']['value']) }}"
+    _docker_groups: "{{ _docker_vars['_docker_groups']['value']
+                     if not _docker_vars['_docker_groups']['omit']
+                     else [] }}"
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Add default Nvidia device request
+  ansible.builtin.set_fact:
+    _docker_device_requests: "{{ _docker_device_requests + [nvidia_docker_device_request] }}"
+  when:
+    - _docker_nvidia
+    - _docker_device_requests | selectattr('driver', 'defined') | selectattr('driver', 'equalto', 'nvidia') | list | length == 0
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Add DRI device
+  ansible.builtin.set_fact:
+    _docker_devices: "{{ (_docker_devices + ['/dev/dri:/dev/dri']) | unique }}"
+  when: _docker_dev_dri
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Add GPU groups for non-root user
+  ansible.builtin.set_fact:
+    _docker_groups: "{{ (_docker_groups + [vgid, rgid]) | unique }}"
+  when:
+    - _docker_dev_dri
+    - not _docker_vars['_docker_user']['omit']
+    - _docker_vars['_docker_user']['value'] | string | length > 0
+    - ((_docker_vars['_docker_user']['value'] | string).split(':') | first) not in ['root', '0']
+
+- name: Resources | Tasks | Docker | Set Docker GPU Variables | Set Docker argument states
+  ansible.builtin.set_fact:
+    _docker_device_requests_enabled: "{{ _docker_nvidia or not _docker_vars['_docker_device_requests']['omit'] }}"
+    _docker_devices_enabled: "{{ _docker_dev_dri or not _docker_vars['_docker_devices']['omit'] }}"
