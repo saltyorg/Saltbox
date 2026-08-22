@@ -50,6 +50,8 @@ autoscan_role_traefik_regex_middleware_string: ",{{ autoscan_name }}-replacepath
 autoscan_role_traefik_sso_middleware: ""
 autoscan_role_traefik_middleware_default: "{{ traefik_default_middleware + autoscan_role_traefik_regex_middleware_string }}"
 autoscan_role_traefik_middleware_custom: ""
+autoscan_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+autoscan_role_traefik_middleware_custom_api: ""
 autoscan_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 autoscan_role_traefik_enabled: true
 autoscan_role_traefik_api_enabled: false

@@ -58,6 +58,8 @@ prometheus_role_dns_proxy: "{{ dns_proxied }}"
 prometheus_role_traefik_sso_middleware: ""
 prometheus_role_traefik_middleware_default: "{{ traefik_default_middleware + ',prometheus-auth' }}"
 prometheus_role_traefik_middleware_custom: ""
+prometheus_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+prometheus_role_traefik_middleware_custom_api: ""
 prometheus_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 prometheus_role_traefik_enabled: true
 prometheus_role_traefik_api_enabled: false

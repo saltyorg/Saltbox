@@ -60,6 +60,8 @@ overseerr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                   if (lookup('role_var', '_themepark_enabled', role='overseerr') and global_themepark_plugin_enabled)
                                                   else '') }}"
 overseerr_role_traefik_middleware_custom: ""
+overseerr_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+overseerr_role_traefik_middleware_custom_api: ""
 overseerr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 overseerr_role_traefik_enabled: true
 overseerr_role_traefik_api_enabled: false

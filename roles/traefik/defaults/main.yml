@@ -223,8 +223,12 @@ traefik_dns_provider_powerdns:
 ################################
 
 traefik_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+traefik_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+traefik_role_traefik_middleware_custom_api: ""
 traefik_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 traefik_role_traefik_enabled: true
+traefik_role_traefik_api_enabled: false
+traefik_role_traefik_api_endpoint: ""
 traefik_role_traefik_autodetect_enabled: true
 
 ################################

@@ -47,6 +47,8 @@ transfer_role_dns_proxy: "{{ dns_proxied }}"
 transfer_role_traefik_sso_middleware: ""
 transfer_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
 transfer_role_traefik_middleware_custom: ""
+transfer_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+transfer_role_traefik_middleware_custom_api: ""
 transfer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 transfer_role_traefik_enabled: true
 transfer_role_traefik_api_enabled: false

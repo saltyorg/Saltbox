@@ -54,6 +54,8 @@ organizr_role_dns_proxy: "{{ dns_proxied }}"
 organizr_role_traefik_sso_middleware: ""
 organizr_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
 organizr_role_traefik_middleware_custom: ""
+organizr_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+organizr_role_traefik_middleware_custom_api: ""
 organizr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 organizr_role_traefik_enabled: true
 organizr_role_traefik_api_enabled: false

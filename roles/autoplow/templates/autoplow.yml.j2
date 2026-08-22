@@ -33,7 +33,7 @@ http:
         - "websecure"
       rule: "{{ traefik_host_template }} && ({{ lookup('role_var', '_traefik_api_endpoint', role='autoplow') }})"
       middlewares:
-        {{ traefik_default_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
+        {{ traefik_middleware_api.split(',') | to_nice_yaml | trim | indent(8) }}
       service: "{{ autoplow_name }}"
       tls:
         options: securetls@file

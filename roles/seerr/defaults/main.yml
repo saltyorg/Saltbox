@@ -57,6 +57,8 @@ seerr_role_dns_proxy: "{{ dns_proxied }}"
 seerr_role_traefik_sso_middleware: ""
 seerr_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
 seerr_role_traefik_middleware_custom: ""
+seerr_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+seerr_role_traefik_middleware_custom_api: ""
 seerr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 seerr_role_traefik_enabled: true
 seerr_role_traefik_api_enabled: false

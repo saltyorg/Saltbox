@@ -99,7 +99,7 @@
               - "websecure"
             rule: "{{ traefik_host_template }} && ({{ traefik_file_template_role_traefik_api_endpoint }})"
             middlewares:
-      {% for item in traefik_default_middleware_api.split(',') %}
+      {% for item in traefik_middleware_api.split(',') %}
               - {{ item.strip() | string | to_json }}
       {% endfor %}
             service: "{{ traefik_file_template_name }}"

@@ -58,6 +58,8 @@ lidarr_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                if (lookup('role_var', '_themepark_enabled', role='lidarr') and global_themepark_plugin_enabled)
                                                else '') }}"
 lidarr_role_traefik_middleware_custom: ""
+lidarr_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+lidarr_role_traefik_middleware_custom_api: ""
 lidarr_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 lidarr_role_traefik_enabled: true
 lidarr_role_traefik_api_enabled: true

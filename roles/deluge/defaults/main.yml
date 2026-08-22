@@ -58,6 +58,8 @@ deluge_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                if (lookup('role_var', '_themepark_enabled', role='deluge') and global_themepark_plugin_enabled)
                                                else '') }}"
 deluge_role_traefik_middleware_custom: ""
+deluge_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+deluge_role_traefik_middleware_custom_api: ""
 deluge_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 deluge_role_traefik_enabled: true
 deluge_role_traefik_api_enabled: false

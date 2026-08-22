@@ -70,6 +70,8 @@ emby_role_traefik_middleware_default: "{{ traefik_default_middleware
                                              if (lookup('role_var', '_themepark_enabled', role='emby') and global_themepark_plugin_enabled)
                                              else '') }}"
 emby_role_traefik_middleware_custom: ""
+emby_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+emby_role_traefik_middleware_custom_api: ""
 emby_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 emby_role_traefik_enabled: true
 emby_role_traefik_gzip_enabled: false

@@ -47,6 +47,20 @@ Rules:
 
 14. Docker Hosts Formula: host mappings must compose only their role-local
     default and custom layers
+
+15. Traefik API Router Contract: every role with Traefik enabled must define
+    the complete API router toggle, endpoint, and ordered middleware layers and
+    must not use legacy secure API middleware variable names
+
+16. Nested Traefik Adapter Contract: roles that expose a namespaced web adapter
+    through an included role must declare and forward the complete namespaced
+    regular and API router contract
+
+17. Docker Helper Prefix Argument: shared Docker lifecycle helpers accept
+    var_prefix as their public argument
+
+18. Non-Docker Traefik Renderer Contract: roles that declare Traefik without
+    creating a shared-label Docker container must render their API contract
 """
 
 import os
@@ -1031,6 +1045,261 @@ class DefaultsLinter:
             )
         )
 
+    def check_traefik_api_router_contract(self) -> None:
+        """Rule 15: Check the complete Traefik API router contract."""
+        role_name = self.file_path.parent.parent.name
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        traefik_enabled_name = f"{role_name}_role_traefik_enabled"
+        api_enabled_name = f"{role_name}_role_traefik_api_enabled"
+        api_endpoint_name = f"{role_name}_role_traefik_api_endpoint"
+        default_name = f"{role_name}_role_traefik_middleware_default_api"
+        custom_name = f"{role_name}_role_traefik_middleware_custom_api"
+        legacy_names = (
+            f"{role_name}_role_traefik_api_middleware",
+            f"{role_name}_role_traefik_middleware_api",
+        )
+
+        if traefik_enabled_name in variables:
+            missing_names = [
+                variable_name
+                for variable_name in (
+                    default_name,
+                    custom_name,
+                    api_enabled_name,
+                    api_endpoint_name,
+                )
+                if variable_name not in variables
+            ]
+            if missing_names:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=variables[traefik_enabled_name][0],
+                        message=(
+                            "[traefik-api-router-contract] Traefik roles must "
+                            f"define {', '.join(missing_names)}"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+            elif variables[default_name][0] > variables[custom_name][0]:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=variables[custom_name][0],
+                        message=(
+                            "[traefik-api-router-contract] "
+                            f"'{default_name}' must be declared before '{custom_name}'"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+        for legacy_name in legacy_names:
+            if legacy_name not in variables:
+                continue
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=variables[legacy_name][0],
+                    message=(
+                        "[traefik-api-router-contract] Legacy secure API middleware "
+                        f"variable '{legacy_name}' is not supported; use the default/custom API pair"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_nested_traefik_adapter_contract(self) -> None:
+        """Rule 16: Check namespaced API contracts forwarded to included roles."""
+        role_name = self.file_path.parent.parent.name
+        role_path = self.file_path.parent.parent
+        task_files = sorted((role_path / "tasks").glob("**/*.yml"))
+        if not task_files:
+            return
+
+        tasks_source = "\n".join(
+            task_file.read_text(encoding="utf-8") for task_file in task_files
+        )
+        adapter_pattern = re.compile(
+            rf"^\s+([a-z][a-z0-9_]*)_role_web_subdomain:\s+.*"
+            rf"lookup\(\s*(['\"])role_var\2\s*,\s*(['\"])_([a-z][a-z0-9_]*)_web_subdomain\3"
+            rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\5\s*\)",
+            flags=re.MULTILINE,
+        )
+        adapters = {
+            match.group(1)
+            for match in adapter_pattern.finditer(tasks_source)
+            if match.group(1) == match.group(4)
+        }
+        if not adapters:
+            return
+
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        contract_suffixes = (
+            "traefik_sso_middleware",
+            "traefik_middleware_default",
+            "traefik_middleware_custom",
+            "traefik_middleware_default_api",
+            "traefik_middleware_custom_api",
+            "traefik_certresolver",
+            "traefik_enabled",
+            "traefik_api_enabled",
+            "traefik_api_endpoint",
+        )
+        for adapter in sorted(adapters):
+            anchor_name = f"{role_name}_role_{adapter}_web_subdomain"
+            anchor_line = variables.get(anchor_name, (1, []))[0]
+            missing_defaults = [
+                f"{role_name}_role_{adapter}_{suffix}"
+                for suffix in contract_suffixes
+                if f"{role_name}_role_{adapter}_{suffix}" not in variables
+            ]
+            if missing_defaults:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=anchor_line,
+                        message=(
+                            "[nested-traefik-adapter-contract] Namespaced web adapter "
+                            f"'{adapter}' must define {', '.join(missing_defaults)}"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+            missing_forwarding = []
+            for suffix in contract_suffixes:
+                target_name = f"{adapter}_role_{suffix}:"
+                lookup_suffix = f"_{adapter}_{suffix}"
+                if target_name not in tasks_source or lookup_suffix not in tasks_source:
+                    missing_forwarding.append(target_name.removesuffix(":"))
+            if missing_forwarding:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=anchor_line,
+                        message=(
+                            "[nested-traefik-adapter-contract] Namespaced web adapter "
+                            f"'{adapter}' must forward {', '.join(missing_forwarding)}"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+    def check_docker_helper_var_prefix(self) -> None:
+        """Rule 17: Check lifecycle helper callers use var_prefix."""
+        role_path = self.file_path.parent.parent
+        helper_pattern = re.compile(
+            r"/docker/(?:create|remove|restart|start|stop)_docker_container\.yml"
+        )
+
+        for task_file in sorted((role_path / "tasks").glob("**/*.yml")):
+            task_lines = task_file.read_text(encoding="utf-8").splitlines()
+            for line_index, line in enumerate(task_lines):
+                if helper_pattern.search(line) is None:
+                    continue
+                for argument_index in range(
+                    line_index + 1, min(line_index + 9, len(task_lines))
+                ):
+                    argument_line = task_lines[argument_index]
+                    if argument_line.startswith("- name:"):
+                        break
+                    if re.match(r"^\s+_var_prefix:\s*", argument_line) is None:
+                        continue
+                    try:
+                        relative_path = str(task_file.relative_to(Path.cwd()))
+                    except ValueError:
+                        relative_path = str(task_file)
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=argument_index + 1,
+                            message=(
+                                "[docker-helper-prefix-argument] Docker lifecycle "
+                                "helpers accept 'var_prefix', not '_var_prefix'"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+
+    def check_non_docker_traefik_renderer_contract(self) -> None:
+        """Rule 18: Check non-Docker renderers consume the API contract."""
+        role_name = self.file_path.parent.parent.name
+        role_path = self.file_path.parent.parent
+        variables = {
+            variable_name: (line_number, variable_lines)
+            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
+        }
+        traefik_enabled_name = f"{role_name}_role_traefik_enabled"
+        if traefik_enabled_name not in variables:
+            return
+
+        source_files = sorted((role_path / "tasks").glob("**/*.yml")) + sorted(
+            (role_path / "templates").glob("**/*.j2")
+        )
+        renderer_source = "\n".join(
+            source_file.read_text(encoding="utf-8") for source_file in source_files
+        )
+        if "create_docker_container.yml" in renderer_source:
+            return
+        if "deprecated" in renderer_source:
+            return
+        if "docker_labels_common" in renderer_source:
+            return
+
+        required_tokens = (
+            "traefik_middleware_api",
+            "_traefik_api_enabled",
+            "_traefik_api_endpoint",
+        )
+        missing_tokens = [
+            token for token in required_tokens if token not in renderer_source
+        ]
+        if not missing_tokens:
+            return
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+        self.errors.append(
+            LintError(
+                file=relative_path,
+                line=variables[traefik_enabled_name][0],
+                message=(
+                    "[non-docker-traefik-renderer-contract] Traefik role without "
+                    "shared Docker labels must render "
+                    f"{', '.join(missing_tokens)}"
+                ),
+                repo_url=self.repo_url,
+                commit_sha=self.commit_sha,
+            )
+        )
+
     def variable_jinja_expression(
         self, line_number: int, variable_lines: list[str]
     ) -> str:
@@ -1340,6 +1609,10 @@ class DefaultsLinter:
         self.check_lookup_documentation()
         self.check_redundant_docker_layers()
         self.check_docker_hosts_formula()
+        self.check_traefik_api_router_contract()
+        self.check_nested_traefik_adapter_contract()
+        self.check_docker_helper_var_prefix()
+        self.check_non_docker_traefik_renderer_contract()
         return self.errors
 
 

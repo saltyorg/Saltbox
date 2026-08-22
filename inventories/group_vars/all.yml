@@ -342,6 +342,14 @@ traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
                                       if (not traefik_default_middleware_custom_api.startswith(',') and traefik_default_middleware_custom_api | length > 0)
                                       else traefik_default_middleware_custom_api) }}"
 
+traefik_role_middleware_default_api: "{{ lookup('role_var', '_traefik_middleware_default_api', role=role_var_role, default='') }}"
+traefik_role_middleware_custom_api: "{{ lookup('role_var', '_traefik_middleware_custom_api', role=role_var_role, default='') }}"
+
+traefik_middleware_api: "{{ traefik_role_middleware_default_api
+                            + (',' + traefik_role_middleware_custom_api
+                              if (not traefik_role_middleware_custom_api.startswith(',') and traefik_role_middleware_custom_api | length > 0)
+                              else traefik_role_middleware_custom_api) }}"
+
 traefik_default_sso_middleware: "authelia@docker"
 
 traefik_role_enabled: "{{ lookup('role_var', '_traefik_enabled', role=role_var_role, default=false) | bool }}"
@@ -498,7 +506,7 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("role_var", "_traefik_certresolver", role=role_var_role, default=traefik_default_certresolver) }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ lookup("role_var", "_traefik_api_middleware", role=role_var_role, default=traefik_default_middleware_api) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ traefik_middleware_api }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.server.port": "{{ lookup("role_var", "_web_api_http_port", role=role_var_role, default=lookup("role_var", "_web_api_port", role=role_var_role, default=traefik_loadbalancer_port)) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.server.scheme": "{{ lookup("role_var", "_web_api_http_scheme", role=role_var_role, default=lookup("role_var", "_web_api_scheme", role=role_var_role, default=traefik_loadbalancer_scheme)) }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.serverstransport": "{{ lookup("role_var", "_web_api_http_serverstransport", role=role_var_role, default=omit) }}" }'

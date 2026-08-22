@@ -57,6 +57,8 @@ portainer_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                   if (lookup('role_var', '_themepark_enabled', role='portainer') and global_themepark_plugin_enabled)
                                                   else '') }}"
 portainer_role_traefik_middleware_custom: ""
+portainer_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+portainer_role_traefik_middleware_custom_api: ""
 portainer_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 portainer_role_traefik_enabled: true
 portainer_role_traefik_api_enabled: true

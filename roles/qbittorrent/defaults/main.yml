@@ -104,6 +104,8 @@ qbittorrent_role_traefik_middleware_default: "{{ traefik_default_middleware
                                                     if (lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled)
                                                     else '') }}"
 qbittorrent_role_traefik_middleware_custom: ""
+qbittorrent_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+qbittorrent_role_traefik_middleware_custom_api: ""
 qbittorrent_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 qbittorrent_role_traefik_enabled: true
 qbittorrent_role_traefik_api_enabled: true
