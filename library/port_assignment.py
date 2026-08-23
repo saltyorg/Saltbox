@@ -8,7 +8,7 @@ module: port_assignment
 short_description: Persist stable host port assignments
 description:
   - Reconciles named host port claims against a persistent Saltbox registry.
-  - Treats listening sockets and Docker bindings from running or stopped containers as conflicts.
+  - Treats listening sockets and, when the local Docker daemon is reachable, Docker bindings from running or stopped containers as conflicts.
   - Automatically moves a saved assignment when it conflicts and warns about the change.
 author: salty
 options:
@@ -49,6 +49,7 @@ requirements:
   - Docker SDK for Python when Docker is available
 notes:
   - The caller must stop its service or remove its container before allocation.
+  - When the local Docker daemon is unavailable, allocation uses persistent claims and listening sockets without Docker binding observations.
   - Allocation uses inclusive bounds when a claim has no saved port or its saved port conflicts.
   - A conflict-free saved port remains authoritative even when it is outside the current bounds.
   - A saved-port conflict reassigns within the current bounds and warns.
@@ -87,9 +88,11 @@ released_claims:
   type: list
 """
 
+import errno
 import fcntl
 import json
 import os
+import socket
 import tempfile
 import time
 from collections.abc import Callable
@@ -99,6 +102,8 @@ from ansible.module_utils.basic import AnsibleModule
 
 SCHEMA_VERSION = 1
 LOCK_TIMEOUT_SECONDS = 30.0
+DOCKER_SOCKET_PATH = "/var/run/docker.sock"
+DOCKER_SOCKET_TIMEOUT_SECONDS = 1.0
 
 ConflictIndex = dict[tuple[int, str], list[str]]
 ConflictCollector = Callable[[], ConflictIndex]
@@ -429,9 +434,29 @@ def collect_socket_observations(module: AnsibleModule) -> ConflictIndex:
     return parse_socket_observations(standard_output)
 
 
+def _docker_socket_available(path: str = DOCKER_SOCKET_PATH) -> bool:
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as probe:
+            probe.settimeout(DOCKER_SOCKET_TIMEOUT_SECONDS)
+            error_number = probe.connect_ex(path)
+    except OSError as error:
+        if error.errno in (errno.ENOENT, errno.ECONNREFUSED):
+            return False
+        raise PortAssignmentError(
+            f"Unable to inspect Docker socket '{path}': {error}"
+        ) from error
+
+    if error_number == 0:
+        return True
+    if error_number in (errno.ENOENT, errno.ECONNREFUSED):
+        return False
+    raise PortAssignmentError(
+        f"Unable to inspect Docker socket '{path}': {os.strerror(error_number)}"
+    )
+
+
 def collect_docker_observations() -> ConflictIndex:
-    docker_socket = "/var/run/docker.sock"
-    if not os.path.exists(docker_socket):
+    if not _docker_socket_available():
         return {}
     try:
         import docker  # type: ignore[import-not-found]
@@ -440,7 +465,7 @@ def collect_docker_observations() -> ConflictIndex:
             "Docker SDK for Python is required to inspect published port declarations"
         ) from error
     try:
-        client = docker.from_env()
+        client = docker.DockerClient(base_url=f"unix://{DOCKER_SOCKET_PATH}")
         try:
             containers = [
                 container.attrs for container in client.containers.list(all=True)
