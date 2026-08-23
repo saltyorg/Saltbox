@@ -13,8 +13,10 @@
     dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
     dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
 
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+- name: Check if config file exists
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+  register: qbittorrent_role_paths_conf_stat
 
 - name: Check if legacy '{{ qbittorrent_name }}.service' exists
   ansible.builtin.stat:
@@ -36,6 +38,26 @@
     state: stopped
   when: qbittorrent_service.stat.exists
 
+- name: Remove existing Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+- name: Assign ports
+  port_assignment:
+    base_path: "{{ server_appdata_path }}"
+    namespace: qbittorrent
+    owner: "{{ qbittorrent_name }}"
+    claims:
+      peer:
+        low_bound: "{{ lookup('role_var', '_port_peer_low_bound', role='qbittorrent') }}"
+        high_bound: "{{ lookup('role_var', '_port_peer_high_bound', role='qbittorrent') }}"
+        protocols: ["tcp", "udp"]
+      web:
+        enabled: "{{ lookup('role_var', '_host_install', role='qbittorrent') }}"
+        low_bound: "{{ lookup('role_var', '_port_web_low_bound', role='qbittorrent') }}"
+        high_bound: "{{ lookup('role_var', '_port_web_high_bound', role='qbittorrent') }}"
+        protocols: ["tcp"]
+  register: qbittorrent_port_assignment
+
 - name: Remove '{{ qbittorrent_role_service_name }}' file
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ qbittorrent_role_service_name }}"
@@ -50,11 +72,6 @@
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
-
-- name: Check if config file exists
-  ansible.builtin.stat:
-    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-  register: qbittorrent_role_paths_conf_stat
 
 - name: Pre-Install Tasks
   ansible.builtin.include_tasks: "subtasks/pre-install/main.yml"

@@ -77,6 +77,13 @@ deluge_role_themepark_domain: "{{ global_themepark_domain }}"
 deluge_role_themepark_addons: []
 
 ################################
+# Ports
+################################
+
+deluge_role_port_peer_low_bound: 58112
+deluge_role_port_peer_high_bound: 58132
+
+################################
 # Docker
 ################################
 
@@ -90,13 +97,9 @@ deluge_role_docker_image_tag: "latest"
 deluge_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='deluge') }}:{{ lookup('role_var', '_docker_image_tag', role='deluge') }}"
 
 # Ports
-deluge_role_docker_ports_58112: "{{ port_lookup_58112.meta.port
-                                 if (port_lookup_58112.meta.port is defined) and (port_lookup_58112.meta.port | trim | length > 0)
-                                 else '58112' }}"
-
 deluge_role_docker_ports_default:
-  - "{{ deluge_role_docker_ports_58112 }}:{{ deluge_role_docker_ports_58112 }}"
-  - "{{ deluge_role_docker_ports_58112 }}:{{ deluge_role_docker_ports_58112 }}/udp"
+  - "{{ deluge_port_assignment.ports.peer }}:{{ deluge_port_assignment.ports.peer }}"
+  - "{{ deluge_port_assignment.ports.peer }}:{{ deluge_port_assignment.ports.peer }}/udp"
 deluge_role_docker_ports_custom: []
 deluge_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='deluge')
                               + lookup('role_var', '_docker_ports_custom', role='deluge') }}"

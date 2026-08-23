@@ -131,6 +131,13 @@ plex_role_themepark_domain: "{{ global_themepark_domain }}"
 plex_role_themepark_addons: []
 
 ################################
+# Ports
+################################
+
+plex_role_port_web_low_bound: 32400
+plex_role_port_web_high_bound: 32410
+
+################################
 # Docker
 ################################
 
@@ -147,10 +154,6 @@ plex_role_docker_image_tag: "latest"
 plex_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='plex') }}:{{ lookup('role_var', '_docker_image_tag', role='plex') }}"
 
 # Ports
-plex_role_docker_ports_32400: "{{ port_lookup_32400.meta.port
-                               if (port_lookup_32400.meta.port is defined) and (port_lookup_32400.meta.port | trim | length > 0)
-                               else '32400' }}"
-
 plex_role_docker_ports_default: []
 # Skip docs
 plex_role_docker_ports_local:
@@ -163,7 +166,7 @@ plex_role_docker_ports_local:
   - "32469:32469"
 # Skip docs
 plex_role_docker_ports_ui:
-  - "{{ plex_role_docker_ports_32400 }}:{{ lookup('vars', plex_name + '_web_port', default=plex_role_web_port) }}"
+  - "{{ plex_port_assignment.ports.web }}:{{ lookup('role_var', '_web_port', role='plex') }}"
 plex_role_docker_ports_custom: []
 plex_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='plex')
                             + lookup('role_var', '_docker_ports_custom', role='plex')

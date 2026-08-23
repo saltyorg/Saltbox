@@ -7,14 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Pre-Install | Get next available port within the range of '58112-58132'
-  find_open_port:
-    low_bound: 58112
-    high_bound: 58132
-    protocol: both
-  register: port_lookup_58112
-  ignore_errors: true
-
 - name: Pre-Install | Check if existing config file exists
   ansible.builtin.stat:
     path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"

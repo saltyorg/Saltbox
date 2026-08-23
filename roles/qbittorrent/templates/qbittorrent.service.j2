@@ -35,7 +35,7 @@ Group={{ user.name }}
 Type=exec
 Environment="XDG_CONFIG_HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}" "XDG_DATA_HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}" "HOME={{ lookup('role_var', '_paths_location', role='qbittorrent') }}"
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') }}
+ExecStart=/usr/bin/{{ qbittorrent_name }}-nox --webui-port={{ qbittorrent_port_assignment.ports.web }}
 AmbientCapabilities=CAP_NET_RAW
 TimeoutStopSec={{ lookup('role_var', '_docker_stop_timeout', role='qbittorrent') }}
 Restart=on-failure

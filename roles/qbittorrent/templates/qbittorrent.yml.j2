@@ -44,7 +44,7 @@ http:
     {{ qbittorrent_name }}:
       loadBalancer:
         servers:
-          - url: "http://172.19.0.1:{{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') }}"
+          - url: "http://172.19.0.1:{{ qbittorrent_port_assignment.ports.web }}"
 {% if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled %}
 
   middlewares:

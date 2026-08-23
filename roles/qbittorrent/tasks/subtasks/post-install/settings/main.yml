@@ -12,7 +12,7 @@
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: BitTorrent
     option: Session\Port
-    value: "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
+    value: "{{ qbittorrent_port_assignment.ports.peer }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -24,7 +24,7 @@
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: Connection\PortRangeMin
-    value: "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
+    value: "{{ qbittorrent_port_assignment.ports.peer }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
@@ -96,7 +96,7 @@
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Preferences
     option: WebUI\Port
-    value: "{{ lookup('role_var', '_docker_ports_8080', role='qbittorrent') if lookup('role_var', '_host_install', role='qbittorrent') else '8080' }}"
+    value: "{{ qbittorrent_port_assignment.ports.web if lookup('role_var', '_host_install', role='qbittorrent') else '8080' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"

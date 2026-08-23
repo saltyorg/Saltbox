@@ -84,12 +84,11 @@ crowdsec_whitelisted_ips: []
 crowdsec_whitelisted_cidrs: []
 
 ################################
-# Lookups
+# Ports
 ################################
 
-crowdsec_ports_8080: "{{ port_lookup_8080.meta.port
-                      if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
-                      else '8080' }}"
+crowdsec_port_low_bound: 8080
+crowdsec_port_high_bound: 8180
 
 ################################
 # Bouncers

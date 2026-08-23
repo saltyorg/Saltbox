@@ -31,17 +31,22 @@
       - "Please remove or move manual mounts and rerun."
   when: (mount_path_mountpoint_initial.rc == 0) and (not mount_path_managed_service_exists)
 
-- name: Remote | Get next available port within the range of '5572-5672'
-  find_open_port:
-    low_bound: "{{ rclone_remote_port_low_bound }}"
-    high_bound: "{{ rclone_remote_port_high_bound }}"
-    protocol: both
-  register: port_lookup_rclone
-
 - name: "Remote | Force unmount '{{ mount_path }}'"
   ansible.builtin.shell: "/bin/umount -f '{{ mount_path }}' 2>/dev/null || :"
   ignore_errors: true
   when: (mount_path_mountpoint_initial.rc == 0) and mount_path_managed_service_exists
+
+- name: "Remote | Assign port"
+  port_assignment:
+    base_path: "{{ server_appdata_path }}"
+    namespace: remote
+    owner: "{{ rclone_remote_name }}"
+    claims:
+      rc:
+        low_bound: "{{ rclone_remote_port_low_bound }}"
+        high_bound: "{{ rclone_remote_port_high_bound }}"
+        protocols: ["tcp"]
+  register: rclone_port_assignment
 
 - name: "Remote | Re-check if '{{ mount_path }}' is a mountpoint"
   ansible.builtin.command: "mountpoint -q -- '{{ mount_path }}'"

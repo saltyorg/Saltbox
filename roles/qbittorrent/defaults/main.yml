@@ -124,6 +124,15 @@ qbittorrent_role_themepark_addons: []
 qbittorrent_role_themepark_headers: "\"content-security-policy: default-src 'self'; style-src 'self' 'unsafe-inline' theme-park.dev raw.githubusercontent.com use.fontawesome.com; img-src 'self' theme-park.dev raw.githubusercontent.com data:; script-src 'self' 'unsafe-inline'; object-src 'none'; form-action 'self'; frame-ancestors 'self'; font-src use.fontawesome.com;\""
 
 ################################
+# Ports
+################################
+
+qbittorrent_role_port_peer_low_bound: 56881
+qbittorrent_role_port_peer_high_bound: 56901
+qbittorrent_role_port_web_low_bound: 8090
+qbittorrent_role_port_web_high_bound: 8100
+
+################################
 # Docker
 ################################
 
@@ -137,18 +146,9 @@ qbittorrent_role_docker_image_tag: "latest"
 qbittorrent_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='qbittorrent') }}:{{ lookup('role_var', '_docker_image_tag', role='qbittorrent') }}"
 
 # Ports
-qbittorrent_role_docker_ports_56881: "{{ port_lookup_56881.meta.port
-                                      if (port_lookup_56881.meta.port is defined) and (port_lookup_56881.meta.port | trim | length > 0)
-                                      else '56881' }}"
-qbittorrent_role_docker_ports_8080: "{{ port_lookup_8080.meta.port
-                                     if (port_lookup_8080.meta.port is defined) and (port_lookup_8080.meta.port | trim | length > 0)
-                                     else '8090' }}"
-# Skip docs
-qbittorrent_role_web_port_lookup: "{{ lookup('role_var', '_web_port', role='qbittorrent') }}"
-
 qbittorrent_role_docker_ports_default:
-  - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}"
-  - "{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}:{{ lookup('role_var', '_docker_ports_56881', role='qbittorrent') }}/udp"
+  - "{{ qbittorrent_port_assignment.ports.peer }}:{{ qbittorrent_port_assignment.ports.peer }}"
+  - "{{ qbittorrent_port_assignment.ports.peer }}:{{ qbittorrent_port_assignment.ports.peer }}/udp"
 qbittorrent_role_docker_ports_custom: []
 qbittorrent_role_docker_ports: "{{ lookup('role_var', '_docker_ports_default', role='qbittorrent')
                                    + lookup('role_var', '_docker_ports_custom', role='qbittorrent') }}"

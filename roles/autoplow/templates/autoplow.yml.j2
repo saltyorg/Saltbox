@@ -44,4 +44,4 @@ http:
     {{ autoplow_name }}:
       loadBalancer:
         servers:
-          - url: "http://172.19.0.1:{{ lookup('role_var', '_web_port', role='autoplow') }}"
+          - url: "http://172.19.0.1:{{ autoplow_port_assignment.ports.web }}"

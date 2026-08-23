@@ -17,6 +17,18 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
+- name: Assign ports
+  port_assignment:
+    base_path: "{{ server_appdata_path }}"
+    namespace: deluge
+    owner: "{{ deluge_name }}"
+    claims:
+      peer:
+        low_bound: "{{ lookup('role_var', '_port_peer_low_bound', role='deluge') }}"
+        high_bound: "{{ lookup('role_var', '_port_peer_high_bound', role='deluge') }}"
+        protocols: ["tcp", "udp"]
+  register: deluge_port_assignment
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 

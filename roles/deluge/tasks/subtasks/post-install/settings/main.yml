@@ -11,7 +11,7 @@
   ansible.builtin.replace:
     path: "{{ lookup('role_var', '_paths_conf', role='deluge') }}"
     regexp: '"listen_ports": (\[[\d|\W]+\]),'
-    replace: '"listen_ports": [{{ lookup("role_var", "_docker_ports_58112", role="deluge") }},{{ lookup("role_var", "_docker_ports_58112", role="deluge") }}],'
+    replace: '"listen_ports": [{{ deluge_port_assignment.ports.peer }},{{ deluge_port_assignment.ports.peer }}],'
 
 - name: Post-Install | Settings | Update 'core.conf' | Set listen random port to null
   ansible.builtin.replace:

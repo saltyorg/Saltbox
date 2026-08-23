@@ -32,7 +32,13 @@ autoplow_role_paths_folders_list:
 
 autoplow_role_web_subdomain: "{{ autoplow_name }}"
 autoplow_role_web_domain: "{{ user.domain }}"
-autoplow_role_web_port: "{{ autoplow_port_lookup.meta.port }}"
+
+################################
+# Ports
+################################
+
+autoplow_port_low_bound: 8300
+autoplow_port_high_bound: 8399
 
 ################################
 # GitHub
@@ -51,7 +57,7 @@ autoplow_service_name: "saltbox_managed_{{ autoplow_name }}"
 ################################
 
 autoplow_run_flags_default:
-  - "--port {{ autoplow_role_web_port }}"
+  - "--port {{ autoplow_port_assignment.ports.web }}"
   - "--bind 0.0.0.0"
   - "--db {{ autoplow_db_file }}"
   - "--allow-subnet 172.19.0.0/16"
