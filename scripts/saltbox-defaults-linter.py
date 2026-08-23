@@ -11,7 +11,10 @@ Rules:
    - Context resets when if/else blocks close (marked by )) or )))
 
 2. If/Else Alignment: if and else keywords must align with the opening {{ brackets,
-   the innermost unmatched grouping (, or the content inside a function call
+   the innermost unmatched grouping (, the content inside a function call, or
+   the value after else when the else branch contains a nested conditional.
+   Nested conditionals may not remain inline when the outer conditional is
+   multiline
 
 3. Variable Prefix: top-level *_role_* defaults must start with the role
    directory name
@@ -71,6 +74,7 @@ from pathlib import Path
 from typing import override
 
 ParenthesisContext = tuple[int, str]
+ElseBranchContext = tuple[int, int]
 JinjaBlock = tuple[int, int, list[str]]
 TopLevelVariable = tuple[str, int, list[str]]
 DEFAULTS_SECTION_ORDER = (
@@ -220,9 +224,7 @@ class DefaultsLinter:
 
                 # An else branch whose content continues on following lines creates
                 # a temporary alignment context for those continuation operators.
-                else_match = re.match(
-                    r"^(\s+)else (lookup|[a-z_]+)", continuation_line
-                )
+                else_match = re.match(r"^(\s+)else (lookup|[a-z_]+)", continuation_line)
                 if else_match:
                     closes_immediately = re.search(r"\)\)\)", continuation_line)
                     if not closes_immediately:
@@ -330,13 +332,15 @@ class DefaultsLinter:
                     f"{' and '.join(missing_layers)} layer(s) with explicit "
                     f"role_var lookups using role='{role_name}'"
                 )
-            elif default_match.start() > custom_match.start():
+            else:
+                assert default_match is not None
+                assert custom_match is not None
+                if default_match.start() <= custom_match.start():
+                    continue
                 message = (
                     f"[docker-layer-composition] Variable '{variable_name}' must "
                     "access its _default layer before its _custom layer"
                 )
-            else:
-                continue
 
             self.errors.append(
                 LintError(
@@ -370,9 +374,9 @@ class DefaultsLinter:
         missing_components = [
             suffix
             for suffix in ("_web_subdomain", "_web_domain")
-            if self.explicit_role_var_lookup_pattern(
-                suffix, role_name
-            ).search(expression)
+            if self.explicit_role_var_lookup_pattern(suffix, role_name).search(
+                expression
+            )
             is None
         ]
         if not missing_components:
@@ -483,9 +487,9 @@ class DefaultsLinter:
         missing_components = [
             suffix
             for suffix in ("_docker_image_repo", "_docker_image_tag")
-            if self.explicit_role_var_lookup_pattern(
-                suffix, role_name
-            ).search(expression)
+            if self.explicit_role_var_lookup_pattern(suffix, role_name).search(
+                expression
+            )
             is None
         ]
         if not missing_components:
@@ -598,11 +602,11 @@ class DefaultsLinter:
             "^"
             + re.escape(networks_name)
             + r":\s*['\"]\{\{\s*\(\s*docker_networks_common\s*"
-            r"\|\s*map\(\s*['\"]combine['\"]\s*,\s*"
-            r"\{\s*['\"]driver_opts['\"]\s*:\s*"
-            r"\{\s*['\"]com\.docker\.network\.endpoint\.ifname['\"]\s*:\s*"
-            r"['\"](?P<common_interface>[^'\"]+)['\"]\s*\}\s*\}\s*\)\s*"
-            r"\|\s*list\s*\)\s*\+\s*"
+            + r"\|\s*map\(\s*['\"]combine['\"]\s*,\s*"
+            + r"\{\s*['\"]driver_opts['\"]\s*:\s*"
+            + r"\{\s*['\"]com\.docker\.network\.endpoint\.ifname['\"]\s*:\s*"
+            + r"['\"](?P<common_interface>[^'\"]+)['\"]\s*\}\s*\}\s*\)\s*"
+            + r"\|\s*list\s*\)\s*\+\s*"
         )
         standard_match = standard_prefix.fullmatch(prefix)
         pinned_match = pinned_prefix.fullmatch(prefix)
@@ -621,7 +625,7 @@ class DefaultsLinter:
             _, default_lines = variables[networks_default_name]
             default_interfaces = re.findall(
                 r"^\s+com\.docker\.network\.endpoint\.ifname:\s*"
-                r"['\"]?([^'\"\s#]+)",
+                + r"['\"]?([^'\"\s#]+)",
                 "\n".join(default_lines),
                 flags=re.MULTILINE,
             )
@@ -731,13 +735,17 @@ class DefaultsLinter:
 
         role_var_custom_pattern = re.compile(
             r"lookup\s*\(\s*(['\"])role_var\1\s*,\s*"
-            r"(['\"])_docker_envs_custom\2\s*,"
+            + r"(['\"])_docker_envs_custom\2\s*,"
         )
         direct_custom_pattern = re.compile(
             r"\b([a-z][a-z0-9_]*)_role_docker_envs_custom\b"
         )
 
-        for variable_name, line_number, variable_lines in self.iter_top_level_variables():
+        for (
+            variable_name,
+            line_number,
+            variable_lines,
+        ) in self.iter_top_level_variables():
             expression = "\n".join(variable_lines)
 
             for line_offset, line in enumerate(variable_lines):
@@ -846,10 +854,7 @@ class DefaultsLinter:
         for variable_name, line_number, _ in self.iter_top_level_variables():
             if variable_pattern.fullmatch(variable_name) is None:
                 continue
-            if (
-                line_number > 1
-                and self.lines[line_number - 2] in exclusion_directives
-            ):
+            if line_number > 1 and self.lines[line_number - 2] in exclusion_directives:
                 continue
 
             self.errors.append(
@@ -944,12 +949,9 @@ class DefaultsLinter:
                 else:
                     is_redundant = (
                         has_direct_prefix is not None
-                        and re.fullmatch(
-                            r"\s*\|\s*combine\(\s*", between_lookups
-                        )
+                        and re.fullmatch(r"\s*\|\s*combine\(\s*", between_lookups)
                         is not None
-                        and re.fullmatch(r"\s*\)\s*\}\}['\"]\s*", suffix)
-                        is not None
+                        and re.fullmatch(r"\s*\)\s*\}\}['\"]\s*", suffix) is not None
                     )
 
             if not is_redundant:
@@ -1022,9 +1024,7 @@ class DefaultsLinter:
         between_lookups = expression[default_lookup.end() : custom_lookup.start()]
         suffix = expression[custom_lookup.end() :]
         is_supported = (
-            re.fullmatch(
-                "^" + re.escape(hosts_name) + r":\s*['\"]\{\{\s*", prefix
-            )
+            re.fullmatch("^" + re.escape(hosts_name) + r":\s*['\"]\{\{\s*", prefix)
             is not None
             and re.fullmatch(r"\s*\|\s*combine\(\s*", between_lookups) is not None
             and re.fullmatch(r"\s*\)\s*\}\}['\"]\s*", suffix) is not None
@@ -1134,9 +1134,9 @@ class DefaultsLinter:
             task_file.read_text(encoding="utf-8") for task_file in task_files
         )
         adapter_pattern = re.compile(
-            rf"^\s+([a-z][a-z0-9_]*)_role_web_subdomain:\s+.*"
-            rf"lookup\(\s*(['\"])role_var\2\s*,\s*(['\"])_([a-z][a-z0-9_]*)_web_subdomain\3"
-            rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\5\s*\)",
+            r"^\s+([a-z][a-z0-9_]*)_role_web_subdomain:\s+.*"
+            + r"lookup\(\s*(['\"])role_var\2\s*,\s*(['\"])_([a-z][a-z0-9_]*)_web_subdomain\3"
+            + rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\5\s*\)",
             flags=re.MULTILINE,
         )
         adapters = {
@@ -1189,7 +1189,7 @@ class DefaultsLinter:
                     )
                 )
 
-            missing_forwarding = []
+            missing_forwarding: list[str] = []
             for suffix in contract_suffixes:
                 target_name = f"{adapter}_role_{suffix}:"
                 lookup_suffix = f"_{adapter}_{suffix}"
@@ -1377,10 +1377,7 @@ class DefaultsLinter:
                     after.isalnum() or after == "_"
                 ):
                     equals_column = after_keyword
-                    while (
-                        equals_column < len(call)
-                        and call[equals_column].isspace()
-                    ):
+                    while equals_column < len(call) and call[equals_column].isspace():
                         equals_column += 1
                     if equals_column < len(call) and call[equals_column] == "=":
                         return True
@@ -1390,11 +1387,13 @@ class DefaultsLinter:
         return False
 
     @staticmethod
-    def explicit_role_var_lookup_pattern(suffix: str, role_name: str) -> re.Pattern[str]:
+    def explicit_role_var_lookup_pattern(
+        suffix: str, role_name: str
+    ) -> re.Pattern[str]:
         """Return a pattern for the repository's explicit role_var lookup form."""
         return re.compile(
             rf"lookup\(\s*(['\"])role_var\1\s*,\s*(['\"]){re.escape(suffix)}\2"
-            rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\3\s*\)"
+            + rf"\s*,\s*role\s*=\s*(['\"]){re.escape(role_name)}\3\s*\)"
         )
 
     def iter_top_level_variables(self) -> Iterator[TopLevelVariable]:
@@ -1518,6 +1517,44 @@ class DefaultsLinter:
             elif char == ")" and parenthesis_contexts:
                 _ = parenthesis_contexts.pop()
 
+    @staticmethod
+    def find_unquoted_keyword(
+        line: str, keyword: str, start_column: int = 0
+    ) -> int | None:
+        """Return the first standalone Jinja keyword outside quoted content."""
+        quote: str | None = None
+        escaped = False
+        keyword_end_offset = len(keyword)
+
+        for column in range(start_column, len(line) - keyword_end_offset + 1):
+            char = line[column]
+            if escaped:
+                escaped = False
+                continue
+            if char == "\\" and quote is not None:
+                escaped = True
+                continue
+            if quote is not None:
+                if char == quote:
+                    quote = None
+                continue
+            if char in ("'", '"'):
+                quote = char
+                continue
+            if not line.startswith(keyword, column):
+                continue
+
+            previous_char = line[column - 1] if column > 0 else ""
+            next_column = column + keyword_end_offset
+            next_char = line[next_column] if next_column < len(line) else ""
+            if (
+                not previous_char
+                or not (previous_char.isalnum() or previous_char == "_")
+            ) and (not next_char or not (next_char.isalnum() or next_char == "_")):
+                return column
+
+        return None
+
     def check_ifelse_alignment(self) -> None:
         """
         Rule 2: Check if/else keywords align with their expression context
@@ -1541,6 +1578,17 @@ class DefaultsLinter:
                                      if condition
                                      else fallback) }}"
                                      ^ Aligns one column after the opening parenthesis
+
+        A conditional used as an else value aligns with that value:
+            variable: "{{ value
+                       if first_condition
+                       else nested_value
+                            if second_condition
+                            else fallback }}"
+                            ^ Aligns with nested_value after "else "
+
+        Once an outer conditional is multiline, nested conditionals must also
+        use continuation lines so their alignment remains explicit.
         """
         for (
             jinja_start_line,
@@ -1548,6 +1596,7 @@ class DefaultsLinter:
             jinja_lines,
         ) in self.iter_multiline_jinja_blocks():
             parenthesis_contexts: list[ParenthesisContext] = []
+            else_branch_contexts: list[ElseBranchContext] = []
             self.update_parenthesis_contexts(
                 jinja_lines[0], parenthesis_contexts, jinja_bracket_indent + len("{{")
             )
@@ -1557,16 +1606,32 @@ class DefaultsLinter:
                 relative_path = str(self.file_path)
 
             for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                parenthesis_depth = len(parenthesis_contexts)
+                while (
+                    else_branch_contexts
+                    and else_branch_contexts[-1][1] > parenthesis_depth
+                ):
+                    _ = else_branch_contexts.pop()
+
                 stripped_line = continuation_line.strip()
                 expected_indent = (
                     parenthesis_contexts[-1][0]
                     if parenthesis_contexts
+                    else else_branch_contexts[-1][0]
+                    if else_branch_contexts
                     else jinja_bracket_indent
                 )
-                context = parenthesis_contexts[-1][1] if parenthesis_contexts else "{{"
+                context = (
+                    parenthesis_contexts[-1][1]
+                    if parenthesis_contexts
+                    else "else branch value"
+                    if else_branch_contexts
+                    else "{{"
+                )
 
-                # Inline conditionals do not have a continuation-line
-                # alignment requirement.
+                # Standalone inline conditionals do not have a continuation-line
+                # alignment requirement. An inline conditional used as the value
+                # of a multiline else branch is rejected below.
                 keyword: str | None = None
                 if stripped_line.startswith("if "):
                     keyword = "if"
@@ -1588,6 +1653,32 @@ class DefaultsLinter:
                                 commit_sha=self.commit_sha,
                             )
                         )
+
+                if keyword == "else":
+                    else_match = re.match(r"^\s*else\s+(\S)", continuation_line)
+                    if else_match is not None:
+                        branch_indent = else_match.start(1)
+                        nested_if_column = self.find_unquoted_keyword(
+                            continuation_line,
+                            "if",
+                            start_column=branch_indent,
+                        )
+                        if nested_if_column is not None:
+                            self.errors.append(
+                                LintError(
+                                    file=relative_path,
+                                    line=jinja_start_line + line_offset,
+                                    message=(
+                                        "[ifelse-alignment] Nested conditional in "
+                                        "an 'else' branch must use continuation "
+                                        "lines aligned with the branch value at "
+                                        f"column {branch_indent}"
+                                    ),
+                                    repo_url=self.repo_url,
+                                    commit_sha=self.commit_sha,
+                                )
+                            )
+                        else_branch_contexts.append((branch_indent, parenthesis_depth))
 
                 self.update_parenthesis_contexts(
                     continuation_line, parenthesis_contexts
