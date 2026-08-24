@@ -52,10 +52,10 @@ cloudflare_api_key_is_enabled: "{{ (cloudflare_api_key | trim | length > 0) and
 cloudflare_scoped_token_is_enabled: "{{ cloudflare_scoped_token | trim | length > 0 }}"
 cloudflare_is_enabled: "{{ cloudflare_api_key_is_enabled or cloudflare_scoped_token_is_enabled }}"
 cloudflare_auth_headers: "{{ {'Authorization': 'Bearer ' + cloudflare_scoped_token}
-                               if cloudflare_scoped_token_is_enabled
-                               else {'X-Auth-Email': cloudflare_email, 'X-Auth-Key': cloudflare_api_key}
-                                    if cloudflare_api_key_is_enabled
-                                    else {} }}"
+                          if cloudflare_scoped_token_is_enabled
+                          else {'X-Auth-Email': cloudflare_email, 'X-Auth-Key': cloudflare_api_key}
+                               if cloudflare_api_key_is_enabled
+                               else {} }}"
 
 cloudflare_records_enabled: "{{ cloudflare_is_enabled }}"
 
@@ -214,7 +214,9 @@ traefik_default_zerossl_resolver: "zerosslhttp"
 traefik_default_resolver: "httpresolver"
 traefik_default_certresolver: "{{ traefik_default_certprovider
                                if (not (traefik_http | bool))
-                               else (traefik_default_resolver if not zerossl_is_enabled else traefik_default_zerossl_resolver) }}"
+                               else (traefik_default_resolver
+                                     if not zerossl_is_enabled
+                                     else traefik_default_zerossl_resolver) }}"
 traefik_role_wildcard_enabled: "{{ lookup('role_var', '_traefik_wildcard_enabled', role=role_var_role, default=(not traefik_http)) | bool }}"
 
 
@@ -236,31 +238,31 @@ traefik_default_middleware_default_lookup:
 
 traefik_default_middleware_default: "{{ (traefik_default_middleware_default_lookup | select() | join(','))
                                         + (',autodetect@docker'
-                                          if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
-                                          else '')
+                                           if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
+                                           else '')
                                         + (',gzip@docker'
-                                          if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
-                                          else '')
+                                           if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
+                                           else '')
                                         + (',robotHeaders@file'
-                                          if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
-                                          else '')
+                                           if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
+                                           else '')
                                         + (',hsts@file'
-                                          if (traefik.hsts | bool)
-                                          else '')
+                                           if (traefik.hsts | bool)
+                                           else '')
                                         + (',cloudflarewarp@docker'
-                                          if traefik_default_cloudflarewarp
-                                          else '')
+                                           if traefik_default_cloudflarewarp
+                                           else '')
                                         + (',crowdsec@docker'
-                                          if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled))
-                                          else '')
+                                           if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled))
+                                           else '')
                                         + (',' if (traefik_role_middleware_sso | length > 0)
-                                               else '')
+                                           else '')
                                         + traefik_role_middleware_sso }}"
 traefik_default_middleware_custom: ""
 traefik_default_middleware: "{{ traefik_default_middleware_default
                                 + (',' + traefik_default_middleware_custom
-                                  if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
-                                  else traefik_default_middleware_custom) }}"
+                                   if (not traefik_default_middleware_custom.startswith(',') and traefik_default_middleware_custom | length > 0)
+                                   else traefik_default_middleware_custom) }}"
 
 traefik_role_middleware_sso: "{{ lookup('role_var', '_traefik_sso_middleware', role=role_var_role, default='') }}"
 traefik_role_middleware_default: "{{ lookup('role_var', '_traefik_middleware_default', role=role_var_role, default='') }}"
@@ -268,97 +270,97 @@ traefik_role_middleware_custom: "{{ lookup('role_var', '_traefik_middleware_cust
 
 traefik_middleware: "{{ traefik_role_middleware_default
                         + (',' + traefik_role_middleware_custom
-                          if (not traefik_role_middleware_custom.startswith(',') and traefik_role_middleware_custom | length > 0)
-                          else traefik_role_middleware_custom) }}"
+                           if (not traefik_role_middleware_custom.startswith(',') and traefik_role_middleware_custom | length > 0)
+                           else traefik_role_middleware_custom) }}"
 
 traefik_default_middleware_default_http:
   - "{{ traefik_error_pages_middleware }}"
   - "globalHeaders@file"
   - "{{ (''
-     if (lookup('role_var', '_traefik_middleware_http_insecure', role=role_var_role, default=false) | bool)
-     else 'redirect-to-https@docker') }}"
+         if (lookup('role_var', '_traefik_middleware_http_insecure', role=role_var_role, default=false) | bool)
+         else 'redirect-to-https@docker') }}"
 traefik_default_middleware_custom_http: ""
 traefik_default_middleware_http: "{{ (traefik_default_middleware_default_http | select() | join(','))
                                      + (',' + traefik_default_middleware_custom_http
-                                       if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
-                                       else traefik_default_middleware_custom_http)
+                                        if (not traefik_default_middleware_custom_http.startswith(',') and traefik_default_middleware_custom_http | length > 0)
+                                        else traefik_default_middleware_custom_http)
                                      + (',autodetect@docker'
-                                       if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
-                                       else '')
+                                        if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
+                                        else '')
                                      + (',gzip@docker'
-                                       if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
-                                       else '')
+                                        if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
+                                        else '')
                                      + (',robotHeaders@file'
-                                       if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
-                                       else '')
+                                        if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
+                                        else '')
                                      + (',cloudflarewarp@docker'
-                                       if (traefik_default_cloudflarewarp | bool)
-                                       else '')
+                                        if (traefik_default_cloudflarewarp | bool)
+                                        else '')
                                      + (',crowdsec@docker'
-                                       if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
-                                       else '')
+                                        if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
+                                        else '')
                                      + (',' if (traefik_role_middleware_sso | length > 0)
-                                       else '')
+                                        else '')
                                      + traefik_role_middleware_sso }}"
 
 traefik_default_middleware_default_http_api:
   - "globalHeaders@file"
   - "{{ (''
-     if (lookup('role_var', '_traefik_middleware_http_api_insecure', role=role_var_role, default=false) | bool)
-     else 'redirect-to-https@docker') }}"
+         if (lookup('role_var', '_traefik_middleware_http_api_insecure', role=role_var_role, default=false) | bool)
+         else 'redirect-to-https@docker') }}"
 traefik_default_middleware_custom_http_api: ""
 traefik_default_middleware_http_api: "{{ (traefik_default_middleware_default_http_api | select() | join(','))
                                          + (',' + traefik_default_middleware_custom_http_api
-                                           if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
-                                           else traefik_default_middleware_custom_http_api)
+                                            if (not traefik_default_middleware_custom_http_api.startswith(',') and traefik_default_middleware_custom_http_api | length > 0)
+                                            else traefik_default_middleware_custom_http_api)
                                          + (',autodetect@docker'
-                                           if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
-                                           else '')
+                                            if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
+                                            else '')
                                          + (',gzip@docker'
-                                           if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
-                                           else '')
-                                          + (',robotHeaders@file'
-                                           if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
-                                           else '')
+                                            if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
+                                            else '')
+                                         + (',robotHeaders@file'
+                                            if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
+                                            else '')
                                          + (',cloudflarewarp@docker'
-                                           if (traefik_default_cloudflarewarp | bool)
-                                           else '')
+                                            if (traefik_default_cloudflarewarp | bool)
+                                            else '')
                                          + (',crowdsec@docker'
-                                           if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
-                                           else '') }}"
+                                            if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
+                                            else '') }}"
 
 traefik_default_middleware_default_api: "{{ 'globalHeaders@file,secureHeaders@file'
                                             + (',autodetect@docker'
-                                              if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
-                                              else '')
+                                               if (lookup('role_var', '_traefik_autodetect_enabled', role=role_var_role, default=traefik_default_autodetect) | bool)
+                                               else '')
                                             + (',gzip@docker'
-                                              if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
-                                              else '')
+                                               if (lookup('role_var', '_traefik_gzip_enabled', role=role_var_role, default=traefik_default_gzip) | bool)
+                                               else '')
                                             + (',robotHeaders@file'
-                                              if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
-                                              else '')
+                                               if (lookup('role_var', '_traefik_robot_enabled', role=role_var_role, default=traefik_default_robot) | bool)
+                                               else '')
                                             + (',hsts@file'
-                                              if (traefik.hsts | bool)
-                                              else '')
+                                               if (traefik.hsts | bool)
+                                               else '')
                                             + (',cloudflarewarp@docker'
-                                              if (traefik_default_cloudflarewarp | bool)
-                                              else '')
+                                               if (traefik_default_cloudflarewarp | bool)
+                                               else '')
                                             + (',crowdsec@docker'
-                                              if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
-                                              else '') }}"
+                                               if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
+                                               else '') }}"
 traefik_default_middleware_custom_api: ""
 traefik_default_middleware_api: "{{ traefik_default_middleware_default_api
                                     + (',' + traefik_default_middleware_custom_api
-                                      if (not traefik_default_middleware_custom_api.startswith(',') and traefik_default_middleware_custom_api | length > 0)
-                                      else traefik_default_middleware_custom_api) }}"
+                                       if (not traefik_default_middleware_custom_api.startswith(',') and traefik_default_middleware_custom_api | length > 0)
+                                       else traefik_default_middleware_custom_api) }}"
 
 traefik_role_middleware_default_api: "{{ lookup('role_var', '_traefik_middleware_default_api', role=role_var_role, default='') }}"
 traefik_role_middleware_custom_api: "{{ lookup('role_var', '_traefik_middleware_custom_api', role=role_var_role, default='') }}"
 
 traefik_middleware_api: "{{ traefik_role_middleware_default_api
                             + (',' + traefik_role_middleware_custom_api
-                              if (not traefik_role_middleware_custom_api.startswith(',') and traefik_role_middleware_custom_api | length > 0)
-                              else traefik_role_middleware_custom_api) }}"
+                               if (not traefik_role_middleware_custom_api.startswith(',') and traefik_role_middleware_custom_api | length > 0)
+                               else traefik_role_middleware_custom_api) }}"
 
 traefik_default_sso_middleware: "authelia@docker"
 
@@ -383,14 +385,14 @@ traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', role=
 traefik_host_template: "{{ traefik_host | traefik_host_rule(traefik_host_override_lookup, traefik_fqdn_override_lookup) }}"
 
 traefik_certificate_fqdn_overrides: "{{ traefik_fqdn_override_lookup
-                                        if (traefik_host_override_lookup | length == 0)
-                                        else [] }}"
+                                     if (traefik_host_override_lookup | length == 0)
+                                     else [] }}"
 traefik_certificate_authoritative_zones: null
 traefik_router_certificate_domains: "{{ traefik_domain
-                                         | traefik_certificate_domains(traefik_certificate_fqdn_overrides,
-                                                                       [],
-                                                                       traefik_role_wildcard_enabled,
-                                                                       traefik_certificate_authoritative_zones) }}"
+                                        | traefik_certificate_domains(traefik_certificate_fqdn_overrides,
+                                                                      [],
+                                                                      traefik_role_wildcard_enabled,
+                                                                      traefik_certificate_authoritative_zones) }}"
 
 traefik_entrypoint_tailscale_default: false
 traefik_entrypoint_web_default: "{{ 'web' if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool) else 'tailscale-web' }}"
@@ -473,10 +475,10 @@ docker_labels_saltbox_tmp:
   - "{{ docker_labels_custom_common }}"
 
 docker_labels_wildcard_dict: "{{ traefik_router_certificate_domains
-                                   | traefik_certificate_labels(traefik_router) }}"
+                                 | traefik_certificate_labels(traefik_router) }}"
 
 docker_labels_wildcard_api_dict: "{{ traefik_router_certificate_domains
-                                       | traefik_certificate_labels(traefik_router + '-api') }}"
+                                     | traefik_certificate_labels(traefik_router + '-api') }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', role=role_var_role, default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', role=role_var_role, default=docker_networks_name_common) | split(':') | last }}"
@@ -528,8 +530,8 @@ docker_labels_traefik_main_dict: "{{ docker_labels_traefik_main | map('from_json
 docker_labels_traefik_api_dict: "{{ docker_labels_traefik_api | map('from_json') | combine | dict2items | rejectattr('value', 'equalto', '') | items2dict }}"
 
 docker_labels_traefik: "{{ (docker_labels_traefik_main_dict | combine(docker_labels_traefik_api_dict, docker_labels_wildcard_dict, docker_labels_wildcard_api_dict)
-                        if traefik_role_api_enabled
-                        else docker_labels_traefik_main_dict) | combine(docker_labels_wildcard_dict) }}"
+                            if traefik_role_api_enabled
+                            else docker_labels_traefik_main_dict) | combine(docker_labels_wildcard_dict) }}"
 
 docker_labels_common: "{{ docker_labels_saltbox | combine(docker_labels_traefik)
                        if traefik_role_enabled

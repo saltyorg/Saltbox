@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
 Saltbox Linter
-Enforces Saltbox formatting rules for role defaults and task files.
+Enforces Saltbox formatting rules for role defaults, task files, and the shared
+inventory.
 
-Multiline Jinja alignment rules apply to defaults and tasks. The remaining
-rules apply only to roles/*/defaults/main.yml files.
+Multiline Jinja alignment rules apply to defaults, tasks, and
+inventories/group_vars/all.yml. The remaining rules apply only to their
+documented defaults or task scopes.
 
 Rules:
 1. Operator Alignment: | and + operators align with their expression context
@@ -85,6 +87,9 @@ Rules:
 22. Cloudflare Auth Contract: role defaults and tasks must use the normalized
     Cloudflare authentication interface instead of reading accounts fields
     directly
+
+23. Function Argument Alignment: plain continuation arguments inside multiline
+    function calls must align with the first function argument
 """
 
 import os
@@ -241,6 +246,7 @@ class SaltboxLinter:
                 first_line, parenthesis_contexts, expression_start
             )
             else_alignment: int | None = None
+            else_parenthesis_depth: int | None = None
             in_else_context = False
 
             try:
@@ -249,6 +255,18 @@ class SaltboxLinter:
                 relative_path = str(self.file_path)
 
             for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                # An else-value alignment applies only while its surrounding
+                # parenthesis depth remains open. Once that grouping closes,
+                # following operators return to the outer expression context.
+                if (
+                    in_else_context
+                    and else_parenthesis_depth is not None
+                    and len(parenthesis_contexts) < else_parenthesis_depth
+                ):
+                    in_else_context = False
+                    else_alignment = None
+                    else_parenthesis_depth = None
+
                 current_alignment = (
                     else_alignment
                     if in_else_context and else_alignment is not None
@@ -265,6 +283,7 @@ class SaltboxLinter:
                 ):
                     in_else_context = False
                     else_alignment = None
+                    else_parenthesis_depth = None
 
                 # An else branch whose content continues on following lines creates
                 # a temporary alignment context for those continuation operators.
@@ -273,6 +292,7 @@ class SaltboxLinter:
                     closes_immediately = re.search(r"\)\)\)", continuation_line)
                     if not closes_immediately:
                         else_alignment = len(else_match.group(1)) + len("else ")
+                        else_parenthesis_depth = len(parenthesis_contexts)
                         in_else_context = True
 
                 op_match = re.match(r"^(\s+)([|+]) ", continuation_line)
@@ -293,6 +313,85 @@ class SaltboxLinter:
 
                 self.update_parenthesis_contexts(
                     continuation_line, parenthesis_contexts
+                )
+
+    def check_function_argument_alignment(self) -> None:
+        """Rule 23: Align multiline function arguments with function content."""
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            first_line = jinja_lines[0]
+            key_match = re.match(
+                r"^\s*(?:-\s+)?([a-zA-Z_][a-zA-Z0-9_.-]*):(?:\s|$)",
+                first_line,
+            )
+            if not key_match or jinja_bracket_indent < key_match.end():
+                continue
+
+            expression_start = jinja_bracket_indent + len("{{")
+            if not first_line.startswith(" ", expression_start):
+                continue
+
+            parenthesis_contexts: list[ParenthesisContext] = []
+            self.update_parenthesis_contexts(
+                first_line,
+                parenthesis_contexts,
+                expression_start,
+            )
+            try:
+                relative_path = str(self.file_path.relative_to(Path.cwd()))
+            except ValueError:
+                relative_path = str(self.file_path)
+
+            for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                stripped_line = continuation_line.strip()
+                skip_prefixes = (
+                    "| ",
+                    "+ ",
+                    "if ",
+                    "else ",
+                    "and ",
+                    "or ",
+                    ")",
+                    "]",
+                    "}",
+                )
+                is_plain_argument = (
+                    stripped_line
+                    and stripped_line not in {"and", "or"}
+                    and not stripped_line.startswith(skip_prefixes)
+                )
+                if (
+                    parenthesis_contexts
+                    and parenthesis_contexts[-1][1] == "function content"
+                    and is_plain_argument
+                ):
+                    expected_indent = parenthesis_contexts[-1][0]
+                    actual_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
+                    if actual_indent != expected_indent:
+                        diff = actual_indent - expected_indent
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=jinja_start_line + line_offset,
+                                message=(
+                                    "[function-argument-alignment] Argument at "
+                                    f"column {actual_indent}, expected function "
+                                    f"content at column {expected_indent} "
+                                    f"(off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+
+                self.update_parenthesis_contexts(
+                    continuation_line,
+                    parenthesis_contexts,
                 )
 
     def check_variable_prefix(self) -> None:
@@ -1898,15 +1997,17 @@ class SaltboxLinter:
                 )
 
     def lint_jinja_alignment(self) -> list[LintError]:
-        """Run multiline Jinja checks shared by defaults and task files."""
+        """Run multiline Jinja checks shared by defaults, tasks, and inventory."""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
+        self.check_function_argument_alignment()
         return self.errors
 
     def lint_defaults(self) -> list[LintError]:
         """Run all defaults checks and return the findings."""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
+        self.check_function_argument_alignment()
         self.check_variable_prefix()
         self.check_docker_layer_composition()
         self.check_web_url_composition()
@@ -2144,7 +2245,10 @@ def check_network_container_health_contract(
 
 
 def write_github_summary(
-    errors: list[LintError], defaults_checked: int, tasks_checked: int
+    errors: list[LintError],
+    defaults_checked: int,
+    tasks_checked: int,
+    inventory_checked: int,
 ) -> None:
     """Append a Saltbox lint report to the GitHub Actions job summary."""
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -2156,9 +2260,9 @@ def write_github_summary(
     lines = [
         "## Saltbox lint report",
         "",
-        "| Result | Defaults | Tasks | Findings |",
-        "| --- | ---: | ---: | ---: |",
-        f"| {result} | {defaults_checked} | {tasks_checked} | {len(errors)} |",
+        "| Result | Defaults | Tasks | Inventory | Findings |",
+        "| --- | ---: | ---: | ---: | ---: |",
+        f"| {result} | {defaults_checked} | {tasks_checked} | {inventory_checked} | {len(errors)} |",
     ]
 
     if errors:
@@ -2252,6 +2356,8 @@ def main() -> None:
 
     all_errors: list[LintError] = []
     defaults_files = sorted(repository_dir.glob("roles/*/defaults/main.yml"))
+    inventory_file = repository_dir / "inventories/group_vars/all.yml"
+    inventory_files = [inventory_file] if inventory_file.is_file() else []
     task_files = sorted(
         {
             task_file
@@ -2266,6 +2372,9 @@ def main() -> None:
             for task_file in repository_dir.glob(pattern)
         }
     )
+    inventory_file_label = (
+        "inventory file" if len(inventory_files) == 1 else "inventory files"
+    )
 
     for defaults_file in defaults_files:
         linter = SaltboxLinter(defaults_file, repo_url=repo_url, commit_sha=github_sha)
@@ -2274,6 +2383,15 @@ def main() -> None:
 
     for task_file in task_files:
         linter = SaltboxLinter(task_file, repo_url=repo_url, commit_sha=github_sha)
+        errors = linter.lint_jinja_alignment()
+        all_errors.extend(errors)
+
+    for inventory_file in inventory_files:
+        linter = SaltboxLinter(
+            inventory_file,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
         errors = linter.lint_jinja_alignment()
         all_errors.extend(errors)
 
@@ -2301,19 +2419,35 @@ def main() -> None:
 
     # Output results
     if all_errors:
-        print(
-            f"❌ Found {len(all_errors)} formatting error(s) in {len(defaults_files)} defaults and {len(task_files)} task files:\n"
+        result_message = f"❌ Found {len(all_errors)} formatting error(s) in "
+        result_message += (
+            f"{len(defaults_files)} defaults, {len(task_files)} task files, and "
         )
+        result_message += f"{len(inventory_files)} {inventory_file_label}:\n"
+        print(result_message)
         for error in all_errors:
             print(error.to_github_annotation())
         print(f"\nTotal: {len(all_errors)} error(s)")
-        write_github_summary(all_errors, len(defaults_files), len(task_files))
+        write_github_summary(
+            all_errors,
+            len(defaults_files),
+            len(task_files),
+            len(inventory_files),
+        )
         sys.exit(1)
     else:
-        print(
-            f"✅ All {len(defaults_files)} role defaults and {len(task_files)} task files pass formatting checks"
+        result_message = f"✅ All {len(defaults_files)} role defaults, "
+        result_message += f"{len(task_files)} task files, and "
+        result_message += (
+            f"{len(inventory_files)} {inventory_file_label} pass formatting checks"
         )
-        write_github_summary(all_errors, len(defaults_files), len(task_files))
+        print(result_message)
+        write_github_summary(
+            all_errors,
+            len(defaults_files),
+            len(task_files),
+            len(inventory_files),
+        )
         sys.exit(0)
 
 
