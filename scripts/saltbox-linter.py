@@ -27,8 +27,9 @@ Rules:
 4. Docker Layer Composition: aggregates with matching _default and _custom
    companions must use explicit role_var lookups in default-before-custom order
 
-5. Role Web Contract: canonical role web URL and host defaults must use the
-   standalone role_web lookup with the matching role, endpoint, and scheme
+5. Role Web Contract: discover complete subdomain/domain endpoint families;
+   their canonical host and URL defaults must use role_web with the matching
+   role, endpoint, and scheme, or derive HTTPS URLs from an overridable host
 
 6. Docker Image Composition: role images must define repository and tag
    defaults and access both through explicit role_var lookups
@@ -104,16 +105,6 @@ DEFAULTS_SECTION_ORDER = (
     "Docker",
     "Dependencies",
 )
-NAMED_ROLE_WEB_CONTRACTS = {
-    "calibre": (("calibre_role_web2_role_web_url", "web2", "https"),),
-    "crafty": (("crafty_role_dynmap_host", "dynmap_web", None),),
-    "invoiceninjav5": (("invoiceninjav5_role_nginx_web_url", "nginx_web", "https"),),
-    "plex": (("plex_role_web_insecure_url", "web", "http"),),
-    "silo": (
-        ("silo_role_web_jf_host", "web_jf", None),
-        ("silo_role_web_abs_host", "web_abs", None),
-    ),
-}
 
 
 class LintError:
@@ -402,39 +393,52 @@ class SaltboxLinter:
             )
 
     def check_web_url_composition(self) -> None:
-        """Rule 5: Check canonical URL and host defaults use role_web."""
+        """Rule 5: Check discovered endpoint URL and host defaults."""
         role_name = self.file_path.parent.parent.name
-        web_url_name = f"{role_name}_role_web_url"
-        web_host_name = f"{role_name}_role_web_host"
-        web_subdomain_name = f"{role_name}_role_web_subdomain"
-        web_domain_name = f"{role_name}_role_web_domain"
         variables = {
             variable_name: (line_number, variable_lines)
             for variable_name, line_number, variable_lines in self.iter_top_level_variables()
         }
-
-        if not all(
-            variable_name in variables
-            for variable_name in (web_subdomain_name, web_domain_name)
-        ):
-            return
 
         try:
             relative_path = str(self.file_path.relative_to(Path.cwd()))
         except ValueError:
             relative_path = str(self.file_path)
 
+        role_prefix = f"{role_name}_role_"
+        endpoint_component_pattern = re.compile(
+            "^"
+            + re.escape(role_prefix)
+            + r"(?P<endpoint>[a-z][a-z0-9_]*)_"
+            + r"(?P<component>subdomain|domain)$"
+        )
+        endpoint_components: dict[str, set[str]] = {}
+        for variable_name in variables:
+            match = endpoint_component_pattern.fullmatch(variable_name)
+            if match is None:
+                continue
+            endpoint_components.setdefault(match.group("endpoint"), set()).add(
+                match.group("component")
+            )
+
         contracts: list[tuple[str, str, str | None]] = []
-        if web_url_name in variables:
-            contracts.append((web_url_name, "web", "https"))
-        if web_host_name in variables:
-            contracts.append((web_host_name, "web", None))
-        contracts.extend(NAMED_ROLE_WEB_CONTRACTS.get(role_name, ()))
+        recognized_variables: set[str] = set()
+        for endpoint, components in endpoint_components.items():
+            if components != {"subdomain", "domain"}:
+                continue
+            endpoint_prefix = f"{role_prefix}{endpoint}"
+            endpoint_contracts = (
+                (f"{endpoint_prefix}_host", None),
+                (f"{endpoint_prefix}_url", "https"),
+                (f"{endpoint_prefix}_insecure_url", "http"),
+            )
+            for variable_name, scheme in endpoint_contracts:
+                if variable_name not in variables:
+                    continue
+                contracts.append((variable_name, endpoint, scheme))
+                recognized_variables.add(variable_name)
 
         for variable_name, endpoint, scheme in contracts:
-            if variable_name not in variables:
-                continue
-
             line_number, variable_lines = variables[variable_name]
             expected = self.canonical_role_web_default(
                 variable_name, role_name, endpoint, scheme
@@ -442,8 +446,22 @@ class SaltboxLinter:
             if variable_lines[0] == expected:
                 continue
 
+            host_variable_name = f"{role_prefix}{endpoint}_host"
+            if scheme == "https" and host_variable_name in variables:
+                expected = self.canonical_role_web_url_from_host_default(
+                    variable_name, role_name, endpoint
+                )
+                if variable_lines[0] == expected:
+                    continue
+
             endpoint_text = f", endpoint='{endpoint}'" if endpoint != "web" else ""
             scheme_text = f", scheme='{scheme}'" if scheme is not None else ""
+            host_fallback_text = ""
+            if scheme == "https" and host_variable_name in variables:
+                host_fallback_text = (
+                    f" or derive from lookup('role_var', '_{endpoint}_host', "
+                    f"role='{role_name}')"
+                )
             self.errors.append(
                 LintError(
                     file=relative_path,
@@ -451,7 +469,31 @@ class SaltboxLinter:
                     message=(
                         f"[role-web-contract] Variable '{variable_name}' must use "
                         f"lookup('role_web', role='{role_name}'{endpoint_text}"
-                        f"{scheme_text})"
+                        f"{scheme_text}){host_fallback_text}"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+        direct_role_web_pattern = re.compile(
+            r":\s*['\"]\{\{\s*lookup\(\s*['\"]role_web['\"]"
+        )
+        for variable_name, (line_number, variable_lines) in variables.items():
+            if variable_name in recognized_variables:
+                continue
+            if not variable_name.endswith(("_host", "_url")):
+                continue
+            if direct_role_web_pattern.search(variable_lines[0]) is None:
+                continue
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[role-web-contract] Variable '{variable_name}' must "
+                        "use a canonical host or URL name for a matching "
+                        "subdomain/domain endpoint"
                     ),
                     repo_url=self.repo_url,
                     commit_sha=self.commit_sha,
@@ -1530,6 +1572,18 @@ class SaltboxLinter:
             f"{variable_name}: \"{{{{ lookup('role_web', "
             + ", ".join(arguments)
             + ') }}"'
+        )
+
+    @staticmethod
+    def canonical_role_web_url_from_host_default(
+        variable_name: str,
+        role_name: str,
+        endpoint: str,
+    ) -> str:
+        """Return the canonical HTTPS URL form based on an overridable host."""
+        return (
+            f"{variable_name}: \"https://{{{{ lookup('role_var', "
+            + f"'_{endpoint}_host', role='{role_name}') }}}}\""
         )
 
     @staticmethod
