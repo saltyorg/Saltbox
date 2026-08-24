@@ -183,7 +183,7 @@ access_control:
     {{ (lookup('role_var', '_access_control_whitelist_rules_lookup', role='authelia') + lookup('role_var', '_access_control_rules', role='authelia')) | to_nice_yaml | indent(4) }}
 
 session:
-  name: {{ (lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia')) | lower }}
+  name: {{ lookup('role_web', role='authelia') | lower }}
   secret: {{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=32) }}
   expiration: 1h
   inactivity: 5m

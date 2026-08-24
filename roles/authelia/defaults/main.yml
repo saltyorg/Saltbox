@@ -211,7 +211,7 @@ authelia_role_jwt_secret: "{{ lookup('password', '/dev/null', chars=['ascii_lett
 
 # TOTP - Sub-section Start
 authelia_role_totp_disable: false
-authelia_role_totp_issuer: "{{ lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia') }}"
+authelia_role_totp_issuer: "{{ lookup('role_web', role='authelia') }}"
 authelia_role_totp_algorithm: "SHA1"
 authelia_role_totp_digits: "6"
 authelia_role_totp_period: "30"
@@ -270,9 +270,7 @@ authelia_role_paths_folders_list:
 authelia_role_web_subdomain: "{{ authelia.subdomain }}"
 authelia_role_web_domain: "{{ user.domain }}"
 authelia_role_web_port: "9091"
-authelia_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='authelia') + '.' + lookup('role_var', '_web_domain', role='authelia')
-                                if (lookup('role_var', '_web_subdomain', role='authelia') | length > 0)
-                                else lookup('role_var', '_web_domain', role='authelia') }}"
+authelia_role_web_url: "{{ lookup('role_web', role='authelia', scheme='https') }}"
 
 ################################
 # DNS

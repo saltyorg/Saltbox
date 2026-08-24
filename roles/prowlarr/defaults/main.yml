@@ -36,9 +36,7 @@ prowlarr_role_paths_folders_list:
 prowlarr_role_web_subdomain: "{{ prowlarr_name }}"
 prowlarr_role_web_domain: "{{ user.domain }}"
 prowlarr_role_web_port: "9696"
-prowlarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='prowlarr') + '.' + lookup('role_var', '_web_domain', role='prowlarr')
-                                if (lookup('role_var', '_web_subdomain', role='prowlarr') | length > 0)
-                                else lookup('role_var', '_web_domain', role='prowlarr') }}"
+prowlarr_role_web_url: "{{ lookup('role_web', role='prowlarr', scheme='https') }}"
 
 ################################
 # DNS

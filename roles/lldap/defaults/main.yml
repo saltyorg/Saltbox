@@ -51,9 +51,7 @@ lldap_role_paths_folders_list:
 lldap_role_web_subdomain: "lldap"
 lldap_role_web_domain: "{{ user.domain }}"
 lldap_role_web_port: "17170"
-lldap_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='lldap') + '.' + lookup('role_var', '_web_domain', role='lldap')
-                             if (lookup('role_var', '_web_subdomain', role='lldap') | length > 0)
-                             else lookup('role_var', '_web_domain', role='lldap') }}"
+lldap_role_web_url: "{{ lookup('role_web', role='lldap', scheme='https') }}"
 
 ################################
 # DNS

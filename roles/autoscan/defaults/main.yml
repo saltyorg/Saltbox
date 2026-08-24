@@ -30,9 +30,7 @@ autoscan_role_paths_config_location: "{{ autoscan_role_paths_location }}/config.
 autoscan_role_web_subdomain: "{{ autoscan_name }}"
 autoscan_role_web_domain: "{{ user.domain }}"
 autoscan_role_web_port: "3030"
-autoscan_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='autoscan') + '.' + lookup('role_var', '_web_domain', role='autoscan')
-                                if (lookup('role_var', '_web_subdomain', role='autoscan') | length > 0)
-                                else lookup('role_var', '_web_domain', role='autoscan') }}"
+autoscan_role_web_url: "{{ lookup('role_web', role='autoscan', scheme='https') }}"
 
 ################################
 # DNS

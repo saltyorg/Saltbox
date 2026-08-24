@@ -45,9 +45,7 @@ dozzle_role_paths_folders_list:
 dozzle_role_web_subdomain: "{{ dozzle_name }}"
 dozzle_role_web_domain: "{{ user.domain }}"
 dozzle_role_web_port: "8080"
-dozzle_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='dozzle') + '.' + lookup('role_var', '_web_domain', role='dozzle')
-                              if (lookup('role_var', '_web_subdomain', role='dozzle') | length > 0)
-                              else lookup('role_var', '_web_domain', role='dozzle') }}"
+dozzle_role_web_url: "{{ lookup('role_web', role='dozzle', scheme='https') }}"
 
 ################################
 # DNS

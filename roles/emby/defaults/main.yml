@@ -18,7 +18,7 @@ emby_instances: ["emby"]
 ################################
 
 emby_role_config_settings_is_behind_proxy: "true"
-emby_role_config_settings_wan_ddns: "{{ lookup('role_var', '_web_subdomain', role='emby') }}.{{ lookup('role_var', '_web_domain', role='emby') }}"
+emby_role_config_settings_wan_ddns: "{{ lookup('role_web', role='emby') }}"
 emby_role_config_settings_public_port: "80"
 emby_role_config_settings_public_https_port: "443"
 emby_role_config_settings_enable_https: "true"
@@ -48,9 +48,7 @@ emby_role_paths_dlna_xml_location: "{{ emby_role_paths_location }}/config/dlna.x
 emby_role_web_subdomain: "{{ emby_name }}"
 emby_role_web_domain: "{{ user.domain }}"
 emby_role_web_port: "8096"
-emby_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='emby') + '.' + lookup('role_var', '_web_domain', role='emby')
-                            if (lookup('role_var', '_web_subdomain', role='emby') | length > 0)
-                            else lookup('role_var', '_web_domain', role='emby') }}"
+emby_role_web_url: "{{ lookup('role_web', role='emby', scheme='https') }}"
 
 ################################
 # DNS

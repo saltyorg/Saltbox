@@ -36,9 +36,7 @@ whisparr_paths_folders_list:
 whisparr_role_web_subdomain: "{{ whisparr_name }}"
 whisparr_role_web_domain: "{{ user.domain }}"
 whisparr_role_web_port: "6969"
-whisparr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='whisparr') + '.' + lookup('role_var', '_web_domain', role='whisparr')
-                                if (lookup('role_var', '_web_subdomain', role='whisparr') | length > 0)
-                                else lookup('role_var', '_web_domain', role='whisparr') }}"
+whisparr_role_web_url: "{{ lookup('role_web', role='whisparr', scheme='https') }}"
 
 ################################
 # DNS

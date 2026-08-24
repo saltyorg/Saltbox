@@ -82,9 +82,7 @@ qbittorrent_role_paths_folders_list:
 qbittorrent_role_web_subdomain: "{{ qbittorrent_name }}"
 qbittorrent_role_web_domain: "{{ user.domain }}"
 qbittorrent_role_web_port: "8080"
-qbittorrent_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='qbittorrent') + '.' + lookup('role_var', '_web_domain', role='qbittorrent')
-                                   if (lookup('role_var', '_web_subdomain', role='qbittorrent') | length > 0)
-                                   else lookup('role_var', '_web_domain', role='qbittorrent') }}"
+qbittorrent_role_web_url: "{{ lookup('role_web', role='qbittorrent', scheme='https') }}"
 
 ################################
 # DNS

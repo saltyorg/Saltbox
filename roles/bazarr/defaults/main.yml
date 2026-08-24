@@ -29,9 +29,7 @@ bazarr_role_paths_folders_list:
 bazarr_role_web_subdomain: "{{ bazarr_name }}"
 bazarr_role_web_domain: "{{ user.domain }}"
 bazarr_role_web_port: "6767"
-bazarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='bazarr') + '.' + lookup('role_var', '_web_domain', role='bazarr')
-                              if (lookup('role_var', '_web_subdomain', role='bazarr') | length > 0)
-                              else lookup('role_var', '_web_domain', role='bazarr') }}"
+bazarr_role_web_url: "{{ lookup('role_web', role='bazarr', scheme='https') }}"
 
 ################################
 # DNS

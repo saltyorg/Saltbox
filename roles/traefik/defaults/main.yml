@@ -482,11 +482,11 @@ traefik_role_docker_labels_default:
   traefik.http.routers.traefik-internal.rule: "Host(`{{ traefik_name }}`)"
   traefik.http.routers.traefik-internal.entrypoints: "internal"
   traefik.http.routers.traefik-internal.service: "api@internal"
-  traefik.http.routers.traefik-http.rule: "Host(`{{ lookup('role_var', '_web_subdomain', role='traefik') }}.{{ lookup('role_var', '_web_domain', role='traefik') }}`)"
+  traefik.http.routers.traefik-http.rule: "Host(`{{ lookup('role_web', role='traefik') }}`)"
   traefik.http.routers.traefik-http.entrypoints: "{{ traefik_entrypoint_web }}"
   traefik.http.routers.traefik-http.middlewares: "{{ traefik_default_middleware_http }}"
   traefik.http.routers.traefik-http.priority: "20"
-  traefik.http.routers.traefik.rule: "Host(`{{ lookup('role_var', '_web_subdomain', role='traefik') }}.{{ lookup('role_var', '_web_domain', role='traefik') }}`)"
+  traefik.http.routers.traefik.rule: "Host(`{{ lookup('role_web', role='traefik') }}`)"
   traefik.http.routers.traefik.entrypoints: "{{ traefik_entrypoint_websecure }}"
   traefik.http.routers.traefik.tls: "true"
   traefik.http.routers.traefik.tls.options: "securetls@file"
@@ -526,12 +526,12 @@ traefik_role_docker_labels_http_validation:
   traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
 
 traefik_role_docker_labels_metrics:
-  traefik.http.routers.metrics-http.rule: "Host(`{{ lookup('role_var', '_metrics_subdomain', role='traefik') }}.{{ lookup('role_var', '_metrics_domain', role='traefik') }}`) && Path(`/prometheus`)"
+  traefik.http.routers.metrics-http.rule: "Host(`{{ lookup('role_web', role='traefik', endpoint='metrics') }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics-http.service: prometheus@internal
   traefik.http.routers.metrics-http.entrypoints: "{{ traefik_entrypoint_web }}"
   traefik.http.routers.metrics-http.middlewares: "traefik-auth,{{ traefik_default_middleware_http_api }}"
   traefik.http.routers.metrics-http.priority: "20"
-  traefik.http.routers.metrics.rule: "Host(`{{ lookup('role_var', '_metrics_subdomain', role='traefik') }}.{{ lookup('role_var', '_metrics_domain', role='traefik') }}`) && Path(`/prometheus`)"
+  traefik.http.routers.metrics.rule: "Host(`{{ lookup('role_web', role='traefik', endpoint='metrics') }}`) && Path(`/prometheus`)"
   traefik.http.routers.metrics.service: prometheus@internal
   traefik.http.routers.metrics.entrypoints: "{{ traefik_entrypoint_websecure }}"
   traefik.http.routers.metrics.tls: "true"

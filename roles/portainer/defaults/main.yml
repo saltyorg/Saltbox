@@ -35,9 +35,7 @@ portainer_role_paths_folders_list:
 portainer_role_web_subdomain: "{{ portainer_name }}"
 portainer_role_web_domain: "{{ user.domain }}"
 portainer_role_web_port: "9000"
-portainer_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='portainer') + '.' + lookup('role_var', '_web_domain', role='portainer')
-                                 if (lookup('role_var', '_web_subdomain', role='portainer') | length > 0)
-                                 else lookup('role_var', '_web_domain', role='portainer') }}"
+portainer_role_web_url: "{{ lookup('role_web', role='portainer', scheme='https') }}"
 
 ################################
 # DNS

@@ -36,9 +36,7 @@ sonarr_role_paths_config_location: "{{ sonarr_role_paths_location }}/config.xml"
 sonarr_role_web_subdomain: "{{ sonarr_name }}"
 sonarr_role_web_domain: "{{ user.domain }}"
 sonarr_role_web_port: "8989"
-sonarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='sonarr') + '.' + lookup('role_var', '_web_domain', role='sonarr')
-                              if (lookup('role_var', '_web_subdomain', role='sonarr') | length > 0)
-                              else lookup('role_var', '_web_domain', role='sonarr') }}"
+sonarr_role_web_url: "{{ lookup('role_web', role='sonarr', scheme='https') }}"
 
 ################################
 # DNS

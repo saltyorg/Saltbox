@@ -36,9 +36,7 @@ lidarr_role_paths_config_location: "{{ lidarr_role_paths_location }}/config.xml"
 lidarr_role_web_subdomain: "{{ lidarr_name }}"
 lidarr_role_web_domain: "{{ user.domain }}"
 lidarr_role_web_port: "8686"
-lidarr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='lidarr') + '.' + lookup('role_var', '_web_domain', role='lidarr')
-                              if (lookup('role_var', '_web_subdomain', role='lidarr') | length > 0)
-                              else lookup('role_var', '_web_domain', role='lidarr') }}"
+lidarr_role_web_url: "{{ lookup('role_web', role='lidarr', scheme='https') }}"
 
 ################################
 # DNS

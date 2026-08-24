@@ -366,9 +366,7 @@ traefik_router: "{{ lookup('vars', traefik_role_var + '_name', default=lookup('v
 traefik_loadbalancer_port: "{{ lookup('role_var', '_web_port', role=role_var_role, default=omit) }}"
 traefik_loadbalancer_scheme: "{{ lookup('role_var', '_web_scheme', role=role_var_role, default=omit) }}"
 
-traefik_host: "{{ traefik_subdomain + '.' + traefik_domain
-               if (traefik_subdomain | length > 0)
-               else traefik_domain }}"
+traefik_host: "{{ lookup('role_web', role=(role_var_role if role_var_role else role_name)) }}"
 
 traefik_host_override_lookup: "{{ lookup('role_var', '_web_host_override', role=role_var_role, default='') }}"
 traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', role=role_var_role, default=[]) }}"
@@ -380,11 +378,7 @@ traefik_entrypoint_web: "{{ lookup('role_var', '_traefik_entrypoint_web', role=r
 traefik_entrypoint_websecure_default: "{{ 'websecure' if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool) else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('role_var', '_traefik_entrypoint_websecure', role=role_var_role, default=traefik_entrypoint_websecure_default) }}"
 
-traefik_url: "{{ 'https://'
-                 + ((lookup('role_var', '_web_subdomain', role=role_var_role, default='') + '.'
-                 + lookup('role_var', '_web_domain', role=role_var_role, default=''))
-              if (lookup('role_var', '_web_subdomain', role=role_var_role, default='') | length > 0)
-              else lookup('role_var', '_web_domain', role=role_var_role, default='')) }}"
+traefik_url: "{{ lookup('role_web', role=(role_var_role if role_var_role else role_name), scheme='https') }}"
 
 traefik_themepark_labels_tmp:
   - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.app": "{{ lookup("role_var", "_themepark_app", role=role_var_role, default=role_name) }}" }'

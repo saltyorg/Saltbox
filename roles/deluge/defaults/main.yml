@@ -36,9 +36,7 @@ deluge_role_paths_folders_list:
 deluge_role_web_subdomain: "{{ deluge_name }}"
 deluge_role_web_domain: "{{ user.domain }}"
 deluge_role_web_port: "8112"
-deluge_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='deluge') + '.' + lookup('role_var', '_web_domain', role='deluge')
-                              if (lookup('role_var', '_web_subdomain', role='deluge') | length > 0)
-                              else lookup('role_var', '_web_domain', role='deluge') }}"
+deluge_role_web_url: "{{ lookup('role_web', role='deluge', scheme='https') }}"
 
 ################################
 # DNS

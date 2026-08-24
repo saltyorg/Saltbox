@@ -39,9 +39,7 @@ prometheus_role_paths_folders_list:
 prometheus_role_web_subdomain: "{{ prometheus_name }}"
 prometheus_role_web_domain: "{{ user.domain }}"
 prometheus_role_web_port: "9090"
-prometheus_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='prometheus') + '.' + lookup('role_var', '_web_domain', role='prometheus')
-                                  if (lookup('role_var', '_web_subdomain', role='prometheus') | length > 0)
-                                  else lookup('role_var', '_web_domain', role='prometheus') }}"
+prometheus_role_web_url: "{{ lookup('role_web', role='prometheus', scheme='https') }}"
 
 ################################
 # DNS

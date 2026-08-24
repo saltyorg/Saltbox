@@ -29,9 +29,7 @@ jackett_role_paths_folders_list:
 jackett_role_web_subdomain: "{{ jackett_name }}"
 jackett_role_web_domain: "{{ user.domain }}"
 jackett_role_web_port: "9117"
-jackett_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='jackett') + '.' + lookup('role_var', '_web_domain', role='jackett')
-                               if (lookup('role_var', '_web_subdomain', role='jackett') | length > 0)
-                               else lookup('role_var', '_web_domain', role='jackett') }}"
+jackett_role_web_url: "{{ lookup('role_web', role='jackett', scheme='https') }}"
 
 ################################
 # DNS

@@ -35,9 +35,7 @@ organizr_role_paths_folders_list:
 organizr_role_web_subdomain: "{{ organizr_name }}"
 organizr_role_web_domain: "{{ user.domain }}"
 organizr_role_web_port: "80"
-organizr_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='organizr') + '.' + lookup('role_var', '_web_domain', role='organizr')
-                                if (lookup('role_var', '_web_subdomain', role='organizr') | length > 0)
-                                else lookup('role_var', '_web_domain', role='organizr') }}"
+organizr_role_web_url: "{{ lookup('role_web', role='organizr', scheme='https') }}"
 
 ################################
 # DNS

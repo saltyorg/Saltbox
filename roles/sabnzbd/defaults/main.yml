@@ -43,9 +43,7 @@ sabnzbd_role_paths_config_location: "{{ sabnzbd_role_paths_location }}/sabnzbd.i
 sabnzbd_role_web_subdomain: "{{ sabnzbd_name }}"
 sabnzbd_role_web_domain: "{{ user.domain }}"
 sabnzbd_role_web_port: "8080"
-sabnzbd_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='sabnzbd') + '.' + lookup('role_var', '_web_domain', role='sabnzbd')
-                               if (lookup('role_var', '_web_subdomain', role='sabnzbd') | length > 0)
-                               else lookup('role_var', '_web_domain', role='sabnzbd') }}"
+sabnzbd_role_web_url: "{{ lookup('role_web', role='sabnzbd', scheme='https') }}"
 sabnzbd_role_web_local_url: "{{ 'http://' + sabnzbd_name + ':' + lookup('role_var', '_web_port', role='sabnzbd') }}"
 
 ################################
@@ -79,14 +77,14 @@ sabnzbd_role_traefik_api_endpoint: "PathPrefix(`/api`)"
 
 sabnzbd_role_config_settings_web:
   # Web
-  - { option: "host_whitelist", value: "{{ lookup('role_var', '_web_subdomain', role='sabnzbd') }}.{{ lookup('role_var', '_web_domain', role='sabnzbd') }}, {{ sabnzbd_name }}" }
+  - { option: "host_whitelist", value: "{{ lookup('role_web', role='sabnzbd') }}, {{ sabnzbd_name }}" }
   - { option: "url_base", value: "" }
   - { option: "log_dir", value: "/config/logs" }
   - { option: "inet_exposure", value: "{{ lookup('role_var', '_inet_exposure', role='sabnzbd') }}" }
 
 sabnzbd_role_config_settings_default:
   # Web
-  - { option: "host_whitelist", value: "{{ lookup('role_var', '_web_subdomain', role='sabnzbd') }}.{{ lookup('role_var', '_web_domain', role='sabnzbd') }}, {{ sabnzbd_name }}" }
+  - { option: "host_whitelist", value: "{{ lookup('role_web', role='sabnzbd') }}, {{ sabnzbd_name }}" }
   - { option: "url_base", value: "" }
   # Paths
   - { option: "dirscan_dir", value: "{{ lookup('role_var', '_paths_downloads_location', role='sabnzbd') }}/watch" }

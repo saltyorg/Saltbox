@@ -47,9 +47,7 @@ netdata_role_paths_folders_list:
 netdata_role_web_subdomain: "{{ netdata_name }}"
 netdata_role_web_domain: "{{ user.domain }}"
 netdata_role_web_port: "19999"
-netdata_role_web_url: "https://{{ lookup('role_var', '_web_subdomain', role='netdata') + '.' + lookup('role_var', '_web_domain', role='netdata')
-                               if (lookup('role_var', '_web_subdomain', role='netdata') | length > 0)
-                               else lookup('role_var', '_web_domain', role='netdata') }}"
+netdata_role_web_url: "{{ lookup('role_web', role='netdata', scheme='https') }}"
 
 ################################
 # DNS
