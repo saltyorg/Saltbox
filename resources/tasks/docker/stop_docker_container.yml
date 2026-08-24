@@ -17,17 +17,35 @@
   ansible.builtin.set_fact:
     _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
 
+- name: Resources | Tasks | Docker | Stop Docker Container | Resolve container name
+  ansible.builtin.set_fact:
+    _docker_container: "{{ container_name
+                        if (container_name is defined)
+                        else (lookup('docker_vars', specs={'_docker_container': {'default': _var_prefix}}))._docker_container }}"
+
+- name: Resources | Tasks | Docker | Stop Docker Container | Resolve Docker variables
+  ansible.builtin.set_fact:
+    _docker_vars: "{{ lookup('docker_vars', specs=_docker_var_specs) }}"
+  vars:
+    _docker_var_specs:
+      _docker_force_kill:
+        omit: true
+      _docker_kill_signal:
+        omit: true
+      _docker_stop_signal:
+        omit: true
+      _docker_stop_timeout:
+        default: "180"
+
 - name: Resources | Tasks | Docker | Stop Docker Container | Stop Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    force_kill: "{{ lookup('docker_var', '_docker_force_kill', default=omit) }}"
-    kill_signal: "{{ lookup('docker_var', '_docker_kill_signal', default=omit) }}"
-    name: "{{ container_name
-           if (container_name is defined)
-           else lookup('docker_var', '_docker_container', default=_var_prefix) }}"
+    force_kill: "{{ _docker_vars._docker_force_kill | default(omit) }}"
+    kill_signal: "{{ _docker_vars._docker_kill_signal | default(omit) }}"
+    name: "{{ _docker_container }}"
     state: stopped
-    stop_signal: "{{ lookup('docker_var', '_docker_stop_signal', default=omit) }}"
-    stop_timeout: "{{ lookup('docker_var', '_docker_stop_timeout', default='180') }}"
+    stop_signal: "{{ _docker_vars._docker_stop_signal | default(omit) }}"
+    stop_timeout: "{{ _docker_vars._docker_stop_timeout }}"
     tls_hostname: localhost
     comparisons:
       '*': ignore

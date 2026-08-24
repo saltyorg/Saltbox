@@ -17,12 +17,16 @@
   ansible.builtin.set_fact:
     _instance_name: "{{ lookup('vars', _var_prefix + '_name', default=_var_prefix) }}"
 
+- name: Resources | Tasks | Docker | Start Docker Container | Resolve container name
+  ansible.builtin.set_fact:
+    _docker_container: "{{ container_name
+                        if (container_name is defined)
+                        else (lookup('docker_vars', specs={'_docker_container': {'default': _var_prefix}}))._docker_container }}"
+
 - name: Resources | Tasks | Docker | Start Docker Container | Start Docker Container
   community.docker.docker_container:
     container_default_behavior: compatibility
-    name: "{{ container_name
-           if (container_name is defined)
-           else lookup('docker_var', '_docker_container', default=_var_prefix) }}"
+    name: "{{ _docker_container }}"
     state: started
     tls_hostname: localhost
     comparisons:
