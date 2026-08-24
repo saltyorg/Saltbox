@@ -37,9 +37,9 @@
     - name: Resolve latest transfer URL
       ansible.builtin.set_fact:
         transfer_download_url: "{{ ((transfer_release_api.content | from_json).assets
-                                   | selectattr('name', 'search', 'transfer_v[0-9].[0-9].[0-9]_linux_amd64')
-                                   | map(attribute='browser_download_url')
-                                   | first) }}"
+                                    | selectattr('name', 'search', 'transfer_v[0-9].[0-9].[0-9]_linux_amd64')
+                                    | map(attribute='browser_download_url')
+                                    | first) }}"
       changed_when: false
 
     - name: Install transfer

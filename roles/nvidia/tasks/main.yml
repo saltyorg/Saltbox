@@ -280,13 +280,13 @@
         nvidia_installed_driver_healthy: "{{ nvidia_installed_driver_query.rc == 0
                                           and nvidia_installed_module_query.rc == 0
                                           and (nvidia_installed_driver_query.stdout_lines
-                                             | map('trim') | reject('equalto', '') | list | length
+                                               | map('trim') | reject('equalto', '') | list | length
                                                == nvidia_driver_resolution.devices | length)
                                           and (nvidia_installed_driver_query.stdout_lines
-                                             | map('trim') | reject('equalto', '') | unique | list | length == 1)
+                                               | map('trim') | reject('equalto', '') | unique | list | length == 1)
                                           and (nvidia_installed_module_query.stdout | trim
                                                == nvidia_installed_driver_query.stdout_lines
-                                             | first | default('') | trim) }}"
+                                               | first | default('') | trim) }}"
         nvidia_installed_module_flavor: "{{ 'open'
                                          if ('MIT' in nvidia_installed_module_license_query.stdout
                                              or 'GPL' in nvidia_installed_module_license_query.stdout)

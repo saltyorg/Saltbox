@@ -49,9 +49,9 @@
 - name: "Resolve URL for latest rclone release"
   ansible.builtin.set_fact:
     rclone_latest_download_url: "{{ ((rclone_latest_release_api.content | from_json).assets
-                                    | selectattr('name', 'search', 'linux-amd64.zip')
-                                    | map(attribute='browser_download_url')
-                                    | first) }}"
+                                     | selectattr('name', 'search', 'linux-amd64.zip')
+                                     | map(attribute='browser_download_url')
+                                     | first) }}"
   changed_when: false
   when: (not rclone_version_is_specified) or (rclone.version in ['latest', 'current'])
 
@@ -83,10 +83,10 @@
       ansible.builtin.set_fact:
         rclone_version_specified0_check:
           stdout: "{{ ((rclone_tags_api.content | from_json)
-                      | map(attribute='ref')
-                      | map('regex_replace', '^refs/tags/v', '')
-                      | select('equalto', rclone_version_specified0)
-                      | join('')) }}"
+                       | map(attribute='ref')
+                       | map('regex_replace', '^refs/tags/v', '')
+                       | select('equalto', rclone_version_specified0)
+                       | join('')) }}"
       changed_when: false
 
     - name: Build URL | Set vars for specified version if available

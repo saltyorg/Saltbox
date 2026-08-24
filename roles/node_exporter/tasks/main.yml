@@ -29,9 +29,9 @@
 - name: "Resolve URL for latest Node Exporter release"
   ansible.builtin.set_fact:
     node_exporter_latest_download_url: "{{ ((node_exporter_latest_release_api.content | from_json).assets
-                                           | selectattr('name', 'search', 'linux-amd64.tar.gz')
-                                           | map(attribute='browser_download_url')
-                                           | first) }}"
+                                            | selectattr('name', 'search', 'linux-amd64.tar.gz')
+                                            | map(attribute='browser_download_url')
+                                            | first) }}"
   changed_when: false
 
 - name: "Download and unarchive Node Exporter from Github"

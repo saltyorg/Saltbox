@@ -16,9 +16,9 @@
 - name: "btop | Resolve btop download URL"
   ansible.builtin.set_fact:
     btop_download_url: "{{ ((btop_release_api.content | from_json).assets
-                           | selectattr('name', 'search', 'btop-x86_64-(unknown-)?linux-musl.tar.gz')
-                           | map(attribute='browser_download_url')
-                           | first) }}"
+                            | selectattr('name', 'search', 'btop-x86_64-(unknown-)?linux-musl.tar.gz')
+                            | map(attribute='browser_download_url')
+                            | first) }}"
   changed_when: false
 
 - name: "btop | Create directories"

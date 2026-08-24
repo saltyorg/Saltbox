@@ -27,9 +27,9 @@
 - name: "MergerFS | Resolve mergerfs download URL"
   ansible.builtin.set_fact:
     mergerfs_download_url: "{{ ((mergerfs_release_api.content | from_json).assets
-                               | selectattr('name', 'search', (ansible_facts['distribution'] | lower) ~ '-' ~ mergerfs_release_distribution ~ '_amd64')
-                               | map(attribute='browser_download_url')
-                               | first) }}"
+                                | selectattr('name', 'search', (ansible_facts['distribution'] | lower) ~ '-' ~ mergerfs_release_distribution ~ '_amd64')
+                                | map(attribute='browser_download_url')
+                                | first) }}"
   changed_when: false
 
 - name: "MergerFS | Uninstall mergerfs"

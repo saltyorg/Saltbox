@@ -7,8 +7,10 @@ Multiline Jinja alignment rules apply to defaults and tasks. The remaining
 rules apply only to roles/*/defaults/main.yml files.
 
 Rules:
-1. Operator Alignment: | and + operators must align with first character after "{{
+1. Operator Alignment: | and + operators align with their expression context
    - Standard: All operators align with base position (first char after "{{ )
+   - Nested: Operators inside an unmatched grouping or function call align with
+     the first content character after the innermost opening parenthesis
    - Exception: When 'else' is followed by content on a new line that continues,
      subsequent operators within that else branch align with content after 'else '
    - Context resets when if/else blocks close (marked by )) or )))
@@ -179,7 +181,7 @@ class SaltboxLinter:
 
     def check_operator_alignment(self) -> None:
         """
-        Rule 1: Check | and + operators align with first character after '{{ '
+        Rule 1: Check | and + operators align with their expression context
 
         Standard alignment - all operators at base position:
             sonarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='sonarr')
@@ -191,6 +193,12 @@ class SaltboxLinter:
                                              + lookup('role_var', '_docker_networks_default', role='wikijs')
                                              + lookup('role_var', '_docker_networks_custom', role='wikijs') }}"
                                              ^ All + align with 'd' in docker_networks_common
+
+        Nested function content aligns under its first argument:
+            traefik_role_docker_labels: "{{ docker_labels_default
+                                            | combine(docker_labels_domains
+                                                      | traefik_certificate_labels('traefik')) }}"
+                                                      ^ Nested | aligns with docker_labels_domains
 
         Exception - else with continuing content creates new context:
             dozzle_role_docker_commands: "{{ lookup('role_var', '_docker_commands_agent', role='dozzle')
@@ -233,7 +241,11 @@ class SaltboxLinter:
 
             key_name = key_match.group(1)
             expected_alignment = expression_start + 1
-            current_alignment = expected_alignment
+            parenthesis_contexts: list[ParenthesisContext] = []
+            self.update_parenthesis_contexts(
+                first_line, parenthesis_contexts, expression_start
+            )
+            else_alignment: int | None = None
             in_else_context = False
 
             try:
@@ -242,12 +254,22 @@ class SaltboxLinter:
                 relative_path = str(self.file_path)
 
             for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                current_alignment = (
+                    else_alignment
+                    if in_else_context and else_alignment is not None
+                    else (
+                        parenthesis_contexts[-1][0]
+                        if parenthesis_contexts
+                        else expected_alignment
+                    )
+                )
+
                 # Closing an if/else block resets alignment context to the base.
                 if in_else_context and re.search(
                     r"\)\)(?:\)|$)", continuation_line.rstrip()
                 ):
-                    current_alignment = expected_alignment
                     in_else_context = False
+                    else_alignment = None
 
                 # An else branch whose content continues on following lines creates
                 # a temporary alignment context for those continuation operators.
@@ -255,27 +277,27 @@ class SaltboxLinter:
                 if else_match:
                     closes_immediately = re.search(r"\)\)\)", continuation_line)
                     if not closes_immediately:
-                        current_alignment = len(else_match.group(1)) + len("else ")
+                        else_alignment = len(else_match.group(1)) + len("else ")
                         in_else_context = True
 
                 op_match = re.match(r"^(\s+)([|+]) ", continuation_line)
-                if not op_match:
-                    continue
+                if op_match:
+                    actual_spaces = len(op_match.group(1))
+                    operator = op_match.group(2)
+                    if actual_spaces != current_alignment:
+                        diff = actual_spaces - current_alignment
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=jinja_start_line + line_offset,
+                                message=f"[operator-alignment] Key '{key_name}': Operator '{operator}' at column {actual_spaces}, expected {current_alignment} (off by {diff:+d})",
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
 
-                actual_spaces = len(op_match.group(1))
-                operator = op_match.group(2)
-                if actual_spaces == current_alignment:
-                    continue
-
-                diff = actual_spaces - current_alignment
-                self.errors.append(
-                    LintError(
-                        file=relative_path,
-                        line=jinja_start_line + line_offset,
-                        message=f"[operator-alignment] Key '{key_name}': Operator '{operator}' at column {actual_spaces}, expected {current_alignment} (off by {diff:+d})",
-                        repo_url=self.repo_url,
-                        commit_sha=self.commit_sha,
-                    )
+                self.update_parenthesis_contexts(
+                    continuation_line, parenthesis_contexts
                 )
 
     def check_variable_prefix(self) -> None:

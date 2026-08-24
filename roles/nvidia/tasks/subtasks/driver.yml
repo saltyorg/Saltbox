@@ -29,8 +29,8 @@
     nvidia_kernel_gcc_major: "{{ nvidia_kernel_gcc_query.stdout | int
                               if nvidia_kernel_gcc_query.rc == 0
                               else (nvidia_kernel_build_string.stdout
-                                 | regex_findall('gcc[^,]*?([0-9]+)\\.[0-9]+\\.[0-9]+')
-                                 | first | default('0') | int) }}"
+                                    | regex_findall('gcc[^,]*?([0-9]+)\\.[0-9]+\\.[0-9]+')
+                                    | first | default('0') | int) }}"
 
 - name: Driver | Validate running kernel GCC major
   ansible.builtin.assert:

@@ -29,10 +29,10 @@
   ansible.builtin.set_fact:
     git_origin_version:
       stdout: "{{ (git_origin_commits_api.content | from_json
-                  | selectattr('sha', 'defined')
-                  | map(attribute='sha')
-                  | first
-                  | default('')) }}"
+                   | selectattr('sha', 'defined')
+                   | map(attribute='sha')
+                   | first
+                   | default('')) }}"
   changed_when: false
 
 - name: Repository | Print Git Hash
