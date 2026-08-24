@@ -200,7 +200,13 @@
             postgres_role_paths_location: "{{ postgres_migration_source_path }}_new"
             postgres_role_docker_env_db: "postgres"
             postgres_role_docker_healthcheck:
-              test: ["CMD-SHELL", "pg_isready -d postgres -U {{ postgres_role_docker_env_user_lookup }}"]
+              test:
+                - "CMD"
+                - "pg_isready"
+                - "-d"
+                - "postgres"
+                - "-U"
+                - "{{ postgres_role_docker_env_user_lookup }}"
               start_period: 10s
               interval: 10s
               retries: 30

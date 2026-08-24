@@ -50,7 +50,13 @@ authentik_role_postgres_docker_env_db: "authentik"
 authentik_role_postgres_docker_image_tag: "16-alpine"
 authentik_role_postgres_docker_image_repo: "postgres"
 authentik_role_postgres_docker_healthcheck:
-  test: ["CMD-SHELL", "pg_isready -d {{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }} -U {{ lookup('role_var', '_postgres_user', role='authentik') if (lookup('role_var', '_postgres_user', role='authentik') | length > 0) else lookup('role_var', '_docker_env_user', role='postgres') }}"]
+  test:
+    - "CMD"
+    - "pg_isready"
+    - "-d"
+    - "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
+    - "-U"
+    - "{{ lookup('role_var', '_postgres_user', role='authentik', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
   start_period: 20s
   interval: 30s
   retries: 5
