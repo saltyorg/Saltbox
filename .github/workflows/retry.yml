@@ -39,7 +39,7 @@ jobs:
         run: |
           failed_jobs=$(gh run view ${{ github.event.workflow_run.id }} --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name')
 
-          if echo "$failed_jobs" | grep -qE '^(ansible-lint|defaults-lint)$'; then
+          if echo "$failed_jobs" | grep -qE '^(ansible-lint|saltbox-lint)$'; then
             echo "Lint job failed - skipping retry"
             echo "skip_retry=true" >> $GITHUB_OUTPUT
           else

@@ -9,10 +9,13 @@
 ---
 - name: Variables | Set 'saltbox_type' variable
   ansible.builtin.set_fact:
-    saltbox_type: "{{ 'saltbox' if ('saltbox' in ansible_run_tags)
-      else 'mediabox' if ('mediabox' in ansible_run_tags)
-      else 'feederbox' if ('feederbox' in ansible_run_tags)
-      else '' }}"
+    saltbox_type: "{{ 'saltbox'
+                   if ('saltbox' in ansible_run_tags)
+                   else 'mediabox'
+                        if ('mediabox' in ansible_run_tags)
+                        else 'feederbox'
+                             if ('feederbox' in ansible_run_tags)
+                             else '' }}"
 
 - name: Get FLD
   tld_parse:

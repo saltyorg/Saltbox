@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-Saltbox Role Defaults Linter
-Enforces Saltbox formatting rules for role defaults/main.yml files
+Saltbox Linter
+Enforces Saltbox formatting rules for role defaults and task files.
+
+Multiline Jinja alignment rules apply to defaults and tasks. The remaining
+rules apply only to roles/*/defaults/main.yml files.
 
 Rules:
 1. Operator Alignment: | and + operators must align with first character after "{{
@@ -22,8 +25,8 @@ Rules:
 4. Docker Layer Composition: aggregates with matching _default and _custom
    companions must use explicit role_var lookups in default-before-custom order
 
-5. Web URL Composition: role web URLs with matching subdomain and domain
-   defaults must access both through explicit role_var lookups
+5. Role Web Contract: canonical role web URL and host defaults must use the
+   standalone role_web lookup with the matching role, endpoint, and scheme
 
 6. Docker Image Composition: role images must define repository and tag
    defaults and access both through explicit role_var lookups
@@ -36,8 +39,8 @@ Rules:
 9. Section Structure: canonical major sections must not repeat and must appear
    in their established relative order
 
-10. Web URL Literal Prefix: standard web URLs must keep literal https://
-    outside their Jinja expression
+10. Direct Web Host Composition: defaults must use role_web instead of
+    independently joining matching role_var subdomain and domain lookups
 
 11. Docker Envs Custom Usage: _docker_envs_custom may only be the final
     combine layer of its corresponding Docker environment aggregate
@@ -64,6 +67,17 @@ Rules:
 
 18. Non-Docker Traefik Renderer Contract: roles that declare Traefik without
     creating a shared-label Docker container must render their API contract
+
+19. Role Var Empty Default: direct role_var non-empty conditionals that fall
+    back to omit or another role_var lookup must use default_if_empty
+
+20. Docker Vars Policy: fallback access to sparse docker_vars keys is allowed
+    only for suffixes declared with omit=true; default and required policies
+    must remain guaranteed direct accesses
+
+21. Network Container Health Contract: every direct include of the shared
+    network-container health task must pass explicit source and target inputs;
+    the shared task must not depend on caller-local Docker resolution facts
 """
 
 import os
@@ -88,6 +102,16 @@ DEFAULTS_SECTION_ORDER = (
     "Docker",
     "Dependencies",
 )
+NAMED_ROLE_WEB_CONTRACTS = {
+    "calibre": (("calibre_role_web2_role_web_url", "web2", "https"),),
+    "crafty": (("crafty_role_dynmap_host", "dynmap_web", None),),
+    "invoiceninjav5": (("invoiceninjav5_role_nginx_web_url", "nginx_web", "https"),),
+    "plex": (("plex_role_web_insecure_url", "web", "http"),),
+    "silo": (
+        ("silo_role_web_jf_host", "web_jf", None),
+        ("silo_role_web_abs_host", "web_abs", None),
+    ),
+}
 
 
 class LintError:
@@ -138,8 +162,8 @@ class LintError:
         return f"{self.file}:{self.line} - {self.message}"
 
 
-class DefaultsLinter:
-    """Lints a single defaults/main.yml file"""
+class SaltboxLinter:
+    """Lints one Saltbox YAML file."""
 
     def __init__(
         self,
@@ -190,21 +214,24 @@ class DefaultsLinter:
             jinja_lines,
         ) in self.iter_multiline_jinja_blocks():
             first_line = jinja_lines[0]
-            variable_match = re.match(r"^([a-z][a-z0-9_]*):(?:\s|$)", first_line)
-            if not variable_match:
+            key_match = re.match(
+                r"^\s*(?:-\s+)?([a-zA-Z_][a-zA-Z0-9_.-]*):(?:\s|$)",
+                first_line,
+            )
+            if not key_match:
                 continue
 
-            # Operator alignment applies to top-level defaults expressions that
-            # begin on the variable's definition line. Multiline Jinja embedded
-            # in a block scalar retains its existing formatting semantics.
-            if jinja_bracket_indent < variable_match.end():
+            # Operator alignment applies to expressions that begin on the
+            # mapping key's definition line. Multiline Jinja embedded in a
+            # block scalar retains its existing formatting semantics.
+            if jinja_bracket_indent < key_match.end():
                 continue
 
             expression_start = jinja_bracket_indent + len("{{")
             if not first_line.startswith(" ", expression_start):
                 continue
 
-            var_name = variable_match.group(1)
+            key_name = key_match.group(1)
             expected_alignment = expression_start + 1
             current_alignment = expected_alignment
             in_else_context = False
@@ -245,7 +272,7 @@ class DefaultsLinter:
                     LintError(
                         file=relative_path,
                         line=jinja_start_line + line_offset,
-                        message=f"[operator-alignment] Variable '{var_name}': Operator '{operator}' at column {actual_spaces}, expected {current_alignment} (off by {diff:+d})",
+                        message=f"[operator-alignment] Key '{key_name}': Operator '{operator}' at column {actual_spaces}, expected {current_alignment} (off by {diff:+d})",
                         repo_url=self.repo_url,
                         commit_sha=self.commit_sha,
                     )
@@ -353,9 +380,10 @@ class DefaultsLinter:
             )
 
     def check_web_url_composition(self) -> None:
-        """Rule 5: Check explicit access to web URL subdomain and domain defaults."""
+        """Rule 5: Check canonical URL and host defaults use role_web."""
         role_name = self.file_path.parent.parent.name
         web_url_name = f"{role_name}_role_web_url"
+        web_host_name = f"{role_name}_role_web_host"
         web_subdomain_name = f"{role_name}_role_web_subdomain"
         web_domain_name = f"{role_name}_role_web_domain"
         variables = {
@@ -365,63 +393,7 @@ class DefaultsLinter:
 
         if not all(
             variable_name in variables
-            for variable_name in (web_url_name, web_subdomain_name, web_domain_name)
-        ):
-            return
-
-        line_number, variable_lines = variables[web_url_name]
-        expression = "\n".join(variable_lines)
-        missing_components = [
-            suffix
-            for suffix in ("_web_subdomain", "_web_domain")
-            if self.explicit_role_var_lookup_pattern(suffix, role_name).search(
-                expression
-            )
-            is None
-        ]
-        if not missing_components:
-            return
-
-        try:
-            relative_path = str(self.file_path.relative_to(Path.cwd()))
-        except ValueError:
-            relative_path = str(self.file_path)
-
-        self.errors.append(
-            LintError(
-                file=relative_path,
-                line=line_number,
-                message=(
-                    f"[web-url-composition] Variable '{web_url_name}' must access "
-                    f"its {' and '.join(missing_components)} default(s) with "
-                    f"explicit role_var lookups using role='{role_name}'"
-                ),
-                repo_url=self.repo_url,
-                commit_sha=self.commit_sha,
-            )
-        )
-
-    def check_web_url_literal_prefix(self) -> None:
-        """Rule 10: Check standard web URLs start with literal https://."""
-        role_name = self.file_path.parent.parent.name
-        web_url_name = f"{role_name}_role_web_url"
-        required_variables = (
-            web_url_name,
-            f"{role_name}_role_web_subdomain",
-            f"{role_name}_role_web_domain",
-        )
-        variables = {
-            variable_name: (line_number, variable_lines)
-            for variable_name, line_number, variable_lines in self.iter_top_level_variables()
-        }
-
-        if not all(variable_name in variables for variable_name in required_variables):
-            return
-
-        line_number, variable_lines = variables[web_url_name]
-        if re.match(
-            "^" + re.escape(web_url_name) + r":\s*['\"]https://\{\{",
-            variable_lines[0],
+            for variable_name in (web_subdomain_name, web_domain_name)
         ):
             return
 
@@ -430,18 +402,94 @@ class DefaultsLinter:
         except ValueError:
             relative_path = str(self.file_path)
 
-        self.errors.append(
-            LintError(
-                file=relative_path,
-                line=line_number,
-                message=(
-                    f"[web-url-literal-prefix] Variable '{web_url_name}' must "
-                    "keep literal 'https://' outside the Jinja expression"
-                ),
-                repo_url=self.repo_url,
-                commit_sha=self.commit_sha,
+        contracts: list[tuple[str, str, str | None]] = []
+        if web_url_name in variables:
+            contracts.append((web_url_name, "web", "https"))
+        if web_host_name in variables:
+            contracts.append((web_host_name, "web", None))
+        contracts.extend(NAMED_ROLE_WEB_CONTRACTS.get(role_name, ()))
+
+        for variable_name, endpoint, scheme in contracts:
+            if variable_name not in variables:
+                continue
+
+            line_number, variable_lines = variables[variable_name]
+            expected = self.canonical_role_web_default(
+                variable_name, role_name, endpoint, scheme
             )
+            if variable_lines[0] == expected:
+                continue
+
+            endpoint_text = f", endpoint='{endpoint}'" if endpoint != "web" else ""
+            scheme_text = f", scheme='{scheme}'" if scheme is not None else ""
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[role-web-contract] Variable '{variable_name}' must use "
+                        f"lookup('role_web', role='{role_name}'{endpoint_text}"
+                        f"{scheme_text})"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_direct_web_host_composition(self) -> None:
+        """Rule 10: Reject repeated role_var host construction in defaults."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        component_pattern = re.compile(
+            r"^lookup\(\s*(?P<plugin_quote>['\"])role_var(?P=plugin_quote)\s*,\s*"
+            + r"(?P<suffix_quote>['\"])(?P<suffix>_[a-z0-9_]+_(?:subdomain|domain))"
+            + r"(?P=suffix_quote)\s*,\s*role\s*=\s*"
+            + r"(?P<role_quote>['\"])(?P<role>[a-z][a-z0-9_]*)(?P=role_quote)"
         )
+
+        for (
+            variable_name,
+            line_number,
+            variable_lines,
+        ) in self.iter_top_level_variables():
+            components: dict[tuple[str, str], set[str]] = {}
+            expression = "\n".join(variable_lines)
+            for _, call in self.iter_lookup_calls(expression):
+                match = component_pattern.match(call)
+                if match is None:
+                    continue
+                suffix = match.group("suffix")
+                component = suffix.rsplit("_", 1)[1]
+                endpoint = suffix.removesuffix(f"_{component}")
+                key = (match.group("role"), endpoint)
+                components.setdefault(key, set()).add(component)
+
+            repeated = [
+                (target_role, endpoint)
+                for (target_role, endpoint), names in components.items()
+                if names == {"subdomain", "domain"}
+            ]
+            if not repeated:
+                continue
+
+            target_role, endpoint = repeated[0]
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        f"[direct-web-host-composition] Variable '{variable_name}' "
+                        "must use role_web instead of joining "
+                        f"role_var '{endpoint}_subdomain' and "
+                        f"'{endpoint}_domain' for role '{target_role}'"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
 
     def check_docker_image_composition(self) -> None:
         """Rule 6: Check explicit access to Docker image repository and tag."""
@@ -510,7 +558,7 @@ class DefaultsLinter:
         )
 
     def check_explicit_role_var_target(self) -> None:
-        """Rule 7: Check every role_var lookup specifies its target role."""
+        """Rule 7: Check role-aware lookups specify their target role."""
         source = "\n".join(self.lines)
         try:
             relative_path = str(self.file_path.relative_to(Path.cwd()))
@@ -518,7 +566,11 @@ class DefaultsLinter:
             relative_path = str(self.file_path)
 
         for call_start, call in self.iter_lookup_calls(source):
-            if re.match(r"lookup\s*\(\s*(['\"])role_var\1\s*,", call) is None:
+            lookup_match = re.match(
+                r"lookup\s*\(\s*(['\"])(?P<plugin>role_var|role_web)\1(?:\s*,|\s*\))",
+                call,
+            )
+            if lookup_match is None:
                 continue
             if self.call_has_keyword_argument(call, "role"):
                 continue
@@ -532,8 +584,61 @@ class DefaultsLinter:
                     file=relative_path,
                     line=source.count("\n", 0, call_start) + 1,
                     message=(
-                        "[role-var-target] role_var lookup must specify an "
-                        "explicit role= target"
+                        f"[role-lookup-target] {lookup_match.group('plugin')} "
+                        "lookup must specify an explicit role= target"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_role_var_empty_default(self) -> None:
+        """Rule 19: Require default_if_empty for direct role_var fallbacks."""
+        source = "\n".join(self.lines)
+        pattern = re.compile(
+            r"""
+            \{\{\s*
+            lookup\(
+                \s*(?P<plugin_quote>['"])role_var(?P=plugin_quote)\s*,
+                \s*(?P<suffix_quote>['"])(?P<suffix>[^'"]+)(?P=suffix_quote)\s*,
+                \s*role\s*=\s*(?P<role_quote>['"])(?P<role>[^'"]+)(?P=role_quote)\s*
+            \)
+            \s*if\s*\(\s*
+            lookup\(
+                \s*(?P<predicate_plugin_quote>['"])role_var(?P=predicate_plugin_quote)\s*,
+                \s*(?P<predicate_suffix_quote>['"])(?P=suffix)(?P=predicate_suffix_quote)\s*,
+                \s*role\s*=\s*(?P<predicate_role_quote>['"])(?P=role)(?P=predicate_role_quote)\s*
+            \)
+            \s*\|\s*length\s*>\s*0\s*\)
+            \s*else\s*
+            (?:
+                omit
+                |
+                lookup\(
+                    \s*(?P<fallback_plugin_quote>['"])role_var(?P=fallback_plugin_quote)\s*,
+                    \s*(?P<fallback_suffix_quote>['"])[^'"]+(?P=fallback_suffix_quote)\s*,
+                    \s*role\s*=\s*(?P<fallback_role_quote>['"])[^'"]+(?P=fallback_role_quote)\s*
+                \)
+            )
+            \s*\}\}
+            """,
+            re.DOTALL | re.VERBOSE,
+        )
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for match in pattern.finditer(source):
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=source.count("\n", 0, match.start()) + 1,
+                    message=(
+                        "[role-var-empty-default] Repeated non-empty role_var "
+                        "conditional must use default=... and "
+                        "default_if_empty=true"
                     ),
                     repo_url=self.repo_url,
                     commit_sha=self.commit_sha,
@@ -1387,6 +1492,25 @@ class DefaultsLinter:
         return False
 
     @staticmethod
+    def canonical_role_web_default(
+        variable_name: str,
+        role_name: str,
+        endpoint: str,
+        scheme: str | None,
+    ) -> str:
+        """Return the canonical one-line role_web defaults form."""
+        arguments = [f"role='{role_name}'"]
+        if endpoint != "web":
+            arguments.append(f"endpoint='{endpoint}'")
+        if scheme is not None:
+            arguments.append(f"scheme='{scheme}'")
+        return (
+            f"{variable_name}: \"{{{{ lookup('role_web', "
+            + ", ".join(arguments)
+            + ') }}"'
+        )
+
+    @staticmethod
     def explicit_role_var_lookup_pattern(
         suffix: str, role_name: str
     ) -> re.Pattern[str]:
@@ -1597,6 +1721,15 @@ class DefaultsLinter:
         ) in self.iter_multiline_jinja_blocks():
             parenthesis_contexts: list[ParenthesisContext] = []
             else_branch_contexts: list[ElseBranchContext] = []
+            expression_indent = jinja_bracket_indent
+            if not jinja_lines[0][jinja_bracket_indent + len("{{") :].strip():
+                for continuation_line in jinja_lines[1:]:
+                    if not continuation_line.strip():
+                        continue
+                    expression_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
+                    break
             self.update_parenthesis_contexts(
                 jinja_lines[0], parenthesis_contexts, jinja_bracket_indent + len("{{")
             )
@@ -1619,14 +1752,14 @@ class DefaultsLinter:
                     if parenthesis_contexts
                     else else_branch_contexts[-1][0]
                     if else_branch_contexts
-                    else jinja_bracket_indent
+                    else expression_indent
                 )
                 context = (
                     parenthesis_contexts[-1][1]
                     if parenthesis_contexts
                     else "else branch value"
                     if else_branch_contexts
-                    else "{{"
+                    else "expression content"
                 )
 
                 # Standalone inline conditionals do not have a continuation-line
@@ -1684,16 +1817,23 @@ class DefaultsLinter:
                     continuation_line, parenthesis_contexts
                 )
 
-    def lint(self) -> list[LintError]:
-        """Run all lint checks and return list of errors"""
+    def lint_jinja_alignment(self) -> list[LintError]:
+        """Run multiline Jinja checks shared by defaults and task files."""
+        self.check_operator_alignment()
+        self.check_ifelse_alignment()
+        return self.errors
+
+    def lint_defaults(self) -> list[LintError]:
+        """Run all defaults checks and return the findings."""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
         self.check_variable_prefix()
         self.check_docker_layer_composition()
         self.check_web_url_composition()
-        self.check_web_url_literal_prefix()
+        self.check_direct_web_host_composition()
         self.check_docker_image_composition()
         self.check_explicit_role_var_target()
+        self.check_role_var_empty_default()
         self.check_docker_network_formula()
         self.check_section_structure()
         self.check_docker_envs_custom_usage()
@@ -1712,8 +1852,221 @@ def markdown_cell(value: str) -> str:
     return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
 
 
-def write_github_summary(errors: list[LintError], files_checked: int) -> None:
-    """Append a defaults-lint report to the GitHub Actions job summary."""
+def check_docker_vars_policy_contract(
+    repository_dir: Path,
+    repo_url: str | None = None,
+    commit_sha: str | None = None,
+) -> list[LintError]:
+    """Rule 20: Restrict docker_vars fallbacks to omit=true policies."""
+    docker_tasks_dir = repository_dir / "resources" / "tasks" / "docker"
+    if not docker_tasks_dir.is_dir():
+        return []
+
+    task_files = sorted(
+        [*docker_tasks_dir.glob("*.yml"), *docker_tasks_dir.glob("*.yaml")]
+    )
+    policies: dict[str, set[str]] = {}
+    policy_locations: dict[tuple[str, str], tuple[str, int]] = {}
+    errors: list[LintError] = []
+
+    for task_file in task_files:
+        lines = task_file.read_text(encoding="utf-8").splitlines()
+        relative_path = str(task_file.relative_to(repository_dir))
+        for line_index, line in enumerate(lines[:-1]):
+            suffix_match = re.match(r"^      (_docker_[a-z0-9_]+):$", line)
+            if suffix_match is None:
+                continue
+
+            policy_match = re.match(
+                r"^        (default|omit|required):", lines[line_index + 1]
+            )
+            if policy_match is None:
+                continue
+
+            suffix = suffix_match.group(1)
+            policy = policy_match.group(1)
+            policies.setdefault(suffix, set()).add(policy)
+            policy_locations[(suffix, policy)] = (relative_path, line_index + 1)
+
+    for suffix, suffix_policies in policies.items():
+        if len(suffix_policies) == 1:
+            continue
+        policy = min(suffix_policies)
+        relative_path, line_number = policy_locations[(suffix, policy)]
+        errors.append(
+            LintError(
+                file=relative_path,
+                line=line_number,
+                message=(
+                    f"[docker-vars-policy] Suffix '{suffix}' has conflicting "
+                    f"policies: {', '.join(sorted(suffix_policies))}"
+                ),
+                repo_url=repo_url,
+                commit_sha=commit_sha,
+            )
+        )
+
+    access_patterns = (
+        re.compile(
+            r"_docker_vars\.(?P<suffix>_docker_[a-z0-9_]+)\s*" + r"\|\s*default\("
+        ),
+        re.compile(
+            r"_docker_vars\[['\"](?P<suffix>_docker_[a-z0-9_]+)['\"]\]"
+            + r"\s*\|\s*default\("
+        ),
+        re.compile(
+            r"_docker_vars\.get\(\s*['\"]" + r"(?P<suffix>_docker_[a-z0-9_]+)['\"]"
+        ),
+        re.compile(r"_docker_vars\.(?P<suffix>_docker_[a-z0-9_]+)\s+is\s+defined"),
+    )
+
+    for task_file in task_files:
+        relative_path = str(task_file.relative_to(repository_dir))
+        for line_number, line in enumerate(
+            task_file.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            for pattern in access_patterns:
+                for match in pattern.finditer(line):
+                    suffix = match.group("suffix")
+                    access_policies = policies.get(suffix)
+                    if access_policies == {"omit"}:
+                        continue
+
+                    policy_text = (
+                        ", ".join(sorted(access_policies))
+                        if access_policies
+                        else "undeclared"
+                    )
+                    errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=line_number,
+                            message=(
+                                f"[docker-vars-policy] Sparse fallback access to "
+                                f"'{suffix}' is only allowed for omit=true "
+                                f"policies; found {policy_text} policy"
+                            ),
+                            repo_url=repo_url,
+                            commit_sha=commit_sha,
+                        )
+                    )
+
+    return errors
+
+
+def check_network_container_health_contract(
+    repository_dir: Path,
+    repo_url: str | None = None,
+    commit_sha: str | None = None,
+) -> list[LintError]:
+    """Rule 21: Enforce the shared network-health task's explicit interface."""
+    errors: list[LintError] = []
+    required_inputs = {
+        "network_container_source",
+        "network_container_target",
+    }
+    shared_relative_path = Path(
+        "resources/tasks/docker/network_container_health_status.yml"
+    )
+    shared_task = repository_dir / shared_relative_path
+
+    if shared_task.is_file():
+        forbidden_pattern = re.compile(r"\b(_docker_vars|_instance_name|_var_prefix)\b")
+        for line_number, line in enumerate(
+            shared_task.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            forbidden_match = forbidden_pattern.search(line)
+            if forbidden_match is None:
+                continue
+            errors.append(
+                LintError(
+                    file=str(shared_relative_path),
+                    line=line_number,
+                    message=(
+                        "[network-container-health-contract] Shared health task "
+                        f"must use explicit source/target inputs instead of "
+                        f"caller-local '{forbidden_match.group(1)}'"
+                    ),
+                    repo_url=repo_url,
+                    commit_sha=commit_sha,
+                )
+            )
+
+    yaml_files = sorted(
+        {
+            yaml_file
+            for pattern in (
+                "roles/**/*.yml",
+                "roles/**/*.yaml",
+                "resources/**/*.yml",
+                "resources/**/*.yaml",
+            )
+            for yaml_file in repository_dir.glob(pattern)
+        }
+    )
+    include_name = "network_container_health_status.yml"
+    task_start_pattern = re.compile(r"^(?P<indent>\s*)- name:")
+
+    for yaml_file in yaml_files:
+        lines = yaml_file.read_text(encoding="utf-8").splitlines()
+        relative_path = str(yaml_file.relative_to(repository_dir))
+        for include_index, line in enumerate(lines):
+            if include_name not in line or "include_tasks:" not in line:
+                continue
+
+            task_start_index: int | None = None
+            task_indent = ""
+            for candidate_index in range(include_index, -1, -1):
+                task_match = task_start_pattern.match(lines[candidate_index])
+                if task_match is None:
+                    continue
+                task_start_index = candidate_index
+                task_indent = task_match.group("indent")
+                break
+
+            if task_start_index is None:
+                continue
+
+            task_end_index = len(lines)
+            for candidate_index in range(task_start_index + 1, len(lines)):
+                task_match = task_start_pattern.match(lines[candidate_index])
+                if task_match is not None and task_match.group("indent") == task_indent:
+                    task_end_index = candidate_index
+                    break
+
+            task_lines = lines[task_start_index:task_end_index]
+            passed_inputs = {
+                input_name
+                for input_name in required_inputs
+                if any(
+                    re.match(rf"^\s+{re.escape(input_name)}:\s*", task_line)
+                    for task_line in task_lines
+                )
+            }
+            missing_inputs = sorted(required_inputs - passed_inputs)
+            if not missing_inputs:
+                continue
+
+            errors.append(
+                LintError(
+                    file=relative_path,
+                    line=include_index + 1,
+                    message=(
+                        "[network-container-health-contract] Include must pass "
+                        f"explicit input(s): {', '.join(missing_inputs)}"
+                    ),
+                    repo_url=repo_url,
+                    commit_sha=commit_sha,
+                )
+            )
+
+    return errors
+
+
+def write_github_summary(
+    errors: list[LintError], defaults_checked: int, tasks_checked: int
+) -> None:
+    """Append a Saltbox lint report to the GitHub Actions job summary."""
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not summary_path:
         return
@@ -1721,11 +2074,11 @@ def write_github_summary(errors: list[LintError], files_checked: int) -> None:
     passed = not errors
     result = "✅ Passed" if passed else "❌ Failed"
     lines = [
-        "## Defaults lint report",
+        "## Saltbox lint report",
         "",
-        "| Result | Files checked | Findings |",
-        "| --- | ---: | ---: |",
-        f"| {result} | {files_checked} | {len(errors)} |",
+        "| Result | Defaults | Tasks | Findings |",
+        "| --- | ---: | ---: | ---: |",
+        f"| {result} | {defaults_checked} | {tasks_checked} | {len(errors)} |",
     ]
 
     if errors:
@@ -1753,19 +2106,24 @@ def write_github_summary(errors: list[LintError], files_checked: int) -> None:
 def main() -> None:
     """Main entry point for the linter"""
     if len(sys.argv) < 2:
-        print("Usage: python3 saltbox-defaults-linter.py <roles_directory>")
+        print("Usage: python3 saltbox-linter.py <repository_directory>")
         print("\nExample:")
-        print("  python3 saltbox-defaults-linter.py roles/")
+        print("  python3 saltbox-linter.py .")
         sys.exit(1)
 
-    roles_dir = Path(sys.argv[1])
+    repository_dir = Path(sys.argv[1])
 
-    if not roles_dir.exists():
-        print(f"Error: Directory '{roles_dir}' does not exist")
+    if not repository_dir.exists():
+        print(f"Error: Directory '{repository_dir}' does not exist")
         sys.exit(1)
 
+    if not repository_dir.is_dir():
+        print(f"Error: '{repository_dir}' is not a directory")
+        sys.exit(1)
+
+    roles_dir = repository_dir / "roles"
     if not roles_dir.is_dir():
-        print(f"Error: '{roles_dir}' is not a directory")
+        print(f"Error: '{repository_dir}' is not a repository root containing roles/")
         sys.exit(1)
 
     # Get GitHub repo and commit info from environment variables (set by GitHub Actions)
@@ -1778,28 +2136,62 @@ def main() -> None:
     repo_url = f"https://github.com/{github_repo}" if github_repo else None
 
     all_errors: list[LintError] = []
-    files_checked = 0
+    defaults_files = sorted(repository_dir.glob("roles/*/defaults/main.yml"))
+    task_files = sorted(
+        {
+            task_file
+            for pattern in (
+                "roles/*/tasks/**/*.yml",
+                "roles/*/tasks/**/*.yaml",
+                "resources/roles/*/tasks/**/*.yml",
+                "resources/roles/*/tasks/**/*.yaml",
+                "resources/tasks/**/*.yml",
+                "resources/tasks/**/*.yaml",
+            )
+            for task_file in repository_dir.glob(pattern)
+        }
+    )
 
-    # Find and lint all defaults/main.yml files
-    for defaults_file in sorted(roles_dir.glob("*/defaults/main.yml")):
-        linter = DefaultsLinter(defaults_file, repo_url=repo_url, commit_sha=github_sha)
-        errors = linter.lint()
+    for defaults_file in defaults_files:
+        linter = SaltboxLinter(defaults_file, repo_url=repo_url, commit_sha=github_sha)
+        errors = linter.lint_defaults()
         all_errors.extend(errors)
-        files_checked += 1
+
+    for task_file in task_files:
+        linter = SaltboxLinter(task_file, repo_url=repo_url, commit_sha=github_sha)
+        errors = linter.lint_jinja_alignment()
+        all_errors.extend(errors)
+
+    all_errors.extend(
+        check_docker_vars_policy_contract(
+            repository_dir,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+    )
+    all_errors.extend(
+        check_network_container_health_contract(
+            repository_dir,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+    )
 
     # Output results
     if all_errors:
         print(
-            f"❌ Found {len(all_errors)} formatting error(s) in {files_checked} file(s):\n"
+            f"❌ Found {len(all_errors)} formatting error(s) in {len(defaults_files)} defaults and {len(task_files)} task files:\n"
         )
         for error in all_errors:
             print(error.to_github_annotation())
         print(f"\nTotal: {len(all_errors)} error(s)")
-        write_github_summary(all_errors, files_checked)
+        write_github_summary(all_errors, len(defaults_files), len(task_files))
         sys.exit(1)
     else:
-        print(f"✅ All {files_checked} role defaults files pass formatting checks")
-        write_github_summary(all_errors, files_checked)
+        print(
+            f"✅ All {len(defaults_files)} role defaults and {len(task_files)} task files pass formatting checks"
+        )
+        write_github_summary(all_errors, len(defaults_files), len(task_files))
         sys.exit(0)
 
 

@@ -49,7 +49,7 @@ jobs:
           matrix=$(.venv/bin/python .github/scripts/ci-role-matrix.py --os 22.04 24.04 26.04)
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
-  defaults-lint:
+  saltbox-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-24.04
     steps:
@@ -59,13 +59,13 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Run Defaults Linter
-        run: python3 scripts/saltbox-defaults-linter.py roles/
+      - name: Run Saltbox Linter
+        run: python3 scripts/saltbox-linter.py .
 
   install:
     name: '${{ matrix.roles }}-${{ matrix.os }}'
     runs-on: ubuntu-${{ matrix.os }}
-    needs: [ansible-lint, defaults-lint, python-environment]
+    needs: [ansible-lint, saltbox-lint, python-environment]
     strategy:
       matrix: ${{ fromJson(needs.ansible-lint.outputs.matrix) }}
       fail-fast: false
