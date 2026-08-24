@@ -27,6 +27,8 @@ netdata_role_claim_room: ""
 
 netdata_role_docker_socket_proxy_envs:
   CONTAINERS: "1"
+  IMAGES: "1"
+  INFO: "1"
 
 ################################
 # Paths

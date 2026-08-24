@@ -18,6 +18,7 @@ dozzle_name: dozzle
 ################################
 
 dozzle_docker_socket_proxy_envs:
+  ALLOW_LOGS: "1"
   CONTAINERS: "1"
   INFO: "1"
 
