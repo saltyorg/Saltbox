@@ -143,13 +143,9 @@ authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='
 # Envs
 authentik_role_docker_envs_default:
   AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik')
-                               if (lookup('role_var', '_postgres_user', role='authentik') | length > 0)
-                               else lookup('role_var', '_docker_env_user', role='postgres') }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
   AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik')
-                                   if (lookup('role_var', '_postgres_password', role='authentik') | length > 0)
-                                   else lookup('role_var', '_docker_env_password', role='postgres') }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik', default=lookup('role_var', '_docker_env_password', role='postgres'), default_if_empty=true) }}"
   AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
   AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit
                               if authentik_data_folder.stat.exists
