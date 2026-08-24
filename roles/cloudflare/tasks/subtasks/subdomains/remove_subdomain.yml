@@ -9,8 +9,9 @@
 ---
 - name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' A record from '{{ domain_parsed.fld }}'"
   community.general.cloudflare_dns:
-    account_api_token: "{{ cloudflare.api }}"
-    account_email: "{{ cloudflare.email }}"
+    account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    account_email: "{{ cloudflare_email | default(omit, true) }}"
+    api_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone: "{{ domain_parsed.fld }}"
     state: absent
     type: A
@@ -19,8 +20,9 @@
 
 - name: "Subdomains | Remove Subdomain | Cloudflare: Remove 'saltbox' AAAA record from '{{ domain_parsed.fld }}'"
   community.general.cloudflare_dns:
-    account_api_token: "{{ cloudflare.api }}"
-    account_email: "{{ cloudflare.email }}"
+    account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    account_email: "{{ cloudflare_email | default(omit, true) }}"
+    api_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone: "{{ domain_parsed.fld }}"
     state: absent
     type: AAAA

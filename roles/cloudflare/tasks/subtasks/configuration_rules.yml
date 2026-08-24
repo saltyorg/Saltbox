@@ -11,70 +11,60 @@
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets"
     method: GET
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     status_code: 200
   register: cf_rules_response
 
-- name: Configuration Rules | Check if Ruleset Exists
-  ansible.builtin.set_fact:
-    ruleset_exists: >-
-      {{
-        cf_rules_response.json.result | selectattr('phase', 'equalto', 'http_config_settings') | map(attribute='id') | list | length > 0
-      }}
+- name: Configuration Rules | Validate ruleset lookup
+  ansible.builtin.assert:
+    that:
+      - cf_rules_response.json.success | default(false) | bool
+    fail_msg: "Cloudflare did not return Configuration Rules: {{ cf_rules_response.json.errors | default([]) }}"
 
-- name: Configuration Rules | Set Ruleset ID if Exists
+- name: Configuration Rules | Find Configuration Rules ruleset
   ansible.builtin.set_fact:
-    cloudflare_ruleset_id: >-
-      {{
-        (cf_rules_response.json.result | selectattr('phase', 'equalto', 'http_config_settings') | map(attribute='id') | list).0
-      }}
-  when: ruleset_exists
+    cloudflare_configuration_rulesets: "{{ cf_rules_response.json.result
+                                           | selectattr('phase', 'equalto', 'http_config_settings')
+                                           | list }}"
 
-- name: Configuration Rules | Fetch Ruleset Details if Exists
+- name: Configuration Rules | Set ruleset state
+  ansible.builtin.set_fact:
+    ruleset_exists: "{{ cloudflare_configuration_rulesets | length > 0 }}"
+    cloudflare_ruleset_id: "{{ (cloudflare_configuration_rulesets | map(attribute='id') | first)
+                            if (cloudflare_configuration_rulesets | length > 0)
+                            else '' }}"
+
+- name: Configuration Rules | Fetch existing ruleset
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}"
     method: GET
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     status_code: 200
   register: ruleset_details_response
   when: ruleset_exists
 
-- name: Configuration Rules | Check if Specific Rule Exists
-  ansible.builtin.set_fact:
-    rule_exists: >-
-      {{
-        (ruleset_details_response.json.result.rules
-        | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
-        | map(attribute='id')
-        | list | length > 0) if ruleset_details_response.json.result.rules is defined else false
-      }}
+- name: Configuration Rules | Validate existing ruleset lookup
+  ansible.builtin.assert:
+    that:
+      - ruleset_details_response.json.success | default(false) | bool
+    fail_msg: "Cloudflare did not return the Configuration Rules ruleset: {{ ruleset_details_response.json.errors | default([]) }}"
   when: ruleset_exists
 
-- name: Configuration Rules | Set Rule IDs
+- name: Configuration Rules | Find existing Saltbox rules
   ansible.builtin.set_fact:
-    cloudflare_rule_ids: >-
-      {{
-        ruleset_details_response.json.result.rules
-        | selectattr('expression', 'search', 'http\.request\.uri\.path contains "/.well-known/acme-challenge"')
-        | map(attribute='id')
-        | list
-      }}
-  when: ruleset_exists and rule_exists
+    cloudflare_rule_ids: "{{ (ruleset_details_response.json.result.rules
+                              | default([])
+                              | selectattr('expression', 'search', 'http\\.request\\.uri\\.path contains \"/.well-known/acme-challenge\"')
+                              | map(attribute='id')
+                              | list)
+                          if ruleset_exists
+                          else [] }}"
 
-- name: Configuration Rules | Create Ruleset and Rule if Not Exists
+- name: Configuration Rules | Create ruleset and Saltbox rule
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets"
     method: POST
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     body:
       name: "default"
       description: ""
@@ -92,49 +82,57 @@
   register: create_ruleset_response
   when: not ruleset_exists
 
-- name: Configuration Rules | Set Ruleset ID if Created
+- name: Configuration Rules | Validate ruleset creation
+  ansible.builtin.assert:
+    that:
+      - create_ruleset_response.json.success | default(false) | bool
+      - create_ruleset_response.json.result.id | default('') | length > 0
+    fail_msg: "Cloudflare did not create the Configuration Rules ruleset: {{ create_ruleset_response.json.errors | default([]) }}"
+  when: not ruleset_exists
+
+- name: Configuration Rules | Save created ruleset ID
   ansible.builtin.set_fact:
     cloudflare_ruleset_id: "{{ create_ruleset_response.json.result.id }}"
   when: not ruleset_exists
 
-- name: Configuration Rules | Add Rule if Not Exists
-  ansible.builtin.uri:
-    url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}/rules"
-    method: POST
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
-    body:
-      action: "set_config"
-      expression: "(http.request.uri.path contains \"/.well-known/acme-challenge\")"
-      description: "Saltbox - Let's Encrypt HTTP-01 challenge rule"
-      enabled: true
-      action_parameters:
-        bic: false
-    body_format: json
-    status_code: 200
-  register: add_rule_response
-  when: ruleset_exists and not rule_exists
+- name: Configuration Rules | Remove previous Saltbox rules
+  ansible.builtin.include_tasks: "configuration_rules/remove_configuration_rule.yml"
+  when:
+    - ruleset_exists
+    - cloudflare_rule_ids | length > 0
 
-- name: Configuration Rules | Fetch Updated Ruleset Details if Rule Added
+- name: Configuration Rules | Add Saltbox rule to existing ruleset
+  ansible.builtin.include_tasks: "configuration_rules/add_configuration_rule.yml"
+  when: ruleset_exists
+
+- name: Configuration Rules | Fetch final ruleset state
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}"
     method: GET
-    headers:
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
-      Content-Type: "application/json"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     status_code: 200
-  register: ruleset_details_response
-  when: ruleset_exists and not rule_exists
+  register: cloudflare_configuration_rules_final
 
-- name: Configuration Rules | Remove Configuration Rule Task
-  ansible.builtin.include_tasks: "configuration_rules/remove_configuration_rule.yml"
-  when: ruleset_exists and rule_exists
+- name: Configuration Rules | Validate final ruleset lookup
+  ansible.builtin.assert:
+    that:
+      - cloudflare_configuration_rules_final.json.success | default(false) | bool
+    fail_msg: "Cloudflare did not return the final Configuration Rules state: {{ cloudflare_configuration_rules_final.json.errors | default([]) }}"
 
-# Create new CF Configuration Rule for Lets Encrypt
+- name: Configuration Rules | Find final Saltbox rule
+  ansible.builtin.set_fact:
+    cloudflare_final_rules: "{{ cloudflare_configuration_rules_final.json.result.rules
+                                | default([])
+                                | selectattr('expression', 'search', 'http\\.request\\.uri\\.path contains \"/.well-known/acme-challenge\"')
+                                | list }}"
 
-- name: Configuration Rules | Add Configuration Rule Task
-  ansible.builtin.include_tasks: "configuration_rules/add_configuration_rule.yml"
-  when: ruleset_exists and rule_exists
+- name: Configuration Rules | Validate Saltbox rule state
+  ansible.builtin.assert:
+    that:
+      - cloudflare_final_rules | length > 0
+      - cloudflare_final_rules | selectattr('enabled', 'equalto', true) | list | length > 0
+    fail_msg: "Cloudflare accepted the request but the Saltbox Configuration Rule was not observable afterward."
+
+- name: Configuration Rules | Print successful rule result
+  ansible.builtin.debug:
+    msg: "Successfully verified the Let's Encrypt Cloudflare Configuration Rule for '{{ domain_parsed.fld }}'."

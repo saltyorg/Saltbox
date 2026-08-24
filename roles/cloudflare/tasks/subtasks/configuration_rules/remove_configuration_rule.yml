@@ -11,14 +11,16 @@
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}/rules/{{ item }}"
     method: DELETE
-    headers:
-      Content-Type: "application/json"
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     return_content: true
   loop: "{{ cloudflare_rule_ids }}"
   register: cf_configuration_rule_destruction
 
-- name: Configuration Rules | Print result of Lets Encrypt Cloudflare Configuration Rule Destruction
-  ansible.builtin.debug:
-    msg: "Successfully deleted Let's Encrypt Cloudflare configuration rule with ID '{{ cloudflare_rule_ids | join(', ') }}'"
+- name: Configuration Rules | Validate configuration rule removal
+  ansible.builtin.assert:
+    that:
+      - item.json.success | default(false) | bool
+    fail_msg: "Cloudflare did not remove Configuration Rule '{{ item.item }}': {{ item.json.errors | default([]) }}"
+  loop: "{{ cf_configuration_rule_destruction.results }}"
+  loop_control:
+    label: "{{ item.item }}"

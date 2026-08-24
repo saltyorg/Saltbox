@@ -9,8 +9,9 @@
 ---
 - name: Cloudflare | Remove DNS Record | IPv4 | Remove DNS Record
   community.general.cloudflare_dns:
-    account_api_token: "{{ cloudflare.api }}"
-    account_email: "{{ cloudflare.email }}"
+    account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    account_email: "{{ cloudflare_email | default(omit, true) }}"
+    api_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone: "{{ dns_zone }}"
     state: absent
     type: A
@@ -30,8 +31,9 @@
 
 - name: Cloudflare | Remove DNS Record | IPv6 | Remove DNS Record
   community.general.cloudflare_dns:
-    account_api_token: "{{ cloudflare.api }}"
-    account_email: "{{ cloudflare.email }}"
+    account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    account_email: "{{ cloudflare_email | default(omit, true) }}"
+    api_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone: "{{ dns_zone }}"
     state: absent
     type: AAAA

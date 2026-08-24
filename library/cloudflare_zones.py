@@ -16,11 +16,15 @@ requirements:
 options:
   auth_email:
     description: Cloudflare account email.
-    required: true
+    required: false
     type: str
   auth_key:
     description: Cloudflare global API key.
-    required: true
+    required: false
+    type: str
+  auth_token:
+    description: Cloudflare scoped API token.
+    required: false
     type: str
 """
 
@@ -29,6 +33,11 @@ EXAMPLES = """
   cloudflare_zones:
     auth_email: "{{ cloudflare.email }}"
     auth_key: "{{ cloudflare.api }}"
+  register: cloudflare_zone_catalog
+
+- name: Fetch accessible Cloudflare zones with a scoped token
+  cloudflare_zones:
+    auth_token: "{{ cloudflare.scoped_token }}"
   register: cloudflare_zone_catalog
 """
 
@@ -67,16 +76,24 @@ def main() -> None:
         argument_spec={
             "auth_email": {
                 "type": "str",
-                "required": True,
+                "required": False,
                 "no_log": False,
             },
             "auth_key": {
                 "type": "str",
-                "required": True,
+                "required": False,
+                "no_log": True,
+            },
+            "auth_token": {
+                "type": "str",
+                "required": False,
                 "no_log": True,
             },
         },
         supports_check_mode=True,
+        required_one_of=[["auth_token", "auth_key"]],
+        required_together=[["auth_email", "auth_key"]],
+        mutually_exclusive=[["auth_token", "auth_key"], ["auth_token", "auth_email"]],
     )
 
     try:
@@ -85,12 +102,13 @@ def main() -> None:
         module.fail_json(msg="the 'cloudflare' Python library is required")
 
     try:
-        auth_email = cast(str, module.params["auth_email"])
-        auth_key = cast(str, module.params["auth_key"])
-        client = Cloudflare(
-            api_email=auth_email,
-            api_key=auth_key,
-        )
+        auth_token = cast(str | None, module.params["auth_token"])
+        auth_email = cast(str | None, module.params["auth_email"])
+        auth_key = cast(str | None, module.params["auth_key"])
+        if auth_token:
+            client = Cloudflare(api_token=auth_token)
+        else:
+            client = Cloudflare(api_email=auth_email, api_key=auth_key)
         zones = fetch_zone_names(client)
     except CloudflareError as exc:
         module.fail_json(

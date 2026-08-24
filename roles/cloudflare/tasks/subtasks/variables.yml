@@ -26,10 +26,7 @@
   ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones?name={{ domain_parsed.fld }}'
     method: 'GET'
-    headers:
-      Content-Type: "application/json"
-      X-Auth-Email: '{{ cloudflare.email }}'
-      X-Auth-Key: '{{ cloudflare.api }}'
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     return_content: true
   register: cf_zones
 

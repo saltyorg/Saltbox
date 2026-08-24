@@ -201,8 +201,8 @@ use=web					# via web
 protocol=cloudflare,        \
 zone={{ user.domain }},            \
 ttl=1,                      \
-login={{ cloudflare.email }},     \
-password={{ cloudflare.api }}             \
+login={{ 'token' if cloudflare_scoped_token_is_enabled else cloudflare_email }},     \
+password={{ cloudflare_scoped_token if cloudflare_scoped_token_is_enabled else cloudflare_api_key }}             \
 {% for subdomain in subdomains -%}
 {{ subdomain }}.{{ user.domain }}{% if not loop.last %},{% endif %}
 {%- endfor %}

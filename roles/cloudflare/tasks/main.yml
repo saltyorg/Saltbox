@@ -18,4 +18,29 @@
   ansible.builtin.include_tasks: "subtasks/purge_cache.yml"
 
 - name: Configuration Rules Task
-  ansible.builtin.include_tasks: "subtasks/configuration_rules.yml"
+  block:
+    - name: Manage Cloudflare Configuration Rule
+      ansible.builtin.include_tasks: "subtasks/configuration_rules.yml"
+  rescue:
+    - name: Resolve Cloudflare Configuration Rule error
+      ansible.builtin.set_fact:
+        cloudflare_configuration_rule_error: "{{ (ansible_failed_result.json.errors | default([]))
+                                              if (ansible_failed_result.json is defined)
+                                              else (ansible_failed_result.msg
+                                                    | default('Cloudflare returned no error details.')) }}"
+
+    - name: Fail when forced HTTP validation requires the Configuration Rule
+      ansible.builtin.fail:
+        msg:
+          - "Cloudflare Configuration Rule management failed while HTTP certificate validation is enabled."
+          - "HTTP-01 validation requires this rule, so Saltbox cannot continue."
+          - "{{ cloudflare_configuration_rule_error }}"
+      when: traefik_enable_http_validation | bool
+
+    - name: Warn when the optional Configuration Rule could not be managed
+      ansible.builtin.debug:
+        msg:
+          - "WARNING: The optional Cloudflare HTTP-challenge Configuration Rule was skipped."
+          - "DNS certificate validation does not require this rule, so Saltbox will continue."
+          - "{{ cloudflare_configuration_rule_error }}"
+      when: not (traefik_enable_http_validation | bool)

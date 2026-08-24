@@ -39,6 +39,8 @@ cloudflare:
       type: string
       format: email
       required_with: ["api"]
+    scoped_token:
+      type: string
 
 dockerhub:
   type: object

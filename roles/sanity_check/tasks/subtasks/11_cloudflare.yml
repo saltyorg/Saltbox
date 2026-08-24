@@ -9,8 +9,9 @@
 ---
 - name: Cloudflare | Fetch accessible zones
   cloudflare_zones:
-    auth_email: "{{ cloudflare.email }}"
-    auth_key: "{{ cloudflare.api }}"
+    auth_email: "{{ cloudflare_email | default(omit, true) }}"
+    auth_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    auth_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
   register: cloudflare_zone_catalog
 
 - name: Cloudflare | Set certificate validation zones

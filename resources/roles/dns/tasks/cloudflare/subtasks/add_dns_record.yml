@@ -10,14 +10,20 @@
 - name: Cloudflare | Add DNS Record | Check for nested subdomain proxy
   ansible.builtin.fail:
     msg:
-      - "You cannot use CDN proxy with a nested subdomain with a free account."
-      - "If you have paid for the feature set 'cloudflare_allow_nested_proxy: true' using the inventory."
-  when: (not cloudflare_allow_nested_proxy) and ("." in dns_record) and dns_proxy and (not _dns_using_tailscale)
+      - "Cloudflare proxying is unavailable for nested record '{{ dns_record }}' in zone '{{ dns_zone }}' on a free account."
+      - "Set 'cloudflare_allow_nested_proxy: true' only when the Cloudflare zone supports proxied nested subdomains."
+  when:
+    - not (cloudflare_allow_nested_proxy | bool)
+    - dns_record not in ['@', dns_zone]
+    - "'.' in dns_record"
+    - dns_proxy | bool
+    - not (_dns_using_tailscale | bool)
 
 - name: Cloudflare | Add DNS Record | Fetch Record information
   cloudflare_dns_records:
-    auth_email: "{{ cloudflare.email }}"
-    auth_key: "{{ cloudflare.api }}"
+    auth_email: "{{ cloudflare_email | default(omit, true) }}"
+    auth_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    auth_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone_name: "{{ dns_zone }}"
     record: "{{ dns_record }}.{{ dns_zone }}"
   register: cloudflare_record
@@ -30,8 +36,9 @@
 
 - name: Cloudflare | Add DNS Record | Remove DNS CNAME Record
   community.general.cloudflare_dns:
-    account_api_token: "{{ cloudflare.api }}"
-    account_email: "{{ cloudflare.email }}"
+    account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
+    account_email: "{{ cloudflare_email | default(omit, true) }}"
+    api_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
     zone: "{{ dns_zone }}"
     state: absent
     type: CNAME

@@ -37,15 +37,25 @@ continuous_integration: false
 # Accounts
 ################################
 
-cloudflare_is_enabled: "{{ (cloudflare is defined) and
-                           (cloudflare is not none) and
-                           (cloudflare | trim | length > 0) and
-                           (cloudflare.email is defined) and
-                           (cloudflare.email is not none) and
-                           (cloudflare.email | trim | length > 0) and
-                           (cloudflare.api is defined) and
-                           (cloudflare.api is not none) and
-                           (cloudflare.api | trim | length > 0) }}"
+cloudflare_credentials: "{{ cloudflare | default({}, true) }}"
+cloudflare_api_key: "{{ cloudflare_credentials.api
+                     if (cloudflare_credentials.api | default(omit, true)) != omit
+                     else '' }}"
+cloudflare_email: "{{ cloudflare_credentials.email
+                   if (cloudflare_credentials.email | default(omit, true)) != omit
+                   else '' }}"
+cloudflare_scoped_token: "{{ cloudflare_credentials.scoped_token
+                          if (cloudflare_credentials.scoped_token | default(omit, true)) != omit
+                          else '' }}"
+cloudflare_api_key_is_enabled: "{{ (cloudflare_api_key | trim | length > 0) and
+                                     (cloudflare_email | trim | length > 0) }}"
+cloudflare_scoped_token_is_enabled: "{{ cloudflare_scoped_token | trim | length > 0 }}"
+cloudflare_is_enabled: "{{ cloudflare_api_key_is_enabled or cloudflare_scoped_token_is_enabled }}"
+cloudflare_auth_headers: "{{ {'Authorization': 'Bearer ' + cloudflare_scoped_token}
+                               if cloudflare_scoped_token_is_enabled
+                               else {'X-Auth-Email': cloudflare_email, 'X-Auth-Key': cloudflare_api_key}
+                                    if cloudflare_api_key_is_enabled
+                                    else {} }}"
 
 cloudflare_records_enabled: "{{ cloudflare_is_enabled }}"
 

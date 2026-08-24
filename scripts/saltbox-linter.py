@@ -81,6 +81,10 @@ Rules:
 21. Network Container Health Contract: every direct include of the shared
     network-container health task must pass explicit source and target inputs;
     the shared task must not depend on caller-local Docker resolution facts
+
+22. Cloudflare Auth Contract: role defaults and tasks must use the normalized
+    Cloudflare authentication interface instead of reading accounts fields
+    directly
 """
 
 import os
@@ -2179,6 +2183,41 @@ def write_github_summary(
         _ = summary_file.write("\n".join(lines) + "\n")
 
 
+def check_cloudflare_auth_contract(
+    files: list[Path],
+    repo_url: str | None = None,
+    commit_sha: str | None = None,
+) -> list[LintError]:
+    """Reject direct Cloudflare account-field access in runtime YAML."""
+    errors: list[LintError] = []
+    direct_access = re.compile(r"cloudflare\.(?:api|email|scoped_token)\b")
+
+    for file_path in files:
+        try:
+            relative_path = str(file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(file_path)
+        for line_number, line in enumerate(
+            file_path.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            if direct_access.search(line) is None:
+                continue
+            errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[cloudflare-auth-contract] Runtime YAML must use the "
+                        "normalized cloudflare authentication variables"
+                    ),
+                    repo_url=repo_url,
+                    commit_sha=commit_sha,
+                )
+            )
+
+    return errors
+
+
 def main() -> None:
     """Main entry point for the linter"""
     if len(sys.argv) < 2:
@@ -2248,6 +2287,13 @@ def main() -> None:
     all_errors.extend(
         check_network_container_health_contract(
             repository_dir,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+    )
+    all_errors.extend(
+        check_cloudflare_auth_contract(
+            [*defaults_files, *task_files],
             repo_url=repo_url,
             commit_sha=github_sha,
         )

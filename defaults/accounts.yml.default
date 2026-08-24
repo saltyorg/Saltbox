@@ -3,6 +3,7 @@ apprise:
 cloudflare:
   api:
   email:
+  scoped_token:
 dockerhub:
   token:
   user:

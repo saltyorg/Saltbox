@@ -167,9 +167,10 @@ traefik_role_metrics_dns_proxy: "{{ dns_proxied }}"
 # DNS Provider
 ################################
 
-traefik_dns_provider_cloudflare_tmp:
-  CLOUDFLARE_EMAIL: "{{ cloudflare.email }}"
-  CLOUDFLARE_API_KEY: "{{ cloudflare.api }}"
+traefik_dns_provider_cloudflare_tmp: "{{ {'CLOUDFLARE_DNS_API_TOKEN': cloudflare_scoped_token}
+                                      if cloudflare_scoped_token_is_enabled
+                                      else {'CLOUDFLARE_EMAIL': cloudflare_email,
+                                                 'CLOUDFLARE_API_KEY': cloudflare_api_key} }}"
 
 traefik_dns_provider_cloudflare: "{{ traefik_dns_provider_cloudflare_tmp
                                   if cloudflare_is_enabled

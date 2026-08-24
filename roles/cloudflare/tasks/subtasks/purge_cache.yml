@@ -11,13 +11,17 @@
   ansible.builtin.uri:
     url: 'https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/purge_cache'
     method: 'POST'
-    headers:
-      X-Auth-Email: '{{ cloudflare.email }}'
-      X-Auth-Key: '{{ cloudflare.api }}'
+    headers: "{{ cloudflare_auth_headers }}"
     body_format: json
     body: { purge_everything: true }
     status_code: 200
   register: cf_purge
+
+- name: Purge Cache | Validate Cloudflare response
+  ansible.builtin.assert:
+    that:
+      - cf_purge.json.success | default(false) | bool
+    fail_msg: "Cloudflare cache purge failed: {{ cf_purge.json.errors | default([]) }}"
 
 - name: Purge Cache | Print Result of Cloudflare Cache Purge
   ansible.builtin.debug:

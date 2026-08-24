@@ -11,10 +11,7 @@
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ cloudflare_zone }}/rulesets/{{ cloudflare_ruleset_id }}/rules"
     method: POST
-    headers:
-      Content-Type: "application/json"
-      X-Auth-Email: "{{ cloudflare.email }}"
-      X-Auth-Key: "{{ cloudflare.api }}"
+    headers: "{{ cloudflare_auth_headers | combine({'Content-Type': 'application/json'}) }}"
     body_format: json
     body:
       action: "set_config"
@@ -26,7 +23,8 @@
     status_code: 200
   register: cf_configuration_rule_creation
 
-- name: Configuration Rules | Print result of Cloudflare Configuration Rule Creation
-  ansible.builtin.debug:
-    msg: "Successfully created Let's Encrypt Cloudflare configuration rule for '{{ domain_parsed.fld }}'"
-  when: cf_configuration_rule_creation.json.success is defined and cf_configuration_rule_creation.json.success
+- name: Configuration Rules | Validate configuration rule creation
+  ansible.builtin.assert:
+    that:
+      - cf_configuration_rule_creation.json.success | default(false) | bool
+    fail_msg: "Cloudflare did not create the Configuration Rule: {{ cf_configuration_rule_creation.json.errors | default([]) }}"
