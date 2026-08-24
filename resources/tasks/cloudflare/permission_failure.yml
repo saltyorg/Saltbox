@@ -1,0 +1,32 @@
+#########################################################################
+# Title:         Saltbox: Cloudflare | Permission Failure               #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Cloudflare | Permission Failure | Report scoped token failure
+  ansible.builtin.fail:
+    msg:
+      - "{{ cloudflare_permission_operation }} failed for Cloudflare zone '{{ cloudflare_permission_zone }}'."
+      - "Cloudflare error: {{ cloudflare_permission_error }}"
+      - "Scoped tokens used for this operation require: {{ cloudflare_permission_section }} → {{ cloudflare_permission_setting }} → {{ cloudflare_permission_access }}."
+      - "For an account-owned token, select the account and open Manage Account → Account API Tokens. For a user-owned token, open My Profile → API Tokens."
+      - "Find the token used by Saltbox, select Edit, and add or correct that permission."
+      - "Under Zone Resources, select Include → Specific zone → {{ cloudflare_permission_zone }}, save the token, and rerun the command."
+      - "Full instructions: https://docs.saltbox.dev/reference/domain/#alternative-scoped-api-token"
+  when: cloudflare_scoped_token_is_enabled
+
+- name: Cloudflare | Permission Failure | Report Global API Key failure
+  ansible.builtin.fail:
+    msg:
+      - "{{ cloudflare_permission_operation }} failed for Cloudflare zone '{{ cloudflare_permission_zone }}'."
+      - "Cloudflare error: {{ cloudflare_permission_error }}"
+      - "Open User Profile → API Tokens. In API Keys, find Global API Key and select View."
+      - "Confirm the 'api' entry under 'cloudflare' in accounts.yml contains that key."
+      - "Confirm the 'email' entry under 'cloudflare' contains the email for the same Cloudflare user and that the user has access to '{{ cloudflare_permission_zone }}'."
+      - "Save accounts.yml and rerun the command."
+      - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
+  when: not cloudflare_scoped_token_is_enabled

@@ -7,13 +7,33 @@
 #                   GNU General Public License v3.0                    #
 #########################################################################
 ---
-- name: Cloudflare | Fetch accessible zones
-  cloudflare_zones:
-    auth_email: "{{ cloudflare_email | default(omit, true) }}"
-    auth_key: "{{ cloudflare_api_key | default(omit, true) }}"
-    auth_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
-  register: cloudflare_zone_catalog
+- name: Cloudflare | Resolve configured zone name
+  tld_parse:
+    url: "{{ user.domain }}"
+  register: sanity_cloudflare_domain
 
-- name: Cloudflare | Set certificate validation zones
-  ansible.builtin.set_fact:
-    traefik_certificate_authoritative_zones: "{{ cloudflare_zone_catalog.zones }}"
+- name: Cloudflare | Resolve accessible zones
+  block:
+    - name: Cloudflare | Fetch accessible zones
+      cloudflare_zones:
+        auth_email: "{{ cloudflare_email | default(omit, true) }}"
+        auth_key: "{{ cloudflare_api_key | default(omit, true) }}"
+        auth_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
+      register: cloudflare_zone_catalog
+
+    - name: Cloudflare | Set certificate validation zones
+      ansible.builtin.set_fact:
+        traefik_certificate_authoritative_zones: "{{ cloudflare_zone_catalog.zones }}"
+  rescue:
+    - name: Cloudflare | Report Zone permission failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/permission_failure.yml"
+      vars:
+        cloudflare_permission_operation: "Cloudflare accessible-zone lookup"
+        cloudflare_permission_section: "DNS and Zones"
+        cloudflare_permission_setting: "Zone"
+        cloudflare_permission_access: "Read"
+        cloudflare_permission_zone: "{{ sanity_cloudflare_domain.fld }}"
+        cloudflare_permission_error: "{{ (ansible_failed_result.json.errors | default([]))
+                                      if ansible_failed_result.json is defined
+                                      else (ansible_failed_result.msg
+                                            | default('Cloudflare returned no error details.')) }}"

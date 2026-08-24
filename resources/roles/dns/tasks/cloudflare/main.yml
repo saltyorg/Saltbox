@@ -35,10 +35,40 @@
         dns_tailscale_ipv6: "{{ dns_tailscale_ips.stdout_lines[1] }}"
         _dns_using_tailscale: true
 
-- name: Cloudflare | Add DNS Record
-  ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
-  when: (dns_action != 'remove')
+- name: Cloudflare | Manage DNS Record
+  block:
+    - name: Cloudflare | Add DNS Record
+      ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
+      when: (dns_action != 'remove')
 
-- name: Cloudflare | Remove DNS Record
-  ansible.builtin.include_tasks: "subtasks/remove_dns_record.yml"
-  when: (dns_action == 'remove')
+    - name: Cloudflare | Remove DNS Record
+      ansible.builtin.include_tasks: "subtasks/remove_dns_record.yml"
+      when: (dns_action == 'remove')
+  rescue:
+    - name: Cloudflare | Capture DNS failure
+      ansible.builtin.set_fact:
+        cloudflare_dns_failure_message: "{{ (ansible_failed_result.json.errors | default([]))
+                                         if ansible_failed_result.json is defined
+                                         else (ansible_failed_result.msg
+                                               | default('Cloudflare returned no error details.')) }}"
+
+    - name: Cloudflare | Classify DNS failure
+      ansible.builtin.set_fact:
+        cloudflare_dns_failure_is_permission: "{{ (ansible_failed_task.action | default('')) in ['cloudflare_dns_records', 'community.general.cloudflare_dns']
+                                                  and (cloudflare_dns_failure_message | lower | regex_search('authentication|permission|unauthorized|forbidden|status:? ?(401|403)|code:? ?10000')) is not none }}"
+
+    - name: Cloudflare | Report DNS permission failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/permission_failure.yml"
+      when: cloudflare_dns_failure_is_permission
+      vars:
+        cloudflare_permission_operation: "Cloudflare DNS record management"
+        cloudflare_permission_section: "DNS and Zones"
+        cloudflare_permission_setting: "DNS"
+        cloudflare_permission_access: "Edit"
+        cloudflare_permission_zone: "{{ dns_zone }}"
+        cloudflare_permission_error: "{{ cloudflare_dns_failure_message }}"
+
+    - name: Cloudflare | Preserve non-Cloudflare failure
+      ansible.builtin.fail:
+        msg: "{{ cloudflare_dns_failure_message }}"
+      when: not cloudflare_dns_failure_is_permission

@@ -7,6 +7,12 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Resolve Cloudflare zone name
+  when: cloudflare_is_enabled
+  tld_parse:
+    url: "{{ user.domain }}"
+  register: diag_cloudflare_domain
+
 - name: Cloudflare API lookup
   when: cloudflare_is_enabled
   block:
@@ -17,6 +23,19 @@
         auth_token: "{{ cloudflare_scoped_token | default(omit, true) }}"
         domain: "{{ user.domain }}"
       register: cloudflare_ssl
+  rescue:
+    - name: Report Cloudflare Zone Settings permission failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/permission_failure.yml"
+      vars:
+        cloudflare_permission_operation: "Cloudflare SSL/TLS mode lookup"
+        cloudflare_permission_section: "DNS and Zones"
+        cloudflare_permission_setting: "Zone Settings"
+        cloudflare_permission_access: "Read"
+        cloudflare_permission_zone: "{{ diag_cloudflare_domain.fld | default(user.domain) }}"
+        cloudflare_permission_error: "{{ (ansible_failed_result.json.errors | default([]))
+                                      if ansible_failed_result.json is defined
+                                      else (ansible_failed_result.msg
+                                            | default('Cloudflare returned no error details.')) }}"
 
 - name: Gather mount information
   ansible.builtin.setup:

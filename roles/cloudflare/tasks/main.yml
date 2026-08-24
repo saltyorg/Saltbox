@@ -11,11 +11,55 @@
   ansible.builtin.include_tasks: "subtasks/variables.yml"
 
 - name: Saltbox Subdomains Task
-  ansible.builtin.include_tasks: "subtasks/subdomains.yml"
   when: (saltbox_type | length > 0) and not skip_dns
+  block:
+    - name: Manage Saltbox subdomains
+      ansible.builtin.include_tasks: "subtasks/subdomains.yml"
+  rescue:
+    - name: Capture Cloudflare DNS failure
+      ansible.builtin.set_fact:
+        cloudflare_dns_failure_message: "{{ (ansible_failed_result.json.errors | default([]))
+                                         if ansible_failed_result.json is defined
+                                         else (ansible_failed_result.msg
+                                               | default('Cloudflare returned no error details.')) }}"
+
+    - name: Classify Cloudflare DNS failure
+      ansible.builtin.set_fact:
+        cloudflare_dns_failure_is_permission: "{{ (cloudflare_dns_failure_message | lower | regex_search('authentication|permission|unauthorized|forbidden|status:? ?(401|403)|code:? ?10000')) is not none }}"
+
+    - name: Report Cloudflare DNS permission failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/permission_failure.yml"
+      when: cloudflare_dns_failure_is_permission
+      vars:
+        cloudflare_permission_operation: "Cloudflare Saltbox subdomain management"
+        cloudflare_permission_section: "DNS and Zones"
+        cloudflare_permission_setting: "DNS"
+        cloudflare_permission_access: "Edit"
+        cloudflare_permission_zone: "{{ domain_parsed.fld }}"
+        cloudflare_permission_error: "{{ cloudflare_dns_failure_message }}"
+
+    - name: Preserve non-permission Cloudflare DNS failure
+      ansible.builtin.fail:
+        msg: "{{ cloudflare_dns_failure_message }}"
+      when: not cloudflare_dns_failure_is_permission
 
 - name: Purge Cache Task
-  ansible.builtin.include_tasks: "subtasks/purge_cache.yml"
+  block:
+    - name: Purge Cloudflare cache
+      ansible.builtin.include_tasks: "subtasks/purge_cache.yml"
+  rescue:
+    - name: Report Cloudflare Cache Purge permission failure
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/permission_failure.yml"
+      vars:
+        cloudflare_permission_operation: "Cloudflare cache purge"
+        cloudflare_permission_section: "Cache and Performance"
+        cloudflare_permission_setting: "Cache Purge"
+        cloudflare_permission_access: "Purge"
+        cloudflare_permission_zone: "{{ domain_parsed.fld }}"
+        cloudflare_permission_error: "{{ (ansible_failed_result.json.errors | default([]))
+                                      if ansible_failed_result.json is defined
+                                      else (ansible_failed_result.msg
+                                            | default('Cloudflare returned no error details.')) }}"
 
 - name: Configuration Rules Task
   block:
@@ -29,18 +73,60 @@
                                               else (ansible_failed_result.msg
                                                     | default('Cloudflare returned no error details.')) }}"
 
-    - name: Fail when forced HTTP validation requires the Configuration Rule
+    - name: Fail scoped token when forced HTTP validation requires the Configuration Rule
       ansible.builtin.fail:
         msg:
           - "Cloudflare Configuration Rule management failed while HTTP certificate validation is enabled."
           - "HTTP-01 validation requires this rule, so Saltbox cannot continue."
-          - "{{ cloudflare_configuration_rule_error }}"
-      when: traefik_enable_http_validation | bool
+          - "Cloudflare error: {{ cloudflare_configuration_rule_error }}"
+          - "The scoped token requires: Rules and Configuration → Config Settings → Edit."
+          - "For an account-owned token, select the account and open Manage Account → Account API Tokens. For a user-owned token, open My Profile → API Tokens."
+          - "Find the token used by Saltbox, select Edit, and add or correct that permission."
+          - "Under Zone Resources, select Include → Specific zone → {{ domain_parsed.fld }}, save the token, and rerun the command."
+          - "Full instructions: https://docs.saltbox.dev/reference/domain/#alternative-scoped-api-token"
+      when:
+        - traefik_enable_http_validation | bool
+        - cloudflare_scoped_token_is_enabled
 
-    - name: Warn when the optional Configuration Rule could not be managed
+    - name: Fail Global API Key when forced HTTP validation requires the Configuration Rule
+      ansible.builtin.fail:
+        msg:
+          - "Cloudflare Configuration Rule management failed while HTTP certificate validation is enabled."
+          - "HTTP-01 validation requires this rule, so Saltbox cannot continue."
+          - "Cloudflare error: {{ cloudflare_configuration_rule_error }}"
+          - "Open User Profile → API Tokens. In API Keys, find Global API Key and select View."
+          - "Confirm the 'api' entry under 'cloudflare' in accounts.yml contains that key."
+          - "Confirm the 'email' entry under 'cloudflare' contains the email for the same Cloudflare user and that the user has access to '{{ domain_parsed.fld }}'."
+          - "Save accounts.yml and rerun the command."
+          - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
+      when:
+        - traefik_enable_http_validation | bool
+        - not cloudflare_scoped_token_is_enabled
+
+    - name: Warn scoped token when the optional Configuration Rule could not be managed
       ansible.builtin.debug:
         msg:
           - "WARNING: The optional Cloudflare HTTP-challenge Configuration Rule was skipped."
           - "DNS certificate validation does not require this rule, so Saltbox will continue."
-          - "{{ cloudflare_configuration_rule_error }}"
-      when: not (traefik_enable_http_validation | bool)
+          - "Cloudflare error: {{ cloudflare_configuration_rule_error }}"
+          - "To enable rule management, the scoped token requires: Rules and Configuration → Config Settings → Edit."
+          - "For an account-owned token, select the account and open Manage Account → Account API Tokens. For a user-owned token, open My Profile → API Tokens."
+          - "Find the token used by Saltbox, select Edit, add or correct that permission, and scope it to '{{ domain_parsed.fld }}'."
+          - "Full instructions: https://docs.saltbox.dev/reference/domain/#alternative-scoped-api-token"
+      when:
+        - not (traefik_enable_http_validation | bool)
+        - cloudflare_scoped_token_is_enabled
+
+    - name: Warn Global API Key when the optional Configuration Rule could not be managed
+      ansible.builtin.debug:
+        msg:
+          - "WARNING: The optional Cloudflare HTTP-challenge Configuration Rule was skipped."
+          - "DNS certificate validation does not require this rule, so Saltbox will continue."
+          - "Cloudflare error: {{ cloudflare_configuration_rule_error }}"
+          - "Open User Profile → API Tokens. In API Keys, find Global API Key and select View."
+          - "Confirm the 'api' entry under 'cloudflare' in accounts.yml contains that key."
+          - "Confirm the 'email' entry under 'cloudflare' contains the email for the same Cloudflare user and that the user has access to '{{ domain_parsed.fld }}'."
+          - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
+      when:
+        - not (traefik_enable_http_validation | bool)
+        - not cloudflare_scoped_token_is_enabled
