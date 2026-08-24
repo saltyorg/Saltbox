@@ -7,6 +7,13 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Validate additional wildcard certificate domains
+  ansible.builtin.assert:
+    that:
+      - not traefik_http
+    fail_msg: "traefik.cert.additional_domains requires DNS certificate validation because HTTP-01 cannot issue wildcard certificates."
+  when: traefik.cert.additional_domains | default([]) | length > 0
+
 - name: Check Authelia master health endpoint
   ansible.builtin.uri:
     url: "{{ lookup('role_var', '_web_url', role='authelia') }}/api/health"

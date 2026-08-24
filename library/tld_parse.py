@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python
+# pyright: reportMissingTypeStubs=false, reportUnknownMemberType=false
 
 from __future__ import annotations
 
@@ -71,87 +72,90 @@ domain:
     sample: "example"
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict, cast
 from urllib.parse import urlsplit
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule  # type: ignore[import-untyped]
+from tld import get_tld
 
 if TYPE_CHECKING:
     from tld.utils import Result
 
 
-def build_parse_url(url: str, record: str, module: AnsibleModule) -> str:
-    """
-    Build a URL containing the hostname that should be parsed.
+class ParsedDomain(TypedDict):
+    fld: str
+    subdomain: str
+    record: str
+    tld: str
+    domain: str
 
-    The input may be a bare domain or a URL. Schemes, ports, paths, queries,
-    and fragments are discarded because only the hostname is relevant.
-    """
-    normalized_url = url.strip()
-    if not normalized_url:
-        module.fail_json(msg="url must not be empty")
 
-    parsed_url = urlsplit(normalized_url if '://' in normalized_url else f"//{normalized_url}")
+class DomainParseError(ValueError):
+    """Raised when a domain value cannot be normalized or parsed."""
+
+
+def normalize_hostname(value: object) -> str:
+    if not isinstance(value, str):
+        raise DomainParseError("domain must be a string")
+
+    normalized = value.strip()
+    if not normalized:
+        raise DomainParseError("domain must not be empty")
+
+    parsed_url = urlsplit(normalized if "://" in normalized else f"//{normalized}")
     hostname = parsed_url.hostname
     if not hostname:
-        module.fail_json(msg=f"Could not extract a hostname from '{url}'")
+        raise DomainParseError(f"could not extract a hostname from {value!r}")
 
-    if hostname.endswith('.'):
-        hostname = hostname[:-1]
+    hostname = hostname.rstrip(".")
     if not hostname:
-        module.fail_json(msg=f"Could not extract a hostname from '{url}'")
+        raise DomainParseError(f"could not extract a hostname from {value!r}")
+    return hostname
 
-    normalized_record = record.strip()
-    if normalized_record.endswith('.'):
-        normalized_record = normalized_record[:-1]
+
+def parse_domain(value: object, record: object = "") -> ParsedDomain:
+    hostname = normalize_hostname(value)
+    if not isinstance(record, str):
+        raise DomainParseError("record must be a string")
+
+    normalized_record = record.strip().rstrip(".")
     if normalized_record:
         hostname = f"{normalized_record}.{hostname}"
 
-    return f"http://{hostname}"
+    try:
+        result = cast("Result", get_tld(f"http://{hostname}", as_object=True))
+    except Exception as exc:
+        raise DomainParseError(f"failed to parse domain {value!r}: {exc}") from exc
+
+    subdomain = result.subdomain or ""
+    return {
+        "fld": result.fld,
+        "subdomain": subdomain,
+        "record": subdomain or "@",
+        "tld": result.tld,
+        "domain": result.domain,
+    }
 
 
 def main() -> None:
     module = AnsibleModule(
-        argument_spec=dict(
-            url=dict(type='str', required=True),
-            record=dict(type='str', default='')
-        ),
-        supports_check_mode=True
+        argument_spec={
+            "url": {"type": "str", "required": True},
+            "record": {"type": "str", "default": ""},
+        },
+        supports_check_mode=True,
     )
-
-    url: str = module.params['url']
-    record: str = module.params['record']
-
     try:
-        try:
-            from tld import get_tld
-        except ImportError:
-            module.fail_json(msg="The 'tld' Python library is required. Install it with: pip install tld")
-
-        full_url = build_parse_url(url, record, module)
-        res: Result = get_tld(full_url, as_object=True)  # type: ignore[assignment]
-
-        # Extract components - use same naming as tld library
-        fld: str = res.fld
-        subdomain: str = res.subdomain if res.subdomain else ''
-        tld: str = res.tld
-        domain: str = res.domain
-
-        # Format record for DNS operations
-        dns_record: str = subdomain if subdomain else '@'
-
-        module.exit_json(
-            changed=False,
-            fld=fld,
-            subdomain=subdomain,
-            record=dns_record,
-            tld=tld,
-            domain=domain
+        url = cast(object, module.params["url"])
+        record = cast(object, module.params["record"])
+        result = parse_domain(
+            url,
+            record,
         )
+    except DomainParseError as exc:
+        module.fail_json(msg=str(exc))
+    module.exit_json(changed=False, **result)
 
-    except Exception as e:
-        module.fail_json(msg=f"Failed to parse domain: {e!s}")
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

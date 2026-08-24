@@ -1,0 +1,18 @@
+#########################################################################
+# Title:         Saltbox: Sanity Check | Cloudflare                    #
+# Author(s):     salty                                                 #
+# URL:           https://github.com/saltyorg/Saltbox                   #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                    #
+#########################################################################
+---
+- name: Cloudflare | Fetch accessible zones
+  cloudflare_zones:
+    auth_email: "{{ cloudflare.email }}"
+    auth_key: "{{ cloudflare.api }}"
+  register: cloudflare_zone_catalog
+
+- name: Cloudflare | Set certificate validation zones
+  ansible.builtin.set_fact:
+    traefik_certificate_authoritative_zones: "{{ cloudflare_zone_catalog.zones }}"

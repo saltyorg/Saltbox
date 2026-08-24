@@ -372,6 +372,16 @@ traefik_host_override_lookup: "{{ lookup('role_var', '_web_host_override', role=
 traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', role=role_var_role, default=[]) }}"
 traefik_host_template: "{{ traefik_host | traefik_host_rule(traefik_host_override_lookup, traefik_fqdn_override_lookup) }}"
 
+traefik_certificate_fqdn_overrides: "{{ traefik_fqdn_override_lookup
+                                        if (traefik_host_override_lookup | length == 0)
+                                        else [] }}"
+traefik_certificate_authoritative_zones: null
+traefik_router_certificate_domains: "{{ traefik_domain
+                                         | traefik_certificate_domains(traefik_certificate_fqdn_overrides,
+                                                                       [],
+                                                                       traefik_role_wildcard_enabled,
+                                                                       traefik_certificate_authoritative_zones) }}"
+
 traefik_entrypoint_tailscale_default: false
 traefik_entrypoint_web_default: "{{ 'web' if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool) else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('role_var', '_traefik_entrypoint_web', role=role_var_role, default=traefik_entrypoint_web_default) }}"
@@ -452,15 +462,11 @@ docker_labels_saltbox_tmp:
   - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('role_var', '_depends_on_healthchecks', role=role_var_role, default='') | length > 0) or docker_container_network_mode) else omit }}"
   - "{{ docker_labels_custom_common }}"
 
-docker_labels_wildcard_template:
-  - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].main": "{{ traefik_domain }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_dict: "{{ (docker_labels_wildcard_template | map('from_json') | combine) if traefik_role_wildcard_enabled else {} }}"
+docker_labels_wildcard_dict: "{{ traefik_router_certificate_domains
+                                   | traefik_certificate_labels(traefik_router) }}"
 
-docker_labels_wildcard_api_template:
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].main": "{{ traefik_domain }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.domains[0].sans": "{{ "*." + traefik_domain }}" }'
-docker_labels_wildcard_api_dict: "{{ (docker_labels_wildcard_api_template | map('from_json') | combine) if traefik_role_wildcard_enabled else {} }}"
+docker_labels_wildcard_api_dict: "{{ traefik_router_certificate_domains
+                                       | traefik_certificate_labels(traefik_router + '-api') }}"
 
 docker_container_network_mode: "{{ 'container:' in lookup('role_var', '_docker_network_mode', role=role_var_role, default=docker_networks_name_common) }}"
 docker_container_network_mode_lookup: "{{ lookup('role_var', '_docker_network_mode', role=role_var_role, default=docker_networks_name_common) | split(':') | last }}"

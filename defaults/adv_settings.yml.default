@@ -13,6 +13,7 @@ system:
   timezone: auto
 traefik:
   cert:
+    additional_domains: []
     http_validation: no
     zerossl: no
   error_pages: no

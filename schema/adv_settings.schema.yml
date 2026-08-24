@@ -55,6 +55,11 @@ traefik:
       type: object
       required: true
       properties:
+        additional_domains:
+          type: array
+          required: false
+          items:
+            type: hostname
         http_validation:
           type: ansible_bool
           required: true

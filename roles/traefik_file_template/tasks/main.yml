@@ -83,6 +83,10 @@
             tls:
               options: "securetls@file"
               certResolver: "{{ traefik_default_certresolver }}"
+      {% if traefik_router_certificate_domains %}
+              domains:
+      {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}
+      {% endif %}
       {% if traefik_file_template_role_traefik_api_enabled %}
           {{ traefik_file_template_name }}-api-http:
             entrypoints:
@@ -106,6 +110,10 @@
             tls:
               options: "securetls@file"
               certResolver: "{{ traefik_default_certresolver }}"
+      {% if traefik_router_certificate_domains %}
+              domains:
+      {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}
+      {% endif %}
       {% endif %}
 
         services:

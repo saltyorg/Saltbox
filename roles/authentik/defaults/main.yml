@@ -84,7 +84,7 @@ authentik_role_web_domain: "{{ user.domain }}"
 authentik_role_web_port: "9000"
 authentik_role_web_url: "{{ lookup('role_web', role='authentik', scheme='https') }}"
 authentik_role_web_host: "{{ lookup('role_web', role='authentik') }}"
-authentik_role_web_outpost_rule: "Host(`{{ lookup('role_var', '_web_host', role='authentik') }}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+authentik_role_web_outpost_rule: "{{ traefik_host_template }} && PathPrefix(`/outpost.goauthentik.io/`)"
 
 ################################
 # DNS
@@ -196,8 +196,11 @@ authentik_role_docker_labels_default:
   traefik.http.routers.authentik-outpost.priority: "99"
   traefik.http.services.authentik-outpost-http.loadbalancer.server.port: "{{ lookup('role_var', '_web_port', role='authentik') }}"
   traefik.http.services.authentik-outpost.loadbalancer.server.port: "{{ lookup('role_var', '_web_port', role='authentik') }}"
+authentik_role_docker_labels_outpost_certificates: "{{ traefik_router_certificate_domains
+                                                       | traefik_certificate_labels('authentik-outpost') }}"
 authentik_role_docker_labels_custom: {}
 authentik_role_docker_labels: "{{ lookup('role_var', '_docker_labels_default', role='authentik')
+                                  | combine(authentik_role_docker_labels_outpost_certificates)
                                   | combine(lookup('role_var', '_docker_labels_custom', role='authentik')) }}"
 
 # Hostname
