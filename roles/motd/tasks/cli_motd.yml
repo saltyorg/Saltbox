@@ -45,7 +45,7 @@
         dest: "/srv/git/saltbox/motd.yml"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0664"
+        mode: "0600"
         force: true
 
 - name: Import '01-motd' template
