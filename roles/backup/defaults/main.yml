@@ -20,15 +20,14 @@ backup_instance: "Saltbox"
 # Size Check
 ################################
 
-backup_size_exclude_folders: >-
-  {{ (plex_instances | default(['plex'])
-      | map('regex_replace', '^', server_appdata_path ~ '/')
-      | map('regex_replace', '$', '/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder')
-      | list)
-     + (plex_instances | default(['plex'])
-      | map('regex_replace', '^', server_appdata_path ~ '/')
-      | map('regex_replace', '$', '/Library/Application Support/Plex Media Server/Cache/Transcode')
-      | list) }}
+backup_size_exclude_folders: "{{ (plex_instances | default(['plex'])
+                                  | map('regex_replace', '^', server_appdata_path ~ '/')
+                                  | map('regex_replace', '$', '/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder')
+                                  | list)
+                                 + (plex_instances | default(['plex'])
+                                    | map('regex_replace', '^', server_appdata_path ~ '/')
+                                    | map('regex_replace', '$', '/Library/Application Support/Plex Media Server/Cache/Transcode')
+                                    | list) }}"
 
 ################################
 # Backup Excludes
