@@ -92,7 +92,7 @@ jackett_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='j
 
 # Volumes
 jackett_role_docker_volumes_default:
-  - "{{ jackett_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='jackett') }}:/config"
 jackett_role_docker_volumes_custom: []
 jackett_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='jackett')
                                  + lookup('role_var', '_docker_volumes_custom', role='jackett') }}"

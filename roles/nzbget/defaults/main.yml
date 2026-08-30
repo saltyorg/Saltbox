@@ -148,7 +148,7 @@ nzbget_role_config_existing_installs_settings_list: "{{ lookup('role_var', '_con
 
 # Paths
 # Default nzbget_scripts_paths_location = /opt/scripts/nzbget
-nzbget_role_scripts_paths_location: "{{ server_appdata_path }}/scripts/{{ nzbget_role_paths_folder }}"
+nzbget_role_scripts_paths_location: "{{ server_appdata_path }}/scripts/{{ lookup('role_var', '_paths_folder', role='nzbget') }}"
 nzbget_role_scripts_paths_folders_list:
   - "{{ nzbget_role_scripts_paths_location }}"
   - "{{ nzbget_role_scripts_paths_location }}/nzbgetpp"
@@ -213,7 +213,7 @@ nzbget_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='nz
 
 # Volumes
 nzbget_role_docker_volumes_default:
-  - "{{ nzbget_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='nzbget') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 nzbget_role_docker_volumes_custom: []
 nzbget_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nzbget')

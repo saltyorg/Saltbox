@@ -41,9 +41,9 @@ authentik_worker_role_docker_commands: "{{ lookup('role_var', '_docker_commands_
 
 # Volumes
 authentik_worker_role_docker_volumes_default:
-  - "{{ authentik_role_paths_location }}/data:/data"
-  - "{{ authentik_role_paths_location }}/custom-templates:/templates"
-  - "{{ authentik_role_paths_location }}/certs:/certs"
+  - "{{ lookup('role_var', '_paths_location', role='authentik') }}/data:/data"
+  - "{{ lookup('role_var', '_paths_location', role='authentik') }}/custom-templates:/templates"
+  - "{{ lookup('role_var', '_paths_location', role='authentik') }}/certs:/certs"
   - "/var/run/docker.sock:/var/run/docker.sock"
 authentik_worker_role_docker_volumes_custom: []
 authentik_worker_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authentik_worker')

@@ -19,7 +19,7 @@
 
 - name: "Check if config folder exists"
   ansible.builtin.stat:
-    path: "{{ portainer_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='portainer') }}"
   register: portainer_config_stat
 
 - name: Create directories

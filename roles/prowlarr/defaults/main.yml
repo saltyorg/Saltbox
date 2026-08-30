@@ -99,7 +99,7 @@ prowlarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 prowlarr_role_docker_volumes_default:
-  - "{{ prowlarr_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='prowlarr') }}:/config"
 prowlarr_role_docker_volumes_custom: []
 prowlarr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='prowlarr')
                                   + lookup('role_var', '_docker_volumes_custom', role='prowlarr') }}"

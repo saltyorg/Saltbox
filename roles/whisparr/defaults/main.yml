@@ -23,11 +23,13 @@ whisparr_role_external_auth: true
 # Paths
 ################################
 
-whisparr_paths_folder: "{{ whisparr_name }}"
-whisparr_paths_location: "{{ server_appdata_path }}/{{ whisparr_paths_folder }}"
-whisparr_paths_config_location: "{{ whisparr_paths_location }}/config.xml"
-whisparr_paths_folders_list:
-  - "{{ whisparr_paths_location }}"
+whisparr_role_paths_folder: "{{ whisparr_paths_folder | default(whisparr_name) }}"
+whisparr_role_paths_location: "{{ whisparr_paths_location
+                                  | default(server_appdata_path + '/' + whisparr_role_paths_folder) }}"
+whisparr_role_paths_config_location: "{{ whisparr_paths_config_location
+                                         | default(whisparr_role_paths_location + '/config.xml') }}"
+whisparr_role_paths_folders_list: "{{ whisparr_paths_folders_list
+                                      | default([whisparr_role_paths_location]) }}"
 
 ################################
 # Web
@@ -99,7 +101,7 @@ whisparr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 whisparr_role_docker_volumes_default:
-  - "{{ whisparr_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='whisparr') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 whisparr_role_docker_volumes_custom: []
 whisparr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='whisparr')

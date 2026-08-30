@@ -140,10 +140,10 @@ emby_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='emby
 
 # Volumes
 emby_role_docker_volumes_default:
-  - "{{ emby_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='emby') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/dev/shm:/dev/shm"
-  - "{{ emby_role_paths_transcodes_location }}:/transcode"
+  - "{{ lookup('role_var', '_paths_transcodes_location', role='emby') }}:/transcode"
 emby_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media:/data"
 emby_role_docker_volumes_custom: []

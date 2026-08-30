@@ -125,7 +125,7 @@ nzbhydra2_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role=
 
 # Volumes
 nzbhydra2_role_docker_volumes_default:
-  - "{{ nzbhydra2_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='nzbhydra2') }}:/config"
 nzbhydra2_role_docker_volumes_custom: []
 nzbhydra2_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nzbhydra2')
                                    + lookup('role_var', '_docker_volumes_custom', role='nzbhydra2') }}"

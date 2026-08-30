@@ -7,15 +7,16 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Remove existing Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
 - name: MongoDB Role
   ansible.builtin.include_role:
     name: mongodb
   vars:
     mongodb_instances: ["{{ petio_name }}-mongo"]
-    mongodb_docker_env_db: "{{ petio_name }}"
-    mongodb_docker_image_tag: "{{ lookup('role_var', '_mongodb_version', role='petio') }}"
-    mongodb_paths_folder: "{{ petio_name }}"
-    mongodb_paths_location: "{{ server_appdata_path }}/{{ mongodb_role_paths_folder }}/mongodb"
+    mongodb_role_docker_image_tag: "{{ lookup('role_var', '_mongodb_version', role='petio') }}"
+    mongodb_role_paths_location: "{{ lookup('role_var', '_paths_location', role='petio') }}/mongodb"
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
@@ -23,9 +24,6 @@
     dns_record: "{{ lookup('role_var', '_dns_record') }}"
     dns_zone: "{{ lookup('role_var', '_dns_zone') }}"
     dns_proxy: "{{ lookup('role_var', '_dns_proxy') }}"
-
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"

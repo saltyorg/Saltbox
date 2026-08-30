@@ -444,7 +444,7 @@ gluetun_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='g
 # Volumes
 gluetun_role_docker_volumes_global: false
 gluetun_role_docker_volumes_default:
-  - "{{ gluetun_role_paths_location }}:/gluetun"
+  - "{{ lookup('role_var', '_paths_location', role='gluetun') }}:/gluetun"
 gluetun_role_docker_volumes_custom: []
 gluetun_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='gluetun')
                                  + lookup('role_var', '_docker_volumes_custom', role='gluetun') }}"

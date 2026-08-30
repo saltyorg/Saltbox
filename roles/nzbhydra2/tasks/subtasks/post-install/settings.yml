@@ -20,8 +20,13 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
 
 - name: Post-Install | Settings | Update settings
-  ansible.builtin.shell: |
-    yyq -i '{{ item }}' {{ lookup('role_var', '_paths_config_location', role='nzbhydra2') }}
+  ansible.builtin.command:
+    expand_argument_vars: false
+    argv:
+      - "yyq"
+      - "-i"
+      - "{{ item }}"
+      - "{{ lookup('role_var', '_paths_config_location', role='nzbhydra2') }}"
   become: true
   become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_config_settings_list', role='nzbhydra2') }}"

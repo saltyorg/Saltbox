@@ -143,10 +143,10 @@ jellyfin_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 jellyfin_role_docker_volumes_default:
-  - "{{ jellyfin_role_paths_location }}:/config:rw"
+  - "{{ lookup('role_var', '_paths_location', role='jellyfin') }}:/config:rw"
   - "{{ server_appdata_path }}/scripts:/scripts"
   - "/dev/shm:/dev/shm"
-  - "{{ jellyfin_role_paths_transcodes_location }}:/transcode"
+  - "{{ lookup('role_var', '_paths_transcodes_location', role='jellyfin') }}:/transcode"
 jellyfin_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media:/data"
 jellyfin_role_docker_volumes_custom: []

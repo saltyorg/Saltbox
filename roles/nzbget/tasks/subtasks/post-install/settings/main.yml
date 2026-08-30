@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Settings | Update settings For New Installs
   ansible.builtin.lineinfile:
-    path: "{{ nzbget_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"
     state: present
@@ -21,7 +21,7 @@
 
 - name: Post-Install | Settings | Set settings For Existing Installs
   ansible.builtin.lineinfile:
-    path: "{{ nzbget_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
     regexp: '{{ item.regexp }}'
     line: "{{ item.line }}"
     state: present

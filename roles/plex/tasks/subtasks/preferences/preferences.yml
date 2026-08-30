@@ -17,7 +17,7 @@
   block:
     - name: "Preferences | Remove existing PlexOnlineToken from Preferences.xml"
       ansible.builtin.replace:
-        path: "{{ plex_role_paths_config_location }}"
+        path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
         regexp: ' PlexOnlineToken="[^"]*"'
         replace: ''
       when: ('plex-reclaim' in ansible_run_tags)

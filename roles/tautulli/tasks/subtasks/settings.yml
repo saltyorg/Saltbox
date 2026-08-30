@@ -9,7 +9,7 @@
 ---
 - name: Settings | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ tautulli_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='tautulli') }}"
     state: present
 
 - name: Settings | Set config settings update status
@@ -20,7 +20,7 @@
   ansible.builtin.set_fact:
     tautulli_config_settings_update_required: true
   vars:
-    _tautulli_config_setting_current_value: "{{ lookup('ansible.builtin.ini', item.option, section=item.section, file=tautulli_role_paths_config_location, default='__saltbox_missing__') }}"
+    _tautulli_config_setting_current_value: "{{ lookup('ansible.builtin.ini', item.option, section=item.section, file=lookup('role_var', '_paths_config_location', role='tautulli'), default='__saltbox_missing__') }}"
   loop: "{{ tautulli_role_config_settings_list }}"
   loop_control:
     label: "{{ item.section }} | {{ item.option }}"
@@ -34,7 +34,7 @@
 
     - name: Settings | Update config settings
       community.general.ini_file:
-        path: "{{ tautulli_role_paths_config_location }}"
+        path: "{{ lookup('role_var', '_paths_config_location', role='tautulli') }}"
         section: "{{ item.section }}"
         option: "{{ item.option }}"
         value: "{{ item.value }}"

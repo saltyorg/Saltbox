@@ -99,7 +99,7 @@ sonarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='so
 
 # Volumes
 sonarr_role_docker_volumes_default:
-  - "{{ sonarr_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='sonarr') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 sonarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/TV:/tv"

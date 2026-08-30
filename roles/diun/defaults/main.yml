@@ -47,8 +47,8 @@ diun_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='diun
 
 # Volumes
 diun_role_docker_volumes_default:
-  - "{{ diun_role_paths_location }}/data:/data"
-  - "{{ diun_role_paths_location }}/diun.yml:/diun.yml:ro"
+  - "{{ lookup('role_var', '_paths_location', role='diun') }}/data:/data"
+  - "{{ lookup('role_var', '_paths_location', role='diun') }}/diun.yml:/diun.yml:ro"
   - "/var/run/docker.sock:/var/run/docker.sock"
 diun_role_docker_volumes_custom: []
 diun_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='diun')

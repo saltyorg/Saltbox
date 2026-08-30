@@ -108,7 +108,7 @@ tautulli_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 tautulli_role_docker_volumes_default:
-  - "{{ tautulli_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='tautulli') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 tautulli_role_docker_volumes_custom: []
 tautulli_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='tautulli')

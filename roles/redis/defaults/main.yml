@@ -44,7 +44,7 @@ redis_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='red
 
 # Volumes
 redis_role_docker_volumes_default:
-  - "{{ redis_role_paths_location }}:/data"
+  - "{{ lookup('role_var', '_paths_location', role='redis') }}:/data"
 redis_role_docker_volumes_custom: []
 redis_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='redis')
                                + lookup('role_var', '_docker_volumes_custom', role='redis') }}"

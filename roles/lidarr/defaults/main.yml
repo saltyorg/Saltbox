@@ -99,7 +99,7 @@ lidarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='li
 
 # Volumes
 lidarr_role_docker_volumes_default:
-  - "{{ lidarr_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='lidarr') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 lidarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Music:/music"

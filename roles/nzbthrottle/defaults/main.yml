@@ -45,7 +45,7 @@ nzbthrottle_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', rol
 
 # Volumes
 nzbthrottle_role_docker_volumes_default:
-  - "{{ nzbthrottle_role_paths_config_location }}:/nzbthrottle/config.json:ro"
+  - "{{ lookup('role_var', '_paths_config_location', role='nzbthrottle') }}:/nzbthrottle/config.json:ro"
 nzbthrottle_role_docker_volumes_custom: []
 nzbthrottle_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='nzbthrottle')
                                      + lookup('role_var', '_docker_volumes_custom', role='nzbthrottle') }}"

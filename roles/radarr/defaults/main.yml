@@ -99,7 +99,7 @@ radarr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='ra
 
 # Volumes
 radarr_role_docker_volumes_default:
-  - "{{ radarr_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='radarr') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 radarr_role_docker_volumes_legacy:
   - "/mnt/unionfs/Media/Movies:/movies"

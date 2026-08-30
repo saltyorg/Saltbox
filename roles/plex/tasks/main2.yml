@@ -54,8 +54,8 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ plex_role_paths_location }}/98-themepark"
-    - "{{ plex_role_paths_location }}/99-modify-binary"
+    - "{{ lookup('role_var', '_paths_location', role='plex') }}/98-themepark"
+    - "{{ lookup('role_var', '_paths_location', role='plex') }}/99-modify-binary"
     - "{{ server_appdata_path }}/scripts/bbe"
 
 - name: Plex Reset Codecs tasks
@@ -63,7 +63,7 @@
   block:
     - name: Get contents of Plex Codecs Folder
       ansible.builtin.find:
-        paths: "{{ plex_role_paths_application_support_location }}/Codecs"
+        paths: "{{ lookup('role_var', '_paths_application_support_location', role='plex') }}/Codecs"
         file_type: directory
         recurse: false
       register: plex_codecs_removal

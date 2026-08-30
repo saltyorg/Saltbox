@@ -95,8 +95,8 @@ prometheus_role_docker_commands: "{{ lookup('role_var', '_docker_commands_defaul
 
 # Volumes
 prometheus_role_docker_volumes_default:
-  - "{{ prometheus_role_paths_location }}:/etc/prometheus"
-  - "{{ prometheus_role_paths_location }}/data:/data"
+  - "{{ lookup('role_var', '_paths_location', role='prometheus') }}:/etc/prometheus"
+  - "{{ lookup('role_var', '_paths_location', role='prometheus') }}/data:/data"
 prometheus_role_docker_volumes_custom: []
 prometheus_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='prometheus')
                                     + lookup('role_var', '_docker_volumes_custom', role='prometheus') }}"

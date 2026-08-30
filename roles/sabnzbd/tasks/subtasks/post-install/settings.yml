@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Settings | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ sabnzbd_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
     state: present
 
 - name: Post-Install | Settings | Stop container
@@ -21,7 +21,7 @@
 
 - name: Post-Install | Settings | Update config settings
   community.general.ini_file:
-    path: "{{ sabnzbd_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
     section: misc
     option: "{{ item.option }}"
     value: "{{ item.value }}"

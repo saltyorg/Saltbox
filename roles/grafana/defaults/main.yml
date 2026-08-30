@@ -87,7 +87,7 @@ grafana_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='g
 
 # Volumes
 grafana_role_docker_volumes_default:
-  - "{{ grafana_role_paths_location }}:/var/lib/grafana"
+  - "{{ lookup('role_var', '_paths_location', role='grafana') }}:/var/lib/grafana"
 grafana_role_docker_volumes_custom: []
 grafana_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='grafana')
                                  + lookup('role_var', '_docker_volumes_custom', role='grafana') }}"

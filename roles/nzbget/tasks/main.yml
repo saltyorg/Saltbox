@@ -23,7 +23,7 @@
 
 - name: Check if existing config exists
   ansible.builtin.stat:
-    path: "{{ nzbget_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
   register: nzbget_paths_config_location_stat
 
 - name: Create Docker container

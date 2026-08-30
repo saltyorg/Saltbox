@@ -84,7 +84,7 @@ organizr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 organizr_role_docker_volumes_default:
-  - "{{ organizr_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='organizr') }}:/config"
 organizr_role_docker_volumes_custom: []
 organizr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='organizr')
                                   + lookup('role_var', '_docker_volumes_custom', role='organizr') }}"

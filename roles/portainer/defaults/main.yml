@@ -97,7 +97,7 @@ portainer_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role=
 
 # Volumes
 portainer_role_docker_volumes_default:
-  - "{{ portainer_role_paths_location }}:/data"
+  - "{{ lookup('role_var', '_paths_location', role='portainer') }}:/data"
   - "/var/run/docker.sock:/var/run/docker.sock"
 portainer_role_docker_volumes_custom: []
 portainer_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='portainer')

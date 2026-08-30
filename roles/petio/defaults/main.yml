@@ -81,7 +81,7 @@ petio_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='pet
 
 # Volumes
 petio_role_docker_volumes_default:
-  - "{{ petio_role_paths_location }}:/app/api/config"
+  - "{{ lookup('role_var', '_paths_location', role='petio') }}:/app/api/config"
 petio_role_docker_volumes_custom: []
 petio_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='petio')
                                + lookup('role_var', '_docker_volumes_custom', role='petio') }}"

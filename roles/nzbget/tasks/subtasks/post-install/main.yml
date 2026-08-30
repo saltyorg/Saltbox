@@ -9,7 +9,7 @@
 ---
 - name: Post-Install | Wait for config file to be created
   ansible.builtin.wait_for:
-    path: "{{ nzbget_role_paths_config_location }}"
+    path: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
     state: present
 
 - name: Post-Install | Wait for 10 seconds

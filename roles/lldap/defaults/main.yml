@@ -99,7 +99,7 @@ lldap_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='lld
 
 # Volumes
 lldap_role_docker_volumes_default:
-  - "{{ lldap_role_paths_location }}:/data"
+  - "{{ lookup('role_var', '_paths_location', role='lldap') }}:/data"
 lldap_role_docker_volumes_custom: []
 lldap_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='lldap')
                                + lookup('role_var', '_docker_volumes_custom', role='lldap') }}"

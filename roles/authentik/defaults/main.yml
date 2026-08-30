@@ -174,8 +174,8 @@ authentik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default
 
 # Volumes
 authentik_role_docker_volumes_default:
-  - "{{ authentik_role_paths_location }}/data:/data"
-  - "{{ authentik_role_paths_location }}/custom-templates:/templates"
+  - "{{ lookup('role_var', '_paths_location', role='authentik') }}/data:/data"
+  - "{{ lookup('role_var', '_paths_location', role='authentik') }}/custom-templates:/templates"
 authentik_role_docker_volumes_custom: []
 authentik_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='authentik')
                                    + lookup('role_var', '_docker_volumes_custom', role='authentik') }}"

@@ -79,7 +79,7 @@ autoscan_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='
 
 # Volumes
 autoscan_role_docker_volumes_default:
-  - "{{ autoscan_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='autoscan') }}:/config"
 autoscan_role_docker_volumes_custom: []
 autoscan_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='autoscan')
                                   + lookup('role_var', '_docker_volumes_custom', role='autoscan') }}"

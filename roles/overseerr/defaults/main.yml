@@ -100,7 +100,7 @@ overseerr_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role=
 
 # Volumes
 overseerr_role_docker_volumes_default:
-  - "{{ overseerr_role_paths_location }}:/app/config"
+  - "{{ lookup('role_var', '_paths_location', role='overseerr') }}:/app/config"
 overseerr_role_docker_volumes_custom: []
 overseerr_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='overseerr')
                                    + lookup('role_var', '_docker_volumes_custom', role='overseerr') }}"
