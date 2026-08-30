@@ -8,7 +8,14 @@
 #########################################################################
 ---
 - name: Find Saltbox roles
-  ansible.builtin.shell: "find /srv/git/saltbox/roles -type d -name 'defaults'"
+  ansible.builtin.command:
+    argv:
+      - "find"
+      - "/srv/git/saltbox/roles"
+      - "-type"
+      - "d"
+      - "-name"
+      - "defaults"
   register: pre_tasks_saltbox_roles
 
 - name: Include Saltbox role default vars
@@ -19,7 +26,14 @@
   when: (playbook_dir == pre_tasks_saltbox_mod_location)
   block:
     - name: Find Sandbox roles
-      ansible.builtin.shell: "find {{ server_appdata_path }}/sandbox/roles -type d -name 'defaults'"
+      ansible.builtin.command:
+        argv:
+          - "find"
+          - "{{ server_appdata_path }}/sandbox/roles"
+          - "-type"
+          - "d"
+          - "-name"
+          - "defaults"
       register: pre_tasks_sandbox_roles
 
     - name: Include Sandbox role default vars

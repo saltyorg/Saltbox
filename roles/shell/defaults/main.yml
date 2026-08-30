@@ -20,6 +20,8 @@ shell_editor: "nano"
 
 shell_misc_argcomplete_pip_package: argcomplete
 shell_misc_argcomplete_command: "activate-global-python-argcomplete"
+shell_misc_argcomplete_command_args: "{{ shell_misc_argcomplete_command
+                                         | saltbox_argv('shell_misc_argcomplete_command') }}"
 
 ################################
 # z (jump around)

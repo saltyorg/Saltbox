@@ -19,4 +19,7 @@
     - { limit_type: 'hard', limit_item: 'memlock', value: unlimited }
 
 - name: PAM limits | Reload sysctl settings.
-  ansible.builtin.shell: sysctl --system
+  ansible.builtin.command:
+    argv:
+      - "sysctl"
+      - "--system"

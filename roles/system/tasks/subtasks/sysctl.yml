@@ -21,9 +21,28 @@
   register: netdev_budget_usecs
 
 - name: sysctl | Determine CONFIG_HZ
-  ansible.builtin.shell: grep '^CONFIG_HZ=' /boot/config-$(uname -r) | awk -F '=' '{print $2}'
-  register: kernel_config_hz
-  changed_when: false
+  ansible.builtin.stat:
+    path: "/boot/config-{{ ansible_facts['kernel'] }}"
+  register: kernel_config
+  when: netdev_budget_usecs.stat.exists
+
+- name: sysctl | Read CONFIG_HZ
+  ansible.builtin.slurp:
+    src: "/boot/config-{{ ansible_facts['kernel'] }}"
+  register: kernel_config_content
+  when:
+    - netdev_budget_usecs.stat.exists
+    - kernel_config.stat.exists
+
+- name: sysctl | Parse CONFIG_HZ
+  ansible.builtin.set_fact:
+    kernel_config_hz: "{{ (kernel_config_content.content
+                           | b64decode
+                           | regex_findall('(?m)^CONFIG_HZ=(\\d+)$')
+                           | first
+                           | default(''))
+                       if kernel_config.stat.exists
+                       else '' }}"
   when: netdev_budget_usecs.stat.exists
 
 - name: sysctl | Tuning - 'netdev_budget_usecs'
@@ -35,7 +54,7 @@
   loop:
     # Set netdev_budget_usecs
     - { name: net.core.netdev_budget_usecs, value: "{{ sysctl_netdev_budget_usecs }}" }
-  when: netdev_budget_usecs.stat.exists and (sysctl_netdev_budget_usecs != 5000 or kernel_config_hz.stdout == 1000)
+  when: netdev_budget_usecs.stat.exists and (sysctl_netdev_budget_usecs != 5000 or kernel_config_hz | int == 1000)
 
 - name: sysctl | Remove old settings
   ansible.posix.sysctl:
@@ -46,4 +65,7 @@
   loop: "{{ sysctl_remove_settings }}"
 
 - name: sysctl | Reload sysctl settings.
-  ansible.builtin.shell: sysctl --system
+  ansible.builtin.command:
+    argv:
+      - "sysctl"
+      - "--system"

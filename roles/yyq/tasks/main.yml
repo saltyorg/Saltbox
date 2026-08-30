@@ -13,7 +13,10 @@
   register: yyq_binary
 
 - name: "Get yyq version"
-  ansible.builtin.shell: "/usr/local/bin/yyq --version"
+  ansible.builtin.command:
+    argv:
+      - "/usr/local/bin/yyq"
+      - "--version"
   register: yyq_version_settings_check
   ignore_errors: true
   when: yyq_binary.stat.exists
@@ -55,7 +58,10 @@
       delay: 10
 
     - name: "Get yyq version"
-      ansible.builtin.shell: "/usr/local/bin/yyq --version"
+      ansible.builtin.command:
+        argv:
+          - "/usr/local/bin/yyq"
+          - "--version"
       register: yyq_version
       when: (x is success)
 

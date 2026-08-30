@@ -16,7 +16,8 @@
   register: kernel_hwe_install_result
 
 - name: Update | Fix broken APT install
-  ansible.builtin.shell: "{{ kernel_update_apt_fix }}"
+  ansible.builtin.apt:
+    state: fixed
   when: kernel_hwe_install_result.changed
 
 - name: Update | Check if system needs to reboot

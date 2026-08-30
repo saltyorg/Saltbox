@@ -44,9 +44,9 @@
   delay: 10
 
 - name: "btop | Unpack btop"
-  ansible.builtin.shell: "tar -xzf btop-x86_64-*linux-musl.tar.gz"
-  args:
-    chdir: "/tmp/btop"
+  ansible.builtin.unarchive:
+    src: "{{ x.dest }}"
+    dest: "/tmp/btop"
 
 - name: "btop | Ensure executable bit on install.sh"
   ansible.builtin.file:
@@ -54,7 +54,10 @@
     mode: "0755"
 
 - name: "btop | Install btop"
-  ansible.builtin.shell: "bash /tmp/btop/btop/install.sh"
+  ansible.builtin.command:
+    argv:
+      - "bash"
+      - "/tmp/btop/btop/install.sh"
   args:
     chdir: "/tmp/btop/btop"
   become: true

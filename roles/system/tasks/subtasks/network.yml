@@ -41,7 +41,9 @@
         force: false
 
     - name: Network | Get NIC Info
-      ansible.builtin.shell: lspci
+      ansible.builtin.command:
+        argv:
+          - "lspci"
       register: nic
 
     - name: Network | Disable TSO / GSO

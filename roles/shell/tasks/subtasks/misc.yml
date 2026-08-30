@@ -8,7 +8,11 @@
 #########################################################################
 ---
 - name: Misc | Install argcomplete
-  ansible.builtin.shell: "/usr/bin/pip install {{ shell_misc_argcomplete_pip_package }}"
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/pip"
+      - "install"
+      - "{{ shell_misc_argcomplete_pip_package }}"
   when: ansible_facts['distribution_version'] is version('22.04', '<=')
 
 - name: Misc | Install argcomplete
@@ -19,4 +23,7 @@
 
 # For Ansible command line utilities
 - name: Misc | Activate argcomplete
-  ansible.builtin.shell: "{{ shell_misc_argcomplete_command }}"
+  ansible.builtin.command:
+    argv: "{{ shell_misc_argcomplete_command_args
+              | saltbox_argv('shell_misc_argcomplete_command_args') }}"
+    expand_argument_vars: false

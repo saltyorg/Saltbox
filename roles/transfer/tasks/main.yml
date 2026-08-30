@@ -60,14 +60,23 @@
       delay: 10
 
     - name: "Get transfer version"
-      ansible.builtin.shell: "/usr/local/bin/transfer --version | head -n 1 | awk '{ print $1 }'"
-      register: transfer_version
+      ansible.builtin.command:
+        argv:
+          - "/usr/local/bin/transfer"
+          - "--version"
+      register: transfer_version_command
       ignore_errors: true
+      changed_when: false
+      when: (x is success)
+
+    - name: Parse transfer version
+      ansible.builtin.set_fact:
+        transfer_version: "{{ (transfer_version_command.stdout_lines | first | default('')).split() | first | default('') }}"
       when: (x is success)
 
     - name: "Display transfer version"
       ansible.builtin.debug:
-        msg: "transfer {{ transfer_version.stdout }} installed."
+        msg: "transfer {{ transfer_version }} installed."
       when: (x is success)
 
     - name: "transfer install failed"

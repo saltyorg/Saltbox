@@ -26,14 +26,50 @@
 
 - name: Tasks to do with git clone is a success
   when: (iperf_clone_status is success)
+  environment:
+    LD_RUN_PATH: /usr/local/lib
   block:
-    - name: Build and install iperf3
-      ansible.builtin.shell: "{{ iperf3_binary_build_command }}"
+    - name: Configure iperf3
+      ansible.builtin.command:
+        argv:
+          - "./configure"
+        chdir: "{{ iperf3_git_repo_dest }}"
+
+    - name: Build iperf3
+      ansible.builtin.command:
+        argv:
+          - "make"
+        chdir: "{{ iperf3_git_repo_dest }}"
+
+    - name: Install iperf3
+      ansible.builtin.command:
+        argv:
+          - "make"
+          - "install"
+        chdir: "{{ iperf3_git_repo_dest }}"
+
+    - name: Reload shared library cache
+      ansible.builtin.command:
+        argv:
+          - "ldconfig"
 
     - name: Get iperf3 binary version
-      ansible.builtin.shell: "{{ iperf3_binary_version_lookup_command }}"
-      register: iperf3_binary_version
+      ansible.builtin.command:
+        argv:
+          - "{{ iperf3_binary_path }}"
+          - "--version"
+      register: iperf3_binary_version_command
+      changed_when: false
+
+    - name: Parse iperf3 binary version
+      ansible.builtin.set_fact:
+        iperf3_binary_version: "{{ (iperf3_binary_version_command.stdout_lines | first).split()[1] }}"
 
     - name: Display iperf3 binary version
       ansible.builtin.debug:
-        msg: "iperf3 {{ iperf3_binary_version.stdout }} installed."
+        msg: "iperf3 {{ iperf3_binary_version }} installed."
+  always:
+    - name: Cleanup iperf3 repository
+      ansible.builtin.file:
+        path: "{{ iperf3_git_repo_dest }}"
+        state: absent

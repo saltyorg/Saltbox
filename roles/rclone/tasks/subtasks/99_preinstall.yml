@@ -24,7 +24,9 @@
         msg: "Restarting the server to apply changes..."
 
     - name: "Preinstall | Reboot"
-      ansible.builtin.shell: reboot
+      ansible.builtin.command:
+        argv:
+          - "reboot"
 
     - name: "Preinstall | Reboot Manually"
       ansible.builtin.debug:

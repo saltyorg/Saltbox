@@ -56,12 +56,21 @@
     mode: "0775"
 
 - name: Find Node Exporter tmp dir
-  ansible.builtin.shell: ls -d /tmp/node_exporter/node_exporter-*.linux-amd64
-  register: node_exporter_tmp_dir
+  ansible.builtin.find:
+    paths: /tmp/node_exporter
+    patterns: node_exporter-*.linux-amd64
+    file_type: directory
+    recurse: false
+  register: node_exporter_tmp_dirs
+
+- name: Validate Node Exporter tmp dir
+  ansible.builtin.assert:
+    that:
+      - node_exporter_tmp_dirs.matched == 1
 
 - name: "Copy binary to {{ node_exporter_path }}/node_exporter"
   ansible.builtin.copy:
-    src: "{{ node_exporter_tmp_dir.stdout }}/node_exporter"
+    src: "{{ node_exporter_tmp_dirs.files[0].path }}/node_exporter"
     dest: "{{ node_exporter_path }}/node_exporter"
     mode: "0775"
     owner: "{{ user.name }}"

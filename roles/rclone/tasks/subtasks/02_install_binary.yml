@@ -26,9 +26,19 @@
     - "/home/{{ user.name }}/.config"
     - "/home/{{ user.name }}/.config/rclone"
 
-- name: Install Binary | Cleanup rclone tmp path # noqa no-free-form
-  ansible.builtin.shell: rm -rf /tmp/rclone-*-linux-amd64
-  ignore_errors: true
+- name: Install Binary | Find stale rclone tmp paths
+  ansible.builtin.find:
+    paths: /tmp
+    patterns: rclone-*-linux-amd64
+    file_type: any
+    recurse: false
+  register: stale_rclone_tmp_paths
+
+- name: Install Binary | Cleanup stale rclone tmp paths
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ stale_rclone_tmp_paths.files }}"
 
 - name: Install Binary | Display rclone version being installed
   ansible.builtin.debug:
@@ -67,12 +77,21 @@
       timeout: 60
 
 - name: Install Binary | Find rclone tmp dir
-  ansible.builtin.shell: ls -d /tmp/rclone-*-linux-amd64
-  register: rclone_tmp_dir
+  ansible.builtin.find:
+    paths: /tmp
+    patterns: rclone-*-linux-amd64
+    file_type: directory
+    recurse: false
+  register: rclone_tmp_dirs
+
+- name: Install Binary | Validate rclone tmp dir
+  ansible.builtin.assert:
+    that:
+      - rclone_tmp_dirs.matched == 1
 
 - name: Install Binary | Copy binary to /usr/bin/rclone
   ansible.builtin.copy:
-    src: "{{ rclone_tmp_dir.stdout }}/rclone"
+    src: "{{ rclone_tmp_dirs.files[0].path }}/rclone"
     dest: "/usr/bin/rclone"
     mode: "0775"
     owner: root
@@ -89,21 +108,33 @@
 
 - name: Install Binary | Copy manpage
   ansible.builtin.copy:
-    src: "{{ rclone_tmp_dir.stdout }}/rclone.1"
+    src: "{{ rclone_tmp_dirs.files[0].path }}/rclone.1"
     dest: /usr/local/share/man/man1/rclone.1
     mode: "0664"
     owner: root
     group: root
 
 - name: Install Binary | Install manpage
-  ansible.builtin.shell: mandb
+  ansible.builtin.command:
+    argv:
+      - "mandb"
   changed_when: false
 
 - name: Install Binary | Get rclone version
-  ansible.builtin.shell: rclone --version | head -n 1 | awk '{ print substr($2, 2) }'
-  register: rclone_version
+  ansible.builtin.command:
+    argv:
+      - "rclone"
+      - "--version"
+  register: rclone_version_command
   ignore_errors: true
+  changed_when: false
+
+- name: Install Binary | Parse rclone version
+  ansible.builtin.set_fact:
+    rclone_version: "{{ (rclone_version_command.stdout_lines | first | default('')).split()[1]
+                        | default('')
+                        | regex_replace('^v', '') }}"
 
 - name: "Install Binary | Display rclone version"
   ansible.builtin.debug:
-    msg: "Rclone version {{ rclone_version.stdout }} installed."
+    msg: "Rclone version {{ rclone_version }} installed."

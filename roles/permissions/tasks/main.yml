@@ -8,10 +8,25 @@
 #########################################################################
 ---
 - name: Permissions | Recursively set permissions for '{{ server_local_folder_path }}'
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_local_folder_path }}"
+  ansible.builtin.command:
+    argv:
+      - "chown"
+      - "-R"
+      - "{{ user.name }}:{{ user.name }}"
+      - "{{ server_local_folder_path }}"
 
 - name: Permissions | Recursively set permissions for '{{ server_appdata_path }}'
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} {{ server_appdata_path }}"
+  ansible.builtin.command:
+    argv:
+      - "chown"
+      - "-R"
+      - "{{ user.name }}:{{ user.name }}"
+      - "{{ server_appdata_path }}"
 
 - name: Permissions | Recursively set permissions for '/home/{{ user.name }}'
-  ansible.builtin.shell: "chown -R {{ user.name }}:{{ user.name }} /home/{{ user.name }}"
+  ansible.builtin.command:
+    argv:
+      - "chown"
+      - "-R"
+      - "{{ user.name }}:{{ user.name }}"
+      - "/home/{{ user.name }}"

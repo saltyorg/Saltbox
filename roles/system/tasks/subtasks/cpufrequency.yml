@@ -21,7 +21,9 @@
   when: (ansible_facts['distribution'] == 'Ubuntu')
 
 - name: "CPU Frequency | Install 'linux-tools-{{ ansible_facts['kernel'] }}'"
-  ansible.builtin.shell: "apt-get install -qq $(apt-cache search -n linux-tools-{{ ansible_facts['kernel'] }} | awk '{print $1}' | tail -n 1)"
+  ansible.builtin.apt:
+    name: "linux-tools-{{ ansible_facts['kernel'] }}"
+    state: latest
   ignore_errors: true
 
 - name: CPU Frequency | Ensure 'cpufrequtils' is enabled
@@ -55,8 +57,23 @@
     state: absent
 
 - name: CPU Frequency | Set 'GOVERNOR' used currently to performance
-  ansible.builtin.shell: 'echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor'
-  ignore_errors: true
+  block:
+    - name: CPU Frequency | Find scaling governor files
+      ansible.builtin.find:
+        paths: /sys/devices/system/cpu
+        patterns: scaling_governor
+        file_type: file
+        recurse: true
+      register: cpu_scaling_governor_files
+
+    - name: CPU Frequency | Write performance governor
+      ansible.builtin.command:
+        argv:
+          - "tee"
+          - "{{ item.path }}"
+        stdin: performance
+      loop: "{{ cpu_scaling_governor_files.files }}"
+      failed_when: false
 
 - name: CPU Frequency | Populate Service Facts
   ansible.builtin.service_facts:

@@ -17,5 +17,7 @@
     msg: "{{ 'Reboot is required.' if reboot_required_file.stat.exists else 'Reboot is not required.' }}"
 
 - name: Reboot
-  ansible.builtin.shell: reboot
+  ansible.builtin.command:
+    argv:
+      - "reboot"
   when: reboot_required_file.stat.exists and saltbox_auto_reboot

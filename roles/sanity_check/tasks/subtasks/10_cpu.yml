@@ -8,15 +8,25 @@
 #########################################################################
 ---
 - name: CPU Check | Get CPU details from /proc/cpuinfo
-  ansible.builtin.shell:
-    cmd: "grep flags /proc/cpuinfo | uniq | sed 's/flags.*: //'"
-  register: cpu_flags
+  ansible.builtin.slurp:
+    src: /proc/cpuinfo
+  register: cpu_info_content
+
+- name: CPU Check | Parse unique CPU flags
+  ansible.builtin.set_fact:
+    cpu_flags: "{{ cpu_info_content.content
+                   | b64decode
+                   | regex_findall('(?m)^flags\\s*: (.*)$')
+                   | map('split')
+                   | flatten
+                   | unique
+                   | list }}"
 
 - name: CPU Check | Determine supported x86-64 versions based on CPU flags
   ansible.builtin.set_fact:
     supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
   loop: "{{ lookup('dict', x86_64_versions) }}"
-  when: "item.value | difference(cpu_flags.stdout.split()) | length == 0"
+  when: "item.value | difference(cpu_flags) | length == 0"
 
 - name: CPU Check | Print the supported x86-64 versions
   ansible.builtin.debug:

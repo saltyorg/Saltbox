@@ -13,8 +13,15 @@
     state: latest
 
 - name: Hetzner | Fetch PCI info
-  ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
+  ansible.builtin.command:
+    argv:
+      - "lspci"
+      - "-Dv"
+      - "-d"
+      - "8086::0300"
   register: lscpi_resp
+  changed_when: false
+  failed_when: false
 
 - name: Hetzner | Check if 'blacklist-hetzner.conf' exists
   ansible.builtin.stat:

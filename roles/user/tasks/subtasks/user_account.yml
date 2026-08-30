@@ -64,19 +64,23 @@
   when: not item.stat.exists
 
 - name: User Account | Get video group info
-  ansible.builtin.shell: "getent group video | cut -d: -f3"
+  ansible.builtin.getent:
+    database: group
+    key: video
   register: vgid_lookup
 
 - name: User Account | Get render group info
-  ansible.builtin.shell: "getent group render | cut -d: -f3"
+  ansible.builtin.getent:
+    database: group
+    key: render
   register: rgid_lookup
 
 - name: User Account | Set 'uid', 'gid', 'vgid' and 'rgid'
   ansible.builtin.set_fact:
     uid: "{{ user_info.uid | string }}"
     gid: "{{ user_info.group | string }}"
-    vgid: "{{ vgid_lookup.stdout }}"
-    rgid: "{{ rgid_lookup.stdout }}"
+    vgid: "{{ vgid_lookup.ansible_facts.getent_group.video[1] }}"
+    rgid: "{{ rgid_lookup.ansible_facts.getent_group.render[1] }}"
 
 - name: User Account | Check if '/etc/sudoers' exists
   ansible.builtin.stat:

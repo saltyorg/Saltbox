@@ -214,7 +214,9 @@
           - "Restarting the server to complete the runtime unload..."
 
     - name: Purge | Reboot
-      ansible.builtin.shell: reboot
+      ansible.builtin.command:
+        argv:
+          - "reboot"
 
     - name: Purge | Manual reboot message
       ansible.builtin.debug:

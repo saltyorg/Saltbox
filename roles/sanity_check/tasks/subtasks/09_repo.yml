@@ -8,11 +8,20 @@
 #########################################################################
 ---
 - name: Repository | Get Git Branch
-  ansible.builtin.shell: git rev-parse --abbrev-ref HEAD
+  ansible.builtin.command:
+    argv:
+      - "git"
+      - "rev-parse"
+      - "--abbrev-ref"
+      - "HEAD"
   register: git_branch
 
 - name: Repository | Check Git Hash
-  ansible.builtin.shell: git rev-parse HEAD
+  ansible.builtin.command:
+    argv:
+      - "git"
+      - "rev-parse"
+      - "HEAD"
   register: git_version
 
 - name: Repository | Check Git Origin Hash

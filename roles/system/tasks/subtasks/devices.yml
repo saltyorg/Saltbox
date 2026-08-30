@@ -8,5 +8,7 @@
 #########################################################################
 ---
 - name: Devices | download new version of the PCI ID list
-  ansible.builtin.shell: "update-pciids"
+  ansible.builtin.command:
+    argv:
+      - "update-pciids"
   ignore_errors: true

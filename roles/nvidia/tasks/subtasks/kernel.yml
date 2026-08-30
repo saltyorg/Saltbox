@@ -41,7 +41,9 @@
           - "Rerun the original Saltbox install command after reconnecting."
 
     - name: Kernel | Reboot
-      ansible.builtin.shell: reboot
+      ansible.builtin.command:
+        argv:
+          - "reboot"
 
     - name: Kernel | Manual reboot message
       ansible.builtin.debug:

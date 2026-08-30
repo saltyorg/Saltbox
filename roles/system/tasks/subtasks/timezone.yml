@@ -8,10 +8,6 @@
 #########################################################################
 # https://github.com/galexrt/ansible-timezone/blob/master/tasks/timedatectl.yml
 ---
-- name: Time Zone | Get timedatectl information
-  ansible.builtin.command: timedatectl
-  register: timedatectl
-
 - name: Time Zone | Get timezone list
   ansible.builtin.command: timedatectl list-timezones --no-pager
   register: timezone_list
@@ -51,7 +47,11 @@
 
   rescue:
     - name: Time Zone | Fallback to curl method if module fails
-      ansible.builtin.shell: "curl -s https://ipapi.co/timezone"
+      ansible.builtin.command:
+        argv:
+          - "curl"
+          - "-s"
+          - "https://ipapi.co/timezone"
       register: system_curl_timezone
       failed_when: (system_curl_timezone.stdout | trim | length == 0)
 
@@ -64,18 +64,7 @@
     msg: "Invalid timezone given, given timezone was {{ timezone }}."
   when: (timezone_list.stdout_lines is defined) and timezone not in timezone_list.stdout_lines
 
-- name: Time Zone | Set 'timezone_string' variable
-  ansible.builtin.set_fact:
-    timezone_string: "Time zone: {{ timezone }}"
-
-- name: Time Zone | Set timezone
-  ansible.builtin.shell: "timedatectl set-timezone {{ timezone }}; timedatectl"
-  register: timedatectl_utc
-  changed_when: "(timedatectl_utc.stdout is defined) and (timezone_string in timedatectl_utc.stdout)"
-  when: (timedatectl.stdout is defined) and (timezone_string not in timedatectl.stdout)
-
-- name: Time Zone | Set hardware clock to use or not use local RTC
-  ansible.builtin.shell: "timedatectl set-local-rtc {% if timezone_use_local_rtc %}1{% else %}0{% endif %} && timedatectl || true"
-  register: timedatectl_rtc
-  changed_when: "(timedatectl_rtc.stdout is defined) and ('RTC in local TZ: {% if timezone_use_local_rtc %}yes{% else %}no{% endif %}' in timedatectl_rtc.stdout)"
-  when: "(timedatectl_rtc.stdout is defined) and timezone_use_local_rtc and ('RTC in local TZ: no' not in timedatectl_rtc.stdout)"
+- name: Time Zone | Configure timezone and hardware clock
+  community.general.timezone:
+    name: "{{ timezone }}"
+    hwclock: "{{ 'local' if timezone_use_local_rtc else 'UTC' }}"

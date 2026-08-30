@@ -10,6 +10,3 @@
 ctop_releases_url: "https://api.github.com/repos/bcicen/ctop/releases/latest"
 
 ctop_binary_path: /usr/local/bin/ctop
-
-ctop_binary_version_lookup_command: |
-  {{ ctop_binary_path }} -v | head -n 1 | awk '{ print $3 }' | sed 's/,$//'

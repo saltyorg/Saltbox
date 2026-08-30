@@ -63,7 +63,11 @@
   when: (not rclone_conf_default_path_2.stat.exists)
   block:
     - name: "Import Config | Find location of 'rclone.conf' when not at default location"
-      ansible.builtin.shell: rclone config file
+      ansible.builtin.command:
+        argv:
+          - "rclone"
+          - "config"
+          - "file"
       register: rclone_conf_current_location
 
     - name: "Import Config | Copy 'rclone.conf' to default location if found elsewhere"

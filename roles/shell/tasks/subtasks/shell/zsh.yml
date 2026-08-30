@@ -111,11 +111,27 @@
 - name: ZSH | Oh My Posh Block
   when: shell_ohmyposh_enabled
   block:
+    - name: ZSH | Download Oh My Posh installer
+      ansible.builtin.get_url:
+        url: https://ohmyposh.dev/install.sh
+        dest: /tmp/oh-my-posh-install.sh
+        mode: "0700"
+
     - name: ZSH | Install Oh My Posh
-      ansible.builtin.shell: "curl -s https://ohmyposh.dev/install.sh | bash -s -- -d /usr/local/bin/"
+      ansible.builtin.command:
+        argv:
+          - "bash"
+          - "/tmp/oh-my-posh-install.sh"
+          - "-d"
+          - "/usr/local/bin/"
 
     - name: ZSH | Install Meslo Nerd Font
-      ansible.builtin.shell: "/usr/local/bin/oh-my-posh font install meslo --headless"
+      ansible.builtin.command:
+        argv:
+          - "/usr/local/bin/oh-my-posh"
+          - "font"
+          - "install"
+          - "meslo"
 
     - name: "ZSH | Add Oh My Posh to '{{ shell_zsh_zshrc_path }}'"
       ansible.builtin.blockinfile:
@@ -127,6 +143,11 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
+  always:
+    - name: ZSH | Remove Oh My Posh installer
+      ansible.builtin.file:
+        path: /tmp/oh-my-posh-install.sh
+        state: absent
 
 - name: ZSH | Default shell set to ZSH
   ansible.builtin.debug:

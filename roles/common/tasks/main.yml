@@ -110,8 +110,15 @@
       - "run-one"
 
 - name: Fetch PCI Info
-  ansible.builtin.shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
+  ansible.builtin.command:
+    argv:
+      - "lspci"
+      - "-Dv"
+      - "-d"
+      - "8086::0300"
   register: lscpi_resp
+  changed_when: false
+  failed_when: false
   when: use_intel
 
 - name: Install 'intel-gpu-tools'
@@ -154,7 +161,23 @@
   when: nano_syntax_highlighting_enabled
 
 - name: "Install Nano Syntax Highlighting"
-  ansible.builtin.shell: "curl https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh | bash"
+  when: nano_syntax_highlighting_enabled
   become: true
   become_user: "{{ user.name }}"
-  when: nano_syntax_highlighting_enabled
+  block:
+    - name: Download Nano Syntax Highlighting installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh
+        dest: /tmp/nano-syntax-highlighting-install.sh
+        mode: "0700"
+
+    - name: Run Nano Syntax Highlighting installer
+      ansible.builtin.command:
+        argv:
+          - "bash"
+          - "/tmp/nano-syntax-highlighting-install.sh"
+  always:
+    - name: Remove Nano Syntax Highlighting installer
+      ansible.builtin.file:
+        path: /tmp/nano-syntax-highlighting-install.sh
+        state: absent

@@ -42,10 +42,20 @@
   when: (ctop_download_status is succeeded)
   block:
     - name: Get ctop binary version
-      ansible.builtin.shell: "{{ ctop_binary_version_lookup_command }}"
-      register: ctop_binary_version
+      ansible.builtin.command:
+        argv:
+          - "{{ ctop_binary_path }}"
+          - "-v"
+      register: ctop_binary_version_command
       ignore_errors: true
+      changed_when: false
+
+    - name: Parse ctop binary version
+      ansible.builtin.set_fact:
+        ctop_binary_version: "{{ (ctop_binary_version_command.stdout_lines | first | default('')).split()[2]
+                                 | default('')
+                                 | regex_replace(',$', '') }}"
 
     - name: Display ctop binary version
       ansible.builtin.debug:
-        msg: "ctop {{ ctop_binary_version.stdout }} installed."
+        msg: "ctop {{ ctop_binary_version }} installed."

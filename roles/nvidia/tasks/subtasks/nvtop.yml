@@ -62,10 +62,19 @@
     state: latest
 
 - name: nvtop | Get nvtop binary version
-  ansible.builtin.shell: "{{ nvidia_nvtop_binary_version_lookup_command }}"
-  register: nvtop_binary_version
+  ansible.builtin.command:
+    argv:
+      - "{{ nvidia_nvtop_binary_path }}"
+      - "--version"
+  register: nvtop_binary_version_command
   ignore_errors: true
+  changed_when: false
+
+- name: nvtop | Parse nvtop binary version
+  ansible.builtin.set_fact:
+    nvtop_binary_version: "{{ ((nvtop_binary_version_command.stdout_lines | first | default('')).split()[2]
+                               | default('')).split('-')[:2] | join('-') }}"
 
 - name: nvtop | Display nvtop binary version
   ansible.builtin.debug:
-    msg: "nvtop {{ nvtop_binary_version.stdout }} installed."
+    msg: "nvtop {{ nvtop_binary_version }} installed."

@@ -22,9 +22,6 @@ kernel_install_hwe: false
 kernel_cron_task: "PATH='/usr/sbin:/usr/bin:/sbin:/bin' purge-old-kernels -qy"
 
 # Do not edit or override using the inventory
-kernel_update_apt_fix: apt-get --fix-broken --yes install
-
-# Do not edit or override using the inventory
 kernel_update_apt_package_22: linux-generic-hwe-22.04
 
 # Do not edit or override using the inventory

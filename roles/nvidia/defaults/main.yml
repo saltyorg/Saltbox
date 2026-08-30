@@ -149,10 +149,6 @@ nvidia_kernel_blacklist_nouveau_conf_content: |
 
 nvidia_nvtop_binary_path: /usr/bin/nvtop
 
-nvidia_nvtop_binary_version_lookup_command: |
-  {{ nvidia_nvtop_binary_path }} --version \
-      | head -n 1 | awk '{print $3}' | cut -f1,2 -d'-'
-
 nvidia_nvtop_apt_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x841D3BCEAB2EAB90D9FBCD98C39C03E944854141"
 nvidia_nvtop_apt_repo_name: "quentiumyt-nvtop"
 nvidia_nvtop_apt_repo_uris:
