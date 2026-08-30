@@ -8,14 +8,43 @@
 ##########################################################################
 ---
 - name: Settings | Copy Default Config if it doesn't exist
-  ansible.builtin.shell: |
-    docker run -d --name netdata_tmp "{{ lookup('role_var', '_docker_image', role='netdata') }}"
-    docker cp netdata_tmp:/etc/netdata/. "{{ netdata_role_paths_location }}"
-    docker rm -f netdata_tmp
+  vars:
+    netdata_config_copy_container: netdata_tmp
+  block:
+    - name: Settings | Remove existing temporary Netdata container
+      community.docker.docker_container:
+        name: "{{ netdata_config_copy_container }}"
+        state: absent
+
+    - name: Settings | Copy default Netdata config from temporary container
+      block:
+        - name: Settings | Create temporary Netdata container
+          community.docker.docker_container:
+            name: "{{ netdata_config_copy_container }}"
+            image: "{{ lookup('role_var', '_docker_image', role='netdata') }}"
+            state: started
+            detach: true
+          register: netdata_config_copy_container_create
+
+        - name: Settings | Copy default Netdata config
+          ansible.builtin.command:
+            argv:
+              - "docker"
+              - "cp"
+              - "{{ netdata_config_copy_container }}:/etc/netdata/."
+              - "{{ lookup('role_var', '_paths_location', role='netdata') }}"
+      always:
+        - name: Settings | Remove temporary Netdata container
+          community.docker.docker_container:
+            name: "{{ netdata_config_copy_container }}"
+            state: absent
+          when:
+            - netdata_config_copy_container_create is defined
+            - netdata_config_copy_container_create is succeeded
 
 - name: Chown directories
   ansible.builtin.file:
-    path: "{{ netdata_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='netdata') }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
