@@ -15,17 +15,32 @@
 - name: Resources | Tasks | Instances | Get Info | SABnzbd API Key tasks
   when: sabnzbd_role_paths_config_location_stat.stat.exists
   block:
+    - name: Resources | Tasks | Instances | Get Info | Read SABnzbd Config
+      ansible.builtin.slurp:
+        src: "{{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
+      register: sabnzbd_config_file
+      no_log: true
+
     - name: Resources | Tasks | Instances | Get Info | Fetch SABnzbd API Key
-      ansible.builtin.shell: "grep -oP '^api_key = \\K.*' {{ lookup('role_var', '_paths_config_location', role='sabnzbd') }}"
-      register: sabnzbd_api_key_result
-      changed_when: false
+      ansible.builtin.set_fact:
+        sabnzbd_api_keys: "{{ sabnzbd_config_file.content
+                              | b64decode
+                              | regex_findall('(?m)^api_key = (.*)$') }}"
+      no_log: true
+
+    - name: Resources | Tasks | Instances | Get Info | Validate SABnzbd API Key
+      ansible.builtin.assert:
+        that:
+          - sabnzbd_api_keys | length == 1
+        fail_msg: "Unable to find exactly one api_key in the SABnzbd configuration."
 
     - name: Resources | Tasks | Instances | Get Info | Set 'sabnzbd_info' variable
       ansible.builtin.set_fact:
         sabnzbd_info:
           name: sabnzbd
           url: "{{ lookup('role_var', '_web_url', role='sabnzbd') }}"
-          api_key: "{{ sabnzbd_api_key_result.stdout }}"
+          api_key: "{{ sabnzbd_api_keys | first }}"
+      no_log: true
 
 - name: Resources | Tasks | Instances | Get Info | Set 'sabnzbd_info' variable
   ansible.builtin.set_fact:

@@ -25,7 +25,10 @@
   when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
   block:
     - name: Get Tailscale IPs
-      ansible.builtin.shell: "tailscale ip"
+      ansible.builtin.command:
+        argv:
+          - "tailscale"
+          - "ip"
       register: dns_tailscale_ips
       failed_when: (dns_tailscale_ips.rc != 0)
 

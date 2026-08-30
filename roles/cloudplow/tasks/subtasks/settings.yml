@@ -25,6 +25,7 @@
   ansible.builtin.set_fact:
     sabnzbd_apikey: "{{ lookup('file', lookup('role_var', '_paths_config_location', role='sabnzbd')) | regex_search('^api_key *= *.*', multiline=True) | regex_replace('.*= *(.*)$', '\\1') }}"
   when: stat_sabnzbd.stat.exists
+  no_log: true
 
 - name: Settings | Check if 'config.json' exists
   ansible.builtin.stat:
@@ -61,52 +62,54 @@
 - name: Settings | Existing 'config.json' tasks
   when: cloudplow_config.stat.exists
   block:
-    - name: Settings | Install required packages
-      ansible.builtin.apt:
-        state: latest
-        name:
-          - jq
-          - moreutils
+    - name: Settings | Read existing 'config.json'
+      ansible.builtin.slurp:
+        src: "{{ cloudplow_config_path }}"
+      register: cloudplow_config_content
+      no_log: true
 
-    - name: Settings | Update Rclone config path 'config.json'
-      ansible.builtin.shell: |
-        jq '.core.rclone_config_path = "{{ rclone_config_path }}"' "{{ cloudplow_config_path }}" | sponge "{{ cloudplow_config_path }}"
-      become: true
-      become_user: "{{ user.name }}"
+    - name: Settings | Parse existing 'config.json'
+      ansible.builtin.set_fact:
+        cloudplow_config_data: "{{ cloudplow_config_content.content | b64decode | from_json }}"
+      no_log: true
 
-    - name: Settings | Update NZBGet credentials in 'config.json'
-      ansible.builtin.shell: |
-        jq '.nzbget.url = "{{ lookup('role_var', '_web_local_url_web_login', role='nzbget') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
-      become: true
-      become_user: "{{ user.name }}"
+    - name: Settings | Build SABnzbd updates
+      ansible.builtin.set_fact:
+        cloudplow_sabnzbd_updates: "{{ {'url': lookup('role_var', '_web_local_url', role='sabnzbd')}
+                                       | combine({'apikey': sabnzbd_apikey}
+                                                 if stat_sabnzbd.stat.exists
+                                                 else {}) }}"
+      no_log: true
 
-    - name: Settings | Update SABnzbd URL in 'config.json'
-      ansible.builtin.shell: |
-        jq '.sabnzbd.url = "{{ lookup('role_var', '_web_local_url', role='sabnzbd') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
-      become: true
-      become_user: "{{ user.name }}"
+    - name: Settings | Build 'config.json' updates
+      ansible.builtin.set_fact:
+        cloudplow_config_updates: "{{ {'core': {'rclone_config_path': rclone_config_path},
+                                       'nzbget': {'url': lookup('role_var', '_web_local_url_web_login', role='nzbget')},
+                                       'sabnzbd': cloudplow_sabnzbd_updates,
+                                       'plex': {'url': lookup('role_var', '_web_url', role='plex'),
+                                                'token': plex_auth_token | default('')}} }}"
+      no_log: true
 
-    - name: Settings | Update SABnzbd API Key in 'config.json'
-      ansible.builtin.shell: |
-        jq '.sabnzbd.apikey = "{{ sabnzbd_apikey }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
-      become: true
-      become_user: "{{ user.name }}"
-      when: stat_sabnzbd.stat.exists
+    - name: Settings | Build updated 'config.json'
+      ansible.builtin.set_fact:
+        cloudplow_config_updated: "{{ cloudplow_config_data | combine(cloudplow_config_updates, recursive=true) }}"
+      no_log: true
 
-    - name: Settings | Update Plex URL in 'config.json'
-      ansible.builtin.shell: |
-        jq '.plex.url = "{{ lookup('role_var', '_web_url', role='plex') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
-      become: true
-      become_user: "{{ user.name }}"
-
-    - name: Settings | Update Plex Token in 'config.json'
-      ansible.builtin.shell: |
-        jq '.plex.token = "{{ plex_auth_token | default('') }}"' {{ cloudplow_config_path }} | sponge {{ cloudplow_config_path }}
-      become: true
-      become_user: "{{ user.name }}"
+    - name: Settings | Write updated 'config.json'
+      ansible.builtin.copy:
+        content: "{{ cloudplow_config_updated | to_nice_json(indent=2) }}\n"
+        dest: "{{ cloudplow_config_path }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      no_log: true
 
 - name: Settings | Upgrade 'config.json'
-  ansible.builtin.shell: "{{ cloudplow_python_path }} {{ cloudplow_script_path }} update_config"
+  ansible.builtin.command:
+    argv:
+      - "{{ cloudplow_python_path }}"
+      - "{{ cloudplow_script_path }}"
+      - "update_config"
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true

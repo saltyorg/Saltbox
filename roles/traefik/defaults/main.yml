@@ -170,7 +170,7 @@ traefik_role_metrics_dns_proxy: "{{ dns_proxied }}"
 traefik_dns_provider_cloudflare_tmp: "{{ {'CLOUDFLARE_DNS_API_TOKEN': cloudflare_scoped_token}
                                       if cloudflare_scoped_token_is_enabled
                                       else {'CLOUDFLARE_EMAIL': cloudflare_email,
-                                                 'CLOUDFLARE_API_KEY': cloudflare_api_key} }}"
+                                            'CLOUDFLARE_API_KEY': cloudflare_api_key} }}"
 
 traefik_dns_provider_cloudflare: "{{ traefik_dns_provider_cloudflare_tmp
                                   if cloudflare_is_enabled
@@ -464,7 +464,7 @@ traefik_role_docker_commands: "{{ lookup('role_var', '_docker_commands_default',
 # Volumes
 traefik_role_docker_volumes_default:
   - "/var/run/docker.sock:/var/run/docker.sock"
-  - "{{ traefik_role_paths_location }}:/etc/traefik"
+  - "{{ lookup('role_var', '_paths_location', role='traefik') }}:/etc/traefik"
 traefik_role_docker_volumes_custom: []
 traefik_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='traefik')
                                  + lookup('role_var', '_docker_volumes_custom', role='traefik') }}"
@@ -562,7 +562,9 @@ traefik_role_docker_labels_crowdsec:
   traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapikey: "{{ traefik_crowdsec_bouncer_key | default('') }}"
   traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapischeme: "http"
   traefik.http.middlewares.crowdsec.plugin.bouncer.crowdseclapihost: "172.19.0.1:{{ traefik_crowdsec_port }}"
-  traefik.http.middlewares.crowdsec.plugin.bouncer.forwardedheaderstrustedips: "{{ traefik_trusted_ips_template if (traefik_trusted_ips_template | length > 0) else omit }}"
+  traefik.http.middlewares.crowdsec.plugin.bouncer.forwardedheaderstrustedips: "{{ traefik_trusted_ips_template
+                                                                                if (traefik_trusted_ips_template | length > 0)
+                                                                                else omit }}"
   traefik.http.middlewares.crowdsec.plugin.bouncer.banfilepath: "{{ traefik_crowdsec_ban_filepath }}"
 
 traefik_role_docker_labels_custom: {}

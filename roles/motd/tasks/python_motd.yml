@@ -32,29 +32,49 @@
     force: false
   when: (not motd_config.stat.exists)
 
-- name: Banner Title migration
+- name: Existing config migrations
   when: motd_config.stat.exists
+  no_log: true
   block:
-    - name: Check value of motd banner
-      ansible.builtin.shell: "jq '.motd.banner_title' {{ server_appdata_path }}/motd/config.json"
-      register: motd_banner
+    - name: Read existing MOTD config
+      ansible.builtin.slurp:
+        src: "{{ server_appdata_path }}/motd/config.json"
+      register: motd_config_content
 
-    - name: Migrate value of motd banner
-      ansible.builtin.shell: |
-        jq '.motd.banner_title = "Saltbox"' {{ server_appdata_path }}/motd/config.json | sponge {{ server_appdata_path }}/motd/config.json
-      when: ('Cloudbox' in motd_banner.stdout)
+    - name: Parse existing MOTD config
+      ansible.builtin.set_fact:
+        motd_config_data: "{{ motd_config_content.content | b64decode | from_json }}"
 
-- name: Config path migration
-  when: motd_config.stat.exists
-  block:
-    - name: Check value of disk path
-      ansible.builtin.shell: "jq '.disk.path' {{ server_appdata_path }}/motd/config.json"
-      register: disk_path
+    - name: Apply banner-title migration
+      ansible.builtin.set_fact:
+        motd_config_banner_updated: "{{ motd_config_data
+                                        | combine({'motd': (motd_config_data.get('motd')
+                                                            | default({}, true)
+                                                            | combine({'banner_title': 'Saltbox'}))})
+                                     if 'Cloudbox' in (motd_config_data.get('motd')
+                                                       | default({}, true)
+                                                       | default({})).get('banner_title', '') | string
+                                     else motd_config_data }}"
 
-    - name: Migrate value of disk path  # noqa jinja[spacing]
-      ansible.builtin.shell: |
-        jq --arg disk / '. + {disk: {path: $disk}}' {{ server_appdata_path }}/motd/config.json | sponge {{ server_appdata_path }}/motd/config.json
-      when: (disk_path.stdout == 'null')
+    - name: Read migrated disk settings
+      ansible.builtin.set_fact:
+        motd_config_disk_data: "{{ motd_config_banner_updated.get('disk') | default({}, true) }}"
+
+    - name: Apply disk-path migration
+      ansible.builtin.set_fact:
+        motd_config_updated: "{{ motd_config_banner_updated
+                                 | combine({'disk': {'path': '/'}})
+                              if motd_config_disk_data.get('path') is none
+                              else motd_config_banner_updated }}"
+
+    - name: Write migrated MOTD config
+      ansible.builtin.copy:
+        content: "{{ motd_config_updated | to_nice_json(indent=2) }}\n"
+        dest: "{{ server_appdata_path }}/motd/config.json"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      when: motd_config_updated != motd_config_data
 
 - name: Touch '{{ server_appdata_path }}/motd/activity.log' file
   ansible.builtin.file:

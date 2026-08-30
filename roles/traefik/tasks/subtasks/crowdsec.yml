@@ -23,22 +23,35 @@
   register: crowdsec_bouncer_traefik_key
 
 - name: Load Crowdsec port value
-  ansible.builtin.shell: |
-    yyq '.api.server.listen_uri' /etc/crowdsec/config.yaml | awk -F':' '{print $NF}'
-  register: crowdsec_port_value
-  changed_when: false
-  failed_when: crowdsec_port_value.stdout == "null"
+  ansible.builtin.slurp:
+    src: /etc/crowdsec/config.yaml
+  register: crowdsec_config_content
+
+- name: Parse Crowdsec listen URI
+  ansible.builtin.set_fact:
+    crowdsec_listen_uri: "{{ (crowdsec_config_content.content | b64decode | from_yaml).api.server.listen_uri | default('') }}"
+
+- name: Validate Crowdsec listen URI
+  ansible.builtin.assert:
+    that:
+      - crowdsec_listen_uri is string
+      - crowdsec_listen_uri | trim | length > 0
+      - (crowdsec_listen_uri | regex_search(':[0-9]+$')) is not none
+
+- name: Parse Crowdsec port value
+  ansible.builtin.set_fact:
+    crowdsec_port_value: "{{ crowdsec_listen_uri | regex_findall('([0-9]+)$') | first }}"
 
 - name: Set facts
   ansible.builtin.set_fact:
     traefik_crowdsec_bouncer_key: "{{ crowdsec_bouncer_traefik_key['content'] | b64decode }}"
-    traefik_crowdsec_port: "{{ crowdsec_port_value.stdout }}"
+    traefik_crowdsec_port: "{{ crowdsec_port_value }}"
 
 - name: Import ban html file
   ansible.builtin.copy:
     src: "ban.html"
     force: true
-    dest: "{{ traefik_role_paths_location }}/ban.html"
+    dest: "{{ lookup('role_var', '_paths_location', role='traefik') }}/ban.html"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"

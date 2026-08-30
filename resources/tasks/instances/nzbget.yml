@@ -15,23 +15,37 @@
 - name: Resources | Tasks | Instances | Get Info | NZBGet tasks
   when: nzbget_role_paths_config_location_stat.stat.exists
   block:
-    - name: Resources | Tasks | Instances | Get Info | Fetch NZBGet ControlUsername
-      ansible.builtin.shell: "grep -oP '^ControlUsername=\\K.*' {{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
-      register: nzbget_username_result
-      changed_when: false
+    - name: Resources | Tasks | Instances | Get Info | Read NZBGet Config
+      ansible.builtin.slurp:
+        src: "{{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
+      register: nzbget_config_file
+      no_log: true
 
-    - name: Resources | Tasks | Instances | Get Info | Fetch NZBGet ControlPassword
-      ansible.builtin.shell: "grep -oP '^ControlPassword=\\K.*' {{ lookup('role_var', '_paths_config_location', role='nzbget') }}"
-      register: nzbget_password_result
-      changed_when: false
+    - name: Resources | Tasks | Instances | Get Info | Fetch NZBGet Credentials
+      ansible.builtin.set_fact:
+        nzbget_usernames: "{{ nzbget_config_file.content
+                              | b64decode
+                              | regex_findall('(?m)^ControlUsername=(.*)$') }}"
+        nzbget_passwords: "{{ nzbget_config_file.content
+                              | b64decode
+                              | regex_findall('(?m)^ControlPassword=(.*)$') }}"
+      no_log: true
+
+    - name: Resources | Tasks | Instances | Get Info | Validate NZBGet Credentials
+      ansible.builtin.assert:
+        that:
+          - nzbget_usernames | length == 1
+          - nzbget_passwords | length == 1
+        fail_msg: "Unable to find exactly one ControlUsername and ControlPassword in the NZBGet configuration."
 
     - name: Resources | Tasks | Instances | Get Info | Set 'nzbget_info' variable
       ansible.builtin.set_fact:
         nzbget_info:
           name: nzbget
           url: "{{ lookup('role_var', '_web_url', role='nzbget') }}"
-          username: "{{ nzbget_username_result.stdout }}"
-          password: "{{ nzbget_password_result.stdout }}"
+          username: "{{ nzbget_usernames | first }}"
+          password: "{{ nzbget_passwords | first }}"
+      no_log: true
 
 - name: Resources | Tasks | Instances | Get Info | Set 'nzbget_info' variable
   ansible.builtin.set_fact:
