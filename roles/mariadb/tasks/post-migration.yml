@@ -19,10 +19,57 @@
       ansible.builtin.wait_for:
         timeout: 60
 
-    - name: Restore data from dump file
-      ansible.builtin.shell: |
-        docker exec -i mariadb sh -c 'exec mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"' < {{ server_appdata_path }}/mariadb_legacy/dump.sql
+    - name: Restore MariaDB migration data
+      block:
+        - name: Copy database dump into MariaDB container
+          community.docker.docker_container_copy_into:
+            container: mariadb
+            path: "{{ server_appdata_path }}/mariadb_legacy/dump.sql"
+            container_path: /tmp/saltbox-mariadb-migration.sql
+            force: true
+            mode: "0600"
+            mode_parse: modern
+            timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
 
-    - name: Force MariaDB upgrade
-      ansible.builtin.shell: |
-        docker exec mariadb sh -c 'exec mariadb-upgrade --force -uroot -p"$MARIADB_ROOT_PASSWORD"'
+        - name: Restore data from dump file
+          community.docker.docker_container_exec:
+            container: mariadb
+            argv:
+              - "mariadb"
+              - "--user=root"
+              - "--abort-source-on-error"
+              - "--execute=source /tmp/saltbox-mariadb-migration.sql"
+            env:
+              MYSQL_PWD: "{{ lookup('role_var', '_docker_env_password', role='mariadb') | string }}"
+            timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
+          register: mariadb_migration_restore
+          failed_when: mariadb_migration_restore.rc != 0
+          no_log: true
+
+        - name: Force MariaDB upgrade
+          community.docker.docker_container_exec:
+            container: mariadb
+            argv:
+              - "mariadb-upgrade"
+              - "--force"
+              - "--user=root"
+            env:
+              MYSQL_PWD: "{{ lookup('role_var', '_docker_env_password', role='mariadb') | string }}"
+            timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
+          register: mariadb_migration_upgrade
+          failed_when: mariadb_migration_upgrade.rc != 0
+          no_log: true
+      always:
+        - name: Remove temporary MariaDB migration dump
+          community.docker.docker_container_exec:
+            container: mariadb
+            argv:
+              - "rm"
+              - "-f"
+              - "/tmp/saltbox-mariadb-migration.sql"
+            timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
+          failed_when: false
+          when:
+            - mariadb_migration_restore is defined
+            - mariadb_migration_restore.rc is defined
+            - mariadb_migration_upgrade is not defined or mariadb_migration_upgrade.rc is defined

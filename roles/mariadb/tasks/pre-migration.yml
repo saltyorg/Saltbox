@@ -27,16 +27,20 @@
           MYSQL_ROOT_PASSWORD: "{{ lookup('role_var', '_docker_envs_mysql_root_password', role='mariadb') }}"
         hostname: "mariadb"
         image: "{{ lookup('role_var', '_docker_image_migration', role='mariadb') }}"
-        log_driver: "{{ (docker_log_driver != 'default') | ternary(docker_log_driver, lookup('vars', role_name + '_docker_log_driver', default=omit)) }}"
-        log_options: "{{ (docker_log_options != 'default') | ternary(docker_log_options, lookup('vars', role_name + '_docker_log_options', default=omit)) }}"
+        log_driver: "{{ docker_log_driver
+                     if (docker_log_driver != 'default')
+                     else lookup('role_var', '_docker_log_driver', role='mariadb', default=omit) }}"
+        log_options: "{{ docker_log_options
+                      if (docker_log_options != 'default')
+                      else lookup('role_var', '_docker_log_options', role='mariadb', default=omit) }}"
         name: "mariadb"
         network_mode: "{{ docker_networks_name_common }}"
-        networks: "{{ lookup('vars', role_name + '_docker_networks') }}"
+        networks: "{{ lookup('role_var', '_docker_networks', role='mariadb') }}"
         networks_cli_compatible: true
-        pull: "{{ lookup('vars', role_name + '_docker_image_pull', default=true) | bool }}"
-        restart_policy: "{{ lookup('vars', role_name + '_docker_restart_policy', default='unless-stopped') }}"
+        pull: "{{ lookup('role_var', '_docker_image_pull', role='mariadb', default=true) | bool }}"
+        restart_policy: "{{ lookup('role_var', '_docker_restart_policy', role='mariadb', default='unless-stopped') }}"
         state: started
-        stop_timeout: "{{ lookup('vars', role_name + '_docker_stop_timeout', default='10') }}"
+        stop_timeout: "{{ lookup('role_var', '_docker_stop_timeout', role='mariadb', default='10') }}"
         volumes: "{{ lookup('role_var', '_docker_volumes_migration', role='mariadb') }}"
 
     - name: Wait for 30 seconds
@@ -44,8 +48,19 @@
         timeout: 30
 
     - name: Creating database dump
-      ansible.builtin.shell: |
-        docker exec mariadb sh -c 'exec mariadb-dump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > {{ server_appdata_path }}/mariadb/dump.sql
+      community.docker.docker_container_exec:
+        container: mariadb
+        argv:
+          - "mariadb-dump"
+          - "--all-databases"
+          - "--user=root"
+          - "--result-file=/config/dump.sql"
+        env:
+          MYSQL_PWD: "{{ lookup('role_var', '_docker_envs_mysql_root_password', role='mariadb') | string }}"
+        timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
+      register: mariadb_migration_dump
+      failed_when: mariadb_migration_dump.rc != 0
+      no_log: true
 
     - name: Wait for 5 seconds
       ansible.builtin.wait_for:
@@ -57,7 +72,11 @@
         container_name: "mariadb"
 
     - name: Relocate '{{ server_appdata_path }}/mariadb' to '{{ server_appdata_path }}/mariadb_legacy'
-      ansible.builtin.shell: "mv {{ server_appdata_path }}/mariadb {{ server_appdata_path }}/mariadb_legacy"
+      ansible.builtin.command:
+        argv:
+          - "mv"
+          - "{{ server_appdata_path }}/mariadb"
+          - "{{ server_appdata_path }}/mariadb_legacy"
       register: relocate
 
     - name: Wait for 5 seconds
