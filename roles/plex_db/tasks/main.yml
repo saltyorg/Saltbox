@@ -13,7 +13,12 @@
     state: absent
 
 - name: Copy Plex Binaries out
-  ansible.builtin.shell: "docker cp {{ plex_instances[0] }}:/usr/lib/plexmediaserver/ {{ server_appdata_path }}/plexsql"
+  ansible.builtin.command:
+    argv:
+      - "docker"
+      - "cp"
+      - "{{ plex_instances[0] }}:/usr/lib/plexmediaserver/"
+      - "{{ server_appdata_path }}/plexsql"
 
 - name: Set '{{ server_appdata_path }}/plexsql' ownership recursively
   ansible.builtin.file:

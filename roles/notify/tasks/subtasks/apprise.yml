@@ -8,7 +8,13 @@
 #########################################################################
 ---
 - name: Apprise | Send Notification
-  ansible.builtin.shell: apprise -b '{{ message }}' '{{ apprise }}'
+  ansible.builtin.command:
+    expand_argument_vars: false
+    argv:
+      - "apprise"
+      - "-b"
+      - "{{ message }}"
+      - "{{ apprise }}"
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true

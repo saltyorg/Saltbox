@@ -22,13 +22,35 @@
   when: (plex_instance_token.facts.token | length > 0)
   block:
     - name: Get items that have a date set in the future
-      ansible.builtin.shell: |
-        curl -s '{{ lookup('role_var', '_web_url', role='plex') }}/library/all?X-Plex-Token={{ plex_instance_token.facts.token }}' -H 'Accept: application/json' | jq -c --arg now '{{ ansible_facts['date_time']['epoch'] }}' '.MediaContainer.Metadata[] | select(.addedAt > ($now|tonumber)) | {id: .ratingKey, addedAt: .addedAt, updatedAt: .updatedAt, title: .title, librarySectionID: .librarySectionID, type: .type}'
+      ansible.builtin.uri:
+        url: "{{ lookup('role_var', '_web_url', role='plex') }}/library/all?X-Plex-Token={{ plex_instance_token.facts.token }}"
+        method: GET
+        headers:
+          Accept: application/json
+        return_content: true
+        status_code: 200
       register: plex_future_items_request
+      no_log: true
 
-    - name: Convert request output into a list of dictionaries
+    - name: Validate Plex metadata response
+      ansible.builtin.assert:
+        that:
+          - plex_future_items_request.json is mapping
+          - plex_future_items_request.json.MediaContainer is defined
+          - plex_future_items_request.json.MediaContainer is mapping
+          - plex_future_items_request.json.MediaContainer.Metadata is defined
+          - plex_future_items_request.json.MediaContainer.Metadata is sequence
+          - plex_future_items_request.json.MediaContainer.Metadata is not string
+        fail_msg: Plex returned an invalid metadata response.
+      no_log: true
+
+    - name: Select items that have a date set in the future
       ansible.builtin.set_fact:
-        plex_future_items: "{{ plex_future_items_request.stdout_lines | map('from_json') }}"
+        plex_future_items: "{{ plex_future_items_request.json.MediaContainer.Metadata
+                               | selectattr('addedAt', 'defined')
+                               | selectattr('addedAt', 'gt', ansible_facts['date_time']['epoch'] | int)
+                               | list }}"
+      no_log: true
 
     - name: Add type_id to each item
       ansible.builtin.set_fact:
@@ -36,11 +58,17 @@
       loop: "{{ plex_future_items }}"
 
     - name: Fix future dates
-      ansible.builtin.shell: |
-        curl -X PUT '{{ lookup('role_var', '_web_url', role='plex') }}/library/sections/{{ item.librarySectionID }}/all?type={{ item.type_id }}&id={{ item.id }}&addedAt.value={{ item.updatedAt }}&X-Plex-Token={{ plex_instance_token.facts.token }}'
+      ansible.builtin.command:
+        expand_argument_vars: false
+        argv:
+          - "curl"
+          - "-X"
+          - "PUT"
+          - "{{ lookup('role_var', '_web_url', role='plex') }}/library/sections/{{ item.librarySectionID }}/all?type={{ item.type_id }}&id={{ item.id }}&addedAt.value={{ item.updatedAt }}&X-Plex-Token={{ plex_instance_token.facts.token }}"
       loop: "{{ plex_future_items_typed }}"
       register: plex_future_items_task
       when: plex_future_items_typed is defined
+      no_log: true
 
     - name: Status
       ansible.builtin.debug:
