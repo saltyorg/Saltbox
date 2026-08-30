@@ -79,9 +79,13 @@
 - name: Host Install
   when: lookup('role_var', '_host_install', role='qbittorrent')
   block:
-    - name: Get Download Url
-      ansible.builtin.shell: "{{ lookup('role_var', '_host_version', role='qbittorrent') }}"
-      register: qbittorrent_release_version
+    - name: Get host version data
+      ansible.builtin.uri:
+        url: "{{ lookup('role_var', '_host_release_url', role='qbittorrent') }}"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: qbittorrent_host_version_response
 
     - name: Download 'qbittorrent-nox'
       ansible.builtin.get_url:

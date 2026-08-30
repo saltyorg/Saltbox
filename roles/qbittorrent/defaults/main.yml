@@ -17,8 +17,12 @@ qbittorrent_instances: ["qbittorrent"]
 ################################
 
 qbittorrent_role_host_install: false
-qbittorrent_role_webui_custom_headers_enabled: "{{ 'true' if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else 'false' }}"
-qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_headers if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled else '') }}"
+qbittorrent_role_webui_custom_headers_enabled: "{{ 'true'
+                                                if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled
+                                                else 'false' }}"
+qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_headers
+                                                    if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled
+                                                    else '') }}"
 qbittorrent_role_webui_custom_headers_custom: ""
 qbittorrent_role_webui_custom_headers: "{{ (lookup('role_var', '_webui_custom_headers_default', role='qbittorrent') | trim + ' ' + lookup('role_var', '_webui_custom_headers_custom', role='qbittorrent') | trim) | trim }}"
 # Options are: Delete or MoveToTrash
@@ -38,21 +42,20 @@ qbittorrent_role_host_specific_version: ""
 qbittorrent_role_host_download_endpoint: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/download/'
                                           if lookup('role_var', '_host_branch', role='qbittorrent') != 'legacy'
                                           else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/' }}"
-qbittorrent_role_host_download_url: "{{ lookup('role_var', '_host_download_endpoint', role='qbittorrent') }}{{ lookup('role_var', '_host_specific_version', role='qbittorrent')
-                                                                                                            if (lookup('role_var', '_host_specific_version', role='qbittorrent') | length > 0)
-                                                                                                            else qbittorrent_release_version.stdout }}/x86_64-qbittorrent-nox"
+# Skip docs
+qbittorrent_role_host_download_version: "{{ lookup('role_var',
+                                                   '_host_specific_version',
+                                                   role='qbittorrent',
+                                                   default=lookup('role_var', '_host_version', role='qbittorrent'),
+                                                   default_if_empty=true) }}"
+qbittorrent_role_host_download_url: "{{ lookup('role_var', '_host_download_endpoint', role='qbittorrent') }}{{ lookup('role_var', '_host_download_version', role='qbittorrent') }}/x86_64-qbittorrent-nox"
 qbittorrent_role_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json'
                                     if lookup('role_var', '_host_branch', role='qbittorrent') != 'legacy'
                                     else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
-qbittorrent_role_host_lookup_libtorrent1: 'release-\(.qbittorrent)_v\(.libtorrent_1_2)'
-qbittorrent_role_host_lookup_libtorrent2: 'release-\(.qbittorrent)_v\(.libtorrent_2_0)'
-# Skip docs
-qbittorrent_role_host_release_lookup: "{{ qbittorrent_role_host_lookup_libtorrent2
-                                       if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
-                                       else qbittorrent_role_host_lookup_libtorrent1 }}"
-qbittorrent_role_host_version: |
-  curl -sL {{ lookup('role_var', '_host_release_url', role='qbittorrent') }} | jq -r '. | "{{ lookup('role_var', '_host_release_lookup', role='qbittorrent') }}"'
-
+qbittorrent_role_host_version: "{{ 'release-' + (qbittorrent_host_version_response.content | from_json).qbittorrent
+                                   + '_v' + ((qbittorrent_host_version_response.content | from_json).libtorrent_2_0
+                                             if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
+                                             else (qbittorrent_host_version_response.content | from_json).libtorrent_1_2) }}"
 qbittorrent_role_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
 qbittorrent_role_service_after: "network-online.target docker.service"
 qbittorrent_role_service_requires: "network-online.target docker.service"
@@ -164,7 +167,7 @@ qbittorrent_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', rol
 
 # Volumes
 qbittorrent_role_docker_volumes_default:
-  - "{{ qbittorrent_role_paths_location }}:/config"
+  - "{{ lookup('role_var', '_paths_location', role='qbittorrent') }}:/config"
   - "{{ server_appdata_path }}/scripts:/scripts"
 qbittorrent_role_docker_volumes_custom: []
 qbittorrent_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='qbittorrent')

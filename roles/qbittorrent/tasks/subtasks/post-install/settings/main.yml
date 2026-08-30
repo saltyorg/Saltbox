@@ -156,7 +156,9 @@
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
     section: Application
     option: FileLogger\Path
-    value: "{{ lookup('role_var', '_paths_location', role='qbittorrent') + '/log' if lookup('role_var', '_host_install', role='qbittorrent') else '/config/log' }}"
+    value: "{{ lookup('role_var', '_paths_location', role='qbittorrent') + '/log'
+            if lookup('role_var', '_host_install', role='qbittorrent')
+            else '/config/log' }}"
     no_extra_spaces: true
     state: present
     owner: "{{ user.name }}"
