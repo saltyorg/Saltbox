@@ -22,19 +22,21 @@
   when: backup_rclone_enabled and (restore_tar is defined)
 
 - name: "Check if user '{{ user.name }}' exists"
-  ansible.builtin.shell: "id -un {{ user.name }} >/dev/null 2>&1;"
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user.name }}"
+    fail_key: false
   register: user_check
-  failed_when: (user_check.rc > 1)
 
 - name: User Role
   ansible.builtin.include_role:
     name: user
-  when: (user_check.rc == 1) and (not restore_tar is defined)
+  when: (user_check.ansible_facts.getent_passwd[user.name] is none) and (not restore_tar is defined)
 
 - name: Set shell
   ansible.builtin.include_role:
     name: shell
-  when: (user_check.rc == 1) and (not restore_tar is defined)
+  when: (user_check.ansible_facts.getent_passwd[user.name] is none) and (not restore_tar is defined)
 
 - name: Variables
   ansible.builtin.include_tasks: "variables.yml"
@@ -177,7 +179,13 @@
     label: "'{{ server_appdata_path }}/{{ (item.item | basename | splitext)[0] }}_bak'"
 
 - name: "Backup existing folders in '{{ server_appdata_path }}' to prevent overwriting them (full restore)"
-  ansible.builtin.shell: mv '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}' '{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}_bak' 2>/dev/null || true
+  ansible.builtin.command:
+    argv:
+      - "mv"
+      - "{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}"
+      - "{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}_bak"
+    removes: "{{ server_appdata_path }}/{{ (item | basename | splitext)[0] }}"
+    expand_argument_vars: false
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
@@ -199,11 +207,24 @@
   when: (restore_tar is defined) and existing_bak_folder_specific.stat.exists
 
 - name: "Backup existing folder in '{{ server_appdata_path }}' to prevent overwriting it (specific tar restore)"
-  ansible.builtin.shell: mv '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}' '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak' 2>/dev/null || true
+  ansible.builtin.command:
+    argv:
+      - "mv"
+      - "{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}"
+      - "{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak"
+    removes: "{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}"
+    expand_argument_vars: false
   when: (restore_tar is defined)
 
 - name: "Unarchive backup tarballs into '{{ server_appdata_path }}' (full restore)"
-  ansible.builtin.shell: tar -xf '{{ item }}' -C '{{ server_appdata_path }}/'
+  ansible.builtin.command:
+    argv:
+      - "tar"
+      - "-xf"
+      - "{{ item }}"
+      - "-C"
+      - "{{ server_appdata_path }}/"
+    expand_argument_vars: false
   with_fileglob:
     - "{{ backup.local.destination }}/opt/*.tar"
   loop_control:
@@ -212,7 +233,14 @@
   when: (not restore_tar is defined)
 
 - name: "Unarchive specific backup tarball into '{{ server_appdata_path }}' (specific tar restore)"
-  ansible.builtin.shell: tar -xf '{{ backup.local.destination }}/opt/{{ restore_tar }}' -C '{{ server_appdata_path }}/'
+  ansible.builtin.command:
+    argv:
+      - "tar"
+      - "-xf"
+      - "{{ backup.local.destination }}/opt/{{ restore_tar }}"
+      - "-C"
+      - "{{ server_appdata_path }}/"
+    expand_argument_vars: false
   register: unarchive
   when: (restore_tar is defined)
 

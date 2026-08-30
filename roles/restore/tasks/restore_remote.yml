@@ -37,12 +37,16 @@
   when: rclone_conf_playbook_dir.stat.exists or (not rclone_binary.stat.exists)
 
 - name: Test rclone remote destination
-  ansible.builtin.shell: |
-    /usr/bin/rclone lsd {{ backup.rclone.destination }} \
-      {{ "--user-agent='" + restore_user_agent + "'" if (restore_user_agent | length > 0) else "" }}
+  ansible.builtin.command:
+    argv: "{{ ['/usr/bin/rclone', 'lsd', backup.rclone.destination]
+              + (['--user-agent=' + restore_user_agent]
+                 if (restore_user_agent | length > 0)
+                 else []) }}"
+    expand_argument_vars: false
   become: true
   become_user: "{{ user.name }}"
   register: rclone_test
+  changed_when: false
   failed_when: (rclone_test.rc > 5)
 
 - name: "Fail when rclone is misconfigured."
@@ -69,16 +73,18 @@
   when: restore_rclone.stat.exists
 
 - name: "Fetch backup from '{{ backup.rclone.destination }}'"
-  ansible.builtin.shell: |
-    /usr/bin/rclone copy \
-      {{ "--user-agent='" + restore_user_agent + "'" if (restore_user_agent | length > 0) else "" }} \
-      --transfers=8 \
-      {{ lookup('vars', 'restore_' + backup.rclone.template + '_template', default='') }} \
-      --exclude 'archived/**' \
-      --stats=30s \
-      -vv \
-      --log-file='{{ playbook_dir }}/restore_rclone.log' \
-      '{{ backup.rclone.destination }}/' '{{ backup.local.destination }}'
+  ansible.builtin.command:
+    argv: "{{ ['/usr/bin/rclone', 'copy']
+              + (['--user-agent=' + restore_user_agent]
+                 if (restore_user_agent | length > 0)
+                 else [])
+              + ['--transfers=8']
+              + (lookup('vars', 'restore_' + backup.rclone.template + '_template_args', default=[])
+                 | saltbox_argv('restore rclone template arguments'))
+              + ['--exclude', 'archived/**', '--stats=30s', '-vv',
+                 '--log-file=' + playbook_dir + '/restore_rclone.log',
+                 backup.rclone.destination + '/', backup.local.destination] }}"
+    expand_argument_vars: false
   become: true
   become_user: "{{ user.name }}"
 

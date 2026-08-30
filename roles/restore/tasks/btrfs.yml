@@ -24,9 +24,19 @@
         mode: "0775"
 
     - name: BTRFS | Check file system on '{{ outer_item }}'
-      ansible.builtin.shell: stat -f -c %T "{{ outer_item }}"
+      ansible.builtin.command:
+        argv:
+          - "stat"
+          - "-f"
+          - "-c"
+          - "%T"
+          - "{{ outer_item }}"
       register: outer_item_file_system
 
     - name: BTRFS | Set NOCOW on '{{ outer_item }} if BTRFS'
-      ansible.builtin.shell: "chattr +C {{ outer_item }}"
+      ansible.builtin.command:
+        argv:
+          - "chattr"
+          - "+C"
+          - "{{ outer_item }}"
       when: ('btrfs' in outer_item_file_system.stdout)
