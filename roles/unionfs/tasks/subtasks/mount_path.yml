@@ -7,9 +7,25 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: "Mount Path | Check if '/mnt/unionfs' is a mountpoint"
+  ansible.builtin.command:
+    argv:
+      - "mountpoint"
+      - "-q"
+      - "--"
+      - "/mnt/unionfs"
+  register: mnt_unionfs_mountpoint
+  changed_when: false
+  failed_when: false
+
 - name: "Mount Path | Force unmount '/mnt/unionfs'"
-  ansible.builtin.shell: "/bin/umount -f '/mnt/unionfs' 2>/dev/null || :"
-  ignore_errors: true
+  ansible.builtin.command:
+    argv:
+      - "/bin/umount"
+      - "-f"
+      - "--"
+      - "/mnt/unionfs"
+  when: mnt_unionfs_mountpoint.rc == 0
 
 - name: "Mount Path | Check if '/mnt/unionfs' exists"
   ansible.builtin.stat:
@@ -28,7 +44,14 @@
       when: (not 'immutable' in mnt_unionfs_stat.stat.attributes)
       block:
         - name: "Mount Path | Remove empty directories in '/mnt/unionfs'"
-          ansible.builtin.shell: "find '/mnt/unionfs' -type d -empty -delete"
+          ansible.builtin.command:
+            argv:
+              - "find"
+              - "/mnt/unionfs"
+              - "-type"
+              - "d"
+              - "-empty"
+              - "-delete"
           ignore_errors: true
 
         - name: "Mount Path | Check if '/mnt/unionfs' still exists"
@@ -45,7 +68,11 @@
           when: mnt_unionfs_stat2.stat.exists
 
         - name: "Mount Path | Backup non-empty '/mnt/unionfs' path"
-          ansible.builtin.shell: "mv /mnt/unionfs /mnt/unionfs_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "/mnt/unionfs"
+              - "/mnt/unionfs_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
           ignore_errors: true
           when: mnt_unionfs_stat2.stat.exists and (mnt_unionfs_files.matched | int > 0)
 

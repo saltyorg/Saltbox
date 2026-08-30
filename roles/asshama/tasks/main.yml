@@ -9,13 +9,19 @@
 #########################################################################
 ---
 - name: Gather list of running Docker containers
-  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
-  register: docker_running_containers
+  community.docker.docker_host_info:
+    containers: true
+  register: docker_running_containers_info
   ignore_errors: true
 
-- name: Convert to list
+- name: Set running Docker container names
   ansible.builtin.set_fact:
-    docker_running_containers: "{{ (docker_running_containers.stdout).split() }}"
+    docker_running_containers: "{{ docker_running_containers_info.containers
+                                   | default([])
+                                   | map(attribute='Names')
+                                   | map('first')
+                                   | map('regex_replace', '^/', '')
+                                   | list }}"
 
 - name: Loop tasks
   ansible.builtin.include_tasks: "subtasks/loop.yml"

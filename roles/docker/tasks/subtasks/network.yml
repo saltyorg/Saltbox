@@ -70,12 +70,12 @@
         connected: >-
           {{
             (docker_bridge_network.network.Containers | default({}) | dict2items
-              | map(attribute='value.Name') | list)
+             | map(attribute='value.Name') | list)
             | difference(
                 docker_saltbox_containers.containers
-                  | map(attribute='Names') | map('first')
-                  | map('regex_replace', '^/', '') | list
-              )
+                | map(attribute='Names') | map('first')
+                | map('regex_replace', '^/', '') | list
+            )
           }}
       register: disconnect_containers
       ignore_errors: true
@@ -96,26 +96,20 @@
           - subnet: fd00:dead:beef::/48
 
     - name: "Network (IPv6) | Connect containers to saltbox network"
-      ansible.builtin.shell: >-
-        docker network connect saltbox
-        {{ docker_network_container.container.Name | regex_replace('^/', '') }}
-        {{
-          (
-            [docker_network_container.container.Name | regex_replace('^/', '')]
-            | union(
-                docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
-                  | default([], true)
-              )
-          )
-          | map('regex_replace', '^', '--alias ')
-          | join(' ')
-        }}
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'network', 'connect']
+                  + (([docker_network_container.container.Name | regex_replace('^/', '')]
+                      | union(docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
+                              | default([], true)))
+                     | map('regex_replace', '^', '--alias=')
+                     | list)
+                  + ['saltbox', docker_network_container.container.Name | regex_replace('^/', '')] }}"
       loop: >-
         {{
           docker_ipv6_container_info.results
-            | selectattr('container', 'defined')
-            | rejectattr('container', 'none')
-            | list
+          | selectattr('container', 'defined')
+          | rejectattr('container', 'none')
+          | list
         }}
       loop_control:
         loop_var: docker_network_container
@@ -142,12 +136,12 @@
         connected: >-
           {{
             (docker_bridge_network.network.Containers | default({}) | dict2items
-              | map(attribute='value.Name') | list)
+             | map(attribute='value.Name') | list)
             | difference(
                 docker_saltbox_containers.containers
-                  | map(attribute='Names') | map('first')
-                  | map('regex_replace', '^/', '') | list
-              )
+                | map(attribute='Names') | map('first')
+                | map('regex_replace', '^/', '') | list
+            )
           }}
       register: disconnect_containers
       ignore_errors: true
@@ -167,26 +161,20 @@
           - subnet: 172.19.0.0/16
 
     - name: "Network (IPv4) | Connect containers to saltbox network"
-      ansible.builtin.shell: >-
-        docker network connect saltbox
-        {{ docker_network_container.container.Name | regex_replace('^/', '') }}
-        {{
-          (
-            [docker_network_container.container.Name | regex_replace('^/', '')]
-            | union(
-                docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
-                  | default([], true)
-              )
-          )
-          | map('regex_replace', '^', '--alias ')
-          | join(' ')
-        }}
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'network', 'connect']
+                  + (([docker_network_container.container.Name | regex_replace('^/', '')]
+                      | union(docker_network_container.container.NetworkSettings.Networks.saltbox.Aliases
+                              | default([], true)))
+                     | map('regex_replace', '^', '--alias=')
+                     | list)
+                  + ['saltbox', docker_network_container.container.Name | regex_replace('^/', '')] }}"
       loop: >-
         {{
           docker_ipv4_container_info.results
-            | selectattr('container', 'defined')
-            | rejectattr('container', 'none')
-            | list
+          | selectattr('container', 'defined')
+          | rejectattr('container', 'none')
+          | list
         }}
       loop_control:
         loop_var: docker_network_container

@@ -18,7 +18,14 @@
     state: present
 
 - name: Wait for {{ plex_name | title }} executable to be created
-  ansible.builtin.shell: docker exec {{ lookup('role_var', '_docker_container', role='plex') }} bash -c "ls '/usr/lib/plexmediaserver/Plex Media Server'"
+  ansible.builtin.command:
+    argv:
+      - "docker"
+      - "exec"
+      - "{{ lookup('role_var', '_docker_container', role='plex') }}"
+      - "bash"
+      - "-c"
+      - "ls '/usr/lib/plexmediaserver/Plex Media Server'"
   register: pms_check
   until: pms_check.stderr.find("No such file or directory") == -1
   retries: 600
@@ -51,16 +58,9 @@
 - name: Find external port binding for '{{ lookup('role_var', '_docker_container', role='plex') }}' docker port '{{ lookup('role_var', '_web_port', role='plex') }}'
   when: lookup('role_var', '_open_main_ports', role='plex')
   block:
-    - name: Lookup host port mapped to '{{ lookup('role_var', '_docker_container', role='plex') }}' docker port '{{ lookup('role_var', '_web_port', role='plex') }}'
-      ansible.builtin.shell: docker port {{ lookup('role_var', '_docker_container', role='plex') }} {{ lookup('role_var', '_web_port', role='plex') }} 2> /dev/null | sed 's/[0-9.]*://'
-      register: plex_docker_port_lookup_cmd
-      changed_when: false
-
-    - name: Set port variable
+    - name: Set assigned Plex port
       ansible.builtin.set_fact:
-        plex_docker_port_lookup: "{{ (plex_docker_port_lookup_cmd.stdout | trim)
-                                  if (plex_docker_port_lookup_cmd.stdout | trim | length > 0)
-                                  else lookup('role_var', '_web_port', role='plex') }}"
+        plex_docker_port_lookup: "{{ plex_port_assignment.ports.web }}"
 
 - name: Update port in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   community.general.xml:

@@ -84,7 +84,11 @@
         size: "{{ docker_filesystem_size }}"
 
     - name: BTRFS | Psuedo-File-System | Run e2fsck on '{{ docker_filesystem_path }}'
-      ansible.builtin.shell: e2fsck -fy {{ docker_filesystem_path }}
+      ansible.builtin.command:
+        argv:
+          - "e2fsck"
+          - "-fy"
+          - "{{ docker_filesystem_path }}"
 
     - name: BTRFS | Psuedo-File-System | Extend pseudo filesystem
       community.general.filesystem:

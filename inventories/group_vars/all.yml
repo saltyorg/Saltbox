@@ -395,9 +395,13 @@ traefik_router_certificate_domains: "{{ traefik_domain
                                                                       traefik_certificate_authoritative_zones) }}"
 
 traefik_entrypoint_tailscale_default: false
-traefik_entrypoint_web_default: "{{ 'web' if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool) else 'tailscale-web' }}"
+traefik_entrypoint_web_default: "{{ 'web'
+                                 if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool)
+                                 else 'tailscale-web' }}"
 traefik_entrypoint_web: "{{ lookup('role_var', '_traefik_entrypoint_web', role=role_var_role, default=traefik_entrypoint_web_default) }}"
-traefik_entrypoint_websecure_default: "{{ 'websecure' if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool) else 'tailscale-websecure' }}"
+traefik_entrypoint_websecure_default: "{{ 'websecure'
+                                       if not (lookup('role_var', '_traefik_tailscale_enabled', role=role_var_role, default=traefik_entrypoint_tailscale_default) | bool)
+                                       else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('role_var', '_traefik_entrypoint_websecure', role=role_var_role, default=traefik_entrypoint_websecure_default) }}"
 
 traefik_url: "{{ lookup('role_web', role=(role_var_role if role_var_role else role_name), scheme='https') }}"
@@ -468,10 +472,18 @@ docker_labels_saltbox_tmp:
   - com.github.saltbox.saltbox_managed: "true"
   - com.github.saltbox.saltbox_controller: "{{ 'true' if (lookup('role_var', '_docker_controller', role=role_var_role, default=true) | bool) else 'false' }}"
   - "{{ docker_labels_diun_template if (lookup('role_var', '_diun_enabled', role=role_var_role, default=docker_labels_diun_enabled) | bool) else omit }}"
-  - "{{ docker_labels_autoheal_template if (lookup('role_var', '_autoheal_enabled', role=role_var_role, default=docker_labels_autoheal_enabled) | bool) else omit }}"
-  - "{{ docker_labels_docker_depends_on_template if ((lookup('role_var', '_depends_on', role=role_var_role, default='') | length > 0) or docker_container_network_mode) else omit }}"
-  - "{{ docker_labels_docker_depends_on_delay_template if ((lookup('role_var', '_depends_on_delay', role=role_var_role, default='') | length > 0) or docker_container_network_mode) else omit }}"
-  - "{{ docker_labels_docker_depends_on_healthchecks_template if ((lookup('role_var', '_depends_on_healthchecks', role=role_var_role, default='') | length > 0) or docker_container_network_mode) else omit }}"
+  - "{{ docker_labels_autoheal_template
+     if (lookup('role_var', '_autoheal_enabled', role=role_var_role, default=docker_labels_autoheal_enabled) | bool)
+     else omit }}"
+  - "{{ docker_labels_docker_depends_on_template
+     if ((lookup('role_var', '_depends_on', role=role_var_role, default='') | length > 0) or docker_container_network_mode)
+     else omit }}"
+  - "{{ docker_labels_docker_depends_on_delay_template
+     if ((lookup('role_var', '_depends_on_delay', role=role_var_role, default='') | length > 0) or docker_container_network_mode)
+     else omit }}"
+  - "{{ docker_labels_docker_depends_on_healthchecks_template
+     if ((lookup('role_var', '_depends_on_healthchecks', role=role_var_role, default='') | length > 0) or docker_container_network_mode)
+     else omit }}"
   - "{{ docker_labels_custom_common }}"
 
 docker_labels_wildcard_dict: "{{ traefik_router_certificate_domains
@@ -563,12 +575,13 @@ docker_log_driver: "{{ docker_log_driver_json
                     else 'default' }}"
 
 docker_log_options_json:
-  tag: "{% raw %}'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}" # noqa jinja[spacing]
+  tag: !unsafe "'{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'"
 
 docker_log_options: "{{ docker_log_options_json
                      if (docker.json_driver | bool)
                      else 'default' }}"
 
+docker_container_name_format: !unsafe "{{ .Names}}"
 docker_network_container_health_delay: 5
 
 docker_controller_url: "http://127.0.0.1:3377"

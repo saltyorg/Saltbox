@@ -41,24 +41,31 @@
   when: docker_service_check
   block:
     - name: Gather list of running Docker containers
-      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-      register: docker_running_containers_ps
-      ignore_errors: true
-      changed_when: false
+      community.docker.docker_host_info:
+        containers: true
+      register: docker_running_containers_info
       when: (not docker_service_check_mounts)
 
     - name: Set 'docker_running_containers'
       ansible.builtin.set_fact:
-        docker_running_containers: "{{ containers_list | default(docker_running_containers_ps.stdout) | default('') }}"
+        docker_running_containers: "{{ containers_list
+                                    if containers_list is defined
+                                    else (docker_running_containers_info.containers
+                                          | default([])
+                                          | map(attribute='Names')
+                                          | map('first')
+                                          | map('regex_replace', '^/', '')
+                                          | sort) }}"
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
       when: (docker_service_running is defined) and docker_service_running and (docker_controller_service_running is defined) and docker_controller_service_running
 
     - name: Stop all running Docker containers
-      ansible.builtin.shell: "docker stop {{ docker_running_containers }} &> /dev/null || true"
-      ignore_errors: true
-      when: (not docker_service_check_mounts) and (docker_running_containers | trim | length > 0)
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'stop'] + docker_running_containers }}"
+      failed_when: false
+      when: (not docker_service_check_mounts) and (docker_running_containers | length > 0)
 
     - name: Import BTRFS Cleanup Tasks
       ansible.builtin.include_tasks: "subtasks/btrfs/cleanup.yml"
@@ -94,7 +101,12 @@
 
   rescue:
     - name: Install missing modules package
-      ansible.builtin.shell: "apt-get install --reinstall linux-modules-{{ ansible_facts['kernel'] }}"
+      ansible.builtin.command:
+        argv:
+          - "apt-get"
+          - "install"
+          - "--reinstall"
+          - "linux-modules-{{ ansible_facts['kernel'] }}"
 
 - name: "Import Daemon Tasks"
   ansible.builtin.include_tasks: "subtasks/daemon.yml"
@@ -139,18 +151,40 @@
   ansible.builtin.include_tasks: "subtasks/controller.yml"
 
 - name: Gather list of running Docker containers (before Network Tasks)
-  ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-  register: docker_running_containers_before_network_tasks_ps
-  ignore_errors: true
-  changed_when: false
+  community.docker.docker_host_info:
+    containers: true
+  register: docker_running_containers_before_network_tasks_info
+
+- name: Set running Docker containers (before Network Tasks)
+  ansible.builtin.set_fact:
+    docker_running_containers_before_network_tasks: "{{ docker_running_containers_before_network_tasks_info.containers
+                                                        | default([])
+                                                        | map(attribute='Names')
+                                                        | map('first')
+                                                        | map('regex_replace', '^/', '')
+                                                        | sort }}"
 
 - name: Stop Saltbox Docker containers
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-  when: (docker_running_containers_before_network_tasks_ps.stdout | trim | length > 0)
+  when: (docker_running_containers_before_network_tasks | length > 0)
+
+- name: Query all Docker container IDs
+  ansible.builtin.command:
+    argv:
+      - "docker"
+      - "ps"
+      - "-aq"
+  register: docker_container_ids_before_network_tasks
+  changed_when: false
+  when: (docker_running_containers_before_network_tasks | length > 0)
 
 - name: "Stop all Docker containers"
-  ansible.builtin.shell: docker stop $(docker ps -aq) &> /dev/null || true
-  when: (docker_running_containers_before_network_tasks_ps.stdout | trim | length > 0)
+  ansible.builtin.command:
+    argv: "{{ ['docker', 'stop'] + docker_container_ids_before_network_tasks.stdout_lines }}"
+  failed_when: false
+  when:
+    - (docker_running_containers_before_network_tasks | length > 0)
+    - (docker_container_ids_before_network_tasks.stdout_lines | default([]) | length > 0)
 
 - name: "Import Docker Network tasks"
   ansible.builtin.include_tasks: "subtasks/network.yml"
@@ -165,20 +199,17 @@
   register: docker_reboot_required_file
 
 - name: Docker Service Running
-  when: docker_start_containers_check and docker_service_check and (docker_running_containers | trim | length > 0)
+  when: docker_start_containers_check and docker_service_check and (docker_running_containers | length > 0)
   block:
-    - name: "Initialize Gluetun variable"
+    - name: "Identify Gluetun containers"
       ansible.builtin.set_fact:
-        docker_containers_gluetun: []
-
-    - name: "Identify any Gluetun containers"
-      ansible.builtin.set_fact:
-        docker_containers_gluetun: "{{ docker_containers_gluetun + [item] }}"
-      loop: "{{ docker_running_containers.split() }}"
-      when: item in (gluetun_instances | default(['gluetun']))
+        docker_containers_gluetun: "{{ docker_running_containers
+                                       | select('in', gluetun_instances | default(['gluetun']))
+                                       | list }}"
 
     - name: "Re-start all previously running Gluetun containers"
-      ansible.builtin.shell: "docker start {{ docker_containers_gluetun | join(' ') }}"
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'start'] + docker_containers_gluetun }}"
       when: (docker_containers_gluetun | length > 0)
       ignore_errors: true
 
@@ -194,8 +225,9 @@
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
 
     - name: "Re-start all previously running Docker containers"
-      ansible.builtin.shell: "docker start {{ docker_running_containers.split() | difference(['ipv6nat']) | join(' ') }}"
-      when: docker_service_check and (docker_running_containers | trim | length > 0) and (docker_running_containers.split() | difference(['ipv6nat']) | join(' ') | length > 0)
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'start'] + (docker_running_containers | reject('equalto', 'ipv6nat') | list) }}"
+      when: docker_service_check and (docker_running_containers | reject('equalto', 'ipv6nat') | list | length > 0)
       ignore_errors: true
 
 - name: "Import Docker Hub tasks"

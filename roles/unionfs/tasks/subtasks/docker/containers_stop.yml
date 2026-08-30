@@ -25,22 +25,28 @@
   when: unionfs_docker_binary.stat.exists and unionfs_docker_service_running
   block:
     - name: "UnionFS | Docker | Container Stop | Gather list of running Docker containers"
-      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
+      ansible.builtin.command:
+        argv:
+          - "docker"
+          - "ps"
+          - "--format"
+          - "{{ docker_container_name_format }}"
       register: unionfs_docker_running_containers_ps
-      ignore_errors: true
+      changed_when: false
 
     - name: "UnionFS | Docker | Container Stop | Set 'containers_list' variable"
       ansible.builtin.set_fact:
-        containers_list: "{{ unionfs_docker_running_containers_ps.stdout }}"
+        containers_list: "{{ unionfs_docker_running_containers_ps.stdout_lines }}"
 
     - name: "UnionFS | Docker | Container Stop | Stop Saltbox Docker containers"
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: (containers_list | trim | length > 0) and unionfs_docker_controller_service_running
+      when: (containers_list | length > 0) and unionfs_docker_controller_service_running
 
     - name: "UnionFS | Docker | Container Stop | Stop all running Docker containers"
-      ansible.builtin.shell: "docker stop {{ containers_list }}"
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'stop'] + containers_list }}"
       ignore_errors: true
-      when: (containers_list | trim | length > 0)
+      when: (containers_list | length > 0)
 
     - name: "UnionFS | Docker | Container Stop | Block Docker Controller"
       ansible.builtin.uri:

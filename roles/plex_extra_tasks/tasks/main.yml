@@ -7,15 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Gather list of installed Docker containers
-  ansible.builtin.shell: "docker ps -a --format '{{ '{{' }} .Names{{ '}}' }}' | sort | xargs echo -n"
-  register: docker_installed_containers_list
-  changed_when: false
-
-- name: Set 'docker_installed_containers_list' variable
-  ansible.builtin.set_fact:
-    docker_installed_containers_list: "{{ (docker_installed_containers_list.stdout).split() }}"
+- name: Gather Plex Docker container information
+  community.docker.docker_container_info:
+    name: "{{ lookup('role_var', '_docker_container', role='plex') }}"
+  register: plex_extra_tasks_container_info
 
 - name: "Continue when Plex Docker container exists"
   ansible.builtin.include_tasks: "main2.yml"
-  when: (lookup('role_var', '_docker_container', role='plex') in docker_installed_containers_list)
+  when: plex_extra_tasks_container_info.exists

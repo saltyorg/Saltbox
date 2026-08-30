@@ -8,6 +8,12 @@
 #########################################################################
 ---
 - name: Filesystem | Check filesystem of '/var/lib/' path
-  ansible.builtin.shell: stat -f -c %T /var/lib/
+  ansible.builtin.command:
+    argv:
+      - "stat"
+      - "-f"
+      - "-c"
+      - "%T"
+      - "/var/lib/"
   register: var_lib_file_system
   changed_when: false

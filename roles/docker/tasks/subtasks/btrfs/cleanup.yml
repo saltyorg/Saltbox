@@ -18,20 +18,94 @@
   when: var_lib_docker.stat.exists
   block:
     - name: BTRFS | Cleanup | Check filesystem of '/var/lib/docker' path
-      ansible.builtin.shell: stat -f -c %T /var/lib/docker
+      ansible.builtin.command:
+        argv:
+          - "stat"
+          - "-f"
+          - "-c"
+          - "%T"
+          - "/var/lib/docker"
       register: var_lib_docker_file_system
 
     - name: BTRFS | Cleanup | Tasks when '/var/lib/docker' is btrfs
       when: ('btrfs' in var_lib_docker_file_system.stdout)
       block:
-        - name: BTRFS | Cleanup | Remove all docker containers, images, and volumes
-          ansible.builtin.shell: |
-            docker container stop $(docker ps -aq) &> /dev/null || true
-            docker container rm $(docker ps -aq) &> /dev/null || true
-            docker image rm -f $(docker images -q) &> /dev/null || true
-            docker image prune -af &> /dev/null || true
-            docker volume rm $(docker volume ls -q) &> /dev/null || true
-            docker volume prune -f &> /dev/null || true
+        - name: BTRFS | Cleanup | Query all Docker container IDs
+          ansible.builtin.command:
+            argv:
+              - "docker"
+              - "ps"
+              - "-aq"
+          register: docker_btrfs_container_ids_before_stop
+          changed_when: false
+          failed_when: false
+
+        - name: BTRFS | Cleanup | Stop all Docker containers
+          ansible.builtin.command:
+            argv: "{{ ['docker', 'container', 'stop'] + docker_btrfs_container_ids_before_stop.stdout_lines }}"
+          failed_when: false
+          when: (docker_btrfs_container_ids_before_stop.stdout_lines | length > 0)
+
+        - name: BTRFS | Cleanup | Re-query all Docker container IDs
+          ansible.builtin.command:
+            argv:
+              - "docker"
+              - "ps"
+              - "-aq"
+          register: docker_btrfs_container_ids_before_remove
+          changed_when: false
+          failed_when: false
+
+        - name: BTRFS | Cleanup | Remove all Docker containers
+          ansible.builtin.command:
+            argv: "{{ ['docker', 'container', 'rm'] + docker_btrfs_container_ids_before_remove.stdout_lines }}"
+          failed_when: false
+          when: (docker_btrfs_container_ids_before_remove.stdout_lines | length > 0)
+
+        - name: BTRFS | Cleanup | Query all Docker image IDs
+          ansible.builtin.command:
+            argv:
+              - "docker"
+              - "images"
+              - "-q"
+          register: docker_btrfs_image_ids
+          changed_when: false
+          failed_when: false
+
+        - name: BTRFS | Cleanup | Force-remove all Docker images
+          ansible.builtin.command:
+            argv: "{{ ['docker', 'image', 'rm', '-f'] + docker_btrfs_image_ids.stdout_lines }}"
+          failed_when: false
+          when: (docker_btrfs_image_ids.stdout_lines | length > 0)
+
+        - name: BTRFS | Cleanup | Prune Docker images
+          community.docker.docker_prune:
+            images: true
+            images_filters:
+              dangling: false
+          ignore_errors: true
+
+        - name: BTRFS | Cleanup | Query all Docker volume names
+          ansible.builtin.command:
+            argv:
+              - "docker"
+              - "volume"
+              - "ls"
+              - "-q"
+          register: docker_btrfs_volume_names
+          changed_when: false
+          failed_when: false
+
+        - name: BTRFS | Cleanup | Remove all Docker volumes
+          ansible.builtin.command:
+            argv: "{{ ['docker', 'volume', 'rm'] + docker_btrfs_volume_names.stdout_lines }}"
+          failed_when: false
+          when: (docker_btrfs_volume_names.stdout_lines | length > 0)
+
+        - name: BTRFS | Cleanup | Prune Docker volumes
+          community.docker.docker_prune:
+            volumes: true
+          ignore_errors: true
 
         - name: BTRFS | Cleanup | Stop docker service
           ansible.builtin.systemd_service:
@@ -47,11 +121,26 @@
           ansible.builtin.wait_for:
             timeout: 30
 
+        - name: BTRFS | Cleanup | Find '/var/lib/docker' btrfs subvolumes
+          ansible.builtin.find:
+            paths: "/var/lib/docker/btrfs/subvolumes"
+            file_type: directory
+            hidden: true
+            recurse: false
+          register: docker_btrfs_subvolumes
+          ignore_errors: true
+
         - name: BTRFS | Cleanup | Remove '/var/lib/docker' btrfs subvolumes
-          ansible.builtin.shell: |
-            for subvolume in /var/lib/docker/btrfs/subvolumes/*; do
-                btrfs subvolume delete $subvolume &> /dev/null || true
-            done
+          ansible.builtin.command:
+            argv:
+              - "btrfs"
+              - "subvolume"
+              - "delete"
+              - "{{ docker_btrfs_subvolume.path }}"
+          loop: "{{ docker_btrfs_subvolumes.files | default([]) | sort(attribute='path') }}"
+          loop_control:
+            loop_var: docker_btrfs_subvolume
+          failed_when: false
 
         - name: BTRFS | Cleanup | Remove '/var/lib/docker' path
           ansible.builtin.file:

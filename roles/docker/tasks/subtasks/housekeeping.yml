@@ -8,9 +8,13 @@
 #########################################################################
 ---
 - name: "Housekeeping | Remove all unused docker images"
-  ansible.builtin.shell: docker image prune -af &> /dev/null || true
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: false
   ignore_errors: true
 
 - name: "Housekeeping | Remove all unused docker volumes"
-  ansible.builtin.shell: docker volume prune -f &> /dev/null || true
+  community.docker.docker_prune:
+    volumes: true
   ignore_errors: true
