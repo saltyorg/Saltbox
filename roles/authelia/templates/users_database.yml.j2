@@ -10,7 +10,7 @@ users:
   {{ user.name }}:
     disabled: false
     displayname: "{{ user.name }}"
-    password: "{{ authelia_password.stdout }}"
+    password: "{{ authelia_password_hash }}"
     email: {{ user.email }}
     groups:
       - admins

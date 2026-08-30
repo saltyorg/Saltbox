@@ -8,25 +8,39 @@
 ##########################################################################
 ---
 - name: Settings | Load encryption_key value
-  ansible.builtin.shell: |
-    yyq '.storage.encryption_key' {{ authelia_role_paths_location }}/configuration.yml
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - ".storage.encryption_key"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   register: authelia_encryption_key
 
 - name: Settings | Add encryption_key to config file
-  ansible.builtin.shell: |
-    yyq -i '.storage.encryption_key = "{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=64) }}"' {{ authelia_role_paths_location }}/configuration.yml
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - "-i"
+      - ".storage.encryption_key = \"{{ lookup('password', '/dev/null', chars=['ascii_letters', 'digits'], length=64) }}\""
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   become: true
   become_user: "{{ user.name }}"
   when: authelia_encryption_key.stdout == "null"
 
 - name: Settings | Load session.redis.host value
-  ansible.builtin.shell: |
-    yyq '.session.redis.host' {{ authelia_role_paths_location }}/configuration.yml
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - ".session.redis.host"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   register: authelia_session_redis_host
 
 - name: Settings | Change session.redis.host value to 'authelia_redis'
-  ansible.builtin.shell: |
-    yyq -i '.session.redis.host = "authelia-redis"' {{ authelia_role_paths_location }}/configuration.yml
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - "-i"
+      - ".session.redis.host = \"authelia-redis\""
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   become: true
   become_user: "{{ user.name }}"
   when: (authelia_session_redis_host.stdout == "redis") or (authelia_session_redis_host.stdout == "authelia_redis")

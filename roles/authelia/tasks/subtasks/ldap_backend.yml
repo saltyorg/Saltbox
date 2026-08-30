@@ -15,14 +15,18 @@
 - name: LDAP | Import default 'configuration.yml'
   ansible.builtin.template:
     src: configuration.yml.j2
-    dest: "{{ authelia_role_paths_location }}/configuration.yml"
+    dest: "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
   when: (not authelia_config_stat.stat.exists)
 
 - name: LDAP | Format 'configuration.yml'
-  ansible.builtin.shell: "yyq -i {{ authelia_role_paths_location }}/configuration.yml"
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - "-i"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   when: (not authelia_config_stat.stat.exists)
 
 - name: LDAP | Import lldap Role

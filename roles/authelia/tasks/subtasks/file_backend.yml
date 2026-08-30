@@ -9,20 +9,24 @@
 ---
 - name: File | Check if 'users_database.yml' exists
   ansible.builtin.stat:
-    path: "{{ authelia_role_paths_location }}/users_database.yml"
+    path: "{{ lookup('role_var', '_paths_location', role='authelia') }}/users_database.yml"
   register: authelia_user_config_stat
 
 - name: File | Import default 'configuration.yml'
   ansible.builtin.template:
     src: configuration.yml.j2
-    dest: "{{ authelia_role_paths_location }}/configuration.yml"
+    dest: "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
   when: (not authelia_config_stat.stat.exists)
 
 - name: File | Format 'configuration.yml'
-  ansible.builtin.shell: "yyq -i {{ authelia_role_paths_location }}/configuration.yml"
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - "-i"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   when: (not authelia_config_stat.stat.exists)
 
 - name: File | Generate Password Hash
@@ -32,7 +36,7 @@
     command: "authelia crypto hash generate --config /config/configuration.yml --password {{ user.pass | quote }}"
     detach: false
     volumes:
-      - "{{ authelia_role_paths_location }}:/config"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}:/config"
     networks:
       - name: saltbox
     cleanup: true
@@ -40,22 +44,38 @@
     container_default_behavior: compatibility
     tls_hostname: localhost
     pull: true
-  register: authelia_password
+  register: authelia_password_generate
   no_log: true
   when: (not authelia_user_config_stat.stat.exists)
 
-- name: File | Sanitize Password Hash
-  ansible.builtin.shell: "echo '{{ authelia_password.container.Output }}' | sed -n 's/^Digest: //p'"
-  register: authelia_password
+- name: File | Extract Password Hash Matches
+  ansible.builtin.set_fact:
+    authelia_password_hash_matches: "{{ authelia_password_generate.container.Output
+                                        | regex_findall('(?m)^Digest: (.*)$') }}"
+  no_log: true
+  when: (not authelia_user_config_stat.stat.exists)
+
+- name: File | Validate Password Hash
+  ansible.builtin.assert:
+    that:
+      - authelia_password_hash_matches | length == 1
+  no_log: true
+  when: (not authelia_user_config_stat.stat.exists)
+
+- name: File | Store Password Hash
+  ansible.builtin.set_fact:
+    authelia_password_hash: "{{ authelia_password_hash_matches | first | trim }}"
+  no_log: true
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: File | Import default 'users_database.yml'
   ansible.builtin.template:
     src: users_database.yml.j2
-    dest: "{{ authelia_role_paths_location }}/users_database.yml"
+    dest: "{{ lookup('role_var', '_paths_location', role='authelia') }}/users_database.yml"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
+  no_log: true
   when: (not authelia_user_config_stat.stat.exists)
 
 - name: File | Remove LLDAP Container

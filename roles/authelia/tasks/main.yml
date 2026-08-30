@@ -22,7 +22,7 @@
 
 - name: Reset Authelia directory
   ansible.builtin.file:
-    path: "{{ authelia_role_paths_location }}"
+    path: "{{ lookup('role_var', '_paths_location', role='authelia') }}"
     state: absent
   when: ('authelia-reset' in ansible_run_tags)
 
@@ -31,12 +31,15 @@
 
 - name: Check if 'configuration.yml' exists
   ansible.builtin.stat:
-    path: "{{ authelia_role_paths_location }}/configuration.yml"
+    path: "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   register: authelia_config_stat
 
 - name: Load authentication_backend value
-  ansible.builtin.shell: |
-    yyq '.authentication_backend' {{ authelia_role_paths_location }}/configuration.yml
+  ansible.builtin.command:
+    argv:
+      - "yyq"
+      - ".authentication_backend"
+      - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   register: authentication_backend_key
   when: authelia_config_stat.stat.exists and (not 'authelia-reset' in ansible_run_tags)
 
