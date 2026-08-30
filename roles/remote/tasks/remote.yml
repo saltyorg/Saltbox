@@ -32,8 +32,13 @@
   when: (mount_path_mountpoint_initial.rc == 0) and (not mount_path_managed_service_exists)
 
 - name: "Remote | Force unmount '{{ mount_path }}'"
-  ansible.builtin.shell: "/bin/umount -f '{{ mount_path }}' 2>/dev/null || :"
-  ignore_errors: true
+  ansible.builtin.command:
+    argv:
+      - "/bin/umount"
+      - "-f"
+      - "--"
+      - "{{ mount_path }}"
+    expand_argument_vars: false
   when: (mount_path_mountpoint_initial.rc == 0) and mount_path_managed_service_exists
 
 - name: "Remote | Assign port"
@@ -64,7 +69,14 @@
   when: ((mount_path_stat is failed) or (mount_path_stat.stat.exists)) and (mount_path_mountpoint.rc != 0)
   block:
     - name: "Remote | Remove empty directories in '{{ mount_path }}'"
-      ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"
+      ansible.builtin.command:
+        argv:
+          - "find"
+          - "{{ mount_path }}"
+          - "-type"
+          - "d"
+          - "-empty"
+          - "-delete"
       ignore_errors: true
 
     - name: "Remote | Recursively find '{{ mount_path }}' files"
@@ -76,7 +88,11 @@
       ignore_errors: true
 
     - name: "Remote | Backup non-empty '{{ mount_path }}' path"
-      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
+      ansible.builtin.command:
+        argv:
+          - "mv"
+          - "{{ mount_path }}"
+          - "{{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
       ignore_errors: true
       when: (mount_path_stat_files.matched | int > 0)
 
@@ -158,7 +174,10 @@
   when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
 
 - name: Remote | Get list of Rclone remotes in config
-  ansible.builtin.shell: rclone listremotes
+  ansible.builtin.command:
+    argv:
+      - "rclone"
+      - "listremotes"
   become: true
   become_user: "{{ user.name }}"
   register: rclone_config_remotes
@@ -175,12 +194,17 @@
   when: rclone_remote_is_configured
   block:
     - name: "Remote | Test Rclone remote '{{ rclone_remote_name }}'"
-      ansible.builtin.shell: |
-        rclone lsd '{{ rclone_remote_with_path }}' \
-          --user-agent='{{ user_agent }}'
+      ansible.builtin.command:
+        argv:
+          - "rclone"
+          - "lsd"
+          - "{{ rclone_remote_with_path }}"
+          - "--user-agent={{ user_agent }}"
+        expand_argument_vars: false
       become: true
       become_user: "{{ user.name }}"
       register: rclone_test
+      changed_when: false
       failed_when: (rclone_test.rc | int > 5)
 
     - name: Remote | Set 'rclone_remote_is_working' variable

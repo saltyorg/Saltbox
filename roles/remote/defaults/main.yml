@@ -50,7 +50,9 @@ rclone_remote_port_high_bound: 6072
 rclone_vfs_refresh_interval: 10800
 rclone_vfs_refresh_auth_args: " --user='{{ user.name }}' --pass='{{ user.pass }}'"
 rclone_vfs_refresh_command: |-
-  /usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_port_assignment.ports.rc }}{{ rclone_vfs_refresh_auth_args if (rclone_enable_metrics | bool) else '' }} _async=true
+  /usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_port_assignment.ports.rc }}{{ rclone_vfs_refresh_auth_args
+                                                                                                            if (rclone_enable_metrics | bool)
+                                                                                                            else '' }} _async=true
 
 ################################
 # NFS

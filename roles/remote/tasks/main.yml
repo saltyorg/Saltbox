@@ -30,16 +30,26 @@
   when: remote_docker_binary.stat.exists and remote_docker_service_running
   block:
     - name: "Gather list of running Docker containers"
-      ansible.builtin.shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' | xargs echo -n"
+      ansible.builtin.command:
+        argv:
+          - "docker"
+          - "ps"
+          - "--format"
+          - "{{ docker_container_name_format }}"
       register: remote_docker_running_containers_ps
-      ignore_errors: true
+      changed_when: false
 
     - name: "Set 'containers_list' variable"
       ansible.builtin.set_fact:
-        containers_list: "{{ remote_docker_running_containers_ps.stdout }}"
+        containers_list: "{{ remote_docker_running_containers_ps.stdout_lines }}"
 
     - name: Check for saltbox_docker_controller:app (legacy controller) in service file
-      ansible.builtin.shell: "grep -q 'saltbox_docker_controller:app' /etc/systemd/system/saltbox_managed_docker_controller.service"
+      ansible.builtin.command:
+        argv:
+          - "grep"
+          - "-q"
+          - "saltbox_docker_controller:app"
+          - "/etc/systemd/system/saltbox_managed_docker_controller.service"
       register: remote_legacy_docker_controller
       failed_when: false
       changed_when: false
@@ -88,9 +98,10 @@
       when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
 
     - name: "Stop all running Docker containers"
-      ansible.builtin.shell: "docker stop {{ containers_list }}"
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'stop'] + containers_list }}"
       ignore_errors: true
-      when: (containers_list | trim | length > 0)
+      when: (containers_list | length > 0)
 
     - name: Block Docker Controller
       ansible.builtin.uri:
@@ -128,22 +139,24 @@
         recurse: true
 
     - name: "Synchronize '/etc/systemd/system' to '{{ server_appdata_path }}/services'"
-      ansible.builtin.shell: |
-        /usr/bin/rsync \
-          --delay-updates \
-          -F \
-          --compress \
-          --archive \
-          --no-recursive \
-          --no-links \
-          --no-perms \
-          --exclude='saltbox_managed_*' \
-          --include='*.service' \
-          --include='*.mount' \
-          /etc/systemd/system/* {{ server_appdata_path }}/services/
-      args:
-        executable: /bin/bash
       ignore_errors: true
+      block:
+        - name: Find direct systemd files for service backup
+          ansible.builtin.find:
+            paths: /etc/systemd/system
+            file_type: file
+            hidden: false
+            recurse: false
+          register: remote_systemd_files
+
+        - name: Copy direct systemd files for service backup
+          ansible.builtin.copy:
+            src: "{{ item.path }}"
+            dest: "{{ server_appdata_path }}/services/"
+            force: true
+            mode: "0644"
+          loop: "{{ remote_systemd_files.files }}"
+          when: not (item.path | basename).startswith('saltbox_managed_')
 
     - name: "Reset permissions of folders"
       ansible.builtin.file:

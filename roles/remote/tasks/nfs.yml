@@ -72,7 +72,14 @@
   when: ((mount_path_stat is failed) or (mount_path_stat.stat.exists)) and (mount_path_mountpoint.rc != 0)
   block:
     - name: "Remote (NFS) | Remove empty directories in '{{ mount_path }}'"
-      ansible.builtin.shell: "find '{{ mount_path }}' -type d -empty -delete"
+      ansible.builtin.command:
+        argv:
+          - "find"
+          - "{{ mount_path }}"
+          - "-type"
+          - "d"
+          - "-empty"
+          - "-delete"
       ignore_errors: true
 
     - name: "Remote (NFS) | Recursively find '{{ mount_path }}' files"
@@ -84,7 +91,11 @@
       ignore_errors: true
 
     - name: "Remote (NFS) | Backup non-empty '{{ mount_path }}' path"
-      ansible.builtin.shell: "mv {{ mount_path }} {{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
+      ansible.builtin.command:
+        argv:
+          - "mv"
+          - "{{ mount_path }}"
+          - "{{ mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
       ignore_errors: true
       when: (mount_path_stat_files.matched | int > 0)
 
