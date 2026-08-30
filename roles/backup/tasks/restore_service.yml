@@ -44,7 +44,11 @@
     mode: "0775"
 
 - name: Restore Service | Copy Files to '/tmp/restore_service_temp' path
-  ansible.builtin.shell: cp '{{ item }}' '/tmp/restore_service_temp/'
+  ansible.builtin.command:
+    argv:
+      - "cp"
+      - "{{ item }}"
+      - "/tmp/restore_service_temp/"
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true
@@ -60,9 +64,19 @@
     - "/home/{{ user.name }}/.config/rclone/rclone.conf"
 
 - name: Restore Service | Encrypt config file(s)
-  ansible.builtin.shell: >
-    openssl enc -aes-256-cbc -pbkdf2 -in '{{ item }}' -out '/tmp/restore_service/{{ (item | basename)
-    | regex_replace('^\\.', '') }}.enc' -k '{{ restore_service_password }}'
+  ansible.builtin.command:
+    expand_argument_vars: false
+    argv:
+      - "openssl"
+      - "enc"
+      - "-aes-256-cbc"
+      - "-pbkdf2"
+      - "-in"
+      - "{{ item }}"
+      - "-out"
+      - "/tmp/restore_service/{{ (item | basename) | regex_replace('^\\\\.', '') }}.enc"
+      - "-k"
+      - "{{ restore_service_password }}"
   become: true
   become_user: "{{ user.name }}"
   ignore_errors: true
@@ -70,7 +84,12 @@
     - "/tmp/restore_service_temp/*"
 
 - name: "Restore Service | Validate config file(s) for encryption."
-  ansible.builtin.shell: "head -c 10 {{ item }} | grep -q Salted"
+  ansible.builtin.command:
+    argv:
+      - "head"
+      - "-c"
+      - "8"
+      - "{{ item }}"
   register: encryption_check
   ignore_errors: true
   failed_when: encryption_check.rc > 1
@@ -80,10 +99,10 @@
 - name: Restore Service | Set variables
   ansible.builtin.set_fact:
     unencrypted_files_list: >
-      {{ encryption_check.results | selectattr('rc', 'equalto', 1) | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$', '')
+      {{ encryption_check.results | rejectattr('stdout', 'equalto', 'Salted__') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$', '')
       | list | sort(case_sensitive=False) | join(', ') }}
     encrypted_files_list: >
-      {{ encryption_check.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$', '')
+      {{ encryption_check.results | selectattr('stdout', 'equalto', 'Salted__') | map(attribute='item') | map('regex_replace', '^/tmp/restore_service/|.enc$', '')
       | list | sort(case_sensitive=False) | join(', ') }}
 
 - name: Restore Service | Print error message when config file(s) were not encrypted successfully
@@ -113,7 +132,12 @@
     - (encrypted_files_list | trim | length > 0)
   block:
     - name: Restore Service | Upload encrypted config file(s)
-      ansible.builtin.shell: "curl -F 'file=@{{ item }}' 'https://crs.saltbox.dev/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}'"
+      ansible.builtin.command:
+        argv:
+          - "curl"
+          - "-F"
+          - "file=@{{ item }}"
+          - "https://crs.saltbox.dev/save/{{ restore_service_username }}/{{ (item | basename | splitext)[0] }}"
       with_fileglob:
         - "/tmp/restore_service/*"
       register: files_upload

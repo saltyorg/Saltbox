@@ -17,7 +17,12 @@
     restore_service_username: "{{ backup.restore_service.user | hash('sha1') }}"
 
 - name: Restore Service Cleanup | Delete Restore Service Files
-  ansible.builtin.shell: "curl -X POST 'https://crs.saltbox.dev/delete/{{ restore_service_username }}'"
+  ansible.builtin.command:
+    argv:
+      - "curl"
+      - "-X"
+      - "POST"
+      - "https://crs.saltbox.dev/delete/{{ restore_service_username }}"
   register: restore_service_delete
 
 - name: Restore Service Cleanup | Print Output

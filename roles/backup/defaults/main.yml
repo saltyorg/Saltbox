@@ -52,7 +52,12 @@ backup_notify_rsync_complete: true
 backup_google_template: '--drive-chunk-size="{{ backup_rclone_drive_chunk_size }}"'
 backup_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_size }}" --disable-http2 --dropbox-pacer-min-sleep=250ms'
 backup_sftp_template: ""
-backup_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' if backup.rclone.template != 'sftp' else '' }}"
+backup_google_template_args: "{{ backup_google_template | saltbox_argv('backup_google_template') }}"
+backup_dropbox_template_args: "{{ backup_dropbox_template | saltbox_argv('backup_dropbox_template') }}"
+backup_sftp_template_args: "{{ backup_sftp_template | saltbox_argv('backup_sftp_template') }}"
+backup_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
+                    if backup.rclone.template != 'sftp'
+                    else '' }}"
 
 ################################
 # Cleanup
@@ -62,6 +67,8 @@ backup_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 backup_cleanup_number: 99
 backup_cleanup_enabled: false
 backup_cleanup_custom_rclone_flags: ""
+backup_cleanup_custom_rclone_args: "{{ backup_cleanup_custom_rclone_flags
+                                       | saltbox_argv('backup_cleanup_custom_rclone_flags') }}"
 
 ################################
 # Snapshot Defaults
