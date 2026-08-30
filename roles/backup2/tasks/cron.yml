@@ -8,7 +8,10 @@
 #########################################################################
 ---
 - name: "Get ansible-playbook binary path."
-  ansible.builtin.shell: "which ansible-playbook"
+  ansible.builtin.command:
+    argv:
+      - "which"
+      - "ansible-playbook"
   register: playbook_binary
 
 - name: "Remove legacy cron backup task."

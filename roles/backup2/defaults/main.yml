@@ -25,7 +25,12 @@ backup2_rclone_upload_speed_limit: "{{ backup_rclone_upload_speed_limit }}"
 backup2_google_template: '--drive-chunk-size="{{ backup_rclone_drive_chunk_size }}" --drive-stop-on-upload-limit'
 backup2_dropbox_template: '--dropbox-chunk-size="{{ backup_rclone_dropbox_chunk_size }}" --disable-http2 --dropbox-pacer-min-sleep=1000ms'
 backup2_sftp_template: ""
-backup2_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36' if backup.rclone.template != 'sftp' else '' }}"
+backup2_google_template_args: "{{ backup2_google_template | saltbox_argv('backup2_google_template') }}"
+backup2_dropbox_template_args: "{{ backup2_dropbox_template | saltbox_argv('backup2_dropbox_template') }}"
+backup2_sftp_template_args: "{{ backup2_sftp_template | saltbox_argv('backup2_sftp_template') }}"
+backup2_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36'
+                     if backup.rclone.template != 'sftp'
+                     else '' }}"
 
 ################################
 # Cleanup
@@ -35,3 +40,5 @@ backup2_user_agent: "{{ 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 backup2_cleanup_number: "{{ backup_cleanup_number }}" # Int
 backup2_cleanup_enabled: "{{ backup_cleanup_enabled }}" # Bool
 backup2_cleanup_custom_rclone_flags: "{{ backup_cleanup_custom_rclone_flags }}" # String
+backup2_cleanup_custom_rclone_args: "{{ backup2_cleanup_custom_rclone_flags
+                                        | saltbox_argv('backup2_cleanup_custom_rclone_flags') }}"

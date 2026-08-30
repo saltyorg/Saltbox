@@ -24,11 +24,17 @@
         /usr/bin/rclone \
           --config '/home/{{ user.name }}/.config/rclone/rclone.conf' \
           rcat \
-          {{ "--user-agent='" + backup2_user_agent + "'" if (backup2_user_agent | length > 0) else "" }} \
-          {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default='') }} \
+          {{ (['--user-agent=' + backup2_user_agent]
+              if (backup2_user_agent | length > 0)
+              else []) | map('quote') | join(' ') }} \
+          {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default=[])
+             | map('quote') | join(' ') }} \
           --stats=30s \
-          {{ '--bind=' + ansible_facts['default_ipv4']['address'] if rclone_mounts_ipv4_only else '' }} \
-          --bwlimit={{ backup2_rclone_upload_speed_limit }} \
+          {{ (['--bind=' + ansible_facts['default_ipv4']['address']]
+              if rclone_mounts_ipv4_only
+              else []) | map('quote') | join(' ') }} \
+          {{ ['--bwlimit=' + (backup2_rclone_upload_speed_limit | string)]
+             | map('quote') | join(' ') }} \
           -vv \
           --log-file='{{ playbook_dir }}/backup_rclone.log' \
           '{{ backup.rclone.destination }}/opt/{{ async_item | basename }}.tar'
