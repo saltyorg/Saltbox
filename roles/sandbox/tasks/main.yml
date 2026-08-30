@@ -47,6 +47,9 @@
     - sandbox_clone_status is failed
 
 - name: Activate Git Hooks
-  ansible.builtin.shell: bash {{ server_appdata_path }}/sandbox/bin/git/init-hooks
+  ansible.builtin.command:
+    argv:
+      - "bash"
+      - "{{ server_appdata_path }}/sandbox/bin/git/init-hooks"
   args:
     chdir: "{{ server_appdata_path }}/sandbox"

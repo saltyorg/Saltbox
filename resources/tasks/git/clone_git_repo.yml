@@ -29,15 +29,23 @@
   when: _git_repo_dest_stat.stat.exists
   block:
     - name: Resources | Tasks | Git | Clone Git Repo | Get current git branch
-      ansible.builtin.shell: |
-        cd {{ _git_repo_dest }}
-        git rev-parse --abbrev-ref HEAD 2>/dev/null || echo ""
+      ansible.builtin.command:
+        argv:
+          - "git"
+          - "rev-parse"
+          - "--abbrev-ref"
+          - "HEAD"
+        chdir: "{{ _git_repo_dest }}"
       register: _git_repo_dest_current_branch
+      become: true
+      become_user: "{{ user.name }}"
+      changed_when: false
+      failed_when: false
 
     - name: Resources | Tasks | Git | Clone Git Repo | Update target branch
       ansible.builtin.set_fact:
         _git_repo_branch_primary: "{{ _git_repo_branch_secondary }}"
-      when: (_git_repo_branch_secondary == (_git_repo_dest_current_branch | trim))
+      when: (_git_repo_branch_secondary == (_git_repo_dest_current_branch.stdout | trim))
 
 - name: Resources | Tasks | Git | Clone Git Repo | git clone repo '{{ _git_repo_branch_primary }}'
   ansible.builtin.git:
@@ -66,12 +74,46 @@
       ignore_errors: true
       register: _git_clone_master_status
 
-    - name: Resources | Tasks | Git | Clone Git Repo | Repair git folder if cloning '"{{ _git_repo_branch_primary }}"' fails
-      ansible.builtin.shell: |
-        cd "{{ _git_repo_dest }}"
-        rm -fr .git
-        git init
-        git remote add origin {{ _git_repo_url }}
-        git fetch origin
-        git reset --hard origin/{{ _git_repo_branch_primary }}
+    - name: Resources | Tasks | Git | Clone Git Repo | Repair git folder if cloning '{{ _git_repo_branch_primary }}' fails
       when: (_git_clone_master_status is failed)
+      become: true
+      become_user: "{{ user.name }}"
+      block:
+        - name: Resources | Tasks | Git | Clone Git Repo | Remove invalid Git metadata
+          ansible.builtin.file:
+            path: "{{ _git_repo_dest }}/.git"
+            state: absent
+
+        - name: Resources | Tasks | Git | Clone Git Repo | Initialize repaired Git repository
+          ansible.builtin.command:
+            argv:
+              - "git"
+              - "init"
+            chdir: "{{ _git_repo_dest }}"
+
+        - name: Resources | Tasks | Git | Clone Git Repo | Add repaired Git remote
+          ansible.builtin.command:
+            argv:
+              - "git"
+              - "remote"
+              - "add"
+              - "origin"
+              - "{{ _git_repo_url }}"
+            chdir: "{{ _git_repo_dest }}"
+
+        - name: Resources | Tasks | Git | Clone Git Repo | Fetch repaired Git remote
+          ansible.builtin.command:
+            argv:
+              - "git"
+              - "fetch"
+              - "origin"
+            chdir: "{{ _git_repo_dest }}"
+
+        - name: Resources | Tasks | Git | Clone Git Repo | Reset repaired Git repository
+          ansible.builtin.command:
+            argv:
+              - "git"
+              - "reset"
+              - "--hard"
+              - "origin/{{ _git_repo_branch_primary }}"
+            chdir: "{{ _git_repo_dest }}"
