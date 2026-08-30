@@ -90,6 +90,21 @@ Rules:
 
 23. Function Argument Alignment: plain continuation arguments inside multiline
     function calls must align with the first function argument
+
+24. Inline Conditional Length: one-line Jinja if/else expressions in role
+    defaults, task files, and inventories/group_vars/all.yml may not exceed 160
+    characters
+
+25. Dictionary Entry Alignment: continuation keys inside multiline Jinja
+    dictionaries must align with the first key in that dictionary
+
+26. Lookup Argument Layout: lookup(...) calls may remain on one line; when a
+    call wraps, its first argument stays beside lookup( and every later
+    top-level argument starts on its own line aligned with the first argument
+
+27. Block Scalar Jinja Indentation: pure Jinja expressions in task block
+    scalars use structural indentation for braces, pipeline operators,
+    multiline function arguments, and closing parentheses
 """
 
 import os
@@ -100,9 +115,13 @@ from pathlib import Path
 from typing import override
 
 ParenthesisContext = tuple[int, str]
+BlockParenthesisContext = tuple[int, int, str]
+BlockScalarContext = tuple[int, int]
 ElseBranchContext = tuple[int, int]
+MappingContext = int | None
 JinjaBlock = tuple[int, int, list[str]]
 TopLevelVariable = tuple[str, int, list[str]]
+MAX_INLINE_CONDITIONAL_LENGTH = 160
 DEFAULTS_SECTION_ORDER = (
     "Basics",
     "Settings",
@@ -393,6 +412,358 @@ class SaltboxLinter:
                     continuation_line,
                     parenthesis_contexts,
                 )
+
+    def check_block_scalar_jinja_indentation(self) -> None:
+        """Rule 27: Enforce structural indentation in pure Jinja block scalars."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            block_context = self.block_scalar_jinja_context(
+                jinja_start_line,
+                jinja_bracket_indent,
+                jinja_lines,
+            )
+            if block_context is None:
+                continue
+
+            expected_brace_indent, expression_indent = block_context
+            if jinja_bracket_indent != expected_brace_indent:
+                diff = jinja_bracket_indent - expected_brace_indent
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=jinja_start_line,
+                        message=(
+                            "[block-jinja-indentation] Opening '{{' at column "
+                            f"{jinja_bracket_indent}, expected block content at "
+                            f"column {expected_brace_indent} (off by {diff:+d})"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+            opening_line = jinja_lines[0]
+            opening_content = opening_line[jinja_bracket_indent + len("{{") :].strip()
+            parenthesis_contexts: list[BlockParenthesisContext] = []
+            if opening_content:
+                self.update_block_parenthesis_contexts(
+                    opening_line,
+                    parenthesis_contexts,
+                    expression_indent,
+                    jinja_bracket_indent + len("{{"),
+                )
+
+            first_expression_line_checked = bool(opening_content)
+            for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                line_number = jinja_start_line + line_offset
+                stripped_line = continuation_line.strip()
+                if not stripped_line:
+                    continue
+
+                closing_jinja_column = continuation_line.rfind("}}")
+                content_line = (
+                    continuation_line[:closing_jinja_column]
+                    if closing_jinja_column != -1
+                    else continuation_line
+                )
+                stripped_content = content_line.strip()
+
+                if not stripped_content and closing_jinja_column != -1:
+                    actual_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
+                    if actual_indent != expected_brace_indent:
+                        diff = actual_indent - expected_brace_indent
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=line_number,
+                                message=(
+                                    "[block-jinja-indentation] Closing '}}' at "
+                                    f"column {actual_indent}, expected opening "
+                                    f"braces at column {expected_brace_indent} "
+                                    f"(off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+                    continue
+
+                actual_indent = len(content_line) - len(content_line.lstrip())
+                if not first_expression_line_checked:
+                    first_expression_line_checked = True
+                    if actual_indent != expression_indent:
+                        diff = actual_indent - expression_indent
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=line_number,
+                                message=(
+                                    "[block-jinja-indentation] Expression content "
+                                    f"at column {actual_indent}, expected column "
+                                    f"{expression_indent} (off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+
+                expected_indent = (
+                    parenthesis_contexts[-1][0]
+                    if parenthesis_contexts
+                    else expression_indent
+                )
+                if stripped_content.startswith(")") and parenthesis_contexts:
+                    expected_indent = parenthesis_contexts[-1][1]
+                    if actual_indent != expected_indent:
+                        diff = actual_indent - expected_indent
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=line_number,
+                                message=(
+                                    "[block-jinja-indentation] Closing ')' at "
+                                    f"column {actual_indent}, expected opener at "
+                                    f"column {expected_indent} (off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+                elif stripped_content.startswith(("| ", "+ ")):
+                    if actual_indent != expected_indent:
+                        diff = actual_indent - expected_indent
+                        operator = stripped_content[0]
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=line_number,
+                                message=(
+                                    "[block-jinja-indentation] Operator "
+                                    f"'{operator}' at column {actual_indent}, "
+                                    f"expected expression content at column "
+                                    f"{expected_indent} (off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+                elif (
+                    parenthesis_contexts
+                    and not stripped_content.startswith(
+                        ("if ", "else ", "and ", "or ", "]", "}")
+                    )
+                    and actual_indent != expected_indent
+                ):
+                    diff = actual_indent - expected_indent
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=line_number,
+                            message=(
+                                "[block-jinja-indentation] Function or grouping "
+                                f"content at column {actual_indent}, expected "
+                                f"column {expected_indent} (off by {diff:+d})"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+
+                self.update_block_parenthesis_contexts(
+                    content_line,
+                    parenthesis_contexts,
+                    actual_indent,
+                )
+
+    def check_inline_conditional_length(self) -> None:
+        """Rule 24: Require long inline Jinja conditionals to be multiline."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for line_number, line in enumerate(self.lines, 1):
+            if len(line) <= MAX_INLINE_CONDITIONAL_LENGTH:
+                continue
+
+            opening = line.find("{{")
+            closing = line.rfind("}}")
+            if opening == -1 or closing <= opening:
+                continue
+
+            expression = line[opening + len("{{") : closing]
+            if (
+                self.find_unquoted_keyword(expression, "if") is None
+                or self.find_unquoted_keyword(expression, "else") is None
+            ):
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[inline-conditional-length] One-line Jinja if/else "
+                        f"expression is {len(line)} characters; maximum is "
+                        f"{MAX_INLINE_CONDITIONAL_LENGTH}. Use multiline Jinja"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_dictionary_entry_alignment(self) -> None:
+        """Rule 25: Align multiline Jinja dictionary keys."""
+        key_pattern = re.compile(
+            r"^(?:'[^']+'|\"[^\"]+\"|[a-zA-Z_][a-zA-Z0-9_.-]*)\s*:"
+        )
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            mapping_contexts: list[MappingContext] = []
+            self.update_mapping_contexts(
+                jinja_lines[0],
+                mapping_contexts,
+                jinja_bracket_indent + len("{{"),
+            )
+            try:
+                relative_path = str(self.file_path.relative_to(Path.cwd()))
+            except ValueError:
+                relative_path = str(self.file_path)
+
+            for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
+                stripped_line = continuation_line.strip()
+                if mapping_contexts and key_pattern.match(stripped_line):
+                    actual_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
+                    expected_indent = mapping_contexts[-1]
+                    if expected_indent is None:
+                        mapping_contexts[-1] = actual_indent
+                    elif actual_indent != expected_indent:
+                        diff = actual_indent - expected_indent
+                        self.errors.append(
+                            LintError(
+                                file=relative_path,
+                                line=jinja_start_line + line_offset,
+                                message=(
+                                    "[dictionary-entry-alignment] Key at column "
+                                    f"{actual_indent}, expected dictionary key at "
+                                    f"column {expected_indent} (off by {diff:+d})"
+                                ),
+                                repo_url=self.repo_url,
+                                commit_sha=self.commit_sha,
+                            )
+                        )
+
+                self.update_mapping_contexts(
+                    continuation_line,
+                    mapping_contexts,
+                )
+
+    def check_lookup_argument_layout(self) -> None:
+        """Rule 26: Put each top-level argument of a wrapped lookup on a line."""
+        source = "\n".join(self.lines)
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for call_start, call in self.iter_lookup_calls(
+            source,
+            include_nested=True,
+        ):
+            if "\n" not in call:
+                continue
+
+            call_line = source.count("\n", 0, call_start) + 1
+            call_column = call_start - source.rfind("\n", 0, call_start) - 1
+            open_parenthesis = call.find("(")
+            expected_indent = call_column + open_parenthesis + 1
+            opening_line = call[: call.find("\n")]
+
+            if not opening_line[open_parenthesis + 1 :].strip():
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=call_line,
+                        message=(
+                            "[lookup-argument-layout] Wrapped lookup() call "
+                            "must keep its first argument beside lookup("
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            for comma in self.iter_top_level_argument_commas(call):
+                newline = call.find("\n", comma + 1)
+                if newline == -1 or call[comma + 1 : newline].strip():
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=call_line + call.count("\n", 0, comma),
+                            message=(
+                                "[lookup-argument-layout] Wrapped lookup() call "
+                                "must put every argument after the first on its "
+                                "own line"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+                    break
+
+                argument_start = newline + 1
+                while argument_start < len(call) and call[argument_start] == " ":
+                    argument_start += 1
+
+                if argument_start >= len(call) or call[argument_start] in "\n\t)":
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=call_line + call.count("\n", 0, newline) + 1,
+                            message=(
+                                "[lookup-argument-layout] Wrapped lookup() call "
+                                "must put the next argument on the immediately "
+                                "following line"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+                    break
+
+                actual_indent = argument_start - newline - 1
+                if actual_indent != expected_indent:
+                    diff = actual_indent - expected_indent
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=call_line + call.count("\n", 0, newline) + 1,
+                            message=(
+                                "[lookup-argument-layout] Argument at column "
+                                f"{actual_indent}, expected lookup argument at "
+                                f"column {expected_indent} (off by {diff:+d})"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+                    break
 
     def check_variable_prefix(self) -> None:
         """Rule 3: Check top-level role defaults use the role's prefix."""
@@ -1582,7 +1953,11 @@ class SaltboxLinter:
         return variable_lines[0]
 
     @staticmethod
-    def iter_lookup_calls(source: str) -> Iterator[tuple[int, str]]:
+    def iter_lookup_calls(
+        source: str,
+        *,
+        include_nested: bool = False,
+    ) -> Iterator[tuple[int, str]]:
         """Yield balanced lookup() calls while respecting quoted content."""
         search_column = 0
         while match := re.search(r"\blookup\s*\(", source[search_column:]):
@@ -1616,7 +1991,32 @@ class SaltboxLinter:
                 return
 
             yield call_start, source[call_start:call_end]
-            search_column = call_end
+            search_column = call_start + len("lookup") if include_nested else call_end
+
+    @staticmethod
+    def iter_top_level_argument_commas(call: str) -> Iterator[int]:
+        """Yield separators between top-level arguments in a function call."""
+        delimiters: list[str] = []
+        closing_delimiter = {"(": ")", "[": "]", "{": "}"}
+        quote: str | None = None
+        escaped = False
+
+        for column, char in enumerate(call):
+            if escaped:
+                escaped = False
+            elif char == "\\" and quote is not None:
+                escaped = True
+            elif quote is not None:
+                if char == quote:
+                    quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char in closing_delimiter:
+                delimiters.append(char)
+            elif delimiters and char == closing_delimiter[delimiters[-1]]:
+                _ = delimiters.pop()
+            elif char == "," and delimiters == ["("]:
+                yield column
 
     @staticmethod
     def call_has_keyword_argument(call: str, keyword: str) -> bool:
@@ -1789,6 +2189,109 @@ class SaltboxLinter:
                 mapping_depth = 0
                 search_column = close_column + len("}}")
 
+    def block_scalar_jinja_context(
+        self,
+        jinja_start_line: int,
+        jinja_bracket_indent: int,
+        jinja_lines: list[str],
+    ) -> BlockScalarContext | None:
+        """Return canonical brace and expression indents for a pure block scalar."""
+        header_index = jinja_start_line - 2
+        if header_index < 0:
+            return None
+
+        header = self.lines[header_index]
+        header_match = re.match(
+            r"^(?P<indent>\s*)(?:-\s+)?[a-zA-Z_][a-zA-Z0-9_.-]*:\s*[>|](?:[+-]?[1-9]?|[1-9]?[+-]?)?\s*$",
+            header,
+        )
+        if header_match is None:
+            return None
+
+        opening_line = jinja_lines[0]
+        if opening_line[:jinja_bracket_indent].strip():
+            return None
+
+        closing_line = jinja_lines[-1]
+        closing_column = closing_line.rfind("}}")
+        if closing_column == -1 or closing_line[closing_column + len("}}") :].strip():
+            return None
+
+        header_indent = len(header_match.group("indent"))
+        scalar_end = len(self.lines)
+        for line_index in range(header_index + 1, len(self.lines)):
+            line = self.lines[line_index]
+            if not line.strip():
+                continue
+            line_indent = len(line) - len(line.lstrip())
+            if line_indent <= header_indent:
+                scalar_end = line_index
+                break
+
+        scalar_nonblank_lines = [
+            line_index
+            for line_index in range(header_index + 1, scalar_end)
+            if self.lines[line_index].strip()
+        ]
+        if not scalar_nonblank_lines:
+            return None
+
+        jinja_end_index = jinja_start_line - 1 + len(jinja_lines) - 1
+        if (
+            scalar_nonblank_lines[0] != jinja_start_line - 1
+            or scalar_nonblank_lines[-1] != jinja_end_index
+        ):
+            return None
+
+        expected_brace_indent = header_indent + 2
+        opening_content = opening_line[jinja_bracket_indent + len("{{") :].strip()
+        expression_indent = (
+            expected_brace_indent if opening_content else expected_brace_indent + 2
+        )
+        return expected_brace_indent, expression_indent
+
+    @staticmethod
+    def update_block_parenthesis_contexts(
+        line: str,
+        parenthesis_contexts: list[BlockParenthesisContext],
+        line_indent: int,
+        start_column: int = 0,
+    ) -> None:
+        """Track structural indentation for multiline block-scalar calls."""
+        quote: str | None = None
+        escaped = False
+
+        for column in range(start_column, len(line)):
+            char = line[column]
+            if escaped:
+                escaped = False
+            elif char == "\\" and quote is not None:
+                escaped = True
+            elif quote is not None:
+                if char == quote:
+                    quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char == "(":
+                previous_char = line[column - 1] if column > 0 else ""
+                is_function_call = previous_char.isalnum() or previous_char in "_])"
+                if is_function_call:
+                    function_start = column - 1
+                    while function_start > 0 and (
+                        line[function_start - 1].isalnum()
+                        or line[function_start - 1] in "_."
+                    ):
+                        function_start -= 1
+                    parenthesis_contexts.append(
+                        (function_start + 2, line_indent, "function content")
+                    )
+                else:
+                    parenthesis_contexts.append(
+                        (column + 1, line_indent, "grouping content")
+                    )
+            elif char == ")" and parenthesis_contexts:
+                _ = parenthesis_contexts.pop()
+
     @staticmethod
     def update_parenthesis_contexts(
         line: str,
@@ -1819,6 +2322,40 @@ class SaltboxLinter:
                     parenthesis_contexts.append((column + 1, "grouping content"))
             elif char == ")" and parenthesis_contexts:
                 _ = parenthesis_contexts.pop()
+
+    @staticmethod
+    def update_mapping_contexts(
+        line: str,
+        mapping_contexts: list[MappingContext],
+        start_column: int = 0,
+    ) -> None:
+        """Update unmatched dictionary contexts found in one expression line."""
+        quote: str | None = None
+        escaped = False
+
+        for column in range(start_column, len(line)):
+            char = line[column]
+            if escaped:
+                escaped = False
+            elif char == "\\" and quote is not None:
+                escaped = True
+            elif quote is not None:
+                if char == quote:
+                    quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char == "{":
+                next_column = column + 1
+                while next_column < len(line) and line[next_column].isspace():
+                    next_column += 1
+                has_inline_key = (
+                    next_column < len(line)
+                    and line[next_column] not in "{}"
+                    and not line.startswith("}}", next_column)
+                )
+                mapping_contexts.append(next_column if has_inline_key else None)
+            elif char == "}" and mapping_contexts:
+                _ = mapping_contexts.pop()
 
     @staticmethod
     def find_unquoted_keyword(
@@ -1899,26 +2436,51 @@ class SaltboxLinter:
             jinja_lines,
         ) in self.iter_multiline_jinja_blocks():
             parenthesis_contexts: list[ParenthesisContext] = []
+            block_parenthesis_contexts: list[BlockParenthesisContext] = []
             else_branch_contexts: list[ElseBranchContext] = []
-            expression_indent = jinja_bracket_indent
-            if not jinja_lines[0][jinja_bracket_indent + len("{{") :].strip():
-                for continuation_line in jinja_lines[1:]:
-                    if not continuation_line.strip():
-                        continue
-                    expression_indent = len(continuation_line) - len(
-                        continuation_line.lstrip()
-                    )
-                    break
-            self.update_parenthesis_contexts(
-                jinja_lines[0], parenthesis_contexts, jinja_bracket_indent + len("{{")
+            block_context = self.block_scalar_jinja_context(
+                jinja_start_line,
+                jinja_bracket_indent,
+                jinja_lines,
             )
+            if block_context is not None:
+                _, expression_indent = block_context
+                opening_content = jinja_lines[0][
+                    jinja_bracket_indent + len("{{") :
+                ].strip()
+                if opening_content:
+                    self.update_block_parenthesis_contexts(
+                        jinja_lines[0],
+                        block_parenthesis_contexts,
+                        expression_indent,
+                        jinja_bracket_indent + len("{{"),
+                    )
+            else:
+                expression_indent = jinja_bracket_indent
+                if not jinja_lines[0][jinja_bracket_indent + len("{{") :].strip():
+                    for continuation_line in jinja_lines[1:]:
+                        if not continuation_line.strip():
+                            continue
+                        expression_indent = len(continuation_line) - len(
+                            continuation_line.lstrip()
+                        )
+                        break
+                self.update_parenthesis_contexts(
+                    jinja_lines[0],
+                    parenthesis_contexts,
+                    jinja_bracket_indent + len("{{"),
+                )
             try:
                 relative_path = str(self.file_path.relative_to(Path.cwd()))
             except ValueError:
                 relative_path = str(self.file_path)
 
             for line_offset, continuation_line in enumerate(jinja_lines[1:], 1):
-                parenthesis_depth = len(parenthesis_contexts)
+                parenthesis_depth = (
+                    len(block_parenthesis_contexts)
+                    if block_context is not None
+                    else len(parenthesis_contexts)
+                )
                 while (
                     else_branch_contexts
                     and else_branch_contexts[-1][1] > parenthesis_depth
@@ -1927,14 +2489,18 @@ class SaltboxLinter:
 
                 stripped_line = continuation_line.strip()
                 expected_indent = (
-                    parenthesis_contexts[-1][0]
+                    block_parenthesis_contexts[-1][0]
+                    if block_parenthesis_contexts
+                    else parenthesis_contexts[-1][0]
                     if parenthesis_contexts
                     else else_branch_contexts[-1][0]
                     if else_branch_contexts
                     else expression_indent
                 )
                 context = (
-                    parenthesis_contexts[-1][1]
+                    block_parenthesis_contexts[-1][2]
+                    if block_parenthesis_contexts
+                    else parenthesis_contexts[-1][1]
                     if parenthesis_contexts
                     else "else branch value"
                     if else_branch_contexts
@@ -1992,15 +2558,40 @@ class SaltboxLinter:
                             )
                         else_branch_contexts.append((branch_indent, parenthesis_depth))
 
-                self.update_parenthesis_contexts(
-                    continuation_line, parenthesis_contexts
-                )
+                if block_context is not None:
+                    actual_indent = len(continuation_line) - len(
+                        continuation_line.lstrip()
+                    )
+                    self.update_block_parenthesis_contexts(
+                        continuation_line,
+                        block_parenthesis_contexts,
+                        actual_indent,
+                    )
+                else:
+                    self.update_parenthesis_contexts(
+                        continuation_line, parenthesis_contexts
+                    )
 
     def lint_jinja_alignment(self) -> list[LintError]:
         """Run multiline Jinja checks shared by defaults, tasks, and inventory."""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
         self.check_function_argument_alignment()
+        self.check_dictionary_entry_alignment()
+        self.check_lookup_argument_layout()
+        return self.errors
+
+    def lint_inventory(self) -> list[LintError]:
+        """Run the formatting checks supported by the shared inventory."""
+        _ = self.lint_jinja_alignment()
+        self.check_inline_conditional_length()
+        return self.errors
+
+    def lint_tasks(self) -> list[LintError]:
+        """Run the formatting checks supported by task files."""
+        _ = self.lint_jinja_alignment()
+        self.check_block_scalar_jinja_indentation()
+        self.check_inline_conditional_length()
         return self.errors
 
     def lint_defaults(self) -> list[LintError]:
@@ -2008,6 +2599,9 @@ class SaltboxLinter:
         self.check_operator_alignment()
         self.check_ifelse_alignment()
         self.check_function_argument_alignment()
+        self.check_dictionary_entry_alignment()
+        self.check_lookup_argument_layout()
+        self.check_inline_conditional_length()
         self.check_variable_prefix()
         self.check_docker_layer_composition()
         self.check_web_url_composition()
@@ -2383,7 +2977,7 @@ def main() -> None:
 
     for task_file in task_files:
         linter = SaltboxLinter(task_file, repo_url=repo_url, commit_sha=github_sha)
-        errors = linter.lint_jinja_alignment()
+        errors = linter.lint_tasks()
         all_errors.extend(errors)
 
     for inventory_file in inventory_files:
@@ -2392,7 +2986,7 @@ def main() -> None:
             repo_url=repo_url,
             commit_sha=github_sha,
         )
-        errors = linter.lint_jinja_alignment()
+        errors = linter.lint_inventory()
         all_errors.extend(errors)
 
     all_errors.extend(

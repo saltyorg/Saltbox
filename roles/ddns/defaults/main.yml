@@ -47,7 +47,7 @@ ddns_role_docker_envs_default:
 ddns_role_docker_envs_cloudflare: "{{ {'CLOUDFLARE_API_TOKEN': cloudflare_scoped_token}
                                    if cloudflare_scoped_token_is_enabled
                                    else {'CLOUDFLARE_API_KEY': cloudflare_api_key,
-                                              'CLOUDFLARE_EMAIL': cloudflare_email} }}"
+                                         'CLOUDFLARE_EMAIL': cloudflare_email} }}"
 ddns_role_docker_envs_custom: {}
 ddns_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='ddns')
                            | combine(ddns_role_docker_envs_cloudflare)

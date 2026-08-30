@@ -13,7 +13,6 @@ offline: false
 
 skip_list:
   - command-instead-of-module
-  - command-instead-of-shell
   - ignore-errors
   - latest[git]
   - name[casing]

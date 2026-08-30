@@ -10,11 +10,15 @@
 diagnose_vars:
   - "Saltbox repo branch: {{ git_branch.stdout if (git_branch is defined and git_branch.stdout is defined) else 'Failed retrieving' }}"
   - "Saltbox repo commit: {{ git_version.stdout if (git_version is defined and git_version.stdout is defined) else 'Failed retrieving' }}"
-  - "Saltbox upstream commit: {{ git_origin_version.stdout if (git_origin_version is defined and git_origin_version.stdout is defined) else 'Failed retrieving' }}"
+  - "Saltbox upstream commit: {{ git_origin_version.stdout
+                              if (git_origin_version is defined and git_origin_version.stdout is defined)
+                              else 'Failed retrieving' }}"
   - "cloudflare_is_enabled: {{ cloudflare_is_enabled | lower }}"
   - "{{ 'Cloudflare IPv4 automation: ' + (dns_ipv4_enabled | string | lower) if cloudflare_is_enabled else '' }}"
   - "{{ 'Cloudflare IPv6 automation: ' + (dns_ipv6_enabled | string | lower) if cloudflare_is_enabled else '' }}"
-  - "{{ 'Cloudflare SSL Mode: ' + cloudflare_ssl.ssl_mode if (cloudflare_is_enabled and cloudflare_ssl is defined and cloudflare_ssl.ssl_mode is defined) else '' }}"
+  - "{{ 'Cloudflare SSL Mode: ' + cloudflare_ssl.ssl_mode
+     if (cloudflare_is_enabled and cloudflare_ssl is defined and cloudflare_ssl.ssl_mode is defined)
+     else '' }}"
   - "plex_account_is_enabled: {{ plex_account_is_enabled | lower }}"
   - "rclone_remote_is_defined: {{ rclone_remote_is_defined | lower }}"
   - "use_cloudplow: {{ use_cloudplow | lower }}"
