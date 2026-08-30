@@ -42,14 +42,24 @@
           and docker_binary_install_result is not skipped))
 
 - name: Binary | Get '{{ lookup('vars', item ~ '_name') }}' version
-  ansible.builtin.shell: "{{ lookup('vars', item ~ '_filepath') }} '{{ 'version' if item == 'compose_cli' else '--version' }}' | head -n 1 | awk '{ print {{ '$4' if item == 'compose_cli' else '$3' }} }' | sed 's/,$//' | sed 's/v//'"
-  register: binary_version
+  ansible.builtin.command:
+    argv: "{{ ['docker', 'compose', 'version']
+           if item == 'compose_cli'
+           else [lookup('vars', item ~ '_filepath'), '--version'] }}"
+  register: binary_version_command
   ignore_errors: true
   changed_when: false
 
+- name: Binary | Parse '{{ lookup('vars', item ~ '_name') }}' version
+  ansible.builtin.set_fact:
+    binary_version: "{{ (binary_version_command.stdout_lines | first | default('')).split()[3 if item == 'compose_cli' else 2]
+                        | default('')
+                        | regex_replace(',$', '')
+                        | regex_replace('^v', '') }}"
+
 - name: Binary | Display '{{ lookup('vars', item ~ '_name') }}' version
   ansible.builtin.debug:
-    msg: "{{ lookup('vars', item ~ '_name') }} version {{ binary_version.stdout }} {{ 'installed'
-                                                                                   if (docker_binary_install_result is defined and docker_binary_install_result is changed)
-                                                                                   else 'unchanged' }}."
+    msg: "{{ lookup('vars', item ~ '_name') }} version {{ binary_version }} {{ 'installed'
+                                                                            if (docker_binary_install_result is defined and docker_binary_install_result is changed)
+                                                                            else 'unchanged' }}."
   when: (binary_version is defined)

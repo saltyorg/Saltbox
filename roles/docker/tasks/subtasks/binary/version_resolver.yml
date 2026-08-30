@@ -8,31 +8,48 @@
 #########################################################################
 ---
 - name: Version Resolver | Get available docker-ce versions
-  ansible.builtin.shell: |
-    apt-cache madison docker-ce | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
-  register: resolved_docker_version
+  ansible.builtin.command:
+    argv:
+      - "apt-cache"
+      - "madison"
+      - "docker-ce"
+  register: resolved_docker_versions
   changed_when: false
 
 - name: Version Resolver | Get available docker-ce-cli versions
-  ansible.builtin.shell: |
-    apt-cache madison docker-ce-cli | awk '{print $3}' | grep -E '^[0-9]+:{{ docker_version | regex_replace('\.', '\\.') }}\b' | head -1
-  register: resolved_docker_cli_version
+  ansible.builtin.command:
+    argv:
+      - "apt-cache"
+      - "madison"
+      - "docker-ce-cli"
+  register: resolved_docker_cli_versions
   changed_when: false
+
+- name: Version Resolver | Parse available Docker versions
+  ansible.builtin.set_fact:
+    resolved_docker_version: "{{ resolved_docker_versions.stdout
+                                 | regex_findall('(?m)^\\s*docker-ce\\s*\\|\\s*([0-9]+:' + (docker_version | regex_escape) + '(?![0-9])[^\\s|]*)\\s*\\|')
+                                 | first
+                                 | default('') }}"
+    resolved_docker_cli_version: "{{ resolved_docker_cli_versions.stdout
+                                     | regex_findall('(?m)^\\s*docker-ce-cli\\s*\\|\\s*([0-9]+:' + (docker_version | regex_escape) + '(?![0-9])[^\\s|]*)\\s*\\|')
+                                     | first
+                                     | default('') }}"
 
 - name: Version Resolver | Validate resolved package versions
   ansible.builtin.assert:
     that:
-      - resolved_docker_version.stdout | length > 0
-      - resolved_docker_cli_version.stdout | length > 0
+      - resolved_docker_version | length > 0
+      - resolved_docker_cli_version | length > 0
     fail_msg: |
       Docker version '{{ docker_version }}' is not available for both required packages.
-      docker-ce: {{ resolved_docker_version.stdout | default('not found', true) }}
-      docker-ce-cli: {{ resolved_docker_cli_version.stdout | default('not found', true) }}
+      docker-ce: {{ resolved_docker_version | default('not found', true) }}
+      docker-ce-cli: {{ resolved_docker_cli_version | default('not found', true) }}
 
 - name: Version Resolver | Set resolved version facts
   ansible.builtin.set_fact:
-    docker_ce_resolved_version: "{{ resolved_docker_version.stdout }}"
-    docker_ce_cli_resolved_version: "{{ resolved_docker_cli_version.stdout }}"
+    docker_ce_resolved_version: "{{ resolved_docker_version }}"
+    docker_ce_cli_resolved_version: "{{ resolved_docker_cli_version }}"
 
 - name: Version Resolver | Display resolved Docker CE version
   ansible.builtin.debug:
