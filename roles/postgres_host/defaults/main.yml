@@ -14,6 +14,7 @@
 # Supports any versions from https://wiki.postgresql.org/wiki/Apt
 # Each version is unique and you cannot specify the same version twice
 postgres_host_role_versions: ["17"]
+put_postgres_host_dpkg_into_hold: true
 
 ################################
 # Paths

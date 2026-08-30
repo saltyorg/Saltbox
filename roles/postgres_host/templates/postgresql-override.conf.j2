@@ -1,0 +1,29 @@
+# /etc/systemd/system/postgresql@.service.d/override.conf
+#########################################################################
+# Title:         Saltbox: PostgreSQL Host Service Override              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+
+[Unit]
+BindsTo=docker.service
+After=docker.service
+
+[Service]
+User={{ user.name }}
+Group={{ user.name }}
+
+# Ensure runtime directory exists and has correct ownership
+ExecStartPre=+/bin/mkdir -p /var/run/postgresql
+ExecStartPre=+/bin/chown -R {{ user.name }}:{{ user.name }} /var/run/postgresql
+ExecStartPre=+/bin/chmod 0775 /var/run/postgresql
+
+# Ensure log directory exists and has correct ownership
+ExecStartPre=+/bin/mkdir -p /var/log/postgresql
+ExecStartPre=+/bin/chown -R {{ user.name }}:{{ user.name }} /var/log/postgresql
+
+[Install]
+WantedBy=docker.service
