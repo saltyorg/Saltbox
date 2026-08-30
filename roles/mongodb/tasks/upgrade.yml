@@ -1,0 +1,162 @@
+#########################################################################
+# Title:         Saltbox: MongoDB | Upgrade                             #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Upgrade | Validate target tag
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_target_tag is regex('^[0-9]+\.[0-9]+$')
+    fail_msg: "MongoDB automatic upgrades require an X.Y target tag."
+
+- name: Upgrade | Resolve target series
+  ansible.builtin.set_fact:
+    mongodb_upgrade_target_series: "{{ mongodb_upgrade_target_tag }}"
+
+- name: Upgrade | Validate target series
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_target_series in mongodb_upgrade_releases
+    fail_msg: "MongoDB target {{ mongodb_upgrade_target_series }} is outside the validated upgrade matrix."
+
+- name: Upgrade | Resolve kernel version
+  ansible.builtin.set_fact:
+    mongodb_upgrade_kernel_version: "{{ ansible_facts['kernel'] | regex_search('^[0-9]+[.][0-9]+[.][0-9]+') }}"
+
+- name: Upgrade | Reject unsafe MongoDB 8.x kernel
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_target_series not in ['8.0', '8.2'] or mongodb_upgrade_kernel_version is version('6.19.0', '<') or mongodb_upgrade_kernel_version is version('7.0.14', '>=')
+    fail_msg: "MongoDB 8.x is blocked on Linux kernels from 6.19 through 7.0.13."
+
+- name: Upgrade | Preflight target image
+  ansible.builtin.include_tasks: upgrade_image.yml
+  vars:
+    mongodb_upgrade_image_series: "{{ mongodb_upgrade_target_series }}"
+
+- name: Upgrade | Detect source version
+  ansible.builtin.include_tasks: upgrade_detect.yml
+  when: mongodb_upgrade_paths.results[1].stat.exists
+
+- name: Upgrade | Use target version for a new database
+  ansible.builtin.set_fact:
+    mongodb_upgrade_source_version: "{{ mongodb_upgrade_target_series + '.0' }}"
+  when: not mongodb_upgrade_paths.results[1].stat.exists
+
+- name: Upgrade | Validate source version
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_source_version is regex('^[0-9]+\.[0-9]+\.[0-9]+$')
+    fail_msg: "MongoDB FTDC did not contain an exact source version."
+
+- name: Upgrade | Resolve source series
+  ansible.builtin.set_fact:
+    mongodb_upgrade_source_series: "{{ mongodb_upgrade_source_version.split('.')[0:2] | join('.') }}"
+
+- name: Upgrade | Validate source series
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_source_series in mongodb_upgrade_releases
+      - mongodb_upgrade_releases.index(mongodb_upgrade_source_series) <= mongodb_upgrade_releases.index(mongodb_upgrade_target_series)
+    fail_msg: "MongoDB source {{ mongodb_upgrade_source_series }} cannot be upgraded to {{ mongodb_upgrade_target_series }}."
+
+- name: Upgrade | Resolve release path
+  ansible.builtin.set_fact:
+    mongodb_upgrade_path: "{{ mongodb_upgrade_releases[mongodb_upgrade_releases.index(mongodb_upgrade_source_series) : mongodb_upgrade_releases.index(mongodb_upgrade_target_series) + 1] }}"
+
+- name: Upgrade | Refuse an existing source backup
+  ansible.builtin.assert:
+    that:
+      - not mongodb_upgrade_paths.results[2].stat.exists
+    fail_msg: "MongoDB backup {{ mongodb_upgrade_backup_path }} already exists. Verify and remove it before another cross-series upgrade."
+  when: mongodb_upgrade_path | length > 1
+
+- name: Upgrade | Preflight source and intermediate images
+  ansible.builtin.include_tasks: upgrade_image.yml
+  loop: "{{ mongodb_upgrade_path | reject('equalto', mongodb_upgrade_target_series) | list }}"
+  loop_control:
+    loop_var: mongodb_upgrade_image_series
+
+- name: Upgrade | Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: Upgrade | Copy original database
+  ansible.builtin.command:
+    argv:
+      - cp
+      - --archive
+      - --reflink=auto
+      - "{{ mongodb_upgrade_data_path }}"
+      - "{{ mongodb_upgrade_backup_path }}"
+    expand_argument_vars: false
+  when: mongodb_upgrade_path | length > 1
+
+- name: Upgrade | Inspect original database copy
+  ansible.builtin.stat:
+    path: "{{ mongodb_upgrade_backup_path }}/WiredTiger"
+  register: mongodb_upgrade_backup_wiredtiger
+  when: mongodb_upgrade_path | length > 1
+
+- name: Upgrade | Validate original database copy
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_backup_wiredtiger.stat.isreg | default(false)
+    fail_msg: "MongoDB source copy at {{ mongodb_upgrade_backup_path }} is incomplete."
+  when: mongodb_upgrade_path | length > 1
+
+- name: Upgrade | Apply release path
+  block:
+    - name: Upgrade | Deploy and validate each release
+      ansible.builtin.include_tasks: upgrade_hop.yml
+      loop: "{{ mongodb_upgrade_path }}"
+      loop_control:
+        loop_var: mongodb_upgrade_image_series
+  rescue:
+    - name: Upgrade | Remove failed MongoDB container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Upgrade | Remove failed MongoDB data
+      ansible.builtin.file:
+        path: "{{ mongodb_upgrade_data_path }}"
+        state: absent
+      when: mongodb_upgrade_path | length > 1
+
+    - name: Upgrade | Restore original MongoDB data
+      ansible.builtin.command:
+        argv:
+          - cp
+          - --archive
+          - --reflink=auto
+          - "{{ mongodb_upgrade_backup_path }}"
+          - "{{ mongodb_upgrade_data_path }}"
+        expand_argument_vars: false
+      when: mongodb_upgrade_path | length > 1
+
+    - name: Upgrade | Inspect restored MongoDB data
+      ansible.builtin.stat:
+        path: "{{ mongodb_upgrade_data_path }}/WiredTiger"
+      register: mongodb_upgrade_restored_wiredtiger
+      when: mongodb_upgrade_path | length > 1
+
+    - name: Upgrade | Validate restored MongoDB data
+      ansible.builtin.assert:
+        that:
+          - mongodb_upgrade_restored_wiredtiger.stat.isreg | default(false)
+        fail_msg: "MongoDB could not restore the original database."
+      when: mongodb_upgrade_path | length > 1
+
+    - name: Upgrade | Report failure
+      ansible.builtin.fail:
+        msg: "MongoDB upgrade failed during {{ ansible_failed_task.name }}.
+              {{ 'The original data was restored and its backup retained.'
+              if mongodb_upgrade_path | length > 1
+              else 'No source backup was required.' }}"
+
+- name: Upgrade | Report retained source copy
+  ansible.builtin.debug:
+    msg: "MongoDB upgrade completed. The original data is retained at {{ mongodb_upgrade_backup_path }} and must be removed manually before another cross-series upgrade."
+  when: mongodb_upgrade_path | length > 1

@@ -1,0 +1,76 @@
+#########################################################################
+# Title:         Saltbox: MongoDB | Upgrade Image                       #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Upgrade | Image | Resolve reference
+  ansible.builtin.set_fact:
+    mongodb_upgrade_image_reference: "{{ mongodb_upgrade_target_image
+                                      if mongodb_upgrade_image_series == mongodb_upgrade_target_series
+                                      else 'mongo:' + mongodb_upgrade_image_series }}"
+
+- name: Upgrade | Image | Pull image
+  community.docker.docker_image:
+    name: "{{ mongodb_upgrade_image_reference }}"
+    source: pull
+    force_source: true
+  when: mongodb_upgrade_image_pull | bool
+
+- name: Upgrade | Image | Inspect image
+  community.docker.docker_image_info:
+    name: "{{ mongodb_upgrade_image_reference }}"
+  register: mongodb_upgrade_image_info
+
+- name: Upgrade | Image | Validate layout
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_image_info.images | length == 1
+      - "'/data/db' in (mongodb_upgrade_image_info.images[0].Config.Volumes | default({}, true))"
+      - "'/data/configdb' in (mongodb_upgrade_image_info.images[0].Config.Volumes | default({}, true))"
+    fail_msg: "MongoDB image {{ mongodb_upgrade_image_reference }} does not match the validated data layout."
+
+- name: Upgrade | Image | Read binary version
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - --rm
+      - --network
+      - none
+      - --entrypoint
+      - mongod
+      - "{{ mongodb_upgrade_image_info.images[0].Id }}"
+      - --version
+    expand_argument_vars: false
+  changed_when: false
+  register: mongodb_upgrade_image_binary
+
+- name: Upgrade | Image | Resolve binary series
+  ansible.builtin.set_fact:
+    mongodb_upgrade_image_binary_series: "{{ mongodb_upgrade_image_binary.stdout | regex_findall('(?m)^db version v([0-9]+[.][0-9]+)[.]') | unique | list }}"
+
+- name: Upgrade | Image | Validate binary series
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_image_binary_series == [mongodb_upgrade_image_series]
+    fail_msg: "MongoDB image {{ mongodb_upgrade_image_reference }} is not series {{ mongodb_upgrade_image_series }}."
+
+- name: Upgrade | Image | Validate required tools
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - --rm
+      - --network
+      - none
+      - --entrypoint
+      - bash
+      - "{{ mongodb_upgrade_image_info.images[0].Id }}"
+      - -c
+      - "for tool in bash mongod bsondump od stat dd tr; do command -v \"$tool\" >/dev/null || exit 1; done; command -v mongosh >/dev/null || command -v mongo >/dev/null"
+    expand_argument_vars: false
+  changed_when: false

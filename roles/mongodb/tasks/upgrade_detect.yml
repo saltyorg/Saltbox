@@ -1,0 +1,53 @@
+#########################################################################
+# Title:         Saltbox: MongoDB | Upgrade Detect                      #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Upgrade | Detect | Find complete FTDC archives
+  ansible.builtin.find:
+    paths: "{{ mongodb_upgrade_data_path }}/diagnostic.data"
+    patterns: "metrics.20*"
+    file_type: file
+    recurse: false
+  register: mongodb_upgrade_ftdc_files
+
+- name: Upgrade | Detect | Require FTDC metadata
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_ftdc_files.matched | int > 0
+    fail_msg: "MongoDB data exists but no complete FTDC archive identifies its source version."
+
+- name: Upgrade | Detect | Select newest archive
+  ansible.builtin.set_fact:
+    mongodb_upgrade_ftdc_file: "{{ (mongodb_upgrade_ftdc_files.files | sort(attribute='path') | last).path }}"
+
+- name: Upgrade | Detect | Decode metadata document
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - --rm
+      - --network
+      - none
+      - --read-only
+      - --user
+      - "0:0"
+      - --volume
+      - "{{ mongodb_upgrade_ftdc_file }}:/ftdc/metrics:ro"
+      - --volume
+      - "{{ role_path }}/files/ftdc-metadata.sh:/ftdc-metadata.sh:ro"
+      - --entrypoint
+      - bash
+      - "{{ mongodb_upgrade_target_image }}"
+      - /ftdc-metadata.sh
+    expand_argument_vars: false
+  changed_when: false
+  register: mongodb_upgrade_ftdc
+
+- name: Upgrade | Detect | Resolve source version
+  ansible.builtin.set_fact:
+    mongodb_upgrade_source_version: "{{ (mongodb_upgrade_ftdc.stdout | from_json).doc.buildInfo.version }}"

@@ -33,7 +33,7 @@ mongodb_role_docker_container: "{{ mongodb_name }}"
 # Image
 mongodb_role_docker_image_pull: true
 mongodb_role_docker_image_repo: "mongo"
-mongodb_role_docker_image_tag: "6"
+mongodb_role_docker_image_tag: "8.0"
 mongodb_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='mongodb') }}:{{ lookup('role_var', '_docker_image_tag', role='mongodb') }}"
 
 # Envs
@@ -47,8 +47,8 @@ mongodb_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='m
 
 # Volumes
 mongodb_role_docker_volumes_default:
-  - "{{ mongodb_role_paths_location }}:/data/db:rw"
-  - "{{ mongodb_role_paths_location }}/config:/data/configdb"
+  - "{{ lookup('role_var', '_paths_location', role='mongodb') }}:/data/db:rw"
+  - "{{ lookup('role_var', '_paths_location', role='mongodb') }}/config:/data/configdb"
 mongodb_role_docker_volumes_custom: []
 mongodb_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='mongodb')
                                  + lookup('role_var', '_docker_volumes_custom', role='mongodb') }}"

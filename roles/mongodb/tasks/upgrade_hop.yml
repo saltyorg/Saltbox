@@ -1,0 +1,116 @@
+#########################################################################
+# Title:         Saltbox: MongoDB | Upgrade Hop                         #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Upgrade | Hop | Resolve image
+  ansible.builtin.set_fact:
+    mongodb_upgrade_hop_image: "{{ mongodb_upgrade_target_image
+                                if mongodb_upgrade_image_series == mongodb_upgrade_target_series
+                                else 'mongo:' + mongodb_upgrade_image_series }}"
+
+- name: Upgrade | Hop | Create MongoDB container
+  ansible.builtin.include_tasks:
+    file: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+    apply:
+      no_log: "{{ mongodb_upgrade_auth_present }}"
+  vars:
+    mongodb_role_docker_image: "{{ mongodb_upgrade_hop_image }}"
+    mongodb_role_docker_image_pull: false
+
+- name: Upgrade | Hop | Select MongoDB shell
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv:
+      - sh
+      - -c
+      - "command -v mongosh || command -v mongo"
+  changed_when: false
+  register: mongodb_upgrade_shell
+
+- name: Upgrade | Hop | Build shell arguments
+  ansible.builtin.set_fact:
+    mongodb_upgrade_shell_argv: "{{ [mongodb_upgrade_shell.stdout | trim, '--quiet']
+                                    + (['--username', mongodb_upgrade_auth_username, '--authenticationDatabase', 'admin', '--password']
+                                       if mongodb_upgrade_auth_enabled
+                                       else []) }}"
+  no_log: true
+
+- name: Upgrade | Hop | Wait for writable MongoDB
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv: "{{ mongodb_upgrade_shell_argv + ['--eval', 'var h=db.hello(); var w=h.isWritablePrimary || (!h.setName && !h.isreplicaset); quit(db.adminCommand({ping:1}).ok === 1 && w ? 0 : 1)'] }}"
+    stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+    stdin_add_newline: true
+  changed_when: false
+  no_log: "{{ mongodb_upgrade_auth_enabled }}"
+  register: mongodb_upgrade_ready
+  retries: 60
+  delay: 2
+  until: mongodb_upgrade_ready.rc | default(1) == 0
+
+- name: Upgrade | Hop | Read current FCV
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv: "{{ mongodb_upgrade_shell_argv + ['--eval', 'print(db.adminCommand({getParameter:1,featureCompatibilityVersion:1}).featureCompatibilityVersion.version)'] }}"
+    stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+    stdin_add_newline: true
+  changed_when: false
+  no_log: "{{ mongodb_upgrade_auth_enabled }}"
+  register: mongodb_upgrade_fcv_before
+
+- name: Upgrade | Hop | Validate current FCV
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_fcv_before.stdout | trim in mongodb_upgrade_releases
+      - mongodb_upgrade_releases.index(mongodb_upgrade_fcv_before.stdout | trim) <= mongodb_upgrade_releases.index(mongodb_upgrade_image_series)
+      - mongodb_upgrade_releases.index(mongodb_upgrade_fcv_before.stdout | trim) >= mongodb_upgrade_releases.index(mongodb_upgrade_image_series) - 1
+    fail_msg: "MongoDB {{ mongodb_upgrade_image_series }} started from an unsupported FCV."
+
+- name: Upgrade | Hop | Build FCV command
+  ansible.builtin.set_fact:
+    mongodb_upgrade_fcv_eval: "quit(db.adminCommand({setFeatureCompatibilityVersion:\"{{ mongodb_upgrade_image_series }}\"{{ ',confirm:true' if mongodb_upgrade_image_series in ['7.0', '8.0', '8.2'] else '' }}}).ok === 1 ? 0 : 1)"
+
+- name: Upgrade | Hop | Set FCV
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv: "{{ mongodb_upgrade_shell_argv + ['--eval', mongodb_upgrade_fcv_eval] }}"
+    stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+    stdin_add_newline: true
+  no_log: "{{ mongodb_upgrade_auth_enabled }}"
+  when: mongodb_upgrade_fcv_before.stdout | trim != mongodb_upgrade_image_series
+
+- name: Upgrade | Hop | Read final binary version
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv: "{{ mongodb_upgrade_shell_argv + ['--eval', 'print(db.version())'] }}"
+    stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+    stdin_add_newline: true
+  changed_when: false
+  no_log: "{{ mongodb_upgrade_auth_enabled }}"
+  register: mongodb_upgrade_binary_after
+
+- name: Upgrade | Hop | Read final FCV
+  community.docker.docker_container_exec:
+    container: "{{ mongodb_upgrade_container }}"
+    argv: "{{ mongodb_upgrade_shell_argv + ['--eval', 'print(db.adminCommand({getParameter:1,featureCompatibilityVersion:1}).featureCompatibilityVersion.version)'] }}"
+    stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+    stdin_add_newline: true
+  changed_when: false
+  no_log: "{{ mongodb_upgrade_auth_enabled }}"
+  register: mongodb_upgrade_fcv_after
+
+- name: Upgrade | Hop | Validate release
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_binary_after.stdout | trim is match('^' + mongodb_upgrade_image_series | regex_escape + '[.]')
+      - mongodb_upgrade_fcv_after.stdout | trim == mongodb_upgrade_image_series
+    fail_msg: "MongoDB {{ mongodb_upgrade_image_series }} did not complete its binary and FCV upgrade."
+
+- name: Upgrade | Hop | Remove intermediate container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+  when: mongodb_upgrade_image_series != mongodb_upgrade_target_series

@@ -6,15 +6,90 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+- name: Resolve MongoDB role values
+  ansible.builtin.set_fact:
+    mongodb_upgrade_image_repo: "{{ lookup('role_var', '_docker_image_repo', role='mongodb') }}"
+  no_log: true
 
-- name: Create directories
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+- name: Upgrade official MongoDB image
+  when: mongodb_upgrade_image_repo == 'mongo'
+  block:
+    - name: Resolve MongoDB upgrade values
+      ansible.builtin.set_fact:
+        mongodb_upgrade_auth_envs: "{{ lookup('role_var', '_docker_envs', role='mongodb') }}"
+        mongodb_upgrade_backup_path: "{{ lookup('role_var', '_paths_location', role='mongodb') }}_backup"
+        mongodb_upgrade_container: "{{ lookup('role_var', '_docker_container', role='mongodb') }}"
+        mongodb_upgrade_data_path: "{{ lookup('role_var', '_paths_location', role='mongodb') }}"
+        mongodb_upgrade_image_pull: "{{ lookup('role_var', '_docker_image_pull', role='mongodb') }}"
+        mongodb_upgrade_releases: ["4.4", "5.0", "6.0", "7.0", "8.0", "8.2"]
+        mongodb_upgrade_target_image: "{{ lookup('role_var', '_docker_image', role='mongodb') }}"
+        mongodb_upgrade_target_tag: "{{ lookup('role_var', '_docker_image_tag', role='mongodb') }}"
+        mongodb_upgrade_volumes: "{{ lookup('role_var', '_docker_volumes', role='mongodb') }}"
+      no_log: true
 
-- name: Create Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+    - name: Resolve MongoDB authentication
+      ansible.builtin.set_fact:
+        mongodb_upgrade_auth_enabled: "{{ 'MONGO_INITDB_ROOT_USERNAME' in mongodb_upgrade_auth_envs and 'MONGO_INITDB_ROOT_PASSWORD' in mongodb_upgrade_auth_envs and mongodb_upgrade_auth_envs.MONGO_INITDB_ROOT_USERNAME | length > 0 and mongodb_upgrade_auth_envs.MONGO_INITDB_ROOT_PASSWORD | length > 0 }}"
+        mongodb_upgrade_auth_present: "{{ 'MONGO_INITDB_ROOT_USERNAME' in mongodb_upgrade_auth_envs or 'MONGO_INITDB_ROOT_PASSWORD' in mongodb_upgrade_auth_envs }}"
+        mongodb_upgrade_auth_password: "{{ mongodb_upgrade_auth_envs.MONGO_INITDB_ROOT_PASSWORD | default('') }}"
+        mongodb_upgrade_auth_username: "{{ mongodb_upgrade_auth_envs.MONGO_INITDB_ROOT_USERNAME | default('') }}"
+      no_log: true
 
-- name: Sleep for 30 seconds
-  ansible.builtin.wait_for:
-    timeout: 30
+    - name: Validate MongoDB authentication
+      ansible.builtin.assert:
+        that:
+          - not mongodb_upgrade_auth_present or mongodb_upgrade_auth_enabled
+        fail_msg: "MongoDB requires both a non-empty root username and password."
+      no_log: "{{ mongodb_upgrade_auth_present }}"
+
+    - name: Resolve MongoDB data bindings
+      ansible.builtin.set_fact:
+        mongodb_upgrade_config_bindings: "{{ mongodb_upgrade_volumes | select('search', ':/data/configdb(?::[^:]*)?$') | list }}"
+        mongodb_upgrade_data_bindings: "{{ mongodb_upgrade_volumes | select('search', ':/data/db(?::[^:]*)?$') | list }}"
+
+    - name: Validate MongoDB data bindings
+      ansible.builtin.assert:
+        that:
+          - mongodb_upgrade_data_bindings == [mongodb_upgrade_data_path + ':/data/db:rw']
+          - mongodb_upgrade_config_bindings == [mongodb_upgrade_data_path + '/config:/data/configdb']
+        fail_msg: "MongoDB automatic upgrades require /data/db and /data/configdb to use mongodb_role_paths_location. Override that path instead of the Docker volumes."
+
+    - name: Inspect MongoDB paths
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        follow: false
+      loop:
+        - "{{ mongodb_upgrade_data_path }}"
+        - "{{ mongodb_upgrade_data_path }}/WiredTiger"
+        - "{{ mongodb_upgrade_backup_path }}"
+      register: mongodb_upgrade_paths
+
+    - name: Validate MongoDB paths
+      ansible.builtin.assert:
+        that:
+          - not mongodb_upgrade_paths.results[0].stat.exists or (mongodb_upgrade_paths.results[0].stat.isdir and not mongodb_upgrade_paths.results[0].stat.islnk)
+          - not mongodb_upgrade_paths.results[2].stat.exists or (mongodb_upgrade_paths.results[2].stat.isdir and not mongodb_upgrade_paths.results[2].stat.islnk)
+          - not mongodb_upgrade_paths.results[2].stat.exists or mongodb_upgrade_paths.results[1].stat.exists
+        fail_msg: "MongoDB data and backup paths must be real directories, and a backup cannot exist without an active database."
+
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Apply MongoDB upgrade
+      ansible.builtin.include_tasks: upgrade.yml
+
+- name: Create unsupported custom MongoDB image
+  when: mongodb_upgrade_image_repo != 'mongo'
+  block:
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Create directories
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+    - name: Create Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+    - name: Sleep for 30 seconds
+      ansible.builtin.wait_for:
+        timeout: 30
