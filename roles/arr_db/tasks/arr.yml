@@ -7,20 +7,8 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-- name: "{{ arr_type | capitalize }} | Check if '{{ arr_path_main_db | basename }}' exists"
-  ansible.builtin.stat:
-    path: "{{ arr_path_main_db }}"
-  register: arr_db
-
-- name: "{{ arr_type | capitalize }} | Check if '{{ arr_path_logs_db | basename }}' exists"
-  ansible.builtin.stat:
-    path: "{{ arr_path_logs_db }}"
-  register: arr_logs_db
-
-- name: "{{ arr_type | capitalize }} | Fail if database does not exist"
-  ansible.builtin.fail:
-    msg: "{{ arr_type | capitalize }} databases are not present for {{ lookup('vars', arr_type + '_name') }} instance"
-  when: (not (arr_db.stat.exists and arr_logs_db.stat.exists))
+- name: "{{ arr_type | capitalize }} | Database discovery"
+  ansible.builtin.include_tasks: database.yml
 
 - name: "{{ arr_type | capitalize }} | Stop Docker container"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
@@ -28,12 +16,20 @@
     var_prefix: "{{ arr_type }}"
 
 - name: "{{ arr_type | capitalize }} | Check if main database passes integrity_check"
-  ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'PRAGMA integrity_check(1)'"
+  ansible.builtin.command:
+    argv:
+      - "sqlite3"
+      - "{{ arr_db_resolved_main_database }}"
+      - "PRAGMA integrity_check(1)"
   register: arr_db_integrity_check
   failed_when: (arr_db_integrity_check.stdout != 'ok')
 
 - name: "{{ arr_type | capitalize }} | Check if blobs database passes integrity_check"
-  ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'PRAGMA integrity_check(1)'"
+  ansible.builtin.command:
+    argv:
+      - "sqlite3"
+      - "{{ arr_path_logs_db }}"
+      - "PRAGMA integrity_check(1)"
   register: arr_logs_db_integrity_check
   failed_when: (arr_logs_db_integrity_check.stdout != 'ok')
 
@@ -48,44 +44,69 @@
         mode: "0775"
 
     - name: "{{ arr_type | capitalize }} | Backup databases"
-      ansible.builtin.shell: "cp '{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}' /tmp/{{ lookup('vars', arr_type + '_name') }}_backup/"
+      ansible.builtin.command:
+        argv:
+          - "cp"
+          - "{{ lookup('role_var', '_paths_location', role=arr_type) }}/{{ item }}"
+          - "/tmp/{{ lookup('vars', arr_type + '_name') }}_backup/"
       loop: "{{ arr_db_files }}"
 
     - name: Vacuum tasks
       when: arr_db_run_vacuum
       block:
-        - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_main_db | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'VACUUM;'"
+        - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_db_resolved_main_database | basename }}' database"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ arr_db_resolved_main_database }}"
+              - "VACUUM;"
           register: arr_db_vacuum
           failed_when: (arr_db_vacuum.rc != 0)
 
         - name: "{{ arr_type | capitalize }} | Vacuum '{{ arr_path_logs_db | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'VACUUM;'"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ arr_path_logs_db }}"
+              - "VACUUM;"
           register: arr_logs_db_vacuum
           failed_when: (arr_logs_db_vacuum.rc != 0)
 
     - name: Reindex tasks
       when: arr_db_run_reindex
       block:
-        - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_main_db | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ arr_path_main_db }}' 'REINDEX;'"
+        - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_db_resolved_main_database | basename }}' database"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ arr_db_resolved_main_database }}"
+              - "REINDEX;"
           register: arr_db_reindex
           failed_when: (arr_db_reindex.rc != 0)
 
         - name: "{{ arr_type | capitalize }} | Reindex '{{ arr_path_logs_db | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ arr_path_logs_db }}' 'REINDEX;'"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ arr_path_logs_db }}"
+              - "REINDEX;"
           register: arr_logs_db_reindex
           failed_when: (arr_logs_db_reindex.rc != 0)
 
   rescue:
     - name: "{{ arr_type | capitalize }} | Delete wal and shm files"
       ansible.builtin.file:
-        path: "{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}"
+        path: "{{ lookup('role_var', '_paths_location', role=arr_type) }}/{{ item }}"
         state: absent
       with_items: "{{ arr_db_temp_files }}"
 
     - name: "{{ arr_type | capitalize }} | Restore database backup"
-      ansible.builtin.shell: "cp -f '/tmp/{{ lookup('vars', arr_type + '_name') }}_backup/{{ item }}' '{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ item }}'"
+      ansible.builtin.command:
+        argv:
+          - "cp"
+          - "-f"
+          - "/tmp/{{ lookup('vars', arr_type + '_name') }}_backup/{{ item }}"
+          - "{{ lookup('role_var', '_paths_location', role=arr_type) }}/{{ item }}"
       loop: "{{ arr_db_files }}"
 
 - name: "{{ arr_type | capitalize }} | Start Docker container"

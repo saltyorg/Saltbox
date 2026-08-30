@@ -23,16 +23,22 @@ arr_db_run_reindex: false
 # Variables
 ################################
 
-arr_path_logs_db: "{{ lookup('vars', arr_type + '_role_paths_location') }}/logs.db"
-arr_path_main_db: "{{ lookup('vars', arr_type + '_role_paths_location') }}/{{ arr_type }}.db"
+arr_path_logs_db: "{{ lookup('role_var', '_paths_location', role=arr_type) }}/logs.db"
+arr_path_main_db: "{{ lookup('role_var', '_paths_location', role=arr_type) }}/{{ arr_type }}.db"
+arr_db_resolved_main_database: "{{ arr_path_main_db }}"
+arr_db_main_database_candidates: "{{ ([arr_path_main_db]
+                                      + ([lookup('role_var', '_paths_location', role=arr_type) + '/whisparr2.db']
+                                         if arr_type == 'whisparr' else []))
+                                     | unique
+                                     | list }}"
 arr_db_files:
   - "logs.db"
-  - "{{ arr_type }}.db"
+  - "{{ arr_db_resolved_main_database | basename }}"
 arr_db_temp_files:
   - "logs.db-wal"
   - "logs.db-shm"
-  - "{{ arr_type }}.db-wal"
-  - "{{ arr_type }}.db-shm"
+  - "{{ arr_db_resolved_main_database | basename }}-wal"
+  - "{{ arr_db_resolved_main_database | basename }}-shm"
 
 arr_db_tautulli_database: "tautulli.db"
 arr_db_tautulli_temp_files:

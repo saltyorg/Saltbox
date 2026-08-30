@@ -1,0 +1,41 @@
+##########################################################################
+# Title:         Saltbox: Arr DB Role | Database Discovery               #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: "{{ arr_type | capitalize }} | Check main database candidates"
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop: "{{ arr_db_main_database_candidates }}"
+  register: arr_db_main_database_stats
+
+- name: "{{ arr_type | capitalize }} | Resolve main database"
+  ansible.builtin.set_fact:
+    arr_db_main_database_matches: "{{ arr_db_main_database_stats.results
+                                      | selectattr('stat.exists')
+                                      | map(attribute='item')
+                                      | list }}"
+
+- name: "{{ arr_type | capitalize }} | Check if '{{ arr_path_logs_db | basename }}' exists"
+  ansible.builtin.stat:
+    path: "{{ arr_path_logs_db }}"
+  register: arr_logs_db
+
+- name: "{{ arr_type | capitalize }} | Validate databases"
+  ansible.builtin.assert:
+    that:
+      - arr_db_main_database_matches | length == 1
+      - arr_logs_db.stat.exists
+    fail_msg: >-
+      {{ arr_type | capitalize }} databases are not valid for
+      {{ lookup('vars', arr_type + '_name') }} instance. Expected logs.db and
+      exactly one main database from {{ arr_db_main_database_candidates }};
+      found {{ arr_db_main_database_matches }}.
+
+- name: "{{ arr_type | capitalize }} | Set resolved main database path"
+  ansible.builtin.set_fact:
+    arr_db_resolved_main_database: "{{ arr_db_main_database_matches | first }}"

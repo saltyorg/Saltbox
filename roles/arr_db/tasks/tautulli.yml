@@ -9,7 +9,7 @@
 ---
 - name: "Tautulli | Check if '{{ arr_db_tautulli_database }}' exists"
   ansible.builtin.stat:
-    path: "{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}"
+    path: "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
   register: arr_db
 
 - name: "Tautulli | Fail if database does not exist"
@@ -23,7 +23,11 @@
     var_prefix: "tautulli"
 
 - name: "Tautulli | Check if database passes integrity_check"
-  ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'PRAGMA integrity_check(1)'"
+  ansible.builtin.command:
+    argv:
+      - "sqlite3"
+      - "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
+      - "PRAGMA integrity_check(1)"
   register: arr_db_integrity_check
   failed_when: (arr_db_integrity_check.stdout != 'ok')
 
@@ -38,13 +42,21 @@
         mode: "0775"
 
     - name: "Tautulli | Backup databases"
-      ansible.builtin.shell: "cp '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' /tmp/{{ tautulli_name }}_backup/"
+      ansible.builtin.command:
+        argv:
+          - "cp"
+          - "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
+          - "/tmp/{{ tautulli_name }}_backup/"
 
     - name: Vacuum tasks
       when: arr_db_run_vacuum
       block:
         - name: "Tautulli | Vacuum '{{ arr_db_tautulli_database | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'VACUUM;'"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
+              - "VACUUM;"
           register: arr_db_vacuum
           failed_when: (arr_db_vacuum.rc != 0)
 
@@ -52,19 +64,28 @@
       when: arr_db_run_reindex
       block:
         - name: "Tautulli | Reindex '{{ arr_db_tautulli_database | basename }}' database"
-          ansible.builtin.shell: "sqlite3 '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}' 'REINDEX;'"
+          ansible.builtin.command:
+            argv:
+              - "sqlite3"
+              - "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
+              - "REINDEX;"
           register: arr_db_reindex
           failed_when: (arr_db_reindex.rc != 0)
 
   rescue:
     - name: "Tautulli | Delete wal and shm files"
       ansible.builtin.file:
-        path: "{{ tautulli_role_paths_location }}/{{ item }}"
+        path: "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ item }}"
         state: absent
       with_items: "{{ arr_db_tautulli_temp_files }}"
 
     - name: "Tautulli | Restore database backup"
-      ansible.builtin.shell: "cp -f '/tmp/{{ tautulli_name }}_backup/{{ arr_db_tautulli_database }}' '{{ tautulli_role_paths_location }}/{{ arr_db_tautulli_database }}'"
+      ansible.builtin.command:
+        argv:
+          - "cp"
+          - "-f"
+          - "/tmp/{{ tautulli_name }}_backup/{{ arr_db_tautulli_database }}"
+          - "{{ lookup('role_var', '_paths_location', role='tautulli') }}/{{ arr_db_tautulli_database }}"
 
 - name: "Tautulli | Start Docker container"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
