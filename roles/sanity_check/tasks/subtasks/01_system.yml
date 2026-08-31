@@ -15,6 +15,22 @@
     fail_msg: "Saltbox supports Ubuntu Server 22.04, 24.04, and 26.04 LTS."
     success_msg: "System is running {{ ansible_facts['lsb']['description'] }}."
 
+- name: System | Print authoritative Saltbox facts in CI
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts['ansible_local']['saltbox'] }}"
+  when: continuous_integration | bool
+
+- name: System | Assert public IPv4 was detected
+  ansible.builtin.assert:
+    that:
+      - (ip_address_public_is_valid | bool)
+      - (ip_address_public | default('', true) | trim | length > 0)
+    fail_msg: >-
+      Saltbox could not determine a public IPv4 address:
+      {{ ip_address_public_error | default('no details were provided', true) }}
+    success_msg: "Saltbox public IPv4 address was determined."
+  when: sanity_check_public_ip_required | bool
+
 - name: System | Virtualization Check
   ansible.builtin.command: "systemd-detect-virt"
   register: systemd_detect_virt

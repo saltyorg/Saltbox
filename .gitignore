@@ -24,6 +24,9 @@
 
 # Cache
 /cache.json
+/saltbox-facts-cache.json
+/.saltbox-facts-cache.*.tmp
+/.saltbox-facts-cache.lock
 
 # Settings
 /accounts.yml

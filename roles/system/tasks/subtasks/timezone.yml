@@ -46,18 +46,16 @@
         - tz_lookup.timezone is none or tz_lookup.confidence == 'low'
 
   rescue:
-    - name: Time Zone | Fallback to curl method if module fails
-      ansible.builtin.command:
-        argv:
-          - "curl"
-          - "-s"
-          - "https://ipapi.co/timezone"
-      register: system_curl_timezone
-      failed_when: (system_curl_timezone.stdout | trim | length == 0)
+    - name: Time Zone | Report automatic timezone detection failure
+      ansible.builtin.debug:
+        msg: >-
+          Automatic timezone detection failed:
+          {{ ansible_failed_result.msg | default('no details were provided', true) }}.
+          Falling back to Etc/UTC.
 
-    - name: Time Zone | Set 'timezone' variable from curl fallback
+    - name: Time Zone | Set 'timezone' variable to UTC fallback
       ansible.builtin.set_fact:
-        timezone: "{{ system_curl_timezone.stdout | trim }}"
+        timezone: "Etc/UTC"
 
 - name: Time Zone | Check if timezone is valid
   ansible.builtin.fail:

@@ -14,6 +14,12 @@
 sanity_check_backup_lockfile_path: "{{ playbook_dir }}/backup.lock"
 
 ################################
+# Public IP
+################################
+
+sanity_check_public_ip_required: true
+
+################################
 # Logs
 ################################
 
