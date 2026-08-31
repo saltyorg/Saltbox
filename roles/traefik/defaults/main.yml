@@ -519,15 +519,17 @@ traefik_role_docker_labels_cloudflare:
   traefik.http.middlewares.cloudflarewarp.plugin.cloudflarewarp.disableDefault: "false"
 
 traefik_role_docker_labels_dns_validation_resolver:
-  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_default_certresolver }}"
+  traefik.http.routers.traefik.tls.certresolver: "{{ traefik_role_docker_labels_dns_validation_plan.certresolver }}"
 traefik_role_docker_labels_dns_validation_fqdn_overrides: "{{ lookup('role_var', '_web_fqdn_override', role='traefik', default=[])
                                                            if (lookup('role_var', '_web_host_override', role='traefik', default='') | length == 0)
                                                            else [] }}"
-traefik_role_docker_labels_dns_validation_domains: "{{ lookup('role_var', '_web_domain', role='traefik')
-                                                       | traefik_certificate_domains(traefik_role_docker_labels_dns_validation_fqdn_overrides,
-                                                                                     traefik.cert.additional_domains | default([]),
-                                                                                     true,
-                                                                                     traefik_certificate_authoritative_zones) }}"
+# Skip docs
+traefik_role_docker_labels_dns_validation_plan: "{{ lookup('role_var', '_web_domain', role='traefik')
+                                                    | traefik_certificate_plan(traefik_role_docker_labels_dns_validation_fqdn_overrides,
+                                                                               traefik.cert.additional_domains | default([]),
+                                                                               true,
+                                                                               traefik_certificate_policy) }}"
+traefik_role_docker_labels_dns_validation_domains: "{{ traefik_role_docker_labels_dns_validation_plan.domains }}"
 traefik_role_docker_labels_dns_validation: "{{ traefik_role_docker_labels_dns_validation_resolver
                                                | combine(traefik_role_docker_labels_dns_validation_domains
                                                          | traefik_certificate_labels(traefik_name)) }}"
@@ -546,14 +548,16 @@ traefik_role_docker_labels_metrics:
   traefik.http.routers.metrics.entrypoints: "{{ traefik_entrypoint_websecure }}"
   traefik.http.routers.metrics.tls: "true"
   traefik.http.routers.metrics.tls.options: "securetls@file"
-  traefik.http.routers.metrics.tls.certresolver: "{{ traefik_default_certresolver }}"
+  traefik.http.routers.metrics.tls.certresolver: "{{ traefik_role_docker_labels_metrics_plan.certresolver }}"
   traefik.http.routers.metrics.middlewares: "traefik-auth,{{ traefik_default_middleware_api }}"
   traefik.http.routers.metrics.priority: "20"
-traefik_role_docker_labels_metrics_domains: "{{ lookup('role_var', '_metrics_domain', role='traefik')
-                                                | traefik_certificate_domains([],
-                                                                              [],
-                                                                              not traefik_http,
-                                                                              traefik_certificate_authoritative_zones) }}"
+# Skip docs
+traefik_role_docker_labels_metrics_plan: "{{ lookup('role_var', '_metrics_domain', role='traefik')
+                                             | traefik_certificate_plan([],
+                                                                        [],
+                                                                        not traefik_http,
+                                                                        traefik_certificate_policy) }}"
+traefik_role_docker_labels_metrics_domains: "{{ traefik_role_docker_labels_metrics_plan.domains }}"
 traefik_role_docker_labels_metrics_certificates: "{{ traefik_role_docker_labels_metrics_domains
                                                      | traefik_certificate_labels('metrics') }}"
 

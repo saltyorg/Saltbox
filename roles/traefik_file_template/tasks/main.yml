@@ -82,7 +82,7 @@
             service: "{{ traefik_file_template_name }}"
             tls:
               options: "securetls@file"
-              certResolver: "{{ traefik_default_certresolver }}"
+              certResolver: "{{ traefik_router_certresolver }}"
       {% if traefik_router_certificate_domains %}
               domains:
       {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}
@@ -109,7 +109,7 @@
             service: "{{ traefik_file_template_name }}"
             tls:
               options: "securetls@file"
-              certResolver: "{{ traefik_default_certresolver }}"
+              certResolver: "{{ traefik_router_certresolver }}"
       {% if traefik_router_certificate_domains %}
               domains:
       {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}

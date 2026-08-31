@@ -9,4 +9,4 @@
 ---
 - name: Resources | Tasks | DNS | Tasker | Import
   ansible.builtin.include_tasks: "tasker2.yml"
-  when: cloudflare_records_enabled and role_dns_enabled and not skip_dns
+  when: role_dns_management_enabled

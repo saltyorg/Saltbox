@@ -29,6 +29,12 @@ class CertificateDomain(TypedDict):
     sans: list[str]
 
 
+class CertificatePlan(TypedDict):
+    domains: list[CertificateDomain]
+    certresolver: str
+    mode: str
+
+
 def _normalize_hostname(value: object) -> str:
     if not isinstance(value, str):
         raise DomainParseError("domain must be a string")
@@ -126,29 +132,13 @@ def _validate_accessible_zone(domain: str, authoritative_zones: Sequence[str]) -
     )
 
 
-def traefik_certificate_domains(
+def _certificate_bases(
     primary_domain: object,
-    fqdn_overrides: object = None,
-    additional_domains: object = None,
-    wildcard_enabled: bool = True,
-    authoritative_zones: object = None,
-) -> list[CertificateDomain]:
-    """Build ordered root-and-wildcard domain objects for a Traefik router."""
-    if not wildcard_enabled:
-        return []
-
+    fqdn_overrides: object,
+    additional_domains: object,
+) -> tuple[list[str], list[str], list[str]]:
     fqdn_values = _as_string_list(fqdn_overrides, "FQDN overrides")
     additional_values = _as_string_list(additional_domains, "additional domains")
-    zone_values: list[str] | None
-    if authoritative_zones is None:
-        zone_values = None
-    else:
-        zone_values = _as_string_list(authoritative_zones, "authoritative zones")
-        if not zone_values:
-            raise AnsibleFilterError(
-                "the configured Cloudflare credentials returned no zones"
-            )
-        zone_values = [zone.rstrip(".").casefold() for zone in zone_values]
 
     try:
         primary = _normalize_certificate_name(primary_domain, "primary domain")
@@ -165,18 +155,190 @@ def traefik_certificate_domains(
     except DomainParseError as exc:
         raise AnsibleFilterError(str(exc)) from exc
 
+    return [primary, *explicit_bases, *inferred_bases], [
+        primary,
+        *inferred_bases,
+    ], explicit_bases
+
+
+def _unique_certificate_bases(bases: Sequence[str]) -> list[str]:
     unique_bases: list[str] = []
     seen: set[str] = set()
-    for base in [primary, *explicit_bases, *inferred_bases]:
+    for base in bases:
         comparison_key = base.casefold()
         if comparison_key in seen:
             continue
-        if zone_values is not None:
-            _validate_accessible_zone(comparison_key, zone_values)
         seen.add(comparison_key)
         unique_bases.append(base)
+    return unique_bases
+
+
+def traefik_certificate_domains(
+    primary_domain: object,
+    fqdn_overrides: object = None,
+    additional_domains: object = None,
+    wildcard_enabled: bool = True,
+    authoritative_zones: object = None,
+) -> list[CertificateDomain]:
+    """Build ordered root-and-wildcard domain objects for a Traefik router."""
+    if not wildcard_enabled:
+        return []
+
+    zone_values: list[str] | None
+    if authoritative_zones is None:
+        zone_values = None
+    else:
+        zone_values = _as_string_list(authoritative_zones, "authoritative zones")
+        if not zone_values:
+            raise AnsibleFilterError(
+                "the configured Cloudflare credentials returned no zones"
+            )
+        zone_values = [zone.rstrip(".").casefold() for zone in zone_values]
+
+    bases, _, _ = _certificate_bases(
+        primary_domain,
+        fqdn_overrides,
+        additional_domains,
+    )
+    unique_bases = _unique_certificate_bases(bases)
+    for base in unique_bases:
+        if zone_values is not None:
+            _validate_accessible_zone(base.casefold(), zone_values)
 
     return [{"main": base, "sans": [f"*.{base}"]} for base in unique_bases]
+
+
+def traefik_certificate_plan(
+    primary_domain: object,
+    fqdn_overrides: object = None,
+    additional_domains: object = None,
+    wildcard_enabled: bool = True,
+    policy: object = None,
+) -> CertificatePlan:
+    """Plan certificate domains and the resolver used by one Traefik router."""
+    if not isinstance(policy, dict):
+        raise AnsibleFilterError("certificate policy must be a mapping")
+
+    policy_mapping = cast(dict[object, object], policy)
+    challenge_provider = policy_mapping.get("challenge_provider")
+    traefik_domain = policy_mapping.get("traefik_domain")
+    dns_management_enabled = policy_mapping.get("dns_management_enabled")
+    http_validation_enabled = policy_mapping.get("http_validation_enabled")
+    certresolver = policy_mapping.get("certresolver")
+    http_certresolver = policy_mapping.get("http_certresolver")
+    if not isinstance(challenge_provider, str) or not challenge_provider:
+        raise AnsibleFilterError(
+            "certificate policy challenge provider must not be empty"
+        )
+    if not isinstance(certresolver, str) or not certresolver:
+        raise AnsibleFilterError("certificate policy certresolver must not be empty")
+    if not isinstance(http_certresolver, str) or not http_certresolver:
+        raise AnsibleFilterError(
+            "certificate policy HTTP certresolver must not be empty"
+        )
+    if not isinstance(dns_management_enabled, bool):
+        raise AnsibleFilterError(
+            "certificate policy DNS management enabled must be a boolean"
+        )
+    if not isinstance(http_validation_enabled, bool):
+        raise AnsibleFilterError(
+            "certificate policy HTTP validation enabled must be a boolean"
+        )
+
+    if not wildcard_enabled:
+        return {
+            "domains": [],
+            "certresolver": certresolver,
+            "mode": "configured-exact",
+        }
+
+    bases, router_bases, explicit_bases = _certificate_bases(
+        primary_domain,
+        fqdn_overrides,
+        additional_domains,
+    )
+    unique_bases = _unique_certificate_bases(bases)
+
+    provider_is_cloudflare = challenge_provider.casefold() == "cloudflare"
+    untrusted_router_bases: list[str]
+    untrusted_explicit_bases: list[str]
+    if provider_is_cloudflare:
+        zone_values = _as_string_list(
+            policy_mapping.get("authoritative_zones"),
+            "authoritative zones",
+        )
+        normalized_zones = [zone.rstrip(".").casefold() for zone in zone_values]
+        untrusted_router_bases = [
+            base
+            for base in router_bases
+            if not any(
+                _belongs_to_zone(base.casefold(), zone) for zone in normalized_zones
+            )
+        ]
+        untrusted_explicit_bases = [
+            base
+            for base in explicit_bases
+            if not any(
+                _belongs_to_zone(base.casefold(), zone) for zone in normalized_zones
+            )
+        ]
+    else:
+        try:
+            trusted_domain = _normalize_certificate_name(
+                traefik_domain,
+                "Traefik domain",
+            ).casefold()
+        except DomainParseError as exc:
+            raise AnsibleFilterError(str(exc)) from exc
+        explicit_keys = {base.casefold() for base in explicit_bases}
+        untrusted_router_bases = [
+            base
+            for base in router_bases
+            if base.casefold() not in explicit_keys
+            and not _belongs_to_zone(base.casefold(), trusted_domain)
+        ]
+        untrusted_explicit_bases = []
+
+    if untrusted_explicit_bases:
+        raise AnsibleFilterError(
+            "additional wildcard certificate domain "
+            + f"{untrusted_explicit_bases[0]!r} does not belong to a zone "
+            + "accessible to the configured Cloudflare credentials"
+        )
+
+    if untrusted_router_bases:
+        untrusted_domain = untrusted_router_bases[0]
+        if dns_management_enabled:
+            if provider_is_cloudflare:
+                _validate_accessible_zone(untrusted_domain.casefold(), normalized_zones)
+            raise AnsibleFilterError(
+                f"certificate domain {untrusted_domain!r} is outside the configured "
+                + "Traefik domain while DNS management is enabled"
+            )
+        if explicit_bases:
+            raise AnsibleFilterError(
+                f"certificate domain {untrusted_domain!r} cannot use HTTP fallback "
+                + "while additional wildcard certificate domains are configured"
+            )
+        if not http_validation_enabled:
+            raise AnsibleFilterError(
+                f"certificate domain {untrusted_domain!r} requires HTTP certificate "
+                + "validation, but HTTP certificate validation is not enabled; enable "
+                + "traefik.cert.http_validation and reinstall Traefik"
+            )
+        return {
+            "domains": [],
+            "certresolver": http_certresolver,
+            "mode": "http-exact",
+        }
+
+    return {
+        "domains": [
+            {"main": base, "sans": [f"*.{base}"]} for base in unique_bases
+        ],
+        "certresolver": certresolver,
+        "mode": "dns-wildcard",
+    }
 
 
 def traefik_certificate_labels(domains: object, router: object) -> dict[str, str]:
@@ -212,5 +374,6 @@ class FilterModule:
         return {
             "tld_parse": tld_parse,
             "traefik_certificate_domains": traefik_certificate_domains,
+            "traefik_certificate_plan": traefik_certificate_plan,
             "traefik_certificate_labels": traefik_certificate_labels,
         }

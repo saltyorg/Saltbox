@@ -191,7 +191,7 @@ authentik_role_docker_labels_default:
   traefik.http.routers.authentik-outpost.service: "authentik-outpost"
   traefik.http.routers.authentik-outpost.rule: "{{ lookup('role_var', '_web_outpost_rule', role='authentik') }}"
   traefik.http.routers.authentik-outpost.tls.options: "securetls@file"
-  traefik.http.routers.authentik-outpost.tls.certresolver: "{{ authentik_role_traefik_certresolver }}"
+  traefik.http.routers.authentik-outpost.tls.certresolver: "{{ traefik_router_certresolver }}"
   traefik.http.routers.authentik-outpost.middlewares: "{{ traefik_default_middleware }}"
   traefik.http.routers.authentik-outpost.priority: "99"
   traefik.http.services.authentik-outpost-http.loadbalancer.server.port: "{{ lookup('role_var', '_web_port', role='authentik') }}"

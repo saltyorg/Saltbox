@@ -17,7 +17,7 @@ http:
       service: "{{ autoplow_name }}"
       tls:
         options: securetls@file
-        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='autoplow') }}
+        certResolver: {{ traefik_router_certresolver }}
 {% if traefik_router_certificate_domains %}
         domains:
 {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}
@@ -41,7 +41,7 @@ http:
       service: "{{ autoplow_name }}"
       tls:
         options: securetls@file
-        certResolver: {{ lookup('role_var', '_traefik_certresolver', role='autoplow') }}
+        certResolver: {{ traefik_router_certresolver }}
 {% if traefik_router_certificate_domains %}
         domains:
 {{ traefik_router_certificate_domains | to_nice_yaml(indent=2) | trim | indent(10, true) }}

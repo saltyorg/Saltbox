@@ -217,6 +217,17 @@ traefik_default_certresolver: "{{ traefik_default_certprovider
                                else (traefik_default_resolver
                                      if not zerossl_is_enabled
                                      else traefik_default_zerossl_resolver) }}"
+traefik_role_certresolver: "{{ lookup('role_var', '_traefik_certresolver', role=role_var_role, default=traefik_default_certresolver) }}"
+traefik_http_certresolvers:
+  cfdns: "{{ traefik_default_resolver }}"
+  google: "{{ 'googlehttp'
+           if ((traefik_google_kid is defined) and (traefik_google_hmacencoded is defined))
+           else traefik_default_resolver }}"
+  googlehttp: googlehttp
+  httpresolver: httpresolver
+  zerossl: "{{ traefik_default_zerossl_resolver }}"
+  zerosslhttp: zerosslhttp
+traefik_role_http_certresolver: "{{ traefik_http_certresolvers.get(traefik_role_certresolver, traefik_default_resolver) }}"
 traefik_role_wildcard_enabled: "{{ lookup('role_var', '_traefik_wildcard_enabled', role=role_var_role, default=(not traefik_http)) | bool }}"
 
 
@@ -388,11 +399,21 @@ traefik_certificate_fqdn_overrides: "{{ traefik_fqdn_override_lookup
                                      if (traefik_host_override_lookup | length == 0)
                                      else [] }}"
 traefik_certificate_authoritative_zones: null
-traefik_router_certificate_domains: "{{ traefik_domain
-                                        | traefik_certificate_domains(traefik_certificate_fqdn_overrides,
-                                                                      [],
-                                                                      traefik_role_wildcard_enabled,
-                                                                      traefik_certificate_authoritative_zones) }}"
+traefik_certificate_policy:
+  challenge_provider: "{{ traefik_challenge_provider }}"
+  traefik_domain: "{{ lookup('role_var', '_web_domain', role='traefik') }}"
+  authoritative_zones: "{{ traefik_certificate_authoritative_zones }}"
+  dns_management_enabled: "{{ role_dns_management_enabled }}"
+  http_validation_enabled: "{{ traefik_enable_http_validation | bool }}"
+  certresolver: "{{ traefik_role_certresolver }}"
+  http_certresolver: "{{ traefik_role_http_certresolver }}"
+traefik_router_certificate_plan: "{{ traefik_domain
+                                     | traefik_certificate_plan(traefik_certificate_fqdn_overrides,
+                                                                [],
+                                                                traefik_role_wildcard_enabled,
+                                                                traefik_certificate_policy) }}"
+traefik_router_certificate_domains: "{{ traefik_router_certificate_plan.domains }}"
+traefik_router_certresolver: "{{ traefik_router_certificate_plan.certresolver }}"
 
 traefik_entrypoint_tailscale_default: false
 traefik_entrypoint_web_default: "{{ 'web'
@@ -508,7 +529,7 @@ docker_labels_traefik_main:
   - '{ "traefik.http.routers.{{ traefik_router }}.service": "{{ traefik_router }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.rule": "{{ traefik_host_template }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.priority": "{{ lookup("role_var", "_traefik_priority", role=role_var_role, default="20") }}" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ lookup("role_var", "_traefik_certresolver", role=role_var_role, default=traefik_default_certresolver) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}.tls.certresolver": "{{ traefik_router_certresolver }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}.middlewares": "{{ traefik_middleware }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-http.loadbalancer.server.port": "{{ lookup("role_var", "_web_http_port", role=role_var_role, default=traefik_loadbalancer_port) }}" }'
@@ -528,7 +549,7 @@ docker_labels_traefik_api:
   - '{ "traefik.http.routers.{{ traefik_router }}-api.service": "{{ traefik_router }}-api" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.rule": "{{ traefik_host_template }} && ({{ lookup("role_var", "_traefik_api_endpoint", role=role_var_role, default=omit) }})" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.priority": "30" }'
-  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ lookup("role_var", "_traefik_certresolver", role=role_var_role, default=traefik_default_certresolver) }}" }'
+  - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.certresolver": "{{ traefik_router_certresolver }}" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.tls.options": "securetls@file" }'
   - '{ "traefik.http.routers.{{ traefik_router }}-api.middlewares": "{{ traefik_middleware_api }}" }'
   - '{ "traefik.http.services.{{ traefik_router }}-api-http.loadbalancer.server.port": "{{ lookup("role_var", "_web_api_http_port", role=role_var_role, default=lookup("role_var", "_web_api_port", role=role_var_role, default=traefik_loadbalancer_port)) }}" }'
@@ -600,6 +621,7 @@ reboot_is_necessary: false
 dns_proxied: "{{ dns.proxied | bool }}"
 skip_dns: "{{ not (dns_ipv4_enabled or dns_ipv6_enabled) }}"
 role_dns_enabled: "{{ lookup('role_var', '_dns_enabled', role=role_var_role, default=true) | bool }}"
+role_dns_management_enabled: "{{ cloudflare_records_enabled and role_dns_enabled and not skip_dns }}"
 dns_ipv4_enabled: "{{ dns.ipv4 | bool }}"
 dns_ipv6_enabled: "{{ dns.ipv6 | bool }}"
 docker_legacy_volume: false
