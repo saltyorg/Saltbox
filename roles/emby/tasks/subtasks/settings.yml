@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Post-Install | Wait for config file to be created
+- name: Settings | Wait for config file to be created
   ansible.builtin.wait_for:
     path: "{{ lookup('role_var', '_paths_config_location', role='emby') }}"
     state: present
