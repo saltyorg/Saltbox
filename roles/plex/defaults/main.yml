@@ -17,7 +17,6 @@ plex_instances: ["plex"]
 # Settings
 ################################
 
-# Do not enable globally if deploying multiple instances
 plex_role_open_main_ports: false
 # Do not enable globally if deploying multiple instances
 plex_role_open_local_ports: false

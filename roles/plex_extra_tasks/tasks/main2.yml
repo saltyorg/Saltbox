@@ -67,7 +67,7 @@
     path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
     xpath: /Preferences
     attribute: ManualPortMappingPort
-    value: "{{ plex_docker_port_lookup | default(lookup('role_var', '_web_port', role='plex')) }}"
+    value: "{{ plex_docker_port_lookup | default(lookup('role_var', '_web_port', role='plex')) | string }}"
     state: present
   become: true
   become_user: "{{ user.name }}"
