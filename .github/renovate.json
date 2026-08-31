@@ -15,7 +15,7 @@
         "$default"
     ],
     "constraints": {
-        "uv": "0.12.5"
+        "uv": "0.12.7"
     },
     "pip-compile": {
         "managerFilePatterns": [
