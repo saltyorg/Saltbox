@@ -8,6 +8,7 @@ module: saltbox_facts
 description:
     - Loads, saves, or deletes configuration facts for Saltbox roles.
     - By default, loads existing values and only saves new keys if they do not exist.
+    - Serializes role-file mutations through an adjacent lock shared with the Saltbox CLI.
 author: salty
 options:
     role:
@@ -162,15 +163,22 @@ message:
 """
 
 import configparser
+import fcntl
 import grp
 import os
 import pwd
 import stat
 import tempfile
+import time
+from contextlib import contextmanager
 from io import StringIO
-from typing import Any
+from typing import Any, Iterator
 
 from ansible.module_utils.basic import AnsibleModule
+
+
+LOCK_TIMEOUT_SECONDS = 30.0
+LOCK_POLL_INTERVAL_SECONDS = 0.05
 
 
 def create_config_parser() -> configparser.ConfigParser:
@@ -235,7 +243,7 @@ def validate_key_name(key: Any) -> None:
         raise ValueError("Configuration keys must be non-empty")
     if any(character in key for character in ('\r', '\n', '=')):
         raise ValueError(f"Invalid key '{key}': must not contain line breaks or '='")
-    if key.lstrip().startswith('#'):
+    if key.lstrip().startswith(('#', ';')):
         raise ValueError(f"Invalid key '{key}': must not be interpreted as a comment")
 
 
@@ -316,10 +324,65 @@ def atomic_write(file_path: str, content: str, mode: int, uid: int, gid: int) ->
         os.chmod(temp_path, mode)
 
         os.replace(temp_path, file_path)
+        directory_descriptor = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_descriptor)
+        finally:
+            os.close(directory_descriptor)
     except Exception:
         if os.path.lexists(temp_path):
             os.unlink(temp_path)
         raise
+
+
+def acquire_fact_lock(lock_file: Any, lock_path: str, lock_timeout: float) -> None:
+    """Acquire an exclusive fact-file lock within the configured timeout."""
+    deadline = time.monotonic() + lock_timeout
+    while True:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except BlockingIOError:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError(
+                    f"Timed out after {lock_timeout:g} seconds waiting for facts lock "
+                    f"'{lock_path}'"
+                )
+            time.sleep(min(LOCK_POLL_INTERVAL_SECONDS, remaining))
+
+
+@contextmanager
+def fact_file_lock(
+    file_path: str,
+    lock_timeout: float = LOCK_TIMEOUT_SECONDS,
+) -> Iterator[None]:
+    """Lock one role INI through a stable adjacent sidecar file."""
+    directory = os.path.dirname(file_path)
+    if os.path.lexists(directory) and os.path.islink(directory):
+        raise ValueError(f"Facts directory must not be a symbolic link: {directory}")
+    os.makedirs(directory, mode=0o755, exist_ok=True)
+
+    lock_path = f"{file_path}.lock"
+    if os.path.lexists(lock_path) and os.path.islink(lock_path):
+        raise ValueError(f"Facts lock must not be a symbolic link: {lock_path}")
+
+    flags = os.O_CREAT | os.O_RDWR | os.O_CLOEXEC
+    if hasattr(os, 'O_NOFOLLOW'):
+        flags |= os.O_NOFOLLOW
+    lock_descriptor = os.open(lock_path, flags, 0o640)
+    try:
+        lock_stat = os.fstat(lock_descriptor)
+        if not stat.S_ISREG(lock_stat.st_mode):
+            raise ValueError(f"Facts lock must be a regular file: {lock_path}")
+        os.fchmod(lock_descriptor, 0o640)
+        with os.fdopen(lock_descriptor, 'r+') as lock_file:
+            lock_descriptor = -1
+            acquire_fact_lock(lock_file, lock_path, lock_timeout)
+            yield
+    finally:
+        if lock_descriptor >= 0:
+            os.close(lock_descriptor)
 
 
 def ensure_file_attributes(file_path: str, mode: int, uid: int, gid: int) -> bool:
@@ -372,7 +435,8 @@ def process_facts(
     uid: int,
     gid: int,
     mode: int,
-    overwrite: bool = False
+    overwrite: bool = False,
+    lock_timeout: float = LOCK_TIMEOUT_SECONDS,
 ) -> tuple[dict[str, str], bool]:
     """
     Process facts by loading existing values and saving new ones as needed.
@@ -385,6 +449,7 @@ def process_facts(
         gid (int): Numerical ID of the file group
         mode (int): File permissions mode in octal
         overwrite (bool): If True, overwrite existing values; if False, keep existing values
+        lock_timeout (float): Maximum seconds to wait for the shared role-file lock
 
     Returns:
         tuple: (dict of final facts, bool indicating if changes were made)
@@ -393,6 +458,34 @@ def process_facts(
     validate_instance_name(instance)
     validate_keys(keys)
 
+    with fact_file_lock(file_path, lock_timeout):
+        final_facts, content_changed = process_facts_unlocked(
+            file_path,
+            instance,
+            keys,
+            uid,
+            gid,
+            mode,
+            overwrite,
+        )
+        attribute_changed = (
+            ensure_file_attributes(file_path, mode, uid, gid)
+            if os.path.exists(file_path)
+            else False
+        )
+        return final_facts, content_changed or attribute_changed
+
+
+def process_facts_unlocked(
+    file_path: str,
+    instance: str,
+    keys: dict[str, Any],
+    uid: int,
+    gid: int,
+    mode: int,
+    overwrite: bool = False,
+) -> tuple[dict[str, str], bool]:
+    """Reconcile one instance while the role sidecar lock is held."""
     existing_facts = load_existing_facts(file_path, instance)
     final_facts: dict[str, str] = {}
     keys_to_save: dict[str, str] = {}
@@ -434,7 +527,13 @@ def process_facts(
     return final_facts, changed
 
 
-def delete_facts(file_path: str, delete_type: str, instance: str, keys: dict[str, Any]) -> bool:
+def delete_facts(
+    file_path: str,
+    delete_type: str,
+    instance: str,
+    keys: dict[str, Any],
+    lock_timeout: float = LOCK_TIMEOUT_SECONDS,
+) -> bool:
     """
     Delete facts from configuration file.
 
@@ -451,6 +550,17 @@ def delete_facts(file_path: str, delete_type: str, instance: str, keys: dict[str
     validate_instance_name(instance)
     validate_keys(keys, validate_values=False)
 
+    with fact_file_lock(file_path, lock_timeout):
+        return delete_facts_unlocked(file_path, delete_type, instance, keys)
+
+
+def delete_facts_unlocked(
+    file_path: str,
+    delete_type: str,
+    instance: str,
+    keys: dict[str, Any],
+) -> bool:
+    """Delete facts while the role sidecar lock is held."""
     if delete_type == 'role':
         if os.path.lexists(file_path):
             os.remove(file_path)
@@ -608,15 +718,9 @@ def run_module() -> None:
             result['changed'] = delete_facts(file_path, delete_type, instance, keys)
         else:
             uid, gid = resolve_ownership(owner, group)
-            result['facts'], content_changed = process_facts(
+            result['facts'], result['changed'] = process_facts(
                 file_path, instance, keys, uid, gid, mode, overwrite
             )
-            attribute_changed = (
-                ensure_file_attributes(file_path, mode, uid, gid)
-                if os.path.exists(file_path)
-                else False
-            )
-            result['changed'] = content_changed or attribute_changed
 
         module.exit_json(**result)
 

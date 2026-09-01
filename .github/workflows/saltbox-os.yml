@@ -59,6 +59,9 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Test Saltbox facts persistence
+        run: python3 .github/scripts/test_saltbox_facts.py
+
       - name: Run Saltbox Linter
         run: python3 scripts/saltbox-linter.py .
 
