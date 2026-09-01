@@ -120,6 +120,9 @@ Rules:
 
 32. Saltbox Lint Directives: Saltbox-specific allowances must use a known,
     line-local directive and may not be malformed, misplaced, or unnecessary
+
+33. SVM GitHub API Resource: direct SVM variable use is allowed only in the
+    shared GitHub API request resource, which owns the direct GitHub fallback
 """
 
 import os
@@ -137,6 +140,13 @@ MappingContext = int | None
 JinjaBlock = tuple[int, int, list[str]]
 TopLevelVariable = tuple[str, int, list[str]]
 MAX_INLINE_CONDITIONAL_LENGTH = 160
+SVM_GITHUB_API_RESOURCE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "resources"
+    / "tasks"
+    / "git"
+    / "github_api_request.yml"
+).resolve()
 DEFAULTS_SECTION_ORDER = (
     "Basics",
     "Settings",
@@ -866,6 +876,36 @@ class SaltboxLinter:
                 )
             )
 
+    def check_svm_github_api_resource_usage(self) -> None:
+        """Rule 33: Keep direct SVM access inside the shared fallback resource."""
+        if self.file_path.resolve() == SVM_GITHUB_API_RESOURCE_PATH:
+            return
+
+        source = "\n".join(self.lines)
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for tag_start, tag in self.iter_jinja_tags(source):
+            svm_column = self.find_jinja_variable_read(tag, "svm")
+            if svm_column is None:
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=(source.count("\n", 0, tag_start + svm_column) + 1),
+                    message=(
+                        "[svm-github-api-resource] Direct SVM use must go "
+                        "through resources/tasks/git/github_api_request.yml "
+                        "so direct GitHub fallback remains available"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
     @staticmethod
     def find_unquoted_yaml_comment(line: str) -> int | None:
         """Return the first YAML comment marker outside quoted content."""
@@ -895,6 +935,50 @@ class SaltboxLinter:
             column += 1
 
         return None
+
+    def line_is_block_scalar_content(self, line_number: int) -> bool:
+        """Return whether a line belongs to a YAML literal or folded scalar."""
+        line_index = line_number - 1
+        if line_index < 0 or line_index >= len(self.lines):
+            return False
+
+        line = self.lines[line_index]
+        if not line.strip():
+            return False
+        content_indent = len(line) - len(line.lstrip())
+        block_indicator = re.compile(
+            r"(?:^|:\s+|-\s+)(?:(?:[&!][^\s]+)\s+)*"
+            r"[|>](?:[1-9][+-]?|[+-][1-9]?)?$"
+        )
+
+        for previous_line in reversed(self.lines[:line_index]):
+            if not previous_line.strip():
+                continue
+            previous_indent = len(previous_line) - len(previous_line.lstrip())
+            if previous_indent >= content_indent:
+                continue
+            previous_code = self.strip_unquoted_yaml_comment(previous_line).strip()
+            if block_indicator.search(previous_code) is None:
+                return False
+            return re.search(r"(?:^|\s)!unsafe(?:\s|$)", previous_code) is None
+
+        return False
+
+    def jinja_tag_is_in_yaml_comment(self, source: str, tag_start: int) -> bool:
+        """Return whether a Jinja tag starts inside a real YAML comment."""
+        line_start = source.rfind("\n", 0, tag_start) + 1
+        line_end = source.find("\n", tag_start)
+        if line_end == -1:
+            line_end = len(source)
+        source_line = source[line_start:line_end]
+        tag_column = tag_start - line_start
+        comment_column = self.find_unquoted_yaml_comment(source_line)
+        tag_line_number = source.count("\n", 0, tag_start) + 1
+        return (
+            comment_column is not None
+            and comment_column <= tag_column
+            and not self.line_is_block_scalar_content(tag_line_number)
+        )
 
     @classmethod
     def strip_unquoted_yaml_comment(cls, value: str) -> str:
@@ -2337,17 +2421,33 @@ class SaltboxLinter:
                 return "\n".join(jinja_lines)
         return variable_lines[0]
 
-    @staticmethod
-    def iter_jinja_expressions(source: str) -> Iterator[tuple[int, str]]:
-        """Yield balanced {{ ... }} expressions while respecting quoted content."""
+    def iter_jinja_tags(self, source: str) -> Iterator[tuple[int, str]]:
+        """Yield balanced Jinja output and statement tags, skipping comments."""
         search_column = 0
-        while (expression_start := source.find("{{", search_column)) != -1:
+        raw_active = False
+        while True:
+            candidates = [
+                (column, marker)
+                for marker in ("{{", "{%", "{#")
+                if (column := source.find(marker, search_column)) != -1
+            ]
+            if not candidates:
+                return
+
+            tag_start, marker = min(candidates)
+            if marker == "{#":
+                comment_end = source.find("#}", tag_start + len(marker))
+                if comment_end == -1:
+                    return
+                search_column = comment_end + len("#}")
+                continue
+
             quote: str | None = None
             escaped = False
             mapping_depth = 0
-            expression_end: int | None = None
+            tag_end: int | None = None
 
-            for column in range(expression_start + len("{{"), len(source)):
+            for column in range(tag_start + len(marker), len(source)):
                 char = source[column]
                 if escaped:
                     escaped = False
@@ -2358,20 +2458,218 @@ class SaltboxLinter:
                         quote = None
                 elif char in ("'", '"'):
                     quote = char
-                elif char == "{":
+                elif marker == "{{" and char == "{":
                     mapping_depth += 1
-                elif char == "}":
+                elif marker == "{{" and char == "}":
                     if mapping_depth > 0:
                         mapping_depth -= 1
                     elif source.startswith("}}", column):
-                        expression_end = column + len("}}")
+                        tag_end = column + len("}}")
                         break
+                elif marker == "{%" and source.startswith("%}", column):
+                    tag_end = column + len("%}")
+                    break
 
-            if expression_end is None:
+            if tag_end is None:
                 return
 
-            yield expression_start, source[expression_start:expression_end]
-            search_column = expression_end
+            tag = source[tag_start:tag_end]
+            search_column = tag_end
+            if self.jinja_tag_is_in_yaml_comment(source, tag_start):
+                continue
+            raw_start = marker == "{%" and re.fullmatch(
+                r"\{%[+-]?\s*raw\s*[+-]?%\}", tag
+            )
+            raw_end = marker == "{%" and re.fullmatch(
+                r"\{%[+-]?\s*endraw\s*[+-]?%\}", tag
+            )
+            if raw_active:
+                if raw_end:
+                    raw_active = False
+                continue
+            if raw_start:
+                raw_active = True
+                continue
+            if raw_end:
+                continue
+
+            yield tag_start, tag
+
+    @staticmethod
+    def find_jinja_variable_read(tag: str, variable_name: str) -> int | None:
+        """Return the first read of a global Jinja name in one tag."""
+        tokens: list[tuple[str, int]] = []
+        quote: str | None = None
+        escaped = False
+        column = 0
+
+        while column < len(tag):
+            char = tag[column]
+            if escaped:
+                escaped = False
+                column += 1
+                continue
+            if quote is not None:
+                if char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+                column += 1
+                continue
+            if char in ("'", '"'):
+                quote = char
+                column += 1
+                continue
+            if char.isspace():
+                column += 1
+                continue
+            if char.isalpha() or char == "_":
+                token_end = column + 1
+                while token_end < len(tag) and (
+                    tag[token_end].isalnum() or tag[token_end] == "_"
+                ):
+                    token_end += 1
+                tokens.append((tag[column:token_end], column))
+                column = token_end
+                continue
+
+            operator = next(
+                (
+                    candidate
+                    for candidate in ("==", "!=", ">=", "<=", "//", "**")
+                    if tag.startswith(candidate, column)
+                ),
+                char,
+            )
+            tokens.append((operator, column))
+            column += len(operator)
+
+        statement_command_index = next(
+            (
+                index
+                for index, (token, _) in enumerate(tokens)
+                if token not in ("{", "%")
+                and (token[0].isalpha() or token[0] == "_")
+            ),
+            None,
+        )
+        statement_command = (
+            tokens[statement_command_index][0]
+            if statement_command_index is not None
+            else None
+        )
+        assignment_index = next(
+            (index for index, (token, _) in enumerate(tokens) if token == "="),
+            None,
+        )
+        for_in_index = next(
+            (index for index, (token, _) in enumerate(tokens) if token == "in"),
+            None,
+        )
+        import_index = next(
+            (index for index, (token, _) in enumerate(tokens) if token == "import"),
+            None,
+        )
+
+        def matching_parenthesis(open_index: int) -> int | None:
+            depth = 0
+            for token_index in range(open_index, len(tokens)):
+                token = tokens[token_index][0]
+                if token == "(":
+                    depth += 1
+                elif token == ")":
+                    depth -= 1
+                    if depth == 0:
+                        return token_index
+            return None
+
+        for index, (token, token_column) in enumerate(tokens):
+            if token != variable_name:
+                continue
+            previous_token = tokens[index - 1][0] if index > 0 else None
+            previous_previous_token = tokens[index - 2][0] if index > 1 else None
+            next_token = tokens[index + 1][0] if index + 1 < len(tokens) else None
+            if previous_token in (".", "|", "is"):
+                continue
+            if previous_token == "not" and previous_previous_token == "is":
+                continue
+            if next_token in ("(", "="):
+                continue
+            if previous_token == "as":
+                continue
+            if statement_command == "set" and (
+                assignment_index is None or index < assignment_index
+            ):
+                continue
+            if (
+                statement_command == "for"
+                and for_in_index is not None
+                and index < for_in_index
+            ):
+                continue
+            if (
+                statement_command == "from"
+                and import_index is not None
+                and index > import_index
+            ):
+                continue
+            if (
+                statement_command == "filter"
+                and statement_command_index is not None
+            ):
+                if index == statement_command_index + 1:
+                    continue
+            if (
+                statement_command in ("macro", "call")
+                and statement_command_index is not None
+            ):
+                open_index = next(
+                    (
+                        token_index
+                        for token_index in range(
+                            statement_command_index + 1, len(tokens)
+                        )
+                        if tokens[token_index][0] == "("
+                    ),
+                    None,
+                )
+                if open_index is not None:
+                    close_index = matching_parenthesis(open_index)
+                    if (
+                        close_index is not None
+                        and open_index < index < close_index
+                    ):
+                        if statement_command == "call" and (
+                            open_index == statement_command_index + 1
+                        ):
+                            continue
+                        if statement_command == "macro":
+                            segment_start = open_index + 1
+                            nested_depth = 0
+                            for parameter_index in range(open_index + 1, index):
+                                parameter_token = tokens[parameter_index][0]
+                                if parameter_token in ("(", "[", "{"):
+                                    nested_depth += 1
+                                elif parameter_token in (")", "]", "}"):
+                                    nested_depth = max(0, nested_depth - 1)
+                                elif parameter_token == "," and nested_depth == 0:
+                                    segment_start = parameter_index + 1
+                            has_default = any(
+                                tokens[parameter_index][0] == "="
+                                for parameter_index in range(segment_start, index)
+                            )
+                            if not has_default:
+                                continue
+
+            return token_column
+
+        return None
+
+    def iter_jinja_expressions(self, source: str) -> Iterator[tuple[int, str]]:
+        """Yield balanced {{ ... }} expressions while respecting quoted content."""
+        for tag_start, tag in self.iter_jinja_tags(source):
+            if tag.startswith("{{"):
+                yield tag_start, tag
 
     @staticmethod
     def iter_lookup_calls(
@@ -3002,6 +3300,7 @@ class SaltboxLinter:
         self.check_lookup_argument_layout()
         self.check_lookup_conditional_arguments()
         self.check_jinja_closing_brace_placement()
+        self.check_svm_github_api_resource_usage()
         return self.errors
 
     def lint_inventory(self) -> list[LintError]:
