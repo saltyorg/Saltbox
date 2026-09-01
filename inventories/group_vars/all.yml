@@ -204,6 +204,7 @@ zerossl_is_enabled: "{{ (traefik_enable_zerossl | bool) and (traefik.cert.zeross
 ################################
 
 traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
+traefik_role_name: "{{ role_var_role if role_var_role else role_name }}"
 
 # Replaces powerdns with pdns for config sanity reasons.
 traefik_challenge_provider: "{{ traefik.provider | default('cloudflare') | replace('powerdns', 'pdns') }}"
@@ -389,7 +390,7 @@ traefik_router: "{{ lookup('vars', traefik_role_var + '_name', default=lookup('v
 traefik_loadbalancer_port: "{{ lookup('role_var', '_web_port', role=role_var_role, default=omit) }}"
 traefik_loadbalancer_scheme: "{{ lookup('role_var', '_web_scheme', role=role_var_role, default=omit) }}"
 
-traefik_host: "{{ lookup('role_web', role=(role_var_role if role_var_role else role_name)) }}"
+traefik_host: "{{ lookup('role_web', role=traefik_role_name) }}"
 
 traefik_host_override_lookup: "{{ lookup('role_var', '_web_host_override', role=role_var_role, default='') }}"
 traefik_fqdn_override_lookup: "{{ lookup('role_var', '_web_fqdn_override', role=role_var_role, default=[]) }}"
@@ -425,7 +426,7 @@ traefik_entrypoint_websecure_default: "{{ 'websecure'
                                        else 'tailscale-websecure' }}"
 traefik_entrypoint_websecure: "{{ lookup('role_var', '_traefik_entrypoint_websecure', role=role_var_role, default=traefik_entrypoint_websecure_default) }}"
 
-traefik_url: "{{ lookup('role_web', role=(role_var_role if role_var_role else role_name), scheme='https') }}"
+traefik_url: "{{ lookup('role_web', role=traefik_role_name, scheme='https') }}"
 
 traefik_themepark_labels_tmp:
   - '{ "traefik.http.middlewares.themepark-{{ traefik_router }}.plugin.themepark.app": "{{ lookup("role_var", "_themepark_app", role=role_var_role, default=role_name) }}" }'

@@ -105,6 +105,21 @@ Rules:
 27. Block Scalar Jinja Indentation: pure Jinja expressions in task block
     scalars use structural indentation for braces, pipeline operators,
     multiline function arguments, and closing parentheses
+
+28. Lookup Conditional Arguments: lookup(...) arguments may not contain
+    if/else expressions; resolve the conditional before calling the lookup
+
+29. Jinja Closing Brace Placement: outside pure block scalars, multiline Jinja
+    closing braces stay on the line containing the expression's final token
+
+30. Docker Healthcheck Test Layout: role healthchecks use explicit block lists
+    with marker-specific CMD, CMD-SHELL, or NONE shapes
+
+31. Docker Healthcheck Command Mode: healthchecks use CMD unless a valid
+    CMD-SHELL test explicitly carries # saltbox-lint allow cmd-shell
+
+32. Saltbox Lint Directives: Saltbox-specific allowances must use a known,
+    line-local directive and may not be malformed, misplaced, or unnecessary
 """
 
 import os
@@ -764,6 +779,376 @@ class SaltboxLinter:
                         )
                     )
                     break
+
+    def check_lookup_conditional_arguments(self) -> None:
+        """Rule 28: Keep conditional expressions outside lookup() calls."""
+        source = "\n".join(self.lines)
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for expression_start, expression in self.iter_jinja_expressions(source):
+            line_start = source.rfind("\n", 0, expression_start) + 1
+            line_end = source.find("\n", expression_start)
+            if line_end == -1:
+                line_end = len(source)
+            source_line = source[line_start:line_end]
+            expression_column = expression_start - line_start
+            comment_column = self.find_unquoted_yaml_comment(source_line)
+            if comment_column is not None and comment_column <= expression_column:
+                continue
+
+            for call_start, call in self.iter_lookup_calls(expression):
+                if_column = self.find_unquoted_keyword(call, "if")
+                else_column = self.find_unquoted_keyword(call, "else")
+                if if_column is None or else_column is None or if_column > else_column:
+                    continue
+
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=(
+                            source.count(
+                                "\n",
+                                0,
+                                expression_start + call_start + if_column,
+                            )
+                            + 1
+                        ),
+                        message=(
+                            "[lookup-conditional-argument] Conditional expressions "
+                            "must be resolved before their value is passed to lookup()"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+    def check_jinja_closing_brace_placement(self) -> None:
+        """Rule 29: Keep non-block-scalar Jinja closers beside final content."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for (
+            jinja_start_line,
+            jinja_bracket_indent,
+            jinja_lines,
+        ) in self.iter_multiline_jinja_blocks():
+            if (
+                self.block_scalar_jinja_context(
+                    jinja_start_line,
+                    jinja_bracket_indent,
+                    jinja_lines,
+                )
+                is not None
+            ):
+                continue
+
+            closing_line = jinja_lines[-1]
+            closing_column = closing_line.find("}}")
+            if closing_column == -1 or closing_line[:closing_column].strip():
+                continue
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=jinja_start_line + len(jinja_lines) - 1,
+                    message=(
+                        "[jinja-closing-brace-placement] Multiline Jinja closing "
+                        "braces must share the line containing the expression's "
+                        "final token"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    @staticmethod
+    def find_unquoted_yaml_comment(line: str) -> int | None:
+        """Return the first YAML comment marker outside quoted content."""
+        quote: str | None = None
+        escaped = False
+        column = 0
+
+        while column < len(line):
+            char = line[column]
+            if escaped:
+                escaped = False
+            elif quote == '"':
+                if char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+            elif quote == "'":
+                if char == quote:
+                    if column + 1 < len(line) and line[column + 1] == quote:
+                        column += 1
+                    else:
+                        quote = None
+            elif char in ("'", '"'):
+                quote = char
+            elif char == "#" and (column == 0 or line[column - 1].isspace()):
+                return column
+            column += 1
+
+        return None
+
+    @classmethod
+    def strip_unquoted_yaml_comment(cls, value: str) -> str:
+        """Remove a YAML comment while preserving hashes inside strings."""
+        comment_column = cls.find_unquoted_yaml_comment(value)
+        return value[:comment_column].rstrip() if comment_column is not None else value
+
+    @staticmethod
+    def unquote_yaml_scalar(value: str) -> str:
+        """Return the content of a simple quoted YAML scalar."""
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            return value[1:-1]
+        return value
+
+    @staticmethod
+    def healthcheck_entry_has_content(
+        entry_value: str,
+        entry_line_offset: int,
+        variable_lines: list[str],
+    ) -> bool:
+        """Return whether one healthcheck test entry contains a command value."""
+        if entry_value in ("|", "|-", "|+", ">", ">-", ">+"):
+            for line in variable_lines[entry_line_offset + 1 :]:
+                if re.match(r"^    -(?:\s|$)", line) or (
+                    line.strip() and not line.startswith("      ")
+                ):
+                    break
+                if line.strip():
+                    return True
+            return False
+        stripped_value = entry_value.strip()
+        if (
+            len(stripped_value) >= 2
+            and stripped_value[0] == stripped_value[-1]
+            and stripped_value[0] in ("'", '"')
+        ):
+            return bool(SaltboxLinter.unquote_yaml_scalar(stripped_value).strip())
+
+        scalar = stripped_value
+        if scalar.lower() == "null" or scalar == "~":
+            return False
+        if (scalar.startswith("[") and scalar.endswith("]")) or (
+            scalar.startswith("{") and scalar.endswith("}")
+        ):
+            return False
+        return bool(scalar)
+
+    def check_docker_healthcheck_tests(self) -> None:
+        """Rules 30-32: Enforce explicit healthcheck shape and command mode."""
+        directive_marker = "# saltbox-lint"
+        directive_pattern = re.compile(
+            r"#\s*saltbox-lint\s+allow\s+(?P<allowance>[a-z0-9-]+)\s*$"
+        )
+        valid_directive_lines: dict[int, str] = {}
+        directive_error_lines: set[int] = set()
+        handled_directive_lines: set[int] = set()
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for line_number, line in enumerate(self.lines, 1):
+            comment_column = self.find_unquoted_yaml_comment(line)
+            if comment_column is None:
+                continue
+            comment = line[comment_column:]
+            if directive_marker not in comment:
+                continue
+            directive_match = directive_pattern.fullmatch(comment)
+            if directive_match is None:
+                directive_error_lines.add(line_number)
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=line_number,
+                        message=(
+                            "[saltbox-lint-directive] Malformed Saltbox lint "
+                            "directive; expected '# saltbox-lint allow cmd-shell'"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            allowance = directive_match.group("allowance")
+            if allowance != "cmd-shell":
+                directive_error_lines.add(line_number)
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=line_number,
+                        message=(
+                            f"[saltbox-lint-directive] Unknown Saltbox lint "
+                            f"allowance '{allowance}'"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            valid_directive_lines[line_number] = allowance
+
+        for (
+            variable_name,
+            variable_line,
+            variable_lines,
+        ) in self.iter_top_level_variables():
+            if not variable_name.endswith("_docker_healthcheck"):
+                continue
+
+            test_offsets = [
+                offset
+                for offset, line in enumerate(variable_lines)
+                if re.match(r"^  test:(?:\s|$)", line)
+            ]
+            if len(test_offsets) != 1:
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=variable_line,
+                        message=(
+                            "[docker-healthcheck-test-layout] Docker healthcheck "
+                            "must define exactly one test block list"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            test_offset = test_offsets[0]
+            test_line_number = variable_line + test_offset
+            test_line = variable_lines[test_offset]
+            test_comment_column = self.find_unquoted_yaml_comment(test_line)
+            test_code = (
+                test_line[:test_comment_column].rstrip()
+                if test_comment_column is not None
+                else test_line.rstrip()
+            )
+            has_valid_directive = test_line_number in valid_directive_lines
+
+            entries: list[tuple[str, int]] = []
+            malformed_child = False
+            for offset in range(test_offset + 1, len(variable_lines)):
+                line = variable_lines[offset]
+                if not line.strip():
+                    continue
+                if not line.startswith("    "):
+                    break
+                entry_match = re.match(r"^    -(?:\s+(?P<value>.*))?$", line)
+                if entry_match is not None:
+                    entry_value = (entry_match.group("value") or "").strip()
+                    entries.append(
+                        (self.strip_unquoted_yaml_comment(entry_value), offset)
+                    )
+                elif not line.startswith("      "):
+                    malformed_child = True
+                    break
+
+            marker = (
+                self.unquote_yaml_scalar(entries[0][0]).strip() if entries else None
+            )
+            structurally_valid = test_code == "  test:" and not malformed_child
+            if marker == "NONE":
+                structurally_valid = structurally_valid and len(entries) == 1
+            elif marker == "CMD":
+                structurally_valid = (
+                    structurally_valid
+                    and len(entries) >= 2
+                    and self.healthcheck_entry_has_content(
+                        entries[1][0], entries[1][1], variable_lines
+                    )
+                )
+            elif marker == "CMD-SHELL":
+                structurally_valid = (
+                    structurally_valid
+                    and len(entries) == 2
+                    and self.healthcheck_entry_has_content(
+                        entries[1][0], entries[1][1], variable_lines
+                    )
+                )
+            else:
+                structurally_valid = False
+
+            if not structurally_valid:
+                if has_valid_directive:
+                    handled_directive_lines.add(test_line_number)
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=test_line_number,
+                        message=(
+                            "[docker-healthcheck-test-layout] Docker healthcheck "
+                            "test must be a block list shaped as NONE, CMD with an "
+                            "executable, or CMD-SHELL with one command string"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+                continue
+
+            if marker == "CMD-SHELL":
+                if has_valid_directive:
+                    handled_directive_lines.add(test_line_number)
+                else:
+                    self.errors.append(
+                        LintError(
+                            file=relative_path,
+                            line=test_line_number,
+                            message=(
+                                "[docker-healthcheck-command-mode] Docker "
+                                "healthchecks must use CMD; add '# saltbox-lint "
+                                "allow cmd-shell' when shell execution is required"
+                            ),
+                            repo_url=self.repo_url,
+                            commit_sha=self.commit_sha,
+                        )
+                    )
+            elif has_valid_directive:
+                handled_directive_lines.add(test_line_number)
+                self.errors.append(
+                    LintError(
+                        file=relative_path,
+                        line=test_line_number,
+                        message=(
+                            "[saltbox-lint-directive] The cmd-shell allowance is "
+                            f"unnecessary for a {marker} healthcheck"
+                        ),
+                        repo_url=self.repo_url,
+                        commit_sha=self.commit_sha,
+                    )
+                )
+
+        for line_number in sorted(
+            valid_directive_lines.keys()
+            - handled_directive_lines
+            - directive_error_lines
+        ):
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[saltbox-lint-directive] The cmd-shell allowance must be "
+                        "placed on a Docker healthcheck test line"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
 
     def check_variable_prefix(self) -> None:
         """Rule 3: Check top-level role defaults use the role's prefix."""
@@ -1953,6 +2338,42 @@ class SaltboxLinter:
         return variable_lines[0]
 
     @staticmethod
+    def iter_jinja_expressions(source: str) -> Iterator[tuple[int, str]]:
+        """Yield balanced {{ ... }} expressions while respecting quoted content."""
+        search_column = 0
+        while (expression_start := source.find("{{", search_column)) != -1:
+            quote: str | None = None
+            escaped = False
+            mapping_depth = 0
+            expression_end: int | None = None
+
+            for column in range(expression_start + len("{{"), len(source)):
+                char = source[column]
+                if escaped:
+                    escaped = False
+                elif char == "\\" and quote is not None:
+                    escaped = True
+                elif quote is not None:
+                    if char == quote:
+                        quote = None
+                elif char in ("'", '"'):
+                    quote = char
+                elif char == "{":
+                    mapping_depth += 1
+                elif char == "}":
+                    if mapping_depth > 0:
+                        mapping_depth -= 1
+                    elif source.startswith("}}", column):
+                        expression_end = column + len("}}")
+                        break
+
+            if expression_end is None:
+                return
+
+            yield expression_start, source[expression_start:expression_end]
+            search_column = expression_end
+
+    @staticmethod
     def iter_lookup_calls(
         source: str,
         *,
@@ -2572,36 +2993,35 @@ class SaltboxLinter:
                         continuation_line, parenthesis_contexts
                     )
 
-    def lint_jinja_alignment(self) -> list[LintError]:
-        """Run multiline Jinja checks shared by defaults, tasks, and inventory."""
+    def lint_shared_jinja(self) -> list[LintError]:
+        """Run Jinja checks shared by defaults, tasks, and inventory."""
         self.check_operator_alignment()
         self.check_ifelse_alignment()
         self.check_function_argument_alignment()
         self.check_dictionary_entry_alignment()
         self.check_lookup_argument_layout()
+        self.check_lookup_conditional_arguments()
+        self.check_jinja_closing_brace_placement()
         return self.errors
 
     def lint_inventory(self) -> list[LintError]:
         """Run the formatting checks supported by the shared inventory."""
-        _ = self.lint_jinja_alignment()
+        _ = self.lint_shared_jinja()
         self.check_inline_conditional_length()
         return self.errors
 
     def lint_tasks(self) -> list[LintError]:
         """Run the formatting checks supported by task files."""
-        _ = self.lint_jinja_alignment()
+        _ = self.lint_shared_jinja()
         self.check_block_scalar_jinja_indentation()
         self.check_inline_conditional_length()
         return self.errors
 
     def lint_defaults(self) -> list[LintError]:
         """Run all defaults checks and return the findings."""
-        self.check_operator_alignment()
-        self.check_ifelse_alignment()
-        self.check_function_argument_alignment()
-        self.check_dictionary_entry_alignment()
-        self.check_lookup_argument_layout()
+        _ = self.lint_shared_jinja()
         self.check_inline_conditional_length()
+        self.check_docker_healthcheck_tests()
         self.check_variable_prefix()
         self.check_docker_layer_composition()
         self.check_web_url_composition()
