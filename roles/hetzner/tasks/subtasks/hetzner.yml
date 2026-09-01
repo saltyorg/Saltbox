@@ -12,6 +12,10 @@
     name: pciutils
     state: latest
 
+- name: Hetzner | Initialize reboot state
+  ansible.builtin.set_fact:
+    hetzner_reboot_is_necessary: false
+
 - name: Hetzner | Fetch PCI info
   ansible.builtin.command:
     argv:
@@ -19,9 +23,14 @@
       - "-Dv"
       - "-d"
       - "8086::0300"
-  register: lscpi_resp
+  register: lspci_resp
   changed_when: false
-  failed_when: false
+
+- name: Hetzner | Classify i915-capable graphics
+  ansible.builtin.set_fact:
+    hetzner_i915_capable: "{{ (lspci_resp.stdout
+                               | regex_search('(?m)^[ \t]*Kernel (?:driver in use|modules):[ \t]*(?:[^,\r\n]+,[ \t]*)*i915(?:[ \t]*,[^,\r\n]+)*[ \t]*$'))
+                               is not none }}"
 
 - name: Hetzner | Check if 'blacklist-hetzner.conf' exists
   ansible.builtin.stat:
@@ -29,14 +38,10 @@
   register: blacklist_hetzner_conf
 
 - name: Hetzner | Hetzner GRUB Edits Block
-  when: ('i915' in lscpi_resp.stdout) and blacklist_hetzner_conf.stat.exists
+  when:
+    - hetzner_i915_capable
+    - blacklist_hetzner_conf.stat.exists
   block:
-    - name: Hetzner | Comment out 'i915' blacklists in 'blacklist-hetzner.conf'
-      ansible.builtin.replace:
-        path: "/etc/modprobe.d/blacklist-hetzner.conf"
-        regexp: '(^blacklist\si915.*)'
-        replace: '#\1'
-
     - name: Hetzner | Check status of GRUB files
       ansible.builtin.stat:
         path: "{{ item }}"
@@ -47,7 +52,85 @@
 
     - name: Hetzner | Hetzner GRUB edits
       ansible.builtin.include_tasks: "grub_edits.yml"
-      when: outer_item.stat.exists
-      loop: "{{ hetzner_grub_files_status.results }}"
-      loop_control:
-        loop_var: outer_item
+
+    - name: Hetzner | Refresh PCI info after configuration
+      ansible.builtin.command:
+        argv:
+          - "lspci"
+          - "-Dv"
+          - "-d"
+          - "8086::0300"
+      register: hetzner_configured_lspci
+      changed_when: false
+
+    - name: Hetzner | Read the running kernel command line
+      ansible.builtin.slurp:
+        src: "/proc/cmdline"
+      register: hetzner_running_cmdline
+
+    - name: Hetzner | Classify the running graphics state
+      ansible.builtin.set_fact:
+        hetzner_i915_is_bound: "{{ (hetzner_configured_lspci.stdout
+                                    | regex_search('(?m)^[ \t]*Kernel driver in use:[ \t]*i915[ \t]*$'))
+                                    is not none }}"
+        hetzner_running_nomodeset: "{{ 'nomodeset' in (hetzner_running_cmdline.content
+                                                       | b64decode).split() }}"
+
+    - name: Hetzner | Load i915 when the running kernel permits it
+      when:
+        - not hetzner_i915_is_bound
+        - not hetzner_running_nomodeset
+      block:
+        - name: Hetzner | Load the i915 module
+          community.general.modprobe:
+            name: i915
+            state: present
+      rescue:
+        - name: Hetzner | Report i915 module-load failure
+          ansible.builtin.fail:
+            msg:
+              - "Failed to load the i915 module."
+              - "{{ ansible_failed_result.stderr
+                    | default(ansible_failed_result.msg, true) }}"
+              - "Filtered PCI state:"
+              - "{{ hetzner_configured_lspci.stdout }}"
+
+    - name: Hetzner | Refresh PCI info after loading i915
+      ansible.builtin.command:
+        argv:
+          - "lspci"
+          - "-Dv"
+          - "-d"
+          - "8086::0300"
+      register: hetzner_loaded_lspci
+      changed_when: false
+      when:
+        - not hetzner_i915_is_bound
+        - not hetzner_running_nomodeset
+
+    - name: Hetzner | Record i915 binding after module loading
+      ansible.builtin.set_fact:
+        hetzner_i915_is_bound: "{{ (hetzner_loaded_lspci.stdout
+                                    | regex_search('(?m)^[ \t]*Kernel driver in use:[ \t]*i915[ \t]*$'))
+                                    is not none }}"
+      when:
+        - not hetzner_i915_is_bound
+        - not hetzner_running_nomodeset
+
+    - name: Hetzner | Require i915 to bind after module loading
+      ansible.builtin.fail:
+        msg:
+          - "The i915 module loaded, but no applicable Intel VGA device is bound to it."
+          - "Filtered PCI state:"
+          - "{{ hetzner_loaded_lspci.stdout }}"
+      when:
+        - not hetzner_i915_is_bound
+        - not hetzner_running_nomodeset
+
+    - name: Hetzner | Require reboot for a running nomodeset kernel
+      ansible.builtin.set_fact:
+        reboot_is_necessary: true
+        hetzner_reboot_is_necessary: true
+      when:
+        - not hetzner_i915_is_bound
+        - hetzner_running_nomodeset

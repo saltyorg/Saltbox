@@ -7,42 +7,60 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: GRUB Edits | Set parameters to remove
+- name: GRUB Edits | Initialize validated transformations
   ansible.builtin.set_fact:
-    grub_item_to_remove:
-      - "nomodeset"
+    hetzner_grub_transformations: []
 
-- name: GRUB Edits | Get default kernel parameters
+- name: GRUB Edits | Read existing configuration files
   ansible.builtin.slurp:
-    src: "{{ outer_item.item }}"
-  register: grub_defaults_content
+    src: "{{ item.item }}"
+  loop: "{{ hetzner_grub_files_status.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item }}"
+  register: hetzner_grub_file_contents
 
-- name: GRUB Edits | Set default kernel parameters
+- name: GRUB Edits | Validate configuration files before mutation
   ansible.builtin.set_fact:
-    grub_default_kernel_parameters: "{{ (grub_defaults_content.content
-                                         | b64decode
-                                         | regex_findall('(?m)^GRUB_CMDLINE_LINUX_DEFAULT\\s*=\\s*\"([^\"]*)\"')
-                                         | first
-                                         | default('')).split() }}"
+    hetzner_grub_transformations: "{{ hetzner_grub_transformations
+                                      + [{'path': item.item.item,
+                                          'owner': item.item.stat.uid,
+                                          'group': item.item.stat.gid,
+                                          'mode': item.item.stat.mode,
+                                          'result': (item.content
+                                                     | b64decode
+                                                     | hetzner_grub_without_nomodeset)}] }}"
+  loop: "{{ hetzner_grub_file_contents.results }}"
+  loop_control:
+    label: "{{ item.item.item }}"
 
-- name: GRUB Edits | Set final kernel parameters
+- name: GRUB Edits | Record whether a GRUB source needs an update
   ansible.builtin.set_fact:
-    grub_final_kernel_parameters: "{{ grub_default_kernel_parameters | reject('in', grub_item_to_remove) | list }}"
+    hetzner_grub_sources_changed: "{{ (hetzner_grub_transformations
+                                       | map(attribute='result.changed_count')
+                                       | sum) > 0 }}"
 
-- name: GRUB Edits | Update 'GRUB_CMDLINE_LINUX_DEFAULT'
+- name: GRUB Edits | Comment out the 'i915' blacklist
   ansible.builtin.replace:
-    path: "{{ outer_item.item }}"
-    regexp: '(^GRUB_CMDLINE_LINUX_DEFAULT\s?=.*)'
-    replace: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ grub_final_kernel_parameters | join(' ') }}\""
-  register: x
+    path: "{{ blacklist_hetzner_conf.stat.path }}"
+    regexp: '^([ \t]*blacklist[ \t]+i915(?:[ \t]+#.*)?[ \t]*)$'
+    replace: '#\1'
 
-- name: GRUB Edits | Reload GRUB
-  ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
-  register: grub_register_update
-  failed_when: ('error' in grub_register_update.stderr)
-  when: (x is changed)
+- name: GRUB Edits | Atomically update validated GRUB sources
+  ansible.builtin.copy:
+    content: "{{ item.result.content }}"
+    dest: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ hetzner_grub_transformations }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: item.result.changed_count > 0
 
-- name: GRUB Edits | Set 'reboot_is_necessary' variable
-  ansible.builtin.set_fact:
-    reboot_is_necessary: true
-  when: (x is changed)
+- name: GRUB Edits | Regenerate GRUB configuration
+  ansible.builtin.command:
+    argv:
+      - "grub-mkconfig"
+      - "-o"
+      - "/boot/grub/grub.cfg"
+  changed_when: hetzner_grub_sources_changed

@@ -14,8 +14,18 @@
     preinstall_kernel_restart: true
   when: ('preinstall' in ansible_run_tags)
 
-- name: Restart | Tasks for non-preinstall
-  when: ('hetzner' in ansible_run_tags)
+- name: Restart | Report deferred manual reboot
+  ansible.builtin.debug:
+    msg: "A reboot is required to finish enabling the Intel iGPU."
+  when:
+    - ('preinstall' not in ansible_run_tags)
+    - ('hetzner' not in ansible_run_tags)
+    - not saltbox_auto_reboot
+
+- name: Restart | Tasks for immediate reboot
+  when:
+    - ('preinstall' not in ansible_run_tags)
+    - ('hetzner' in ansible_run_tags) or saltbox_auto_reboot
   block:
     - name: Restart | Success message
       ansible.builtin.debug:
@@ -27,9 +37,3 @@
       ansible.builtin.command:
         argv:
           - "reboot"
-
-    - name: Restart | Reboot message
-      ansible.builtin.debug:
-        msg:
-          - "Failed to reboot automatically."
-          - "You will need to restart the server yourself for changes to take effect."
