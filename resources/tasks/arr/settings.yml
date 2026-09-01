@@ -1,0 +1,138 @@
+################################################################################
+# Title:         Saltbox: Resources | Tasks | Arr | Settings                    #
+# Author(s):     salty                                                          #
+# URL:           https://github.com/saltyorg/Saltbox                            #
+# --                                                                            #
+################################################################################
+#                   GNU General Public License v3.0                             #
+################################################################################
+# Interface: callers provide the base Arr role name through var_prefix.
+# The role must expose _allowed_hosts, _trusted_networks,
+# _allowed_hosts_public_custom, _traefik_enabled, _web_host_override,
+# _paths_config_location, _traefik_sso_middleware, and _external_auth through
+# role_var. _settings_wait_timeout is optional and defaults to 10 seconds.
+---
+- name: Resources | Tasks | Arr | Settings | Validate interface
+  ansible.builtin.assert:
+    that:
+      - var_prefix is defined
+      - var_prefix is string
+      - var_prefix | length > 0
+    fail_msg: The shared Arr settings resource requires a nonempty var_prefix.
+
+- name: Resources | Tasks | Arr | Settings | Resolve interface
+  ansible.builtin.set_fact:
+    _arr_role: "{{ var_prefix }}"
+
+- name: Resources | Tasks | Arr | Settings | Configure application
+  vars:
+    _arr_name: "{{ _arr_role | capitalize }}"
+    _arr_allowed_hosts_raw: "{{ lookup('role_var', '_allowed_hosts', role=_arr_role) }}"
+    _arr_trusted_networks_raw: "{{ lookup('role_var', '_trusted_networks', role=_arr_role) }}"
+    _arr_public_hosts_custom_raw: "{{ lookup('role_var', '_allowed_hosts_public_custom', role=_arr_role) }}"
+    _arr_allowed_hosts: >-
+      {{ _arr_allowed_hosts_raw
+      | reject('none')
+      | map('string')
+      | map('trim')
+      | reject('equalto', '')
+      | unique
+      | list }}
+    _arr_trusted_networks: >-
+      {{ _arr_trusted_networks_raw
+      | reject('none')
+      | map('string')
+      | map('trim')
+      | reject('equalto', '')
+      | unique
+      | list }}
+    _arr_public_hosts_custom: >-
+      {{ _arr_public_hosts_custom_raw
+      | reject('none')
+      | map('string')
+      | map('trim')
+      | reject('equalto', '')
+      | unique
+      | list }}
+    _arr_config_path: "{{ lookup('role_var', '_paths_config_location', role=_arr_role) }}"
+  block:
+    - name: Resources | Tasks | Arr | Settings | Validate effective host-security lists
+      ansible.builtin.assert:
+        that:
+          - _arr_allowed_hosts_raw is sequence
+          - _arr_allowed_hosts_raw is not string
+          - _arr_allowed_hosts | length > 0
+          - _arr_trusted_networks_raw is sequence
+          - _arr_trusted_networks_raw is not string
+        fail_msg: >-
+          {{ _arr_name }} allowed_hosts and trusted_networks must be lists, and
+          allowed_hosts must retain at least one public or Docker hostname.
+
+    - name: Resources | Tasks | Arr | Settings | Validate raw Traefik host override
+      ansible.builtin.assert:
+        that:
+          - >-
+            not (lookup('role_var', '_traefik_enabled', role=_arr_role) | bool)
+            or lookup('role_var', '_web_host_override', role=_arr_role, default='') | length == 0
+            or _arr_public_hosts_custom | length > 0
+        fail_msg: >-
+          A raw {{ _arr_name }} Traefik host override cannot be converted to
+          AllowedHosts. Set the role or instance allowed_hosts_public_custom
+          variable to every public hostname accepted by the custom rule.
+
+    - name: Resources | Tasks | Arr | Settings | Wait for 'config.xml' to be created
+      ansible.builtin.wait_for:
+        path: "{{ _arr_config_path }}"
+        state: present
+
+    - name: Resources | Tasks | Arr | Settings | Wait for application startup
+      ansible.builtin.wait_for:
+        timeout: "{{ lookup('role_var', '_settings_wait_timeout', role=_arr_role, default=10) }}"
+
+    - name: Resources | Tasks | Arr | Settings | Detect supported XML settings
+      community.general.xml:
+        path: "{{ _arr_config_path }}"
+        xpath: "{{ _arr_host_security_setting.xpath }}"
+        count: true
+      loop:
+        - name: AllowedHosts
+          xpath: /Config/AllowedHosts
+          value: "{{ _arr_allowed_hosts | join(', ') }}"
+        - name: TrustedNetworks
+          xpath: /Config/TrustedNetworks
+          value: "{{ _arr_trusted_networks | join(', ') }}"
+      loop_control:
+        loop_var: _arr_host_security_setting
+        label: "{{ _arr_host_security_setting.name }}"
+      register: _arr_host_security_support
+      changed_when: false
+
+    - name: Resources | Tasks | Arr | Settings | Configure supported XML settings
+      community.general.xml:
+        path: "{{ _arr_config_path }}"
+        xpath: "{{ _arr_host_security_result._arr_host_security_setting.xpath }}"
+        value: "{{ _arr_host_security_result._arr_host_security_setting.value }}"
+        create_if_missing: false
+      loop: "{{ _arr_host_security_support.results }}"
+      loop_control:
+        loop_var: _arr_host_security_result
+        label: "{{ _arr_host_security_result._arr_host_security_setting.name }}"
+      when: _arr_host_security_result.count == 1
+      register: _arr_host_security_xml
+
+    - name: Resources | Tasks | Arr | Settings | Configure External authentication
+      community.general.xml:
+        path: "{{ _arr_config_path }}"
+        xpath: /Config/AuthenticationMethod
+        value: External
+        create_if_missing: false
+      when:
+        - lookup('role_var', '_traefik_sso_middleware', role=_arr_role) | length > 0
+        - lookup('role_var', '_external_auth', role=_arr_role) | bool
+      register: _arr_authentication_xml
+
+    - name: Resources | Tasks | Arr | Settings | Restart Docker container after configuration changes
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
+      vars:
+        var_prefix: "{{ _arr_role }}"
+      when: (_arr_host_security_xml is changed) or (_arr_authentication_xml is changed)

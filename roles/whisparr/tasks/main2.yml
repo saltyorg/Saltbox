@@ -23,6 +23,7 @@
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
 
-- name: "Tweak Settings when SSO is enabled"
-  ansible.builtin.include_tasks: "subtasks/auth.yml"
-  when: (lookup('role_var', '_traefik_sso_middleware', role='whisparr') | length > 0) and lookup('role_var', '_external_auth', role='whisparr')
+- name: Configure settings
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/arr/settings.yml"
+  vars:
+    var_prefix: whisparr

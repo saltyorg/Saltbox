@@ -19,6 +19,77 @@ lidarr_instances: ["lidarr"]
 
 lidarr_role_external_auth: true
 
+# Do not edit or override using the inventory
+lidarr_role_allowed_hosts_public_fqdn_default: "{{ lookup('role_var',
+                                                          '_web_fqdn_override',
+                                                          role='lidarr',
+                                                          default=[lookup('role_web', role='lidarr')],
+                                                          default_if_empty=true) }}"
+# Do not edit or override using the inventory
+lidarr_role_allowed_hosts_public_default: "{{ lidarr_role_allowed_hosts_public_fqdn_default
+                                           if lookup('role_var', '_web_host_override', role='lidarr', default='') | length == 0
+                                           else [] }}"
+# Adds public hosts accepted by Lidarr. This is required when using a raw
+# Traefik host override.
+# Valid values are hostnames, IP addresses, or wildcard DNS names beginning
+# with "*.". Do not include schemes, paths, or ports.
+lidarr_role_allowed_hosts_public_custom: []
+# Skip docs
+lidarr_role_allowed_hosts_public: "{{ (lookup('role_var', '_allowed_hosts_public_default', role='lidarr')
+                                       + lookup('role_var', '_allowed_hosts_public_custom', role='lidarr'))
+                                      | reject('none')
+                                      | map('string')
+                                      | map('trim')
+                                      | reject('equalto', '')
+                                      | unique
+                                      | list }}"
+# Do not edit or override using the inventory
+lidarr_role_allowed_hosts_aliases: "{{ ([lookup('role_var', '_docker_networks_alias', role='lidarr')]
+                                        + lookup('role_var', '_docker_networks_alias_custom', role='lidarr', default=[]))
+                                       | reject('none')
+                                       | map('string')
+                                       | map('trim')
+                                       | reject('equalto', '')
+                                       | unique
+                                       | list }}"
+# Do not edit or override using the inventory
+lidarr_role_allowed_hosts_default: "{{ lookup('role_var', '_allowed_hosts_public', role='lidarr')
+                                       + lookup('role_var', '_allowed_hosts_aliases', role='lidarr')
+                                       + (lookup('role_var', '_allowed_hosts_aliases', role='lidarr')
+                                          | map('regex_replace', '$', '.' + docker_networks_name_common)
+                                          | list) }}"
+# Adds extra hosts accepted by Lidarr, such as additional Docker or host-DNS
+# aliases. This does not satisfy the public-host requirement for a raw Traefik
+# host override. Valid values are hostnames, IP addresses, or wildcard DNS names
+# beginning with "*.". Do not include schemes, paths, or ports.
+lidarr_role_allowed_hosts_custom: []
+# Skip docs
+lidarr_role_allowed_hosts: "{{ (lookup('role_var', '_allowed_hosts_default', role='lidarr')
+                                + lookup('role_var', '_allowed_hosts_custom', role='lidarr'))
+                               | reject('none')
+                               | map('string')
+                               | map('trim')
+                               | reject('equalto', '')
+                               | unique
+                               | list }}"
+
+# Do not edit or override using the inventory
+lidarr_role_trusted_networks_default: "{{ ['172.19.0.0/16']
+                                          + (['fd00:dead:beef::/48'] if docker_ipv6 else []) }}"
+# Adds reverse-proxy peers that Lidarr trusts to supply forwarded headers.
+# Valid values are IPv4 or IPv6 addresses and CIDRs. Do not use hostnames or
+# client networks.
+lidarr_role_trusted_networks_custom: []
+# Skip docs
+lidarr_role_trusted_networks: "{{ (lookup('role_var', '_trusted_networks_default', role='lidarr')
+                                   + lookup('role_var', '_trusted_networks_custom', role='lidarr'))
+                                  | reject('none')
+                                  | map('string')
+                                  | map('trim')
+                                  | reject('equalto', '')
+                                  | unique
+                                  | list }}"
+
 ################################
 # Paths
 ################################
