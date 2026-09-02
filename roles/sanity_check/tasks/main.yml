@@ -36,10 +36,3 @@
 
 - name: CPU Check
   ansible.builtin.include_tasks: "subtasks/10_cpu.yml"
-
-- name: Cloudflare Zone Check
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/cloudflare/resolve_certificate_zones.yml"
-  when:
-    - traefik_challenge_provider == 'cloudflare'
-    - cloudflare_is_enabled
-    - not traefik_http
