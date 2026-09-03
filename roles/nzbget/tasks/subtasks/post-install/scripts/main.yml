@@ -17,14 +17,14 @@
   with_items: "{{ lookup('role_var', '_scripts_paths_folders_list', role='nzbget') }}"
 
 - name: Post-Install | Scripts | Download scripts repos
-  ansible.builtin.git:
-    repo: "{{ item }}"
-    dest: "{{ lookup('role_var', '_scripts_paths_location', role='nzbget') }}/{{ (item | basename | splitext)[0] }}"
-    clone: true
-    version: HEAD
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: "{{ item }}"
+    git_repo_dest: "{{ lookup('role_var', '_scripts_paths_location', role='nzbget') }}/{{ (item | basename | splitext)[0] }}"
+    git_repo_version: HEAD
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
   loop: "{{ lookup('role_var', '_scripts_repos_list', role='nzbget') }}"
 
 - name: Post-Install | Scripts | Download script URLs

@@ -50,6 +50,9 @@
         git_repo_dest: "{{ cloudplow_git_repo_dest }}"
         git_repo_branch_primary: "{{ cloudplow_git_repo_branch_primary }}"
         git_repo_branch_secondary: "{{ cloudplow_git_repo_branch_secondary }}"
+        git_repo_force: true
+        git_repo_become: true
+        git_repo_become_user: "{{ user.name }}"
 
     - name: "Execute Python role"
       ansible.builtin.include_role:

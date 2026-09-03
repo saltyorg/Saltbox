@@ -18,11 +18,12 @@
     state: absent
 
 - name: Clone iperf3 repo
-  ansible.builtin.git:
-    repo: "{{ iperf3_git_repo_url }}"
-    dest: "{{ iperf3_git_repo_dest }}"
-    clone: true
-  register: iperf_clone_status
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: "{{ iperf3_git_repo_url }}"
+    git_repo_dest: "{{ iperf3_git_repo_dest }}"
+    git_repo_version: HEAD
+    git_repo_result_var: iperf_clone_status
 
 - name: Tasks to do with git clone is a success
   when: (iperf_clone_status is success)

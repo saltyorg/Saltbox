@@ -21,27 +21,27 @@
   register: git_repo_check
 
 - name: Clone Sandbox repo 'HEAD'
-  ansible.builtin.git:
-    repo: https://github.com/saltyorg/sandbox.git
-    dest: "{{ server_appdata_path }}/sandbox"
-    clone: true
-    version: HEAD
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
-  ignore_errors: true
-  register: sandbox_clone_status
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: https://github.com/saltyorg/sandbox.git
+    git_repo_dest: "{{ server_appdata_path }}/sandbox"
+    git_repo_version: HEAD
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
+    git_repo_result_var: sandbox_clone_status
+    git_repo_fail_on_error: false
   when: not git_repo_check.stat.exists
 
 - name: Clone Sandbox repo 'master'
-  ansible.builtin.git:
-    repo: https://github.com/saltyorg/sandbox.git
-    dest: "{{ server_appdata_path }}/sandbox"
-    clone: true
-    version: master
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: https://github.com/saltyorg/sandbox.git
+    git_repo_dest: "{{ server_appdata_path }}/sandbox"
+    git_repo_version: master
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
   when:
     - not git_repo_check.stat.exists
     - sandbox_clone_status is failed

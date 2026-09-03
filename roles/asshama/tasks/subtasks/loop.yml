@@ -62,14 +62,14 @@
     recurse: true
 
 - name: "Clone Hama Bundle"
-  ansible.builtin.git:
-    repo: https://github.com/ZeroQI/Hama.bundle.git
-    dest: "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle"
-    clone: true
-    version: HEAD
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: https://github.com/ZeroQI/Hama.bundle.git
+    git_repo_dest: "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle"
+    git_repo_version: HEAD
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
 
 - name: "Set HAMA directory permissions"
   ansible.builtin.file:

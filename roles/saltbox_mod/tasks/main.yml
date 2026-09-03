@@ -22,12 +22,12 @@
     recurse: true
 
 - name: Clone saltbox_mod repo
-  ansible.builtin.git:
-    repo: "{{ saltbox_mod_repo }}"
-    dest: "{{ server_appdata_path }}/saltbox_mod"
-    clone: true
-    version: "{{ saltbox_mod_branch }}"
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: "{{ saltbox_mod_repo }}"
+    git_repo_dest: "{{ server_appdata_path }}/saltbox_mod"
+    git_repo_version: "{{ saltbox_mod_branch }}"
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
   when: (not saltbox_mod_stat.stat.exists) or saltbox_mod_force_overwrite

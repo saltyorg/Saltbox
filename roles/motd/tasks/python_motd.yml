@@ -8,14 +8,14 @@
 #########################################################################
 ---
 - name: Clone Saltbox MOTD
-  ansible.builtin.git:
-    repo: https://github.com/saltyorg/motd.git
-    dest: "{{ server_appdata_path }}/motd"
-    clone: true
-    version: HEAD
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: https://github.com/saltyorg/motd.git
+    git_repo_dest: "{{ server_appdata_path }}/motd"
+    git_repo_version: HEAD
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"
 
 - name: Check if 'config.json' exists
   ansible.builtin.stat:

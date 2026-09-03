@@ -123,6 +123,9 @@ Rules:
 
 33. SVM GitHub API Resource: direct SVM variable use is allowed only in the
     shared GitHub API request resource, which owns the direct GitHub fallback
+
+34. Git Clone Resource: direct ansible.builtin.git use is allowed only in the
+    shared Git clone resource, which owns checkout behavior
 """
 
 import os
@@ -146,6 +149,13 @@ SVM_GITHUB_API_RESOURCE_PATH = (
     / "tasks"
     / "git"
     / "github_api_request.yml"
+).resolve()
+GIT_CLONE_RESOURCE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "resources"
+    / "tasks"
+    / "git"
+    / "clone_git_repo.yml"
 ).resolve()
 DEFAULTS_SECTION_ORDER = (
     "Basics",
@@ -905,6 +915,181 @@ class SaltboxLinter:
                     commit_sha=self.commit_sha,
                 )
             )
+
+    def check_git_clone_resource_usage(
+        self,
+        root_is_task_list: bool = True,
+    ) -> None:
+        """Rule 34: Keep Git clone actions inside the shared resource."""
+        if self.file_path.resolve() == GIT_CLONE_RESOURCE_PATH:
+            return
+
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        task_lists: list[tuple[int, int | None]] = (
+            [(-1, 0)] if root_is_task_list else []
+        )
+        active_task_indents: list[int] = []
+        action_mapping_indent: int | None = None
+        block_scalar_indent: int | None = None
+        action_block_scalar = False
+        block_scalar_indicator = re.compile(
+            r"(?:^|:\s+|-\s+)(?:(?:[&!][^\s]+)\s+)*"
+            r"[|>](?:[1-9][+-]?|[+-][1-9]?)?$"
+        )
+        direct_action_key = re.compile(
+            r"^(?P<quote>['\"]?)ansible\.builtin\.git"
+            r"(?P=quote)\s*:"
+        )
+        action_key = re.compile(
+            r"^(?P<quote>['\"]?)(?:action|local_action)(?P=quote)"
+            r"\s*:\s*(?P<value>.*)$"
+        )
+        action_value = re.compile(
+            r"^(?:\{\s*)?(?:['\"]?module['\"]?\s*:\s*)?['\"]?"
+            r"ansible\.builtin\.git(?:['\"])?(?:\s|[,}]|$)"
+        )
+        nested_module_key = re.compile(
+            r"^['\"]?module['\"]?\s*:\s*(?P<value>.*)$"
+        )
+        nested_task_list = re.compile(
+            r"^(?P<quote>['\"]?)(?:block|rescue|always)(?P=quote)"
+            r"\s*:\s*$"
+        )
+        play_task_list = re.compile(
+            r"^(?P<quote>['\"]?)(?:tasks|pre_tasks|post_tasks|handlers)"
+            r"(?P=quote)\s*:\s*$"
+        )
+
+        def record_git_action(line_number: int) -> None:
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[git-clone-resource] Direct ansible.builtin.git use "
+                        "must go through resources/tasks/git/clone_git_repo.yml"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+        for line_number, line in enumerate(self.lines, 1):
+            if not line.strip():
+                continue
+
+            indent = len(line) - len(line.lstrip())
+            if block_scalar_indent is not None:
+                if indent > block_scalar_indent:
+                    if action_block_scalar:
+                        if action_value.match(line.strip()) is not None:
+                            record_git_action(line_number)
+                        action_block_scalar = False
+                    continue
+                block_scalar_indent = None
+                action_block_scalar = False
+
+            code = self.strip_unquoted_yaml_comment(line)
+            if not code.strip():
+                continue
+
+            indent = len(code) - len(code.lstrip())
+            stripped = code.strip()
+            task_lists = [
+                task_list
+                for task_list in task_lists
+                if task_list[0] == -1 or indent > task_list[0]
+            ]
+
+            if stripped.startswith("- "):
+                for list_index in range(len(task_lists) - 1, -1, -1):
+                    parent_indent, item_indent = task_lists[list_index]
+                    if item_indent is not None or indent <= parent_indent:
+                        continue
+                    task_lists[list_index] = (parent_indent, indent)
+                    break
+
+            is_task_item = any(
+                item_indent == indent
+                for _, item_indent in task_lists
+            ) and stripped.startswith("- ")
+
+            active_task_indents = [
+                task_indent
+                for task_indent in active_task_indents
+                if indent > task_indent
+            ]
+            if action_mapping_indent is not None and indent <= action_mapping_indent:
+                action_mapping_indent = None
+
+            is_direct_action = False
+            if (
+                action_mapping_indent is not None
+                and indent == action_mapping_indent + 2
+            ):
+                nested_module_match = nested_module_key.match(stripped)
+                if nested_module_match is not None:
+                    module_value = nested_module_match.group("value").strip()
+                    if block_scalar_indicator.fullmatch(module_value) is not None:
+                        action_block_scalar = True
+                    else:
+                        is_direct_action = action_value.match(module_value) is not None
+                    action_mapping_indent = None
+
+            task_action: str | None = None
+            task_indent: int | None = None
+            if is_task_item:
+                task_indent = indent
+                active_task_indents.append(indent)
+                task_action = stripped[2:].lstrip()
+            elif active_task_indents:
+                task_indent = max(active_task_indents)
+                if indent == task_indent + 2:
+                    task_action = stripped
+
+            if task_action is not None:
+                is_direct_action = direct_action_key.match(task_action) is not None
+
+                action_match = action_key.match(task_action)
+                if action_match is not None:
+                    value = action_match.group("value").strip()
+                    if block_scalar_indicator.fullmatch(value) is not None:
+                        action_block_scalar = True
+                    elif value:
+                        is_direct_action = action_value.match(value) is not None
+                    else:
+                        action_mapping_indent = (
+                            task_indent + 2
+                            if is_task_item and task_indent is not None
+                            else indent
+                        )
+
+                if nested_task_list.match(task_action) is not None:
+                    list_parent_indent = (
+                        task_indent + 2
+                        if is_task_item and task_indent is not None
+                        else indent
+                    )
+                    task_lists.append((list_parent_indent, None))
+
+            if (
+                not root_is_task_list
+                and indent == 2
+                and play_task_list.match(stripped) is not None
+            ):
+                task_lists.append((indent, None))
+
+            if block_scalar_indicator.search(stripped) is not None:
+                block_scalar_indent = indent
+
+            if not is_direct_action:
+                continue
+
+            record_git_action(line_number)
 
     @staticmethod
     def find_unquoted_yaml_comment(line: str) -> int | None:
@@ -3685,6 +3870,37 @@ def main() -> None:
             for task_file in repository_dir.glob(pattern)
         }
     )
+    git_clone_contract_files = {task_file: True for task_file in task_files}
+    for pattern in (
+        "roles/*/handlers/**/*.yml",
+        "roles/*/handlers/**/*.yaml",
+        "resources/roles/*/handlers/**/*.yml",
+        "resources/roles/*/handlers/**/*.yaml",
+        "tasks/**/*.yml",
+        "tasks/**/*.yaml",
+        "handlers/**/*.yml",
+        "handlers/**/*.yaml",
+    ):
+        git_clone_contract_files.update(
+            {contract_file: True for contract_file in repository_dir.glob(pattern)}
+        )
+
+    hosts_key = re.compile(r"^(?:-\s+| {2})['\"]?hosts['\"]?\s*:")
+    for pattern in ("playbooks/**/*.yml", "playbooks/**/*.yaml"):
+        for playbook_file in repository_dir.glob(pattern):
+            playbook_lines = playbook_file.read_text(encoding="utf-8").splitlines()
+            git_clone_contract_files[playbook_file] = not any(
+                hosts_key.match(line) for line in playbook_lines
+            )
+
+    for root_yaml_file in (
+        *repository_dir.glob("*.yml"),
+        *repository_dir.glob("*.yaml"),
+    ):
+        root_yaml_lines = root_yaml_file.read_text(encoding="utf-8").splitlines()
+        if any(hosts_key.match(line) for line in root_yaml_lines):
+            git_clone_contract_files[root_yaml_file] = False
+
     inventory_file_label = (
         "inventory file" if len(inventory_files) == 1 else "inventory files"
     )
@@ -3698,6 +3914,19 @@ def main() -> None:
         linter = SaltboxLinter(task_file, repo_url=repo_url, commit_sha=github_sha)
         errors = linter.lint_tasks()
         all_errors.extend(errors)
+
+    for contract_file, root_is_task_list in sorted(
+        git_clone_contract_files.items(),
+    ):
+        linter = SaltboxLinter(
+            contract_file,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+        linter.check_git_clone_resource_usage(
+            root_is_task_list=root_is_task_list,
+        )
+        all_errors.extend(linter.errors)
 
     for inventory_file in inventory_files:
         linter = SaltboxLinter(

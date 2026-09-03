@@ -17,11 +17,11 @@
     recurse: true
 
 - name: z | Clone 'z' repo
-  ansible.builtin.git:
-    repo: "{{ shell_z_git_repo_url }}"
-    dest: "{{ shell_z_git_repo_dest }}"
-    clone: true
-    version: HEAD
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
+  vars:
+    git_repo_url: "{{ shell_z_git_repo_url }}"
+    git_repo_dest: "{{ shell_z_git_repo_dest }}"
+    git_repo_version: HEAD
+    git_repo_force: true
+    git_repo_become: true
+    git_repo_become_user: "{{ user.name }}"

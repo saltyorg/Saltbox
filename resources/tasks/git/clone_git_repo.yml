@@ -7,26 +7,27 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Resources | Tasks | Git | Clone Git Repo | Set '_var_prefix' variable
-  ansible.builtin.set_fact:
-    _var_prefix: "{{ var_prefix
-                  if (var_prefix is defined)
-                  else role_name }}"
-
-- name: Resources | Tasks | Git | Clone Git Repo | Set '_git_repo_*' variables
+- name: Resources | Tasks | Git | Clone Git Repo | Set checkout variables
   ansible.builtin.set_fact:
     _git_repo_url: "{{ git_repo_url }}"
     _git_repo_dest: "{{ git_repo_dest }}"
-    _git_repo_branch_primary: "{{ git_repo_branch_primary }}"
+    _git_repo_target_version: "{{ git_repo_branch_primary
+                               if (git_repo_branch_primary is defined)
+                               else (git_repo_version | default('HEAD')) }}"
+    _git_repo_branch_handling: "{{ git_repo_branch_primary is defined }}"
     _git_repo_branch_secondary: "{{ git_repo_branch_secondary | default('main') }}"
+  changed_when: false
 
 - name: Resources | Tasks | Git | Clone Git Repo | Check for existing git folder
   ansible.builtin.stat:
     path: "{{ _git_repo_dest }}"
   register: _git_repo_dest_stat
+  when: _git_repo_branch_handling
 
 - name: Resources | Tasks | Git | Clone Git Repo | Existing repo block
-  when: _git_repo_dest_stat.stat.exists
+  when:
+    - _git_repo_branch_handling
+    - _git_repo_dest_stat.stat.exists
   block:
     - name: Resources | Tasks | Git | Clone Git Repo | Get current git branch
       ansible.builtin.command:
@@ -37,47 +38,116 @@
           - "HEAD"
         chdir: "{{ _git_repo_dest }}"
       register: _git_repo_dest_current_branch
-      become: true
-      become_user: "{{ user.name }}"
+      become: "{{ git_repo_become | default(omit) }}"
+      become_user: "{{ git_repo_become_user | default(omit) }}"
       changed_when: false
       failed_when: false
 
     - name: Resources | Tasks | Git | Clone Git Repo | Update target branch
       ansible.builtin.set_fact:
-        _git_repo_branch_primary: "{{ _git_repo_branch_secondary }}"
+        _git_repo_target_version: "{{ _git_repo_branch_secondary }}"
       when: (_git_repo_branch_secondary == (_git_repo_dest_current_branch.stdout | trim))
 
-- name: Resources | Tasks | Git | Clone Git Repo | git clone repo '{{ _git_repo_branch_primary }}'
+- name: Resources | Tasks | Git | Clone Git Repo | Checkout '{{ _git_repo_target_version }}'
   ansible.builtin.git:
     repo: "{{ _git_repo_url }}"
     dest: "{{ _git_repo_dest }}"
     clone: true
-    version: "{{ _git_repo_branch_primary }}"
-    force: true
-  become: true
-  become_user: "{{ user.name }}"
+    version: "{{ _git_repo_target_version }}"
+    force: "{{ git_repo_force | default(omit) }}"
+  become: "{{ git_repo_become | default(omit) }}"
+  become_user: "{{ git_repo_become_user | default(omit) }}"
   ignore_errors: true
   register: _git_clone_status
 
-- name: Resources | Tasks | Git | Clone Git Repo | Tasks when above fails
-  when: (_git_clone_status is failed)
+- name: Resources | Tasks | Git | Clone Git Repo | Retry '{{ _git_repo_target_version }}' using HTTP/1.1
+  ansible.builtin.git:
+    repo: "{{ _git_repo_url }}"
+    dest: "{{ _git_repo_dest }}"
+    clone: true
+    version: "{{ _git_repo_target_version }}"
+    force: "{{ git_repo_force | default(omit) }}"
+  become: "{{ git_repo_become | default(omit) }}"
+  become_user: "{{ git_repo_become_user | default(omit) }}"
+  environment:
+    GIT_CONFIG_COUNT: "1"
+    GIT_CONFIG_KEY_0: "http.version"
+    GIT_CONFIG_VALUE_0: "HTTP/1.1"
+  ignore_errors: true
+  register: _git_clone_http11_status
+  when: _git_clone_status is failed
+
+- name: Resources | Tasks | Git | Clone Git Repo | Set checkout status
+  ansible.builtin.set_fact:
+    _git_clone_failed: "{{ (_git_clone_status is failed) and
+                           (_git_clone_http11_status is failed) }}"
+    _git_clone_result: "{{ _git_clone_http11_status
+                        if (_git_clone_status is failed)
+                        else _git_clone_status }}"
+  changed_when: false
+
+- name: Resources | Tasks | Git | Clone Git Repo | Save checkout result
+  ansible.builtin.set_fact:
+    "{{ git_repo_result_var }}": "{{ _git_clone_result }}"
+  changed_when: false
+  when:
+    - git_repo_result_var is defined
+    - not _git_repo_branch_handling
+
+- name: Resources | Tasks | Git | Clone Git Repo | Propagate checkout failure
+  ansible.builtin.fail:
+    msg: "{{ _git_clone_http11_status.msg
+             | default(_git_clone_status.msg)
+             | default('Unable to clone git repository.') }}"
+  when:
+    - _git_clone_failed
+    - not _git_repo_branch_handling
+    - git_repo_fail_on_error | default(true) | bool
+
+- name: Resources | Tasks | Git | Clone Git Repo | Existing branch fallback
+  when:
+    - _git_clone_failed
+    - _git_repo_branch_handling
   block:
-    - name: Resources | Tasks | Git | Clone Git Repo | git clone repo 'master' if above fails
+    - name: Resources | Tasks | Git | Clone Git Repo | Checkout 'master'
       ansible.builtin.git:
         repo: "{{ _git_repo_url }}"
         dest: "{{ _git_repo_dest }}"
         clone: true
         version: master
-        force: true
-      become: true
-      become_user: "{{ user.name }}"
+        force: "{{ git_repo_force | default(omit) }}"
+      become: "{{ git_repo_become | default(omit) }}"
+      become_user: "{{ git_repo_become_user | default(omit) }}"
       ignore_errors: true
       register: _git_clone_master_status
 
-    - name: Resources | Tasks | Git | Clone Git Repo | Repair git folder if cloning '{{ _git_repo_branch_primary }}' fails
-      when: (_git_clone_master_status is failed)
-      become: true
-      become_user: "{{ user.name }}"
+    - name: Resources | Tasks | Git | Clone Git Repo | Retry 'master' using HTTP/1.1
+      ansible.builtin.git:
+        repo: "{{ _git_repo_url }}"
+        dest: "{{ _git_repo_dest }}"
+        clone: true
+        version: master
+        force: "{{ git_repo_force | default(omit) }}"
+      become: "{{ git_repo_become | default(omit) }}"
+      become_user: "{{ git_repo_become_user | default(omit) }}"
+      environment:
+        GIT_CONFIG_COUNT: "1"
+        GIT_CONFIG_KEY_0: "http.version"
+        GIT_CONFIG_VALUE_0: "HTTP/1.1"
+      ignore_errors: true
+      register: _git_clone_master_http11_status
+      when: _git_clone_master_status is failed
+
+    - name: Resources | Tasks | Git | Clone Git Repo | Set fallback checkout status
+      ansible.builtin.set_fact:
+        _git_clone_master_failed: "{{ (_git_clone_master_status is failed) and
+                                      (_git_clone_master_http11_status is failed) }}"
+      changed_when: false
+
+    - name: Resources | Tasks | Git | Clone Git Repo | Repair git folder if cloning '{{ _git_repo_target_version }}' fails
+      when: _git_clone_master_failed
+      become: "{{ git_repo_become | default(omit) }}"
+      become_user: "{{ git_repo_become_user | default(omit) }}"
       block:
         - name: Resources | Tasks | Git | Clone Git Repo | Remove invalid Git metadata
           ansible.builtin.file:
@@ -102,12 +172,27 @@
             chdir: "{{ _git_repo_dest }}"
 
         - name: Resources | Tasks | Git | Clone Git Repo | Fetch repaired Git remote
-          ansible.builtin.command:
-            argv:
-              - "git"
-              - "fetch"
-              - "origin"
-            chdir: "{{ _git_repo_dest }}"
+          block:
+            - name: Resources | Tasks | Git | Clone Git Repo | Fetch using default HTTP version
+              ansible.builtin.command:
+                argv:
+                  - "git"
+                  - "fetch"
+                  - "origin"
+                chdir: "{{ _git_repo_dest }}"
+
+          rescue:
+            - name: Resources | Tasks | Git | Clone Git Repo | Retry fetch using HTTP/1.1
+              ansible.builtin.command:
+                argv:
+                  - "git"
+                  - "fetch"
+                  - "origin"
+                chdir: "{{ _git_repo_dest }}"
+              environment:
+                GIT_CONFIG_COUNT: "1"
+                GIT_CONFIG_KEY_0: "http.version"
+                GIT_CONFIG_VALUE_0: "HTTP/1.1"
 
         - name: Resources | Tasks | Git | Clone Git Repo | Reset repaired Git repository
           ansible.builtin.command:
@@ -115,5 +200,5 @@
               - "git"
               - "reset"
               - "--hard"
-              - "origin/{{ _git_repo_branch_primary }}"
+              - "origin/{{ _git_repo_target_version }}"
             chdir: "{{ _git_repo_dest }}"
