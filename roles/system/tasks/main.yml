@@ -38,12 +38,20 @@
   when: cpu_performance_mode and ("none" in systemd_detect_virt.stdout)
 
 - name: Set Time Zone task
-  ansible.builtin.import_tasks: "subtasks/timezone.yml"
+  ansible.builtin.include_tasks:
+    file: "subtasks/timezone.yml"
+    apply:
+      tags:
+        - set-timezone
   tags: set-timezone
   when: (tz is defined)
 
 - name: Set Locale task
-  ansible.builtin.import_tasks: "subtasks/locale.yml"
+  ansible.builtin.include_tasks:
+    file: "subtasks/locale.yml"
+    apply:
+      tags:
+        - set-locale
   tags: set-locale
 
 - name: flush_handlers

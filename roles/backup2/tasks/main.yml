@@ -24,7 +24,14 @@
       ansible.builtin.include_tasks: "sanity_check.yml"
 
     - name: Variables
-      ansible.builtin.import_tasks: "variables.yml"
+      ansible.builtin.include_tasks:
+        file: "variables.yml"
+        apply:
+          tags:
+            - set-backup2
+            - unset-backup2
+            - restore-service2
+            - saltbox-restore-service2
       tags:
         - set-backup2
         - unset-backup2
@@ -32,7 +39,12 @@
         - saltbox-restore-service2
 
     - name: Cron
-      ansible.builtin.import_tasks: "cron.yml"
+      ansible.builtin.include_tasks:
+        file: "cron.yml"
+        apply:
+          tags:
+            - set-backup2
+            - unset-backup2
       when: ((['set-backup2', 'unset-backup2'] | intersect(ansible_run_tags)) | length > 0) and not ('backup2' in ansible_run_tags)
       tags:
         - set-backup2
@@ -170,7 +182,12 @@
           else '/tmp/backup2_excludes_list.txt' }}"
 
     - name: saltbox Restore Service
-      ansible.builtin.include_tasks: "restore_service.yml"
+      ansible.builtin.include_tasks:
+        file: "restore_service.yml"
+        apply:
+          tags:
+            - restore-service2
+            - saltbox-restore-service2
       when: restore_service_enabled
       tags:
         - restore-service2

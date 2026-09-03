@@ -39,7 +39,15 @@
       ansible.builtin.include_tasks: "sanity_check.yml"
 
     - name: Variables
-      ansible.builtin.import_tasks: "variables.yml"
+      ansible.builtin.include_tasks:
+        file: "variables.yml"
+        apply:
+          tags:
+            - set-backup
+            - unset-backup
+            - restore-service
+            - saltbox-restore-service
+            - wipe-restore-service
       tags:
         - set-backup
         - unset-backup
@@ -48,13 +56,22 @@
         - wipe-restore-service
 
     - name: Import Restore Service Cleanup
-      ansible.builtin.import_tasks: "wipe_restore_service.yml"
+      ansible.builtin.include_tasks:
+        file: "wipe_restore_service.yml"
+        apply:
+          tags:
+            - wipe-restore-service
       when: ('wipe-restore-service' in ansible_run_tags) and not ('backup' in ansible_run_tags)
       tags:
         - wipe-restore-service
 
     - name: Cron
-      ansible.builtin.import_tasks: "cron.yml"
+      ansible.builtin.include_tasks:
+        file: "cron.yml"
+        apply:
+          tags:
+            - set-backup
+            - unset-backup
       when: ((['set-backup', 'unset-backup'] | intersect(ansible_run_tags)) | length > 0) and not ('backup' in ansible_run_tags)
       tags:
         - set-backup
@@ -280,7 +297,12 @@
           else '/tmp/backup_excludes_list.txt' }}"
 
     - name: Saltbox Restore Service
-      ansible.builtin.include_tasks: "restore_service.yml"
+      ansible.builtin.include_tasks:
+        file: "restore_service.yml"
+        apply:
+          tags:
+            - restore-service
+            - saltbox-restore-service
       when: restore_service_enabled
       tags:
         - restore-service
