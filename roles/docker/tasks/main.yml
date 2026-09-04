@@ -247,7 +247,10 @@
   ansible.builtin.include_tasks: "subtasks/dns.yml"
 
 - name: "Install ctop"
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: ctop
+    apply:
+      tags:
+        - ctop
   tags:
     - ctop
