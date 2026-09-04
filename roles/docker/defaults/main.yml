@@ -133,6 +133,8 @@ docker_controller_binary_path: "/usr/local/bin/sdc"
 
 docker_controller_version: "v1.0.6"
 docker_controller_releases_url: "https://api.github.com/repos/saltyorg/sdc/releases/tags/{{ docker_controller_version }}"
+docker_controller_operation_timeout: 600
+docker_controller_systemd_stop_timeout: "{{ docker_controller_operation_timeout | int + 60 }}"
 
 # Legacy
 docker_controller_venv_path: "/srv/docker-controller/venv"

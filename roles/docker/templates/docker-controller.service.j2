@@ -16,6 +16,7 @@ Type=simple
 ExecStart={{ docker_controller_binary_path }} server --host 127.0.0.1 --port 3377
 Restart=on-failure
 RestartSec=5s
+TimeoutStopSec={{ docker_controller_systemd_stop_timeout }}s
 
 [Install]
 WantedBy=multi-user.target

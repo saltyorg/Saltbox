@@ -38,15 +38,33 @@
     _service_daemon_reload: true
     _service_reenable: true
 
-- name: Controller | Wait until Controller is ready
+- name: Controller | Wait until Controller readiness route is available
+  ansible.builtin.uri:
+    url: "{{ docker_controller_url }}/ready"
+    method: GET
+    return_content: true
+    status_code:
+      - 200
+      - 404
+      - 503
+  register: docker_controller_readiness
+  until:
+    - docker_controller_readiness.status is defined
+    - docker_controller_readiness.status in [200, 404]
+  retries: 120
+  delay: 1
+
+- name: Controller | Fall back to legacy Controller liveness route
   ansible.builtin.uri:
     url: "{{ docker_controller_url }}/ping"
     method: GET
     return_content: true
     status_code: 200
-  register: result
+  register: docker_controller_legacy_readiness
+  until: docker_controller_legacy_readiness.status == 200
   retries: 120
   delay: 1
+  when: docker_controller_readiness.status == 404
 
 - name: Controller | Block Docker Controller
   ansible.builtin.uri:
