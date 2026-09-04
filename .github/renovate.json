@@ -17,11 +17,6 @@
     "constraints": {
         "uv": "0.12.7"
     },
-    "pip-compile": {
-        "managerFilePatterns": [
-            "/(^|/)requirements/requirements-saltbox\\.txt$/"
-        ]
-    },
     "labels": [
         "dependencies"
     ],
