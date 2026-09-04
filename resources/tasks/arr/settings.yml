@@ -55,6 +55,24 @@
       | unique
       | list }}
     _arr_config_path: "{{ lookup('role_var', '_paths_config_location', role=_arr_role) }}"
+    _arr_external_auth_requested: >-
+      {{
+        lookup('role_var', '_traefik_sso_middleware', role=_arr_role) | length > 0
+        and lookup('role_var', '_external_auth', role=_arr_role) | bool
+      }}
+    _arr_xml_settings:
+      - name: AllowedHosts
+        xpath: /Config/AllowedHosts
+        value: "{{ _arr_allowed_hosts | join(', ') }}"
+        enabled: true
+      - name: TrustedNetworks
+        xpath: /Config/TrustedNetworks
+        value: "{{ _arr_trusted_networks | join(', ') }}"
+        enabled: true
+      - name: AuthenticationMethod
+        xpath: /Config/AuthenticationMethod
+        value: External
+        enabled: "{{ _arr_external_auth_requested }}"
   block:
     - name: Resources | Tasks | Arr | Settings | Validate effective host-security lists
       ansible.builtin.assert:
@@ -89,50 +107,90 @@
       ansible.builtin.wait_for:
         timeout: "{{ lookup('role_var', '_settings_wait_timeout', role=_arr_role, default=10) }}"
 
-    - name: Resources | Tasks | Arr | Settings | Detect supported XML settings
-      community.general.xml:
+    - name: Resources | Tasks | Arr | Settings | Read managed XML settings
+      community.general.xml_info:
         path: "{{ _arr_config_path }}"
-        xpath: "{{ _arr_host_security_setting.xpath }}"
-        count: true
-      loop:
-        - name: AllowedHosts
-          xpath: /Config/AllowedHosts
-          value: "{{ _arr_allowed_hosts | join(', ') }}"
-        - name: TrustedNetworks
-          xpath: /Config/TrustedNetworks
-          value: "{{ _arr_trusted_networks | join(', ') }}"
-      loop_control:
-        loop_var: _arr_host_security_setting
-        label: "{{ _arr_host_security_setting.name }}"
-      register: _arr_host_security_support
-      changed_when: false
+        xpath: >-
+          /Config |
+          /Config/AllowedHosts |
+          /Config/TrustedNetworks |
+          /Config/AuthenticationMethod
+        what: content_text
+      register: _arr_xml_info
 
-    - name: Resources | Tasks | Arr | Settings | Configure supported XML settings
-      community.general.xml:
-        path: "{{ _arr_config_path }}"
-        xpath: "{{ _arr_host_security_result._arr_host_security_setting.xpath }}"
-        value: "{{ _arr_host_security_result._arr_host_security_setting.value }}"
-        create_if_missing: false
-      loop: "{{ _arr_host_security_support.results }}"
-      loop_control:
-        loop_var: _arr_host_security_result
-        label: "{{ _arr_host_security_result._arr_host_security_setting.name }}"
-      when: _arr_host_security_result.count == 1
-      register: _arr_host_security_xml
-
-    - name: Resources | Tasks | Arr | Settings | Configure External authentication
-      community.general.xml:
-        path: "{{ _arr_config_path }}"
-        xpath: /Config/AuthenticationMethod
-        value: External
-        create_if_missing: false
-      when:
-        - lookup('role_var', '_traefik_sso_middleware', role=_arr_role) | length > 0
-        - lookup('role_var', '_external_auth', role=_arr_role) | bool
-      register: _arr_authentication_xml
-
-    - name: Resources | Tasks | Arr | Settings | Restart Docker container after configuration changes
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/restart_docker_container.yml"
+    - name: Resources | Tasks | Arr | Settings | Detect required XML changes
+      ansible.builtin.set_fact:
+        _arr_xml_changes_required: >-
+          {{
+            (
+             _arr_allowed_hosts_current | length == 1
+             and
+             (_arr_allowed_hosts_current[0].text | default('', true))
+             != (_arr_allowed_hosts | join(', '))
+            )
+            or
+            (
+             _arr_trusted_networks_current | length == 1
+             and
+             (_arr_trusted_networks_current[0].text | default('', true))
+             != (_arr_trusted_networks | join(', '))
+            )
+            or
+            (
+             _arr_external_auth_requested | bool
+             and _arr_authentication_method_current | length == 1
+             and
+             (_arr_authentication_method_current[0].text | default('', true))
+             != 'External'
+            )
+          }}
       vars:
-        var_prefix: "{{ _arr_role }}"
-      when: (_arr_host_security_xml is changed) or (_arr_authentication_xml is changed)
+        _arr_allowed_hosts_current: >-
+          {{
+            _arr_xml_info.content_text
+            | selectattr('tag', 'equalto', 'AllowedHosts')
+            | list
+          }}
+        _arr_trusted_networks_current: >-
+          {{
+            _arr_xml_info.content_text
+            | selectattr('tag', 'equalto', 'TrustedNetworks')
+            | list
+          }}
+        _arr_authentication_method_current: >-
+          {{
+            _arr_xml_info.content_text
+            | selectattr('tag', 'equalto', 'AuthenticationMethod')
+            | list
+          }}
+
+    - name: Resources | Tasks | Arr | Settings | Apply required XML changes
+      when: _arr_xml_changes_required | bool
+      block:
+        - name: Resources | Tasks | Arr | Settings | Stop Docker container
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+          vars:
+            var_prefix: "{{ _arr_role }}"
+
+        - name: Resources | Tasks | Arr | Settings | Configure supported XML settings
+          community.general.xml:
+            path: "{{ _arr_config_path }}"
+            xpath: "{{ _arr_xml_setting.xpath }}"
+            value: "{{ _arr_xml_setting.value }}"
+            create_if_missing: false
+          loop: "{{ _arr_xml_settings }}"
+          loop_control:
+            loop_var: _arr_xml_setting
+            label: "{{ _arr_xml_setting.name }}"
+          when:
+            - _arr_xml_setting.enabled | bool
+            - >-
+              _arr_xml_info.content_text
+              | selectattr('tag', 'equalto', _arr_xml_setting.name)
+              | list
+              | length == 1
+      always:
+        - name: Resources | Tasks | Arr | Settings | Start Docker container
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+          vars:
+            var_prefix: "{{ _arr_role }}"
