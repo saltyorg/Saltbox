@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: GitHub Binary Preflight | Get latest {{ docker_github_binary.name }} release metadata
+- name: GitHub Binary Preflight | Get {{ docker_github_binary.name }} release metadata
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/github_api_request.yml"
   vars:
     github_api_url: "{{ docker_github_binary.releases_url }}"
