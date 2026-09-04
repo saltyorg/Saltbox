@@ -1,0 +1,33 @@
+name: CI - Workflow Result
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/workflow-result.yml'
+      - '.github/workflows/workflow-result-ci.yml'
+      - '.github/renovate.json'
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/workflow-result.yml'
+      - '.github/workflows/workflow-result-ci.yml'
+      - '.github/renovate.json'
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate workflow result integration
+        run: |
+          docker run --rm \
+            --volume "$PWD:/repo:ro" \
+            --workdir /repo \
+            rhysd/actionlint:1.7.12 \
+            .github/workflows/workflow-result.yml \
+            .github/workflows/workflow-result-ci.yml
