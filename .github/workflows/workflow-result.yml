@@ -1,0 +1,59 @@
+name: Workflow Result
+
+on:
+  workflow_run:
+    workflows: ["CI", "CI - Every OS"]
+    types:
+      - completed
+
+concurrency:
+  group: workflow-result-${{ github.event.workflow_run.id }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  handle-failure:
+    if: contains(fromJSON('["failure", "timed_out", "startup_failure"]'), github.event.workflow_run.conclusion)
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Classify and retry failure
+        id: retry
+        continue-on-error: true
+        uses: saltyorg/github-actions/retry@b7feda22310aeb973e817c1b8c1911f5041e69ef # v1.0.0
+        with:
+          github-token: ${{ github.token }}
+          non-retryable-jobs: |
+            ansible-lint
+            saltbox-lint
+
+      - name: Notify terminal failure
+        if: always() && (steps.retry.outputs.decision == 'terminal' || steps.retry.outcome == 'failure')
+        uses: saltyorg/github-actions/notify@b7feda22310aeb973e817c1b8c1911f5041e69ef # v1.0.0
+        with:
+          github-token: ${{ github.token }}
+          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          terminal-reason: ${{ steps.retry.outputs.reason || 'retry-orchestration-error' }}
+          execution-attempt: ${{ steps.retry.outputs.execution-attempt }}
+
+      - name: Fail on retry orchestration error
+        if: steps.retry.outcome == 'failure'
+        run: exit 1
+
+  notify-completion:
+    if: contains(fromJSON('["success", "cancelled"]'), github.event.workflow_run.conclusion)
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Notify workflow completion
+        uses: saltyorg/github-actions/notify@b7feda22310aeb973e817c1b8c1911f5041e69ef # v1.0.0
+        with:
+          github-token: ${{ github.token }}
+          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}

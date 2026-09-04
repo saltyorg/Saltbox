@@ -122,6 +122,20 @@
                 "dependencies",
                 "github-actions"
             ]
+        },
+        {
+            "description": "Shared workflow result actions",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "matchPackageNames": [
+                "saltyorg/github-actions"
+            ],
+            "groupName": "workflow-result-actions",
+            "labels": [
+                "dependencies",
+                "github-actions"
+            ]
         }
     ],
     "rebaseWhen": "conflicted",
