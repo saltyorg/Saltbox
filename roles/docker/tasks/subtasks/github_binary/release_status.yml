@@ -18,6 +18,15 @@
     docker_github_binary_release: "{{ docker_github_binary_release_api.content | from_json }}"
   changed_when: false
 
+- name: GitHub Binary Preflight | Validate {{ docker_github_binary.name }} release version
+  ansible.builtin.assert:
+    that:
+      - (docker_github_binary.expected_version | default(docker_github_binary_release.tag_name, true)) == docker_github_binary_release.tag_name
+    fail_msg: >-
+      GitHub release '{{ docker_github_binary_release.tag_name | default('unknown') }}'
+      does not match requested {{ docker_github_binary.name }} version
+      '{{ docker_github_binary.expected_version | default('unspecified') }}'.
+
 - name: GitHub Binary Preflight | Find {{ docker_github_binary.name }} release asset
   ansible.builtin.set_fact:
     docker_github_binary_release_assets: "{{ docker_github_binary_release.assets | selectattr('name', 'equalto', docker_github_binary.asset_name) | list }}"

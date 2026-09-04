@@ -154,6 +154,17 @@
     "customManagers": [
         {
             "customType": "regex",
+            "description": "Saltbox Docker Hosts Manager release",
+            "managerFilePatterns": ["roles/docker/defaults/main.yml"],
+            "matchStrings": [
+                "docker_dns_version:\\s+\"(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)\""
+            ],
+            "depNameTemplate": "saltyorg/sdhm",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
             "description": "Traefik cloudflarewarp plugin",
             "managerFilePatterns": ["roles/traefik/defaults/main.yml"],
             "matchStrings": [

@@ -149,7 +149,9 @@ docker_dns_port_high_bound: 8280
 
 docker_dns_binary_path: "/usr/local/bin/sdhm"
 
-docker_dns_releases_url: "https://api.github.com/repos/saltyorg/sdhm/releases/latest"
+docker_dns_version: "v1.0.4"
+
+docker_dns_releases_url: "https://api.github.com/repos/saltyorg/sdhm/releases/tags/{{ docker_dns_version }}"
 
 docker_dns_networks:
   - "saltbox"

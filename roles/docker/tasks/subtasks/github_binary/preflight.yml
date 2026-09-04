@@ -21,6 +21,7 @@
     - name: sdhm
       path: "{{ docker_dns_binary_path }}"
       releases_url: "{{ docker_dns_releases_url }}"
+      expected_version: "{{ docker_dns_version }}"
       asset_name: sdhm_linux_amd64
       download_url_fact: docker_dns_download_url
       checksum_fact: docker_dns_release_checksum
