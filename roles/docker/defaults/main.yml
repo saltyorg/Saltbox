@@ -131,7 +131,8 @@ docker_daemon_template_force: true
 
 docker_controller_binary_path: "/usr/local/bin/sdc"
 
-docker_controller_releases_url: "https://api.github.com/repos/saltyorg/sdc/releases/latest"
+docker_controller_version: "v1.0.6"
+docker_controller_releases_url: "https://api.github.com/repos/saltyorg/sdc/releases/tags/{{ docker_controller_version }}"
 
 # Legacy
 docker_controller_venv_path: "/srv/docker-controller/venv"

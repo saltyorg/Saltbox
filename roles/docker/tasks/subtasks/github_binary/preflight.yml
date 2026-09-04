@@ -13,6 +13,7 @@
     - name: sdc
       path: "{{ docker_controller_binary_path }}"
       releases_url: "{{ docker_controller_releases_url }}"
+      expected_version: "{{ docker_controller_version }}"
       asset_name: sdc_linux_amd64
       download_url_fact: docker_controller_download_url
       checksum_fact: docker_controller_release_checksum
