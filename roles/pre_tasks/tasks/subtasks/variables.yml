@@ -7,38 +7,32 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Find Saltbox roles
-  ansible.builtin.command:
-    argv:
-      - "find"
-      - "/srv/git/saltbox/roles"
-      - "-type"
-      - "d"
-      - "-name"
-      - "defaults"
+- name: Find Saltbox role defaults
+  ansible.builtin.find:
+    paths: "/srv/git/saltbox/roles"
+    file_type: directory
+    patterns: "defaults"
+    recurse: true
   register: pre_tasks_saltbox_roles
 
 - name: Include Saltbox role default vars
   ansible.builtin.include_vars: "{{ item }}/main.yml"
-  with_items: "{{ pre_tasks_saltbox_roles.stdout_lines }}"
+  with_items: "{{ pre_tasks_saltbox_roles.files | map(attribute='path') | sort }}"
 
 - name: Sandbox
   when: (playbook_dir == pre_tasks_saltbox_mod_location)
   block:
-    - name: Find Sandbox roles
-      ansible.builtin.command:
-        argv:
-          - "find"
-          - "{{ server_appdata_path }}/sandbox/roles"
-          - "-type"
-          - "d"
-          - "-name"
-          - "defaults"
+    - name: Find Sandbox role defaults
+      ansible.builtin.find:
+        paths: "{{ server_appdata_path }}/sandbox/roles"
+        file_type: directory
+        patterns: "defaults"
+        recurse: true
       register: pre_tasks_sandbox_roles
 
     - name: Include Sandbox role default vars
       ansible.builtin.include_vars: "{{ item }}/main.yml"
-      with_items: "{{ pre_tasks_sandbox_roles.stdout_lines }}"
+      with_items: "{{ pre_tasks_sandbox_roles.files | map(attribute='path') | sort }}"
 
 - name: Check if 'localhost.yml' exists
   ansible.builtin.stat:
