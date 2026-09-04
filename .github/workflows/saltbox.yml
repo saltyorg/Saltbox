@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     paths-ignore:
-      - '.github/**'
       - '*.md'
       - '.gitignore'
       - 'roles/backup/**'
@@ -20,7 +19,6 @@ on:
       - 'dependabot/**'
   pull_request:
     paths-ignore:
-      - '.github/**'
       - '*.md'
       - '.gitignore'
       - 'roles/backup/**'
