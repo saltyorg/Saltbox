@@ -126,8 +126,21 @@ Rules:
 
 34. Git Clone Resource: direct ansible.builtin.git use is allowed only in the
     shared Git clone resource, which owns checkout behavior
+
+35. Ansible Tag Name: literal task and play tags use lowercase kebab-case
+
+36. Static Task Import: task composition uses include_tasks
+
+37. Static Role Import: role composition uses include_role
+
+38. Role Docker State: the shared Docker helper owns container start state
+
+39. Role Directory Name: role directories use snake_case
+
+40. Ansible Source Header: role source YAML carries the standard header
 """
 
+import argparse
 import os
 import re
 import sys
@@ -143,6 +156,8 @@ MappingContext = int | None
 JinjaBlock = tuple[int, int, list[str]]
 TopLevelVariable = tuple[str, int, list[str]]
 MAX_INLINE_CONDITIONAL_LENGTH = 160
+ANSIBLE_TAG_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
+ROLE_DIRECTORY_PATTERN = re.compile(r"[a-z0-9]+(?:_[a-z0-9]+)*")
 SVM_GITHUB_API_RESOURCE_PATH = (
     Path(__file__).resolve().parents[1]
     / "resources"
@@ -167,6 +182,48 @@ DEFAULTS_SECTION_ORDER = (
     "Traefik",
     "Docker",
     "Dependencies",
+)
+LINTER_RULES = (
+    ("operator-alignment", "Align multiline Jinja operators"),
+    ("ifelse-alignment", "Align multiline Jinja conditionals"),
+    ("variable-prefix", "Prefix role defaults with the role directory name"),
+    ("docker-layer-composition", "Compose Docker default and custom layers in order"),
+    ("role-web-contract", "Use the canonical role web interface"),
+    ("docker-image-composition", "Compose Docker images from repository and tag"),
+    ("role-lookup-target", "Give role_var lookups an explicit role target"),
+    ("docker-network-formula", "Use a supported Docker network formula"),
+    ("section-structure", "Keep defaults sections unique and ordered"),
+    ("direct-web-host-composition", "Use role_web for canonical hosts"),
+    ("docker-envs-custom-usage", "Use Docker environment custom values as the final layer"),
+    ("lookup-documentation", "Document computed lookup defaults"),
+    ("redundant-docker-layers", "Omit redundant empty Docker layers"),
+    ("docker-hosts-formula", "Compose role-local Docker host mappings"),
+    ("traefik-api-router-contract", "Declare the complete Traefik API router contract"),
+    ("nested-traefik-adapter-contract", "Forward nested Traefik adapter contracts"),
+    ("docker-helper-prefix-argument", "Pass var_prefix to Docker lifecycle helpers"),
+    ("non-docker-traefik-renderer-contract", "Render Traefik for non-Docker roles"),
+    ("role-var-empty-default", "Use default_if_empty for empty role_var fallbacks"),
+    ("docker-vars-policy", "Keep Docker variable fallback policy consistent"),
+    ("network-container-health-contract", "Pass explicit network health inputs"),
+    ("cloudflare-auth-contract", "Use normalized Cloudflare authentication"),
+    ("function-argument-alignment", "Align multiline function arguments"),
+    ("inline-conditional-length", "Limit inline Jinja conditional length"),
+    ("dictionary-entry-alignment", "Align multiline Jinja dictionary entries"),
+    ("lookup-argument-layout", "Use the canonical multiline lookup layout"),
+    ("block-jinja-indentation", "Indent pure block-scalar Jinja structurally"),
+    ("lookup-conditional-argument", "Resolve conditionals before lookup calls"),
+    ("jinja-closing-brace-placement", "Keep multiline Jinja closing braces with the final token"),
+    ("docker-healthcheck-test-layout", "Use marker-specific Docker healthcheck lists"),
+    ("docker-healthcheck-command-mode", "Prefer CMD unless CMD-SHELL is explicitly allowed"),
+    ("saltbox-lint-directive", "Use supported line-local Saltbox lint directives"),
+    ("svm-github-api-resource", "Use the shared SVM GitHub API resource"),
+    ("git-clone-resource", "Use the shared Git clone resource"),
+    ("ansible-tag-name", "Use literal lowercase kebab-case Ansible tags"),
+    ("static-task-import", "Use include_tasks instead of import_tasks"),
+    ("static-role-import", "Use include_role instead of import_role"),
+    ("role-docker-state", "Let the shared Docker helper own container state"),
+    ("role-directory-name", "Use snake_case role directory names"),
+    ("ansible-source-header", "Add the standard header to role source YAML"),
 )
 
 
@@ -1091,6 +1148,256 @@ class SaltboxLinter:
 
             record_git_action(line_number)
 
+    @classmethod
+    def find_yaml_mapping_value(
+        cls,
+        line: str,
+        key: str,
+    ) -> tuple[int, str] | None:
+        """Return the column and value for a bare YAML mapping key."""
+        code = cls.strip_unquoted_yaml_comment(line)
+        quote: str | None = None
+        escaped = False
+
+        for column, char in enumerate(code):
+            if escaped:
+                escaped = False
+                continue
+            if quote == '"':
+                if char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+                continue
+            if quote == "'":
+                if char == quote:
+                    quote = None
+                continue
+            if char in ("'", '"'):
+                quote = char
+                continue
+            if not code.startswith(key, column):
+                continue
+
+            previous = code[column - 1] if column else ""
+            if previous and not (previous.isspace() or previous in "{,"):
+                continue
+            value_column = column + len(key)
+            while value_column < len(code) and code[value_column].isspace():
+                value_column += 1
+            if value_column >= len(code) or code[value_column] != ":":
+                continue
+            return column, code[value_column + 1 :].strip()
+
+        return None
+
+    @staticmethod
+    def split_yaml_flow_sequence(value: str) -> list[str] | None:
+        """Split one simple YAML flow sequence while preserving quoted scalars."""
+        if not value.startswith("["):
+            return None
+
+        entries: list[str] = []
+        current: list[str] = []
+        quote: str | None = None
+        escaped = False
+        column = 1
+        while column < len(value):
+            char = value[column]
+            if escaped:
+                current.append(char)
+                escaped = False
+            elif quote == '"':
+                current.append(char)
+                if char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+            elif quote == "'":
+                current.append(char)
+                if char == quote:
+                    if column + 1 < len(value) and value[column + 1] == quote:
+                        current.append(value[column + 1])
+                        column += 1
+                    else:
+                        quote = None
+            elif char in ("'", '"'):
+                quote = char
+                current.append(char)
+            elif char == ",":
+                entries.append("".join(current).strip())
+                current = []
+            elif char == "]":
+                tail = "".join(current).strip()
+                if tail:
+                    entries.append(tail)
+                elif entries and entries[-1] == "":
+                    return None
+                return entries
+            else:
+                current.append(char)
+            column += 1
+
+        return None
+
+    @staticmethod
+    def yaml_scalar_token(value: str) -> str:
+        """Return one scalar token from a mapping or block-list value."""
+        value = value.strip()
+        if value.startswith(("{{", "{%")):
+            return value
+        if not value:
+            return ""
+        if value[0] in ("'", '"'):
+            quote = value[0]
+            escaped = False
+            for column in range(1, len(value)):
+                char = value[column]
+                if escaped:
+                    escaped = False
+                elif quote == '"' and char == "\\":
+                    escaped = True
+                elif char == quote:
+                    if quote == "'" and column + 1 < len(value) and value[column + 1] == quote:
+                        continue
+                    return value[: column + 1]
+            return value
+
+        for column, char in enumerate(value):
+            if char in ",}" or char.isspace():
+                return value[:column]
+        return value
+
+    def check_ansible_tags(self) -> None:
+        """Rule 35: Require literal lowercase kebab-case Ansible tags."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        def record(value: str, line_number: int) -> None:
+            scalar = value.strip()
+            quoted = (
+                len(scalar) >= 2
+                and scalar[0] == scalar[-1]
+                and scalar[0] in ("'", '"')
+            )
+            tag = self.unquote_yaml_scalar(scalar) if quoted else scalar
+            yaml_non_string = (
+                not quoted
+                and (
+                    tag.casefold()
+                    in {"false", "no", "null", "off", "on", "true", "yes", "~"}
+                    or re.fullmatch(
+                        r"[+-]?(?:[0-9][0-9_]*|0b[01_]+|0o[0-7_]+|0x[0-9a-f_]+)",
+                        tag,
+                    )
+                    is not None
+                    or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", tag)
+                    is not None
+                )
+            )
+            if (
+                tag
+                and "{{" not in tag
+                and "{%" not in tag
+                and not tag.startswith(("&", "*"))
+                and not yaml_non_string
+                and ANSIBLE_TAG_PATTERN.fullmatch(tag) is not None
+            ):
+                return
+
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[ansible-tag-name] Ansible tags must be literal strings "
+                        "matching [a-z0-9]+(?:-[a-z0-9]+)*; "
+                        f"found {scalar or '<empty>'!r}"
+                    ),
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+        for line_number, line in enumerate(self.lines, 1):
+            if self.line_is_block_scalar_content(line_number):
+                continue
+            mapping = self.find_yaml_mapping_value(line, "tags")
+            if mapping is None:
+                continue
+
+            _, value = mapping
+            if value.startswith("["):
+                entries = self.split_yaml_flow_sequence(value)
+                if entries is None:
+                    record(value, line_number)
+                    continue
+                for entry in entries:
+                    record(entry, line_number)
+                continue
+            if value:
+                record(self.yaml_scalar_token(value), line_number)
+                continue
+
+            key_indent = len(line) - len(line.lstrip())
+            found_entry = False
+            for child_number in range(line_number + 1, len(self.lines) + 1):
+                child_line = self.lines[child_number - 1]
+                if not child_line.strip():
+                    continue
+                child_indent = len(child_line) - len(child_line.lstrip())
+                if child_indent <= key_indent:
+                    break
+                child_code = self.strip_unquoted_yaml_comment(child_line).strip()
+                if not child_code:
+                    continue
+                if not child_code.startswith("- "):
+                    record(child_code, child_number)
+                    found_entry = True
+                    break
+                record(self.yaml_scalar_token(child_code[2:]), child_number)
+                found_entry = True
+            if not found_entry:
+                record("", line_number)
+
+    def check_static_imports(self) -> None:
+        """Rules 36-37: Reject static task and role imports."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        direct_import = re.compile(
+            r"^\s*(?:-\s+)?(?P<quote>['\"]?)(?:ansible\.builtin\.)?"
+            r"import_(?P<kind>tasks|role)(?P=quote)\s*:"
+        )
+        action_import = re.compile(
+            r"^\s*(?:-\s+)?(?:action|local_action)\s*:\s*"
+            r"(?:ansible\.builtin\.)?import_(?P<kind>tasks|role)(?:\s|$)"
+        )
+
+        for line_number, line in enumerate(self.lines, 1):
+            if self.line_is_block_scalar_content(line_number):
+                continue
+            code = self.strip_unquoted_yaml_comment(line)
+            match = direct_import.match(code) or action_import.match(code)
+            if match is None:
+                continue
+            kind = match.group("kind")
+            rule = "static-task-import" if kind == "tasks" else "static-role-import"
+            replacement = "include_tasks" if kind == "tasks" else "include_role"
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=f"[{rule}] Use ansible.builtin.{replacement} instead of import_{kind}",
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
     @staticmethod
     def find_unquoted_yaml_comment(line: str) -> int | None:
         """Return the first YAML comment marker outside quoted content."""
@@ -1446,6 +1753,29 @@ class SaltboxLinter:
                     file=relative_path,
                     line=line_number,
                     message=f"[variable-prefix] Variable '{variable_name}' must start with '{expected_prefix}'",
+                    repo_url=self.repo_url,
+                    commit_sha=self.commit_sha,
+                )
+            )
+
+    def check_role_docker_state(self) -> None:
+        """Rule 38: Keep Docker container state in the shared helper."""
+        try:
+            relative_path = str(self.file_path.relative_to(Path.cwd()))
+        except ValueError:
+            relative_path = str(self.file_path)
+
+        for variable_name, line_number, _ in self.iter_top_level_variables():
+            if not variable_name.endswith("_role_docker_state"):
+                continue
+            self.errors.append(
+                LintError(
+                    file=relative_path,
+                    line=line_number,
+                    message=(
+                        "[role-docker-state] Role defaults must not declare "
+                        f"'{variable_name}'; the shared Docker helper owns state"
+                    ),
                     repo_url=self.repo_url,
                     commit_sha=self.commit_sha,
                 )
@@ -3507,6 +3837,7 @@ class SaltboxLinter:
         self.check_inline_conditional_length()
         self.check_docker_healthcheck_tests()
         self.check_variable_prefix()
+        self.check_role_docker_state()
         self.check_docker_layer_composition()
         self.check_web_url_composition()
         self.check_direct_web_host_composition()
@@ -3529,6 +3860,90 @@ class SaltboxLinter:
 def markdown_cell(value: str) -> str:
     """Escape content for use in a GitHub Markdown table cell."""
     return value.replace("|", "\\|").replace("\r", "").replace("\n", "<br>")
+
+
+def check_role_directory_names(
+    repository_dir: Path,
+    repo_url: str | None = None,
+    commit_sha: str | None = None,
+) -> list[LintError]:
+    """Rule 39: Require snake_case names for Ansible role directories."""
+    errors: list[LintError] = []
+    for roles_dir in (
+        repository_dir / "roles",
+        repository_dir / "resources" / "roles",
+    ):
+        if not roles_dir.is_dir():
+            continue
+        for role_dir in sorted(path for path in roles_dir.iterdir() if path.is_dir()):
+            if ROLE_DIRECTORY_PATTERN.fullmatch(role_dir.name) is not None:
+                continue
+            errors.append(
+                LintError(
+                    file=str(role_dir.relative_to(repository_dir)),
+                    line=1,
+                    message=(
+                        "[role-directory-name] Role directory names must use "
+                        f"snake_case; found '{role_dir.name}'"
+                    ),
+                    repo_url=repo_url,
+                    commit_sha=commit_sha,
+                )
+            )
+    return errors
+
+
+def check_ansible_source_headers(
+    repository_dir: Path,
+    files: list[Path],
+    repo_url: str | None = None,
+    commit_sha: str | None = None,
+) -> list[LintError]:
+    """Rule 40: Require the standard header on role source YAML."""
+    errors: list[LintError] = []
+    border = re.compile(r"^#{20,}$")
+    for file_path in files:
+        lines = file_path.read_text(encoding="utf-8").splitlines()
+        document_line = next(
+            (index for index, line in enumerate(lines[:20]) if line == "---"),
+            None,
+        )
+        preamble = lines[:document_line] if document_line is not None else []
+
+        def find_line(pattern: str) -> int | None:
+            return next(
+                (index for index, line in enumerate(preamble) if re.match(pattern, line)),
+                None,
+            )
+
+        title_line = find_line(r"^# Title:\s+\S")
+        author_line = find_line(r"^# Author\(s\):\s+\S")
+        url_line = find_line(r"^# URL:\s+https?://\S+")
+        license_line = find_line(r"^#\s+GNU General Public License v3\.0")
+        required_lines = (title_line, author_line, url_line, license_line)
+        ordered_lines = [line for line in required_lines if line is not None]
+        valid = (
+            bool(lines)
+            and border.fullmatch(lines[0]) is not None
+            and document_line is not None
+            and all(line is not None for line in required_lines)
+            and ordered_lines == sorted(ordered_lines)
+        )
+        if valid:
+            continue
+        errors.append(
+            LintError(
+                file=str(file_path.relative_to(repository_dir)),
+                line=1,
+                message=(
+                    "[ansible-source-header] Role source YAML under defaults, "
+                    "tasks, handlers, and vars must start with the standard header"
+                ),
+                repo_url=repo_url,
+                commit_sha=commit_sha,
+            )
+        )
+    return errors
 
 
 def check_docker_vars_policy_contract(
@@ -3820,15 +4235,36 @@ def check_cloudflare_auth_contract(
     return errors
 
 
-def main() -> None:
-    """Main entry point for the linter"""
-    if len(sys.argv) < 2:
-        print("Usage: python3 saltbox-linter.py <repository_directory>")
-        print("\nExample:")
-        print("  python3 saltbox-linter.py .")
-        sys.exit(1)
+def parse_arguments() -> argparse.Namespace:
+    """Parse the public Saltbox linter command line."""
+    parser = argparse.ArgumentParser(
+        description="Check Saltbox and Sandbox Ansible source conventions.",
+    )
+    parser.add_argument(
+        "repository_directory",
+        nargs="?",
+        help="repository root containing roles/",
+    )
+    parser.add_argument(
+        "--list-rules",
+        action="store_true",
+        help="list stable rule identifiers and exit",
+    )
+    arguments = parser.parse_args()
+    if not arguments.list_rules and arguments.repository_directory is None:
+        parser.error("repository_directory is required unless --list-rules is used")
+    return arguments
 
-    repository_dir = Path(sys.argv[1])
+
+def main() -> None:
+    """Main entry point for the linter."""
+    arguments = parse_arguments()
+    if arguments.list_rules:
+        for rule_id, summary in LINTER_RULES:
+            print(f"{rule_id}\t{summary}")
+        return
+
+    repository_dir = Path(arguments.repository_directory)
 
     if not repository_dir.exists():
         print(f"Error: Directory '{repository_dir}' does not exist")
@@ -3901,6 +4337,32 @@ def main() -> None:
         if any(hosts_key.match(line) for line in root_yaml_lines):
             git_clone_contract_files[root_yaml_file] = False
 
+    ansible_policy_files = sorted(git_clone_contract_files)
+    ansible_source_files = sorted(
+        {
+            source_file
+            for pattern in (
+                "roles/*/defaults/**/*.yml",
+                "roles/*/defaults/**/*.yaml",
+                "roles/*/tasks/**/*.yml",
+                "roles/*/tasks/**/*.yaml",
+                "roles/*/handlers/**/*.yml",
+                "roles/*/handlers/**/*.yaml",
+                "roles/*/vars/**/*.yml",
+                "roles/*/vars/**/*.yaml",
+                "resources/roles/*/defaults/**/*.yml",
+                "resources/roles/*/defaults/**/*.yaml",
+                "resources/roles/*/tasks/**/*.yml",
+                "resources/roles/*/tasks/**/*.yaml",
+                "resources/roles/*/handlers/**/*.yml",
+                "resources/roles/*/handlers/**/*.yaml",
+                "resources/roles/*/vars/**/*.yml",
+                "resources/roles/*/vars/**/*.yaml",
+            )
+            for source_file in repository_dir.glob(pattern)
+        }
+    )
+
     inventory_file_label = (
         "inventory file" if len(inventory_files) == 1 else "inventory files"
     )
@@ -3926,6 +4388,16 @@ def main() -> None:
         linter.check_git_clone_resource_usage(
             root_is_task_list=root_is_task_list,
         )
+        all_errors.extend(linter.errors)
+
+    for policy_file in ansible_policy_files:
+        linter = SaltboxLinter(
+            policy_file,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+        linter.check_ansible_tags()
+        linter.check_static_imports()
         all_errors.extend(linter.errors)
 
     for inventory_file in inventory_files:
@@ -3958,10 +4430,25 @@ def main() -> None:
             commit_sha=github_sha,
         )
     )
+    all_errors.extend(
+        check_role_directory_names(
+            repository_dir,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+    )
+    all_errors.extend(
+        check_ansible_source_headers(
+            repository_dir,
+            ansible_source_files,
+            repo_url=repo_url,
+            commit_sha=github_sha,
+        )
+    )
 
     # Output results
     if all_errors:
-        result_message = f"❌ Found {len(all_errors)} formatting error(s) in "
+        result_message = f"❌ Found {len(all_errors)} lint finding(s) in "
         result_message += (
             f"{len(defaults_files)} defaults, {len(task_files)} task files, and "
         )
@@ -3981,7 +4468,7 @@ def main() -> None:
         result_message = f"✅ All {len(defaults_files)} role defaults, "
         result_message += f"{len(task_files)} task files, and "
         result_message += (
-            f"{len(inventory_files)} {inventory_file_label} pass formatting checks"
+            f"{len(inventory_files)} {inventory_file_label} pass Saltbox lint checks"
         )
         print(result_message)
         write_github_summary(
