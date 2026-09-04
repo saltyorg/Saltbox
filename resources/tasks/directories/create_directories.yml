@@ -14,6 +14,17 @@
     owner: "{{ lookup('role_var', '_paths_owner', default=user.name) }}"
     group: "{{ lookup('role_var', '_paths_group', default=user.name) }}"
     mode: "{{ lookup('role_var', '_paths_permissions', default='0775') }}"
-    recurse: "{{ lookup('role_var', '_paths_recursive', default=false) }}"
   with_items: "{{ lookup('role_var', '_paths_folders_list')
                   + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
+
+- name: Resources | Tasks | Directories | Normalize ownership recursively
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ lookup('role_var', '_paths_owner', default=user.name) }}"
+    group: "{{ lookup('role_var', '_paths_group', default=user.name) }}"
+    recurse: true
+    follow: false
+  with_items: "{{ lookup('role_var', '_paths_folders_list')
+                  + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
+  when: lookup('role_var', '_paths_recursive', default=false) | bool
