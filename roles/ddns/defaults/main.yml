@@ -31,7 +31,7 @@ ddns_role_docker_container: "{{ ddns_name }}"
 # Image
 ddns_role_docker_image_pull: true
 ddns_role_docker_image_repo: "saltydk/dns"
-ddns_role_docker_image_tag: "latest"
+ddns_role_docker_image_tag: "1.0.8"
 ddns_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='ddns') }}:{{ lookup('role_var', '_docker_image_tag', role='ddns') }}"
 
 # Envs
