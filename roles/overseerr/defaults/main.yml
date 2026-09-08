@@ -25,10 +25,8 @@ overseerr_role_log_level: "info"
 
 overseerr_role_paths_folder: "{{ overseerr_name }}"
 overseerr_role_paths_location: "{{ server_appdata_path }}/{{ overseerr_role_paths_folder }}"
-overseerr_role_paths_cache: "{{ overseerr_role_paths_location }}/cache"
 overseerr_role_paths_folders_list:
   - "{{ overseerr_role_paths_location }}"
-  - "{{ overseerr_role_paths_cache }}"
 overseerr_role_paths_config_location: "{{ overseerr_role_paths_location }}/settings.json"
 
 ################################

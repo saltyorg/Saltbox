@@ -25,10 +25,8 @@ seerr_role_log_level: "info"
 
 seerr_role_paths_folder: "{{ seerr_name }}"
 seerr_role_paths_location: "{{ server_appdata_path }}/{{ seerr_role_paths_folder }}"
-seerr_role_paths_cache: "{{ seerr_role_paths_location }}/cache"
 seerr_role_paths_folders_list:
   - "{{ seerr_role_paths_location }}"
-  - "{{ seerr_role_paths_cache }}"
 seerr_role_paths_config_location: "{{ seerr_role_paths_location }}/settings.json"
 
 ################################
