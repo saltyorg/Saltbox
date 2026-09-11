@@ -46,6 +46,12 @@
         protocols: ["tcp"]
   register: plex_port_assignment
 
+- name: Resolve Plex external port for preferences
+  ansible.builtin.set_fact:
+    plex_docker_port_lookup: "{{ (plex_port_assignment.ports.web
+                                  if lookup('role_var', '_open_main_ports', role='plex')
+                                  else lookup('role_var', '_web_port', role='plex')) | string }}"
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
@@ -76,6 +82,14 @@
 
 - name: Preferences Tasks
   ansible.builtin.include_tasks: "subtasks/preferences/preferences.yml"
+  when: (not continuous_integration)
+
+- name: Check if Plex database exists before startup
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_db_location', role='plex') }}"
+    get_checksum: false
+    get_mime: false
+  register: plex_database_before_start
   when: (not continuous_integration)
 
 - name: Create Docker container

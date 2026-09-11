@@ -33,19 +33,52 @@
   failed_when: pms_check.rc == 1 or pms_check.rc > 2
 
 - name: Wait until Plex instance returns expected status code
-  ansible.builtin.uri:
-    url: "http://{{ plex_extra_tasks_hostname }}:32400/web/index.html"
-    method: GET
-    status_code: [200]
-  register: plex_status_result
-  until: plex_status_result.status == 200
-  retries: 150
-  delay: 10
+  block:
+    - name: Wait for Plex startup
+      ansible.builtin.uri:
+        url: "http://{{ plex_extra_tasks_hostname }}:32400/web/index.html"
+        method: GET
+        status_code: [200]
+        timeout: 5
+      register: plex_status_result
+      until: plex_status_result.status == 200
+      retries: 12
+      delay: 10
 
-- name: Stop Docker Container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
-  vars:
-    var_prefix: "plex"
+  rescue:
+    - name: Fail startup timeout for a new Plex installation
+      ansible.builtin.fail:
+        msg: "{{ plex_name }} did not become ready during initial startup. Check its container logs before retrying."
+      when: not plex_database_before_start.stat.exists
+
+    - name: Inspect Plex container after startup timeout
+      community.docker.docker_container_info:
+        name: "{{ lookup('role_var', '_docker_container', role='plex') }}"
+      register: plex_startup_container_info
+
+    - name: Verify Plex has remained running since deployment
+      ansible.builtin.assert:
+        that:
+          - plex_startup_container_info.exists
+          - plex_startup_container_info.container.Id == create_docker_result.container.Id
+          - plex_startup_container_info.container.State.Running
+          - not plex_startup_container_info.container.State.Restarting
+          - not plex_startup_container_info.container.State.Paused
+          - plex_startup_container_info.container.RestartCount == 0
+          - plex_startup_container_info.container.State.StartedAt == create_docker_result.container.State.StartedAt
+        fail_msg: "{{ plex_name }} did not become ready and is no longer running continuously since deployment. Check its container logs before retrying."
+        quiet: true
+
+    - name: Allow additional time for Plex startup
+      ansible.builtin.uri:
+        url: "http://{{ plex_extra_tasks_hostname }}:32400/web/index.html"
+        method: GET
+        status_code: [200]
+        timeout: 5
+      register: plex_status_result
+      until: plex_status_result.status == 200
+      retries: 720
+      delay: 10
 
 - name: Ensure transcodes folder has the correct permissions
   ansible.builtin.file:
@@ -55,42 +88,54 @@
     mode: "0775"
     recurse: true
 
-- name: Find external port binding for '{{ lookup('role_var', '_docker_container', role='plex') }}' docker port '{{ lookup('role_var', '_web_port', role='plex') }}'
-  when: lookup('role_var', '_open_main_ports', role='plex')
+- name: Configure Plex preferences
+  vars:
+    plex_extra_tasks_xml_settings:
+      ManualPortMappingPort: "{{ plex_docker_port_lookup | string }}"
+      PublishServerOnPlexOnlineKey: "0"
+      RelayEnabled: "0"
   block:
-    - name: Set assigned Plex port
+    - name: Read managed Plex XML settings
+      community.general.xml_info:
+        path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
+        xpath: /Preferences
+        what: content_attributes
+      register: plex_extra_tasks_xml_info
+      no_log: true
+
+    - name: Detect required Plex XML changes
       ansible.builtin.set_fact:
-        plex_docker_port_lookup: "{{ plex_port_assignment.ports.web }}"
+        plex_extra_tasks_xml_changes_required: "{{ (plex_extra_tasks_xml_info.content_attributes[0].attributes
+                                                    | combine(plex_extra_tasks_xml_settings))
+                                                 != plex_extra_tasks_xml_info.content_attributes[0].attributes }}"
 
-- name: Update port in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
-  community.general.xml:
-    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
-    xpath: /Preferences
-    attribute: ManualPortMappingPort
-    value: "{{ plex_docker_port_lookup | default(lookup('role_var', '_web_port', role='plex')) | string }}"
-    state: present
-  become: true
-  become_user: "{{ user.name }}"
+    - name: Apply required Plex XML changes
+      when: plex_extra_tasks_xml_changes_required | bool
+      block:
+        - name: Stop Docker Container
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
+          vars:
+            var_prefix: "plex"
 
-- name: Disable Remote Access in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
-  community.general.xml:
-    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
-    xpath: /Preferences
-    attribute: PublishServerOnPlexOnlineKey
-    value: "0"
-    state: present
-  become: true
-  become_user: "{{ user.name }}"
+        - name: Update managed Plex XML settings
+          community.general.xml:
+            path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
+            xpath: /Preferences
+            attribute: "{{ plex_xml_setting.key }}"
+            value: "{{ plex_xml_setting.value | string }}"
+            state: present
+          become: true
+          become_user: "{{ user.name }}"
+          loop: "{{ plex_extra_tasks_xml_settings | dict2items }}"
+          loop_control:
+            loop_var: plex_xml_setting
+            label: "{{ plex_xml_setting.key }}"
 
-- name: Disable Relay in '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
-  community.general.xml:
-    path: "{{ lookup('role_var', '_paths_config_location', role='plex') }}"
-    xpath: /Preferences
-    attribute: RelayEnabled
-    value: "0"
-    state: present
-  become: true
-  become_user: "{{ user.name }}"
+      always:
+        - name: Start Docker Container
+          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
+          vars:
+            var_prefix: "plex"
 
 - name: Reset permissions of '{{ lookup('role_var', '_paths_config_location', role='plex') | basename }}'
   ansible.builtin.file:
@@ -98,8 +143,3 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0644"
-
-- name: Start Docker Container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"
-  vars:
-    var_prefix: "plex"
