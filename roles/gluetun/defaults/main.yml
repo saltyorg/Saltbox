@@ -27,9 +27,9 @@ gluetun_role_vpn_service_provider: ""
 gluetun_role_vpn_type: ""
 # Network interface name for the VPN tunnel (e.g., tun0, wg0)
 gluetun_role_vpn_interface: ""
-# VPN server endpoint IP address (optional override)
+# Legacy fallback for OpenVPN and WireGuard endpoint IP overrides; prefer protocol-specific settings
 gluetun_role_vpn_endpoint_ip: ""
-# VPN server endpoint port (optional override)
+# Legacy fallback for OpenVPN and WireGuard endpoint port overrides; prefer protocol-specific settings
 gluetun_role_vpn_endpoint_port: ""
 # VPN - Sub-section End
 
@@ -61,11 +61,11 @@ gluetun_role_openvpn_process_user: ""
 gluetun_role_openvpn_mssfix: ""
 # Path to custom OpenVPN configuration file
 gluetun_role_openvpn_custom_config: ""
-# OpenVPN client certificate (base64 or path)
+# OpenVPN client certificate content (base64 part only)
 gluetun_role_openvpn_cert: ""
-# OpenVPN client private key (base64 or path)
+# OpenVPN client private key content (base64 part only)
 gluetun_role_openvpn_key: ""
-# Set to "yes" if the OpenVPN key is encrypted
+# OpenVPN encrypted private key content (base64 part only)
 gluetun_role_openvpn_encrypted_key: ""
 # Passphrase to decrypt the OpenVPN key
 gluetun_role_openvpn_key_passphrase: ""
@@ -89,7 +89,7 @@ gluetun_role_wireguard_endpoint_ip: ""
 gluetun_role_wireguard_endpoint_port: ""
 # WireGuard MTU value
 gluetun_role_wireguard_mtu: ""
-# WireGuard implementation: kernelspace or userspace
+# WireGuard implementation: auto, kernelspace, or userspace
 gluetun_role_wireguard_implementation: ""
 # WireGuard persistent keepalive interval (e.g., 25s)
 gluetun_role_wireguard_persistent_keepalive_interval: ""
@@ -145,15 +145,15 @@ gluetun_role_firewall_debug: ""
 
 # DNS - Sub-section Start
 # [GLOBAL] Reference: https://github.com/qdm12/gluetun-wiki/blob/main/setup/options/dns.md
-# DNS server type: local or remote
+# Enable the built-in DNS server (on/off)
 gluetun_role_dns_server: ""
-# Upstream resolver type: dot, doh, or plaintext
+# Upstream resolver type: dot, doh, or plain
 gluetun_role_dns_upstream_resolver_type: ""
 # Comma-separated list of upstream DNS resolvers
 gluetun_role_dns_upstream_resolvers: ""
 # Enable DNS caching (on/off)
 gluetun_role_dns_caching: ""
-# Allow IPv6 DNS queries (on/off)
+# Use IPv6 to contact upstream DNS resolvers (on/off)
 gluetun_role_dns_upstream_ipv6: ""
 # Comma-separated list of IPs to block in DNS responses
 gluetun_role_dns_block_ips: ""
@@ -169,13 +169,13 @@ gluetun_role_block_ads: ""
 gluetun_role_dns_unblock_hostnames: ""
 # Comma-separated list of hostnames exempt from DNS rebinding protection
 gluetun_role_dns_rebinding_protection_exempt_hostnames: ""
-# Comma-separated list of private address ranges for DNS
+# Legacy fallback for dns_block_ip_prefixes; comma-separated CIDR ranges to block
 gluetun_role_dns_private_addresses: ""
 # DNS blocklists update period (e.g., 24h)
 gluetun_role_dns_update_period: ""
-# Address for DNS server to listen on (e.g., 127.0.0.1:53)
+# DNS server IP address used by Gluetun and the system (e.g., 127.0.0.1, without a port)
 gluetun_role_dns_address: ""
-# Keep original nameserver - deprecated in v3.41+, Saltbox default: false
+# Keep the container nameserver and disable the built-in DNS server (bypasses VPN DNS); Saltbox default: false
 gluetun_role_docker_resolver: false
 # DNS - Sub-section End
 
@@ -187,7 +187,7 @@ gluetun_role_health_server_address: ""
 gluetun_role_health_target_addresses: ""
 # Comma-separated list of IP addresses for ICMP health checks
 gluetun_role_health_icmp_target_ips: ""
-# Type of small health check: ping or http
+# Type of small health check: icmp or dns
 gluetun_role_health_small_check_type: ""
 # Restart VPN when unhealthy (on/off)
 gluetun_role_health_restart_vpn: ""
@@ -231,7 +231,7 @@ gluetun_role_http_control_server_log: ""
 gluetun_role_http_control_server_address: ""
 # Path to auth config file for control server
 gluetun_role_http_control_server_auth_config_filepath: ""
-# Default role for control server auth (admin/viewer/none)
+# JSON-encoded default authentication role for the control server (e.g., '{}')
 gluetun_role_http_control_server_auth_default_role: ""
 # Control Server - Sub-section End
 
@@ -287,7 +287,7 @@ gluetun_role_log_level: ""
 # Logging - Sub-section End
 
 # Provider Specific - Sub-section Start
-# PIA OpenVPN encryption preset: normal, strong, none
+# PIA OpenVPN encryption preset: normal or strong
 gluetun_role_private_internet_access_openvpn_encryption_preset: ""
 # Provider Specific - Sub-section End
 
@@ -328,11 +328,10 @@ gluetun_role_docker_envs_default:
   BLOCK_MALICIOUS: "{{ lookup('role_var', '_block_malicious', role='gluetun', default=omit, default_if_empty=true) }}"
   BLOCK_SURVEILLANCE: "{{ lookup('role_var', '_block_surveillance', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_ADDRESS: "{{ lookup('role_var', '_dns_address', role='gluetun', default=omit, default_if_empty=true) }}"
-  DNS_BLOCK_IP_PREFIXES: "{{ lookup('role_var', '_dns_block_ip_prefixes', role='gluetun', default=omit, default_if_empty=true) }}"
+  DNS_BLOCK_IP_PREFIXES: "{{ lookup('role_var', '_dns_block_ip_prefixes', role='gluetun', default=lookup('role_var', '_dns_private_addresses', role='gluetun', default=omit, default_if_empty=true), default_if_empty=true) }}"
   DNS_BLOCK_IPS: "{{ lookup('role_var', '_dns_block_ips', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_CACHING: "{{ lookup('role_var', '_dns_caching', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_KEEP_NAMESERVER: "{{ 'on' if (lookup('role_var', '_docker_resolver', role='gluetun') | bool) else 'off' }}"
-  DNS_PRIVATE_ADDRESSES: "{{ lookup('role_var', '_dns_private_addresses', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_REBINDING_PROTECTION_EXEMPT_HOSTNAMES: "{{ lookup('role_var', '_dns_rebinding_protection_exempt_hostnames', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_SERVER: "{{ lookup('role_var', '_dns_server', role='gluetun', default=omit, default_if_empty=true) }}"
   DNS_UNBLOCK_HOSTNAMES: "{{ lookup('role_var', '_dns_unblock_hostnames', role='gluetun', default=omit, default_if_empty=true) }}"
@@ -368,8 +367,8 @@ gluetun_role_docker_envs_default:
   OPENVPN_CIPHERS: "{{ lookup('role_var', '_openvpn_ciphers', role='gluetun', default=omit, default_if_empty=true) }}"
   OPENVPN_CUSTOM_CONFIG: "{{ lookup('role_var', '_openvpn_custom_config', role='gluetun', default=omit, default_if_empty=true) }}"
   OPENVPN_ENCRYPTED_KEY: "{{ lookup('role_var', '_openvpn_encrypted_key', role='gluetun', default=omit, default_if_empty=true) }}"
-  OPENVPN_ENDPOINT_IP: "{{ lookup('role_var', '_openvpn_endpoint_ip', role='gluetun', default=omit, default_if_empty=true) }}"
-  OPENVPN_ENDPOINT_PORT: "{{ lookup('role_var', '_openvpn_endpoint_port', role='gluetun', default=omit, default_if_empty=true) }}"
+  OPENVPN_ENDPOINT_IP: "{{ lookup('role_var', '_openvpn_endpoint_ip', role='gluetun', default=lookup('role_var', '_vpn_endpoint_ip', role='gluetun', default=omit, default_if_empty=true), default_if_empty=true) }}"
+  OPENVPN_ENDPOINT_PORT: "{{ lookup('role_var', '_openvpn_endpoint_port', role='gluetun', default=lookup('role_var', '_vpn_endpoint_port', role='gluetun', default=omit, default_if_empty=true), default_if_empty=true) }}"
   OPENVPN_FLAGS: "{{ lookup('role_var', '_openvpn_flags', role='gluetun', default=omit, default_if_empty=true) }}"
   OPENVPN_KEY: "{{ lookup('role_var', '_openvpn_key', role='gluetun', default=omit, default_if_empty=true) }}"
   OPENVPN_KEY_PASSPHRASE: "{{ lookup('role_var', '_openvpn_key_passphrase', role='gluetun', default=omit, default_if_empty=true) }}"
@@ -414,8 +413,6 @@ gluetun_role_docker_envs_default:
   UPDATER_PROTONVPN_PASSWORD: "{{ lookup('role_var', '_updater_protonvpn_password', role='gluetun', default=omit, default_if_empty=true) }}"
   UPDATER_VPN_SERVICE_PROVIDERS: "{{ lookup('role_var', '_updater_vpn_service_providers', role='gluetun', default=omit, default_if_empty=true) }}"
   VERSION_INFORMATION: "{{ lookup('role_var', '_version_information', role='gluetun', default=omit, default_if_empty=true) }}"
-  VPN_ENDPOINT_IP: "{{ lookup('role_var', '_vpn_endpoint_ip', role='gluetun', default=omit, default_if_empty=true) }}"
-  VPN_ENDPOINT_PORT: "{{ lookup('role_var', '_vpn_endpoint_port', role='gluetun', default=omit, default_if_empty=true) }}"
   VPN_INTERFACE: "{{ lookup('role_var', '_vpn_interface', role='gluetun', default=omit, default_if_empty=true) }}"
   VPN_PORT_FORWARDING: "{{ lookup('role_var', '_vpn_port_forwarding', role='gluetun', default=omit, default_if_empty=true) }}"
   VPN_PORT_FORWARDING_DOWN_COMMAND: "{{ lookup('role_var', '_vpn_port_forwarding_down_command', role='gluetun', default=omit, default_if_empty=true) }}"
@@ -429,8 +426,8 @@ gluetun_role_docker_envs_default:
   VPN_TYPE: "{{ lookup('role_var', '_vpn_type', role='gluetun', default=omit, default_if_empty=true) }}"
   WIREGUARD_ADDRESSES: "{{ lookup('role_var', '_wireguard_addresses', role='gluetun', default=omit, default_if_empty=true) }}"
   WIREGUARD_ALLOWED_IPS: "{{ lookup('role_var', '_wireguard_allowed_ips', role='gluetun', default=omit, default_if_empty=true) }}"
-  WIREGUARD_ENDPOINT_IP: "{{ lookup('role_var', '_wireguard_endpoint_ip', role='gluetun', default=omit, default_if_empty=true) }}"
-  WIREGUARD_ENDPOINT_PORT: "{{ lookup('role_var', '_wireguard_endpoint_port', role='gluetun', default=omit, default_if_empty=true) }}"
+  WIREGUARD_ENDPOINT_IP: "{{ lookup('role_var', '_wireguard_endpoint_ip', role='gluetun', default=lookup('role_var', '_vpn_endpoint_ip', role='gluetun', default=omit, default_if_empty=true), default_if_empty=true) }}"
+  WIREGUARD_ENDPOINT_PORT: "{{ lookup('role_var', '_wireguard_endpoint_port', role='gluetun', default=lookup('role_var', '_vpn_endpoint_port', role='gluetun', default=omit, default_if_empty=true), default_if_empty=true) }}"
   WIREGUARD_IMPLEMENTATION: "{{ lookup('role_var', '_wireguard_implementation', role='gluetun', default=omit, default_if_empty=true) }}"
   WIREGUARD_MTU: "{{ lookup('role_var', '_wireguard_mtu', role='gluetun', default=omit, default_if_empty=true) }}"
   WIREGUARD_PERSISTENT_KEEPALIVE_INTERVAL: "{{ lookup('role_var', '_wireguard_persistent_keepalive_interval', role='gluetun', default=omit, default_if_empty=true) }}"
