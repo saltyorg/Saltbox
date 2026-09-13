@@ -25,7 +25,7 @@
         traefik_zerossl_hmacencoded: "{{ lookup('ini', 'hmacencoded section=zerossl file=' + traefik_zerossl_file_ini) }}"
 
 - name: "ZeroSSL | New Credentials Block"
-  when: not zerossl_ini.stat.exists
+  when: (not zerossl_ini.stat.exists)
   block:
     - name: "ZeroSSL | Get new credentials"
       ansible.builtin.uri:
@@ -42,17 +42,23 @@
       ansible.builtin.set_fact:
         traefik_zerossl_kid: "{{ zerossl.json.eab_kid }}"
         traefik_zerossl_hmacencoded: "{{ zerossl.json.eab_hmac_key }}"
-      when: (zerossl.status == 200) and zerossl.json.success
+      when:
+        - (zerossl.status == 200)
+        - zerossl.json.success
 
     - name: "ZeroSSL | Fail when unable to get new credentials"
       ansible.builtin.fail:
         msg: Failed to retrieve ZeroSSL credentials.
-      when: ((zerossl.status != 200) or (not zerossl.json.success)) and zerossl_is_enabled
+      when:
+        - ((zerossl.status != 200) or (not zerossl.json.success))
+        - zerossl_is_enabled
 
     - name: "ZeroSSL | Print failure when unable to get new credentials"
       ansible.builtin.debug:
         msg: Failed to retrieve ZeroSSL credentials.
-      when: ((zerossl.status != 200) or (not zerossl.json.success)) and not zerossl_is_enabled
+      when:
+        - ((zerossl.status != 200) or (not zerossl.json.success))
+        - (not zerossl_is_enabled)
 
     - name: "ZeroSSL | Create directories"
       ansible.builtin.file:
@@ -61,7 +67,9 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
-      when: (zerossl.status == 200) and zerossl.json.success
+      when:
+        - (zerossl.status == 200)
+        - zerossl.json.success
 
     - name: "ZeroSSL | Add kid to '{{ traefik_zerossl_file_ini }}'"
       community.general.ini_file:
@@ -72,7 +80,9 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
-      when: (zerossl.status == 200) and zerossl.json.success
+      when:
+        - (zerossl.status == 200)
+        - zerossl.json.success
 
     - name: "ZeroSSL | Add hmacencoded to '{{ traefik_zerossl_file_ini }}'"
       community.general.ini_file:
@@ -83,4 +93,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
-      when: (zerossl.status == 200) and zerossl.json.success
+      when:
+        - (zerossl.status == 200)
+        - zerossl.json.success

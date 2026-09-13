@@ -14,4 +14,4 @@
 ## Remove 'saltbox' subdomain for Mediabox/Feederbox setups.
 - name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ domain_parsed.fld }}'"
   ansible.builtin.include_tasks: "subdomains/remove_subdomain.yml"
-  when: saltbox_type is regex('mediabox|feederbox')
+  when: (saltbox_type is regex('mediabox|feederbox'))

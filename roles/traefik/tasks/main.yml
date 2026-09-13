@@ -12,7 +12,7 @@
     that:
       - not traefik_http
     fail_msg: "traefik.cert.additional_domains requires DNS certificate validation because HTTP-01 cannot issue wildcard certificates."
-  when: traefik.cert.additional_domains | default([]) | length > 0
+  when: (traefik.cert.additional_domains | default([]) | length > 0)
 
 - name: Check Authelia master health endpoint
   ansible.builtin.uri:
@@ -23,7 +23,9 @@
   until: authelia_master_health.status == 200
   retries: 10
   delay: 6
-  when: lookup('role_var', '_authelia_enabled', role='traefik') and (not authelia_is_master)
+  when:
+    - (lookup('role_var', '_authelia_enabled', role='traefik') | bool)
+    - (not authelia_is_master)
 
 - name: Check Authentik master health endpoint
   ansible.builtin.uri:
@@ -34,7 +36,9 @@
   until: authentik_master_health.status == 200
   retries: 10
   delay: 6
-  when: lookup('role_var', '_authentik_enabled', role='traefik') and (not authentik_is_master)
+  when:
+    - (lookup('role_var', '_authentik_enabled', role='traefik') | bool)
+    - (not authentik_is_master)
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
@@ -58,20 +62,22 @@
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
     var_prefix: "error_pages"
-  when: not traefik_error_pages_enabled
+  when: (not traefik_error_pages_enabled)
 
 - name: Remove existing Authelia Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
   vars:
     var_prefix: "authelia"
-  when: not authelia_is_master
+  when: (not authelia_is_master)
 
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
 - name: Traefik ZeroSSL Tasks
   ansible.builtin.include_tasks: "subtasks/zerossl.yml"
-  when: traefik_enable_zerossl and (not continuous_integration)
+  when:
+    - (traefik_enable_zerossl | bool)
+    - (not continuous_integration)
 
 - name: Traefik Config Tasks
   ansible.builtin.include_tasks: "subtasks/config.yml"
@@ -117,12 +123,16 @@
 - name: "Import Authelia Role"
   ansible.builtin.include_role:
     name: authelia
-  when: lookup('role_var', '_authelia_enabled', role='traefik') and authelia_is_master
+  when:
+    - (lookup('role_var', '_authelia_enabled', role='traefik') | bool)
+    - authelia_is_master
 
 - name: "Import Authentik Role"
   ansible.builtin.include_role:
     name: authentik
-  when: lookup('role_var', '_authentik_enabled', role='traefik') and authentik_is_master
+  when:
+    - (lookup('role_var', '_authentik_enabled', role='traefik') | bool)
+    - authentik_is_master
 
 - name: "Import Error Pages Role"
   ansible.builtin.include_role:

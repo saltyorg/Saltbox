@@ -11,7 +11,9 @@
   ansible.builtin.include_tasks: "subtasks/variables.yml"
 
 - name: Saltbox Subdomains Task
-  when: (saltbox_type | length > 0) and not skip_dns
+  when:
+    - (saltbox_type | length > 0)
+    - (not skip_dns)
   block:
     - name: Manage Saltbox subdomains
       ansible.builtin.include_tasks: "subtasks/subdomains.yml"
@@ -41,7 +43,7 @@
     - name: Preserve non-permission Cloudflare DNS failure
       ansible.builtin.fail:
         msg: "{{ cloudflare_dns_failure_message }}"
-      when: not cloudflare_dns_failure_is_permission
+      when: (not cloudflare_dns_failure_is_permission)
 
 - name: Purge Cache Task
   block:
@@ -85,7 +87,7 @@
           - "Under Zone Resources, select Include → Specific zone → {{ domain_parsed.fld }}, save the token, and rerun the command."
           - "Full instructions: https://docs.saltbox.dev/reference/domain/#alternative-scoped-api-token"
       when:
-        - traefik_enable_http_validation | bool
+        - (traefik_enable_http_validation | bool)
         - cloudflare_scoped_token_is_enabled
 
     - name: Fail Global API Key when forced HTTP validation requires the Configuration Rule
@@ -100,8 +102,8 @@
           - "Save accounts.yml and rerun the command."
           - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
       when:
-        - traefik_enable_http_validation | bool
-        - not cloudflare_scoped_token_is_enabled
+        - (traefik_enable_http_validation | bool)
+        - (not cloudflare_scoped_token_is_enabled)
 
     - name: Warn scoped token when the optional Configuration Rule could not be managed
       ansible.builtin.debug:
@@ -114,7 +116,7 @@
           - "Find the token used by Saltbox, select Edit, add or correct that permission, and scope it to '{{ domain_parsed.fld }}'."
           - "Full instructions: https://docs.saltbox.dev/reference/domain/#alternative-scoped-api-token"
       when:
-        - not (traefik_enable_http_validation | bool)
+        - (not (traefik_enable_http_validation | bool))
         - cloudflare_scoped_token_is_enabled
 
     - name: Warn Global API Key when the optional Configuration Rule could not be managed
@@ -128,5 +130,5 @@
           - "Confirm the 'email' entry under 'cloudflare' contains the email for the same Cloudflare user and that the user has access to '{{ domain_parsed.fld }}'."
           - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
       when:
-        - not (traefik_enable_http_validation | bool)
-        - not cloudflare_scoped_token_is_enabled
+        - (not (traefik_enable_http_validation | bool))
+        - (not cloudflare_scoped_token_is_enabled)

@@ -15,7 +15,7 @@
 - name: Fail if Traefik Crowdsec bouncer key file does not exist
   ansible.builtin.fail:
     msg: "Crowdsec enabled but not yet installed. Run crowdsec install first."
-  when: not traefik_crowdsec_bouncer_traefik_path_stat.stat.exists
+  when: (not traefik_crowdsec_bouncer_traefik_path_stat.stat.exists)
 
 - name: Load existing bouncer key
   ansible.builtin.slurp:

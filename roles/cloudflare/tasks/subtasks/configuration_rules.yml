@@ -80,7 +80,7 @@
     body_format: json
     status_code: 200
   register: create_ruleset_response
-  when: not ruleset_exists
+  when: (not ruleset_exists)
 
 - name: Configuration Rules | Validate ruleset creation
   ansible.builtin.assert:
@@ -88,18 +88,18 @@
       - create_ruleset_response.json.success | default(false) | bool
       - create_ruleset_response.json.result.id | default('') | length > 0
     fail_msg: "Cloudflare did not create the Configuration Rules ruleset: {{ create_ruleset_response.json.errors | default([]) }}"
-  when: not ruleset_exists
+  when: (not ruleset_exists)
 
 - name: Configuration Rules | Save created ruleset ID
   ansible.builtin.set_fact:
     cloudflare_ruleset_id: "{{ create_ruleset_response.json.result.id }}"
-  when: not ruleset_exists
+  when: (not ruleset_exists)
 
 - name: Configuration Rules | Remove previous Saltbox rules
   ansible.builtin.include_tasks: "configuration_rules/remove_configuration_rule.yml"
   when:
     - ruleset_exists
-    - cloudflare_rule_ids | length > 0
+    - (cloudflare_rule_ids | length > 0)
 
 - name: Configuration Rules | Add Saltbox rule to existing ruleset
   ansible.builtin.include_tasks: "configuration_rules/add_configuration_rule.yml"

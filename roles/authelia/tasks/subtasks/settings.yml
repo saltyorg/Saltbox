@@ -24,7 +24,7 @@
       - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   become: true
   become_user: "{{ user.name }}"
-  when: authelia_encryption_key.stdout == "null"
+  when: (authelia_encryption_key.stdout == "null")
 
 - name: Settings | Load session.redis.host value
   ansible.builtin.command:
@@ -43,4 +43,4 @@
       - "{{ lookup('role_var', '_paths_location', role='authelia') }}/configuration.yml"
   become: true
   become_user: "{{ user.name }}"
-  when: (authelia_session_redis_host.stdout == "redis") or (authelia_session_redis_host.stdout == "authelia_redis")
+  when: ((authelia_session_redis_host.stdout == "redis") or (authelia_session_redis_host.stdout == "authelia_redis"))

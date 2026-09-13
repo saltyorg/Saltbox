@@ -25,6 +25,7 @@
 
 - name: Purge Cache | Print Result of Cloudflare Cache Purge
   ansible.builtin.debug:
-    msg: "{{ ((cf_purge.json.success is defined) and (cf_purge.json.success))
-             | ternary('Successfully', 'Unsuccessfully') }}
+    msg: "{{ 'Successfully'
+          if ((cf_purge.json.success is defined) and (cf_purge.json.success))
+          else 'Unsuccessfully' }}
              purged Cloudflare cache for '{{ domain_parsed.fld }}'"

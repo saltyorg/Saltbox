@@ -12,13 +12,13 @@
     msg:
       - "IPv4 or IPv6 DNS management has to be enabled."
       - "Check your 'adv_settings.yml' config."
-  when: not (dns_ipv4_enabled or dns_ipv6_enabled)
+  when: (not (dns_ipv4_enabled or dns_ipv6_enabled))
 
 - name: "Fail if not using Cloudflare"
   ansible.builtin.fail:
     msg:
       - "You do not have Cloudflare enabled, this only works with Cloudflare."
-  when: not cloudflare_is_enabled
+  when: (not cloudflare_is_enabled)
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

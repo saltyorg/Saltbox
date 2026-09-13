@@ -140,13 +140,13 @@
   ansible.builtin.set_fact:
     authentik_authorization_flow_uuid: "{{ item.pk }}"
   loop: "{{ flow_instances.json.results }}"
-  when: item.slug == "default-provider-authorization-implicit-consent"
+  when: (item.slug == "default-provider-authorization-implicit-consent")
 
 - name: Set invalidation flow
   ansible.builtin.set_fact:
     authentik_invalidation_flow_uuid: "{{ item.pk }}"
   loop: "{{ flow_instances.json.results }}"
-  when: item.slug == "default-provider-invalidation-flow"
+  when: (item.slug == "default-provider-invalidation-flow")
 
 - name: Create Traefik Forward Auth provider
   ansible.builtin.uri:
@@ -312,7 +312,7 @@
   ansible.builtin.set_fact:
     akadmin_id: "{{ item.pk }}"
   loop: "{{ get_users_response.json.results }}"
-  when: item.username == authentik_role_default_user
+  when: (item.username == authentik_role_default_user)
 
 - name: Disable akadmin user
   ansible.builtin.uri:

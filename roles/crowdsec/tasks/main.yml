@@ -61,7 +61,7 @@
 - name: Update APT cache after CrowdSec repository or ESM override change
   ansible.builtin.apt:
     update_cache: true
-  when: (crowdsec_apt_repository_result is changed) or (crowdsec_esm_override_result is changed)
+  when: ((crowdsec_apt_repository_result is changed) or (crowdsec_esm_override_result is changed))
 
 - name: Gather package facts
   ansible.builtin.package_facts:
@@ -268,7 +268,7 @@
     owner: "root"
     group: "root"
     mode: "0600"
-  when: (crowdsec_whitelisted_ips | length > 0) or (crowdsec_whitelisted_cidrs | length > 0)
+  when: ((crowdsec_whitelisted_ips | length > 0) or (crowdsec_whitelisted_cidrs | length > 0))
 
 - name: Enable and restart 'crowdsec' service
   ansible.builtin.systemd_service:
@@ -299,7 +299,7 @@
   register: crowdsec_bouncer_traefik_path_stat
 
 - name: Register CrowdSec Traefik bouncer if key doesn't exist
-  when: not crowdsec_bouncer_traefik_path_stat.stat.exists
+  when: (not crowdsec_bouncer_traefik_path_stat.stat.exists)
   block:
     - name: Register new CrowdSec Traefik bouncer
       ansible.builtin.command:
