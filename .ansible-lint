@@ -1,13 +1,17 @@
 exclude_paths:
-  - .github/
-  - .idea/
-  - .vscode/
-  - ansible_facts.d/
-  - bin/
-  - defaults/
-  - filter_plugins/
-  - scripts/
-  - inventories/host_vars/
+  - /.github/
+  - /.idea/
+  - /.vscode/
+  - /ansible_facts.d/
+  - /bin/
+  - /defaults/
+  - /filter_plugins/
+  - /inventories/host_vars/
+  - /lookup_plugins/
+  - /pictures/
+  - /requirements/
+  - /schema/
+  - /scripts/
 
 offline: false
 

@@ -10,17 +10,18 @@
 /scripts/__pycache__/
 /lookup_plugins/__pycache__/
 /filter_plugins/__pycache__/
+/.mypy_cache/
+/.ruff_cache/
 
 ### Ansible ###
 /backup.lock
 /ansible_facts.d/saltbox.fact
-/.ansible/*
+/.ansible
 /tests/
 
 # Vars
 /inventories/host_vars/*
 !/inventories/host_vars/.gitkeep
-/roles/*/vars/*
 
 # Cache
 /cache.json
@@ -46,5 +47,6 @@
 /.idea
 /*.log
 /*.log.*
-.vscode/
-.claude/
+/.vscode/
+/.claude/
+/.worktrees/
