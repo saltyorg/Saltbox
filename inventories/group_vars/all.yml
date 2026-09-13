@@ -25,7 +25,9 @@ resources_path: "/srv/git/saltbox/resources"
 # Role Variables
 ################################
 
-role_var_role: "{{ role_var_override if role_var_override is defined else None }}"
+role_var_role: "{{ role_var_override
+                if role_var_override is defined
+                else None }}"
 
 ################################
 # Continuous Integration
@@ -265,9 +267,10 @@ traefik_default_middleware_default: "{{ (traefik_default_middleware_default_look
                                            if traefik_default_cloudflarewarp
                                            else '')
                                         + (',crowdsec@docker'
-                                           if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled))
+                                           if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
                                            else '')
-                                        + (',' if (traefik_role_middleware_sso | length > 0)
+                                        + (','
+                                           if (traefik_role_middleware_sso | length > 0)
                                            else '')
                                         + traefik_role_middleware_sso }}"
 traefik_default_middleware_custom: ""
@@ -288,9 +291,9 @@ traefik_middleware: "{{ traefik_role_middleware_default
 traefik_default_middleware_default_http:
   - "{{ traefik_error_pages_middleware }}"
   - "globalHeaders@file"
-  - "{{ (''
-         if (lookup('role_var', '_traefik_middleware_http_insecure', role=role_var_role, default=false) | bool)
-         else 'redirect-to-https@docker') }}"
+  - "{{ ''
+     if (lookup('role_var', '_traefik_middleware_http_insecure', role=role_var_role, default=false) | bool)
+     else 'redirect-to-https@docker' }}"
 traefik_default_middleware_custom_http: ""
 traefik_default_middleware_http: "{{ (traefik_default_middleware_default_http | select() | join(','))
                                      + (',' + traefik_default_middleware_custom_http
@@ -311,15 +314,16 @@ traefik_default_middleware_http: "{{ (traefik_default_middleware_default_http | 
                                      + (',crowdsec@docker'
                                         if (lookup('role_var', '_traefik_crowdsec_enabled', role=role_var_role, default=crowdsec_is_enabled) | bool)
                                         else '')
-                                     + (',' if (traefik_role_middleware_sso | length > 0)
+                                     + (','
+                                        if (traefik_role_middleware_sso | length > 0)
                                         else '')
                                      + traefik_role_middleware_sso }}"
 
 traefik_default_middleware_default_http_api:
   - "globalHeaders@file"
-  - "{{ (''
-         if (lookup('role_var', '_traefik_middleware_http_api_insecure', role=role_var_role, default=false) | bool)
-         else 'redirect-to-https@docker') }}"
+  - "{{ ''
+     if (lookup('role_var', '_traefik_middleware_http_api_insecure', role=role_var_role, default=false) | bool)
+     else 'redirect-to-https@docker' }}"
 traefik_default_middleware_custom_http_api: ""
 traefik_default_middleware_http_api: "{{ (traefik_default_middleware_default_http_api | select() | join(','))
                                          + (',' + traefik_default_middleware_custom_http_api

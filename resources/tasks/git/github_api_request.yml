@@ -53,10 +53,10 @@
 - name: Resources | Tasks | Git | GitHub API Request | Fail if both API requests failed
   ansible.builtin.fail:
     msg: "Unable to fetch GitHub API URL '{{ github_api_url }}' using svm proxy and direct fallback."
-  when: (github_api_fail_on_error | default(true) | bool) and
-        (not _github_api_use_proxy_response) and
-        ((_github_api_direct_response.status | default(0) != 200) or
-         ((_github_api_direct_response.content | default('') | trim | length) == 0))
+  when:
+    - (github_api_fail_on_error | default(true) | bool)
+    - (not _github_api_use_proxy_response)
+    - ((_github_api_direct_response.status | default(0) != 200) or ((_github_api_direct_response.content | default('') | trim | length) == 0))
 
 - name: Resources | Tasks | Git | GitHub API Request | Save API response
   ansible.builtin.set_fact:

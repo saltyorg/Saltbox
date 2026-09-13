@@ -75,7 +75,7 @@
     GIT_CONFIG_VALUE_0: "HTTP/1.1"
   ignore_errors: true
   register: _git_clone_http11_status
-  when: _git_clone_status is failed
+  when: (_git_clone_status is failed)
 
 - name: Resources | Tasks | Git | Clone Git Repo | Set checkout status
   ansible.builtin.set_fact:
@@ -91,8 +91,8 @@
     "{{ git_repo_result_var }}": "{{ _git_clone_result }}"
   changed_when: false
   when:
-    - git_repo_result_var is defined
-    - not _git_repo_branch_handling
+    - (git_repo_result_var is defined)
+    - (not _git_repo_branch_handling)
 
 - name: Resources | Tasks | Git | Clone Git Repo | Propagate checkout failure
   ansible.builtin.fail:
@@ -101,8 +101,8 @@
              | default('Unable to clone git repository.') }}"
   when:
     - _git_clone_failed
-    - not _git_repo_branch_handling
-    - git_repo_fail_on_error | default(true) | bool
+    - (not _git_repo_branch_handling)
+    - (git_repo_fail_on_error | default(true) | bool)
 
 - name: Resources | Tasks | Git | Clone Git Repo | Existing branch fallback
   when:
@@ -136,7 +136,7 @@
         GIT_CONFIG_VALUE_0: "HTTP/1.1"
       ignore_errors: true
       register: _git_clone_master_http11_status
-      when: _git_clone_master_status is failed
+      when: (_git_clone_master_status is failed)
 
     - name: Resources | Tasks | Git | Clone Git Repo | Set fallback checkout status
       ansible.builtin.set_fact:

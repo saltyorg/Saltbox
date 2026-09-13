@@ -37,7 +37,7 @@
     _docker_device_requests: "{{ _docker_device_requests + [nvidia_docker_device_request] }}"
   when:
     - _docker_nvidia
-    - _docker_device_requests | selectattr('driver', 'defined') | selectattr('driver', 'equalto', 'nvidia') | list | length == 0
+    - (_docker_device_requests | selectattr('driver', 'defined') | selectattr('driver', 'equalto', 'nvidia') | list | length == 0)
 
 - name: Resources | Tasks | Docker | Set Docker GPU Variables | Add DRI device
   ansible.builtin.set_fact:
@@ -49,9 +49,9 @@
     _docker_groups: "{{ (_docker_groups + [vgid, rgid]) | unique }}"
   when:
     - _docker_dev_dri
-    - _docker_vars._docker_user is defined
-    - _docker_vars._docker_user | string | length > 0
-    - ((_docker_vars._docker_user | string).split(':') | first) not in ['root', '0']
+    - (_docker_vars._docker_user is defined)
+    - (_docker_vars._docker_user | string | length > 0)
+    - (((_docker_vars._docker_user | string).split(':') | first) not in ['root', '0'])
 
 - name: Resources | Tasks | Docker | Set Docker GPU Variables | Set Docker argument states
   ansible.builtin.set_fact:

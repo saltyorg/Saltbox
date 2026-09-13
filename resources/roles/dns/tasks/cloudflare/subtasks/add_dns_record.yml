@@ -13,11 +13,11 @@
       - "Cloudflare proxying is unavailable for nested record '{{ dns_record }}' in zone '{{ dns_zone }}' on a free account."
       - "Set 'cloudflare_allow_nested_proxy: true' only when the Cloudflare zone supports proxied nested subdomains."
   when:
-    - not (cloudflare_allow_nested_proxy | bool)
-    - dns_record not in ['@', dns_zone]
-    - "'.' in dns_record"
-    - dns_proxy | bool
-    - not (_dns_using_tailscale | bool)
+    - (not cloudflare_allow_nested_proxy | bool)
+    - (dns_record not in ['@', dns_zone])
+    - ('.' in dns_record)
+    - (dns_proxy | bool)
+    - (not _dns_using_tailscale | bool)
 
 - name: Cloudflare | Add DNS Record | Fetch Record information
   cloudflare_dns_records:
@@ -44,17 +44,21 @@
     type: CNAME
     record: "{{ dns_record }}"
   register: cloudflare_dns_record_removal_status
-  when: item.type == 'CNAME'
+  when: (item.type == 'CNAME')
   loop: "{{ cloudflare_record_dict }}"
   loop_control:
     label: "{{ item.name }} - {{ item.type }}"
 
 - name: Cloudflare | Add DNS Record | Tasks on success
-  when: (cloudflare_dns_record_removal_status is succeeded) and cloudflare_dns_record_removal_status.changed
+  when:
+    - (cloudflare_dns_record_removal_status is succeeded)
+    - cloudflare_dns_record_removal_status.changed
   block:
     - name: Cloudflare | Add DNS Record | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ dns_zone
+                           if (dns_record == dns_zone)
+                           else dns_record + '.' + dns_zone }}"
 
     - name: Cloudflare | Add DNS Record | Display DNS CNAME Record removal status
       ansible.builtin.debug:
@@ -63,7 +67,7 @@
 - name: Cloudflare | Add DNS Record | Set 'cloudflare_ipv4_record' variable
   ansible.builtin.set_fact:
     cloudflare_ipv4_record: "{{ item }}"
-  when: item.type == 'A'
+  when: (item.type == 'A')
   loop: "{{ cloudflare_record_dict }}"
   loop_control:
     label: "{{ item.name }} - {{ item.type }}"
@@ -71,27 +75,31 @@
 - name: Cloudflare | Add DNS Record | Set 'cloudflare_ipv6_record' variable
   ansible.builtin.set_fact:
     cloudflare_ipv6_record: "{{ item }}"
-  when: item.type == 'AAAA'
+  when: (item.type == 'AAAA')
   loop: "{{ cloudflare_record_dict }}"
   loop_control:
     label: "{{ item.name }} - {{ item.type }}"
 
 - name: Cloudflare | Add DNS Record | IPv4 Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_enabled.yml"
-  when: dns_ipv4_enabled and
-        ((not (((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)) and (cloudflare_ipv4_record.content == ipv4_address_public_template) and (cloudflare_ipv4_record.proxied == (dns_proxy and not _dns_using_tailscale))))
-         or not ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0)))
+  when:
+    - dns_ipv4_enabled
+    - ((cloudflare_ipv4_record is not defined) or (cloudflare_ipv4_record | length == 0) or (cloudflare_ipv4_record.content != ipv4_address_public_template) or (cloudflare_ipv4_record.proxied != (dns_proxy and not _dns_using_tailscale)))
 
 - name: Cloudflare | Add DNS Record | IPv4 Disable Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_disabled.yml"
-  when: (not dns_ipv4_enabled) and ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0))
+  when:
+    - (not dns_ipv4_enabled)
+    - ((cloudflare_ipv4_record is defined) and (cloudflare_ipv4_record | length > 0))
 
 - name: Cloudflare | Add DNS Record | IPv6 Enabled Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_enabled.yml"
-  when: dns_ipv6_enabled and
-        ((not (((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)) and (cloudflare_ipv6_record.content == ipv6_address_public_template) and (cloudflare_ipv6_record.proxied == (dns_proxy and not _dns_using_tailscale))))
-         or not ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0)))
+  when:
+    - dns_ipv6_enabled
+    - ((cloudflare_ipv6_record is not defined) or (cloudflare_ipv6_record | length == 0) or (cloudflare_ipv6_record.content != ipv6_address_public_template) or (cloudflare_ipv6_record.proxied != (dns_proxy and not _dns_using_tailscale)))
 
 - name: Cloudflare | Add DNS Record | IPv6 Disable Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_disabled.yml"
-  when: (not dns_ipv6_enabled) and ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0))
+  when:
+    - (not dns_ipv6_enabled)
+    - ((cloudflare_ipv6_record is defined) and (cloudflare_ipv6_record | length > 0))

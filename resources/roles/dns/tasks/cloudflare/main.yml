@@ -22,7 +22,9 @@
     _dns_using_tailscale: false
 
 - name: Cloudflare | Tailscale block
-  when: traefik_tailscale_enabled and lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
+  when:
+    - (traefik_tailscale_enabled | bool)
+    - (lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false)) | bool)
   block:
     - name: Get Tailscale IPs
       ansible.builtin.command:
@@ -74,4 +76,4 @@
     - name: Cloudflare | Preserve non-Cloudflare failure
       ansible.builtin.fail:
         msg: "{{ cloudflare_dns_failure_message }}"
-      when: not cloudflare_dns_failure_is_permission
+      when: (not cloudflare_dns_failure_is_permission)

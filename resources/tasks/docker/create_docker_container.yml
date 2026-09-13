@@ -372,7 +372,9 @@
 - name: "Resources | Tasks | Docker | Create Docker Container | Wait for {{ docker_create_image_prune_delay_timeout }} seconds"
   ansible.builtin.wait_for:
     timeout: "{{ docker_create_image_prune_delay_timeout }}"
-  when: docker_create_image_prune and docker_create_image_prune_delay
+  when:
+    - (docker_create_image_prune | bool)
+    - (docker_create_image_prune_delay | bool)
 
 - name: Resources | Tasks | Docker | Create Docker Container | Prune images
   community.docker.docker_prune:

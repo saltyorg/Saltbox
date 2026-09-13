@@ -27,4 +27,4 @@
     follow: false
   with_items: "{{ lookup('role_var', '_paths_folders_list')
                   + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
-  when: lookup('role_var', '_paths_recursive', default=false) | bool
+  when: (lookup('role_var', '_paths_recursive', default=false) | bool)

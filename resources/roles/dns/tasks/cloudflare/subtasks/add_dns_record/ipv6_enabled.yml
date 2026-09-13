@@ -10,7 +10,9 @@
 - name: Cloudflare | Add DNS Record | IPv6 | Validate IPv6 variable
   ansible.builtin.fail:
     msg: "{{ ipv6_address_public_error }}"
-  when: (not ipv6_address_public_is_valid) and (ipv6_address_public_template == ipv6_address_public)
+  when:
+    - (not ipv6_address_public_is_valid)
+    - (ipv6_address_public_template == ipv6_address_public)
 
 - name: Cloudflare | Add DNS Record | IPv6 | Add DNS Record
   community.general.cloudflare_dns:
@@ -29,11 +31,13 @@
   register: cloudflare_dns_v6_record_creation_status
 
 - name: Cloudflare | Add DNS Record | IPv6 | Tasks on success
-  when: cloudflare_dns_v6_record_creation_status is succeeded
+  when: (cloudflare_dns_v6_record_creation_status is succeeded)
   block:
     - name: Cloudflare | Add DNS Record | IPv6 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ dns_zone
+                           if (dns_record == dns_zone)
+                           else dns_record + '.' + dns_zone }}"
 
     - name: Cloudflare | Add DNS Record | IPv6 | Display DNS Record creation status
       ansible.builtin.debug:

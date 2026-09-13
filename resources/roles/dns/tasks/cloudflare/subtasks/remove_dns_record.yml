@@ -23,7 +23,9 @@
   block:
     - name: Cloudflare | Remove DNS Record | IPv4 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ dns_zone
+                           if (dns_record == dns_zone)
+                           else dns_record + '.' + dns_zone }}"
 
     - name: Cloudflare | Remove DNS Record | IPv4 | Display DNS Record removal status
       ansible.builtin.debug:
@@ -45,7 +47,9 @@
   block:
     - name: Cloudflare | Remove DNS Record | IPv6 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ dns_zone
+                           if (dns_record == dns_zone)
+                           else dns_record + '.' + dns_zone }}"
 
     - name: Cloudflare | Remove DNS Record | IPv6 | Display DNS Record removal status
       ansible.builtin.debug:

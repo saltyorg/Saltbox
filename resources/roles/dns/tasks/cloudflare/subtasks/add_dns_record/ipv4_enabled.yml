@@ -10,7 +10,9 @@
 - name: Cloudflare | Add DNS Record | IPv4 | Validate IP variable
   ansible.builtin.fail:
     msg: "{{ ip_address_public_error }}"
-  when: (not ip_address_public_is_valid) and (ipv4_address_public_template == ip_address_public)
+  when:
+    - (not ip_address_public_is_valid)
+    - (ipv4_address_public_template == ip_address_public)
 
 - name: Cloudflare | Add DNS Record | IPv4 | Add DNS Record
   community.general.cloudflare_dns:
@@ -23,17 +25,19 @@
     proxied: "{{ dns_proxy and not _dns_using_tailscale }}"
     type: A
     value: "{{ ipv4_address_public_template
-            if not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false))
+            if (not lookup('vars', ansible_parent_role_names | first + '_traefik_tailscale_enabled', default=lookup('vars', ansible_parent_role_names | first + '_role_traefik_tailscale_enabled', default=false)) | bool)
             else dns_tailscale_ipv4 }}"
     record: "{{ dns_record }}"
   register: cloudflare_dns_record_creation_status
 
 - name: Cloudflare | Add DNS Record | IPv4 | Tasks on success
-  when: cloudflare_dns_record_creation_status is succeeded
+  when: (cloudflare_dns_record_creation_status is succeeded)
   block:
     - name: Cloudflare | Add DNS Record | IPv4 | Set 'dns_record_print' variable
       ansible.builtin.set_fact:
-        dns_record_print: "{{ (dns_record == dns_zone) | ternary(dns_zone, dns_record + '.' + dns_zone) }}"
+        dns_record_print: "{{ dns_zone
+                           if (dns_record == dns_zone)
+                           else dns_record + '.' + dns_zone }}"
 
     - name: Cloudflare | Add DNS Record | IPv4 | Display DNS Record creation status
       ansible.builtin.debug:

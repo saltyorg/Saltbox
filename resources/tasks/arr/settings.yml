@@ -165,7 +165,7 @@
           }}
 
     - name: Resources | Tasks | Arr | Settings | Apply required XML changes
-      when: _arr_xml_changes_required | bool
+      when: (_arr_xml_changes_required | bool)
       block:
         - name: Resources | Tasks | Arr | Settings | Stop Docker container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_docker_container.yml"
@@ -183,12 +183,8 @@
             loop_var: _arr_xml_setting
             label: "{{ _arr_xml_setting.name }}"
           when:
-            - _arr_xml_setting.enabled | bool
-            - >-
-              _arr_xml_info.content_text
-              | selectattr('tag', 'equalto', _arr_xml_setting.name)
-              | list
-              | length == 1
+            - (_arr_xml_setting.enabled | bool)
+            - (_arr_xml_info.content_text | selectattr('tag', 'equalto', _arr_xml_setting.name) | list | length == 1)
       always:
         - name: Resources | Tasks | Arr | Settings | Start Docker container
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

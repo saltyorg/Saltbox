@@ -29,4 +29,4 @@
       - "Confirm the 'email' entry under 'cloudflare' contains the email for the same Cloudflare user and that the user has access to '{{ cloudflare_permission_zone }}'."
       - "Save accounts.yml and rerun the command."
       - "Full instructions: https://docs.saltbox.dev/reference/domain/#preferred-global-api-key"
-  when: not cloudflare_scoped_token_is_enabled
+  when: (not cloudflare_scoped_token_is_enabled)

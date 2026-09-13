@@ -8,7 +8,7 @@
 ############################################################################################
 ---
 - name: Resources | Tasks | systemd | Start PostgreSQL Host after Backup | Restore running services
-  when: postgres_host_backup_services_running | default([]) | length > 0
+  when: (postgres_host_backup_services_running | default([]) | length > 0)
   block:
     - name: Resources | Tasks | systemd | Start PostgreSQL Host after Backup | Start services
       ansible.builtin.systemd_service:

@@ -21,8 +21,8 @@
     _postgres_host_backup_service: "postgresql@{{ item }}-main.service"
   loop: "{{ postgres_host_role_versions | unique }}"
   when:
-    - ansible_facts['services'][_postgres_host_backup_service] is defined
-    - ansible_facts['services'][_postgres_host_backup_service]['state'] == 'running'
+    - (ansible_facts['services'][_postgres_host_backup_service] is defined)
+    - (ansible_facts['services'][_postgres_host_backup_service]['state'] == 'running')
 
 - name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Stop running services
   ansible.builtin.systemd_service:
@@ -31,7 +31,7 @@
   loop: "{{ postgres_host_backup_services_running }}"
 
 - name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Verify stopped services
-  when: postgres_host_backup_services_running | length > 0
+  when: (postgres_host_backup_services_running | length > 0)
   block:
     - name: Resources | Tasks | systemd | Stop PostgreSQL Host for Backup | Refresh service facts
       ansible.builtin.service_facts:
