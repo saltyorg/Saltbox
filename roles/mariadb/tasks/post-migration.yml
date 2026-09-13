@@ -13,7 +13,9 @@
   register: dump
 
 - name: Import databases
-  when: subfolder.stat.exists and dump.stat.exists
+  when:
+    - subfolder.stat.exists
+    - dump.stat.exists
   block:
     - name: Wait for 60 seconds
       ansible.builtin.wait_for:
@@ -70,6 +72,6 @@
             timeout: "{{ lookup('role_var', '_migration_timeout', role='mariadb') }}"
           failed_when: false
           when:
-            - mariadb_migration_restore is defined
-            - mariadb_migration_restore.rc is defined
-            - mariadb_migration_upgrade is not defined or mariadb_migration_upgrade.rc is defined
+            - (mariadb_migration_restore is defined)
+            - (mariadb_migration_restore.rc is defined)
+            - (mariadb_migration_upgrade is not defined or mariadb_migration_upgrade.rc is defined)

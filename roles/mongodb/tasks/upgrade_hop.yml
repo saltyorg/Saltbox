@@ -73,7 +73,9 @@
 
 - name: Upgrade | Hop | Build FCV command
   ansible.builtin.set_fact:
-    mongodb_upgrade_fcv_eval: "quit(db.adminCommand({setFeatureCompatibilityVersion:\"{{ mongodb_upgrade_image_series }}\"{{ ',confirm:true' if mongodb_upgrade_image_series in ['7.0', '8.0', '8.2'] else '' }}}).ok === 1 ? 0 : 1)"
+    mongodb_upgrade_fcv_eval: "quit(db.adminCommand({setFeatureCompatibilityVersion:\"{{ mongodb_upgrade_image_series }}\"{{ ',confirm:true'
+                                                                                                                          if mongodb_upgrade_image_series in ['7.0', '8.0', '8.2']
+                                                                                                                          else '' }}}).ok === 1 ? 0 : 1)"
 
 - name: Upgrade | Hop | Set FCV
   community.docker.docker_container_exec:
@@ -82,7 +84,7 @@
     stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
     stdin_add_newline: true
   no_log: "{{ mongodb_upgrade_auth_enabled }}"
-  when: mongodb_upgrade_fcv_before.stdout | trim != mongodb_upgrade_image_series
+  when: (mongodb_upgrade_fcv_before.stdout | trim != mongodb_upgrade_image_series)
 
 - name: Upgrade | Hop | Read final binary version
   community.docker.docker_container_exec:
@@ -113,4 +115,4 @@
 
 - name: Upgrade | Hop | Remove intermediate container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
-  when: mongodb_upgrade_image_series != mongodb_upgrade_target_series
+  when: (mongodb_upgrade_image_series != mongodb_upgrade_target_series)

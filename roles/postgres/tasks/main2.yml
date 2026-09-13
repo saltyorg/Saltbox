@@ -41,7 +41,7 @@
 
     - name: Recover interrupted PostgreSQL data folder activation
       when:
-        - not stat_postgres_path.stat.exists
+        - (not stat_postgres_path.stat.exists)
         - stat_postgres_backup_version_path.stat.exists
       block:
         - name: Restore previous PostgreSQL data folder after interrupted activation
@@ -102,11 +102,13 @@
           Inspect both paths and restore the valid PostgreSQL data folder before
           running the role again.
       when:
-        - not stat_postgres_version_path.stat.exists
+        - (not stat_postgres_version_path.stat.exists)
         - stat_postgres_backup_path.stat.exists
 
     - name: Check for upgrade
-      when: stat_postgres_path.stat.exists and stat_postgres_version_path.stat.exists
+      when:
+        - stat_postgres_path.stat.exists
+        - stat_postgres_version_path.stat.exists
       block:
         - name: Read PG_VERSION file
           ansible.builtin.slurp:
@@ -142,12 +144,14 @@
             fail_msg: "Automated PostgreSQL migration supports PostgreSQL 12 and newer."
 
     - name: Upgrade PostgreSQL
-      when: stat_postgres_path.stat.exists and (postgres_major_version != postgres_docker_tag_major_version)
+      when:
+        - stat_postgres_path.stat.exists
+        - (postgres_major_version != postgres_docker_tag_major_version)
       block:
         - name: Fail if downgrade
           ansible.builtin.fail:
             msg: "Downgrade of PostgreSQL is not supported."
-          when: postgres_major_version is version(postgres_docker_tag_major_version, '>')
+          when: (postgres_major_version is version(postgres_docker_tag_major_version, '>'))
 
         - name: Fail if backup location already exists
           ansible.builtin.fail:
@@ -295,8 +299,8 @@
                 --username="$POSTGRES_USER" --dbname=postgres
             stdin: "ALTER USER :\"role\" WITH PASSWORD :'password';"
           when:
-            - postgres_major_version is version('14', '<')
-            - postgres_docker_tag_major_version is version('14', '>=')
+            - (postgres_major_version is version('14', '<'))
+            - (postgres_docker_tag_major_version is version('14', '>='))
 
         - name: Validate updated user password in new container
           community.docker.docker_container_exec:
@@ -312,8 +316,8 @@
                 --dbname=postgres --command="SELECT 1"
           changed_when: false
           when:
-            - postgres_major_version is version('14', '<')
-            - postgres_docker_tag_major_version is version('14', '>=')
+            - (postgres_major_version is version('14', '<'))
+            - (postgres_docker_tag_major_version is version('14', '>='))
 
         - name: Read databases from previous PostgreSQL container
           community.docker.docker_container_exec:
@@ -528,7 +532,7 @@
           when:
             - (postgres_migration_started | bool)
             - postgres_recovery_paths.results[1].stat.exists
-            - (not postgres_recovery_paths.results[0].stat.exists) or (postgres_failed_target_preserved is defined and postgres_failed_target_preserved is changed)
+            - ((not postgres_recovery_paths.results[0].stat.exists) or (postgres_failed_target_preserved is defined and postgres_failed_target_preserved is changed))
 
         - name: Verify previous PostgreSQL data folder is available
           ansible.builtin.slurp:
@@ -574,7 +578,7 @@
               else 'No PostgreSQL data or container changes were made.' }}
 
 - name: Regular Postgres flow
-  when: (not postgres_original_image_repo) or (not stat_postgres_path.stat.exists) or (postgres_major_version == postgres_docker_tag_major_version)
+  when: ((not postgres_original_image_repo) or (not stat_postgres_path.stat.exists) or (postgres_major_version == postgres_docker_tag_major_version))
   block:
     - name: Remove existing Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

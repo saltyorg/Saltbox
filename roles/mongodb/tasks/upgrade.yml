@@ -45,7 +45,7 @@
 - name: Upgrade | Use target version for a new database
   ansible.builtin.set_fact:
     mongodb_upgrade_source_version: "{{ mongodb_upgrade_target_series + '.0' }}"
-  when: not mongodb_upgrade_paths.results[1].stat.exists
+  when: (not mongodb_upgrade_paths.results[1].stat.exists)
 
 - name: Upgrade | Validate source version
   ansible.builtin.assert:
@@ -73,7 +73,7 @@
     that:
       - not mongodb_upgrade_paths.results[2].stat.exists
     fail_msg: "MongoDB backup {{ mongodb_upgrade_backup_path }} already exists. Verify and remove it before another cross-series upgrade."
-  when: mongodb_upgrade_path | length > 1
+  when: (mongodb_upgrade_path | length > 1)
 
 - name: Upgrade | Preflight source and intermediate images
   ansible.builtin.include_tasks: upgrade_image.yml
@@ -93,20 +93,20 @@
       - "{{ mongodb_upgrade_data_path }}"
       - "{{ mongodb_upgrade_backup_path }}"
     expand_argument_vars: false
-  when: mongodb_upgrade_path | length > 1
+  when: (mongodb_upgrade_path | length > 1)
 
 - name: Upgrade | Inspect original database copy
   ansible.builtin.stat:
     path: "{{ mongodb_upgrade_backup_path }}/WiredTiger"
   register: mongodb_upgrade_backup_wiredtiger
-  when: mongodb_upgrade_path | length > 1
+  when: (mongodb_upgrade_path | length > 1)
 
 - name: Upgrade | Validate original database copy
   ansible.builtin.assert:
     that:
       - mongodb_upgrade_backup_wiredtiger.stat.isreg | default(false)
     fail_msg: "MongoDB source copy at {{ mongodb_upgrade_backup_path }} is incomplete."
-  when: mongodb_upgrade_path | length > 1
+  when: (mongodb_upgrade_path | length > 1)
 
 - name: Upgrade | Apply release path
   block:
@@ -123,7 +123,7 @@
       ansible.builtin.file:
         path: "{{ mongodb_upgrade_data_path }}"
         state: absent
-      when: mongodb_upgrade_path | length > 1
+      when: (mongodb_upgrade_path | length > 1)
 
     - name: Upgrade | Restore original MongoDB data
       ansible.builtin.command:
@@ -134,20 +134,20 @@
           - "{{ mongodb_upgrade_backup_path }}"
           - "{{ mongodb_upgrade_data_path }}"
         expand_argument_vars: false
-      when: mongodb_upgrade_path | length > 1
+      when: (mongodb_upgrade_path | length > 1)
 
     - name: Upgrade | Inspect restored MongoDB data
       ansible.builtin.stat:
         path: "{{ mongodb_upgrade_data_path }}/WiredTiger"
       register: mongodb_upgrade_restored_wiredtiger
-      when: mongodb_upgrade_path | length > 1
+      when: (mongodb_upgrade_path | length > 1)
 
     - name: Upgrade | Validate restored MongoDB data
       ansible.builtin.assert:
         that:
           - mongodb_upgrade_restored_wiredtiger.stat.isreg | default(false)
         fail_msg: "MongoDB could not restore the original database."
-      when: mongodb_upgrade_path | length > 1
+      when: (mongodb_upgrade_path | length > 1)
 
     - name: Upgrade | Report failure
       ansible.builtin.fail:
@@ -159,4 +159,4 @@
 - name: Upgrade | Report retained source copy
   ansible.builtin.debug:
     msg: "MongoDB upgrade completed. The original data is retained at {{ mongodb_upgrade_backup_path }} and must be removed manually before another cross-series upgrade."
-  when: mongodb_upgrade_path | length > 1
+  when: (mongodb_upgrade_path | length > 1)

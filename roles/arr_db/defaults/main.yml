@@ -10,6 +10,7 @@
 ################################
 # Settings
 ################################
+
 arr_db_sonarr_enabled: false
 arr_db_radarr_enabled: false
 arr_db_lidarr_enabled: false
@@ -28,7 +29,8 @@ arr_path_main_db: "{{ lookup('role_var', '_paths_location', role=arr_type) }}/{{
 arr_db_resolved_main_database: "{{ arr_path_main_db }}"
 arr_db_main_database_candidates: "{{ ([arr_path_main_db]
                                       + ([lookup('role_var', '_paths_location', role=arr_type) + '/whisparr2.db']
-                                         if arr_type == 'whisparr' else []))
+                                         if arr_type == 'whisparr'
+                                         else []))
                                      | unique
                                      | list }}"
 arr_db_files:

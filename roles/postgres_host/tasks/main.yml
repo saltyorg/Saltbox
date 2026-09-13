@@ -47,7 +47,7 @@
     name: "postgresql-{{ item }}"
     selection: install
   loop: "{{ postgres_host_role_versions }}"
-  when: ('postgresql-' ~ item) in ansible_facts['packages']
+  when: (('postgresql-' ~ item) in ansible_facts['packages'])
 
 - name: Install PostgreSQL packages for specified versions
   ansible.builtin.apt:
@@ -97,8 +97,8 @@
     enabled: false
   loop: "{{ postgres_services }}"
   when:
-    - item != "postgresql.service"
-    - item not in (postgres_host_role_versions | map('regex_replace', '^(.*)$', 'postgresql@\\1-main.service') | list)
+    - (item != "postgresql.service")
+    - (item not in (postgres_host_role_versions | map('regex_replace', '^(.*)$', 'postgresql@\\1-main.service') | list))
   failed_when: false
 
 - name: Discover PostgreSQL clusters before default cleanup
@@ -119,9 +119,9 @@
   loop: "{{ postgres_clusters_before_cleanup.stdout_lines }}"
   when:
     - (item.split() | length >= 6)
-    - item.split()[0] in postgres_host_role_versions
-    - item.split()[1] == 'main'
-    - item.split()[5] == '/var/lib/postgresql/' + item.split()[0] + '/main'
+    - (item.split()[0] in postgres_host_role_versions)
+    - (item.split()[1] == 'main')
+    - (item.split()[5] == '/var/lib/postgresql/' + item.split()[0] + '/main')
 
 - name: Stop default clusters if they exist
   ansible.builtin.command: >
@@ -181,8 +181,8 @@
     mode: '0644'
   loop: "{{ postgres_host_role_versions }}"
   when:
-    - postgres_port_assignments[item] is defined
-    - item in postgres_configured_cluster_versions
+    - (postgres_port_assignments[item] is defined)
+    - (item in postgres_configured_cluster_versions)
 
 - name: Create clusters with custom data directory and user
   ansible.builtin.command: >
@@ -195,7 +195,7 @@
   loop: "{{ postgres_host_role_versions }}"
   become: true
   become_user: "{{ user.name }}"
-  when: item not in postgres_configured_cluster_versions
+  when: (item not in postgres_configured_cluster_versions)
 
 - name: Override data directory in postgresql.conf for all configured versions
   ansible.builtin.lineinfile:

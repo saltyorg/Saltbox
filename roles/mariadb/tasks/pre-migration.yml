@@ -87,4 +87,4 @@
       ansible.builtin.file:
         path: "{{ server_appdata_path }}/mariadb/"
         state: absent
-      when: relocate.rc == 0
+      when: (relocate.rc == 0)

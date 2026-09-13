@@ -18,7 +18,7 @@
     name: "{{ mongodb_upgrade_image_reference }}"
     source: pull
     force_source: true
-  when: mongodb_upgrade_image_pull | bool
+  when: (mongodb_upgrade_image_pull | bool)
 
 - name: Upgrade | Image | Inspect image
   community.docker.docker_image_info:
