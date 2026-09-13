@@ -28,7 +28,7 @@
       - "--add"
       - "safe.directory"
       - "/srv/git/saltbox"
-  when: ('preinstall' in ansible_run_tags) or (not '/srv/git/saltbox' in git_config.stdout)
+  when: (('preinstall' in ansible_run_tags) or (not '/srv/git/saltbox' in git_config.stdout))
 
 - name: Git | Set sb repository as safe directory
   ansible.builtin.command:
@@ -39,7 +39,7 @@
       - "--add"
       - "safe.directory"
       - "/srv/git/sb"
-  when: ('preinstall' in ansible_run_tags) or (not '/srv/git/sb' in git_config.stdout)
+  when: (('preinstall' in ansible_run_tags) or (not '/srv/git/sb' in git_config.stdout))
 
 - name: Git | Set Sandbox repository as safe directory
   ansible.builtin.command:
@@ -50,4 +50,4 @@
       - "--add"
       - "safe.directory"
       - "{{ server_appdata_path }}/sandbox"
-  when: ('preinstall' in ansible_run_tags) or (not server_appdata_path + '/sandbox' in git_config.stdout)
+  when: (('preinstall' in ansible_run_tags) or (not server_appdata_path + '/sandbox' in git_config.stdout))

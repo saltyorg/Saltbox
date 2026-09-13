@@ -152,4 +152,6 @@
 - name: ZSH | Default shell set to ZSH
   ansible.builtin.debug:
     msg: "Changes will apply on session restart."
-  when: (shell_update_task is changed) and ('shell' in ansible_run_tags)
+  when:
+    - (shell_update_task is changed)
+    - ('shell' in ansible_run_tags)

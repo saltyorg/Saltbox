@@ -29,4 +29,4 @@
       - "install"
       - "{{ item }}"
   loop: "{{ custom_pip }}"
-  when: ansible_facts['distribution_version'] is version('22.04', '<=')
+  when: (ansible_facts['distribution_version'] is version('22.04', '<='))

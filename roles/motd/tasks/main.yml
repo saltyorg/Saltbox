@@ -88,7 +88,7 @@
 
 - name: CLI MOTD
   ansible.builtin.include_tasks: cli_motd.yml
-  when: not motd_use_python
+  when: (not (motd_use_python | bool))
 
 - name: Check if '/etc/ssh/sshd_config' exists
   ansible.builtin.stat:
@@ -119,4 +119,4 @@
   ansible.builtin.systemd_service:
     name: ssh
     state: restarted
-  when: print_last_log is changed
+  when: (print_last_log is changed)

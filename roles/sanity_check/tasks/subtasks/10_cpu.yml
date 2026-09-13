@@ -26,7 +26,7 @@
   ansible.builtin.set_fact:
     supported_versions: "{{ supported_versions | default([]) + [item.key] }}"
   loop: "{{ lookup('dict', x86_64_versions) }}"
-  when: "item.value | difference(cpu_flags) | length == 0"
+  when: "(item.value | difference(cpu_flags) | length == 0)"
 
 - name: CPU Check | Print the supported x86-64 versions
   ansible.builtin.debug:

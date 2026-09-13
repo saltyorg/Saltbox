@@ -10,4 +10,4 @@
 - name: Fail if not running as root
   ansible.builtin.fail:
     msg: "This playbook requires root privileges to run."
-  when: lookup('env', 'USER') != "root"
+  when: (lookup('env', 'USER') != "root")

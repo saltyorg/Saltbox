@@ -74,7 +74,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0664"
-      when: motd_config_updated != motd_config_data
+      when: (motd_config_updated != motd_config_data)
 
 - name: Touch '{{ server_appdata_path }}/motd/activity.log' file
   ansible.builtin.file:

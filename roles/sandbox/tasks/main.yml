@@ -31,7 +31,7 @@
     git_repo_become_user: "{{ user.name }}"
     git_repo_result_var: sandbox_clone_status
     git_repo_fail_on_error: false
-  when: not git_repo_check.stat.exists
+  when: (not git_repo_check.stat.exists)
 
 - name: Clone Sandbox repo 'master'
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
@@ -43,8 +43,8 @@
     git_repo_become: true
     git_repo_become_user: "{{ user.name }}"
   when:
-    - not git_repo_check.stat.exists
-    - sandbox_clone_status is failed
+    - (not git_repo_check.stat.exists)
+    - (sandbox_clone_status is failed)
 
 - name: Activate Git Hooks
   ansible.builtin.command:

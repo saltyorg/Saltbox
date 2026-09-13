@@ -18,7 +18,7 @@
   register: ufw_status
   changed_when: false
   failed_when: false
-  when: ufw_installed.rc == 0
+  when: (ufw_installed.rc == 0)
 
 - name: UFW Check | Ensure UFW is not active
   ansible.builtin.assert:
@@ -31,4 +31,4 @@
       with 'sudo ufw disable' before continuing.
       See https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-and-ufw
     success_msg: "UFW is not active."
-  when: ufw_installed.rc == 0
+  when: (ufw_installed.rc == 0)

@@ -30,4 +30,4 @@
     git_repo_force: true
     git_repo_become: true
     git_repo_become_user: "{{ user.name }}"
-  when: (not saltbox_mod_stat.stat.exists) or saltbox_mod_force_overwrite
+  when: ((not saltbox_mod_stat.stat.exists) or (saltbox_mod_force_overwrite | bool))

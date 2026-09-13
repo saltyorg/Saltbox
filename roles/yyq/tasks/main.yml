@@ -32,7 +32,7 @@
     msg: "{{ yyq_current_version }}"
 
 - name: "Install yyq"
-  when: (yyq_current_version is version(yyq_install_version, 'lt', version_type='semver')) or (not yyq_binary.stat.exists)
+  when: ((yyq_current_version is version(yyq_install_version, 'lt', version_type='semver')) or (not yyq_binary.stat.exists))
   block:
     - name: Install common packages
       ansible.builtin.apt:

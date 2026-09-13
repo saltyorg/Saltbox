@@ -18,7 +18,7 @@
 - name: System | Print authoritative Saltbox facts in CI
   ansible.builtin.debug:
     msg: "{{ ansible_facts['ansible_local']['saltbox'] }}"
-  when: continuous_integration | bool
+  when: (continuous_integration | bool)
 
 - name: System | Assert public IPv4 was detected
   ansible.builtin.assert:
@@ -29,7 +29,7 @@
       Saltbox could not determine a public IPv4 address:
       {{ ip_address_public_error | default('no details were provided', true) }}
     success_msg: "Saltbox public IPv4 address was determined."
-  when: sanity_check_public_ip_required | bool
+  when: (sanity_check_public_ip_required | bool)
 
 - name: System | Virtualization Check
   ansible.builtin.command: "systemd-detect-virt"

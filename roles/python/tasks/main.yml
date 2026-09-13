@@ -41,8 +41,8 @@
 
 - name: Legacy Deadsnakes cleanup
   when:
-    - system_python_short != python_version
-    - python_version != '3.12'
+    - (system_python_short != python_version)
+    - (python_version != '3.12')
   block:
     - name: Find deadsnakes repository files
       ansible.builtin.find:
@@ -93,7 +93,7 @@
   environment: "{{ python_environment }}"
   become: true
   become_user: "{{ user.name }}"
-  when: python_version not in uv_python_list.stdout
+  when: (python_version not in uv_python_list.stdout)
 
 - name: "Verify Python {{ python_version }} installation"
   ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
