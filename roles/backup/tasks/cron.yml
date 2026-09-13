@@ -21,5 +21,7 @@
     job: >
       sudo PATH='/usr/bin:/bin:/usr/local/bin' env ANSIBLE_CONFIG='{{ playbook_dir }}/ansible.cfg' '{{ playbook_binary.stdout }}'
       {{ playbook_dir }}/backup.yml --tags backup >> '{{ playbook_dir }}/saltbox_backup.log' 2>&1
-    state: "{{ ('set-backup' in ansible_run_tags) | ternary('present', 'absent') }}"
+    state: "{{ 'present'
+            if ('set-backup' in ansible_run_tags)
+            else 'absent' }}"
     user: "{{ user.name }}"

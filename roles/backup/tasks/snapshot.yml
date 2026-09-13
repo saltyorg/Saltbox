@@ -10,23 +10,25 @@
 - name: "Snapshot | Determine '/' filesystem type"
   ansible.builtin.set_fact:
     root_fstype: "{{ item.fstype }}"
-  when: backup_snapshot_enabled and (item.mount == '/')
+  when:
+    - backup_snapshot_enabled
+    - (item.mount == '/')
   with_items:
     - "{{ ansible_facts['mounts'] }}"
 
 - name: "Snapshot | Determine '{{ server_appdata_path }}' filesystem type"
   ansible.builtin.set_fact:
     opt_fstype: "{{ item.fstype }}"
-  when: backup_snapshot_enabled and (item.mount == server_appdata_path)
+  when:
+    - backup_snapshot_enabled
+    - (item.mount == server_appdata_path)
   with_items:
     - "{{ ansible_facts['mounts'] }}"
-
-# BTRFS
 
 - name: Snapshot | BTRFS specific tasks
   when:
     - backup_snapshot_enabled
-    - ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
+    - (((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs')))
   block:
     - name: "Snapshot | Set general BTRFS variables"
       ansible.builtin.set_fact:
@@ -38,14 +40,18 @@
         backup_snapshot_source_path: "/"
         backup_snapshot_destination_path: "/btrfs/snapshots/root"
         backup_opt_path: "/btrfs/snapshots/root{{ server_appdata_path }}/"
-      when: (root_fstype is defined) and (root_fstype == 'btrfs')
+      when:
+        - (root_fstype is defined)
+        - (root_fstype == 'btrfs')
 
     - name: "Snapshot | Set '{{ server_appdata_path }}' BTRFS variables"
       ansible.builtin.set_fact:
         backup_snapshot_source_path: "{{ server_appdata_path }}"
         backup_snapshot_destination_path: "{{ server_appdata_path }}/snapshots/opt"
         backup_opt_path: "{{ server_appdata_path }}/snapshots/opt/"
-      when: (opt_fstype is defined) and (opt_fstype == 'btrfs')
+      when:
+        - (opt_fstype is defined)
+        - (opt_fstype == 'btrfs')
 
     - name: Snapshot | Check if BTRFS snapshot is mounted
       ansible.builtin.stat:
@@ -53,7 +59,9 @@
       register: btrfs_snapshot_mounted
 
     - name: Snapshot | Delete BTRFS snapshot
-      when: (btrfs_snapshot_mounted.stat.isdir is defined) and btrfs_snapshot_mounted.stat.isdir
+      when:
+        - (btrfs_snapshot_mounted.stat.isdir is defined)
+        - btrfs_snapshot_mounted.stat.isdir
       block:
         - name: Snapshot | Delete existing BTRFS snapshot (1/2)
           ansible.builtin.command: "btrfs subvolume delete {{ backup_snapshot_destination_path }}"
