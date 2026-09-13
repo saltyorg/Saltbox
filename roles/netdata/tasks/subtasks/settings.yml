@@ -39,8 +39,8 @@
             name: "{{ netdata_config_copy_container }}"
             state: absent
           when:
-            - netdata_config_copy_container_create is defined
-            - netdata_config_copy_container_create is succeeded
+            - (netdata_config_copy_container_create is defined)
+            - (netdata_config_copy_container_create is succeeded)
 
 - name: Chown directories
   ansible.builtin.file:

@@ -50,16 +50,20 @@
 - name: "Auth Token | Generate new plex_auth_client_identifier"
   ansible.builtin.set_fact:
     plex_auth_client_identifier: "Saltbox{{ lookup('password', '/dev/null', chars=['ascii_lowercase', 'digits'], length=8) }}"
-  when: (not plex_ini.stat.exists) or plex_auth_client_identifier_missing
+  when: ((not plex_ini.stat.exists) or plex_auth_client_identifier_missing)
 
 - name: "Auth Token | Set plex_auth_token variable if previously saved"
   ansible.builtin.set_fact:
     plex_auth_token: "{{ lookup('ini', 'token section=' + plex_name + ' file=' + plex_auth_token_ini_file) | regex_replace('\n', '') }}"
-  when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
+  when:
+    - plex_ini.stat.exists
+    - (not plex_auth_client_identifier_missing)
 
 - name: "Auth Token | Set plex_no_token status"
   ansible.builtin.set_fact:
-    plex_no_token: "{{ (not plex_ini.stat.exists) or plex_auth_client_identifier_missing | ternary(true, false) }}"
+    plex_no_token: "{{ true
+                    if ((not plex_ini.stat.exists) or plex_auth_client_identifier_missing)
+                    else false }}"
 
 - name: "Auth Token | Network Container Health Status"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/network_container_health_status.yml"
@@ -88,10 +92,12 @@
     status_code: [200, 401]
   environment: "{{ plex_proxy_dict }}"
   register: plex_token
-  when: plex_ini.stat.exists and (not plex_auth_client_identifier_missing)
+  when:
+    - plex_ini.stat.exists
+    - (not plex_auth_client_identifier_missing)
 
 - name: "Auth Token | Generate New Token"
-  when: plex_no_token or (plex_token.status == 401)
+  when: (plex_no_token or (plex_token.status == 401))
   block:
     - name: "Auth Token | Generate PIN"
       ansible.builtin.uri:

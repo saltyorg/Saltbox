@@ -129,4 +129,4 @@
 - name: Cloudplow Skipped
   ansible.builtin.debug:
     msg: "Cloudplow was skipped due to no remotes having upload enabled."
-  when: not (cloudplow_remotes | length > 0)
+  when: (not (cloudplow_remotes | length > 0))

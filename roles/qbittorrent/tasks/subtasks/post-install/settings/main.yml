@@ -166,7 +166,7 @@
     mode: "0664"
 
 - name: Post-Install | Settings | Generate Password Hash
-  when: not qbittorrent_role_paths_conf_stat.stat.exists
+  when: (not qbittorrent_role_paths_conf_stat.stat.exists)
   block:
     - name: Post-Install | Settings | Generate Password Hash
       qbittorrent_passwd:

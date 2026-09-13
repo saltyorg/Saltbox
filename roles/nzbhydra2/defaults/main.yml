@@ -73,9 +73,9 @@ nzbhydra2_role_themepark_addons: []
 # Config
 ################################
 
-nzbhydra2_role_config_settings_jvm_memory: "{{ ((ansible_facts['memory_mb']['real']['total'] / 1024)
-                                                | round(0, 'ceil') | int >= 8)
-                                               | ternary('512', '256') }}"
+nzbhydra2_role_config_settings_jvm_memory: "{{ '512'
+                                            if ((ansible_facts['memory_mb']['real']['total'] / 1024) | round(0, 'ceil') | int >= 8)
+                                            else '256' }}"
 
 nzbhydra2_role_config_settings_default:
   # NZBGet

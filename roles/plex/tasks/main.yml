@@ -14,12 +14,16 @@
     plex_name: "{{ item }}"
     plex_lookup: "{{ lookup('role_var', '_docker_network_mode', role='plex', default=docker_networks_name_common) }}"
   loop: "{{ plex_instances }}"
-  when: (plex_instances | length > 1) and ('container:' in plex_lookup)
+  when:
+    - (plex_instances | length > 1)
+    - ('container:' in plex_lookup)
 
 - name: Fail if non-unique entries are present
   ansible.builtin.fail:
     msg: "At least two of your Plex instances are using the same 'container:' network_mode and this will not work due to port collision."
-  when: (plex_instances | length > 1) and (plex_role_network_modes | length) != (plex_role_network_modes | unique | length)
+  when:
+    - (plex_instances | length > 1)
+    - ((plex_role_network_modes | length) != (plex_role_network_modes | unique | length))
 
 - name: "Execute Plex roles"
   ansible.builtin.include_tasks: main2.yml

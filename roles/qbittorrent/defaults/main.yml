@@ -20,9 +20,9 @@ qbittorrent_role_host_install: false
 qbittorrent_role_webui_custom_headers_enabled: "{{ 'true'
                                                 if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled
                                                 else 'false' }}"
-qbittorrent_role_webui_custom_headers_default: "{{ (qbittorrent_role_themepark_headers
-                                                    if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled
-                                                    else '') }}"
+qbittorrent_role_webui_custom_headers_default: "{{ qbittorrent_role_themepark_headers
+                                                if lookup('role_var', '_themepark_enabled', role='qbittorrent') and global_themepark_plugin_enabled
+                                                else '' }}"
 qbittorrent_role_webui_custom_headers_custom: ""
 qbittorrent_role_webui_custom_headers: "{{ (lookup('role_var', '_webui_custom_headers_default', role='qbittorrent') | trim + ' ' + lookup('role_var', '_webui_custom_headers_custom', role='qbittorrent') | trim) | trim }}"
 # Options are: Delete or MoveToTrash

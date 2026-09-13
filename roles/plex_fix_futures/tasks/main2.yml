@@ -67,7 +67,7 @@
           - "{{ lookup('role_var', '_web_url', role='plex') }}/library/sections/{{ item.librarySectionID }}/all?type={{ item.type_id }}&id={{ item.id }}&addedAt.value={{ item.updatedAt }}&X-Plex-Token={{ plex_instance_token.facts.token }}"
       loop: "{{ plex_future_items_typed }}"
       register: plex_future_items_task
-      when: plex_future_items_typed is defined
+      when: (plex_future_items_typed is defined)
       no_log: true
 
     - name: Status

@@ -13,7 +13,9 @@
   register: autoplow_db_directory
 
 - name: Prompt block
-  when: (not continuous_integration) and (not autoplow_db_directory.stat.exists)
+  when:
+    - (not continuous_integration)
+    - (not autoplow_db_directory.stat.exists)
   block:
     - name: Prompt for alpha software acceptance
       ansible.builtin.pause:
@@ -23,7 +25,7 @@
     - name: Fail if alpha software acceptance not provided
       ansible.builtin.fail:
         msg: "Autoplow install aborted by user."
-      when: (autoplow_alpha_accept.user_input | trim | lower) not in ['y', 'yes']
+      when: ((autoplow_alpha_accept.user_input | trim | lower) not in ['y', 'yes'])
 
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"

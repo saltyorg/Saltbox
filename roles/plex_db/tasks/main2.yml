@@ -59,7 +59,7 @@
         message: "Plex instance '{{ plex_name }}' failed the integrity check."
 
 - name: Database tasks
-  when: not plex_db_integrity_check_only
+  when: (not (plex_db_integrity_check_only | bool))
   block:
     - name: Create backup directory
       ansible.builtin.file:
