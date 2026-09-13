@@ -32,4 +32,7 @@
 
     - name: Docker Containers Start Tasks (no running containers)
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_saltbox_docker_containers.yml"
-      when: (not containers_list is defined) and unionfs_docker_binary.stat.exists and unionfs_docker_service_running
+      when:
+        - (not containers_list is defined)
+        - unionfs_docker_binary.stat.exists
+        - unionfs_docker_service_running

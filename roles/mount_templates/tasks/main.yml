@@ -39,4 +39,4 @@
     git_repo_force: true
     git_repo_become: true
     git_repo_become_user: "{{ user.name }}"
-  when: mount_templates_clone_status is failed
+  when: (mount_templates_clone_status is failed)

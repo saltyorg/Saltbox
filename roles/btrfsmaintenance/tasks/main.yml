@@ -22,7 +22,7 @@
     - "{{ ansible_facts['mounts'] }}"
 
 - name: "Setup btrfsmaintenance scripts"
-  when: ((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs'))
+  when: (((root_fstype is defined) and (root_fstype == 'btrfs')) or ((opt_fstype is defined) and (opt_fstype == 'btrfs')))
   block:
     - name: "Install apt package"
       ansible.builtin.apt:
@@ -56,4 +56,6 @@
 - name: "Exit if no btrfs partitions found"
   ansible.builtin.debug:
     msg: "No btrfs partition found on / or {{ server_appdata_path }} - exiting"
-  when: ((root_fstype is defined) and (root_fstype != 'btrfs')) and ((opt_fstype is defined) and (opt_fstype != 'btrfs'))
+  when:
+    - ((root_fstype is defined) and (root_fstype != 'btrfs'))
+    - ((opt_fstype is defined) and (opt_fstype != 'btrfs'))

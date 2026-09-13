@@ -29,7 +29,9 @@
       - "'{{ mount_path }}' is already mounted but '{{ _service_file }}' is not a Saltbox-managed service."
       - "'/mnt/remote' and subfolders are fully managed by Saltbox. Do not manually mount anything under '/mnt/remote'."
       - "Please remove or move manual mounts and rerun."
-  when: (mount_path_mountpoint_initial.rc == 0) and (not mount_path_managed_service_exists)
+  when:
+    - (mount_path_mountpoint_initial.rc == 0)
+    - (not mount_path_managed_service_exists)
 
 - name: "Remote | Force unmount '{{ mount_path }}'"
   ansible.builtin.command:
@@ -39,7 +41,9 @@
       - "--"
       - "{{ mount_path }}"
     expand_argument_vars: false
-  when: (mount_path_mountpoint_initial.rc == 0) and mount_path_managed_service_exists
+  when:
+    - (mount_path_mountpoint_initial.rc == 0)
+    - mount_path_managed_service_exists
 
 - name: "Remote | Assign port"
   port_assignment:
@@ -66,7 +70,9 @@
   ignore_errors: true
 
 - name: "Remote | Tasks for '{{ mount_path }}' path"
-  when: ((mount_path_stat is failed) or (mount_path_stat.stat.exists)) and (mount_path_mountpoint.rc != 0)
+  when:
+    - ((mount_path_stat is failed) or (mount_path_stat.stat.exists))
+    - (mount_path_mountpoint.rc != 0)
   block:
     - name: "Remote | Remove empty directories in '{{ mount_path }}'"
       ansible.builtin.command:
@@ -147,7 +153,9 @@
     dest: "/etc/systemd/system/{{ _service_refresh }}.timer"
     force: true
     mode: "0644"
-  when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+  when:
+    - (item.settings.enable_refresh is defined)
+    - (item.settings.enable_refresh | bool)
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.timer'
   ansible.builtin.systemd_service:
@@ -155,7 +163,9 @@
     state: stopped
     enabled: false
     daemon_reload: true
-  when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+  when:
+    - (item.settings.enable_refresh is defined)
+    - (item.settings.enable_refresh | bool)
 
 - name: Remote | Import '{{ _service_refresh }}.service'
   ansible.builtin.template:
@@ -163,7 +173,9 @@
     dest: "/etc/systemd/system/{{ _service_refresh }}.service"
     force: true
     mode: "0644"
-  when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+  when:
+    - (item.settings.enable_refresh is defined)
+    - (item.settings.enable_refresh | bool)
 
 - name: Remote | Systemd daemon-reload '{{ _service_refresh }}.service'
   ansible.builtin.systemd_service:
@@ -171,7 +183,9 @@
     state: stopped
     enabled: false
     daemon_reload: true
-  when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+  when:
+    - (item.settings.enable_refresh is defined)
+    - (item.settings.enable_refresh | bool)
 
 - name: Remote | Get list of Rclone remotes in config
   ansible.builtin.command:
@@ -233,7 +247,9 @@
             _service_state: started
             _service_enabled: true
             _service_reenable: true
-          when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+          when:
+            - (item.settings.enable_refresh is defined)
+            - (item.settings.enable_refresh | bool)
 
         - name: Remote | Start '{{ _service_refresh }}.service'
           ansible.builtin.include_tasks: "{{ resources_tasks_path }}/systemd/manage_service.yml"
@@ -243,7 +259,9 @@
             _service_enabled: true
             _service_no_block: true
             _service_reenable: true
-          when: (item.settings.enable_refresh is defined) and (item.settings.enable_refresh | bool)
+          when:
+            - (item.settings.enable_refresh is defined)
+            - (item.settings.enable_refresh | bool)
 
     - name: "Remote | Display error message when Rclone remote is not working properly"
       ansible.builtin.fail:

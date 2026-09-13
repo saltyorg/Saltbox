@@ -16,7 +16,11 @@
                           else item.remote)
                        + '=' + mergerfs_remote_branch_mode_lookup + ':' }}"
   with_items: "{{ rclone.remotes }}"
-  when: rclone_remote_is_defined and use_remote and item.settings.mount and item.settings.union
+  when:
+    - rclone_remote_is_defined
+    - use_remote
+    - (item.settings.mount | bool)
+    - (item.settings.union | bool)
 
 - name: Variables | Append 'custom_mount_branch' to '_remotes_list' variable
   ansible.builtin.set_fact:
@@ -25,4 +29,7 @@
 - name: Variables | Remove trailing colon in '_remotes_list'
   ansible.builtin.set_fact:
     _remotes_list: "{{ _remotes_list[:-1] }}"
-  when: (_remotes_list is defined) and (_remotes_list | length > 0) and (_remotes_list[-1] == ':')
+  when:
+    - (_remotes_list is defined)
+    - (_remotes_list | length > 0)
+    - (_remotes_list[-1] == ':')

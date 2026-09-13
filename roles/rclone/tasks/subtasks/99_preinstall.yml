@@ -10,14 +10,18 @@
 - name: "Preinstall | Display message when kernel has been updated"
   ansible.builtin.debug:
     msg: "Kernel was updated."
-  when: (preinstall_kernel_restart is defined) and preinstall_kernel_restart
+  when:
+    - (preinstall_kernel_restart is defined)
+    - preinstall_kernel_restart
 
 - name: "Preinstall | Saltbox pre-install has completed!"
   ansible.builtin.debug:
     msg: "Saltbox pre-install has completed!"
 
 - name: Preinstall | Tasks for kernel restart
-  when: (preinstall_kernel_restart is defined) and preinstall_kernel_restart
+  when:
+    - (preinstall_kernel_restart is defined)
+    - preinstall_kernel_restart
   block:
     - name: "Preinstall | Display message when restarting server"
       ansible.builtin.debug:

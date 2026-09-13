@@ -29,8 +29,7 @@
     url: "{{ docker_controller_url }}/block/20"
     method: POST
     timeout: 600
-  when: (remote_docker_controller_service_running is defined and remote_docker_controller_service_running)
-        or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running)
+  when: ((remote_docker_controller_service_running is defined and remote_docker_controller_service_running) or (unionfs_docker_controller_service_running is defined and unionfs_docker_controller_service_running))
 
 - name: "Docker | Daemon | Start docker socket"
   ansible.builtin.systemd_service:

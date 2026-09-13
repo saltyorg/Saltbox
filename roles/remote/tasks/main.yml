@@ -10,7 +10,10 @@
 - name: Import Rclone Role
   ansible.builtin.include_role:
     name: rclone
-  when: use_remote and ('mounts' in ansible_run_tags) and remote_update_rclone
+  when:
+    - use_remote
+    - ('mounts' in ansible_run_tags)
+    - (remote_update_rclone | bool)
 
 - name: Check to see if docker is installed
   ansible.builtin.stat:
@@ -22,12 +25,16 @@
 
 - name: Get Docker service state
   ansible.builtin.set_fact:
-    remote_docker_service_running: "{{ (ansible_facts['services']['docker.service'] is defined) and (ansible_facts['services']['docker.service']['state'] == 'running') }}"
-    remote_docker_controller_service_running: "{{ (ansible_facts['services']['saltbox_managed_docker_controller.service'] is defined) and (ansible_facts['services']['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
+    remote_docker_service_running: "{{ (ansible_facts['services']['docker.service'] is defined) and
+                                       (ansible_facts['services']['docker.service']['state'] == 'running') }}"
+    remote_docker_controller_service_running: "{{ (ansible_facts['services']['saltbox_managed_docker_controller.service'] is defined) and
+                                                  (ansible_facts['services']['saltbox_managed_docker_controller.service']['state'] == 'running') }}"
   when: remote_docker_binary.stat.exists
 
 - name: Tasks for when Docker exists and is running
-  when: remote_docker_binary.stat.exists and remote_docker_service_running
+  when:
+    - remote_docker_binary.stat.exists
+    - remote_docker_service_running
   block:
     - name: "Gather list of running Docker containers"
       ansible.builtin.command:
@@ -53,7 +60,9 @@
       register: remote_legacy_docker_controller
       failed_when: false
       changed_when: false
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Block Docker Controller
       ansible.builtin.uri:
@@ -61,13 +70,18 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Restart 'saltbox_managed_docker_controller.service'
       ansible.builtin.systemd_service:
         name: saltbox_managed_docker_controller
         state: restarted
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running and (remote_legacy_docker_controller.rc is not defined or remote_legacy_docker_controller.rc != 0)
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
+        - (remote_legacy_docker_controller.rc is not defined or remote_legacy_docker_controller.rc != 0)
 
     - name: Wait until Controller is ready
       ansible.builtin.uri:
@@ -78,7 +92,9 @@
       register: result
       retries: 120
       delay: 1
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Block Docker Controller
       ansible.builtin.uri:
@@ -86,16 +102,22 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Wait 10 seconds
       ansible.builtin.wait_for:
         timeout: 10
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: "Stop all running Docker containers"
       ansible.builtin.command:
@@ -109,7 +131,9 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: (remote_docker_controller_service_running is defined) and remote_docker_controller_service_running
+      when:
+        - (remote_docker_controller_service_running is defined)
+        - remote_docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
@@ -156,7 +180,7 @@
             force: true
             mode: "0644"
           loop: "{{ remote_systemd_files.files }}"
-          when: not (item.path | basename).startswith('saltbox_managed_')
+          when: (not (item.path | basename).startswith('saltbox_managed_'))
 
     - name: "Reset permissions of folders"
       ansible.builtin.file:
@@ -231,7 +255,10 @@
 - name: Cleanup Tasks
   ansible.builtin.include_tasks: "cleanup.yml"
   loop: "{{ saltbox_managed_rclone_services | dict2items }}"
-  when: (saltbox_managed_rclone_services is defined) and (saltbox_managed_rclone_services | length > 0) and (not 'refresh' in item.key)
+  when:
+    - (saltbox_managed_rclone_services is defined)
+    - (saltbox_managed_rclone_services | length > 0)
+    - (not 'refresh' in item.key)
 
 - name: Create '/mnt/remote' directory
   ansible.builtin.file:
@@ -247,9 +274,15 @@
     - name: Remote Tasks
       ansible.builtin.include_tasks: "remote.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and (item.settings.template != "nfs") and (item.settings.mount | bool)
+      when:
+        - rclone_remote_is_defined
+        - (item.settings.template != "nfs")
+        - (item.settings.mount | bool)
 
     - name: Remote Tasks (NFS)
       ansible.builtin.include_tasks: "nfs.yml"
       with_items: "{{ rclone.remotes }}"
-      when: rclone_remote_is_defined and (item.settings.template == "nfs") and (item.settings.mount | bool)
+      when:
+        - rclone_remote_is_defined
+        - (item.settings.template == "nfs")
+        - (item.settings.mount | bool)

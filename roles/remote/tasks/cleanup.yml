@@ -24,7 +24,10 @@
     name: "{{ rclone_service_name }}.service"
     state: stopped
     enabled: false
-  when: (rclone_service_name_full in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
+  when:
+    - (rclone_service_name_full in saltbox_managed_rclone_services)
+    - (rclone_service_status != 'not-found')
+    - (rclone_service_status != 'failed')
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}.service'"
   ansible.builtin.file:
@@ -37,14 +40,20 @@
     name: "{{ rclone_refresh_service_name }}"
     state: stopped
     enabled: false
-  when: (rclone_refresh_service_name in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
+  when:
+    - (rclone_refresh_service_name in saltbox_managed_rclone_services)
+    - (rclone_service_status != 'not-found')
+    - (rclone_service_status != 'failed')
 
 - name: "Cleanup | Stop and disable existing '{{ rclone_service_name }}_refresh.timer'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_service_name }}_refresh.timer"
     state: stopped
     enabled: false
-  when: (rclone_refresh_service_name in saltbox_managed_rclone_services) and (rclone_service_status != 'not-found') and (rclone_service_status != 'failed')
+  when:
+    - (rclone_refresh_service_name in saltbox_managed_rclone_services)
+    - (rclone_service_status != 'not-found')
+    - (rclone_service_status != 'failed')
 
 - name: "Cleanup | Delete '{{ rclone_service_name }}_refresh' services"
   ansible.builtin.file:
@@ -83,10 +92,12 @@
       - "'{{ cleanup_mount_path }}' is currently mounted."
       - "'/mnt/remote' and subfolders are fully managed by Saltbox. Do not manually mount anything under '/mnt/remote'."
       - "Please remove or move manual mounts and rerun."
-  when: cleanup_mount_path_mountpoint.rc == 0
+  when: (cleanup_mount_path_mountpoint.rc == 0)
 
 - name: "Cleanup | Tasks for '{{ cleanup_mount_path }}' path"
-  when: ((cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists)) and (cleanup_mount_path_mountpoint.rc != 0)
+  when:
+    - ((cleanup_mount_path_stat is failed) or (cleanup_mount_path_stat.stat.exists))
+    - (cleanup_mount_path_mountpoint.rc != 0)
   block:
     - name: "Cleanup | Remove empty directories in '{{ cleanup_mount_path }}'"
       ansible.builtin.command:
@@ -119,7 +130,9 @@
           - "{{ cleanup_mount_path }}"
           - "{{ cleanup_mount_path }}_{{ '%Y-%m-%d_%H.%M.%S' | strftime(ansible_facts['date_time']['epoch'] | int) }}"
       ignore_errors: true
-      when: cleanup_mount_path_stat2.stat.exists and (cleanup_mount_path_stat_files.matched | int > 0)
+      when:
+        - cleanup_mount_path_stat2.stat.exists
+        - (cleanup_mount_path_stat_files.matched | int > 0)
 
     - name: "Cleanup | Remove '{{ cleanup_mount_path }}'"
       ansible.builtin.file:

@@ -22,7 +22,9 @@
   when: unionfs_docker_binary.stat.exists
 
 - name: "UnionFS | Docker | Container Stop | Tasks for when Docker exists and is running"
-  when: unionfs_docker_binary.stat.exists and unionfs_docker_service_running
+  when:
+    - unionfs_docker_binary.stat.exists
+    - unionfs_docker_service_running
   block:
     - name: "UnionFS | Docker | Container Stop | Gather list of running Docker containers"
       ansible.builtin.command:
@@ -40,7 +42,9 @@
 
     - name: "UnionFS | Docker | Container Stop | Stop Saltbox Docker containers"
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: (containers_list | length > 0) and unionfs_docker_controller_service_running
+      when:
+        - (containers_list | length > 0)
+        - unionfs_docker_controller_service_running
 
     - name: "UnionFS | Docker | Container Stop | Stop all running Docker containers"
       ansible.builtin.command:
