@@ -34,7 +34,7 @@
 - name: Run rclone role
   ansible.builtin.include_role:
     name: rclone
-  when: rclone_conf_playbook_dir.stat.exists or (not rclone_binary.stat.exists)
+  when: (rclone_conf_playbook_dir.stat.exists or (not rclone_binary.stat.exists))
 
 - name: Test rclone remote destination
   ansible.builtin.command:

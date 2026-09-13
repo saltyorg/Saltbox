@@ -12,14 +12,18 @@
     msg:
       - "Rclone backup is not enabled."
       - "You must enable rclone, in the backup settings, to perform a with a specific tar file restore."
-  when: (not backup_rclone_enabled) and (restore_tar is defined)
+  when:
+    - (not backup_rclone_enabled)
+    - (restore_tar is defined)
 
 - name: Fail when local backup method is enabled and using restore_tar
   ansible.builtin.fail:
     msg:
       - "The restore_tar setting does not work with a local backup enabled."
       - "Remember to empty the local backup folder if you disable the setting."
-  when: backup_rclone_enabled and (restore_tar is defined)
+  when:
+    - backup_rclone_enabled
+    - (restore_tar is defined)
 
 - name: "Check if user '{{ user.name }}' exists"
   ansible.builtin.getent:
@@ -31,12 +35,16 @@
 - name: User Role
   ansible.builtin.include_role:
     name: user
-  when: (user_check.ansible_facts.getent_passwd[user.name] is none) and (not restore_tar is defined)
+  when:
+    - (user_check.ansible_facts.getent_passwd[user.name] is none)
+    - (not restore_tar is defined)
 
 - name: Set shell
   ansible.builtin.include_role:
     name: shell
-  when: (user_check.ansible_facts.getent_passwd[user.name] is none) and (not restore_tar is defined)
+  when:
+    - (user_check.ansible_facts.getent_passwd[user.name] is none)
+    - (not restore_tar is defined)
 
 - name: Variables
   ansible.builtin.include_tasks: "variables.yml"
@@ -47,7 +55,9 @@
   register: localhost_yml_playbook_dir
 
 - name: "Import 'localhost.yml' from '{{ playbook_dir }}'"
-  when: localhost_yml_playbook_dir.stat.exists and (not restore_tar is defined)
+  when:
+    - localhost_yml_playbook_dir.stat.exists
+    - (not restore_tar is defined)
   block:
     - name: "Check if a previous 'localhost.yml' exists"
       ansible.builtin.stat:
@@ -132,11 +142,15 @@
 # Restore from remote backup when local backup does not exist
 - name: Restore Remote
   ansible.builtin.include_tasks: "restore_remote.yml"
-  when: (dir_files.matched | int == 0) and (not restore_tar is defined)
+  when:
+    - (dir_files.matched | int == 0)
+    - (not restore_tar is defined)
 
 - name: Restore specific tar
   ansible.builtin.include_tasks: "restore_tar.yml"
-  when: (dir_files.matched | int == 0) and (restore_tar is defined)
+  when:
+    - (dir_files.matched | int == 0)
+    - (restore_tar is defined)
 
 - name: "Look for 'backup_excludes_list.txt' file in '{{ backup.local.destination }}'"
   ansible.builtin.stat:
@@ -157,7 +171,9 @@
     group: "{{ user.name }}"
     mode: "0664"
     force: true
-  when: backup_excludes_list.stat.exists and (not restore_tar is defined)
+  when:
+    - backup_excludes_list.stat.exists
+    - (not restore_tar is defined)
 
 - name: "Check for existing backup folders (full restore)"
   ansible.builtin.stat:
@@ -174,7 +190,9 @@
       - "Please remove or rename existing backup folders before running restore."
       - "This prevents accidental loss of existing backup data."
   with_items: "{{ existing_bak_folders_full.results }}"
-  when: (not restore_tar is defined) and item.stat.exists
+  when:
+    - (not restore_tar is defined)
+    - item.stat.exists
   loop_control:
     label: "'{{ server_appdata_path }}/{{ (item.item | basename | splitext)[0] }}_bak'"
 
@@ -204,7 +222,9 @@
       - "Backup folder '{{ server_appdata_path }}/{{ (restore_tar | basename | splitext)[0] }}_bak' already exists."
       - "Please remove or rename the existing backup folder before running restore."
       - "This prevents accidental loss of existing backup data."
-  when: (restore_tar is defined) and existing_bak_folder_specific.stat.exists
+  when:
+    - (restore_tar is defined)
+    - existing_bak_folder_specific.stat.exists
 
 - name: "Backup existing folder in '{{ server_appdata_path }}' to prevent overwriting it (specific tar restore)"
   ansible.builtin.command:
