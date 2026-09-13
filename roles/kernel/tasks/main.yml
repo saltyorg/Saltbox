@@ -17,8 +17,8 @@
 - name: Restore legacy Jammy compiler default
   ansible.builtin.include_tasks: "subtasks/restore_jammy_compiler.yml"
   when:
-    - ansible_facts['distribution'] == 'Ubuntu'
-    - ansible_facts['distribution_version'] == '22.04'
+    - (ansible_facts['distribution'] == 'Ubuntu')
+    - (ansible_facts['distribution_version'] == '22.04')
 
 # Ubuntu 22.04 HWE Update
 - name: Ubuntu 22.04 Update Tasks

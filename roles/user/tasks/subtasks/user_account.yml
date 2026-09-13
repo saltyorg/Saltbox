@@ -61,7 +61,7 @@
     mode: "0664"
     force: false
   loop: "{{ skel_files_check.results }}"
-  when: not item.stat.exists
+  when: (not item.stat.exists)
 
 - name: User Account | Get video group info
   ansible.builtin.getent:
@@ -128,4 +128,7 @@
     user: "{{ user.name }}"
     state: present
     key: "{{ user.ssh_key }}"
-  when: (user.ssh_key is defined) and (user.ssh_key is not none) and (user.ssh_key | length > 0)
+  when:
+    - (user.ssh_key is defined)
+    - (user.ssh_key is not none)
+    - (user.ssh_key | length > 0)

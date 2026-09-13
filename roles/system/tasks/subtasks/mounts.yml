@@ -21,7 +21,9 @@
     src: "{{ item.device }}"
   with_items:
     - "{{ ansible_facts['mounts'] }}"
-  when: (item.mount == '/') and (item.fstype == 'ext4')
+  when:
+    - (item.mount == '/')
+    - (item.fstype == 'ext4')
 
 - name: "Mounts | Install 'fuse3'"
   ansible.builtin.apt:

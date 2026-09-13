@@ -20,4 +20,6 @@
   ansible.builtin.command:
     argv:
       - "reboot"
-  when: reboot_required_file.stat.exists and saltbox_auto_reboot
+  when:
+    - reboot_required_file.stat.exists
+    - (saltbox_auto_reboot | bool)

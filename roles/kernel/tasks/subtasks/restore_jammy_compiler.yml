@@ -15,12 +15,12 @@
 
 - name: Compiler | Restore Jammy defaults
   when:
-    - "kernel_jammy_gcc_alternatives.rc == 0"
-    - "kernel_jammy_gcc_alternatives.stdout | regex_findall('(?m)^Alternative: .+$') | length == 1"
-    - "'Alternative: /usr/bin/gcc-12' in kernel_jammy_gcc_alternatives.stdout"
-    - "'Priority: 12' in kernel_jammy_gcc_alternatives.stdout"
-    - "' g++ /usr/bin/g++' in kernel_jammy_gcc_alternatives.stdout"
-    - "' g++ /usr/bin/g++-12' in kernel_jammy_gcc_alternatives.stdout"
+    - "(kernel_jammy_gcc_alternatives.rc == 0)"
+    - "(kernel_jammy_gcc_alternatives.stdout | regex_findall('(?m)^Alternative: .+$') | length == 1)"
+    - "('Alternative: /usr/bin/gcc-12' in kernel_jammy_gcc_alternatives.stdout)"
+    - "('Priority: 12' in kernel_jammy_gcc_alternatives.stdout)"
+    - "(' g++ /usr/bin/g++' in kernel_jammy_gcc_alternatives.stdout)"
+    - "(' g++ /usr/bin/g++-12' in kernel_jammy_gcc_alternatives.stdout)"
   block:
     - name: Compiler | Check Jammy default compiler binaries
       ansible.builtin.stat:

@@ -20,12 +20,12 @@
   when:
     - ('preinstall' not in ansible_run_tags)
     - ('hetzner' not in ansible_run_tags)
-    - not saltbox_auto_reboot
+    - (not (saltbox_auto_reboot | bool))
 
 - name: Restart | Tasks for immediate reboot
   when:
     - ('preinstall' not in ansible_run_tags)
-    - ('hetzner' in ansible_run_tags) or saltbox_auto_reboot
+    - (('hetzner' in ansible_run_tags) or (saltbox_auto_reboot | bool))
   block:
     - name: Restart | Success message
       ansible.builtin.debug:

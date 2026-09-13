@@ -78,8 +78,8 @@
 
     - name: Hetzner | Load i915 when the running kernel permits it
       when:
-        - not hetzner_i915_is_bound
-        - not hetzner_running_nomodeset
+        - (not hetzner_i915_is_bound)
+        - (not hetzner_running_nomodeset)
       block:
         - name: Hetzner | Load the i915 module
           community.general.modprobe:
@@ -105,8 +105,8 @@
       register: hetzner_loaded_lspci
       changed_when: false
       when:
-        - not hetzner_i915_is_bound
-        - not hetzner_running_nomodeset
+        - (not hetzner_i915_is_bound)
+        - (not hetzner_running_nomodeset)
 
     - name: Hetzner | Record i915 binding after module loading
       ansible.builtin.set_fact:
@@ -114,8 +114,8 @@
                                     | regex_search('(?m)^[ \t]*Kernel driver in use:[ \t]*i915[ \t]*$'))
                                     is not none }}"
       when:
-        - not hetzner_i915_is_bound
-        - not hetzner_running_nomodeset
+        - (not hetzner_i915_is_bound)
+        - (not hetzner_running_nomodeset)
 
     - name: Hetzner | Require i915 to bind after module loading
       ansible.builtin.fail:
@@ -124,13 +124,13 @@
           - "Filtered PCI state:"
           - "{{ hetzner_loaded_lspci.stdout }}"
       when:
-        - not hetzner_i915_is_bound
-        - not hetzner_running_nomodeset
+        - (not hetzner_i915_is_bound)
+        - (not hetzner_running_nomodeset)
 
     - name: Hetzner | Require reboot for a running nomodeset kernel
       ansible.builtin.set_fact:
         reboot_is_necessary: true
         hetzner_reboot_is_necessary: true
       when:
-        - not hetzner_i915_is_bound
+        - (not hetzner_i915_is_bound)
         - hetzner_running_nomodeset

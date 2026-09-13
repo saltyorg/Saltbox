@@ -73,7 +73,7 @@
 - name: Update APT package index after cappelikan/ppa change
   ansible.builtin.apt:
     update_cache: true
-  when: (mainline_legacy_apt_sources is changed) or (mainline_apt_repository_result is changed)
+  when: ((mainline_legacy_apt_sources is changed) or (mainline_apt_repository_result is changed))
   register: result
   retries: "{{ ansible_retry_count
             if (not continuous_integration)

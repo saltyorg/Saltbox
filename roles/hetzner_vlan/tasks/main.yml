@@ -39,4 +39,6 @@
       - "link"
       - "delete"
       - "{{ ansible_facts['default_ipv4']['interface'] }}.{{ hetzner_vlan.vlan_id }}"
-  when: ('hetzner-vlan-remove' in ansible_run_tags) and hetzner_vlan_netplan_apply
+  when:
+    - ('hetzner-vlan-remove' in ansible_run_tags)
+    - (hetzner_vlan_netplan_apply | bool)

@@ -55,7 +55,7 @@
   loop: "{{ hetzner_grub_transformations }}"
   loop_control:
     label: "{{ item.path }}"
-  when: item.result.changed_count > 0
+  when: (item.result.changed_count > 0)
 
 - name: GRUB Edits | Regenerate GRUB configuration
   ansible.builtin.command:
