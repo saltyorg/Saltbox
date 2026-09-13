@@ -20,8 +20,8 @@
 - name: Kernel | Update initramfs after nouveau blacklist change
   ansible.builtin.command: "update-initramfs -u"
   when:
-    - nvidia_kernel_blacklist_nouveau
-    - nvidia_nouveau_blacklist is changed
+    - (nvidia_kernel_blacklist_nouveau | bool)
+    - (nvidia_nouveau_blacklist is changed)
 
 - name: Kernel | Check whether nouveau is loaded
   ansible.builtin.command: "lsmod"
@@ -30,8 +30,8 @@
 
 - name: Kernel | Restart tasks
   when:
-    - nvidia_kernel_blacklist_nouveau
-    - nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0
+    - (nvidia_kernel_blacklist_nouveau | bool)
+    - (nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0)
   block:
     - name: Kernel | Restart message
       ansible.builtin.debug:
@@ -55,5 +55,5 @@
   ansible.builtin.fail:
     msg: "Nouveau is loaded and nvidia_kernel_blacklist_nouveau is disabled. Unload or blacklist nouveau, reboot, then rerun the original Saltbox install command."
   when:
-    - not nvidia_kernel_blacklist_nouveau
-    - nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0
+    - (not (nvidia_kernel_blacklist_nouveau | bool))
+    - (nvidia_loaded_modules.stdout_lines | select('match', '^nouveau[ ]') | list | length > 0)

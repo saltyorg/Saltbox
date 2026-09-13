@@ -12,15 +12,15 @@
     name: "kernel"
     tasks_from: "subtasks/restore_jammy_compiler.yml"
   when:
-    - ansible_facts['distribution'] == 'Ubuntu'
-    - ansible_facts['distribution_version'] == '22.04'
+    - (ansible_facts['distribution'] == 'Ubuntu')
+    - (ansible_facts['distribution_version'] == '22.04')
 
 - name: Nvidia Purge Tasks
   ansible.builtin.include_tasks: "subtasks/purge.yml"
   when: ('nvidia-purge' in ansible_run_tags)
 
 - name: Nvidia Setup Tasks
-  when: not ('nvidia-purge' in ansible_run_tags)
+  when: (not ('nvidia-purge' in ansible_run_tags))
   block:
     - name: Validate Nvidia configuration
       ansible.builtin.assert:
@@ -98,7 +98,7 @@
       retries: 5
       delay: 10
       until: nvidia_patch_download is succeeded
-      when: nvidia_driver_version | lower != 'ignore'
+      when: (nvidia_driver_version | lower != 'ignore')
 
     - name: Resolve hardware-compatible Nvidia driver
       nvidia_driver_resolver:
@@ -131,22 +131,22 @@
           - mokutil
           - pkg-config
         state: latest
-      when: nvidia_driver_resolution.mode == 'managed'
+      when: (nvidia_driver_resolution.mode == 'managed')
 
     - name: Check Secure Boot state
       ansible.builtin.command: "mokutil --sb-state"
       register: nvidia_secure_boot_state
       changed_when: false
       failed_when: false
-      when: nvidia_driver_resolution.mode == 'managed'
+      when: (nvidia_driver_resolution.mode == 'managed')
 
     - name: Reject managed driver installation with Secure Boot enabled
       ansible.builtin.fail:
         msg: "The Saltbox Nvidia runfile installation does not support Secure Boot. Disable Secure Boot or use nvidia_driver_version: 'ignore' with a trusted external driver."
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_secure_boot_state.rc == 0
-        - "'SecureBoot enabled' in nvidia_secure_boot_state.stdout"
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_secure_boot_state.rc == 0)
+        - "('SecureBoot enabled' in nvidia_secure_boot_state.stdout)"
 
     - name: Download selected driver supported-products metadata
       ansible.builtin.get_url:
@@ -160,7 +160,7 @@
       retries: 5
       delay: 10
       until: nvidia_supported_products_download is succeeded
-      when: nvidia_driver_resolution.mode == 'managed'
+      when: (nvidia_driver_resolution.mode == 'managed')
 
     - name: Validate selected driver against its current supported-products list
       nvidia_driver_resolver:
@@ -175,15 +175,15 @@
         minimum_legacy_branch: "{{ nvidia_driver_minimum_legacy_branch }}"
       register: nvidia_driver_supported_resolution
       failed_when: false
-      when: nvidia_driver_resolution.mode == 'managed'
+      when: (nvidia_driver_resolution.mode == 'managed')
 
     - name: Reject unsupported exact or branch-pinned driver
       ansible.builtin.fail:
         msg: "{{ nvidia_driver_supported_resolution.msg }}"
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is defined
-        - (nvidia_driver_version | lower != 'latest') or (nvidia_driver_branch | lower != 'auto')
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is defined)
+        - ((nvidia_driver_version | lower != 'latest') or (nvidia_driver_branch | lower != 'auto'))
 
     - name: Resolve production fallback for unsupported automatic LTS driver
       nvidia_driver_resolver:
@@ -198,19 +198,19 @@
         minimum_legacy_branch: "{{ nvidia_driver_minimum_legacy_branch }}"
       register: nvidia_driver_production_resolution
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is defined
-        - nvidia_driver_version | lower == 'latest'
-        - nvidia_driver_branch | lower == 'auto'
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is defined)
+        - (nvidia_driver_version | lower == 'latest')
+        - (nvidia_driver_branch | lower == 'auto')
 
     - name: Use production fallback resolution
       ansible.builtin.set_fact:
         nvidia_driver_resolution: "{{ nvidia_driver_production_resolution }}"
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is defined
-        - nvidia_driver_version | lower == 'latest'
-        - nvidia_driver_branch | lower == 'auto'
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is defined)
+        - (nvidia_driver_version | lower == 'latest')
+        - (nvidia_driver_branch | lower == 'auto')
 
     - name: Download production fallback supported-products metadata
       ansible.builtin.get_url:
@@ -225,10 +225,10 @@
       delay: 10
       until: nvidia_production_supported_products_download is succeeded
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is defined
-        - nvidia_driver_version | lower == 'latest'
-        - nvidia_driver_branch | lower == 'auto'
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is defined)
+        - (nvidia_driver_version | lower == 'latest')
+        - (nvidia_driver_branch | lower == 'auto')
 
     - name: Validate production fallback supported-products list
       nvidia_driver_resolver:
@@ -244,17 +244,17 @@
         minimum_legacy_branch: "{{ nvidia_driver_minimum_legacy_branch }}"
       register: nvidia_driver_production_supported_resolution
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is defined
-        - nvidia_driver_version | lower == 'latest'
-        - nvidia_driver_branch | lower == 'auto'
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is defined)
+        - (nvidia_driver_version | lower == 'latest')
+        - (nvidia_driver_branch | lower == 'auto')
 
     - name: Use validated automatic LTS Nvidia driver resolution
       ansible.builtin.set_fact:
         nvidia_driver_resolution: "{{ nvidia_driver_supported_resolution }}"
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - nvidia_driver_supported_resolution.msg is not defined
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (nvidia_driver_supported_resolution.msg is not defined)
 
     - name: Inspect installed Nvidia driver
       ansible.builtin.command: "nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits"
@@ -309,7 +309,7 @@
                                              != nvidia_driver_resolution.resolved_version)
                                          or (nvidia_installed_module_flavor
                                              != nvidia_driver_resolution.module_flavor) }}"
-      when: nvidia_driver_resolution.mode == 'managed'
+      when: (nvidia_driver_resolution.mode == 'managed')
 
     - name: Explain deferred Nvidia driver version change
       ansible.builtin.debug:
@@ -318,16 +318,16 @@
           - "Selected driver: {{ nvidia_driver_resolution.resolved_version }}"
           - "Run the nvidia tag to perform the driver replacement."
       when:
-        - nvidia_driver_resolution.mode == 'managed'
+        - (nvidia_driver_resolution.mode == 'managed')
         - nvidia_driver_change_required
         - nvidia_installed_driver_healthy
-        - not ('nvidia' in ansible_run_tags)
+        - (not ('nvidia' in ansible_run_tags))
 
     - name: Reconcile managed Nvidia driver
       when:
-        - nvidia_driver_resolution.mode == 'managed'
+        - (nvidia_driver_resolution.mode == 'managed')
         - nvidia_driver_change_required
-        - (not nvidia_installed_driver_healthy) or ('nvidia' in ansible_run_tags)
+        - ((not nvidia_installed_driver_healthy) or ('nvidia' in ansible_run_tags))
       block:
         - name: Download selected Nvidia driver checksum and installer
           ansible.builtin.get_url:
@@ -355,19 +355,19 @@
               ansible.builtin.systemd_service:
                 name: "docker.socket"
                 state: stopped
-              when: "'docker.socket' in ansible_facts['services']"
+              when: "('docker.socket' in ansible_facts['services'])"
 
             - name: Stop Docker before Nvidia driver replacement
               ansible.builtin.systemd_service:
                 name: "docker.service"
                 state: stopped
-              when: "'docker.service' in ansible_facts['services']"
+              when: "('docker.service' in ansible_facts['services'])"
 
             - name: Stop Nvidia persistence daemon before driver replacement
               ansible.builtin.systemd_service:
                 name: "nvidia-persistenced.service"
                 state: stopped
-              when: "'nvidia-persistenced.service' in ansible_facts['services']"
+              when: "('nvidia-persistenced.service' in ansible_facts['services'])"
 
             - name: Restore Keylase-patched library before driver replacement
               ansible.builtin.command:
@@ -407,7 +407,7 @@
                 name: "{{ nvidia_installed_driver_packages }}"
                 state: absent
                 purge: true
-              when: nvidia_installed_driver_packages | length > 0
+              when: (nvidia_installed_driver_packages | length > 0)
 
             - name: Nvidia driver installation tasks
               ansible.builtin.include_tasks: "subtasks/driver.yml"
@@ -415,7 +415,7 @@
     - name: Validate Nvidia driver
       ansible.builtin.include_tasks: "subtasks/validate.yml"
       when:
-        - nvidia_driver_resolution.mode == 'external' or (not nvidia_driver_change_required) or ('nvidia' in ansible_run_tags) or (not nvidia_installed_driver_healthy)
+        - (nvidia_driver_resolution.mode == 'external' or (not nvidia_driver_change_required) or ('nvidia' in ansible_run_tags) or (not nvidia_installed_driver_healthy))
 
     - name: Restore Keylase patch when disabled or unnecessary
       ansible.builtin.command:
@@ -426,8 +426,8 @@
       register: nvidia_patch_opt_out_restore
       changed_when: "'Restore from backup' in nvidia_patch_opt_out_restore.stdout"
       when:
-        - nvidia_driver_resolution.mode == 'managed'
-        - not nvidia_driver_resolution.patch_required
+        - (nvidia_driver_resolution.mode == 'managed')
+        - (not nvidia_driver_resolution.patch_required)
         - nvidia_existing_patch_backup.stat.exists
 
     - name: Remove Keylase backup after patch restoration
@@ -435,14 +435,14 @@
         path: "{{ nvidia_patch_backup_file_location }}"
         state: absent
       when:
-        - nvidia_patch_opt_out_restore is changed
+        - (nvidia_patch_opt_out_restore is changed)
 
     - name: Nvidia driver patch tasks
       ansible.builtin.include_tasks: "subtasks/patch.yml"
       when:
         - nvidia_driver_resolution.patch_required
-        - nvidia_driver_resolution.mode == 'managed'
-        - (not nvidia_driver_change_required) or ('nvidia' in ansible_run_tags) or (not nvidia_installed_driver_healthy)
+        - (nvidia_driver_resolution.mode == 'managed')
+        - ((not nvidia_driver_change_required) or ('nvidia' in ansible_run_tags) or (not nvidia_installed_driver_healthy))
 
     - name: Nvidia nvtop tasks
       ansible.builtin.include_tasks: "subtasks/nvtop.yml"

@@ -22,7 +22,7 @@
   ansible.builtin.command: "cat /proc/version"
   register: nvidia_kernel_build_string
   changed_when: false
-  when: nvidia_kernel_gcc_query.rc != 0
+  when: (nvidia_kernel_gcc_query.rc != 0)
 
 - name: Driver | Resolve running kernel GCC major
   ansible.builtin.set_fact:
@@ -47,7 +47,7 @@
   ansible.builtin.apt:
     name: "gcc-{{ nvidia_kernel_gcc_major }}"
     state: present
-  when: not nvidia_kernel_gcc.stat.exists
+  when: (not nvidia_kernel_gcc.stat.exists)
 
 - name: Driver | Install Nvidia driver
   ansible.builtin.command: "{{ nvidia_driver_install_command }}"

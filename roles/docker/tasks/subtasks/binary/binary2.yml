@@ -18,7 +18,7 @@
         selection: install
       when:
         - docker_binary_currently_held
-        - docker_binary_version_change_required or (not put_docker_dpkg_into_hold)
+        - (docker_binary_version_change_required or (not (put_docker_dpkg_into_hold | bool)))
 
     - name: Binary | Install '{{ docker_binary_dpkg_name }}={{ docker_binary_target_version }}'
       ansible.builtin.apt:
@@ -34,8 +34,8 @@
         name: "{{ docker_binary_dpkg_name }}"
         selection: hold
       when:
-        - put_docker_dpkg_into_hold
-        - docker_binary_version_change_required or (not docker_binary_currently_held)
+        - (put_docker_dpkg_into_hold | bool)
+        - (docker_binary_version_change_required or (not docker_binary_currently_held))
         - (docker_binary_installed
           or (docker_binary_install_result is defined
           and docker_binary_install_result is succeeded

@@ -30,7 +30,9 @@
   when: docker_saltbox_network.exists
 
 - name: "Network (IPv6) | Create new IPv6 saltbox docker network block"
-  when: (not docker_saltbox_network.exists) and docker_ipv6
+  when:
+    - (not docker_saltbox_network.exists)
+    - docker_ipv6
   block:
     - name: "Network (IPv6) | Create saltbox network"
       community.docker.docker_network:
@@ -42,7 +44,9 @@
           - subnet: fd00:dead:beef::/48
 
 - name: "Network (IPv4) | Create new IPv4 saltbox docker network block"
-  when: (not docker_saltbox_network.exists) and (not docker_ipv6)
+  when:
+    - (not docker_saltbox_network.exists)
+    - (not docker_ipv6)
   block:
     - name: "Network (IPv4) | Create saltbox network"
       community.docker.docker_network:
@@ -53,7 +57,10 @@
           - subnet: 172.19.0.0/16
 
 - name: "Network (IPv6) | Migrating existing saltbox docker network block to IPv6"
-  when: docker_saltbox_network.exists and (not docker_saltbox_network.network.EnableIPv6) and docker_ipv6
+  when:
+    - docker_saltbox_network.exists
+    - (not docker_saltbox_network.network.EnableIPv6)
+    - docker_ipv6
   block:
     - name: "Network (IPv6) | Inspect containers for aliases"
       community.docker.docker_container_info:
@@ -119,7 +126,10 @@
       ignore_errors: true
 
 - name: "Network (IPv4) | Migrating existing saltbox docker network block to IPv4"
-  when: docker_saltbox_network.exists and docker_saltbox_network.network.EnableIPv6 and (not docker_ipv6)
+  when:
+    - docker_saltbox_network.exists
+    - docker_saltbox_network.network.EnableIPv6
+    - (not docker_ipv6)
   block:
     - name: "Network (IPv4) | Inspect containers for aliases"
       community.docker.docker_container_info:

@@ -23,7 +23,7 @@
             else ansible_retry_count_ci }}"
   delay: 10
   until: result is succeeded
-  when: ansible_facts['distribution_release'] in ['jammy', 'noble']
+  when: (ansible_facts['distribution_release'] in ['jammy', 'noble'])
 
 - name: nvtop | Remove legacy flexiondotorg repository and signing key
   ansible.builtin.file:
@@ -47,14 +47,14 @@
     signed_by: "{{ nvidia_nvtop_apt_repo_signed_by }}"
     state: present
   register: nvidia_nvtop_apt_repository_result
-  when: ansible_facts['distribution_release'] in ['jammy', 'noble']
+  when: (ansible_facts['distribution_release'] in ['jammy', 'noble'])
 
 - name: nvtop | Update APT package index after repository change
   ansible.builtin.apt:
     update_cache: true
   when:
-    - ansible_facts['distribution_release'] in ['jammy', 'noble']
-    - (nvidia_nvtop_legacy_repository_files is changed) or (nvidia_nvtop_apt_repository_result is changed)
+    - (ansible_facts['distribution_release'] in ['jammy', 'noble'])
+    - ((nvidia_nvtop_legacy_repository_files is changed) or (nvidia_nvtop_apt_repository_result is changed))
 
 - name: nvtop | Install nvtop
   ansible.builtin.apt:

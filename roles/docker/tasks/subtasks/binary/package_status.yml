@@ -24,7 +24,7 @@
       - "{{ docker_binary_dpkg_name }}"
   register: docker_binary_apt_policy
   changed_when: false
-  when: not docker_binary_exact_version
+  when: (not docker_binary_exact_version)
 
 - name: Binary | Set target version for '{{ lookup('vars', item ~ '_name') }}'
   ansible.builtin.set_fact:

@@ -21,19 +21,19 @@
   ansible.builtin.systemd_service:
     name: "docker.socket"
     state: stopped
-  when: "'docker.socket' in ansible_facts['services']"
+  when: "('docker.socket' in ansible_facts['services'])"
 
 - name: Purge | Stop Docker
   ansible.builtin.systemd_service:
     name: "docker.service"
     state: stopped
-  when: "'docker.service' in ansible_facts['services']"
+  when: "('docker.service' in ansible_facts['services'])"
 
 - name: Purge | Stop Nvidia persistence daemon
   ansible.builtin.systemd_service:
     name: "nvidia-persistenced.service"
     state: stopped
-  when: "'nvidia-persistenced.service' in ansible_facts['services']"
+  when: "('nvidia-persistenced.service' in ansible_facts['services'])"
 
 - name: Purge | Check for pinned Keylase patch
   ansible.builtin.stat:
@@ -57,7 +57,7 @@
   failed_when: false
   when:
     - nvidia_purge_patch.stat.exists
-    - nvidia_purge_driver_query.rc == 0
+    - (nvidia_purge_driver_query.rc == 0)
 
 - name: Purge | Check for runfile uninstaller
   ansible.builtin.stat:
@@ -85,7 +85,7 @@
     state: absent
     purge: true
     autoremove: true
-  when: (nvidia_purge_driver_packages + nvidia_purge_toolkit_packages) | length > 0
+  when: ((nvidia_purge_driver_packages + nvidia_purge_toolkit_packages) | length > 0)
 
 - name: Purge | Remove Nvidia repositories, keys, and cache
   ansible.builtin.file:
@@ -125,7 +125,7 @@
 
 - name: Purge | Rebuild initramfs after removing nouveau blacklist
   ansible.builtin.command: "update-initramfs -u"
-  when: nvidia_purge_nouveau_blacklist is changed
+  when: (nvidia_purge_nouveau_blacklist is changed)
 
 - name: Purge | Inspect Docker filesystem
   ansible.builtin.include_role:
@@ -144,16 +144,16 @@
     name: "docker.socket"
     state: started
   when:
-    - "'docker.socket' in ansible_facts['services']"
-    - ansible_facts['services']['docker.socket']['state'] == 'running'
+    - "('docker.socket' in ansible_facts['services'])"
+    - (ansible_facts['services']['docker.socket']['state'] == 'running')
 
 - name: Purge | Restore Docker service state
   ansible.builtin.systemd_service:
     name: "docker.service"
     state: started
   when:
-    - "'docker.service' in ansible_facts['services']"
-    - ansible_facts['services']['docker.service']['state'] == 'running'
+    - "('docker.service' in ansible_facts['services'])"
+    - (ansible_facts['services']['docker.service']['state'] == 'running')
 
 - name: Purge | Check whether Nvidia modules remain loaded
   ansible.builtin.command: "lsmod"
@@ -205,7 +205,7 @@
       - "nvtop remains: {{ nvidia_purge_nvtop_binary.stat.exists }}"
 
 - name: Purge | Restart tasks
-  when: nvidia_purge_loaded_modules.stdout_lines | select('match', '^nvidia') | list | length > 0
+  when: (nvidia_purge_loaded_modules.stdout_lines | select('match', '^nvidia') | list | length > 0)
   block:
     - name: Purge | Restart message
       ansible.builtin.debug:

@@ -62,4 +62,4 @@
   register: nvidia_validation_dkms
   changed_when: false
   failed_when: "nvidia_validation_dkms.rc != 0 or ': installed' not in nvidia_validation_dkms.stdout"
-  when: nvidia_driver_resolution.mode == 'managed'
+  when: (nvidia_driver_resolution.mode == 'managed')

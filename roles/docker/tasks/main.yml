@@ -59,13 +59,19 @@
 
     - name: Stop Saltbox Docker containers
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/stop_saltbox_docker_containers.yml"
-      when: (docker_service_running is defined) and docker_service_running and (docker_controller_service_running is defined) and docker_controller_service_running
+      when:
+        - (docker_service_running is defined)
+        - docker_service_running
+        - (docker_controller_service_running is defined)
+        - docker_controller_service_running
 
     - name: Stop all running Docker containers
       ansible.builtin.command:
         argv: "{{ ['docker', 'stop'] + docker_running_containers }}"
       failed_when: false
-      when: (not docker_service_check_mounts) and (docker_running_containers | length > 0)
+      when:
+        - (not docker_service_check_mounts)
+        - (docker_running_containers | length > 0)
 
     - name: Import BTRFS Cleanup Tasks
       ansible.builtin.include_tasks: "subtasks/btrfs/cleanup.yml"
@@ -77,7 +83,11 @@
         method: POST
         timeout: 600
       ignore_errors: true
-      when: (docker_service_running is defined) and docker_service_running and docker_controller_service_running is defined and docker_controller_service_running
+      when:
+        - (docker_service_running is defined)
+        - docker_service_running
+        - (docker_controller_service_running is defined)
+        - docker_controller_service_running
 
     - name: Stop docker service
       ansible.builtin.systemd_service:
@@ -203,7 +213,10 @@
   register: docker_reboot_required_file
 
 - name: Docker Service Running
-  when: docker_start_containers_check and docker_service_check and (docker_running_containers | length > 0)
+  when:
+    - docker_start_containers_check
+    - docker_service_check
+    - (docker_running_containers | length > 0)
   block:
     - name: "Identify Gluetun containers"
       ansible.builtin.set_fact:
@@ -231,7 +244,9 @@
     - name: "Re-start all previously running Docker containers"
       ansible.builtin.command:
         argv: "{{ ['docker', 'start'] + (docker_running_containers | reject('equalto', 'ipv6nat') | list) }}"
-      when: docker_service_check and (docker_running_containers | reject('equalto', 'ipv6nat') | list | length > 0)
+      when:
+        - docker_service_check
+        - (docker_running_containers | reject('equalto', 'ipv6nat') | list | length > 0)
       ignore_errors: true
 
 - name: "Import Docker Hub tasks"
