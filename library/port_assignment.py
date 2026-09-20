@@ -9,7 +9,7 @@ short_description: Persist stable host port assignments
 description:
   - Reconciles named host port claims against a persistent Saltbox registry.
   - Treats listening sockets and, when the local Docker daemon is reachable, Docker bindings from running or stopped containers as conflicts.
-  - Automatically moves a saved assignment when it conflicts and warns about the change.
+  - Automatically moves a saved assignment when it conflicts or falls outside the requested bounds and warns about the change.
 author: salty
 options:
   base_path:
@@ -50,9 +50,10 @@ requirements:
 notes:
   - The caller must stop its service or remove its container before allocation.
   - When the local Docker daemon is unavailable, allocation uses persistent claims and listening sockets without Docker binding observations.
-  - Allocation uses inclusive bounds when a claim has no saved port or its saved port conflicts.
-  - A conflict-free saved port remains authoritative even when it is outside the current bounds.
-  - A saved-port conflict reassigns within the current bounds and warns.
+  - Allocation uses inclusive bounds when a claim has no saved port, its saved port conflicts, or its saved port falls outside the current bounds.
+  - A conflict-free saved port is retained only while it is within the current bounds.
+  - Reassignment warns about the old port, new port, and reason for the change.
+  - If no port is available within the current bounds, allocation fails without changing the registry.
   - Check mode is not supported.
   - The persistent lock file coordinates Saltbox callers but cannot reserve a port after the module exits.
 """
@@ -558,13 +559,23 @@ def reconcile_assignments(
             released_claims.append(key)
             del updated_registry["claims"][key]
 
+    # Vacate out-of-range claims together so this owner's claims can exchange ports.
     for claim_name, claim in claims.items():
         key = _claim_key(namespace, owner, claim_name)
         existing_claim = updated_registry["claims"].get(key)
+        if existing_claim is not None and not (
+            claim["low_bound"] <= existing_claim["port"] <= claim["high_bound"]
+        ):
+            del updated_registry["claims"][key]
+
+    for claim_name, claim in claims.items():
+        key = _claim_key(namespace, owner, claim_name)
+        existing_claim = registry["claims"].get(key)
         protocols = list(dict.fromkeys(claim["protocols"]))
 
         if existing_claim is not None:
             port = existing_claim["port"]
+            out_of_range = not claim["low_bound"] <= port <= claim["high_bound"]
             conflicts = _port_conflict_sources(
                 port,
                 protocols,
@@ -572,7 +583,7 @@ def reconcile_assignments(
                 updated_registry["claims"],
                 observations,
             )
-            if conflicts:
+            if conflicts or out_of_range:
                 old_port = port
                 port = None
                 for candidate in range(claim["low_bound"], claim["high_bound"] + 1):
@@ -590,10 +601,16 @@ def reconcile_assignments(
                         f"No available port for claim '{claim_name}' in inclusive range "
                         f"{claim['low_bound']}-{claim['high_bound']}"
                     )
-                protocol, source = conflicts[0]
+                if out_of_range:
+                    reason = (
+                        f"{old_port} is outside the configured range "
+                        f"{claim['low_bound']}-{claim['high_bound']}"
+                    )
+                else:
+                    protocol, source = conflicts[0]
+                    reason = f"{old_port}/{protocol} conflicts with {source}"
                 warnings.append(
-                    f"Port assignment {key} moved from {old_port} to {port} because "
-                    f"{old_port}/{protocol} conflicts with {source}."
+                    f"Port assignment {key} moved from {old_port} to {port} because {reason}."
                 )
         else:
             port = None
