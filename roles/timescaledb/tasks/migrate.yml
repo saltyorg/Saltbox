@@ -1,0 +1,231 @@
+#########################################################################
+# Title:         Saltbox: TimescaleDB Role                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Require the previously deployed TimescaleDB image
+  ansible.builtin.assert:
+    that:
+      - timescaledb_state.results[3].stat.isreg | default(false)
+    fail_msg: "A PostgreSQL major upgrade requires '{{ timescaledb_path }}/.saltbox-image' from its previous deployment. Restore that file with the data; the role will not guess a source image."
+
+- name: Set the recorded TimescaleDB source image
+  ansible.builtin.set_fact:
+    timescaledb_source_image: "{{ timescaledb_image_file.content | b64decode | trim }}"
+
+- name: Validate the recorded TimescaleDB source image
+  ansible.builtin.assert:
+    that: timescaledb_source_image.split() | length == 1
+    fail_msg: "The TimescaleDB .saltbox-image file must contain one nonempty image reference."
+
+- name: Validate automatic TimescaleDB migration layout
+  ansible.builtin.assert:
+    that:
+      - not timescaledb_state.results[1].stat.exists
+      - lookup('role_var', '_docker_envs', role='timescaledb').PGDATA == '/pgdata'
+      - (timescaledb_path + ':/pgdata') in lookup('role_var', '_docker_volumes', role='timescaledb')
+    fail_msg: "Migration requires the standard /pgdata mount and no existing _backup directory. Preserve and inspect any previous backup before retrying."
+
+- name: Check for external TimescaleDB storage
+  ansible.builtin.command:
+    argv:
+      - find
+      - "{{ timescaledb_path }}"
+      - -type
+      - l
+      - -print
+      - -quit
+  register: timescaledb_external_storage
+  changed_when: false
+
+- name: Validate self-contained TimescaleDB storage
+  ansible.builtin.assert:
+    that: timescaledb_external_storage.stdout | length == 0
+    fail_msg: "Automatic migration requires self-contained PGDATA without symlinks to external tablespaces or WAL."
+
+- name: Record TimescaleDB migration recovery information
+  ansible.builtin.copy:
+    dest: "{{ timescaledb_path }}_migration.json"
+    content: "{{ {'source_image': timescaledb_source_image, 'source_major': timescaledb_major} | to_nice_json }}"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Stage and activate TimescaleDB migration
+  block:
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Remove stale TimescaleDB migration containers
+      community.docker.docker_container:
+        name: "{{ timescaledb_container }}_{{ item }}"
+        state: absent
+        stop_timeout: 180
+      loop:
+        - old
+        - new
+
+    - name: Remove stale TimescaleDB staging directories
+      ansible.builtin.file:
+        path: "{{ timescaledb_path }}_{{ item }}"
+        state: absent
+      loop:
+        - source
+        - new
+
+    - name: Copy stopped TimescaleDB data for extension bridging
+      ansible.builtin.command:
+        argv:
+          - cp
+          - --archive
+          - --reflink=auto
+          - --
+          - "{{ timescaledb_path }}"
+          - "{{ timescaledb_path }}_source"
+
+    - name: Create target TimescaleDB data directory
+      ansible.builtin.file:
+        path: "{{ timescaledb_path }}_new"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0700"
+
+    - name: Create isolated TimescaleDB migration containers
+      community.docker.docker_container:
+        name: "{{ timescaledb_container }}_{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        pull: "{{ lookup('role_var', '_docker_image_pull', role='timescaledb') | bool }}"
+        network_mode: none
+        restart_policy: "no"
+        command:
+          - postgres
+          - -c
+          - timescaledb.max_background_workers=0
+        user: "{{ lookup('role_var', '_docker_user', role='timescaledb') }}"
+        shm_size: "{{ lookup('role_var', '_docker_shm_size', role='timescaledb') }}"
+        env: "{{ lookup('role_var', '_docker_envs', role='timescaledb') | combine({'PGDATA': '/pgdata', 'POSTGRES_DB': 'postgres'}) }}"
+        volumes:
+          - "{{ timescaledb_path }}_{{ item.path }}:/pgdata"
+          - /etc/passwd:/etc/passwd:ro
+        stop_timeout: 180
+      loop:
+        - name: old
+          path: source
+          image: "{{ timescaledb_source_image }}"
+        - name: new
+          path: new
+          image: "{{ timescaledb_image }}"
+
+    - name: Wait for migration databases
+      ansible.builtin.include_tasks: ready.yml
+      vars:
+        timescaledb_ready_container: "{{ timescaledb_container }}_{{ migration_container }}"
+      loop:
+        - old
+        - new
+      loop_control:
+        loop_var: migration_container
+
+    - name: Migrate TimescaleDB databases and extensions
+      timescaledb_upgrade:
+        action: migrate
+        source: "{{ timescaledb_container }}_old"
+        target: "{{ timescaledb_container }}_new"
+        username: "{{ timescaledb_role_docker_env_user_lookup }}"
+        temporary_directory: "{{ timescaledb_path | dirname }}"
+
+    - name: Read staged PostgreSQL version
+      ansible.builtin.slurp:
+        src: "{{ timescaledb_path }}_new/PG_VERSION"
+      register: timescaledb_staged_version
+
+    - name: Validate staged PostgreSQL version
+      ansible.builtin.assert:
+        that: (timescaledb_staged_version.content | b64decode | trim) == timescaledb_desired_major
+        fail_msg: "The target image did not initialize the requested PostgreSQL major version."
+
+    - name: Remove completed TimescaleDB migration containers
+      community.docker.docker_container:
+        name: "{{ timescaledb_container }}_{{ item }}"
+        state: absent
+        stop_timeout: 180
+      loop:
+        - old
+        - new
+
+    - name: Preserve original TimescaleDB data
+      ansible.builtin.command:
+        argv:
+          - mv
+          - --
+          - "{{ timescaledb_path }}"
+          - "{{ timescaledb_path }}_backup"
+
+    - name: Activate migrated TimescaleDB data
+      ansible.builtin.command:
+        argv:
+          - mv
+          - --
+          - "{{ timescaledb_path }}_new"
+          - "{{ timescaledb_path }}"
+
+    - name: Create upgraded TimescaleDB container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+    - name: Validate upgraded TimescaleDB connection
+      ansible.builtin.include_tasks: ready.yml
+      vars:
+        timescaledb_ready_container: "{{ timescaledb_container }}"
+
+    - name: Validate configured TimescaleDB database
+      community.docker.docker_container_exec:
+        container: "{{ timescaledb_container }}"
+        env:
+          PGDATABASE: "{{ lookup('role_var', '_docker_env_db', role='timescaledb') }}"
+        argv:
+          - psql
+          - -X
+          - --set=ON_ERROR_STOP=1
+          - --username
+          - "{{ timescaledb_role_docker_env_user_lookup }}"
+          - --command
+          - SELECT 1
+      register: timescaledb_database_check
+      failed_when: timescaledb_database_check.rc != 0
+      changed_when: false
+
+    - name: Remove extension bridging copy
+      ansible.builtin.file:
+        path: "{{ timescaledb_path }}_source"
+        state: absent
+
+    - name: Record the deployed TimescaleDB image
+      ansible.builtin.copy:
+        dest: "{{ timescaledb_path }}/.saltbox-image"
+        content: "{{ timescaledb_image }}\n"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0600"
+
+    - name: Remove completed migration recovery record
+      ansible.builtin.file:
+        path: "{{ timescaledb_path }}_migration.json"
+        state: absent
+
+    - name: Report retained TimescaleDB backup
+      ansible.builtin.debug:
+        msg: "TimescaleDB migration completed. Original data is retained at '{{ timescaledb_path }}_backup'. Verify applications before removing it manually; another major upgrade requires that path to be free."
+
+  rescue:
+    - name: Record TimescaleDB migration failure
+      ansible.builtin.set_fact:
+        timescaledb_migration_failure: "{{ ansible_failed_task.name }}: {{ ansible_failed_result.msg | default(ansible_failed_result | string) }}"
+
+    - name: Recover original TimescaleDB data
+      ansible.builtin.include_tasks: recover.yml

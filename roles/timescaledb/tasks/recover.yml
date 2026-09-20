@@ -1,0 +1,91 @@
+#########################################################################
+# Title:         Saltbox: TimescaleDB Role                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Read TimescaleDB recovery record
+  ansible.builtin.slurp:
+    src: "{{ timescaledb_path }}_migration.json"
+  register: timescaledb_recovery_file
+
+- name: Decode TimescaleDB recovery record
+  ansible.builtin.set_fact:
+    timescaledb_recovery: "{{ timescaledb_recovery_file.content | b64decode | from_json }}"
+
+- name: Stop TimescaleDB containers before recovery
+  community.docker.docker_container:
+    name: "{{ item }}"
+    state: absent
+    stop_timeout: 180
+  loop:
+    - "{{ timescaledb_container }}"
+    - "{{ timescaledb_container }}_old"
+    - "{{ timescaledb_container }}_new"
+
+- name: Inspect TimescaleDB recovery directories
+  ansible.builtin.stat:
+    path: "{{ timescaledb_path }}{{ item }}"
+  loop:
+    - ""
+    - _backup
+    - _new
+  register: timescaledb_recovery_paths
+
+- name: Refuse ambiguous TimescaleDB recovery state
+  ansible.builtin.assert:
+    that:
+      - not (timescaledb_recovery_paths.results[0].stat.exists and timescaledb_recovery_paths.results[1].stat.exists and timescaledb_recovery_paths.results[2].stat.exists)
+    fail_msg: "All active, backup and new TimescaleDB paths exist. Inspect them before retrying; no data has been moved."
+
+- name: Preserve failed migrated TimescaleDB data
+  ansible.builtin.command:
+    argv:
+      - mv
+      - --
+      - "{{ timescaledb_path }}"
+      - "{{ timescaledb_path }}_new"
+  when:
+    - timescaledb_recovery_paths.results[0].stat.exists
+    - timescaledb_recovery_paths.results[1].stat.exists
+
+- name: Restore original TimescaleDB data
+  ansible.builtin.command:
+    argv:
+      - mv
+      - --
+      - "{{ timescaledb_path }}_backup"
+      - "{{ timescaledb_path }}"
+  when: timescaledb_recovery_paths.results[1].stat.exists
+
+- name: Read recovered PostgreSQL version
+  ansible.builtin.slurp:
+    src: "{{ timescaledb_path }}/PG_VERSION"
+  register: timescaledb_recovered_version
+
+- name: Validate recovered PostgreSQL version
+  ansible.builtin.assert:
+    that: (timescaledb_recovered_version.content | b64decode | trim) == timescaledb_recovery.source_major
+    fail_msg: "Recovered data does not match the previous PostgreSQL version."
+
+- name: Recreate previous TimescaleDB container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+  vars:
+    timescaledb_role_docker_image: "{{ timescaledb_recovery.source_image }}"
+
+- name: Wait for recovered TimescaleDB
+  ansible.builtin.include_tasks: ready.yml
+  vars:
+    timescaledb_ready_container: "{{ timescaledb_container }}"
+
+- name: Remove recovered TimescaleDB migration record
+  ansible.builtin.file:
+    path: "{{ timescaledb_path }}_migration.json"
+    state: absent
+
+- name: Report TimescaleDB migration failure
+  ansible.builtin.fail:
+    msg: "{{ timescaledb_migration_failure }} Original data and its recorded image have been restored. Staging data is preserved for inspection."

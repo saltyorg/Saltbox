@@ -1,0 +1,29 @@
+#########################################################################
+# Title:         Saltbox: TimescaleDB Role                              #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+# The temporary initialization server only listens on a Unix socket.
+- name: Wait for authenticated TimescaleDB connection
+  community.docker.docker_container_exec:
+    container: "{{ timescaledb_ready_container }}"
+    argv:
+      - sh
+      - -ec
+      - 'exec env PGPASSWORD="$POSTGRES_PASSWORD" psql -X --set=ON_ERROR_STOP=1 --host=127.0.0.1 --username="$POSTGRES_USER" --dbname=postgres --command="SELECT 1"'
+  register: timescaledb_ready
+  changed_when: false
+  retries: "{{ lookup('role_var', '_ready_retries', role='timescaledb') }}"
+  delay: "{{ lookup('role_var', '_ready_delay', role='timescaledb') }}"
+  until: timescaledb_ready.rc | default(1) == 0
+  when: (not ansible_check_mode)
+
+- name: Validate TimescaleDB connection result
+  ansible.builtin.assert:
+    that: timescaledb_ready.rc | default(1) == 0
+    fail_msg: "TimescaleDB did not accept an authenticated connection."
+  when: (not ansible_check_mode)

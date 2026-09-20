@@ -21,6 +21,9 @@ timescaledb_role_docker_env_password: "password4321"
 timescaledb_role_docker_env_user: "{{ user.name }}"
 timescaledb_role_docker_env_db: "saltbox"
 
+timescaledb_role_ready_retries: 60
+timescaledb_role_ready_delay: 5
+
 # Do not edit or override using the inventory
 timescaledb_role_docker_env_password_include: ""
 # Do not edit or override using the inventory

@@ -7,15 +7,129 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Remove existing Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+- name: Initialize TimescaleDB deployment
+  ansible.builtin.set_fact:
+    timescaledb_path: "{{ lookup('role_var', '_paths_location', role='timescaledb') }}"
+    timescaledb_container: "{{ lookup('role_var', '_docker_container', role='timescaledb') }}"
+    timescaledb_image: "{{ lookup('role_var', '_docker_image', role='timescaledb') }}"
+    timescaledb_tag: "{{ lookup('role_var', '_docker_image_tag', role='timescaledb') }}"
+    timescaledb_supported_image: "{{ lookup('role_var', '_docker_image_repo', role='timescaledb') == 'timescale/timescaledb-ha' }}"
+    timescaledb_major: ""
+    timescaledb_migration_failure: "An interrupted TimescaleDB migration was detected."
 
-- name: Create directories
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+- name: Check TimescaleDB data and migration state
+  ansible.builtin.stat:
+    path: "{{ timescaledb_path }}{{ item }}"
+  loop:
+    - /PG_VERSION
+    - _backup
+    - _migration.json
+    - /.saltbox-image
+  register: timescaledb_state
 
-- name: Create Docker container
-  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+- name: Recover interrupted TimescaleDB migration
+  ansible.builtin.include_tasks: recover.yml
+  when:
+    - timescaledb_state.results[2].stat.exists
+    - (not ansible_check_mode)
 
-- name: Sleep for 30 seconds
-  ansible.builtin.wait_for:
-    timeout: 30
+- name: Read installed PostgreSQL version
+  ansible.builtin.slurp:
+    src: "{{ timescaledb_path }}/PG_VERSION"
+  register: timescaledb_version_file
+  when: timescaledb_state.results[0].stat.exists
+
+- name: Set installed PostgreSQL version
+  ansible.builtin.set_fact:
+    timescaledb_major: "{{ timescaledb_version_file.content | b64decode | trim }}"
+  when: timescaledb_state.results[0].stat.exists
+
+- name: Read the previously deployed TimescaleDB image
+  ansible.builtin.slurp:
+    src: "{{ timescaledb_path }}/.saltbox-image"
+  register: timescaledb_image_file
+  when:
+    - timescaledb_state.results[0].stat.exists
+    - (timescaledb_state.results[3].stat.isreg | default(false))
+
+- name: Refuse an explicitly versioned TimescaleDB downgrade
+  ansible.builtin.assert:
+    that: timescaledb_previous_extension_version is version(timescaledb_target_extension_version, '<=')
+    fail_msg: "TimescaleDB downgrades are not supported. The recorded image uses {{ timescaledb_previous_extension_version }}, but the requested image uses {{ timescaledb_target_extension_version }}."
+  vars:
+    timescaledb_extension_tag_pattern: ':pg[0-9]+(?:[.][0-9]+)?-ts([0-9]+[.][0-9]+[.][0-9]+)(?:-|$)'
+    timescaledb_previous_extension_version: "{{ timescaledb_image_file.content | default('') | b64decode | trim | regex_findall(timescaledb_extension_tag_pattern) | first | default('') }}"
+    timescaledb_target_extension_version: "{{ timescaledb_image | regex_findall(timescaledb_extension_tag_pattern) | first | default('') }}"
+  when:
+    - timescaledb_state.results[0].stat.exists
+    - (timescaledb_previous_extension_version | length > 0)
+    - (timescaledb_target_extension_version | length > 0)
+
+- name: Validate TimescaleDB image tag
+  ansible.builtin.assert:
+    that:
+      - timescaledb_tag is regex('^pg[0-9]+(?:[.][0-9]+)?(?:-|$)')
+    fail_msg: "Use a TimescaleDB HA tag beginning with pg<major>, such as pg18-all-amd64."
+  when: timescaledb_supported_image
+
+- name: Set desired PostgreSQL major version
+  ansible.builtin.set_fact:
+    timescaledb_desired_major: "{{ timescaledb_tag[2:].split('-')[0].split('.')[0] }}"
+  when: timescaledb_supported_image
+
+- name: Refuse ambiguous TimescaleDB backup state
+  ansible.builtin.assert:
+    that:
+      - timescaledb_state.results[0].stat.exists or not timescaledb_state.results[1].stat.exists
+    fail_msg: "The data directory lacks PG_VERSION while a TimescaleDB backup exists. Restore the valid data directory before deploying."
+
+- name: Validate PostgreSQL upgrade direction
+  ansible.builtin.assert:
+    that:
+      - timescaledb_major is regex('^[0-9]+$')
+      - timescaledb_major is version(timescaledb_desired_major, '<=')
+    fail_msg: "PostgreSQL downgrades are not supported."
+  when:
+    - timescaledb_supported_image
+    - (timescaledb_major | length > 0)
+
+- name: Migrate TimescaleDB to a newer PostgreSQL major
+  ansible.builtin.include_tasks: migrate.yml
+  when:
+    - timescaledb_supported_image
+    - (timescaledb_major | length > 0)
+    - (timescaledb_major != timescaledb_desired_major)
+    - (not ansible_check_mode)
+
+- name: Regular TimescaleDB deployment
+  when: (not timescaledb_supported_image or timescaledb_major | length == 0 or timescaledb_major == timescaledb_desired_major)
+  block:
+    - name: Remove existing Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+    - name: Create directories
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+    - name: Create Docker container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+
+    - name: Wait for TimescaleDB
+      ansible.builtin.include_tasks: ready.yml
+      vars:
+        timescaledb_ready_container: "{{ timescaledb_container }}"
+
+    - name: Upgrade installed TimescaleDB extensions
+      timescaledb_upgrade:
+        action: upgrade
+        source: "{{ timescaledb_container }}"
+        username: "{{ timescaledb_role_docker_env_user_lookup }}"
+      when: timescaledb_supported_image
+
+    - name: Record the deployed TimescaleDB image
+      ansible.builtin.copy:
+        dest: "{{ timescaledb_path }}/.saltbox-image"
+        content: "{{ timescaledb_image }}\n"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0600"
+      when: (not ansible_check_mode)
