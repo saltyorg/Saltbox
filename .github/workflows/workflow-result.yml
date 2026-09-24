@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   handle-failure:
     if: contains(fromJSON('["failure", "timed_out", "startup_failure"]'), github.event.workflow_run.conclusion)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       actions: write
       contents: read
@@ -46,7 +46,7 @@ jobs:
 
   notify-completion:
     if: contains(fromJSON('["success", "cancelled"]'), github.event.workflow_run.conclusion)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       actions: read
       contents: read
