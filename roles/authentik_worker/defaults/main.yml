@@ -63,6 +63,9 @@ authentik_worker_role_docker_networks: "{{ docker_networks_common
 # Restart Policy
 authentik_worker_role_docker_restart_policy: unless-stopped
 
+# Shared Memory
+authentik_worker_role_docker_shm_size: "512M"
+
 # Dependencies
 authentik_worker_role_depends_on: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
 authentik_worker_role_depends_on_delay: "0"

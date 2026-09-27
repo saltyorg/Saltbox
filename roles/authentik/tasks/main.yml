@@ -99,6 +99,9 @@
   ansible.builtin.include_role:
     name: authentik_worker
 
+- name: Wait for Authentik containers to be healthy
+  ansible.builtin.include_tasks: "subtasks/healthcheck.yml"
+
 - name: Setup Task
   ansible.builtin.include_tasks: "subtasks/setup.yml"
   when: (not authentik_data_folder.stat.exists)

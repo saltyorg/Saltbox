@@ -47,7 +47,7 @@ authentik_role_postgres_user: ""
 # If empty it will fallback to postgres role default
 authentik_role_postgres_password: ""
 authentik_role_postgres_docker_env_db: "authentik"
-authentik_role_postgres_docker_image_tag: "16-alpine"
+authentik_role_postgres_docker_image_tag: "18"
 authentik_role_postgres_docker_image_repo: "postgres"
 authentik_role_postgres_docker_healthcheck:
   test:
@@ -139,28 +139,29 @@ authentik_role_docker_container: "{{ authentik_name }}"
 # Image
 authentik_role_docker_image_pull: true
 authentik_role_docker_image_repo: "ghcr.io/goauthentik/server"
-authentik_role_docker_image_tag: "2026.5"
+authentik_role_docker_image_tag: "2026.8"
 authentik_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='authentik') }}:{{ lookup('role_var', '_docker_image_tag', role='authentik') }}"
 
 # Envs
 authentik_role_docker_envs_default:
-  AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
-  AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
-  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik', default=lookup('role_var', '_docker_env_password', role='postgres'), default_if_empty=true) }}"
-  AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
   AUTHENTIK_BOOTSTRAP_TOKEN: "{{ omit
                               if authentik_data_folder.stat.exists
                               else authentik_bootstrap_token }}"
-  AUTHENTIK_EMAIL__HOST: "{{ lookup('role_var', '_email_host', role='authentik') }}"
-  AUTHENTIK_EMAIL__PORT: "{{ lookup('role_var', '_email_port', role='authentik') }}"
-  AUTHENTIK_EMAIL__USERNAME: "{{ lookup('role_var', '_email_username', role='authentik') }}"
-  AUTHENTIK_EMAIL__PASSWORD: "{{ lookup('role_var', '_email_password', role='authentik') }}"
-  AUTHENTIK_EMAIL__USE_TLS: "{{ lookup('role_var', '_email_tls', role='authentik') }}"
-  AUTHENTIK_EMAIL__USE_SSL: "{{ lookup('role_var', '_email_ssl', role='authentik') }}"
-  AUTHENTIK_EMAIL__TIMEOUT: "{{ lookup('role_var', '_email_timeout', role='authentik') }}"
   AUTHENTIK_EMAIL__FROM: "{{ lookup('role_var', '_email_from', role='authentik') }}"
-  AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS: "172.19.0.0/16"
+  AUTHENTIK_EMAIL__HOST: "{{ lookup('role_var', '_email_host', role='authentik') }}"
+  AUTHENTIK_EMAIL__PASSWORD: "{{ lookup('role_var', '_email_password', role='authentik') }}"
+  AUTHENTIK_EMAIL__PORT: "{{ lookup('role_var', '_email_port', role='authentik') }}"
+  AUTHENTIK_EMAIL__TIMEOUT: "{{ lookup('role_var', '_email_timeout', role='authentik') }}"
+  AUTHENTIK_EMAIL__USERNAME: "{{ lookup('role_var', '_email_username', role='authentik') }}"
+  AUTHENTIK_EMAIL__USE_SSL: "{{ lookup('role_var', '_email_ssl', role='authentik') }}"
+  AUTHENTIK_EMAIL__USE_TLS: "{{ lookup('role_var', '_email_tls', role='authentik') }}"
+  AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS: "172.19.0.0/16{{ ',fd00:dead:beef::/48' if docker_ipv6 else '' }}"
+  AUTHENTIK_POSTGRESQL__HOST: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__NAME: "{{ lookup('role_var', '_postgres_docker_env_db', role='authentik') }}"
+  AUTHENTIK_POSTGRESQL__PASSWORD: "{{ lookup('role_var', '_postgres_password', role='authentik', default=lookup('role_var', '_docker_env_password', role='postgres'), default_if_empty=true) }}"
+  AUTHENTIK_POSTGRESQL__USER: "{{ lookup('role_var', '_postgres_user', role='authentik', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
+  AUTHENTIK_SECRET_KEY: "{{ authentik_saltbox_facts.facts.secret_key }}"
+  AUTHENTIK_WEB__BASE_URL: "{{ lookup('role_var', '_web_url', role='authentik') }}"
 authentik_role_docker_envs_custom: {}
 authentik_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='authentik')
                                 | combine(lookup('role_var', '_docker_envs_custom', role='authentik')) }}"
@@ -216,6 +217,9 @@ authentik_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 authentik_role_docker_restart_policy: unless-stopped
+
+# Shared Memory
+authentik_role_docker_shm_size: "512M"
 
 # Dependencies
 authentik_role_depends_on: "{{ lookup('role_var', '_postgres_name', role='authentik') }}"

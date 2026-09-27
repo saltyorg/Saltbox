@@ -155,6 +155,17 @@
     "customManagers": [
         {
             "customType": "regex",
+            "description": "Authentik release family",
+            "managerFilePatterns": ["roles/authentik/defaults/main.yml"],
+            "matchStrings": [
+                "authentik_role_docker_image_tag:\\s+\"(?<currentValue>[0-9]{4}\\.[0-9]{1,2})\""
+            ],
+            "depNameTemplate": "ghcr.io/goauthentik/server",
+            "datasourceTemplate": "docker",
+            "versioningTemplate": "regex:^(?<major>[0-9]{4})\\.(?<minor>[0-9]{1,2})$"
+        },
+        {
+            "customType": "regex",
             "description": "Saltbox Docker Hosts Manager release",
             "managerFilePatterns": ["roles/docker/defaults/main.yml"],
             "matchStrings": [

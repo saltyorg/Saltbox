@@ -1,0 +1,19 @@
+#########################################################################
+# Title:         Saltbox: Authentik | Healthcheck Tasks                  #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Wait for Authentik containers to be healthy
+  community.docker.docker_container_info:
+    name: "{{ item }}"
+  register: authentik_container_info
+  until: "(authentik_container_info.container.State.Health.Status | default('')) == 'healthy'"
+  retries: 60
+  delay: 10
+  loop:
+    - "{{ authentik_name }}"
+    - "{{ authentik_worker_name }}"

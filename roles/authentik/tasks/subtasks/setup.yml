@@ -7,17 +7,6 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Wait for Authentik containers to be healthy
-  community.docker.docker_container_info:
-    name: "{{ item }}"
-  register: authentik_container_info
-  until: "authentik_container_info.container.State.Health.Status == 'healthy'"
-  retries: 60
-  delay: 10
-  loop:
-    - "{{ authentik_name }}"
-    - "{{ authentik_worker_name }}"
-
 - name: Validate bootstrap token
   ansible.builtin.uri:
     url: "{{ lookup('role_var', '_host', role='authentik') }}/api/v3/core/users/me/"
@@ -268,15 +257,7 @@
     name: authentik_worker
 
 - name: Wait for Authentik containers to be healthy
-  community.docker.docker_container_info:
-    name: "{{ item }}"
-  register: authentik_container_info
-  until: "authentik_container_info.container.State.Health.Status == 'healthy'"
-  retries: 60
-  delay: 10
-  loop:
-    - "{{ authentik_name }}"
-    - "{{ authentik_worker_name }}"
+  ansible.builtin.include_tasks: "subtasks/healthcheck.yml"
 
 - name: Validate Saltbox token
   ansible.builtin.uri:
