@@ -87,9 +87,11 @@ postgres_host_role_auth_method: "scram-sha-256"
 # User & Database Configuration
 ################################
 
+postgres_host_role_password: "password4321"
+
 postgres_host_role_users:
   - name: "{{ user.name }}"
-    password: "{{ user.pass }}"
+    password: "{{ postgres_host_role_password }}"
 
 postgres_host_role_databases:
   - name: "saltbox"
