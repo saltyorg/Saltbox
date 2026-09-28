@@ -1,0 +1,40 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | Tailscale Addresses       #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Resources | Tailscale | Reset addresses
+  ansible.builtin.set_fact:
+    tailscale_ipv4: ""
+    tailscale_ipv6: ""
+
+- name: Resources | Tailscale | Get required addresses
+  ansible.builtin.command:
+    argv:
+      - tailscale
+      - ip
+      - "-{{ tailscale_ip_family }}"
+  loop: "{{ ([4] if tailscale_ipv4_required | bool else [])
+            + ([6] if tailscale_ipv6_required | bool else []) }}"
+  loop_control:
+    loop_var: tailscale_ip_family
+  register: tailscale_ip_query
+  changed_when: false
+  check_mode: false
+
+- name: Resources | Tailscale | Validate and store addresses
+  ansible.builtin.set_fact:
+    tailscale_ipv4: "{{ (tailscale_ip_query.results
+                         | selectattr('tailscale_ip_family', 'equalto', 4)
+                         | map(attribute='stdout') | first | default('') | saltbox_ip_address(4))
+                     if tailscale_ipv4_required | bool
+                     else '' }}"
+    tailscale_ipv6: "{{ (tailscale_ip_query.results
+                         | selectattr('tailscale_ip_family', 'equalto', 6)
+                         | map(attribute='stdout') | first | default('') | saltbox_ip_address(6))
+                     if tailscale_ipv6_required | bool
+                     else '' }}"

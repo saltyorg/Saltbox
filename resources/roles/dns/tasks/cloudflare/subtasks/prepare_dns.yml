@@ -1,0 +1,67 @@
+#########################################################################
+# Title:         Saltbox: DNS | Resolve Record Settings                 #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Cloudflare | Resolve caller role
+  ansible.builtin.set_fact:
+    _dns_source_role: "{{ _dns_role_source | default(ansible_parent_role_names | first) }}"
+
+- name: Cloudflare | Resolve instance Tailscale setting
+  ansible.builtin.set_fact:
+    _dns_using_tailscale: "{{ lookup('role_var', '_traefik_tailscale_enabled', role=_dns_source_role, default=traefik_entrypoint_tailscale_default) | bool }}"
+
+- name: Cloudflare | Validate Tailscale support
+  ansible.builtin.assert:
+    that:
+      - (traefik_tailscale_enabled | bool)
+    fail_msg: "Tailscale DNS was requested for '{{ _dns_source_role }}', but traefik_tailscale_enabled is disabled."
+  when: _dns_using_tailscale
+
+- name: Cloudflare | Get Tailscale addresses
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/tailscale/get_addresses.yml"
+  vars:
+    tailscale_ipv4_required: "{{ dns_ipv4_enabled }}"
+    tailscale_ipv6_required: "{{ dns_ipv6_enabled }}"
+  when: _dns_using_tailscale
+
+- name: Cloudflare | Resolve effective DNS values
+  ansible.builtin.set_fact:
+    _dns_ipv4: "{{ (tailscale_ipv4
+                    if _dns_using_tailscale
+                    else lookup('role_var', '_dns_ipv4', role=_dns_source_role, default=ip_address_public))
+                if dns_ipv4_enabled
+                else '' }}"
+    _dns_ipv6: "{{ (tailscale_ipv6
+                    if _dns_using_tailscale
+                    else lookup('role_var', '_dns_ipv6', role=_dns_source_role, default=ipv6_address_public))
+                if dns_ipv6_enabled
+                else '' }}"
+    _dns_proxy: "{{ (dns_proxy | bool) and not _dns_using_tailscale }}"
+
+- name: Cloudflare | Validate public IPv4 discovery
+  ansible.builtin.fail:
+    msg: "{{ ip_address_public_error }}"
+  when:
+    - dns_ipv4_enabled
+    - (not _dns_using_tailscale)
+    - (not ip_address_public_is_valid)
+    - (_dns_ipv4 == ip_address_public)
+
+- name: Cloudflare | Validate public IPv6 discovery
+  ansible.builtin.fail:
+    msg: "{{ ipv6_address_public_error }}"
+  when:
+    - dns_ipv6_enabled
+    - (not _dns_using_tailscale)
+    - (not ipv6_address_public_is_valid)
+    - (_dns_ipv6 == ipv6_address_public)
+
+- name: Cloudflare | Validate and normalize record addresses
+  ansible.builtin.set_fact:
+    _dns_ipv4: "{{ _dns_ipv4 | saltbox_ip_address(4) if dns_ipv4_enabled else '' }}"
+    _dns_ipv6: "{{ _dns_ipv6 | saltbox_ip_address(6) if dns_ipv6_enabled else '' }}"

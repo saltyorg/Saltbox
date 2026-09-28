@@ -19,6 +19,7 @@
     _dns_tasker_record: "{{ domain_parsed.record }}"
     _dns_tasker_action: "{{ dns_action | default('add') }}"
     _dns_tasker_proxy: "{{ dns_proxy | default(dns_proxied) | bool }}"
+    _dns_tasker_source_role: "{{ role_var_role | default(None) or role_name }}"
 
 - name: Resources | Tasks | DNS | Tasker | Sent task to DNS Role
   ansible.builtin.include_role:
@@ -28,3 +29,4 @@
     _dns_role_zone: "{{ _dns_tasker_zone }}"
     _dns_role_action: "{{ _dns_tasker_action }}"
     _dns_role_proxy: "{{ _dns_tasker_proxy }}"
+    _dns_role_source: "{{ _dns_tasker_source_role }}"

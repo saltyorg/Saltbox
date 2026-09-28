@@ -7,6 +7,9 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Cloudflare | Add DNS Record | Resolve settings
+  ansible.builtin.include_tasks: "prepare_dns.yml"
+
 - name: Cloudflare | Add DNS Record | Check for nested subdomain proxy
   ansible.builtin.fail:
     msg:
@@ -16,8 +19,7 @@
     - (not cloudflare_allow_nested_proxy | bool)
     - (dns_record not in ['@', dns_zone])
     - ('.' in dns_record)
-    - (dns_proxy | bool)
-    - (not _dns_using_tailscale | bool)
+    - _dns_proxy
 
 - name: Cloudflare | Add DNS Record | Fetch Record information
   cloudflare_dns_records:
@@ -84,7 +86,7 @@
   ansible.builtin.include_tasks: "add_dns_record/ipv4_enabled.yml"
   when:
     - dns_ipv4_enabled
-    - ((cloudflare_ipv4_record is not defined) or (cloudflare_ipv4_record | length == 0) or (cloudflare_ipv4_record.content != ipv4_address_public_template) or (cloudflare_ipv4_record.proxied != (dns_proxy and not _dns_using_tailscale)))
+    - ((cloudflare_ipv4_record is not defined) or (cloudflare_ipv4_record | length == 0) or (cloudflare_ipv4_record.content != _dns_ipv4) or (cloudflare_ipv4_record.proxied != _dns_proxy))
 
 - name: Cloudflare | Add DNS Record | IPv4 Disable Tasks
   ansible.builtin.include_tasks: "add_dns_record/ipv4_disabled.yml"
@@ -96,7 +98,7 @@
   ansible.builtin.include_tasks: "add_dns_record/ipv6_enabled.yml"
   when:
     - dns_ipv6_enabled
-    - ((cloudflare_ipv6_record is not defined) or (cloudflare_ipv6_record | length == 0) or (cloudflare_ipv6_record.content != ipv6_address_public_template) or (cloudflare_ipv6_record.proxied != (dns_proxy and not _dns_using_tailscale)))
+    - ((cloudflare_ipv6_record is not defined) or (cloudflare_ipv6_record | length == 0) or (cloudflare_ipv6_record.content != _dns_ipv6) or (cloudflare_ipv6_record.proxied != _dns_proxy))
 
 - name: Cloudflare | Add DNS Record | IPv6 Disable Block
   ansible.builtin.include_tasks: "add_dns_record/ipv6_disabled.yml"
