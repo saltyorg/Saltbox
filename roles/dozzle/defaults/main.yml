@@ -20,6 +20,7 @@ dozzle_name: dozzle
 dozzle_docker_socket_proxy_envs:
   ALLOW_LOGS: "1"
   CONTAINERS: "1"
+  IMAGES: "1"
   INFO: "1"
 
 ################################
@@ -27,8 +28,6 @@ dozzle_docker_socket_proxy_envs:
 ################################
 
 dozzle_role_additional_hosts: ""
-dozzle_role_agent_hosts: ""
-dozzle_role_agent_mode: false
 
 ################################
 # Paths
@@ -100,9 +99,6 @@ dozzle_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='doz
 # Envs
 dozzle_role_docker_envs_default:
   DOZZLE_AUTH_PROVIDER: "{{ 'forward-proxy' if (lookup('role_var', '_traefik_sso_middleware', role='dozzle') | length > 0) else omit }}"
-  DOZZLE_REMOTE_AGENT: "{{ lookup('role_var', '_agent_hosts', role='dozzle')
-                        if (lookup('role_var', '_additional_hosts', role='dozzle') | length > 0)
-                        else omit }}"
   DOZZLE_REMOTE_HOST: "{{ 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host + ',' + lookup('role_var', '_additional_hosts', role='dozzle')
                        if (lookup('role_var', '_additional_hosts', role='dozzle') | length > 0)
                        else 'tcp://' + dozzle_name + '-docker-socket-proxy:2375|' + traefik_host }}"
@@ -113,16 +109,12 @@ dozzle_role_docker_envs_custom: {}
 dozzle_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='dozzle')
                              | combine(lookup('role_var', '_docker_envs_custom', role='dozzle')) }}"
 
-# Commands
-dozzle_role_docker_commands_agent: "agent"
-dozzle_role_docker_commands_default: []
-dozzle_role_docker_commands_custom: []
-dozzle_role_docker_commands: "{{ lookup('role_var', '_docker_commands_agent', role='dozzle')
-                                 + lookup('role_var', '_docker_commands_default', role='dozzle')
-                                 + lookup('role_var', '_docker_commands_custom', role='dozzle')
-                              if lookup('role_var', '_agent_mode', role='dozzle')
-                              else lookup('role_var', '_docker_commands_default', role='dozzle')
-                                   + lookup('role_var', '_docker_commands_custom', role='dozzle') }}"
+# Volumes
+dozzle_role_docker_volumes_default:
+  - "{{ lookup('role_var', '_paths_location', role='dozzle') }}:/data"
+dozzle_role_docker_volumes_custom: []
+dozzle_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='dozzle')
+                                + lookup('role_var', '_docker_volumes_custom', role='dozzle') }}"
 
 # Labels
 dozzle_role_docker_labels_default: {}
