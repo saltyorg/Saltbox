@@ -1,0 +1,147 @@
+##########################################################################
+# Title:         Saltbox: Arcane | Default Variables                     #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+arcane_name: arcane
+
+################################
+# Settings
+################################
+
+# Used only while the initial administrator still has its default credentials.
+arcane_role_admin_username: "{{ user.name }}"
+# Default policy requires 12 characters, uppercase, lowercase, a number and a symbol.
+arcane_role_admin_password: "{{ user.pass }}"
+arcane_role_admin_email: "{{ user.email }}"
+# Internal address used for first-install setup, bypassing the web SSO middleware.
+arcane_role_setup_url: "http://{{ lookup('role_var', '_docker_networks_alias', role='arcane') }}:{{ lookup('role_var', '_web_port', role='arcane') }}"
+# 64-character hexadecimal key. The default is generated automatically.
+arcane_role_encryption_key: "{{ arcane_saltbox_facts.facts.encryption_key }}"
+# Comma-separated proxy addresses or CIDRs trusted to supply client IP headers.
+arcane_role_trusted_proxies: "172.19.0.0/16,fd00:dead:beef::/48"
+# Requires an OIDC client configured at your identity provider.
+arcane_role_oidc_enabled: false
+arcane_role_oidc_issuer_url: ""
+arcane_role_oidc_client_id: ""
+arcane_role_oidc_client_secret: ""
+
+################################
+# Paths
+################################
+
+arcane_role_paths_folder: "{{ arcane_name }}"
+arcane_role_paths_location: "{{ server_appdata_path }}/{{ arcane_role_paths_folder }}"
+arcane_role_paths_projects_location: "{{ arcane_role_paths_location }}/projects"
+arcane_role_paths_folders_list:
+  - "{{ arcane_role_paths_location }}"
+  - "{{ arcane_role_paths_projects_location }}"
+
+################################
+# Web
+################################
+
+arcane_role_web_subdomain: "{{ arcane_name }}"
+arcane_role_web_domain: "{{ user.domain }}"
+arcane_role_web_port: "3552"
+arcane_role_web_url: "{{ lookup('role_web', role='arcane', scheme='https') }}"
+
+################################
+# DNS
+################################
+
+arcane_role_dns_record: "{{ lookup('role_var', '_web_subdomain', role='arcane') }}"
+arcane_role_dns_zone: "{{ lookup('role_var', '_web_domain', role='arcane') }}"
+arcane_role_dns_proxy: "{{ dns_proxied }}"
+
+################################
+# Traefik
+################################
+
+arcane_role_traefik_sso_middleware: "{{ traefik_default_sso_middleware }}"
+arcane_role_traefik_middleware_default: "{{ traefik_default_middleware }}"
+arcane_role_traefik_middleware_custom: ""
+arcane_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }}"
+arcane_role_traefik_middleware_custom_api: ""
+arcane_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
+arcane_role_traefik_enabled: true
+arcane_role_traefik_api_enabled: false
+arcane_role_traefik_api_endpoint: ""
+
+################################
+# Docker
+################################
+
+# Container
+arcane_role_docker_container: "{{ arcane_name }}"
+
+# Image
+arcane_role_docker_image_pull: true
+arcane_role_docker_image_repo: "ghcr.io/getarcaneapp/manager"
+arcane_role_docker_image_tag: "latest"
+arcane_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='arcane') }}:{{ lookup('role_var', '_docker_image_tag', role='arcane') }}"
+
+# Envs
+arcane_role_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  APP_URL: "{{ lookup('role_var', '_web_url', role='arcane') }}"
+  ENCRYPTION_KEY: "{{ lookup('role_var', '_encryption_key', role='arcane') }}"
+  DATABASE_URL: "file:/app/data/arcane.db?_pragma=journal_mode(WAL)&_pragma=busy_timeout(2500)&_txlock=immediate"
+  PROJECTS_DIRECTORY: "{{ lookup('role_var', '_paths_projects_location', role='arcane') }}"
+  TRUSTED_PROXIES: "{{ lookup('role_var', '_trusted_proxies', role='arcane', default=omit, default_if_empty=true) }}"
+  OIDC_ENABLED: "{{ lookup('role_var', '_oidc_enabled', role='arcane') | bool | lower }}"
+  OIDC_ISSUER_URL: "{{ lookup('role_var', '_oidc_issuer_url', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
+  OIDC_CLIENT_ID: "{{ lookup('role_var', '_oidc_client_id', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
+  OIDC_CLIENT_SECRET: "{{ lookup('role_var', '_oidc_client_secret', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
+arcane_role_docker_envs_custom: {}
+arcane_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='arcane')
+                             | combine(lookup('role_var', '_docker_envs_custom', role='arcane')) }}"
+
+# Volumes
+arcane_role_docker_volumes_default:
+  - "{{ lookup('role_var', '_paths_location', role='arcane') }}:/app/data"
+  - "{{ lookup('role_var', '_paths_projects_location', role='arcane') }}:{{ lookup('role_var', '_paths_projects_location', role='arcane') }}"
+  - "/var/run/docker.sock:/var/run/docker.sock"
+arcane_role_docker_volumes_custom: []
+arcane_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='arcane')
+                                + lookup('role_var', '_docker_volumes_custom', role='arcane') }}"
+
+# Cgroup namespace
+arcane_role_docker_cgroupns_mode: host
+
+# Healthcheck
+arcane_role_docker_healthcheck:
+  test:
+    - CMD
+    - ./arcane
+    - health
+    - --timeout
+    - 2s
+  interval: 10s
+  timeout: 3s
+  retries: 5
+  start_period: 15s
+
+# Hostname
+arcane_role_docker_hostname: "{{ arcane_name }}"
+
+# Networks
+arcane_role_docker_networks_alias: "{{ arcane_name }}"
+arcane_role_docker_networks_default: []
+arcane_role_docker_networks_custom: []
+arcane_role_docker_networks: "{{ docker_networks_common
+                                 + lookup('role_var', '_docker_networks_default', role='arcane')
+                                 + lookup('role_var', '_docker_networks_custom', role='arcane') }}"
+
+# Restart Policy
+arcane_role_docker_restart_policy: unless-stopped

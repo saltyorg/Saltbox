@@ -1,0 +1,116 @@
+##########################################################################
+# Title:         Saltbox: Arcane | Setup                                 #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                       #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Setup | Wait for service availability
+  ansible.builtin.uri:
+    url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/health"
+    status_code: 200
+  register: arcane_setup_health
+  until: (arcane_setup_health is succeeded)
+  retries: 30
+  delay: 2
+
+- name: Setup | Check initial administrator credentials
+  ansible.builtin.uri:
+    url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/auth/login"
+    method: POST
+    body_format: json
+    body:
+      username: arcane
+      password: arcane-admin
+    status_code: [200, 400, 401, 429]
+    return_content: true
+  register: arcane_setup_login
+  until: (arcane_setup_login.status != 429)
+  retries: 30
+  delay: 2
+  changed_when: false
+  no_log: true
+
+- name: Setup | Inspect administrator setup
+  block:
+    - name: Setup | Configure uninitialized administrator
+      when:
+        - (arcane_setup_login.status == 200)
+        - (arcane_setup_login.json.data.user.username == 'arcane')
+        - (arcane_setup_login.json.data.user.requiresPasswordChange | bool)
+      block:
+        - name: Setup | Check for existing accounts
+          ansible.builtin.uri:
+            url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/users?limit=2"
+            headers:
+              Authorization: "Bearer {{ arcane_setup_login.json.data.token }}"
+            return_content: true
+          register: arcane_setup_users
+          no_log: true
+
+        - name: Setup | Apply initial credentials
+          when:
+            - (arcane_setup_users.json.data | length == 1)
+            - (arcane_setup_users.json.data[0].id == arcane_setup_login.json.data.user.id)
+          block:
+            - name: Setup | Generate compliant CI password
+              ansible.builtin.set_fact:
+                arcane_role_admin_password: "{{ lookup('community.general.random_string', length=32, min_upper=1, min_lower=1, min_numeric=1, min_special=1) }}"
+              when: continuous_integration
+              no_log: true
+
+            - name: Setup | Validate administrator credentials
+              ansible.builtin.fail:
+                msg: "Set nonempty arcane_role_admin_username, arcane_role_admin_password and arcane_role_admin_email in the inventory."
+              when: ((lookup('role_var', '_admin_username', role='arcane') | trim | length == 0) or (lookup('role_var', '_admin_password', role='arcane') | length == 0) or (lookup('role_var', '_admin_email', role='arcane') | trim | length == 0))
+
+            - name: Setup | Configure Saltbox administrator
+              ansible.builtin.uri:
+                url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/users/{{ arcane_setup_login.json.data.user.id }}"
+                method: PUT
+                headers:
+                  Authorization: "Bearer {{ arcane_setup_login.json.data.token }}"
+                body_format: json
+                body:
+                  username: "{{ lookup('role_var', '_admin_username', role='arcane') }}"
+                  password: "{{ lookup('role_var', '_admin_password', role='arcane') }}"
+                  email: "{{ lookup('role_var', '_admin_email', role='arcane') }}"
+                status_code: [200, 400, 409, 422]
+                return_content: true
+              register: arcane_setup_admin
+              changed_when: (arcane_setup_admin.status == 200)
+              no_log: true
+
+            - name: Setup | Check administrator password policy
+              ansible.builtin.fail:
+                msg: "Arcane rejected arcane_role_admin_password, which defaults to user.pass from accounts.yml. Set arcane_role_admin_password in the inventory to satisfy Arcane's password policy; the default requires at least 12 characters with uppercase, lowercase, a number and a symbol."
+              when:
+                - (arcane_setup_admin.status != 200)
+                - ((arcane_setup_admin.json.type | default('') is match('^urn:arcane:problem:password-policy:')) or (arcane_setup_admin.json.errors | default([]) | selectattr('location', 'defined') | selectattr('location', 'equalto', 'body.password') | list | length > 0))
+
+            - name: Setup | Check administrator email
+              ansible.builtin.fail:
+                msg: "Arcane rejected arcane_role_admin_email, which defaults to user.email from accounts.yml. Set a valid email in accounts.yml or override arcane_role_admin_email in the inventory."
+              when:
+                - (arcane_setup_admin.status != 200)
+                - (arcane_setup_admin.json.detail | default('') == 'must be a valid email')
+
+            - name: Setup | Check administrator setup result
+              ansible.builtin.fail:
+                msg: "Arcane rejected the administrator settings (HTTP {{ arcane_setup_admin.status }}). Check arcane_role_admin_username, arcane_role_admin_password and arcane_role_admin_email in the inventory."
+              when: (arcane_setup_admin.status != 200)
+  always:
+    - name: Setup | Close setup session
+      ansible.builtin.uri:
+        url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/auth/logout"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ arcane_setup_login.json.data.token }}"
+        status_code: [200, 401]
+      when:
+        - (arcane_setup_login.status == 200)
+        - (arcane_setup_login.json.data.token is defined)
+      changed_when: false
+      no_log: true

@@ -53,6 +53,7 @@
     - { role: iperf3, tags: ['iperf3'] }
     - { role: glances, tags: ['glances'] }
     - { role: btop, tags: ['btop'] }
+    - { role: arcane, tags: ['arcane'] }
     - { role: asshama, tags: ['asshama'] }
     - { role: arr_db, tags: ['arr-db'] }
     - { role: authelia, tags: ['authelia', 'authelia-reset', 'lldap-reset'] }
