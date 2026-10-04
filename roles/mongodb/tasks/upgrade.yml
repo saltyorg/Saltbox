@@ -27,6 +27,15 @@
   ansible.builtin.set_fact:
     mongodb_upgrade_kernel_version: "{{ ansible_facts['kernel'] | regex_search('^[0-9]+[.][0-9]+[.][0-9]+') }}"
 
+# MongoDB 8.0.32 also checks uname and rejects this range with its default TCMalloc
+# configuration, so relaxing this guard alone will not allow the current image to start.
+# Ubuntu's uname release can hide backported fixes: /proc/version_signature reports
+# the upstream baseline (for example, 7.0.0-34-generic is based on 7.0.14).
+# SERVER-131779 adds Ubuntu signature handling, targeting MongoDB 8.0.35, which was
+# not available as an official Docker tag when checked on 2026-10-04.
+# https://jira.mongodb.org/browse/SERVER-131779
+# Revisit this guard when that fix is published: check the selected MongoDB version
+# and Ubuntu kernel signature, or remove the guard if MongoDB's own check is sufficient.
 - name: Upgrade | Reject unsafe MongoDB 8.x kernel
   ansible.builtin.assert:
     that:
