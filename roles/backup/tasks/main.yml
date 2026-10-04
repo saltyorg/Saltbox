@@ -657,7 +657,7 @@
 
     - name: "Set backup_size"
       ansible.builtin.set_fact:
-        backup_size: "{{ (backup_new.stdout.split() | first | int) | filesizeformat }}"
+        backup_size: "{{ (backup_new.stdout.split() | first | int) | filesizeformat(true) }}"
 
     - name: "Notify | Saltbox Backup: Backup created with total size of {{ backup_size }}."
       ansible.builtin.include_role:

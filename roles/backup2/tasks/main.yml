@@ -665,7 +665,7 @@
 
     - name: "Set backup_size"
       ansible.builtin.set_fact:
-        backup_size: "{{ ((backup_remote_size.stdout | from_json).bytes | int) | filesizeformat }}"
+        backup_size: "{{ ((backup_remote_size.stdout | from_json).bytes | int) | filesizeformat(true) }}"
       when: backup_rclone_enabled
 
     - name: "Notify | Saltbox Backup: Uploaded backup size"
