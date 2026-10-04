@@ -29,13 +29,6 @@
     msg: "Set arcane_role_paths_projects_location to an absolute path in the inventory."
   when: (not (lookup('role_var', '_paths_projects_location', role='arcane') is match('^/')))
 
-- name: Validate OIDC configuration
-  ansible.builtin.fail:
-    msg: "Set arcane_role_oidc_issuer_url, arcane_role_oidc_client_id and arcane_role_oidc_client_secret before enabling OIDC."
-  when:
-    - (lookup('role_var', '_oidc_enabled', role='arcane') | bool)
-    - ((lookup('role_var', '_oidc_issuer_url', role='arcane') | length == 0) or (lookup('role_var', '_oidc_client_id', role='arcane') | length == 0) or (lookup('role_var', '_oidc_client_secret', role='arcane') | length == 0))
-
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
