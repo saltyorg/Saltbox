@@ -33,6 +33,7 @@ arcane_role_oidc_enabled: false
 arcane_role_oidc_issuer_url: ""
 arcane_role_oidc_client_id: ""
 arcane_role_oidc_client_secret: ""
+arcane_role_oidc_merge_accounts: ""
 
 ################################
 # Paths
@@ -103,6 +104,7 @@ arcane_role_docker_envs_default:
   OIDC_ISSUER_URL: "{{ lookup('role_var', '_oidc_issuer_url', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
   OIDC_CLIENT_ID: "{{ lookup('role_var', '_oidc_client_id', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
   OIDC_CLIENT_SECRET: "{{ lookup('role_var', '_oidc_client_secret', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
+  OIDC_MERGE_ACCOUNTS: "{{ lookup('role_var', '_oidc_merge_accounts', role='arcane') if lookup('role_var', '_oidc_enabled', role='arcane') | bool else omit }}"
 arcane_role_docker_envs_custom: {}
 arcane_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='arcane')
                              | combine(lookup('role_var', '_docker_envs_custom', role='arcane')) }}"
