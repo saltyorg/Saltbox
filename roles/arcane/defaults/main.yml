@@ -35,6 +35,44 @@ arcane_role_oidc_client_id: ""
 arcane_role_oidc_client_secret: ""
 
 ################################
+# Postgres
+################################
+
+# Use Postgres instead of SQLite. Existing SQLite data is not migrated.
+arcane_role_postgres_enabled: false
+# Deploy a Postgres container. Requires arcane_role_postgres_enabled.
+arcane_role_postgres_deploy: true
+arcane_role_postgres_name: "{{ arcane_name }}-postgres"
+# Empty values use the postgres role defaults.
+arcane_role_postgres_user: ""
+arcane_role_postgres_password: ""
+arcane_role_postgres_docker_env_db: "{{ arcane_name }}"
+# Connection port for external instances; the managed container listens on 5432.
+arcane_role_postgres_port: "5432"
+arcane_role_postgres_docker_image_repo: "postgres"
+arcane_role_postgres_docker_image_tag: "18"
+# Skip docs
+arcane_role_postgres_user_lookup: "{{ lookup('role_var', '_postgres_user', role='arcane', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
+# Skip docs
+arcane_role_postgres_password_lookup: "{{ lookup('role_var', '_postgres_password', role='arcane', default=lookup('role_var', '_docker_env_password', role='postgres'), default_if_empty=true) }}"
+# Skip docs
+arcane_role_postgres_credentials_lookup: "{{ lookup('role_var', '_postgres_user_lookup', role='arcane') }}:{{ lookup('role_var', '_postgres_password_lookup', role='arcane') }}"
+# Override with a complete Postgres URL to configure external TLS options.
+arcane_role_postgres_url: "postgres://{{ lookup('role_var', '_postgres_credentials_lookup', role='arcane') }}@{{ lookup('role_var', '_postgres_name', role='arcane') }}:{{ lookup('role_var', '_postgres_port', role='arcane') }}/{{ lookup('role_var', '_postgres_docker_env_db', role='arcane') }}"
+arcane_role_postgres_docker_healthcheck:
+  test:
+    - CMD
+    - pg_isready
+    - "-d"
+    - "{{ lookup('role_var', '_postgres_docker_env_db', role='arcane') }}"
+    - "-U"
+    - "{{ lookup('role_var', '_postgres_user_lookup', role='arcane') }}"
+  start_period: 20s
+  interval: 30s
+  retries: 5
+  timeout: 5s
+
+################################
 # Paths
 ################################
 
@@ -96,7 +134,9 @@ arcane_role_docker_envs_default:
   TZ: "{{ tz }}"
   APP_URL: "{{ lookup('role_var', '_web_url', role='arcane') }}"
   ENCRYPTION_KEY: "{{ lookup('role_var', '_encryption_key', role='arcane') }}"
-  DATABASE_URL: "file:/app/data/arcane.db?_pragma=journal_mode(WAL)&_pragma=busy_timeout(2500)&_txlock=immediate"
+  DATABASE_URL: "{{ lookup('role_var', '_postgres_url', role='arcane')
+                 if (lookup('role_var', '_postgres_enabled', role='arcane') | bool)
+                 else 'file:/app/data/arcane.db?_pragma=journal_mode(WAL)&_pragma=busy_timeout(2500)&_txlock=immediate' }}"
   PROJECTS_DIRECTORY: "{{ lookup('role_var', '_paths_projects_location', role='arcane') }}"
   TRUSTED_PROXIES: "{{ lookup('role_var', '_trusted_proxies', role='arcane', default=omit, default_if_empty=true) }}"
   OIDC_ENABLED: "{{ lookup('role_var', '_oidc_enabled', role='arcane') | bool | lower }}"
