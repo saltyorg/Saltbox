@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 DOCUMENTATION = """
@@ -95,16 +93,19 @@ mode:
     sample: "0775"
 """
 
+import grp
 import os
 import pwd
-import grp
 import stat
+from typing import Any
 
 from ansible.module_utils.basic import AnsibleModule
 
 
 # Helper to safely get UID/GID
-def get_id_info(module: AnsibleModule, owner: str | None = None, group: str | None = None) -> tuple[int, int]:
+def get_id_info(
+    module: AnsibleModule, owner: str | None = None, group: str | None = None
+) -> tuple[int, int]:
     uid = -1
     gid = -1
     if owner is not None:
@@ -119,6 +120,7 @@ def get_id_info(module: AnsibleModule, owner: str | None = None, group: str | No
             module.fail_json(msg=f"Group '{group}' not found on the system.")
     return uid, gid
 
+
 # Helper to validate and convert mode
 def validate_mode(module: AnsibleModule, mode_str: str | None) -> int | None:
     if mode_str is None:
@@ -128,11 +130,13 @@ def validate_mode(module: AnsibleModule, mode_str: str | None) -> int | None:
         mode_value = mode_str
         if not isinstance(mode_value, str):
             mode_value = str(mode_value)
-        if not mode_value.startswith('0'):
-            mode_value = '0' + mode_value  # Ensure octal interpretation for int()
+        if not mode_value.startswith("0"):
+            mode_value = "0" + mode_value  # Ensure octal interpretation for int()
         return int(mode_value, 8)
     except (ValueError, TypeError):
-        module.fail_json(msg=f"Invalid mode '{mode_str}' specified. Must be an octal number string (e.g., '0775').")
+        module.fail_json(
+            msg=f"Invalid mode '{mode_str}' specified. Must be an octal number string (e.g., '0775')."
+        )
         return None  # This line is unreachable but satisfies type checker
 
 
@@ -154,15 +158,18 @@ def set_recursive_ownership(
     path: str,
     owner: str | None,
     group: str | None,
-    changed: bool
+    changed: bool,
 ) -> bool:
     """
     Recursively apply owner and group without following symbolic links.
     """
+
     def raise_walk_error(error: OSError) -> None:
         raise error
 
-    for root, directories, files in os.walk(path, followlinks=False, onerror=raise_walk_error):
+    for root, directories, files in os.walk(
+        path, followlinks=False, onerror=raise_walk_error
+    ):
         for name in directories + files:
             child_path = os.path.join(root, name)
             changed = module.set_owner_if_different(child_path, owner, changed)
@@ -171,37 +178,35 @@ def set_recursive_ownership(
 
 
 def run_module() -> None:
-    module_args = dict(
-        legacy_path=dict(type='str', required=True),
-        new_path=dict(type='str', required=True),
-        owner=dict(type='str', required=False, default=None),
-        group=dict(type='str', required=False, default=None),
-        mode=dict(type='str', required=False, default='0775'),
-        recurse=dict(type='bool', required=False, default=False)
-    )
+    module_args = {
+        "legacy_path": {"type": "str", "required": True},
+        "new_path": {"type": "str", "required": True},
+        "owner": {"type": "str", "required": False, "default": None},
+        "group": {"type": "str", "required": False, "default": None},
+        "mode": {"type": "str", "required": False, "default": "0775"},
+        "recurse": {"type": "bool", "required": False, "default": False},
+    }
 
-    result: dict[str, object] = dict(
-        changed=False,
-        moved=False,
-        created=False,
-        path=None,
-        uid=None,
-        gid=None,
-        mode=None,
-    )
+    result: dict[str, Any] = {
+        "changed": False,
+        "moved": False,
+        "created": False,
+        "path": None,
+        "uid": None,
+        "gid": None,
+        "mode": None,
+    }
 
-    module = AnsibleModule(
-        argument_spec=module_args
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
-    legacy_path = module.params['legacy_path']
-    new_path = module.params['new_path']
-    owner = module.params['owner']
-    group = module.params['group']
-    mode_str = module.params['mode']
-    recurse = module.params['recurse']
+    legacy_path = module.params["legacy_path"]
+    new_path = module.params["new_path"]
+    owner = module.params["owner"]
+    group = module.params["group"]
+    mode_str = module.params["mode"]
+    recurse = module.params["recurse"]
 
-    result['path'] = new_path
+    result["path"] = new_path
 
     # --- Validation ---
     mode_int = validate_mode(module, mode_str)
@@ -213,7 +218,9 @@ def run_module() -> None:
     legacy_path_real = os.path.realpath(legacy_path_normalized)
     new_path_real = os.path.realpath(new_path_normalized)
     if legacy_path_real == new_path_real:
-        module.fail_json(msg=f"Legacy path '{legacy_path}' and new path '{new_path}' refer to the same location.")
+        module.fail_json(
+            msg=f"Legacy path '{legacy_path}' and new path '{new_path}' refer to the same location."
+        )
 
     if os.path.islink(legacy_path) or os.path.islink(new_path):
         module.fail_json(msg="Symlink paths are not supported for migration.")
@@ -222,7 +229,9 @@ def run_module() -> None:
     new_exists = os.path.lexists(new_path)
 
     if legacy_exists and not os.path.isdir(legacy_path):
-        module.fail_json(msg=f"Legacy path '{legacy_path}' exists but is not a directory.")
+        module.fail_json(
+            msg=f"Legacy path '{legacy_path}' exists but is not a directory."
+        )
 
     if new_exists and not os.path.isdir(new_path):
         module.fail_json(msg=f"New path '{new_path}' exists but is not a directory.")
@@ -235,7 +244,9 @@ def run_module() -> None:
         and not new_exists
         and os.path.commonpath((legacy_path_real, new_path_real)) == legacy_path_real
     ):
-        module.fail_json(msg=f"New path '{new_path}' must not be inside legacy path '{legacy_path}'.")
+        module.fail_json(
+            msg=f"New path '{new_path}' must not be inside legacy path '{legacy_path}'."
+        )
 
     if legacy_is_dir and not new_exists:
         destination_parent = get_existing_parent(os.path.dirname(new_path_normalized))
@@ -250,8 +261,8 @@ def run_module() -> None:
     if legacy_is_dir and new_is_dir:
         module.fail_json(
             msg=f"Both legacy path '{legacy_path}' and new path '{new_path}' exist as directories. "
-                "Cannot safely migrate. Please remove one before proceeding.",
-            **result
+            "Cannot safely migrate. Please remove one before proceeding.",
+            **result,
         )
 
     # Scenario 1: Migrate (Move)
@@ -265,7 +276,12 @@ def run_module() -> None:
                 path_to_create = parent_dir
                 dirs_to_create: list[str] = []
 
-                while path_to_create and path_to_create != '/' and path_to_create != '' and not os.path.exists(path_to_create):
+                while (
+                    path_to_create
+                    and path_to_create != "/"
+                    and path_to_create != ""
+                    and not os.path.exists(path_to_create)
+                ):
                     dirs_to_create.append(path_to_create)
                     path_to_create = os.path.dirname(path_to_create)
 
@@ -273,25 +289,34 @@ def run_module() -> None:
                 os.makedirs(parent_dir, exist_ok=True)
 
                 # Apply ownership and permissions only to directories we just created
-                if (owner is not None or group is not None or mode_int is not None) and dirs_to_create:
+                if (
+                    owner is not None or group is not None or mode_int is not None
+                ) and dirs_to_create:
                     for created_dir in dirs_to_create:
                         if os.path.exists(created_dir):
                             try:
                                 if owner is not None or group is not None:
                                     current_stat = os.stat(created_dir)
-                                    os.chown(created_dir,
-                                            uid if uid != -1 else current_stat.st_uid,
-                                            gid if gid != -1 else current_stat.st_gid)
+                                    os.chown(
+                                        created_dir,
+                                        uid if uid != -1 else current_stat.st_uid,
+                                        gid if gid != -1 else current_stat.st_gid,
+                                    )
                                 if mode_int is not None:
                                     os.chmod(created_dir, mode_int)
                             except OSError as e:
-                                module.warn(f"Could not set attributes on created parent directory {created_dir}: {str(e)}")
-            
+                                module.warn(
+                                    f"Could not set attributes on created parent directory {created_dir}: {e!s}"
+                                )
+
             module.atomic_move(legacy_path, new_path)
-            result['moved'] = True
-            result['changed'] = True
-        except Exception as e:
-            module.fail_json(msg=f"Failed to move directory '{legacy_path}' to '{new_path}': {str(e)}", **result)
+            result["moved"] = True
+            result["changed"] = True
+        except (OSError, ValueError, TypeError) as e:
+            module.fail_json(
+                msg=f"Failed to move directory '{legacy_path}' to '{new_path}': {e!s}",
+                **result,
+            )
         # Update state after move
         new_exists = True
         new_is_dir = True
@@ -299,19 +324,23 @@ def run_module() -> None:
     # Scenario 2: Create
     elif not legacy_exists and not new_exists:
         try:
-            os.makedirs(new_path) # Create intermediate dirs if needed
+            os.makedirs(new_path)  # Create intermediate dirs if needed
             # Apply initial mode during creation if possible (will be enforced later anyway)
             if mode_int is not None:
                 try:
                     os.chmod(new_path, mode_int)
                 except OSError as e:
                     # Don't fail here, set_fs_attributes handles final state
-                    module.warn(f"Could not set initial mode on created directory {new_path}: {str(e)}")
+                    module.warn(
+                        f"Could not set initial mode on created directory {new_path}: {e!s}"
+                    )
 
-            result['created'] = True
-            result['changed'] = True
+            result["created"] = True
+            result["changed"] = True
         except OSError as e:
-            module.fail_json(msg=f"Failed to create directory '{new_path}': {str(e)}", **result)
+            module.fail_json(
+                msg=f"Failed to create directory '{new_path}': {e!s}", **result
+            )
         # Update state after create
         new_exists = True
         new_is_dir = True
@@ -322,55 +351,61 @@ def run_module() -> None:
         pass
 
     # --- Ensure Final State (Attributes) ---
-    if new_is_dir: # Only proceed if the target exists as a directory now
+    if new_is_dir:  # Only proceed if the target exists as a directory now
         # Prepare args for setting attributes - start with common file arguments
         file_args = module.load_file_common_arguments(module.params, path=new_path)
-        
+
         # Only set attributes that were explicitly provided by the user
         if owner is not None:
-            file_args['owner'] = owner
+            file_args["owner"] = owner
         if group is not None:
-            file_args['group'] = group
+            file_args["group"] = group
         if mode_str is not None:
-            file_args['mode'] = mode_str
-        
+            file_args["mode"] = mode_str
+
         # Explicitly disable SELinux context handling and file attributes
-        file_args['secontext'] = None
-        file_args['selevel'] = None
-        file_args['serole'] = None
-        file_args['setype'] = None
-        file_args['seuser'] = None
-        file_args['attributes'] = None
-        
+        file_args["secontext"] = None
+        file_args["selevel"] = None
+        file_args["serole"] = None
+        file_args["setype"] = None
+        file_args["seuser"] = None
+        file_args["attributes"] = None
+
         # Let Ansible handle idempotency and setting attributes
         try:
-            changed_attributes = module.set_fs_attributes_if_different(file_args, result['changed'])
-            result['changed'] = result['changed'] or changed_attributes
+            changed_attributes = module.set_fs_attributes_if_different(
+                file_args, result["changed"]
+            )
+            result["changed"] = result["changed"] or changed_attributes
             if recurse and (owner is not None or group is not None):
-                result['changed'] = set_recursive_ownership(
-                    module,
-                    new_path,
-                    owner,
-                    group,
-                    bool(result['changed'])
+                result["changed"] = set_recursive_ownership(
+                    module, new_path, owner, group, bool(result["changed"])
                 )
-        except Exception as e:
-            module.fail_json(msg=f"Failed to set attributes on {new_path}: {str(e)}", **result)
+        except (OSError, ValueError, TypeError) as e:
+            module.fail_json(
+                msg=f"Failed to set attributes on {new_path}: {e!s}", **result
+            )
 
         # Fetch final state for return values
         try:
             final_stat = os.stat(new_path)
-            result['uid'] = final_stat.st_uid
-            result['gid'] = final_stat.st_gid
-            result['mode'] = format(stat.S_IMODE(final_stat.st_mode), '04o') # Format mode as octal string
+            result["uid"] = final_stat.st_uid
+            result["gid"] = final_stat.st_gid
+            result["mode"] = format(
+                stat.S_IMODE(final_stat.st_mode), "04o"
+            )  # Format mode as octal string
         except OSError as e:
-            module.warn(f"Could not stat final path {new_path} to retrieve final attributes: {str(e)}")
+            module.warn(
+                f"Could not stat final path {new_path} to retrieve final attributes: {e!s}"
+            )
 
     # --- Exit ---
     module.exit_json(**result)
 
+
 def main() -> None:
     run_module()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

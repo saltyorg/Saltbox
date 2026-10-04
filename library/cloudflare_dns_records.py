@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/python
 from __future__ import annotations
 
 DOCUMENTATION = """
@@ -119,8 +118,7 @@ def normalize_dns_name(value: str, parameter: str, module: AnsibleModule) -> str
     Empty values are rejected before making a Cloudflare API request.
     """
     normalized = value.strip()
-    if normalized.endswith('.'):
-        normalized = normalized[:-1]
+    normalized = normalized.removesuffix(".")
     if not normalized:
         module.fail_json(msg=f"{parameter} must not be empty")
     return normalized
@@ -130,13 +128,13 @@ def normalize_record_name(value: str, zone_name: str, module: AnsibleModule) -> 
     """
     Normalize a DNS record name, including Cloudflare's apex convention.
     """
-    normalized = normalize_dns_name(value, 'record', module)
-    if normalized in ('@', f"@.{zone_name}"):
+    normalized = normalize_dns_name(value, "record", module)
+    if normalized in ("@", f"@.{zone_name}"):
         return zone_name
     return normalized
 
 
-def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> str:
+def get_zone_id(client: Cloudflare, zone_name: str, module: AnsibleModule) -> str:
     """
     Fetch the zone ID for a given zone name from Cloudflare.
 
@@ -156,11 +154,13 @@ def get_zone_id(client: "Cloudflare", zone_name: str, module: AnsibleModule) -> 
         if len(zone.result) == 0:
             module.fail_json(msg=f"Specified zone '{zone_name}' was not found")
         return zone.result[0].id
-    except Exception as e:
-        module.fail_json(msg=f"Error fetching zone ID: {str(e)}")
+    except Exception as e:  # noqa: BLE001 - translate any SDK failure into an Ansible result
+        return module.fail_json(msg=f"Error fetching zone ID: {e!s}")
 
 
-def fetch_dns_records(client: "Cloudflare", zone_id: str, record_name: str, module: AnsibleModule) -> list[dict[str, object]]:
+def fetch_dns_records(
+    client: Cloudflare, zone_id: str, record_name: str, module: AnsibleModule
+) -> list[dict[str, object]]:
     """
     Fetch DNS records from Cloudflare.
 
@@ -177,7 +177,9 @@ def fetch_dns_records(client: "Cloudflare", zone_id: str, record_name: str, modu
         Calls module.fail_json on error
     """
     try:
-        records_response = client.dns.records.list(zone_id=zone_id, name={"exact": record_name})
+        records_response = client.dns.records.list(
+            zone_id=zone_id, name={"exact": record_name}
+        )
         if records_response is None:
             module.fail_json(msg="No response from Cloudflare API")
 
@@ -185,8 +187,8 @@ def fetch_dns_records(client: "Cloudflare", zone_id: str, record_name: str, modu
         for page in records_response.iter_pages():
             records.extend(record.to_dict() for record in page.result)
         return records
-    except Exception as e:
-        module.fail_json(msg=f"Error fetching DNS records: {str(e)}")
+    except Exception as e:  # noqa: BLE001 - isolate SDK pagination and response validation
+        return module.fail_json(msg=f"Error fetching DNS records: {e!s}")
 
 
 def run_module() -> None:
@@ -196,32 +198,26 @@ def run_module() -> None:
     This function handles the module's argument parsing, execution flow,
     and return value preparation.
     """
-    module_args = dict(
-        auth_email=dict(type='str', required=False, no_log=False),
-        auth_key=dict(type='str', required=False, no_log=True),
-        auth_token=dict(type='str', required=False, no_log=True),
-        zone_name=dict(type='str', required=True),
-        record=dict(type='str', required=True),
-    )
+    module_args = {
+        "auth_email": {"type": "str", "required": False, "no_log": False},
+        "auth_key": {"type": "str", "required": False, "no_log": True},
+        "auth_token": {"type": "str", "required": False, "no_log": True},
+        "zone_name": {"type": "str", "required": True},
+        "record": {"type": "str", "required": True},
+    }
 
     result: dict[str, bool | str | list[dict[str, object]]] = {
-        'changed': False,
-        'records': [],
-        'zone_id': '',
+        "changed": False,
+        "records": [],
+        "zone_id": "",
     }
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True,
-        required_one_of=[
-            ['auth_token', 'auth_key']
-        ],
-        required_together=[
-            ['auth_email', 'auth_key']
-        ],
-        mutually_exclusive=[
-            ['auth_token', 'auth_key']
-        ],
+        required_one_of=[["auth_token", "auth_key"]],
+        required_together=[["auth_email", "auth_key"]],
+        mutually_exclusive=[["auth_token", "auth_key"]],
     )
 
     try:
@@ -229,13 +225,15 @@ def run_module() -> None:
         try:
             from cloudflare import Cloudflare
         except ImportError:
-            module.fail_json(msg="The 'cloudflare' Python library is required. Install it with: pip install cloudflare")
+            module.fail_json(
+                msg="The 'cloudflare' Python library is required. Install it with: pip install cloudflare"
+            )
 
-        auth_email = module.params.get('auth_email')
-        auth_key = module.params.get('auth_key')
-        auth_token = module.params.get('auth_token')
-        zone_name = normalize_dns_name(module.params['zone_name'], 'zone_name', module)
-        record = normalize_record_name(module.params['record'], zone_name, module)
+        auth_email = module.params.get("auth_email")
+        auth_key = module.params.get("auth_key")
+        auth_token = module.params.get("auth_token")
+        zone_name = normalize_dns_name(module.params["zone_name"], "zone_name", module)
+        record = normalize_record_name(module.params["record"], zone_name, module)
 
         # Initialize Cloudflare client
         if auth_token:
@@ -245,16 +243,16 @@ def run_module() -> None:
 
         # Fetch zone ID
         zone_id = get_zone_id(cf, zone_name, module)
-        result['zone_id'] = zone_id
+        result["zone_id"] = zone_id
 
         # Fetch DNS records
         records = fetch_dns_records(cf, zone_id, record, module)
-        result['records'] = records
+        result["records"] = records
 
         module.exit_json(**result)
 
-    except Exception as e:
-        module.fail_json(msg=f"Unexpected error: {str(e)}")
+    except Exception as e:  # noqa: BLE001 - module boundary reports unexpected SDK failures
+        module.fail_json(msg=f"Unexpected error: {e!s}")
 
 
 def main() -> None:
@@ -264,5 +262,5 @@ def main() -> None:
     run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -155,10 +155,14 @@ def _certificate_bases(
     except DomainParseError as exc:
         raise AnsibleFilterError(str(exc)) from exc
 
-    return [primary, *explicit_bases, *inferred_bases], [
-        primary,
-        *inferred_bases,
-    ], explicit_bases
+    return (
+        [primary, *explicit_bases, *inferred_bases],
+        [
+            primary,
+            *inferred_bases,
+        ],
+        explicit_bases,
+    )
 
 
 def _unique_certificate_bases(bases: Sequence[str]) -> list[str]:
@@ -262,6 +266,7 @@ def traefik_certificate_plan(
     provider_is_cloudflare = challenge_provider.casefold() == "cloudflare"
     untrusted_router_bases: list[str]
     untrusted_explicit_bases: list[str]
+    normalized_zones: list[str] = []
     if provider_is_cloudflare:
         zone_values = _as_string_list(
             policy_mapping.get("authoritative_zones"),
@@ -333,9 +338,7 @@ def traefik_certificate_plan(
         }
 
     return {
-        "domains": [
-            {"main": base, "sans": [f"*.{base}"]} for base in unique_bases
-        ],
+        "domains": [{"main": base, "sans": [f"*.{base}"]} for base in unique_bases],
         "certresolver": certresolver,
         "mode": "dns-wildcard",
     }

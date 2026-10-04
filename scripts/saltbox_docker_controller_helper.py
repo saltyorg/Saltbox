@@ -1,15 +1,17 @@
 import sys
-import os
+from io import TextIOWrapper
 
 # Force unbuffered output
-sys.stdout.reconfigure(line_buffering=True)
-sys.stderr.reconfigure(line_buffering=True)
+for stream in (sys.stdout, sys.stderr):
+    if isinstance(stream, TextIOWrapper):
+        stream.reconfigure(line_buffering=True)
 
-import requests
 import signal
 import time
-from typing import Optional
 from enum import Enum
+
+import requests
+
 
 class JobStatus(str, Enum):
     PENDING = "pending"
@@ -17,14 +19,15 @@ class JobStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
+
 def wait_for_controller(retries: int = 120, delay: int = 1) -> bool:
     """
     Waits for the controller to be ready by polling the ping endpoint.
-    
+
     Args:
         retries: Number of times to retry
         delay: Delay between retries in seconds
-    
+
     Returns:
         bool: True if controller is ready, False otherwise
     """
@@ -37,22 +40,25 @@ def wait_for_controller(retries: int = 120, delay: int = 1) -> bool:
                 return True
         except requests.exceptions.RequestException:
             pass
-        
+
         if attempt < retries - 1:
-            print(f"Controller not ready, waiting {delay} seconds... (attempt {attempt + 1}/{retries})")
+            print(
+                f"Controller not ready, waiting {delay} seconds... (attempt {attempt + 1}/{retries})"
+            )
             time.sleep(delay)
-    
+
     print("Controller failed to become ready")
     return False
+
 
 def poll_job_status(job_id: str, timeout: int = 600) -> bool:
     """
     Polls the job status endpoint until completion or timeout.
-    
+
     Args:
         job_id: The ID of the job to poll
         timeout: Maximum time to wait in seconds
-    
+
     Returns:
         bool: True if job completed successfully, False otherwise
     """
@@ -72,18 +78,19 @@ def poll_job_status(job_id: str, timeout: int = 600) -> bool:
             else:
                 print(f"Error checking job status: {response.status_code}")
                 return False
-        except Exception as e:
+        except (requests.RequestException, ValueError, TypeError, AttributeError) as e:
             print(f"Error polling job status: {e}")
             return False
         time.sleep(5)  # Poll every 5 seconds
-    
+
     print(f"Job {job_id} timed out after {timeout} seconds")
     return False
 
-def start_containers() -> Optional[str]:
+
+def start_containers() -> str | None:
     """
     Sends a POST request to start containers.
-    
+
     Returns:
         Optional[str]: Job ID if successful, None otherwise
     """
@@ -93,9 +100,10 @@ def start_containers() -> Optional[str]:
         if response.status_code == 200:
             return response.json().get("job_id")
         print(f"Error starting containers: {response.status_code}")
-    except Exception as e:
+    except (requests.RequestException, ValueError, TypeError, AttributeError) as e:
         print(f"Error starting containers: {e}")
     return None
+
 
 def stop_containers(signum, frame) -> None:
     """Handles termination signal by stopping containers and waiting for completion."""
@@ -110,9 +118,10 @@ def stop_containers(signum, frame) -> None:
                     print("Warning: Containers may not have stopped cleanly")
         else:
             print(f"Error stopping containers: {response.status_code}")
-    except Exception as e:
+    except (requests.RequestException, ValueError, TypeError, AttributeError) as e:
         print(f"Error stopping containers: {e}")
     sys.exit()
+
 
 def main():
     """Main function to handle the script's execution."""
@@ -120,7 +129,7 @@ def main():
     if not wait_for_controller():
         print("Controller not available, exiting")
         sys.exit(1)
-    
+
     time.sleep(5)
 
     job_id = start_containers()
@@ -128,13 +137,14 @@ def main():
         success = poll_job_status(job_id)
         if not success:
             print("Warning: Container startup may not have completed successfully")
-    
+
     # Trap SIGTERM signal and assign it to stop_containers function
     signal.signal(signal.SIGTERM, stop_containers)
-    
+
     # Keep the script running until a signal is received
     print("Running... Send SIGTERM to stop")
     signal.pause()
+
 
 if __name__ == "__main__":
     main()

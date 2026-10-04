@@ -10,7 +10,6 @@ import os
 import re
 from typing import Any
 
-
 DOCUMENTATION = r"""
 ---
 module: nvidia_driver_resolver
@@ -135,7 +134,7 @@ checksum_url:
 def version_key(version: str) -> tuple[int, ...]:
     """Return a numeric key for dotted NVIDIA versions."""
     if not re.fullmatch(r"[0-9]+(?:\.[0-9]+)+", version):
-        raise ValueError("invalid NVIDIA driver version: %s" % version)
+        raise ValueError(f"invalid NVIDIA driver version: {version}")
     return tuple(int(part) for part in version.split("."))
 
 
@@ -145,17 +144,19 @@ def _read_text(path: str) -> str:
 
 
 def _normalise_pci_id(value: str) -> str:
-    return "0x%s" % value.lower().removeprefix("0x").zfill(4).upper()
+    return "0x{}".format(value.lower().removeprefix("0x").zfill(4).upper())
 
 
 def inventory_devices(sysfs_path: str, catalog: dict[str, Any]) -> list[dict[str, Any]]:
     """Match NVIDIA display-class sysfs devices against NVIDIA's catalog."""
     chips = catalog.get("chips")
     if not isinstance(chips, list):
-        raise ValueError("NVIDIA GPU catalog does not contain a chips list")
+        raise TypeError("NVIDIA GPU catalog does not contain a chips list")
 
     devices: list[dict[str, Any]] = []
-    for device_path in sorted(glob.glob(os.path.join(sysfs_path, "bus", "pci", "devices", "*"))):
+    for device_path in sorted(
+        glob.glob(os.path.join(sysfs_path, "bus", "pci", "devices", "*"))
+    ):
         try:
             vendor = _read_text(os.path.join(device_path, "vendor")).lower()
             pci_class = _read_text(os.path.join(device_path, "class")).lower()
@@ -165,8 +166,12 @@ def inventory_devices(sysfs_path: str, catalog: dict[str, Any]) -> list[dict[str
             continue
 
         device_id = _normalise_pci_id(_read_text(os.path.join(device_path, "device")))
-        subvendor_id = _normalise_pci_id(_read_text(os.path.join(device_path, "subsystem_vendor")))
-        subdevice_id = _normalise_pci_id(_read_text(os.path.join(device_path, "subsystem_device")))
+        subvendor_id = _normalise_pci_id(
+            _read_text(os.path.join(device_path, "subsystem_vendor"))
+        )
+        subdevice_id = _normalise_pci_id(
+            _read_text(os.path.join(device_path, "subsystem_device"))
+        )
         matching = [
             chip
             for chip in chips
@@ -180,7 +185,11 @@ def inventory_devices(sysfs_path: str, catalog: dict[str, Any]) -> list[dict[str
             and _normalise_pci_id(str(chip["subvendorid"])) == subvendor_id
             and _normalise_pci_id(str(chip["subdevid"])) == subdevice_id
         ]
-        generic = [chip for chip in matching if "subvendorid" not in chip and "subdevid" not in chip]
+        generic = [
+            chip
+            for chip in matching
+            if "subvendorid" not in chip and "subdevid" not in chip
+        ]
         selected = exact or generic
         if not selected:
             devices.append(
@@ -225,28 +234,33 @@ def validate_supported_products(devices: list[dict[str, Any]], content: str) -> 
     unsupported = []
     for device in devices:
         device_id = str(device["devid"]).removeprefix("0x").upper()
-        generic_marker = 'ID="DEVID%s"' % device_id
+        generic_marker = f'ID="DEVID{device_id}"'
         supported_markers = [generic_marker]
         if device.get("subsystem_specific"):
             subvendor_id = str(device["subvendorid"]).removeprefix("0x").upper()
             subdevice_id = str(device["subdevid"]).removeprefix("0x").upper()
             supported_markers.append(
-                'ID="DEVID%s_%s_%s"' % (device_id, subvendor_id, subdevice_id)
+                f'ID="DEVID{device_id}_{subvendor_id}_{subdevice_id}"'
             )
         if not any(marker in current_products for marker in supported_markers):
             unsupported.append(device)
     if unsupported:
         details = ", ".join(
-            "%s (%s at %s)" % (device["name"], device["devid"], device["address"])
+            "{} ({} at {})".format(device["name"], device["devid"], device["address"])
             for device in unsupported
         )
-        raise ValueError("the selected NVIDIA runfile does not support: %s" % details)
+        raise ValueError(f"the selected NVIDIA runfile does not support: {details}")
 
 
 def _module_flavor(devices: list[dict[str, Any]], requested: str) -> str:
-    features = [{str(feature).lower() for feature in device.get("features", [])} for device in devices]
+    features = [
+        {str(feature).lower() for feature in device.get("features", [])}
+        for device in devices
+    ]
     has_legacy = any(device.get("legacybranch") for device in devices)
-    open_supported = not has_legacy and all("kernelopen" in device_features for device_features in features)
+    open_supported = not has_legacy and all(
+        "kernelopen" in device_features for device_features in features
+    )
     proprietary_supported = all(
         bool(device.get("legacybranch"))
         or "kernelopen" not in device_features
@@ -258,21 +272,31 @@ def _module_flavor(devices: list[dict[str, Any]], requested: str) -> str:
     if normalized == "closed":
         normalized = "proprietary"
     if normalized not in ("auto", "open", "proprietary"):
-        raise ValueError("nvidia_driver_module_flavor must be auto, open, or proprietary")
+        raise ValueError(
+            "nvidia_driver_module_flavor must be auto, open, or proprietary"
+        )
     if normalized == "auto":
         if has_legacy:
             if not proprietary_supported:
-                raise ValueError("the detected GPUs do not share a compatible kernel module flavor")
+                raise ValueError(
+                    "the detected GPUs do not share a compatible kernel module flavor"
+                )
             return "proprietary"
         if open_supported:
             return "open"
         if proprietary_supported:
             return "proprietary"
-        raise ValueError("the detected GPUs do not share a compatible kernel module flavor")
+        raise ValueError(
+            "the detected GPUs do not share a compatible kernel module flavor"
+        )
     if normalized == "open" and not open_supported:
-        raise ValueError("the open kernel module flavor is not compatible with every detected GPU")
+        raise ValueError(
+            "the open kernel module flavor is not compatible with every detected GPU"
+        )
     if normalized == "proprietary" and not proprietary_supported:
-        raise ValueError("the proprietary kernel module flavor is not compatible with every detected GPU")
+        raise ValueError(
+            "the proprietary kernel module flavor is not compatible with every detected GPU"
+        )
     return normalized
 
 
@@ -315,7 +339,9 @@ def _automatic_branch(
     production = eligible("production branch")
     if production:
         return production[0]
-    raise ValueError("no compatible LTS or production NVIDIA driver branch is available")
+    raise ValueError(
+        "no compatible LTS or production NVIDIA driver branch is available"
+    )
 
 
 def resolve_driver(
@@ -334,8 +360,10 @@ def resolve_driver(
         raise ValueError("no NVIDIA display-class GPU was detected")
     unknown = [device for device in devices if device.get("unknown")]
     if unknown:
-        ids = ", ".join("%s at %s" % (device["devid"], device["address"]) for device in unknown)
-        raise ValueError("NVIDIA Driver Assistant does not recognize: %s" % ids)
+        ids = ", ".join(
+            "{} at {}".format(device["devid"], device["address"]) for device in unknown
+        )
+        raise ValueError(f"NVIDIA Driver Assistant does not recognize: {ids}")
 
     legacy_branches = []
     unsupported_legacy = []
@@ -349,17 +377,22 @@ def resolve_driver(
             unsupported_legacy.append(device)
     if unsupported_legacy:
         details = ", ".join(
-            "%s (%s, branch %s)" % (device["name"], device["devid"], device["legacybranch"])
+            "{} ({}, branch {})".format(
+                device["name"], device["devid"], device["legacybranch"]
+            )
             for device in unsupported_legacy
         )
         raise ValueError(
-            "unsupported legacy NVIDIA hardware; Saltbox requires R%s or newer: %s"
-            % (minimum_legacy_branch, details)
+            f"unsupported legacy NVIDIA hardware; Saltbox requires R{minimum_legacy_branch} or newer: {details}"
         )
 
     maximum_branch = min(legacy_branches) if legacy_branches else None
-    geforce_present = any("geforce" in str(device.get("name", "")).lower() for device in devices)
-    should_patch = bool(patch_enabled and geforce_present and driver_version.lower() != "ignore")
+    geforce_present = any(
+        "geforce" in str(device.get("name", "")).lower() for device in devices
+    )
+    should_patch = bool(
+        patch_enabled and geforce_present and driver_version.lower() != "ignore"
+    )
     selected_flavor = _module_flavor(devices, module_flavor)
 
     requested_version = driver_version.strip()
@@ -379,24 +412,30 @@ def resolve_driver(
 
     if requested_version.lower() == "latest":
         if requested_branch == "auto":
-            selected_branch = _automatic_branch(releases, maximum_branch, branch_preference)
+            selected_branch = _automatic_branch(
+                releases, maximum_branch, branch_preference
+            )
         else:
             if not requested_branch.isdigit():
-                raise ValueError("nvidia_driver_branch must be auto or a quoted numeric branch")
+                raise ValueError(
+                    "nvidia_driver_branch must be auto or a quoted numeric branch"
+                )
             selected_branch = requested_branch
             if maximum_branch is not None and int(selected_branch) > maximum_branch:
                 raise ValueError(
-                    "driver branch %s exceeds the R%s hardware support ceiling"
-                    % (selected_branch, maximum_branch)
+                    f"driver branch {selected_branch} exceeds the R{maximum_branch} hardware support ceiling"
                 )
         candidates = _release_versions(releases, selected_branch)
         if should_patch:
-            candidates = [version for version in candidates if version in supported_patch_versions]
+            candidates = [
+                version for version in candidates if version in supported_patch_versions
+            ]
         if not candidates:
-            qualifier = " also supported by the pinned Keylase patch" if should_patch else ""
+            qualifier = (
+                " also supported by the pinned Keylase patch" if should_patch else ""
+            )
             raise ValueError(
-                "no x86_64 driver release is available in branch %s%s"
-                % (selected_branch, qualifier)
+                f"no x86_64 driver release is available in branch {selected_branch}{qualifier}"
             )
         selected_version = candidates[0]
     else:
@@ -405,22 +444,20 @@ def resolve_driver(
         selected_branch = requested_version.split(".", maxsplit=1)[0]
         if requested_branch != "auto" and requested_branch != selected_branch:
             raise ValueError(
-                "exact driver %s conflicts with nvidia_driver_branch %s"
-                % (selected_version, driver_branch)
+                f"exact driver {selected_version} conflicts with nvidia_driver_branch {driver_branch}"
             )
         if maximum_branch is not None and int(selected_branch) > maximum_branch:
             raise ValueError(
-                "exact driver %s exceeds the R%s hardware support ceiling"
-                % (selected_version, maximum_branch)
+                f"exact driver {selected_version} exceeds the R{maximum_branch} hardware support ceiling"
             )
         if should_patch and selected_version not in supported_patch_versions:
             raise ValueError(
-                "driver %s is not supported by the pinned Keylase patch; choose a supported version "
-                "or set nvidia_patch_enabled to false" % selected_version
+                f"driver {selected_version} is not supported by the pinned Keylase patch; choose a supported version "
+                "or set nvidia_patch_enabled to false"
             )
 
-    filename = "NVIDIA-Linux-x86_64-%s.run" % selected_version
-    base_url = "https://download.nvidia.com/XFree86/Linux-x86_64/%s" % selected_version
+    filename = f"NVIDIA-Linux-x86_64-{selected_version}.run"
+    base_url = f"https://download.nvidia.com/XFree86/Linux-x86_64/{selected_version}"
     return {
         "devices": devices,
         "mode": "managed",
@@ -429,8 +466,8 @@ def resolve_driver(
         "module_flavor": selected_flavor,
         "geforce_present": geforce_present,
         "patch_required": should_patch,
-        "driver_url": "%s/%s" % (base_url, filename),
-        "checksum_url": "%s/%s.sha256sum" % (base_url, filename),
+        "driver_url": f"{base_url}/{filename}",
+        "checksum_url": f"{base_url}/{filename}.sha256sum",
     }
 
 
@@ -462,7 +499,11 @@ def main() -> None:
             catalog = json.load(stream)
         with open(module.params["releases_path"], "r", encoding="utf-8") as stream:
             releases = json.load(stream)
-        patch_content = _read_text(module.params["patch_path"]) if module.params["patch_path"] else ""
+        patch_content = (
+            _read_text(module.params["patch_path"])
+            if module.params["patch_path"]
+            else ""
+        )
         devices = inventory_devices(module.params["sysfs_path"], catalog)
         result = resolve_driver(
             devices=devices,

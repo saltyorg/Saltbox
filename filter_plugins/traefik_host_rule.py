@@ -11,7 +11,7 @@ def traefik_host_rule(host, host_override, fqdn_override_list):
         str: The generated Traefik host rule.
     """
     if host_override:
-        return f'({host_override})'
+        return f"({host_override})"
     elif fqdn_override_list:
         formatted_fqdn_overrides = [f"Host(`{fqdn}`)" for fqdn in fqdn_override_list]
         fqdn_override_string = " || ".join(formatted_fqdn_overrides)
@@ -19,11 +19,12 @@ def traefik_host_rule(host, host_override, fqdn_override_list):
     else:
         return f"Host(`{host}`)"
 
-class FilterModule(object):
-    """ Ansible filter module """
+
+class FilterModule:
+    """Ansible filter module"""
 
     def filters(self):
-        """ return list of filters """
+        """return list of filters"""
         return {
-            'traefik_host_rule': traefik_host_rule,
+            "traefik_host_rule": traefik_host_rule,
         }

@@ -13,7 +13,9 @@ def saltbox_ip_address(value: object, family: int) -> str:
     try:
         address = ip_address(value.strip())
     except ValueError as exc:
-        raise AnsibleFilterError(f"Expected an IPv{family} address, got {value!r}") from exc
+        raise AnsibleFilterError(
+            f"Expected an IPv{family} address, got {value!r}"
+        ) from exc
     if address.version != family:
         raise AnsibleFilterError(f"Expected an IPv{family} address, got {value!r}")
     return str(address)

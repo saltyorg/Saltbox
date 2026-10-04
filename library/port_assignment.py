@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 DOCUMENTATION = r"""
@@ -468,9 +466,14 @@ def collect_docker_observations() -> ConflictIndex:
     try:
         client = docker.DockerClient(base_url=f"unix://{DOCKER_SOCKET_PATH}")
         try:
-            containers = [
-                container.attrs for container in client.containers.list(all=True)
-            ]
+            containers: list[dict[str, Any]] = []
+            for container in client.containers.list(all=True):
+                attributes = container.attrs
+                if not isinstance(attributes, dict):
+                    raise PortAssignmentError(
+                        "Docker returned invalid container metadata"
+                    )
+                containers.append(attributes)
         finally:
             client.close()
     except Exception as error:
@@ -527,7 +530,7 @@ def reconcile_assignments(
     namespace = request["namespace"]
     owner = request.get("owner")
     state = request.get("state", "present")
-    updated_registry = {
+    updated_registry: dict[str, Any] = {
         "schema": SCHEMA_VERSION,
         "claims": dict(registry["claims"]),
     }
@@ -552,6 +555,8 @@ def reconcile_assignments(
         for claim_name, claim in request["claims"].items()
         if claim.get("enabled", True)
     }
+    # Present requests have an owner after _validate_request; absent requests returned above.
+    owner = request["owner"]
     owner_prefix = f"{namespace}/{owner}/"
     desired_keys = {_claim_key(namespace, owner, claim_name) for claim_name in claims}
     for key in list(updated_registry["claims"]):

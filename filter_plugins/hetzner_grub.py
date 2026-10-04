@@ -4,7 +4,6 @@ import re
 
 from ansible.errors import AnsibleFilterError
 
-
 _ASSIGNMENT = re.compile(
     r"^(?P<prefix>[ \t]*GRUB_CMDLINE_LINUX_DEFAULT[ \t]*=)"
     r"(?P<separator>[ \t]*)"
@@ -31,10 +30,11 @@ def _unsupported(line_number: int, explanation: str) -> AnsibleFilterError:
     return AnsibleFilterError(f"line {line_number}: {explanation}")
 
 
-def _parse_value(right_hand_side: str, separator: str, line_number: int) -> tuple[str, str, str]:
-    trailing_match = re.search(r"[ \t]*$", right_hand_side)
-    trailing = trailing_match.group(0)
-    expression = right_hand_side[:len(right_hand_side) - len(trailing)] if trailing else right_hand_side
+def _parse_value(
+    right_hand_side: str, separator: str, line_number: int
+) -> tuple[str, str, str]:
+    expression = right_hand_side.rstrip(" \t")
+    trailing = right_hand_side[len(expression) :]
 
     if expression.startswith(('"', "'")):
         quote = expression[0]
@@ -44,7 +44,7 @@ def _parse_value(right_hand_side: str, separator: str, line_number: int) -> tupl
         if closing_quote == -1:
             raise _unsupported(line_number, "unmatched quote")
         if closing_quote != len(expression) - 1:
-            suffix = expression[closing_quote + 1:]
+            suffix = expression[closing_quote + 1 :]
             if re.fullmatch(r"[ \t]+#.*", suffix):
                 raise _unsupported(line_number, "inline comments are unsupported")
             raise _unsupported(line_number, "unsupported syntax after the quoted value")
@@ -86,7 +86,7 @@ def hetzner_grub_without_nomodeset(content: object) -> dict[str, str | int]:
 
     for line_number, line in enumerate(content.splitlines(keepends=True), start=1):
         body = line.rstrip("\r\n")
-        ending = line[len(body):]
+        ending = line[len(body) :]
         match = _ASSIGNMENT.fullmatch(body)
         if match is None:
             transformed_lines.append(line)
@@ -101,7 +101,7 @@ def hetzner_grub_without_nomodeset(content: object) -> dict[str, str | int]:
         value, changed = _without_nomodeset(value)
         changed_count += int(changed)
         transformed_lines.append(
-            f'{match.group("prefix")}{match.group("separator")}{quote}{value}{quote}{trailing}{ending}'
+            f"{match.group('prefix')}{match.group('separator')}{quote}{value}{quote}{trailing}{ending}"
         )
 
     return {

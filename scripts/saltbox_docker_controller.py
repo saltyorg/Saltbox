@@ -1,32 +1,33 @@
-import docker
 import asyncio
-import time
 import logging
 import logging.config
-from typing import List, Dict, Set, Optional
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
-from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-import subprocess
 import signal
-from collections import defaultdict
+import subprocess
+import time
 import uuid
+from collections import defaultdict
+from contextlib import asynccontextmanager
 from enum import Enum
+from typing import Annotated, ClassVar, cast
 
-global graph
+import docker
+from docker.models.containers import Container
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
+
 running = True
 app_ready = False
 
 
 class ColorLogFormatter(logging.Formatter):
-    """ Custom formatter to add colors to log level names. """
+    """Custom formatter to add colors to log level names."""
 
-    COLOR_CODES = {
+    COLOR_CODES: ClassVar[dict[int, str]] = {
         logging.DEBUG: "\033[0;36m",  # Cyan for DEBUG
         logging.INFO: "\033[0;32m",  # Green for INFO
         logging.WARNING: "\033[0;33m",  # Yellow for WARNING
         logging.ERROR: "\033[0;31m",  # Red for ERROR
-        logging.CRITICAL: "\033[1;31m"  # Bright Red for CRITICAL
+        logging.CRITICAL: "\033[1;31m",  # Bright Red for CRITICAL
     }
 
     RESET_CODE = "\033[0m"
@@ -39,48 +40,59 @@ class ColorLogFormatter(logging.Formatter):
 
 # Define a logging configuration
 LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'colored': {
-            '()': ColorLogFormatter,
-            'format': '%(asctime)s - %(levelname)s - %(message)s',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "colored": {
+            "()": ColorLogFormatter,
+            "format": "%(asctime)s - %(levelname)s - %(message)s",
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'colored',
-            'stream': 'ext://sys.stdout',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "colored",
+            "stream": "ext://sys.stdout",
         },
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": "INFO",
         },
     },
 }
 
 logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger(__name__)
 start_containers_lock = asyncio.Lock()
 
 
 # Container Node Class
 class ContainerNode:
-    def __init__(self, name: str, delay: int = 0, healthcheck_enabled: bool = False, is_placeholder: bool = False):
+    def __init__(
+        self,
+        name: str,
+        delay: int = 0,
+        healthcheck_enabled: bool = False,
+        is_placeholder: bool = False,
+    ):
         self.name = name
         self.delay = delay
         self.healthcheck_enabled = healthcheck_enabled
         self.is_placeholder = is_placeholder
-        self.children: List['ContainerNode'] = []  # Containers that depend on this container
-        self.parents: List['ContainerNode'] = []  # Containers that this container depends on
+        self.children: list[
+            ContainerNode
+        ] = []  # Containers that depend on this container
+        self.parents: list[
+            ContainerNode
+        ] = []  # Containers that this container depends on
 
-    def add_child(self, child: 'ContainerNode'):
+    def add_child(self, child: "ContainerNode"):
         if child not in self.children:
             self.children.append(child)
 
-    def add_parent(self, parent: 'ContainerNode'):
+    def add_parent(self, parent: "ContainerNode"):
         if parent not in self.parents:
             self.parents.append(parent)
 
@@ -88,7 +100,7 @@ class ContainerNode:
 # Dependency Graph Class
 class DependencyGraph:
     def __init__(self):
-        self.nodes: Dict[str, ContainerNode] = {}
+        self.nodes: dict[str, ContainerNode] = {}
         self.health_status = {}
         self.healthcheck_config_cache = {}
 
@@ -117,20 +129,22 @@ class DependencyGraph:
                 if dep_name not in self.nodes:
                     placeholder_node = ContainerNode(dep_name, is_placeholder=True)
                     self.nodes[dep_name] = placeholder_node
-                    logging.warning(f"Created placeholder node for missing dependency: {dep_name}")
+                    logger.warning(
+                        f"Created placeholder node for missing dependency: {dep_name}"
+                    )
 
                 # Add the current container as a child of each of its dependencies
                 self.nodes[dep_name].add_child(container)
                 # And also add each dependency as a parent of the current container
                 container.add_parent(self.nodes[dep_name])
 
-    def parse_depends_on_label(self, container_name: str) -> List[str]:
+    def parse_depends_on_label(self, container_name: str) -> list[str]:
         client = docker.from_env()
-        container = client.containers.get(container_name)
+        container = cast(Container, client.containers.get(container_name))
         depends_on_label = container.labels.get("com.github.saltbox.depends_on")
         # Splitting the label by comma and stripping spaces to get all names
         if depends_on_label:
-            return [name.strip() for name in depends_on_label.split(',')]
+            return [name.strip() for name in depends_on_label.split(",")]
         return []
 
 
@@ -138,18 +152,25 @@ class DependencyGraph:
 def parse_container_labels(client):
     _graph = DependencyGraph()
     containers = client.containers.list(all=True)
-    for container in containers:
+    for model in containers:
+        container = cast(Container, model)
         labels = container.labels
         if labels.get("com.github.saltbox.saltbox_managed") == "true":
             name = container.name
+            attributes = container.attrs
+            if name is None or attributes is None:
+                raise ValueError("Docker returned incomplete container metadata")
             delay = int(labels.get("com.github.saltbox.depends_on.delay", 0))
-            healthchecks = labels.get("com.github.saltbox.depends_on.healthchecks", "false") == "true"
+            healthchecks = (
+                labels.get("com.github.saltbox.depends_on.healthchecks", "false")
+                == "true"
+            )
             node = ContainerNode(name, delay, healthchecks)
             _graph.add_container(node)
 
             # Initialize health status
             try:
-                health_status = container.attrs['State']['Health']['Status']
+                health_status = attributes["State"]["Health"]["Status"]
             except KeyError:
                 health_status = "unknown"  # If health status is not available
             _graph.update_health_status(name, health_status)
@@ -158,15 +179,20 @@ def parse_container_labels(client):
     return _graph
 
 
-def has_healthcheck_configured(client, container_name: str, _graph: DependencyGraph) -> bool:
+def has_healthcheck_configured(
+    client, container_name: str, _graph: DependencyGraph
+) -> bool:
     try:
         container = client.containers.get(container_name)
-        is_configured = 'Healthcheck' in container.attrs['Config'] and container.attrs['Config']['Healthcheck'][
-            'Test'] != ['NONE']
+        is_configured = "Healthcheck" in container.attrs["Config"] and container.attrs[
+            "Config"
+        ]["Healthcheck"]["Test"] != ["NONE"]
         _graph.set_healthcheck_configured(container_name, is_configured)
         return is_configured
-    except Exception as e:
-        logging.error(f"Error checking healthcheck configuration for container {container_name}: {e}")
+    except Exception:
+        logger.exception(
+            "Error checking healthcheck configuration for container %s", container_name
+        )
         return False
 
 
@@ -176,11 +202,11 @@ def is_container_healthy(client, container_name: str) -> bool:
 
     try:
         container = client.containers.get(container_name)
-        health_status = container.attrs['State']['Health']['Status']
-        logging.debug(f"Container {container_name} health status: '{health_status}'")
-        return health_status == 'healthy'
-    except Exception as e:
-        logging.error(f"Error checking health for container {container_name}: {e}")
+        health_status = container.attrs["State"]["Health"]["Status"]
+        logger.debug(f"Container {container_name} health status: '{health_status}'")
+        return health_status == "healthy"
+    except Exception:
+        logger.exception("Error checking health for container %s", container_name)
         return False
 
 
@@ -188,30 +214,36 @@ def wait_for_delay(delay: int):
     time.sleep(delay)
 
 
-def start_containers_with_shell(containers: List[str]):
+def start_containers_with_shell(containers: list[str]):
     if containers:
         try:
-            logging.info(f"Starting containers: {', '.join(containers)}")
-            subprocess.run(['docker', 'start', *containers], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           check=True)
-            logging.info(f"Started containers: {', '.join(containers)}")
+            logger.info(f"Starting containers: {', '.join(containers)}")
+            subprocess.run(
+                ["docker", "start", *containers],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            logger.info(f"Started containers: {', '.join(containers)}")
         except subprocess.CalledProcessError as err:
-            logging.error(f"Failed to start containers with error: {err}")
+            logger.error(f"Failed to start containers with error: {err}")
 
 
-def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, timeout: int = 600):
+def start_containers_in_dependency_order(
+    _graph: DependencyGraph, job_id: str, timeout: int = 600
+):
     client = docker.from_env()
     started_containers = set()
     containers_to_start = set(_graph.nodes.keys())
     logged_health_check_waiting = set()
     skip_start_due_to_placeholder = set()
-    container_start_times = defaultdict(lambda: 0.0)
-    
+    container_start_times: defaultdict[str, float] = defaultdict(lambda: 0.0)
+
     start_time = time.time()
 
     while containers_to_start and running:
         if time.time() - start_time > timeout:
-            logging.error(f"Container start operation timed out after {timeout} seconds")
+            logger.error(f"Container start operation timed out after {timeout} seconds")
             job_manager.update_job(job_id, JobStatus.FAILED)
             return
 
@@ -226,7 +258,9 @@ def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, t
                 continue
 
             if container.is_placeholder:
-                logging.info(f"Skipping start of '{container_name}' because it is a placeholder.")
+                logger.info(
+                    f"Skipping start of '{container_name}' because it is a placeholder."
+                )
                 containers_to_start.remove(container_name)
                 skip_start_due_to_placeholder.add(container_name)
                 continue
@@ -236,16 +270,20 @@ def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, t
                 if parent.is_placeholder:
                     dependencies_ready = False
                     if container_name not in skip_start_due_to_placeholder:
-                        logging.warning(
-                            f"Skipping start of '{container_name}' due to placeholder dependency '{parent.name}'.")
+                        logger.warning(
+                            f"Skipping start of '{container_name}' due to placeholder dependency '{parent.name}'."
+                        )
                         skip_start_due_to_placeholder.add(container_name)
                     break
 
-                if has_healthcheck_configured(client, parent.name, _graph) and not is_container_healthy(client, parent.name):
+                if has_healthcheck_configured(
+                    client, parent.name, _graph
+                ) and not is_container_healthy(client, parent.name):
                     dependencies_ready = False
                     if container_name not in logged_health_check_waiting:
-                        logging.info(
-                            f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'.")
+                        logger.info(
+                            f"Container '{container_name}' is waiting for the health check of dependency '{parent.name}'."
+                        )
                         logged_health_check_waiting.add(container_name)
                     break
                 elif parent.name not in started_containers:
@@ -255,8 +293,12 @@ def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, t
             if dependencies_ready:
                 if container.delay > 0:
                     if container_start_times[container_name] == 0.0:
-                        container_start_times[container_name] = current_time + float(container.delay)
-                        logging.info(f"Container '{container_name}' is scheduled to start in {container.delay} seconds")
+                        container_start_times[container_name] = current_time + float(
+                            container.delay
+                        )
+                        logger.info(
+                            f"Container '{container_name}' is scheduled to start in {container.delay} seconds"
+                        )
                     elif current_time >= container_start_times[container_name]:
                         ready_to_start.append(container_name)
                 else:
@@ -266,43 +308,53 @@ def start_containers_in_dependency_order(_graph: DependencyGraph, job_id: str, t
         for container_name in ready_to_start:
             started_containers.add(container_name)
             containers_to_start.remove(container_name)
-            if container_name in logged_health_check_waiting:
-                logged_health_check_waiting.remove(container_name)
+            logged_health_check_waiting.discard(container_name)
             if container_name in container_start_times:
                 del container_start_times[container_name]
-    
+
         time.sleep(1)
 
     job_manager.update_job(job_id, JobStatus.COMPLETED)
 
 
-def stop_containers_with_shell(containers: List[str], ignore_containers: Set[str] = None):
+def stop_containers_with_shell(
+    containers: list[str], ignore_containers: set[str] | None = None
+):
     if ignore_containers is None:
         ignore_containers = set()
     if containers:
         containers_to_stop = [c for c in containers if c not in ignore_containers]
         if containers_to_stop:
             try:
-                logging.info(f"Stopping containers: {', '.join(containers_to_stop)}")
-                subprocess.run(['docker', 'stop', *containers_to_stop], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                               check=True)
-                logging.info(f"Stopped containers: {', '.join(containers_to_stop)}")
+                logger.info(f"Stopping containers: {', '.join(containers_to_stop)}")
+                subprocess.run(
+                    ["docker", "stop", *containers_to_stop],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True,
+                )
+                logger.info(f"Stopped containers: {', '.join(containers_to_stop)}")
             except subprocess.CalledProcessError as err:
-                logging.error(f"Failed to stop containers with error: {err}")
+                logger.error(f"Failed to stop containers with error: {err}")
 
 
-def stop_containers_in_dependency_order(_graph: DependencyGraph, ignore_containers: Set[str] = None, job_id: str = None, timeout: int = 600):
+def stop_containers_in_dependency_order(
+    _graph: DependencyGraph,
+    ignore_containers: set[str] | None = None,
+    job_id: str | None = None,
+    timeout: int = 600,
+):
     if ignore_containers is None:
         ignore_containers = set()
     stopped_containers = set()
     containers_to_stop = set(_graph.nodes.keys()) - ignore_containers
-    
+
     start_time = time.time()
 
     while containers_to_stop:
         # Check if we've exceeded the timeout
         if time.time() - start_time > timeout:
-            logging.error(f"Container stop operation timed out after {timeout} seconds")
+            logger.error(f"Container stop operation timed out after {timeout} seconds")
             if job_id:
                 job_manager.update_job(job_id, JobStatus.FAILED)
             return
@@ -342,9 +394,10 @@ class JobStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
+
 class JobManager:
     def __init__(self):
-        self.jobs: Dict[str, JobStatus] = {}
+        self.jobs: dict[str, JobStatus] = {}
 
     def create_job(self) -> str:
         job_id = str(uuid.uuid4())
@@ -355,8 +408,9 @@ class JobManager:
         if job_id in self.jobs:
             self.jobs[job_id] = status
 
-    def get_job_status(self, job_id: str) -> Optional[JobStatus]:
+    def get_job_status(self, job_id: str) -> JobStatus | None:
         return self.jobs.get(job_id)
+
 
 job_manager = JobManager()
 
@@ -372,21 +426,27 @@ async def lifespan(app: FastAPI):
         try:
             client = docker.from_env(timeout=10)
             docker_version = client.version()
-            logging.info(f"Using Docker version: {docker_version['Components'][0]['Version']}")
+            logger.info(
+                f"Using Docker version: {docker_version['Components'][0]['Version']}"
+            )
 
             app_ready = True  # Indicate that the app is now ready
             break  # Exit the loop if successful
 
-        except Exception as e:
-            logging.error(f"Attempt {attempt} - An error occurred during Docker initialization: {e}")
+        except Exception:
+            logger.exception(
+                "Attempt %s - An error occurred during Docker initialization", attempt
+            )
             if attempt < retry_attempts:
                 await asyncio.sleep(retry_delay)
             else:
-                logging.critical("Failed to initialize Docker after multiple attempts. Exiting.")
+                logger.critical(
+                    "Failed to initialize Docker after multiple attempts. Exiting."
+                )
                 raise SystemExit("Failed to initialize Docker. Exiting.")
 
     yield
-    logging.info("Application shutdown complete")
+    logger.info("Application shutdown complete")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -408,10 +468,13 @@ async def ping():
 
 
 @app.post("/start")
-async def start_containers(background_tasks: BackgroundTasks, timeout: int = Query(default=600, description="Timeout in seconds")):
+async def start_containers(
+    background_tasks: BackgroundTasks,
+    timeout: int = Query(default=600, description="Timeout in seconds"),
+):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
-    
+
     job_id = job_manager.create_job()
     client = docker.from_env()
     _graph = parse_container_labels(client)
@@ -420,16 +483,19 @@ async def start_containers(background_tasks: BackgroundTasks, timeout: int = Que
         job_manager.update_job(job_id, JobStatus.RUNNING)
         try:
             start_containers_in_dependency_order(_graph, job_id, timeout)
-        except Exception as e:
-            logging.error(f"Failed to start containers: {str(e)}")
+        except Exception:
+            logger.exception("Failed to start containers")
             job_manager.update_job(job_id, JobStatus.FAILED)
-    
+
     background_tasks.add_task(start_containers_task)
     return {"job_id": job_id}
 
 
 @app.post("/stop")
-async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] = Query(None), timeout: int = Query(default=600, description="Timeout in seconds")
+async def stop_containers(
+    background_tasks: BackgroundTasks,
+    ignore: Annotated[list[str] | None, Query()] = None,
+    timeout: int = Query(default=600, description="Timeout in seconds"),
 ):
     if is_blocked:
         raise HTTPException(status_code=200, detail="Operation blocked")
@@ -442,11 +508,13 @@ async def stop_containers(background_tasks: BackgroundTasks, ignore: List[str] =
     def stop_containers_task():
         job_manager.update_job(job_id, JobStatus.RUNNING)
         try:
-            stop_containers_in_dependency_order(_graph, ignore_containers, job_id, timeout)
-        except Exception as e:
-            logging.error(f"Failed to stop containers: {str(e)}")
+            stop_containers_in_dependency_order(
+                _graph, ignore_containers, job_id, timeout
+            )
+        except Exception:
+            logger.exception("Failed to stop containers")
             job_manager.update_job(job_id, JobStatus.FAILED)
-    
+
     background_tasks.add_task(stop_containers_task)
     return {"job_id": job_id}
 
@@ -464,7 +532,8 @@ async def auto_unblock(delay: int):
     await asyncio.sleep(delay)
     global is_blocked
     is_blocked = False
-    logging.info("Auto unblock complete")
+    logger.info("Auto unblock complete")
+
 
 @app.post("/block/{duration_minutes}")
 async def block_operations(duration_minutes: int = 10):
@@ -473,8 +542,9 @@ async def block_operations(duration_minutes: int = 10):
     if unblock_task:
         unblock_task.cancel()
     unblock_task = asyncio.create_task(auto_unblock(duration_minutes * 60))
-    logging.info(f"Operations are now blocked for {duration_minutes} minutes")
+    logger.info(f"Operations are now blocked for {duration_minutes} minutes")
     return {"message": f"Operations are now blocked for {duration_minutes} minutes"}
+
 
 @app.post("/unblock")
 async def unblock_operations():
@@ -483,5 +553,5 @@ async def unblock_operations():
     if unblock_task:
         unblock_task.cancel()
         unblock_task = None
-    logging.info("Operations are now unblocked")
+    logger.info("Operations are now unblocked")
     return {"message": "Operations are now unblocked"}

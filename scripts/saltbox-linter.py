@@ -194,7 +194,10 @@ LINTER_RULES = (
     ("docker-network-formula", "Use a supported Docker network formula"),
     ("section-structure", "Keep defaults sections unique and ordered"),
     ("direct-web-host-composition", "Use role_web for canonical hosts"),
-    ("docker-envs-custom-usage", "Use Docker environment custom values as the final layer"),
+    (
+        "docker-envs-custom-usage",
+        "Use Docker environment custom values as the final layer",
+    ),
     ("lookup-documentation", "Document computed lookup defaults"),
     ("redundant-docker-layers", "Omit redundant empty Docker layers"),
     ("docker-hosts-formula", "Compose role-local Docker host mappings"),
@@ -212,9 +215,15 @@ LINTER_RULES = (
     ("lookup-argument-layout", "Use the canonical multiline lookup layout"),
     ("block-jinja-indentation", "Indent pure block-scalar Jinja structurally"),
     ("lookup-conditional-argument", "Resolve conditionals before lookup calls"),
-    ("jinja-closing-brace-placement", "Keep multiline Jinja closing braces with the final token"),
+    (
+        "jinja-closing-brace-placement",
+        "Keep multiline Jinja closing braces with the final token",
+    ),
     ("docker-healthcheck-test-layout", "Use marker-specific Docker healthcheck lists"),
-    ("docker-healthcheck-command-mode", "Prefer CMD unless CMD-SHELL is explicitly allowed"),
+    (
+        "docker-healthcheck-command-mode",
+        "Prefer CMD unless CMD-SHELL is explicitly allowed",
+    ),
     ("saltbox-lint-directive", "Use supported line-local Saltbox lint directives"),
     ("svm-github-api-resource", "Use the shared SVM GitHub API resource"),
     ("git-clone-resource", "Use the shared Git clone resource"),
@@ -1009,9 +1018,7 @@ class SaltboxLinter:
             r"^(?:\{\s*)?(?:['\"]?module['\"]?\s*:\s*)?['\"]?"
             r"ansible\.builtin\.git(?:['\"])?(?:\s|[,}]|$)"
         )
-        nested_module_key = re.compile(
-            r"^['\"]?module['\"]?\s*:\s*(?P<value>.*)$"
-        )
+        nested_module_key = re.compile(r"^['\"]?module['\"]?\s*:\s*(?P<value>.*)$")
         nested_task_list = re.compile(
             r"^(?P<quote>['\"]?)(?:block|rescue|always)(?P=quote)"
             r"\s*:\s*$"
@@ -1071,8 +1078,7 @@ class SaltboxLinter:
                     break
 
             is_task_item = any(
-                item_indent == indent
-                for _, item_indent in task_lists
+                item_indent == indent for _, item_indent in task_lists
             ) and stripped.startswith("- ")
 
             active_task_indents = [
@@ -1258,7 +1264,11 @@ class SaltboxLinter:
                 elif quote == '"' and char == "\\":
                     escaped = True
                 elif char == quote:
-                    if quote == "'" and column + 1 < len(value) and value[column + 1] == quote:
+                    if (
+                        quote == "'"
+                        and column + 1 < len(value)
+                        and value[column + 1] == quote
+                    ):
                         continue
                     return value[: column + 1]
             return value
@@ -1278,24 +1288,18 @@ class SaltboxLinter:
         def record(value: str, line_number: int) -> None:
             scalar = value.strip()
             quoted = (
-                len(scalar) >= 2
-                and scalar[0] == scalar[-1]
-                and scalar[0] in ("'", '"')
+                len(scalar) >= 2 and scalar[0] == scalar[-1] and scalar[0] in ("'", '"')
             )
             tag = self.unquote_yaml_scalar(scalar) if quoted else scalar
-            yaml_non_string = (
-                not quoted
-                and (
-                    tag.casefold()
-                    in {"false", "no", "null", "off", "on", "true", "yes", "~"}
-                    or re.fullmatch(
-                        r"[+-]?(?:[0-9][0-9_]*|0b[01_]+|0o[0-7_]+|0x[0-9a-f_]+)",
-                        tag,
-                    )
-                    is not None
-                    or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", tag)
-                    is not None
+            yaml_non_string = not quoted and (
+                tag.casefold()
+                in {"false", "no", "null", "off", "on", "true", "yes", "~"}
+                or re.fullmatch(
+                    r"[+-]?(?:[0-9][0-9_]*|0b[01_]+|0o[0-7_]+|0x[0-9a-f_]+)",
+                    tag,
                 )
+                is not None
+                or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", tag) is not None
             )
             if (
                 tag
@@ -3063,8 +3067,7 @@ class SaltboxLinter:
             (
                 index
                 for index, (token, _) in enumerate(tokens)
-                if token not in ("{", "%")
-                and (token[0].isalpha() or token[0] == "_")
+                if token not in ("{", "%") and (token[0].isalpha() or token[0] == "_")
             ),
             None,
         )
@@ -3129,11 +3132,9 @@ class SaltboxLinter:
             ):
                 continue
             if (
-                statement_command == "filter"
-                and statement_command_index is not None
-            ):
-                if index == statement_command_index + 1:
-                    continue
+                statement_command == "filter" and statement_command_index is not None
+            ) and index == statement_command_index + 1:
+                continue
             if (
                 statement_command in ("macro", "call")
                 and statement_command_index is not None
@@ -3150,10 +3151,7 @@ class SaltboxLinter:
                 )
                 if open_index is not None:
                     close_index = matching_parenthesis(open_index)
-                    if (
-                        close_index is not None
-                        and open_index < index < close_index
-                    ):
+                    if close_index is not None and open_index < index < close_index:
                         if statement_command == "call" and (
                             open_index == statement_command_index + 1
                         ):
@@ -3910,9 +3908,13 @@ def check_ansible_source_headers(
         )
         preamble = lines[:document_line] if document_line is not None else []
 
-        def find_line(pattern: str) -> int | None:
+        def find_line(pattern: str, preamble: list[str] = preamble) -> int | None:
             return next(
-                (index for index, line in enumerate(preamble) if re.match(pattern, line)),
+                (
+                    index
+                    for index, line in enumerate(preamble)
+                    if re.match(pattern, line)
+                ),
                 None,
             )
 

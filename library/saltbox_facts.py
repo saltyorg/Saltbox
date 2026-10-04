@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 DOCUMENTATION = """
@@ -170,46 +168,58 @@ import pwd
 import stat
 import tempfile
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from io import StringIO
-from typing import Any, Iterator
+from typing import Any
 
 from ansible.module_utils.basic import AnsibleModule
-
 
 LOCK_TIMEOUT_SECONDS = 30.0
 LOCK_POLL_INTERVAL_SECONDS = 0.05
 
 
-def create_config_parser() -> configparser.ConfigParser:
+class CaseSensitiveConfigParser(configparser.ConfigParser):
+    """Preserve option spelling and expose the stored, non-inherited section values."""
+
+    _sections: dict[str, dict[str, str]]
+
+    def optionxform(self, optionstr: str) -> str:
+        return str(optionstr)
+
+
+def create_config_parser() -> CaseSensitiveConfigParser:
     """
     Create a consistently configured, case-sensitive INI parser.
     """
-    config = configparser.ConfigParser(
+    config = CaseSensitiveConfigParser(
         interpolation=None,
-        comment_prefixes=('#',),
+        comment_prefixes=("#",),
         inline_comment_prefixes=None,
-        default_section='DEFAULT',
-        delimiters=('=',),
-        empty_lines_in_values=False
+        default_section="DEFAULT",
+        delimiters=("=",),
+        empty_lines_in_values=False,
     )
-    config.optionxform = str
     return config
 
 
-def read_config(file_path: str) -> configparser.ConfigParser:
+def read_config(file_path: str) -> CaseSensitiveConfigParser:
     """
     Read an INI file while surfacing filesystem and parsing errors.
     """
     config = create_config_parser()
     if os.path.exists(file_path):
         try:
-            with open(file_path, 'r', encoding='utf-8') as config_file:
+            with open(file_path, "r", encoding="utf-8") as config_file:
                 config.read_file(config_file)
         except configparser.Error as error:
-            raise ValueError(f"Configuration parsing error in '{file_path}': {error}") from error
+            raise ValueError(
+                f"Configuration parsing error in '{file_path}': {error}"
+            ) from error
         except OSError as error:
-            raise OSError(f"Unable to read configuration file '{file_path}': {error}") from error
+            raise OSError(
+                f"Unable to read configuration file '{file_path}': {error}"
+            ) from error
     return config
 
 
@@ -221,16 +231,19 @@ def validate_instance_name(instance: Any) -> None:
         instance: Value to validate as instance name
 
     Raises:
-        ValueError: If instance is not a string
+        TypeError: If instance is not a string
+        ValueError: If the instance name cannot be represented safely in INI
     """
     if not isinstance(instance, str):
-        raise ValueError("Instance name must be a string")
+        raise TypeError("Instance name must be a string")
     if not instance.strip():
         raise ValueError("Instance name must be non-empty")
     if instance == configparser.DEFAULTSECT:
         raise ValueError(f"Instance name must not be '{configparser.DEFAULTSECT}'")
-    if any(character in instance for character in ('\r', '\n', '[', ']')):
-        raise ValueError("Instance name must not contain line breaks or square brackets")
+    if any(character in instance for character in ("\r", "\n", "[", "]")):
+        raise ValueError(
+            "Instance name must not contain line breaks or square brackets"
+        )
 
 
 def validate_key_name(key: Any) -> None:
@@ -238,12 +251,12 @@ def validate_key_name(key: Any) -> None:
     Validate that a key can be represented without changing its INI identity.
     """
     if not isinstance(key, str):
-        raise ValueError(f"Invalid key '{key}': must be a string")
+        raise TypeError(f"Invalid key '{key}': must be a string")
     if not key.strip():
         raise ValueError("Configuration keys must be non-empty")
-    if any(character in key for character in ('\r', '\n', '=')):
+    if any(character in key for character in ("\r", "\n", "=")):
         raise ValueError(f"Invalid key '{key}': must not contain line breaks or '='")
-    if key.lstrip().startswith(('#', ';')):
+    if key.lstrip().startswith(("#", ";")):
         raise ValueError(f"Invalid key '{key}': must not be interpreted as a comment")
 
 
@@ -255,10 +268,11 @@ def validate_keys(keys: Any, validate_values: bool = True) -> None:
         keys (dict): Dictionary of configuration keys and values to validate
 
     Raises:
-        ValueError: If keys is not a dictionary or if any key/value is invalid
+        TypeError: If keys is not a dictionary or a key is not a string
+        ValueError: If any key/value is invalid
     """
     if not isinstance(keys, dict):
-        raise ValueError("Keys must be a dictionary")
+        raise TypeError("Keys must be a dictionary")
 
     for key, value in keys.items():
         validate_key_name(key)
@@ -280,19 +294,20 @@ def get_file_path(role: str, base_path: str) -> str:
         str: Full path to the configuration file
 
     Raises:
-        ValueError: If role is not a string
+        TypeError: If role is not a string
+        ValueError: If the role or base path is invalid
     """
     if not isinstance(role, str):
-        raise ValueError("Role name must be a string")
+        raise TypeError("Role name must be a string")
     if os.path.sep in role or (os.path.altsep and os.path.altsep in role):
         raise ValueError("Role name must not contain path separators")
-    if role in ('.', '..') or role.strip() == '':
+    if role in (".", "..") or role.strip() == "":
         raise ValueError("Role name must be a non-empty name")
     if not isinstance(base_path, str) or not base_path.strip():
         raise ValueError("Base path must be a non-empty string")
     if not os.path.isabs(base_path):
         raise ValueError("Base path must be absolute")
-    return os.path.join(os.path.normpath(base_path), 'saltbox', f'{role}.ini')
+    return os.path.join(os.path.normpath(base_path), "saltbox", f"{role}.ini")
 
 
 def atomic_write(file_path: str, content: str, mode: int, uid: int, gid: int) -> None:
@@ -315,7 +330,7 @@ def atomic_write(file_path: str, content: str, mode: int, uid: int, gid: int) ->
 
     temp_fd, temp_path = tempfile.mkstemp(dir=directory)
     try:
-        with os.fdopen(temp_fd, 'w', encoding='utf-8', newline='\n') as temp_file:
+        with os.fdopen(temp_fd, "w", encoding="utf-8", newline="\n") as temp_file:
             temp_file.write(content)
             temp_file.flush()
             os.fsync(temp_file.fileno())
@@ -368,7 +383,7 @@ def fact_file_lock(
         raise ValueError(f"Facts lock must not be a symbolic link: {lock_path}")
 
     flags = os.O_CREAT | os.O_RDWR | os.O_CLOEXEC
-    if hasattr(os, 'O_NOFOLLOW'):
+    if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
     lock_descriptor = os.open(lock_path, flags, 0o640)
     try:
@@ -376,7 +391,7 @@ def fact_file_lock(
         if not stat.S_ISREG(lock_stat.st_mode):
             raise ValueError(f"Facts lock must be a regular file: {lock_path}")
         os.fchmod(lock_descriptor, 0o640)
-        with os.fdopen(lock_descriptor, 'r+') as lock_file:
+        with os.fdopen(lock_descriptor, "r+") as lock_file:
             lock_descriptor = -1
             acquire_fact_lock(lock_file, lock_path, lock_timeout)
             yield
@@ -422,7 +437,7 @@ def load_existing_facts(file_path: str, instance: str) -> dict[str, str]:
 
     if config.has_section(instance):
         for key, value in config._sections[instance].items():
-            if value != 'None':
+            if value != "None":
                 existing_facts[key] = value
 
     return existing_facts
@@ -561,7 +576,7 @@ def delete_facts_unlocked(
     keys: dict[str, Any],
 ) -> bool:
     """Delete facts while the role sidecar lock is held."""
-    if delete_type == 'role':
+    if delete_type == "role":
         if os.path.lexists(file_path):
             os.remove(file_path)
             return True
@@ -573,9 +588,9 @@ def delete_facts_unlocked(
     config = read_config(file_path)
     changed = False
 
-    if delete_type == 'instance':
+    if delete_type == "instance":
         changed = config.remove_section(instance)
-    elif delete_type == 'key' and config.has_section(instance):
+    elif delete_type == "key" and config.has_section(instance):
         section_values = config._sections[instance]
         for key in keys:
             if key in section_values:
@@ -592,7 +607,7 @@ def delete_facts_unlocked(
             config_str,
             stat.S_IMODE(file_stat.st_mode),
             file_stat.st_uid,
-            file_stat.st_gid
+            file_stat.st_gid,
         )
 
     return changed
@@ -609,12 +624,15 @@ def parse_mode(mode: Any) -> int:
         int: Parsed mode as integer
 
     Raises:
+        TypeError: If mode is not a string
         ValueError: If mode is invalid or improperly formatted
     """
     if not isinstance(mode, str):
-        raise ValueError("Mode must be a quoted string to comply with YAML best practices.")
+        raise TypeError(
+            "Mode must be a quoted string to comply with YAML best practices."
+        )
     mode = mode.strip()
-    if mode.startswith('0'):
+    if mode.startswith("0"):
         try:
             parsed_mode = int(mode, 8)
         except ValueError:
@@ -623,7 +641,9 @@ def parse_mode(mode: Any) -> int:
             raise ValueError("Mode must not exceed '07777'.")
         return parsed_mode
     else:
-        raise ValueError("Mode must be a quoted octal number starting with '0' (e.g., '0640').")
+        raise ValueError(
+            "Mode must be a quoted octal number starting with '0' (e.g., '0640')."
+        )
 
 
 def get_current_identity() -> tuple[str, str]:
@@ -673,58 +693,57 @@ def run_module() -> None:
     - overwrite (bool): If True, overwrite existing values; if False, keep existing (default: False)
     - base_path (str): Base directory path for storing configuration files (required)
     """
-    module_args = dict(
-        role=dict(type='str', required=True),
-        instance=dict(type='str', required=True),
-        method=dict(type='str', choices=['delete'], required=False),
-        keys=dict(type='dict', required=False, default={}),
-        delete_type=dict(type='str', choices=['role', 'instance', 'key'], required=False),
-        owner=dict(type='str', required=False),
-        group=dict(type='str', required=False),
-        mode=dict(type='str', required=False, default='0640'),
-        overwrite=dict(type='bool', required=False, default=False),
-        base_path=dict(type='str', required=True)
-    )
+    module_args = {
+        "role": {"type": "str", "required": True},
+        "instance": {"type": "str", "required": True},
+        "method": {"type": "str", "choices": ["delete"], "required": False},
+        "keys": {"type": "dict", "required": False, "default": {}},
+        "delete_type": {
+            "type": "str",
+            "choices": ["role", "instance", "key"],
+            "required": False,
+        },
+        "owner": {"type": "str", "required": False},
+        "group": {"type": "str", "required": False},
+        "mode": {"type": "str", "required": False, "default": "0640"},
+        "overwrite": {"type": "bool", "required": False, "default": False},
+        "base_path": {"type": "str", "required": True},
+    }
 
-    result = dict(
-        changed=False,
-        message='',
-        facts={}
-    )
+    result = {"changed": False, "message": "", "facts": {}}
 
-    module = AnsibleModule(
-        argument_spec=module_args
-    )
+    module = AnsibleModule(argument_spec=module_args)
 
     try:
-        role: str = module.params['role']
-        instance: str = module.params['instance']
-        method: str | None = module.params.get('method')
-        keys: dict[str, Any] = module.params['keys']
-        delete_type: str | None = module.params.get('delete_type')
-        overwrite: bool = module.params['overwrite']
-        base_path: str = module.params['base_path']
+        role: str = module.params["role"]
+        instance: str = module.params["instance"]
+        method: str | None = module.params.get("method")
+        keys: dict[str, Any] = module.params["keys"]
+        delete_type: str | None = module.params.get("delete_type")
+        overwrite: bool = module.params["overwrite"]
+        base_path: str = module.params["base_path"]
 
         current_user, current_group = get_current_identity()
-        owner: str = module.params.get('owner') or current_user
-        group: str = module.params.get('group') or current_group
+        owner: str = module.params.get("owner") or current_user
+        group: str = module.params.get("group") or current_group
 
-        mode = parse_mode(module.params['mode'])
+        mode = parse_mode(module.params["mode"])
         file_path = get_file_path(role, base_path)
 
-        if method == 'delete':
-            if not delete_type:
+        if method == "delete":
+            if delete_type:
+                result["changed"] = delete_facts(file_path, delete_type, instance, keys)
+            else:
                 module.fail_json(msg="delete_type is required for delete method.")
-            result['changed'] = delete_facts(file_path, delete_type, instance, keys)
         else:
             uid, gid = resolve_ownership(owner, group)
-            result['facts'], result['changed'] = process_facts(
+            result["facts"], result["changed"] = process_facts(
                 file_path, instance, keys, uid, gid, mode, overwrite
             )
 
         module.exit_json(**result)
 
-    except Exception as error:
+    except (OSError, ValueError, TypeError, KeyError, configparser.Error) as error:
         module.fail_json(msg=str(error))
 
 
@@ -735,5 +754,5 @@ def main() -> None:
     run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

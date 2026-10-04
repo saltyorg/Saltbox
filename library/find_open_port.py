@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 DOCUMENTATION = """
@@ -65,14 +63,14 @@ def parse_ports_in_use(output: str, protocol: str) -> set[int]:
             raise ValueError(f"Unexpected ss output: {line}")
 
         socket_protocol = fields[0]
-        if socket_protocol not in ('tcp', 'udp'):
+        if socket_protocol not in ("tcp", "udp"):
             continue
-        if protocol != 'both' and socket_protocol != protocol:
+        if protocol != "both" and socket_protocol != protocol:
             continue
-        if socket_protocol == 'tcp' and fields[1] != 'LISTEN':
+        if socket_protocol == "tcp" and fields[1] != "LISTEN":
             continue
 
-        port_text = fields[4].rsplit(':', 1)[-1]
+        port_text = fields[4].rsplit(":", 1)[-1]
         if not port_text.isdigit():
             raise ValueError(f"Could not parse port from ss output: {line}")
 
@@ -88,22 +86,28 @@ def get_ports_in_use(module: AnsibleModule, protocol: str) -> set[int]:
     """
     Fetch TCP and UDP sockets from ``ss``.
     """
-    ss_path = module.get_bin_path('ss', required=True)
-    rc, stdout, stderr = module.run_command([ss_path, '-Htuan'])
+    ss_path = module.get_bin_path("ss", required=True)
+    rc, stdout, stderr = module.run_command([ss_path, "-Htuan"])
     if rc != 0:
-        module.fail_json(msg=f"Failed to execute ss command: {stderr.strip() or stdout.strip()}")
+        module.fail_json(
+            msg=f"Failed to execute ss command: {stderr.strip() or stdout.strip()}"
+        )
 
     return parse_ports_in_use(stdout, protocol)
 
 
-def find_port(module: AnsibleModule, low_bound: int, high_bound: int, protocol: str) -> tuple[bool, dict[str, object]]:
+def find_port(
+    module: AnsibleModule, low_bound: int, high_bound: int, protocol: str
+) -> tuple[bool, dict[str, object]]:
     try:
         if low_bound < 1:
             module.fail_json(msg="Low bound must be at least 1")
         if high_bound > 65535:
             module.fail_json(msg="High bound must be at most 65535")
         if high_bound < low_bound:
-            module.fail_json(msg="High bound must be greater than or equal to low bound")
+            module.fail_json(
+                msg="High bound must be greater than or equal to low bound"
+            )
 
         seq = set(range(low_bound, high_bound + 1))
         ports_in_use = get_ports_in_use(module, protocol)
@@ -115,19 +119,29 @@ def find_port(module: AnsibleModule, low_bound: int, high_bound: int, protocol: 
         return True, {"msg": "No available port found in the specified range"}
 
     except ValueError as e:
-        module.fail_json(msg=f"Failed to parse ss output: {e}")
+        return module.fail_json(msg=f"Failed to parse ss output: {e}")
+
 
 def main() -> None:
     module = AnsibleModule(
-        argument_spec=dict(
-            low_bound=dict(type='int', required=True),
-            high_bound=dict(type='int', required=True),
-            protocol=dict(type='str', default='both', choices=['tcp', 'udp', 'both']),
-        ),
-        supports_check_mode=True
+        argument_spec={
+            "low_bound": {"type": "int", "required": True},
+            "high_bound": {"type": "int", "required": True},
+            "protocol": {
+                "type": "str",
+                "default": "both",
+                "choices": ["tcp", "udp", "both"],
+            },
+        },
+        supports_check_mode=True,
     )
 
-    is_error, result = find_port(module, module.params['low_bound'], module.params['high_bound'], module.params['protocol'])
+    is_error, result = find_port(
+        module,
+        module.params["low_bound"],
+        module.params["high_bound"],
+        module.params["protocol"],
+    )
 
     if not is_error:
         module.exit_json(changed=False, meta=result)
@@ -135,5 +149,5 @@ def main() -> None:
         module.fail_json(msg="Error finding port", meta=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
 
 DOCUMENTATION = """
@@ -43,9 +41,9 @@ changed:
 import base64
 import hashlib
 import os
+from typing import Any
 
 from ansible.module_utils.basic import AnsibleModule
-
 
 ITERATIONS = 100_000
 SALT_SIZE = 16
@@ -57,10 +55,10 @@ def generate_qbittorrent_hash(plain_passwd: str) -> str:
     """
     salt = os.urandom(SALT_SIZE)
     derived_key = hashlib.pbkdf2_hmac(
-        hash_name='sha512',
+        hash_name="sha512",
         password=plain_passwd.encode(),
         salt=salt,
-        iterations=ITERATIONS
+        iterations=ITERATIONS,
     )
     salt_b64 = base64.b64encode(salt).decode()
     hash_b64 = base64.b64encode(derived_key).decode()
@@ -68,28 +66,24 @@ def generate_qbittorrent_hash(plain_passwd: str) -> str:
 
 
 def main() -> None:
-    module_args = dict(
-        password=dict(type='str', required=True, no_log=True)
-    )
+    module_args = {"password": {"type": "str", "required": True, "no_log": True}}
 
-    result: dict[str, bool | str] = {
-        'changed': False,
-        'hash': '',
+    result: dict[str, Any] = {
+        "changed": False,
+        "hash": "",
     }
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
-    plain_password: str = module.params['password']
+    plain_password: str = module.params["password"]
 
     try:
-        result['hash'] = generate_qbittorrent_hash(plain_password)
-    except Exception as e:
-        module.fail_json(msg=f"Failed to generate qBittorrent hash: {str(e)}", **result)
+        result["hash"] = generate_qbittorrent_hash(plain_password)
+    except (OSError, ValueError, TypeError) as e:
+        module.fail_json(msg=f"Failed to generate qBittorrent hash: {e!s}", **result)
 
     module.exit_json(**result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
