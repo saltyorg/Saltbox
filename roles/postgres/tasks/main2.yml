@@ -61,7 +61,7 @@
             postgres_interrupted_recovery_version: "{{ postgres_interrupted_recovery_version_file.content | b64decode | trim }}"
 
         - name: Recreate previous PostgreSQL container after interrupted activation
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          ansible.builtin.include_tasks: "subtasks/create_container.yml"
           vars:
             postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres')
                                             + ':' + postgres_interrupted_recovery_version }}"
@@ -196,7 +196,7 @@
             mode: "0775"
 
         - name: "Create Docker container (Desired tag: {{ lookup('role_var', '_docker_image_tag', role='postgres') }})"
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          ansible.builtin.include_tasks: "subtasks/create_container.yml"
           vars:
             postgres_role_docker_container: "{{ postgres_name + '_new' }}"
             postgres_role_docker_networks_alias: "{{ postgres_name + '_new' }}"
@@ -217,7 +217,7 @@
               timeout: 5s
 
         - name: "Create Docker container (Previous version: {{ postgres_major_version }})"
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          ansible.builtin.include_tasks: "subtasks/create_container.yml"
           vars:
             postgres_role_docker_container: "{{ postgres_name + '_old' }}"
             postgres_role_docker_networks_alias: "{{ postgres_name + '_old' }}"
@@ -460,7 +460,7 @@
                 msg: "Unable to activate the migrated PostgreSQL data folder. The previous data remains available at its original or backup path."
 
         - name: Create Docker container
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          ansible.builtin.include_tasks: "subtasks/create_container.yml"
 
         - name: Wait for PostgreSQL container
           community.docker.docker_container_exec:
@@ -548,7 +548,7 @@
           when: (postgres_migration_started | bool)
 
         - name: Recreate previous PostgreSQL container after migration failure
-          ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+          ansible.builtin.include_tasks: "subtasks/create_container.yml"
           vars:
             postgres_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='postgres') + ':' + postgres_major_version }}"
           when: (postgres_migration_started | bool)
@@ -587,7 +587,7 @@
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
     - name: Create Docker container
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      ansible.builtin.include_tasks: "subtasks/create_container.yml"
 
     - name: Wait for PostgreSQL container
       community.docker.docker_container_exec:
