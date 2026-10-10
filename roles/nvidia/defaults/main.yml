@@ -171,7 +171,7 @@ nvidia_docker_device_request:
   driver: "nvidia"
   count: -1
   capabilities:
-    - ["gpu"]
+    - ["gpu", "video"]
 
 nvidia_docker_config:
   exec-opts: ["native.cgroupdriver=cgroupfs"]
