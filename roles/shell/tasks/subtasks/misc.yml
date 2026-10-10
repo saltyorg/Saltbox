@@ -25,5 +25,5 @@
 - name: Misc | Activate argcomplete
   ansible.builtin.command:
     argv: "{{ shell_misc_argcomplete_command_args
-              | saltbox_argv('shell_misc_argcomplete_command_args') }}"
+              | saltbox_argv(error_label='shell_misc_argcomplete_command_args') }}"
     expand_argument_vars: false
