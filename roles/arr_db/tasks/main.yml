@@ -13,6 +13,7 @@
       - "You must enable at least one of the role variables to run this role."
       - "Use the Saltbox inventory to enable."
   when: (not ((arr_db_sonarr_enabled | bool) or
+              (arr_db_radarr_enabled | bool) or
               (arr_db_lidarr_enabled | bool) or
               (arr_db_whisparr_enabled | bool) or
               (arr_db_prowlarr_enabled | bool) or
