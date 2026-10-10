@@ -12,9 +12,6 @@
     set -o pipefail
 
     tar \
-      --ignore-failed-read \
-      --warning=no-file-changed \
-      --warning=no-file-removed \
       --exclude='./snapshots' \
       --exclude-from '{{ backup_excludes_list_path }}' \
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
@@ -27,7 +24,7 @@
           {{ (['--user-agent=' + backup2_user_agent]
               if (backup2_user_agent | length > 0)
               else []) | map('quote') | join(' ') }} \
-          {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template', default=[])
+          {{ lookup('vars', 'backup2_' + backup.rclone.template + '_template_args', default=[])
              | map('quote') | join(' ') }} \
           --stats=30s \
           {{ (['--bind=' + ansible_facts['default_ipv4']['address']]

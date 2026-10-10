@@ -82,44 +82,21 @@
         group: "{{ user.name }}"
         mode: "0664"
 
-    - name: Check if previous backup folder exists
-      ansible.builtin.stat:
-        path: "{{ backup.local.destination }}"
-      register: backup_local_folder
+    - name: Require an enabled backup2 destination
+      ansible.builtin.assert:
+        that:
+          - backup_rclone_enabled
+        fail_msg: "Backup2 requires an enabled rclone backup destination."
 
-    - name: Check if previous backup exists locally
-      ansible.builtin.find:
-        paths: "{{ backup.local.destination }}"
-        file_type: file
-        patterns: '*.tar'
-        recurse: true
-      register: dir_files
-      when:
-        - backup_local_folder.stat.exists
-        - backup_local_folder.stat.isdir
-
-    # Remove backup.old folder if it exists.
-    - name: "Remove '{{ backup.local.destination }}.old'"
+    - name: Remove previous local backup2 directory
       ansible.builtin.file:
         path: "{{ backup.local.destination }}.old"
         state: absent
 
-    - name: Move previous backup if it exists locally
-      when:
-        - backup_local_folder.stat.exists
-        - backup_local_folder.stat.isdir
-      block:
-        # Use mv because Ansible copy & delete takes a lot longer.
-        - name: "Moving '{{ backup.local.destination }}' to '{{ backup.local.destination }}.old'"
-          ansible.builtin.command:
-            argv:
-              - "mv"
-              - "{{ backup.local.destination }}"
-              - "{{ backup.local.destination }}.old"
-            expand_argument_vars: false
-          become: true
-          become_user: "{{ user.name }}"
-          when: (dir_files.matched | int != 0)
+    - name: Remove replaceable local backup2 directory
+      ansible.builtin.file:
+        path: "{{ backup.local.destination }}"
+        state: absent
 
     - name: "Create backup folders."
       ansible.builtin.file:
@@ -441,6 +418,9 @@
         recurse: false
         file_type: directory
       register: opt_folders_temp
+      failed_when: >-
+        (opt_folders_temp.skipped_paths | default({}) | length > 0)
+        or (opt_folders_temp.matched | int == 0)
 
     - name: Create 'opt_folders' variable
       ansible.builtin.set_fact:
@@ -493,6 +473,28 @@
           - "backup_excludes.txt"
           - "backup_excludes_list.txt"
 
+    - name: List previous Backup2 remote files
+      ansible.builtin.command:
+        argv: "{{ ['/usr/bin/rclone', 'lsjson', backup.rclone.destination]
+                  + (['--user-agent=' + backup2_user_agent]
+                     if (backup2_user_agent | length > 0)
+                     else []) }}"
+        expand_argument_vars: false
+      environment: "{{ backup2_rclone_env }}"
+      become: true
+      become_user: "{{ user.name }}"
+      register: backup2_previous_remote
+      changed_when: false
+      failed_when: backup2_previous_remote.rc not in [0, 3]
+      when: backup_rclone_enabled
+
+    - name: Set previous Backup2 remote paths
+      ansible.builtin.set_fact:
+        backup2_previous_remote_paths: "{{ (backup2_previous_remote.stdout | from_json | map(attribute='Path') | list)
+                                        if backup2_previous_remote.rc == 0
+                                        else [] }}"
+      when: backup_rclone_enabled
+
     # If rclone_timestamp is blank, default the naming of files to '/archived/old/filename.ext', else /archived/date/filename.ext.
     - name: "Archive previous files in '{{ backup.rclone.destination }}'"
       ansible.builtin.command:
@@ -507,12 +509,11 @@
       become: true
       become_user: "{{ user.name }}"
       register: rclone_move
-      failed_when: rclone_move.rc > 3
-      ignore_errors: true
+      failed_when: rclone_move.rc != 0
       when:
         - backup_rclone_enabled
         - (rclone_timestamp is defined)
-        - ('Failed' not in rclone_timestamp.stderr)
+        - (item in backup2_previous_remote_paths)
       loop: "{{ backup_archive_list + (backup2_user_defined_files | map('basename') | list) }}"
 
     - name: "Use rclone to upload backup to '{{ backup.rclone.destination }}'"
@@ -797,6 +798,10 @@
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Backup terminated due to an error."
+
+    - name: Report backup2 failure
+      ansible.builtin.fail:
+        msg: "Backup2 failed. See the failed task above for details."
 
   always:
     - name: "Remove 'backup.lock'"

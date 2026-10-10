@@ -34,6 +34,8 @@
     - name: "Set 'backup_success' variable"
       ansible.builtin.set_fact:
         backup_success: false
+        backup_previous_available: false
+        backup_complete: false
 
     - name: Sanity Check
       ansible.builtin.include_tasks: "sanity_check.yml"
@@ -127,14 +129,44 @@
         - backup_local_folder.stat.exists
         - backup_local_folder.stat.isdir
 
-    # Remove backup.old folder if it exists.
-    - name: "Remove '{{ backup.local.destination }}.old'"
+    - name: Require an enabled backup destination
+      ansible.builtin.assert:
+        that:
+          - backup_local_enabled or backup_rclone_enabled or backup_rsync_enabled
+        fail_msg: "Enable at least one local, rclone, or rsync backup destination."
+
+    - name: Set local backup retention policy
+      ansible.builtin.set_fact:
+        backup_preserve_local: "{{ not (backup_rclone_enabled or backup_rsync_enabled) }}"
+
+    - name: Check preserved previous backup
+      ansible.builtin.stat:
+        path: "{{ backup.local.destination }}.old"
+      register: backup_preserved_previous
+
+    - name: Discard previous local backup when remote backups are enabled
       ansible.builtin.file:
         path: "{{ backup.local.destination }}.old"
         state: absent
+      when: (not backup_preserve_local)
+
+    - name: Reuse preserved previous local backup
+      ansible.builtin.set_fact:
+        backup_previous_available: true
+      when:
+        - backup_preserve_local
+        - backup_preserved_previous.stat.exists
+
+    - name: Remove replaceable local backup directory
+      ansible.builtin.file:
+        path: "{{ backup.local.destination }}"
+        state: absent
+      when: ((not backup_preserve_local) or backup_preserved_previous.stat.exists)
 
     - name: Move previous backup if it exists locally
       when:
+        - backup_preserve_local
+        - (not backup_preserved_previous.stat.exists)
         - backup_local_folder.stat.exists
         - backup_local_folder.stat.isdir
       block:
@@ -148,6 +180,11 @@
             expand_argument_vars: false
           become: true
           become_user: "{{ user.name }}"
+          when: (dir_files.matched | int != 0)
+
+        - name: Record preserved previous backup
+          ansible.builtin.set_fact:
+            backup_previous_available: true
           when: (dir_files.matched | int != 0)
 
     - name: "Create backup folders."
@@ -557,6 +594,9 @@
         recurse: false
         file_type: directory
       register: opt_folders_temp
+      failed_when: >-
+        (opt_folders_temp.skipped_paths | default({}) | length > 0)
+        or (opt_folders_temp.matched | int == 0)
 
     - name: Create 'opt_folders' variable
       ansible.builtin.set_fact:
@@ -573,9 +613,6 @@
       ansible.builtin.command:
         argv:
           - "tar"
-          - "--ignore-failed-read"
-          - "--warning=no-file-changed"
-          - "--warning=no-file-removed"
           - "--exclude=./snapshots"
           - "--exclude-from"
           - "{{ backup_excludes_list_path }}"
@@ -588,7 +625,6 @@
       with_items: "{{ opt_folders }}"
       loop_control:
         label: "'{{ item }}' --> '{{ backup.local.destination }}/opt/{{ item | basename }}.tar'"
-      ignore_errors: true
 
     - name: Snapshot | Cleanup Tasks
       when:
@@ -633,15 +669,7 @@
     - name: Abort backup when the creation of tarball files fails
       ansible.builtin.fail:
         msg: "There must have been an issue during the tarball creation tasks as they are missing in '{{ backup.local.destination }}/opt/'"
-      when: (dir_files2.matched | int == 0)
-
-    - name: "Remove '{{ backup.local.destination }}.old'"
-      ansible.builtin.file:
-        path: "{{ backup.local.destination }}.old"
-        state: absent
-      become: true
-      become_user: "{{ user.name }}"
-      when: (dir_files2.matched | int != 0)
+      when: (dir_files2.matched | int != opt_folders | length)
 
     - name: "Get size of '{{ backup.local.destination }}'"
       ansible.builtin.command:
@@ -886,6 +914,15 @@
         - cloudplow_service.stat.exists
         - cloudplow_service_running
 
+    - name: Record completed backup
+      ansible.builtin.set_fact:
+        backup_complete: true
+
+    - name: Remove previous backup after successful completion
+      ansible.builtin.file:
+        path: "{{ backup.local.destination }}.old"
+        state: absent
+
     - name: "Remove {{ backup.local.destination }}"
       ansible.builtin.file:
         path: "{{ backup.local.destination }}"
@@ -982,6 +1019,28 @@
         - cloudplow_service.stat.exists
         - cloudplow_service_running
 
+    - name: Restore previous backup after failure
+      when:
+        - (backup_previous_available | default(false))
+        - (not (backup_complete | default(false)))
+      block:
+        - name: Remove incomplete backup
+          ansible.builtin.file:
+            path: "{{ backup.local.destination }}"
+            state: absent
+
+        - name: Restore preserved backup directory
+          ansible.builtin.command:
+            argv:
+              - "mv"
+              - "--no-target-directory"
+              - "--"
+              - "{{ backup.local.destination }}.old"
+              - "{{ backup.local.destination }}"
+            expand_argument_vars: false
+          become: true
+          become_user: "{{ user.name }}"
+
     - name: Backup Status - Failure
       ansible.builtin.debug:
         msg: 'Backup terminated due to an error'
@@ -991,6 +1050,10 @@
         name: notify
       vars:
         message: "{{ backup_instance }} Backup: Backup terminated due to an error."
+
+    - name: Report backup failure
+      ansible.builtin.fail:
+        msg: "Backup failed. See the failed task above for details."
 
   always:
     - name: "Remove 'backup.lock'"
