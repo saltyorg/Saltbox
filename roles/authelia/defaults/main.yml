@@ -60,7 +60,7 @@ authelia_role_authentication_backend_file_password_argon2_salt_length: "16"
 authelia_role_access_control_policy: "one_factor"
 # Whitelists the host IPv4/IPv6 addresses depending on which are enabled
 authelia_role_access_control_whitelist_host: false
-# Whitelists the saltbox Docker network IP subnet
+# Whitelists the IPv4 and IPv6 subnets of the Saltbox Docker network
 authelia_role_access_control_whitelist_docker: false
 # Skip docs
 authelia_role_access_control_default_policy: "deny"
@@ -105,6 +105,7 @@ authelia_role_access_control_whitelist_rules_docker:
 # Skip docs
 authelia_role_access_control_whitelist_networks_docker:
   - "172.19.0.0/16"
+  - "fd00:dead:beef::/48"
 
 # Skip docs
 authelia_role_access_control_whitelist_networks_host:
