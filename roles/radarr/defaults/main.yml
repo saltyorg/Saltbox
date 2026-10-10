@@ -19,6 +19,11 @@ radarr_instances: ["radarr"]
 
 radarr_role_external_auth: true
 
+# Allow External authentication without Traefik SSO. External authentication
+# bypasses the application login. Set true only if access is protected another
+# way and you accept the risk of unauthenticated access.
+radarr_role_allow_external_auth_without_sso: false
+
 # Do not edit or override using the inventory
 radarr_role_allowed_hosts_public_fqdn_default: "{{ lookup('role_var',
                                                           '_web_fqdn_override',

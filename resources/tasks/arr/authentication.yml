@@ -1,0 +1,62 @@
+################################################################################
+# Title:         Saltbox: Resources | Tasks | Arr | Authentication              #
+# Author(s):     salty                                                          #
+# URL:           https://github.com/saltyorg/Saltbox                            #
+# --                                                                            #
+################################################################################
+#                   GNU General Public License v3.0                             #
+################################################################################
+# Interface: callers provide the base Arr role name through var_prefix.
+# The role must expose _paths_config_location, _traefik_enabled,
+# and _traefik_sso_middleware through role_var.
+# _allow_external_auth_without_sso is optional and defaults to false.
+---
+- name: Resources | Tasks | Arr | Authentication | Validate interface
+  ansible.builtin.assert:
+    that:
+      - var_prefix is defined
+      - var_prefix is string
+      - var_prefix | length > 0
+    fail_msg: The shared Arr authentication resource requires a nonempty var_prefix.
+
+- name: Resources | Tasks | Arr | Authentication | Check external authentication without SSO
+  vars:
+    _arr_auth_role: "{{ var_prefix }}"
+    _arr_auth_instance: "{{ lookup('vars', _arr_auth_role + '_name', default=_arr_auth_role) }}"
+    _arr_auth_sso_enabled: >-
+      {{
+        lookup('role_var', '_traefik_enabled', role=_arr_auth_role) | bool
+        and lookup('role_var', '_traefik_sso_middleware', role=_arr_auth_role) | trim | length > 0
+      }}
+  when:
+    - (not _arr_auth_sso_enabled | bool)
+    - (not lookup('role_var', '_allow_external_auth_without_sso', role=_arr_auth_role, default=false) | bool)
+  block:
+    - name: Resources | Tasks | Arr | Authentication | Check for existing configuration
+      ansible.builtin.stat:
+        path: "{{ lookup('role_var', '_paths_config_location', role=_arr_auth_role) }}"
+        get_checksum: false
+      register: _arr_auth_config
+
+    - name: Resources | Tasks | Arr | Authentication | Check existing external authentication
+      community.general.xml_info:
+        path: "{{ lookup('role_var', '_paths_config_location', role=_arr_auth_role) }}"
+        xpath: /Config/AuthenticationMethod[normalize-space(.) = 'External']
+        what: count
+      register: _arr_auth_xml_info
+      when: _arr_auth_config.stat.exists
+
+    - name: Resources | Tasks | Arr | Authentication | Require SSO for external authentication
+      ansible.builtin.assert:
+        that:
+          - _arr_auth_xml_info.count | default(0) == 0
+        fail_msg: >-
+          {{ _arr_auth_instance }} uses External authentication in
+          {{ lookup('role_var', '_paths_config_location', role=_arr_auth_role) }},
+          but Traefik SSO is disabled. External authentication bypasses the
+          application login. Keep Traefik SSO enabled or configure application
+          authentication manually. To accept this risk
+          with another access-control setup, set {{ _arr_auth_role }}_role_allow_external_auth_without_sso: true
+          or {{ _arr_auth_instance }}_allow_external_auth_without_sso: true
+          for this instance.
+        quiet: true

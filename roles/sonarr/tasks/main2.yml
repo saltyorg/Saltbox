@@ -7,6 +7,11 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
+- name: Validate authentication
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/arr/authentication.yml"
+  vars:
+    var_prefix: sonarr
+
 - name: Add DNS record
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
   vars:
