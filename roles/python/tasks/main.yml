@@ -76,7 +76,12 @@
     mode: "0755"
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
+
+- name: Set Python install directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ python_python_install_dir }}"
 
 - name: "Check if Python {{ python_version }} is already installed"
   ansible.builtin.command: "{{ python_bin }} python list --managed-python --only-installed"

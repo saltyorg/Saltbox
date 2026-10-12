@@ -114,7 +114,12 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    recurse: true
+
+- name: Remote | Set mount directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ mount_path }}"
 
 - name: Remote | Reset permissions for 'rclone.conf'
   ansible.builtin.file:

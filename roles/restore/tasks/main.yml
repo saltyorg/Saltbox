@@ -112,24 +112,14 @@
   with_items:
     - "{{ server_appdata_path }}"
     - "{{ server_local_folder_path }}"
+    - "{{ backup.local.destination }}"
+    - "{{ backup.local.destination }}/opt"
 
-- name: "Create backup location '{{ backup.local.destination }}'"
-  ansible.builtin.file:
-    path: "{{ backup.local.destination }}"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    recurse: true
-
-- name: "Create backup location '{{ backup.local.destination }}/opt'"
-  ansible.builtin.file:
-    path: "{{ backup.local.destination }}/opt"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    recurse: true
+- name: Set backup location ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ backup.local.destination }}"
 
 - name: Check if previous backup exists locally
   ansible.builtin.find:

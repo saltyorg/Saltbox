@@ -14,9 +14,14 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    recurse: true
   with_items:
     - "{{ server_appdata_path }}/mount-templates"
+
+- name: Set mount-templates directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ server_appdata_path }}/mount-templates"
 
 - name: Clone mount-templates repo 'HEAD'
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"

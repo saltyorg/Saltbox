@@ -18,13 +18,10 @@
                   + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
 
 - name: Resources | Tasks | Directories | Normalize ownership recursively
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ lookup('role_var', '_paths_owner', default=user.name) }}"
-    group: "{{ lookup('role_var', '_paths_group', default=user.name) }}"
-    recurse: true
-    follow: false
-  with_items: "{{ lookup('role_var', '_paths_folders_list')
-                  + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths: "{{ lookup('role_var', '_paths_folders_list')
+                     + lookup('role_var', '_paths_folders_list_custom', default=[]) }}"
+    chown_owner: "{{ lookup('role_var', '_paths_owner', default=user.name) }}"
+    chown_group: "{{ lookup('role_var', '_paths_group', default=user.name) }}"
   when: (lookup('role_var', '_paths_recursive', default=false) | bool)

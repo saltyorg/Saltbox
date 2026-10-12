@@ -194,13 +194,19 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
-        recurse: true
       with_items:
         - "/home/{{ user.name }}/logs"
         - "{{ backup.local.destination }}"
         - "{{ backup.local.destination }}/opt"
         - "{{ server_appdata_path }}/systemd-backup"
         - "{{ server_appdata_path }}/crontab-backup"
+
+    - name: Set backup folder ownership recursively
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
+          - "/home/{{ user.name }}/logs"
+          - "{{ backup.local.destination }}"
 
     # Check if there is enough space in the local backup destination
     - name: Get size of {{ server_appdata_path }} folder
@@ -394,17 +400,12 @@
             mode: "0644"
           loop: "{{ backup_crontab_files.files }}"
 
-    - name: "Reset permissions of folders"
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0775"
-        recurse: true
-      with_items:
-        - "{{ server_appdata_path }}/systemd-backup"
-        - "{{ server_appdata_path }}/crontab-backup"
+    - name: Reset backup folder ownership after copying
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
+          - "{{ server_appdata_path }}/systemd-backup"
+          - "{{ server_appdata_path }}/crontab-backup"
 
     - name: Populate Service Facts
       ansible.builtin.service_facts:
@@ -740,14 +741,10 @@
       when: (backup_rclone_enabled or backup_rsync_enabled)
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-      ansible.builtin.command:
-        argv:
-          - "chown"
-          - "-R"
-          - "{{ user.name }}:{{ user.name }}"
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
           - "{{ backup.local.destination }}/"
-        expand_argument_vars: false
-      ignore_errors: true
 
     # Reset mod dates to avoid conflicts during rclone backup. Ansible module doesn't touch folder contents via wildcard.
     - name: "Reset permissions and mod dates to files in '{{ backup.local.destination }}/'"
@@ -977,14 +974,10 @@
               when: (snapshot_deletion is failed)
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-      ansible.builtin.command:
-        argv:
-          - "chown"
-          - "-R"
-          - "{{ user.name }}:{{ user.name }}"
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
           - "{{ backup.local.destination }}/"
-        expand_argument_vars: false
-      ignore_errors: true
 
     - name: Start Docker Containers
       when:
@@ -1062,14 +1055,10 @@
         state: absent
 
     - name: "Reset logs folder ownership."
-      ansible.builtin.command:
-        argv:
-          - "chown"
-          - "-R"
-          - "{{ user.name }}:{{ user.name }}"
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
           - "/home/{{ user.name }}/logs/"
-        expand_argument_vars: false
-      ignore_errors: true
 
 - name: Backup Cleanup Block
   when:

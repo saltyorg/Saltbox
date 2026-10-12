@@ -102,13 +102,10 @@
   when: (not continuous_integration)
 
 - name: Chown '{{ lookup('role_var', '_paths_location', role='traefik') }}'
-  ansible.builtin.file:
-    path: "{{ lookup('role_var', '_paths_location', role='traefik') }}"
-    state: directory
-    recurse: true
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ lookup('role_var', '_paths_location', role='traefik') }}"
   when: (not continuous_integration)
 
 - name: Chown '{{ lookup('role_var', '_paths_acme_config_location', role='traefik') }}'

@@ -11,13 +11,11 @@
   ansible.builtin.wait_for:
     timeout: 10
 
-- name: Post-Install | Ensure transcodes folder has the correct permissions
-  ansible.builtin.file:
-    path: "{{ lookup('role_var', '_paths_transcodes_location', role='emby') }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0775"
-    recurse: true
+- name: Post-Install | Set transcodes folder ownership
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ lookup('role_var', '_paths_transcodes_location', role='emby') }}"
 
 - name: Post-Install | Import 'dlna.xml'
   ansible.builtin.copy:

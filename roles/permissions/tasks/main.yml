@@ -7,26 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: Permissions | Recursively set permissions for '{{ server_local_folder_path }}'
-  ansible.builtin.command:
-    argv:
-      - "chown"
-      - "-R"
-      - "{{ user.name }}:{{ user.name }}"
+- name: Permissions | Set directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
       - "{{ server_local_folder_path }}"
-
-- name: Permissions | Recursively set permissions for '{{ server_appdata_path }}'
-  ansible.builtin.command:
-    argv:
-      - "chown"
-      - "-R"
-      - "{{ user.name }}:{{ user.name }}"
       - "{{ server_appdata_path }}"
-
-- name: Permissions | Recursively set permissions for '/home/{{ user.name }}'
-  ansible.builtin.command:
-    argv:
-      - "chown"
-      - "-R"
-      - "{{ user.name }}:{{ user.name }}"
       - "/home/{{ user.name }}"

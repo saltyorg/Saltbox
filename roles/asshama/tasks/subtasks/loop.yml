@@ -52,15 +52,6 @@
             else ansible_retry_count_ci }}"
   delay: 10
 
-- name: "Set ASS directory permissions"
-  ansible.builtin.file:
-    path: "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Scanners"
-    state: directory
-    mode: "0775"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    recurse: true
-
 - name: "Clone Hama Bundle"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"
   vars:
@@ -71,14 +62,12 @@
     git_repo_become: true
     git_repo_become_user: "{{ user.name }}"
 
-- name: "Set HAMA directory permissions"
-  ansible.builtin.file:
-    path: "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle"
-    state: directory
-    mode: "0775"
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    recurse: true
+- name: Set ASS and HAMA directory ownership
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Scanners"
+      - "{{ lookup('role_var', '_paths_location', role='plex') }}/Library/Application Support/Plex Media Server/Plug-ins/Hama.bundle"
 
 - name: "Start {{ plex_name }} container"
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/start_docker_container.yml"

@@ -164,12 +164,17 @@
     index_var: my_idx
 
 - name: Ensure PostgreSQL log directory ownership
-  ansible.builtin.file:
+  ansible.builtin.file:  # noqa risky-file-permissions
     path: /var/log/postgresql
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
+
+- name: Set PostgreSQL log directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "/var/log/postgresql"
 
 - name: Update port in postgresql.conf for existing clusters
   ansible.builtin.lineinfile:

@@ -8,12 +8,17 @@
 #########################################################################
 ---
 - name: Create Sandbox directory
-  ansible.builtin.file:
+  ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ server_appdata_path }}/sandbox"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
+
+- name: Set Sandbox directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ server_appdata_path }}/sandbox"
 
 - name: Check if git repository exists
   ansible.builtin.stat:

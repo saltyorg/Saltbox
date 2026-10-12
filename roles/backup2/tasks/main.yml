@@ -105,12 +105,18 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
-        recurse: true
       with_items:
         - "/home/{{ user.name }}/logs"
         - "{{ backup.local.destination }}"
         - "{{ server_appdata_path }}/systemd-backup"
         - "{{ server_appdata_path }}/crontab-backup"
+
+    - name: Set backup folder ownership recursively
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
+          - "/home/{{ user.name }}/logs"
+          - "{{ backup.local.destination }}"
 
     # Backup config files
     - name: "Copy files to '{{ backup.local.destination }}'"
@@ -217,17 +223,12 @@
             mode: "0644"
           loop: "{{ backup2_crontab_files.files }}"
 
-    - name: "Reset permissions of folders"
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0775"
-        recurse: true
-      with_items:
-        - "{{ server_appdata_path }}/systemd-backup"
-        - "{{ server_appdata_path }}/crontab-backup"
+    - name: Reset backup folder ownership after copying
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
+          - "{{ server_appdata_path }}/systemd-backup"
+          - "{{ server_appdata_path }}/crontab-backup"
 
     - name: Populate Service Facts
       ansible.builtin.service_facts:
@@ -810,13 +811,10 @@
         state: absent
 
     - name: "Reset logs folder ownership."
-      ansible.builtin.command:
-        argv:
-          - "chown"
-          - "-R"
-          - "{{ user.name }}:{{ user.name }}"
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
           - "/home/{{ user.name }}/logs/"
-        expand_argument_vars: false
 
 - name: Backup Cleanup Block
   when:

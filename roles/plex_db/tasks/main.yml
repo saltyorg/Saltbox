@@ -21,12 +21,10 @@
       - "{{ server_appdata_path }}/plexsql"
 
 - name: Set '{{ server_appdata_path }}/plexsql' ownership recursively
-  ansible.builtin.file:
-    path: "{{ server_appdata_path }}/plexsql"
-    state: directory
-    recurse: true
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ server_appdata_path }}/plexsql"
 
 - name: "Execute Plex DB tasks"
   ansible.builtin.include_tasks: main2.yml

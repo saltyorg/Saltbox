@@ -1,0 +1,24 @@
+#########################################################################
+# Title:         Saltbox: Resources | Tasks | Directories | Chown        #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Resources | Tasks | Directories | Set ownership recursively
+  ansible.builtin.command:
+    argv:
+      - chown
+      - -R
+      - --changes
+      - --
+      - "{{ chown_owner | default(user.name) }}:{{ chown_group | default(user.name) }}"
+      - "{{ chown_path }}"
+    expand_argument_vars: false
+  loop: "{{ chown_paths }}"
+  loop_control:
+    loop_var: chown_path
+  register: _chown_result
+  changed_when: (_chown_result.stdout | default('') | length > 0)

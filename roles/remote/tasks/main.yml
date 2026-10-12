@@ -160,7 +160,6 @@
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
         mode: "0775"
-        recurse: true
 
     - name: "Synchronize '/etc/systemd/system' to '{{ server_appdata_path }}/services'"
       ignore_errors: true
@@ -182,14 +181,11 @@
           loop: "{{ remote_systemd_files.files }}"
           when: (not (item.path | basename).startswith('saltbox_managed_'))
 
-    - name: "Reset permissions of folders"
-      ansible.builtin.file:
-        path: "{{ server_appdata_path }}/services"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0775"
-        recurse: true
+    - name: Reset services folder ownership
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      vars:
+        chown_paths:
+          - "{{ server_appdata_path }}/services"
 
     - name: "Stop and disable existing 'rclone_vfs.service'"
       ansible.builtin.systemd_service:

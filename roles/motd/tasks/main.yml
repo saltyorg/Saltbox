@@ -42,9 +42,14 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    recurse: true
   with_items:
     - "{{ server_appdata_path }}/motd"
+
+- name: Set motd directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ server_appdata_path }}/motd"
 
 - name: Check if MOTD news service
   ansible.builtin.stat:

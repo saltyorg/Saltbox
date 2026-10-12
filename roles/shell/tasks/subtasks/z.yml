@@ -14,7 +14,12 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    recurse: true
+
+- name: z | Set directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ shell_z_git_repo_dest }}"
 
 - name: z | Clone 'z' repo
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/git/clone_git_repo.yml"

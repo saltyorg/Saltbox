@@ -95,33 +95,38 @@
     state: present
   when: etc_sudoers.stat.exists
 
-- name: User Account | Reset ownership of '{{ user_paths_home_location }}/' path
+- name: User Account | Ensure '{{ user_paths_home_location }}' exists
   ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ user_paths_home_location }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
     follow: false
   when: (not continuous_integration)
 
-- name: User Account | Reset ownership of '{{ srv_folder }}/' path
+- name: User Account | Ensure '{{ srv_folder }}' exists
   ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ srv_folder }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
     follow: false
 
-- name: User Account | Reset ownership of '{{ server_appdata_path }}/' path
+- name: User Account | Ensure '{{ server_appdata_path }}' exists
   ansible.builtin.file:  # noqa risky-file-permissions
     path: "{{ server_appdata_path }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
-    recurse: true
     follow: false
+
+- name: User Account | Reset directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ user_paths_home_location if (not continuous_integration) else omit }}"
+      - "{{ srv_folder }}"
+      - "{{ server_appdata_path }}"
 
 - name: User Account | Set authorized keys
   ansible.posix.authorized_key:

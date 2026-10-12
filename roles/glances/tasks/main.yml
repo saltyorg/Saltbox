@@ -30,7 +30,12 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0775"
-    recurse: true
+
+- name: Set Glances directory ownership recursively
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+  vars:
+    chown_paths:
+      - "{{ glances_path }}"
 
 - name: "Execute Python role"
   ansible.builtin.include_role:
