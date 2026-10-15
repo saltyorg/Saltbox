@@ -23,3 +23,4 @@
     argv:
       - "sysctl"
       - "--system"
+  when: run_sysctl_tasks
