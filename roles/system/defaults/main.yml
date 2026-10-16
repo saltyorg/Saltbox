@@ -9,8 +9,8 @@
 ---
 run_sysctl_tasks: true
 
-# Performance mode sets the CPU to run at its maximum frequency
-# Set to false to enable dynamic CPU frequency scaling instead
+# Manage CPU governor settings in performance mode on non-virtualized hosts.
+# Set to false to leave the existing CPU governor configuration unchanged.
 cpu_performance_mode: true
 
 # Ensure nodiratime and relatime on mounted local ext4 filesystems.
