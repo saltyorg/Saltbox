@@ -17,9 +17,3 @@ plex_auth_token_platform: "Linux"
 plex_auth_token_platform_version: "1.0.0"
 plex_auth_token_device: "Ubuntu {{ ansible_facts['distribution_version'] }} - {{ ansible_facts['kernel'] }}"
 plex_auth_token_device_name: "Saltbox"
-
-################################
-# Lookups
-################################
-
-plex_auth_token_ini_file: "{{ server_appdata_path }}/saltbox/plex.ini"

@@ -11,21 +11,28 @@
   ansible.builtin.debug:
     msg: "ZeroSSL setting is {{ 'enabled' if zerossl_is_enabled else 'disabled' }}."
 
-- name: "ZeroSSL | Check if PIN exists"
-  ansible.builtin.stat:
-    path: "{{ traefik_zerossl_file_ini }}"
-  register: zerossl_ini
+- name: "ZeroSSL | Load facts for a specific instance"
+  saltbox_facts:
+    role: "zerossl"
+    instance: "zerossl"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    base_path: "{{ server_appdata_path }}"
+  register: zerossl_saltbox_facts
+  no_log: true
 
-- name: "ZeroSSL | Existing Credentials Block"
-  when: zerossl_ini.stat.exists
-  block:
-    - name: "ZeroSSL | Set ZeroSSL variables"
-      ansible.builtin.set_fact:
-        traefik_zerossl_kid: "{{ lookup('ini', 'kid section=zerossl file=' + traefik_zerossl_file_ini) }}"
-        traefik_zerossl_hmacencoded: "{{ lookup('ini', 'hmacencoded section=zerossl file=' + traefik_zerossl_file_ini) }}"
+- name: "ZeroSSL | Set ZeroSSL variables"
+  ansible.builtin.set_fact:
+    traefik_zerossl_kid: "{{ zerossl_saltbox_facts.facts.kid | default('', true) }}"
+    traefik_zerossl_hmacencoded: "{{ zerossl_saltbox_facts.facts.hmacencoded | default('', true) }}"
+  when: (zerossl_saltbox_facts is not skipped)
+  no_log: true
 
 - name: "ZeroSSL | New Credentials Block"
-  when: (not zerossl_ini.stat.exists)
+  when:
+    - (zerossl_saltbox_facts is not skipped)
+    - ((zerossl_saltbox_facts.facts.kid | default('', true) | length == 0)
+       or (zerossl_saltbox_facts.facts.hmacencoded | default('', true) | length == 0))
   block:
     - name: "ZeroSSL | Get new credentials"
       ansible.builtin.uri:
@@ -60,39 +67,18 @@
         - ((zerossl.status != 200) or (not zerossl.json.success))
         - (not zerossl_is_enabled)
 
-    - name: "ZeroSSL | Create directories"
-      ansible.builtin.file:
-        path: "{{ server_appdata_path }}/saltbox"
-        state: directory
+    - name: "ZeroSSL | Save facts for a specific instance"
+      saltbox_facts:
+        role: "zerossl"
+        instance: "zerossl"
+        keys:
+          kid: "{{ traefik_zerossl_kid }}"
+          hmacencoded: "{{ traefik_zerossl_hmacencoded }}"
         owner: "{{ user.name }}"
         group: "{{ user.name }}"
-        mode: "0775"
+        base_path: "{{ server_appdata_path }}"
+        overwrite: true
       when:
         - (zerossl.status == 200)
         - zerossl.json.success
-
-    - name: "ZeroSSL | Add kid to '{{ traefik_zerossl_file_ini }}'"
-      community.general.ini_file:
-        path: "{{ traefik_zerossl_file_ini }}"
-        section: "zerossl"
-        option: kid
-        value: "{{ traefik_zerossl_kid }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0664"
-      when:
-        - (zerossl.status == 200)
-        - zerossl.json.success
-
-    - name: "ZeroSSL | Add hmacencoded to '{{ traefik_zerossl_file_ini }}'"
-      community.general.ini_file:
-        path: "{{ traefik_zerossl_file_ini }}"
-        section: "zerossl"
-        option: hmacencoded
-        value: "{{ traefik_zerossl_hmacencoded }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.name }}"
-        mode: "0664"
-      when:
-        - (zerossl.status == 200)
-        - zerossl.json.success
+      no_log: true
