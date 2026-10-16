@@ -56,7 +56,7 @@
     - { name: net.core.netdev_budget_usecs, value: "{{ sysctl_netdev_budget_usecs }}" }
   when:
     - netdev_budget_usecs.stat.exists
-    - (sysctl_netdev_budget_usecs != 5000 or kernel_config_hz | int == 1000)
+    - ((sysctl_netdev_budget_usecs | int) != 5000 or (kernel_config_hz | int) == 1000)
 
 - name: sysctl | Remove old settings
   ansible.posix.sysctl:
