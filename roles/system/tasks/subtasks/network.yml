@@ -15,9 +15,14 @@
       - ethtool
 
 - name: Network | Network Tasks Block
+  vars:
+    system_network_default: >-
+      {{ (ansible_facts['default_ipv4'] | default({}, true))
+      if (ansible_facts['default_ipv4'] | default({}, true)).get('interface')
+      else (ansible_facts['default_ipv6'] | default({}, true)) }}
   when:
-    - (ansible_facts['default_ipv4'] is defined)
-    - (ansible_facts['default_ipv4']['type'] == "ether")
+    - (system_network_default.interface | default('', true) | length > 0)
+    - (system_network_default.type | default('') == "ether")
   block:
     - name: Network | Check for '/etc/vnstat.conf'
       ansible.builtin.stat:
@@ -27,10 +32,9 @@
     - name: Network | Set vnstat to proper default interface
       ansible.builtin.lineinfile:
         path: "/etc/vnstat.conf"
-        regexp: '(Interface)\s?.*'
-        line: '\1 "{{ ansible_facts["default_ipv4"]["interface"] }}"'
+        regexp: '^[ \t]*[;#]?[ \t]*Interface[ \t]+'
+        line: 'Interface "{{ system_network_default.interface }}"'
         state: present
-        backrefs: true
       when: (vnstat_conf.stat.exists)
 
     - name: Network | Import 'rc.local' if missing
@@ -55,7 +59,7 @@
         create: false
         marker: "### {mark} SALTBOX MANAGED BLOCK ###"
         block: |
-          ethtool -K {{ ansible_facts['default_ipv4']['interface'] }} tso off gso off
+          ethtool -K {{ system_network_default.interface }} tso off gso off
         insertbefore: "^exit 0"
         owner: "root"
         group: "root"
