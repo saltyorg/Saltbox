@@ -91,7 +91,6 @@
       - "full-upgrade"
       - "--quiet"
       - "--yes"
-      - "--allow-unauthenticated"
       - "-o"
       - "Dpkg::Options::=--force-confdef"
       - "-o"
