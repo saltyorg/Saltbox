@@ -12,18 +12,9 @@
     msg: "{{ ansible_facts['mounts'] }}"
     verbosity: 1
 
-- name: Mounts | Set opts for '/' ext4 mount
-  ansible.posix.mount:
-    path: /
-    opts: defaults,nodiratime,relatime
-    state: present
-    fstype: ext4
-    src: "{{ item.device }}"
-  with_items:
-    - "{{ ansible_facts['mounts'] }}"
-  when:
-    - (item.mount == '/')
-    - (item.fstype == 'ext4')
+- name: Mounts | Tune access times
+  ansible.builtin.include_tasks: "mount_tuning.yml"
+  when: (system_mount_tuning_enabled | bool)
 
 - name: "Mounts | Install 'fuse3'"
   ansible.builtin.apt:

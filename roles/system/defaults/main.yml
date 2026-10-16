@@ -13,6 +13,15 @@ run_sysctl_tasks: true
 # Set to false to enable dynamic CPU frequency scaling instead
 cpu_performance_mode: true
 
+# Ensure nodiratime and relatime on mounted local ext4 filesystems.
+# Preserve existing noatime and explicit diratime or strictatime settings.
+# Set to false to leave existing mount options unmanaged.
+system_mount_tuning_enabled: true
+
+# Mount points to exclude from automatic access-time tuning.
+# Example: ["/mnt/archive", "/mnt/backups"]
+system_mount_tuning_excluded_mounts: []
+
 system_inotify: "524288"
 pam_limit_nofile: "100000"
 

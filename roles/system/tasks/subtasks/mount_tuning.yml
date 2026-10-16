@@ -1,0 +1,75 @@
+#########################################################################
+# Title:         Saltbox: System | Mount Tuning Tasks                    #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Mount Tuning | Read fstab entries
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --fstab
+      - --json
+      - --list
+      - --output
+      - SOURCE,TARGET,FSTYPE,OPTIONS,FREQ,PASSNO
+  register: system_mount_tuning_fstab
+  changed_when: false
+  check_mode: false
+  failed_when: >-
+    system_mount_tuning_fstab.rc not in [0, 1]
+    or (system_mount_tuning_fstab.rc != 0 and system_mount_tuning_fstab.stderr | trim | length > 0)
+
+- name: Mount Tuning | Read mounted filesystems
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --kernel
+      - --json
+      - --list
+      - --output
+      - SOURCE,TARGET,FSTYPE,OPTIONS
+  register: system_mount_tuning_live
+  changed_when: false
+  check_mode: false
+
+- name: Mount Tuning | Parse filesystem information
+  ansible.builtin.set_fact:
+    system_mount_tuning_fstab_entries: "{{ (system_mount_tuning_fstab.stdout | default('{\"filesystems\": []}', true) | from_json).filesystems }}"
+    system_mount_tuning_live_entries: "{{ (system_mount_tuning_live.stdout | from_json).filesystems }}"
+
+- name: Mount Tuning | Ensure access-time options on eligible ext4 filesystems
+  vars:
+    system_mount_tuning_active: "{{ system_mount_tuning_live_entries | selectattr('target', 'equalto', item.target) | list }}"
+    system_mount_tuning_options: "{{ item.options.split(',') }}"
+    system_mount_tuning_missing_options: "{{ ['nodiratime', 'relatime'] | reject('in', system_mount_tuning_options) | list }}"
+    system_mount_tuning_protected_options: ['ro', 'bind', 'rbind', 'noatime', 'diratime', 'strictatime']
+  ansible.posix.mount:
+    path: "{{ item.target }}"
+    src: "{{ item.source }}"
+    fstype: "{{ item.fstype }}"
+    opts: "{{ (system_mount_tuning_options + system_mount_tuning_missing_options) | join(',') }}"
+    dump: "{{ item.freq | default(0, true) | string }}"
+    passno: "{{ item.passno | default(0, true) | string }}"
+    state: present
+    backup: true
+  loop: "{{ system_mount_tuning_fstab_entries }}"
+  loop_control:
+    label: "{{ item.target }}"
+  when:
+    - (item.fstype in ['ext4', 'auto'])
+    - (item.target not in system_mount_tuning_excluded_mounts)
+    - (item.target != '/boot')
+    - (not item.target.startswith('/boot/'))
+    - (system_mount_tuning_active | length == 1)
+    - (system_mount_tuning_active[0].fstype == 'ext4')
+    - (system_mount_tuning_active[0].source.startswith('/dev/'))
+    - ('[' not in system_mount_tuning_active[0].source)
+    - ('rw' in system_mount_tuning_active[0].options.split(','))
+    - (system_mount_tuning_options | intersect(system_mount_tuning_protected_options) | length == 0)
+    - (system_mount_tuning_active[0].options.split(',') | intersect(system_mount_tuning_protected_options) | length == 0)
+    - (system_mount_tuning_missing_options | length > 0)
+    - (system_mount_tuning_fstab_entries | selectattr('target', 'equalto', item.target) | list | length == 1)
