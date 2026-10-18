@@ -13,7 +13,8 @@
 
 local_mount_branch: "{{ server_local_folder_path }}=RW:"
 
-custom_mount_branch: "" # Format: "/mnt/remote/someremote=NC"
+# Format: "/mnt/remote/someremote=NC"
+custom_mount_branch: "" # saltbox-lint ignore role-variable-prefix
 
 mergerfs_override_service: true
 
