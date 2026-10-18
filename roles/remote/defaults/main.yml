@@ -11,9 +11,10 @@
 # Global
 ################################
 
-user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36
+user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36" # saltbox-lint ignore role-variable-prefix
 
 rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
+rclone_binary_path: "/usr/bin/rclone"
 rclone_vfs_cache_dir: ""
 rclone_vfs_cache_dir_lookup: "{{ lookup('vars', 'rclone_remote_' + rclone_remote_name + '_vfs_cache_dir', default=rclone_vfs_cache_dir) }}"
 rclone_vfs_cache_min_free_space: "off"

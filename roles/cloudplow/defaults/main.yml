@@ -59,8 +59,6 @@ cloudplow_service_name_old: "{{ cloudplow_name }}"
 # Rclone
 ################################
 
-rclone_config_path: "/home/{{ user.name }}/.config/rclone/rclone.conf"
-rclone_binary_path: "/usr/bin/rclone"
 cloudplow_rclone_google_template: |-
   "--user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36",
   "--checkers": 16,
