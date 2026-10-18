@@ -1,4 +1,5 @@
 ignored_tags:
+  - "arcane-agent"
   - "arr-db"
   - "authelia-reset"
   - "authentik-reset"

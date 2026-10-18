@@ -1,0 +1,37 @@
+##########################################################################
+# Title:         Saltbox: Arcane Agent                                  #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Validate manager URL
+  ansible.builtin.fail:
+    msg: "Set arcane_agent_role_manager_url to the manager's HTTPS base URL, for example https://arcane.example.com."
+  when: (not (lookup('role_var', '_manager_url', role='arcane_agent') is match('^https://[^/?#@\s]+/?\Z')))
+
+- name: Validate agent token
+  ansible.builtin.fail:
+    msg: "Create an Edge environment in Arcane and set arcane_agent_role_token to its generated token without whitespace."
+  when: (not (lookup('role_var', '_token', role='arcane_agent') is match('^\S+\Z')))
+
+- name: Validate transport
+  ansible.builtin.fail:
+    msg: "Set arcane_agent_role_transport to websocket, auto, grpc or poll."
+  when: (lookup('role_var', '_transport', role='arcane_agent') not in ['websocket', 'auto', 'grpc', 'poll'])
+
+- name: Validate project directory
+  ansible.builtin.fail:
+    msg: "Set arcane_agent_role_paths_projects_location to an absolute host directory."
+  when: (not (lookup('role_var', '_paths_projects_location', role='arcane_agent') is match('^/')))
+
+- name: Create directories
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
+
+- name: Remove existing Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+- name: Create Docker container
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

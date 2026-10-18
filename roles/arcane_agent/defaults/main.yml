@@ -1,0 +1,111 @@
+##########################################################################
+# Title:         Saltbox: Arcane Agent | Default Variables               #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+################################
+# Basics
+################################
+
+arcane_agent_name: arcane-agent
+
+################################
+# Settings
+################################
+
+# Public HTTPS base URL of the Arcane manager, for example https://arcane.example.com.
+arcane_agent_role_manager_url: ""
+# Create an Edge environment in the manager and copy its generated agent token here.
+# Use a different token for each agent. It is passed to the container as AGENT_TOKEN.
+# After regenerating the token in Arcane, update this value and reinstall the agent.
+arcane_agent_role_token: ""
+# WebSocket keeps an outbound HTTPS connection open and needs no inbound agent port,
+# gRPC router or Traefik entrypoint timeout changes. Other supported values are auto,
+# grpc and poll. Auto prefers gRPC with WebSocket fallback; grpc disables fallback.
+# Poll opens a gRPC or WebSocket tunnel on demand. Using gRPC requires an h2c router
+# and a disabled read timeout on the manager's HTTPS entrypoint.
+arcane_agent_role_transport: websocket
+
+################################
+# Paths
+################################
+
+arcane_agent_role_paths_folder: "{{ arcane_agent_name }}"
+arcane_agent_role_paths_location: "{{ server_appdata_path }}/{{ arcane_agent_role_paths_folder }}"
+arcane_agent_role_paths_data_location: "{{ arcane_agent_role_paths_location }}/data"
+arcane_agent_role_paths_projects_location: "{{ arcane_agent_role_paths_location }}/projects"
+arcane_agent_role_paths_folders_list:
+  - "{{ arcane_agent_role_paths_location }}"
+  - "{{ arcane_agent_role_paths_data_location }}"
+  - "{{ arcane_agent_role_paths_projects_location }}"
+
+################################
+# Docker
+################################
+
+# Container
+arcane_agent_role_docker_container: "{{ arcane_agent_name }}"
+
+# Image
+arcane_agent_role_docker_image_pull: true
+arcane_agent_role_docker_image_repo: "ghcr.io/getarcaneapp/agent"
+arcane_agent_role_docker_image_tag: "latest"
+arcane_agent_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='arcane_agent') }}:{{ lookup('role_var', '_docker_image_tag', role='arcane_agent') }}"
+
+# Envs
+arcane_agent_role_docker_envs_default:
+  PUID: "{{ uid }}"
+  PGID: "{{ gid }}"
+  TZ: "{{ tz }}"
+  EDGE_AGENT: "true"
+  EDGE_TRANSPORT: "{{ lookup('role_var', '_transport', role='arcane_agent') }}"
+  MANAGER_API_URL: "{{ lookup('role_var', '_manager_url', role='arcane_agent') }}"
+  AGENT_TOKEN: "{{ lookup('role_var', '_token', role='arcane_agent') }}"
+  PROJECTS_DIRECTORY: "{{ lookup('role_var', '_paths_projects_location', role='arcane_agent') }}"
+arcane_agent_role_docker_envs_custom: {}
+arcane_agent_role_docker_envs: "{{ lookup('role_var', '_docker_envs_default', role='arcane_agent')
+                                   | combine(lookup('role_var', '_docker_envs_custom', role='arcane_agent')) }}"
+
+# Volumes
+arcane_agent_role_docker_volumes_global: false
+arcane_agent_role_docker_volumes_default:
+  - "{{ lookup('role_var', '_paths_data_location', role='arcane_agent') }}:/app/data"
+  - "{{ lookup('role_var', '_paths_projects_location', role='arcane_agent') }}:{{ lookup('role_var', '_paths_projects_location', role='arcane_agent') }}"
+  - "/var/run/docker.sock:/var/run/docker.sock"
+arcane_agent_role_docker_volumes_custom: []
+arcane_agent_role_docker_volumes: "{{ lookup('role_var', '_docker_volumes_default', role='arcane_agent')
+                                      + lookup('role_var', '_docker_volumes_custom', role='arcane_agent') }}"
+
+# Cgroup namespace
+arcane_agent_role_docker_cgroupns_mode: host
+
+# Healthcheck
+arcane_agent_role_docker_healthcheck:
+  test:
+    - CMD
+    - ./arcane-agent
+    - health
+    - --timeout
+    - 2s
+  interval: 10s
+  timeout: 3s
+  retries: 5
+  start_period: 15s
+
+# Hostname
+arcane_agent_role_docker_hostname: "{{ arcane_agent_name }}"
+
+# Networks
+arcane_agent_role_docker_networks_alias: "{{ arcane_agent_name }}"
+arcane_agent_role_docker_networks_default: []
+arcane_agent_role_docker_networks_custom: []
+arcane_agent_role_docker_networks: "{{ docker_networks_common
+                                       + lookup('role_var', '_docker_networks_default', role='arcane_agent')
+                                       + lookup('role_var', '_docker_networks_custom', role='arcane_agent') }}"
+
+# Restart Policy
+arcane_agent_role_docker_restart_policy: unless-stopped

@@ -106,8 +106,8 @@ arcane_role_traefik_middleware_default_api: "{{ traefik_default_middleware_api }
 arcane_role_traefik_middleware_custom_api: ""
 arcane_role_traefik_certresolver: "{{ traefik_default_certresolver }}"
 arcane_role_traefik_enabled: true
-arcane_role_traefik_api_enabled: false
-arcane_role_traefik_api_endpoint: ""
+arcane_role_traefik_api_enabled: true
+arcane_role_traefik_api_endpoint: "PathPrefix(`/api/`)"
 
 ################################
 # Docker
