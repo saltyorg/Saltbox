@@ -54,7 +54,7 @@
 
     - name: Add type_id to each item
       ansible.builtin.set_fact:
-        plex_future_items_typed: "{{ plex_future_items_typed | default([]) + [item | combine({'type_id': plex_type_mapping[item.type]})] }}"
+        plex_future_items_typed: "{{ plex_future_items_typed | default([]) + [item | combine({'type_id': plex_fix_futures_type_mapping[item.type]})] }}"
       loop: "{{ plex_future_items }}"
 
     - name: Fix future dates

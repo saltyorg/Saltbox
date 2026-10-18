@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                      #
 ##########################################################################
 ---
-plex_type_mapping:
+plex_fix_futures_type_mapping:
   movie: 1
   show: 2
   season: 3
