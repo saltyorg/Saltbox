@@ -155,6 +155,17 @@
     "customManagers": [
         {
             "customType": "regex",
+            "description": "Saltbox Go linter release",
+            "managerFilePatterns": [".github/workflows/saltbox.yml", ".github/workflows/saltbox-os.yml"],
+            "matchStrings": [
+                "uses: saltyorg/github-actions/saltbox-lint@[^\\s]+\\s+with:\\s+version:\\s+(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)"
+            ],
+            "depNameTemplate": "saltyorg/saltbox-lint",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
             "description": "Authentik release family",
             "managerFilePatterns": ["roles/authentik/defaults/main.yml"],
             "matchStrings": [

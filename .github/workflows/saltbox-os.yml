@@ -55,12 +55,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.14'
-
       - name: Run Saltbox Linter
-        run: python3 scripts/saltbox-linter.py .
+        uses: saltyorg/github-actions/saltbox-lint@v1.4.1
+        with:
+          version: v0.2.3
 
   install:
     name: '${{ matrix.roles }}-${{ matrix.os }}'
