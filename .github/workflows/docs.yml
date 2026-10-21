@@ -18,7 +18,17 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Create documentation dispatch token
+        id: app-token
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          app-id: ${{ vars.SALTBOX_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.SALTBOX_AUTOMATION_PRIVATE_KEY }}
+          owner: saltyorg
+          repositories: docs
+          permission-actions: write
+
       - name: Trigger documentation automation
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh workflow run automation.yml --repo saltyorg/docs

@@ -4,18 +4,30 @@ on:
     - cron: '20 20 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   add-contributors:
+    if: github.repository == 'saltyorg/Saltbox'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
 
+      - name: Create contributor update token
+        id: app-token
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          app-id: ${{ vars.SALTBOX_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.SALTBOX_AUTOMATION_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: BobAnkh/add-contributors@master
         with:
-          REPO_NAME: 'saltyorg/Saltbox'
+          REPO_NAME: ${{ github.repository }}
           CONTRIBUTOR: '### Contributors'
           COLUMN_PER_ROW: '6'
-          ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
+          ACCESS_TOKEN: ${{ steps.app-token.outputs.token }}
           IMG_WIDTH: '100'
           FONT_SIZE: '14'
           PATH: '/README.md'
