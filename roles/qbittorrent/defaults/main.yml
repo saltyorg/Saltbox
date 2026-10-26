@@ -32,7 +32,7 @@ qbittorrent_role_torrent_content_remove_option: "Delete"
 # Host Install
 ################################
 
-# Options are: libtorrent1 (latest), libtorrent2 (latest) or legacy (4.3.9)
+# Options are: libtorrent1 (1.2 latest), libtorrent2 (2.0 latest), libtorrent21 (2.1 latest) or legacy (4.3.9)
 qbittorrent_role_host_branch: libtorrent1
 # Example being "release-4.4.5_v1.2.18"
 # If this is set then the above branch logic is ignored
@@ -53,9 +53,11 @@ qbittorrent_role_host_release_url: "{{ 'https://github.com/userdocs/qbittorrent-
                                     if lookup('role_var', '_host_branch', role='qbittorrent') != 'legacy'
                                     else 'https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json' }}"
 qbittorrent_role_host_version: "{{ 'release-' + (qbittorrent_host_version_response.content | from_json).qbittorrent
-                                   + '_v' + ((qbittorrent_host_version_response.content | from_json).libtorrent_2_0
-                                             if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
-                                             else (qbittorrent_host_version_response.content | from_json).libtorrent_1_2) }}"
+                                   + '_v' + ((qbittorrent_host_version_response.content | from_json).libtorrent_2_1
+                                             if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent21'
+                                             else (qbittorrent_host_version_response.content | from_json).libtorrent_2_0
+                                                  if lookup('role_var', '_host_branch', role='qbittorrent') == 'libtorrent2'
+                                                  else (qbittorrent_host_version_response.content | from_json).libtorrent_1_2) }}"
 qbittorrent_role_service_name: "saltbox_managed_{{ qbittorrent_name }}.service"
 qbittorrent_role_service_after: "network-online.target docker.service"
 qbittorrent_role_service_requires: "network-online.target docker.service"
@@ -143,6 +145,7 @@ qbittorrent_role_docker_container: "{{ qbittorrent_name }}"
 # Image
 qbittorrent_role_docker_image_pull: true
 qbittorrent_role_docker_image_repo: "saltydk/qbittorrent"
+# Options are: latest or libtorrent1 (libtorrent 1.2), libtorrent2 (libtorrent 2.0), libtorrent21 (libtorrent 2.1) or legacy (4.3.9)
 qbittorrent_role_docker_image_tag: "latest"
 qbittorrent_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='qbittorrent') }}:{{ lookup('role_var', '_docker_image_tag', role='qbittorrent') }}"
 
