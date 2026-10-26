@@ -23,24 +23,30 @@
       - mongodb_upgrade_target_series in mongodb_upgrade_releases
     fail_msg: "MongoDB target {{ mongodb_upgrade_target_series }} is outside the validated upgrade matrix."
 
+- name: Upgrade | Read Ubuntu kernel signature
+  ansible.builtin.slurp:
+    src: /proc/version_signature
+  register: mongodb_upgrade_kernel_signature
+  failed_when: false
+  when: (mongodb_upgrade_target_series in ['8.0', '8.2'])
+
+# Ubuntu keeps uname at X.Y.0 even after backporting upstream patch releases.
+# /proc/version_signature identifies the running kernel's upstream version.
+# Fall back to uname when the signature is absent or does not match Ubuntu's format.
 - name: Upgrade | Resolve kernel version
   ansible.builtin.set_fact:
-    mongodb_upgrade_kernel_version: "{{ ansible_facts['kernel'] | regex_search('^[0-9]+[.][0-9]+[.][0-9]+') }}"
+    mongodb_upgrade_kernel_version: "{{ ((mongodb_upgrade_kernel_signature.content | default('') | b64decode
+                                          | regex_findall('^Ubuntu [^\\s]+ ([0-9]+[.][0-9]+[.][0-9]+)\\s*$'))
+                                         + [ansible_facts['kernel'] | regex_search('^[0-9]+[.][0-9]+[.][0-9]+')]) | first }}"
 
-# MongoDB 8.0.32 also checks uname and rejects this range with its default TCMalloc
-# configuration, so relaxing this guard alone will not allow the current image to start.
-# Ubuntu's uname release can hide backported fixes: /proc/version_signature reports
-# the upstream baseline (for example, 7.0.0-34-generic is based on 7.0.14).
-# SERVER-131779 adds Ubuntu signature handling, targeting MongoDB 8.0.35, which was
-# not available as an official Docker tag when checked on 2026-10-04.
+# Older MongoDB builds can still reject a fixed Ubuntu kernel during the target
+# image's mongod --version preflight. SERVER-131779 adds signature handling in 8.0.35.
 # https://jira.mongodb.org/browse/SERVER-131779
-# Revisit this guard when that fix is published: check the selected MongoDB version
-# and Ubuntu kernel signature, or remove the guard if MongoDB's own check is sufficient.
 - name: Upgrade | Reject unsafe MongoDB 8.x kernel
   ansible.builtin.assert:
     that:
       - mongodb_upgrade_target_series not in ['8.0', '8.2'] or mongodb_upgrade_kernel_version is version('6.19.0', '<') or mongodb_upgrade_kernel_version is version('7.0.14', '>=')
-    fail_msg: "MongoDB 8.x is blocked on Linux kernels from 6.19 through 7.0.13."
+    fail_msg: "MongoDB 8.x is blocked on Linux kernels from 6.19 through 7.0.13. Running kernel {{ ansible_facts['kernel'] }} has upstream version {{ mongodb_upgrade_kernel_version }}."
 
 - name: Upgrade | Preflight target image
   ansible.builtin.include_tasks: upgrade_image.yml
