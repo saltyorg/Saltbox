@@ -11,6 +11,7 @@
   ansible.builtin.set_fact:
     _service_file: "{{ rclone_service_template + rclone_remote_name }}.service"
     _service_refresh: "{{ rclone_service_template + rclone_remote_name }}_refresh"
+    _service_env_file: "/etc/default/{{ rclone_service_template + rclone_remote_name }}"
     mount_path: "/mnt/remote/{{ rclone_remote_name }}"
 
 - name: "Remote | Set mount ownership state for '{{ mount_path }}'"
@@ -137,6 +138,18 @@
     group: "{{ user.name }}"
     mode: "0775"
   when: (rclone_vfs_cache_dir | length > 0)
+
+# Rclone reads rc credentials from the environment, which keeps them out of
+# world-readable unit files and process arguments.
+- name: Remote | Create rclone rc environment file
+  ansible.builtin.template:
+    src: rclone_rc.env.j2
+    dest: "{{ _service_env_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+  no_log: true
 
 - name: Remote | Import '{{ _service_file }}'
   ansible.builtin.template:

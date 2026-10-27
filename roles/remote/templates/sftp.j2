@@ -16,6 +16,7 @@ After=network-online.target
 User={{ user.name }}
 Group={{ user.name }}
 Type=notify
+EnvironmentFile={{ _service_env_file }}
 ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/rclone mount \
     --allow-other \
@@ -30,11 +31,8 @@ ExecStart=/usr/bin/rclone mount \
 {% if (rclone_enable_metrics | bool) %}
     --rc-addr=0.0.0.0:{{ rclone_port_assignment.ports.rc }} \
     --rc-enable-metrics \
-    --rc-user='{{ user.name }}' \
-    --rc-pass='{{ user.pass }}' \
 {% else %}
     --rc-addr=127.0.0.1:{{ rclone_port_assignment.ports.rc }} \
-    --rc-no-auth \
 {% endif %}
     --sftp-chunk-size={{ rclone_sftp_chunk_size }} \
     --sftp-concurrency={{ rclone_sftp_concurrency }} \

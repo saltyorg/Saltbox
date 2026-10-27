@@ -17,6 +17,7 @@ After={{ _service_file }}
 User={{ user.name }}
 Group={{ user.name }}
 Type=oneshot
+EnvironmentFile={{ _service_env_file }}
 ExecStartPre=/bin/sleep 10
 ExecStart={{ rclone_vfs_refresh_command }}
 

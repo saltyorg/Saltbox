@@ -35,6 +35,12 @@
     state: absent
   when: (rclone_service_name_full in saltbox_managed_rclone_services)
 
+- name: "Cleanup | Delete '{{ rclone_service_name }}' rclone rc environment file"
+  ansible.builtin.file:
+    path: "/etc/default/{{ rclone_service_name }}"
+    state: absent
+  when: (rclone_service_name_full in saltbox_managed_rclone_services)
+
 - name: "Cleanup | Stop and disable existing '{{ rclone_refresh_service_name }}'"
   ansible.builtin.systemd_service:
     name: "{{ rclone_refresh_service_name }}"
