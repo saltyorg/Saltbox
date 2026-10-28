@@ -6,6 +6,7 @@ DOCUMENTATION = """
       - This lookup replicates lookup('vars', traefik_role_var + suffix, default=lookup('vars', role_name + '_role' + suffix))
       - For the '_name' suffix, the fallback uses role_name + '_name' instead of role_name + '_role_name'
       - When 'role' parameter is specified, constructs the appropriate traefik_role_var for that role
+      - When the optional 'instance' parameter is also specified, resolves the variables of that instance of the role
       - For _name variables with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
     author: salty
@@ -19,6 +20,13 @@ DOCUMENTATION = """
         required: false
       role:
         description: The role name to use for lookup instead of the current role_name
+        type: str
+        required: false
+      instance:
+        description:
+          - Optional instance name of C(role) to resolve, used in place of the C(<role>_name) variable.
+          - Role defaults that reference C(<role>_name) resolve against this instance.
+          - When omitted, behaviour is unchanged. Requires C(role).
         type: str
         required: false
       convert_json:
@@ -46,6 +54,10 @@ EXAMPLES = """
 - name: Use another role variable when a value is empty
   debug:
     msg: "{{ lookup('role_var', '_postgres_user', role='authentik', default=lookup('role_var', '_docker_env_user', role='postgres'), default_if_empty=true) }}"
+
+- name: Look up a variable for a specific instance of another role
+  debug:
+    msg: "{{ lookup('role_var', '_web_subdomain', role='sonarr', instance='sonarr4k') }}"
 """
 
 import json
@@ -158,6 +170,9 @@ class LookupModule(LookupBase):
         self.set_options(var_options=variables, direct=kwargs)
         default: Any = self.get_option("default")
         specified_role: str | None = self.get_option("role")
+        specified_instance: str | None = self.get_option("instance")
+        if specified_instance and not specified_role:
+            raise AnsibleLookupError("[role_var] 'instance' requires 'role'")
         convert_json: bool | None = self.get_option("convert_json")
         if convert_json is None:
             convert_json = True
@@ -180,6 +195,7 @@ class LookupModule(LookupBase):
             variables[stack_key] = []
             stack_owner = True
         stack = variables[stack_key]
+        caller_variables = variables
 
         try:
             # Use specified role if provided, otherwise fall back to role_name
@@ -200,7 +216,18 @@ class LookupModule(LookupBase):
             if specified_role:
                 # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
                 custom_role_name_var: str = role_name + "_name"
-                if custom_role_name_var in variables:
+                if specified_instance:
+                    traefik_role_var = self._templar.template(
+                        specified_instance, fail_on_undefined=True
+                    )
+                    if not isinstance(traefik_role_var, str) or not traefik_role_var:
+                        raise AnsibleLookupError(
+                            "[role_var] 'instance' must be a non-empty string"
+                        )
+                    # Role defaults reference <role>_name, so resolve them against the instance
+                    variables = {**variables, custom_role_name_var: traefik_role_var}
+                    self._templar.available_variables = variables
+                elif custom_role_name_var in variables:
                     traefik_role_var = self._templar.template(
                         variables[custom_role_name_var], fail_on_undefined=True
                     )
@@ -350,6 +377,6 @@ class LookupModule(LookupBase):
         finally:
             if stack_owner:
                 if stack_prev is None:
-                    variables.pop(stack_key, None)
+                    caller_variables.pop(stack_key, None)
                 else:
-                    variables[stack_key] = stack_prev
+                    caller_variables[stack_key] = stack_prev

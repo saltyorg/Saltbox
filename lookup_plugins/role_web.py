@@ -16,6 +16,12 @@ DOCUMENTATION = """
         description: Role name whose web variables should be resolved.
         type: str
         required: true
+      instance:
+        description:
+          - Optional instance name of C(role) to resolve, passed to C(role_var).
+          - When omitted, the C(<role>_name) variable selects the instance as before.
+        type: str
+        required: false
       endpoint:
         description:
           - Web variable family without the leading underscore.
@@ -43,6 +49,10 @@ EXAMPLES = """
   ansible.builtin.debug:
     msg: "{{ lookup('role_web', role='authentik') }}"
 
+- name: Resolve the hostname of a specific instance
+  ansible.builtin.debug:
+    msg: "{{ lookup('role_web', role='sonarr', instance='sonarr4k') }}"
+
 - name: Resolve a named endpoint
   ansible.builtin.debug:
     msg: "{{ lookup('role_web', role='silo', endpoint='web_jf') }}"
@@ -65,6 +75,7 @@ class LookupModule(LookupBase):
         suffix: str,
         role: str,
         variables: dict[str, Any],
+        instance: str | None = None,
     ) -> Any:
         """Resolve one suffix through the existing role_var interface."""
         role_var = lookup_loader.get(
@@ -75,7 +86,9 @@ class LookupModule(LookupBase):
         if role_var is None:
             raise AnsibleLookupError("[role_web] Unable to load role_var")
 
-        values = role_var.run([suffix], variables=variables, role=role)
+        values = role_var.run(
+            [suffix], variables=variables, role=role, instance=instance
+        )
         if len(values) != 1:
             raise AnsibleLookupError(
                 f"[role_web] role_var returned {len(values)} values for "
@@ -102,6 +115,7 @@ class LookupModule(LookupBase):
         role: Any = self.get_option("role")
         endpoint: Any = self.get_option("endpoint")
         scheme: Any = self.get_option("scheme")
+        instance: Any = self.get_option("instance")
 
         if self._templar is None:
             raise AnsibleLookupError("[role_web] Templar is not initialized")
@@ -110,6 +124,12 @@ class LookupModule(LookupBase):
         endpoint = self._templar.template(endpoint, fail_on_undefined=True)
         if scheme is not None:
             scheme = self._templar.template(scheme, fail_on_undefined=True)
+        if instance is not None:
+            instance = self._templar.template(instance, fail_on_undefined=True)
+            if not isinstance(instance, str) or not instance:
+                raise AnsibleLookupError(
+                    "[role_web] 'instance' must be a non-empty string"
+                )
 
         if not isinstance(role, str) or not role:
             raise AnsibleLookupError("[role_web] 'role' must be a non-empty string")
@@ -126,8 +146,8 @@ class LookupModule(LookupBase):
         prefix = f"_{endpoint}"
         subdomain_suffix = f"{prefix}_subdomain"
         domain_suffix = f"{prefix}_domain"
-        subdomain = self._resolve_role_var(subdomain_suffix, role, variables)
-        domain = self._resolve_role_var(domain_suffix, role, variables)
+        subdomain = self._resolve_role_var(subdomain_suffix, role, variables, instance)
+        domain = self._resolve_role_var(domain_suffix, role, variables, instance)
         omit_token = variables.get("omit")
 
         if omit_token is not None and (subdomain is omit_token or domain is omit_token):
