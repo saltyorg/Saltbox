@@ -15,7 +15,7 @@
       - figlet
       - toilet
       - boxes
-      - dnsutils
+      - bind9-dnsutils
 
 - name: Create script directories
   ansible.builtin.file:
