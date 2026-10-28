@@ -117,6 +117,8 @@
           - "install"
           - "--reinstall"
           - "linux-modules-{{ ansible_facts['kernel'] }}"
+          - "-o"
+          - "DPkg::Lock::Timeout={{ apt_lock_timeout }}"
 
 - name: "Import Daemon Tasks"
   ansible.builtin.include_tasks: "subtasks/daemon.yml"

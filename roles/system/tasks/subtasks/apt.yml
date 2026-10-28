@@ -33,6 +33,10 @@
           - "dpkg"
           - "--configure"
           - "--pending"
+      register: system_dpkg_configure
+      retries: "{{ (apt_lock_timeout | int) // 10 }}"
+      delay: 10
+      until: (system_dpkg_configure.rc == 0) or ('locked by another process' not in system_dpkg_configure.stderr)
 
   rescue:
     - name: APT | Reinstall python3-debian
@@ -42,6 +46,8 @@
           - "--reinstall"
           - "install"
           - "python3-debian"
+          - "-o"
+          - "DPkg::Lock::Timeout={{ apt_lock_timeout }}"
 
     - name: APT | Run 'dpkg --configure --pending' Again
       ansible.builtin.command:
@@ -49,14 +55,10 @@
           - "dpkg"
           - "--configure"
           - "--pending"
-
-- name: APT | Kill existing apt and apt-get
-  ansible.builtin.command:
-    argv:
-      - "killall"
-      - "apt"
-      - "apt-get"
-  failed_when: false
+      register: system_dpkg_configure
+      retries: "{{ (apt_lock_timeout | int) // 10 }}"
+      delay: 10
+      until: (system_dpkg_configure.rc == 0) or ('locked by another process' not in system_dpkg_configure.stderr)
 
 - name: APT | Fix any potential apt issues
   ansible.builtin.command:
@@ -66,7 +68,13 @@
       - "--fix-broken"
       - "--quiet"
       - "--yes"
+      - "-o"
+      - "DPkg::Lock::Timeout={{ apt_lock_timeout }}"
   environment: "{{ env_vars }}"
+
+- name: APT | APT update
+  ansible.builtin.apt:
+    update_cache: true
   ignore_errors: true
 
 - name: APT | Install required packages
@@ -76,11 +84,6 @@
       - apt-utils
       - byobu
       - pciutils
-
-- name: APT | APT update
-  ansible.builtin.apt:
-    update_cache: true
-  ignore_errors: true
 
 # https://serverfault.com/a/839563
 # https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
@@ -95,16 +98,15 @@
       - "Dpkg::Options::=--force-confdef"
       - "-o"
       - "Dpkg::Options::=--force-confold"
+      - "-o"
+      - "DPkg::Lock::Timeout={{ apt_lock_timeout }}"
   environment: "{{ env_vars }}"
   when: (not continuous_integration)
-  ignore_errors: true
 
 - name: APT | Remove useless packages from the cache
   ansible.builtin.apt:
     autoclean: true
-  ignore_errors: true
 
 - name: APT | Remove dependencies that are no longer required
   ansible.builtin.apt:
     autoremove: true
-  ignore_errors: true
