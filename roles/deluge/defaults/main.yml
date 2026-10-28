@@ -90,7 +90,7 @@ deluge_role_docker_container: "{{ deluge_name }}"
 
 # Image
 deluge_role_docker_image_pull: true
-deluge_role_docker_image_repo: "lscr.io/linuxserver/deluge"
+deluge_role_docker_image_repo: "linuxserver/deluge"
 deluge_role_docker_image_tag: "latest"
 deluge_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='deluge') }}:{{ lookup('role_var', '_docker_image_tag', role='deluge') }}"
 

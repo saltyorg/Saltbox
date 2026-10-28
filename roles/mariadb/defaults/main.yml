@@ -35,7 +35,7 @@ mariadb_role_paths_folders_list:
 ################################
 
 mariadb_role_docker_envs_mysql_root_password: password321
-mariadb_role_docker_image_migration: "lscr.io/linuxserver/mariadb:10.6.13"
+mariadb_role_docker_image_migration: "linuxserver/mariadb:10.6.13"
 mariadb_role_docker_volumes_migration:
   - "{{ lookup('role_var', '_paths_location', role='mariadb') }}:/config"
 mariadb_role_migration_timeout: 3600

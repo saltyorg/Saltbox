@@ -64,7 +64,7 @@ ddclient_role_docker_container: "{{ ddclient_name }}"
 
 # Image
 ddclient_role_docker_image_pull: true
-ddclient_role_docker_image_repo: "lscr.io/linuxserver/ddclient"
+ddclient_role_docker_image_repo: "linuxserver/ddclient"
 ddclient_role_docker_image_tag: "latest"
 ddclient_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='ddclient') }}:{{ lookup('role_var', '_docker_image_tag', role='ddclient') }}"
 

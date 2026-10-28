@@ -109,7 +109,7 @@ nzbhydra2_role_docker_container: "{{ nzbhydra2_name }}"
 
 # Image
 nzbhydra2_role_docker_image_pull: true
-nzbhydra2_role_docker_image_repo: "lscr.io/linuxserver/nzbhydra2"
+nzbhydra2_role_docker_image_repo: "linuxserver/nzbhydra2"
 nzbhydra2_role_docker_image_tag: "latest"
 nzbhydra2_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='nzbhydra2') }}:{{ lookup('role_var', '_docker_image_tag', role='nzbhydra2') }}"
 

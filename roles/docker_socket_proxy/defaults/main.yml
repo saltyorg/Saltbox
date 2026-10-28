@@ -22,7 +22,7 @@ docker_socket_proxy_role_docker_container: "{{ docker_socket_proxy_name }}"
 
 # Image
 docker_socket_proxy_role_docker_image_pull: true
-docker_socket_proxy_role_docker_image_repo: "lscr.io/linuxserver/socket-proxy"
+docker_socket_proxy_role_docker_image_repo: "linuxserver/socket-proxy"
 docker_socket_proxy_role_docker_image_tag: "latest"
 docker_socket_proxy_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='docker_socket_proxy') }}:{{ lookup('role_var', '_docker_image_tag', role='docker_socket_proxy') }}"
 

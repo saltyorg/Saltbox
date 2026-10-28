@@ -62,7 +62,7 @@ nginx_role_docker_container: "{{ nginx_name }}"
 
 # Image
 nginx_role_docker_image_pull: true
-nginx_role_docker_image_repo: "lscr.io/linuxserver/nginx"
+nginx_role_docker_image_repo: "linuxserver/nginx"
 nginx_role_docker_image_tag: "latest"
 nginx_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='nginx') }}:{{ lookup('role_var', '_docker_image_tag', role='nginx') }}"
 
