@@ -56,7 +56,12 @@ ssl=yes 				# use ssl-support.  Works with
 #
 #use=ip,                     ip=127.0.0.1	# via static IP's
 #use=if,                     if=eth0		# via interfaces
-use=web					# via web
+{% if dns_ipv4_enabled %}
+usev4=webv4				# IPv4 via web
+{% endif %}
+{% if dns_ipv6_enabled %}
+usev6=webv6				# IPv6 via web
+{% endif %}
 #
 #protocol=dyndns2				# default protocol
 #proxy=fasthttp.sympatico.ca:80			# default proxy
@@ -198,15 +203,14 @@ use=web					# via web
 #
 # CloudFlare (www.cloudflare.com)
 #
+{% for zone, hosts in ddclient_zones.items() %}
 protocol=cloudflare,        \
-zone={{ user.domain }},            \
-ttl=1,                      \
+zone={{ zone }},            \
 login={{ 'token' if cloudflare_scoped_token_is_enabled else cloudflare_email }},     \
 password={{ cloudflare_scoped_token if cloudflare_scoped_token_is_enabled else cloudflare_api_key }}             \
-{% for subdomain in subdomains -%}
-{{ subdomain }}.{{ user.domain }}{% if not loop.last %},{% endif %}
-{%- endfor %}
+{{ hosts | unique | join(',') }}
 
+{% endfor %}
 ##
 ## Google Domains (www.google.com/domains)
 ##

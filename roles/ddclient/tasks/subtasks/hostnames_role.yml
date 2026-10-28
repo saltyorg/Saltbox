@@ -1,0 +1,22 @@
+#########################################################################
+# Title:         Saltbox: DDClient | Hostnames | Role                   #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Hostnames | Role | Add '{{ ddclient_hostnames_role }}' hostname"
+  ansible.builtin.set_fact:
+    ddclient_hostnames: "{{ ddclient_hostnames
+                            + [{'host': lookup('role_web', role=ddclient_hostnames_role),
+                                'domain': lookup('role_var', '_web_domain', role=ddclient_hostnames_role)}] }}"
+  when: (lookup('ansible.builtin.varnames', '^' + ddclient_hostnames_role + '_instances$') | length == 0)
+
+- name: "Hostnames | Role | Add '{{ ddclient_hostnames_role }}' instance hostnames"
+  ansible.builtin.set_fact:
+    ddclient_hostnames: "{{ ddclient_hostnames
+                            + [{'host': lookup('role_web', role=ddclient_hostnames_role, instance=item),
+                                'domain': lookup('role_var', '_web_domain', role=ddclient_hostnames_role, instance=item)}] }}"
+  loop: "{{ lookup('vars', ddclient_hostnames_role + '_instances', default=[]) }}"

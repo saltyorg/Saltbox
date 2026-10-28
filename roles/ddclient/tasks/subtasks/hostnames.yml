@@ -1,0 +1,42 @@
+#########################################################################
+# Title:         Saltbox: DDClient | Hostnames                          #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Hostnames | Initialize hostnames
+  ansible.builtin.set_fact:
+    ddclient_hostnames: "{{ lookup('role_var', '_hostnames_custom', role='ddclient')
+                            | map('community.general.dict_kv', 'host')
+                            | map('combine', {'domain': user.domain})
+                            | list }}"
+
+- name: Hostnames | Add role hostnames
+  ansible.builtin.include_tasks: "subtasks/hostnames_role.yml"
+  loop: "{{ lookup('role_var', '_roles', role='ddclient') | unique }}"
+  loop_control:
+    loop_var: ddclient_hostnames_role
+
+# Cloudflare zones are registered domains, so a subdomain such as
+# dev.example.com is updated through the example.com zone
+- name: Hostnames | Parse zones
+  tld_parse:
+    url: "{{ item }}"
+  loop: "{{ ddclient_hostnames | map(attribute='domain') | unique }}"
+  register: ddclient_hostnames_parsed
+
+- name: Hostnames | Initialize zones
+  ansible.builtin.set_fact:
+    ddclient_zones: {}
+
+- name: Hostnames | Group hostnames by zone
+  ansible.builtin.set_fact:
+    ddclient_zones: "{{ ddclient_zones
+                        | combine({item.fld: ddclient_hostnames | selectattr('domain', 'equalto', item.item) | map(attribute='host') | list},
+                                  list_merge='append') }}"
+  loop: "{{ ddclient_hostnames_parsed.results }}"
+  loop_control:
+    label: "{{ item.item }}"
