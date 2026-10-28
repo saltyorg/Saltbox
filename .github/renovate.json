@@ -58,8 +58,7 @@
                 "pip_requirements"
             ],
             "matchFileNames": [
-                "requirements/*",
-                "resources/roles/dns/files/*"
+                "requirements/*"
             ],
             "matchUpdateTypes": [
                 "major"
@@ -76,8 +75,7 @@
                 "pip_requirements"
             ],
             "matchFileNames": [
-                "requirements/*",
-                "resources/roles/dns/files/*"
+                "requirements/*"
             ],
             "groupName": "pip-requirements",
             "matchUpdateTypes": [
@@ -132,8 +130,49 @@
                 "dependencies",
                 "github-actions"
             ]
+        },
+        {
+            "description": "Automerge CI-gated minor/patch updates",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "matchPackageNames": [
+                "actions/**",
+                "astral-sh/setup-uv",
+                "jaxxstorm/action-install-gh-release",
+                "saltyorg/github-actions"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "automerge": true
+        },
+        {
+            "description": "Automerge CI-gated Saltbox tools",
+            "matchPackageNames": [
+                "saltyorg/saltbox-lint",
+                "saltyorg/sdhm"
+            ],
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "automerge": true
+        },
+        {
+            "description": "Let third-party actions settle before automerge",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "matchPackageNames": [
+                "astral-sh/setup-uv",
+                "jaxxstorm/action-install-gh-release"
+            ],
+            "minimumReleaseAge": "3 days"
         }
     ],
+    "platformAutomerge": false,
     "rebaseWhen": "conflicted",
     "vulnerabilityAlerts": {
         "enabled": true,
