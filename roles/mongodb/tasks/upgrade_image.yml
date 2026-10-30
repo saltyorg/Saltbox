@@ -47,7 +47,15 @@
       - --version
     expand_argument_vars: false
   changed_when: false
+  failed_when: (mongodb_upgrade_image_binary.rc != 0) and ('SERVER-121912' not in mongodb_upgrade_image_binary.stdout)
   register: mongodb_upgrade_image_binary
+
+# MongoDB 8.x builds before the Ubuntu signature fix reject patched kernels too.
+- name: Upgrade | Image | Validate kernel support
+  ansible.builtin.assert:
+    that:
+      - "'SERVER-121912' not in mongodb_upgrade_image_binary.stdout"
+    fail_msg: "MongoDB image {{ mongodb_upgrade_image_reference }} refuses to run on kernel {{ ansible_facts['kernel'] }} (SERVER-121912). The existing MongoDB container and data were left unchanged."
 
 - name: Upgrade | Image | Resolve binary series
   ansible.builtin.set_fact:
