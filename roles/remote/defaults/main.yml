@@ -43,13 +43,15 @@ rclone_enable_metrics: false
 
 rclone_remote_port_low_bound: 5572
 rclone_remote_port_high_bound: 6072
+# Do not edit or override using the inventory
+rclone_remote_port: "{{ rclone_port_assignment.ports.rc }}"
 
 ################################
 # Rclone VFS Refresh
 ################################
 
 rclone_vfs_refresh_interval: 10800
-rclone_vfs_refresh_command: "/usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_port_assignment.ports.rc }} _async=true"
+rclone_vfs_refresh_command: "/usr/bin/rclone rc vfs/refresh recursive=true --url http://127.0.0.1:{{ rclone_remote_port }} _async=true"
 
 ################################
 # NFS
