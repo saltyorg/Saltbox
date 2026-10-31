@@ -16,8 +16,7 @@
   register: r
 
 - name: Update | Fix broken APT install
-  ansible.builtin.apt:
-    state: fixed
+  ansible.builtin.command: apt-get --fix-broken --yes install
   when: r.changed
 
 - name: Update | Set 'reboot_is_necessary' variable
