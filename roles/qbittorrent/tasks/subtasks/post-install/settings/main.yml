@@ -22,6 +22,18 @@
     group: "{{ user.name }}"
     mode: "0664"
 
+- name: Post-Install | Settings | Update Session\TorrentContentRemoveOption in 'qBittorrent.conf' config settings
+  community.general.ini_file:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+    section: BitTorrent
+    option: Session\TorrentContentRemoveOption
+    value: "{{ lookup('role_var', '_torrent_content_remove_option', role='qbittorrent') }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+
 - name: Post-Install | Settings | Update Connection\PortRangeMin in 'qBittorrent.conf' config settings (legacy)
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"

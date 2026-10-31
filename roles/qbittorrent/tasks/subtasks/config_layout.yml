@@ -8,34 +8,45 @@
 #########################################################################
 ---
 # qBittorrent records its settings schema in 'Meta\MigrationVersion' and
-# migrates old keys only once, when it upgrades that version. 5.0 and newer
+# migrates old keys only once, when it upgrades that version. 4.4.0 and newer
 # reset the version to their own on downgrade, 4.3.x leaves it unchanged.
 # Schema 9 (5.3.0) removed 'Preferences\Connection\PortRangeMin', which only
 # 4.3.x reads. Schema 11 (5.3.0) moved 'Preferences\WebUI\*' to '[WebUI]'.
 # The new keys are written only when the config already uses them and the
 # target version (see target_version.yml) reads them. Otherwise the old keys
 # are written, and 5.3.0 and newer migrate them on their next start.
+- name: Config Layout | Check for unfinished 'qBittorrent_new.conf'
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') | dirname }}/qBittorrent_new.conf"
+  register: qbittorrent_config_new_stat
+
 - name: Config Layout | Read 'qBittorrent.conf'
   ansible.builtin.slurp:
-    src: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+    src: "{{ qbittorrent_config_new_stat.stat.path
+          if (qbittorrent_config_new_stat.stat.exists and (qbittorrent_config_new_stat.stat.size > 0))
+          else lookup('role_var', '_paths_conf', role='qbittorrent') }}"
   register: qbittorrent_config_slurp
+
+- name: Config Layout | Parse 'qBittorrent.conf'
+  ansible.builtin.set_fact:
+    qbittorrent_config: "{{ dict(_qbittorrent_sections | map('first')
+                                 | zip(_qbittorrent_sections | map('last')
+                                       | map('regex_findall', _qbittorrent_key_regex)
+                                       | map('community.general.dict'))) }}"
+  vars:
+    _qbittorrent_sections: "{{ qbittorrent_config_slurp.content | b64decode | regex_findall(_qbittorrent_section_regex) }}"
+    _qbittorrent_section_regex: '(?ms)^\[([^\]\n]+)\][ \t]*$(.*?)(?=^\[|\Z)'
+    _qbittorrent_key_regex: '(?m)^([^=\n]+)=(.*)$'
 
 - name: Config Layout | Set config layout facts
   ansible.builtin.set_fact:
-    qbittorrent_config_migration_version: "{{ _qbittorrent_meta | regex_findall(_qbittorrent_version_regex) | first | default('0') | int }}"
-    qbittorrent_config_legacy_webui: "{{ dict(_qbittorrent_preferences | regex_findall(_qbittorrent_legacy_webui_regex)) }}"
-    qbittorrent_config_webui: "{{ dict(_qbittorrent_webui | regex_findall(_qbittorrent_key_regex)) }}"
+    qbittorrent_config_migration_version: "{{ (qbittorrent_config['Meta'] | default({}))['MigrationVersion'] | default('0') | int }}"
+    qbittorrent_config_legacy_webui: "{{ qbittorrent_config['Preferences'] | default({}) | dict2items
+                                         | selectattr('key', 'match', _qbittorrent_legacy_webui_regex)
+                                         | items2dict }}"
+    qbittorrent_config_webui: "{{ qbittorrent_config['WebUI'] | default({}) }}"
   vars:
-    _qbittorrent_config: "{{ qbittorrent_config_slurp.content | b64decode }}"
-    _qbittorrent_meta: "{{ _qbittorrent_config | regex_findall(_qbittorrent_meta_regex) | first | default('') }}"
-    _qbittorrent_preferences: "{{ _qbittorrent_config | regex_findall(_qbittorrent_preferences_regex) | first | default('') }}"
-    _qbittorrent_webui: "{{ _qbittorrent_config | regex_findall(_qbittorrent_webui_regex) | first | default('') }}"
-    _qbittorrent_meta_regex: '(?ms)^\[Meta\][ \t]*$(.*?)(?=^\[|\Z)'
-    _qbittorrent_preferences_regex: '(?ms)^\[Preferences\][ \t]*$(.*?)(?=^\[|\Z)'
-    _qbittorrent_webui_regex: '(?ms)^\[WebUI\][ \t]*$(.*?)(?=^\[|\Z)'
-    _qbittorrent_version_regex: '(?m)^MigrationVersion=(\d+)[ \t]*$'
-    _qbittorrent_legacy_webui_regex: '(?m)^(WebUI\\[^=\n]+)=(.*)$'
-    _qbittorrent_key_regex: '(?m)^([^=\n]+)=(.*)$'
+    _qbittorrent_legacy_webui_regex: '^WebUI\\'
 
 - name: Config Layout | Set config layout
   ansible.builtin.set_fact:
@@ -52,6 +63,70 @@
     qbittorrent_config_webui_option_prefix: "{{ '' if (qbittorrent_config_new_webui | bool) else _qbittorrent_legacy_webui_prefix }}"
   vars:
     _qbittorrent_legacy_webui_prefix: 'WebUI\'
+
+- name: Config Layout | Check if a migration is required
+  ansible.builtin.set_fact:
+    qbittorrent_config_migration_required: "{{ qbittorrent_config_new_stat.stat.exists
+                                               or ((not (qbittorrent_config_legacy_port | bool))
+                                                   and (_qbittorrent_legacy_port_key in (qbittorrent_config['Preferences'] | default({}))))
+                                               or ((qbittorrent_config_new_webui | bool) and (qbittorrent_config_legacy_webui | length > 0))
+                                               or ((not (qbittorrent_config_new_webui | bool)) and (qbittorrent_config_webui | length > 0))
+                                               or ((qbittorrent_target_version | length > 0)
+                                                   and (qbittorrent_target_version is version('4.4.0', '<'))
+                                                   and (qbittorrent_config_migration_version | int > 0)) }}"
+  vars:
+    _qbittorrent_legacy_port_key: 'Connection\PortRangeMin'
+
+# Copies taken before migrating are kept next to the config, named after the
+# minute the migration ran. A second run in the same minute keeps the first.
+- name: Config Layout | Back up config before migrating
+  when: (qbittorrent_config_migration_required | bool)
+  block:
+    - name: Config Layout | Set backup timestamp
+      ansible.builtin.set_fact:
+        qbittorrent_config_backup_timestamp: "{{ now(fmt='%Y-%m-%d_%H-%M') }}"
+
+    - name: Config Layout | Back up 'qBittorrent.conf'
+      ansible.builtin.copy:
+        src: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        dest: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}.{{ qbittorrent_config_backup_timestamp }}.bak"
+        remote_src: true
+        force: false
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+
+    - name: Config Layout | Back up 'qBittorrent_new.conf'
+      ansible.builtin.copy:
+        src: "{{ qbittorrent_config_new_stat.stat.path }}"
+        dest: "{{ qbittorrent_config_new_stat.stat.path }}.{{ qbittorrent_config_backup_timestamp }}.bak"
+        remote_src: true
+        force: false
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      when: qbittorrent_config_new_stat.stat.exists
+
+# qBittorrent saves to 'qBittorrent_new.conf' and renames it. A non-empty
+# leftover is the newest complete config and replaces 'qBittorrent.conf' on
+# the next start, which would discard the changes made here.
+- name: Config Layout | Recover unfinished 'qBittorrent_new.conf'
+  when: qbittorrent_config_new_stat.stat.exists
+  block:
+    - name: Config Layout | Replace 'qBittorrent.conf' with 'qBittorrent_new.conf'
+      ansible.builtin.copy:
+        src: "{{ qbittorrent_config_new_stat.stat.path }}"
+        dest: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        remote_src: true
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      when: (qbittorrent_config_new_stat.stat.size > 0)
+
+    - name: Config Layout | Remove 'qBittorrent_new.conf'
+      ansible.builtin.file:
+        path: "{{ qbittorrent_config_new_stat.stat.path }}"
+        state: absent
 
 - name: Config Layout | Remove 'Preferences\Connection\PortRangeMin'
   community.general.ini_file:
@@ -102,12 +177,13 @@
         mode: "0664"
       loop: "{{ qbittorrent_config_legacy_webui.keys() | list }}"
 
-# A pinned version older than 5.3.0 does not read '[WebUI]', so move a
-# migrated config's WebUI settings back to the keys it reads.
+# Versions older than 5.3.0 do not read '[WebUI]', so move its settings back
+# to the keys they read. A config still at schema 11 or newer was last
+# written by 5.3.0 or newer, so '[WebUI]' holds the newest values. Otherwise
+# an older version has run since and its values are kept.
 - name: Config Layout | Revert WebUI settings for older versions
   when:
     - (not (qbittorrent_config_new_webui | bool))
-    - (qbittorrent_config_migration_version | int >= 11)
     - (qbittorrent_config_webui | length > 0)
   block:
     - name: Config Layout | Move WebUI settings to '[Preferences]'
@@ -126,6 +202,8 @@
         label: "{{ item.key }}"
       vars:
         _qbittorrent_legacy_webui_prefix: 'WebUI\'
+      when: ((qbittorrent_config_migration_version | int >= 11)
+             or ((_qbittorrent_legacy_webui_prefix ~ item.key) not in qbittorrent_config_legacy_webui))
       no_log: true
 
     - name: Config Layout | Remove WebUI settings from '[WebUI]'
@@ -139,3 +217,10 @@
         group: "{{ user.name }}"
         mode: "0664"
       loop: "{{ qbittorrent_config_webui.keys() | list }}"
+
+- name: Config Layout | Revert settings for 4.3.x
+  ansible.builtin.include_tasks: subtasks/config_legacy.yml
+  when:
+    - (qbittorrent_target_version | length > 0)
+    - (qbittorrent_target_version is version('4.4.0', '<'))
+    - (qbittorrent_config_migration_version | int > 0)

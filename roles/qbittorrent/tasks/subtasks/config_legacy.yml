@@ -1,0 +1,112 @@
+#########################################################################
+# Title:         Saltbox: qBittorrent | Config Legacy Tasks             #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+# 4.4.0 copied these settings from the 4.3.x keys (schema 2) and 5.3.0
+# removed the 4.3.x keys (schema 9). 4.3.x only reads the old keys, so copy
+# the values written by the newer version back. Settings whose format changed
+# after 4.4.0 (proxy type, share limit action, .torrent export folders) are
+# left out. 'AddTorrentStopped' (5.0.0) replaced 'AddTorrentPaused'.
+# 4.3.x does not read 'Meta\MigrationVersion', so it is removed to make the
+# next upgrade migrate the 4.3.x keys again.
+- name: Config Legacy | Copy settings to 4.3.x keys
+  community.general.ini_file:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+    section: "{{ _qbittorrent_old[0] }}"
+    option: "{{ _qbittorrent_old[1] | replace('/', _qbittorrent_backslash) }}"
+    value: "{{ qbittorrent_config[_qbittorrent_new[0]][_qbittorrent_new_option] }}"
+    no_extra_spaces: true
+    state: present
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+  loop: "{{ _qbittorrent_key_mappings }}"
+  loop_control:
+    label: "{{ item.new }}"
+  vars:
+    _qbittorrent_backslash: '\'
+    _qbittorrent_new: "{{ item.new.split('/', 1) }}"
+    _qbittorrent_old: "{{ item.old.split('/', 1) }}"
+    _qbittorrent_new_option: "{{ _qbittorrent_new[1] | replace('/', _qbittorrent_backslash) }}"
+    _qbittorrent_key_mappings:
+      - {new: BitTorrent/Session/AddExtensionToIncompleteFiles, old: Preferences/Downloads/UseIncompleteExtension}
+      - {new: BitTorrent/Session/AdditionalTrackers, old: Preferences/Bittorrent/TrackersList}
+      - {new: BitTorrent/Session/AddTorrentPaused, old: Preferences/Downloads/StartInPause}
+      - {new: BitTorrent/Session/AddTorrentStopped, old: Preferences/Downloads/StartInPause}
+      - {new: BitTorrent/Session/AddTrackersEnabled, old: Preferences/Bittorrent/AddTrackers}
+      - {new: BitTorrent/Session/AlternativeGlobalDLSpeedLimit, old: Preferences/Connection/GlobalDLLimitAlt}
+      - {new: BitTorrent/Session/AlternativeGlobalUPSpeedLimit, old: Preferences/Connection/GlobalUPLimitAlt}
+      - {new: BitTorrent/Session/AnnounceIP, old: Preferences/Connection/InetAddress}
+      - {new: BitTorrent/Session/AnnounceToAllTrackers, old: Preferences/Advanced/AnnounceToAllTrackers}
+      - {new: BitTorrent/Session/AnonymousModeEnabled, old: Preferences/Advanced/AnonymousMode}
+      - {new: BitTorrent/Session/BandwidthSchedulerEnabled, old: Preferences/Scheduler/Enabled}
+      - {new: BitTorrent/Session/DefaultSavePath, old: Preferences/Downloads/SavePath}
+      - {new: BitTorrent/Session/DHTEnabled, old: Preferences/Bittorrent/DHT}
+      - {new: BitTorrent/Session/DiskCacheSize, old: Preferences/Downloads/DiskWriteCacheSize}
+      - {new: BitTorrent/Session/DiskCacheTTL, old: Preferences/Downloads/DiskWriteCacheTTL}
+      - {new: BitTorrent/Session/Encryption, old: Preferences/Bittorrent/Encryption}
+      - {new: BitTorrent/Session/ForceProxy, old: Preferences/Connection/ProxyForce}
+      - {new: BitTorrent/Session/GlobalDLSpeedLimit, old: Preferences/Connection/GlobalDLLimit}
+      - {new: BitTorrent/Session/GlobalMaxRatio, old: Preferences/Bittorrent/MaxRatio}
+      - {new: BitTorrent/Session/GlobalUPSpeedLimit, old: Preferences/Connection/GlobalUPLimit}
+      - {new: BitTorrent/Session/IgnoreLimitsOnLAN, old: Preferences/Advanced/IgnoreLimitsLAN}
+      - {new: BitTorrent/Session/IgnoreSlowTorrentsForQueueing, old: Preferences/Queueing/IgnoreSlowTorrents}
+      - {new: BitTorrent/Session/IncludeOverheadInLimits, old: Preferences/Advanced/IncludeOverhead}
+      - {new: BitTorrent/Session/Interface, old: Preferences/Connection/Interface}
+      - {new: BitTorrent/Session/InterfaceAddress, old: Preferences/Connection/InterfaceAddress}
+      - {new: BitTorrent/Session/InterfaceName, old: Preferences/Connection/InterfaceName}
+      - {new: BitTorrent/Session/IPFilter, old: Preferences/IPFilter/File}
+      - {new: BitTorrent/Session/IPFilteringEnabled, old: Preferences/IPFilter/Enabled}
+      - {new: BitTorrent/Session/LSDEnabled, old: Preferences/Bittorrent/LSD}
+      - {new: BitTorrent/Session/MaxActiveDownloads, old: Preferences/Queueing/MaxActiveDownloads}
+      - {new: BitTorrent/Session/MaxActiveTorrents, old: Preferences/Queueing/MaxActiveTorrents}
+      - {new: BitTorrent/Session/MaxActiveUploads, old: Preferences/Queueing/MaxActiveUploads}
+      - {new: BitTorrent/Session/MaxConnections, old: Preferences/Bittorrent/MaxConnecs}
+      - {new: BitTorrent/Session/MaxConnectionsPerTorrent, old: Preferences/Bittorrent/MaxConnecsPerTorrent}
+      - {new: BitTorrent/Session/MaxHalfOpenConnections, old: Preferences/Connection/MaxHalfOpenConnec}
+      - {new: BitTorrent/Session/MaxUploads, old: Preferences/Bittorrent/MaxUploads}
+      - {new: BitTorrent/Session/MaxUploadsPerTorrent, old: Preferences/Bittorrent/MaxUploadsPerTorrent}
+      - {new: BitTorrent/Session/OutgoingPortsMax, old: Preferences/Advanced/OutgoingPortsMax}
+      - {new: BitTorrent/Session/OutgoingPortsMin, old: Preferences/Advanced/OutgoingPortsMin}
+      - {new: BitTorrent/Session/PeXEnabled, old: Preferences/Bittorrent/PeX}
+      - {new: BitTorrent/Session/Port, old: Preferences/Connection/PortRangeMin}
+      - {new: BitTorrent/Session/Preallocation, old: Preferences/Downloads/PreAllocation}
+      - {new: BitTorrent/Session/ProxyPeerConnections, old: Preferences/Connection/ProxyPeerConnections}
+      - {new: BitTorrent/Session/QueueingSystemEnabled, old: Preferences/Queueing/QueueingEnabled}
+      - {new: BitTorrent/Session/RefreshInterval, old: Preferences/General/RefreshInterval}
+      - {new: BitTorrent/Session/SaveResumeDataInterval, old: Preferences/Downloads/SaveResumeDataInterval}
+      - {new: BitTorrent/Session/SuperSeedingEnabled, old: Preferences/Advanced/SuperSeeding}
+      - {new: BitTorrent/Session/TempPath, old: Preferences/Downloads/TempPath}
+      - {new: BitTorrent/Session/TempPathEnabled, old: Preferences/Downloads/TempPathEnabled}
+      - {new: BitTorrent/Session/TrackerFilteringEnabled, old: Preferences/IPFilter/FilterTracker}
+      - {new: BitTorrent/Session/UseAlternativeGlobalSpeedLimit, old: Preferences/Connection/alt_speeds_on}
+      - {new: BitTorrent/Session/UseOSCache, old: Preferences/Advanced/osCache}
+      - {new: BitTorrent/Session/UseRandomPort, old: Preferences/General/UseRandomPort}
+      - {new: BitTorrent/Session/uTPEnabled, old: Preferences/Bittorrent/uTP}
+      - {new: BitTorrent/Session/uTPRateLimited, old: Preferences/Bittorrent/uTP_rate_limited}
+      - {new: BitTorrent/TrackerEnabled, old: Preferences/Advanced/trackerEnabled}
+      - {new: Network/PortForwardingEnabled, old: Preferences/Connection/UPnP}
+      - {new: Network/Proxy/Authentication, old: Preferences/Connection/Proxy/Authentication}
+      - {new: Network/Proxy/IP, old: Preferences/Connection/Proxy/IP}
+      - {new: Network/Proxy/Password, old: Preferences/Connection/Proxy/Password}
+      - {new: Network/Proxy/Port, old: Preferences/Connection/Proxy/Port}
+      - {new: Network/Proxy/Username, old: Preferences/Connection/Proxy/Username}
+      - {new: State/BannedIPs, old: Preferences/IPFilter/BannedIPs}
+  when: (_qbittorrent_new_option in (qbittorrent_config[_qbittorrent_new[0]] | default({})))
+  no_log: true
+
+- name: Config Legacy | Remove 'Meta\MigrationVersion'
+  community.general.ini_file:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+    section: Meta
+    option: MigrationVersion
+    no_extra_spaces: true
+    state: absent
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
