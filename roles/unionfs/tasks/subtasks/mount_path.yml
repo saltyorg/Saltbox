@@ -7,17 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Mount Path | Check if '/mnt/unionfs' is a mountpoint"
-  ansible.builtin.command:
-    argv:
-      - "mountpoint"
-      - "-q"
-      - "--"
-      - "/mnt/unionfs"
-  register: mnt_unionfs_mountpoint
-  changed_when: false
-  failed_when: false
-
+# Unconditional so dead FUSE mounts (stat fails with ENOTCONN) are also cleared
 - name: "Mount Path | Force unmount '/mnt/unionfs'"
   ansible.builtin.command:
     argv:
@@ -25,7 +15,9 @@
       - "-f"
       - "--"
       - "/mnt/unionfs"
-  when: (mnt_unionfs_mountpoint.rc == 0)
+  register: mnt_unionfs_umount
+  changed_when: (mnt_unionfs_umount.rc == 0)
+  failed_when: false
 
 - name: "Mount Path | Check if '/mnt/unionfs' exists"
   ansible.builtin.stat:
