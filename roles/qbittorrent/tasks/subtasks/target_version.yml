@@ -1,0 +1,70 @@
+#########################################################################
+# Title:         Saltbox: qBittorrent | Target Version Tasks            #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+# The config layout depends on the qBittorrent version that will run next,
+# which can be older than the one that last wrote the config when a version
+# is pinned. An empty version means it could not be determined.
+- name: Target Version | Host Install
+  when: lookup('role_var', '_host_install', role='qbittorrent')
+  block:
+    - name: Target Version | Get host version data
+      ansible.builtin.uri:
+        url: "{{ lookup('role_var', '_host_release_url', role='qbittorrent') }}"
+        method: GET
+        return_content: true
+        status_code: 200
+      register: qbittorrent_host_version_response
+
+    - name: Target Version | Set host target version
+      ansible.builtin.set_fact:
+        qbittorrent_target_version: "{{ lookup('role_var', '_host_download_version', role='qbittorrent')
+                                        | regex_findall(_qbittorrent_release_regex) | first | default('') }}"
+      vars:
+        _qbittorrent_release_regex: '^release-([0-9][0-9A-Za-z.]*)_'
+
+- name: Target Version | Docker Install
+  when: (not lookup('role_var', '_host_install', role='qbittorrent'))
+  block:
+    - name: Target Version | Pull Docker image
+      community.docker.docker_image_pull:
+        name: "{{ lookup('role_var', '_docker_image', role='qbittorrent') }}"
+        pull: "{{ 'always' if (lookup('role_var', '_docker_image_pull', role='qbittorrent') | bool) else 'not_present' }}"
+      register: qbittorrent_image_pull
+      retries: "{{ ansible_retry_count if (not continuous_integration) else ansible_retry_count_ci }}"
+      delay: 10
+      until: qbittorrent_image_pull is succeeded
+
+    - name: Target Version | Read Docker image qBittorrent version
+      ansible.builtin.command:
+        argv:
+          - docker
+          - run
+          - --rm
+          - --network
+          - none
+          - --entrypoint
+          - qbittorrent-nox
+          - "{{ qbittorrent_image_pull.image.Id }}"
+          - --version
+        expand_argument_vars: false
+      register: qbittorrent_image_version
+      changed_when: false
+      failed_when: false
+
+    - name: Target Version | Set Docker target version
+      ansible.builtin.set_fact:
+        qbittorrent_target_version: "{{ qbittorrent_image_version.stdout | default('')
+                                        | regex_findall(_qbittorrent_version_regex) | first | default('') }}"
+      vars:
+        _qbittorrent_version_regex: '(?m)^qBittorrent v([0-9][0-9A-Za-z.]*)'
+
+- name: Target Version | Warn about unknown version
+  ansible.builtin.debug:
+    msg: "Could not determine the qBittorrent version of '{{ qbittorrent_name }}'. The config layout will follow the existing 'qBittorrent.conf'."
+  when: (qbittorrent_target_version | length == 0)

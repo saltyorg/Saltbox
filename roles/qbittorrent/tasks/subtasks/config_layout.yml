@@ -1,0 +1,141 @@
+#########################################################################
+# Title:         Saltbox: qBittorrent | Config Layout Tasks             #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+# qBittorrent records its settings schema in 'Meta\MigrationVersion' and
+# migrates old keys only once, when it upgrades that version. 5.0 and newer
+# reset the version to their own on downgrade, 4.3.x leaves it unchanged.
+# Schema 9 (5.3.0) removed 'Preferences\Connection\PortRangeMin', which only
+# 4.3.x reads. Schema 11 (5.3.0) moved 'Preferences\WebUI\*' to '[WebUI]'.
+# The new keys are written only when the config already uses them and the
+# target version (see target_version.yml) reads them. Otherwise the old keys
+# are written, and 5.3.0 and newer migrate them on their next start.
+- name: Config Layout | Read 'qBittorrent.conf'
+  ansible.builtin.slurp:
+    src: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+  register: qbittorrent_config_slurp
+
+- name: Config Layout | Set config layout facts
+  ansible.builtin.set_fact:
+    qbittorrent_config_migration_version: "{{ _qbittorrent_meta | regex_findall(_qbittorrent_version_regex) | first | default('0') | int }}"
+    qbittorrent_config_legacy_webui: "{{ dict(_qbittorrent_preferences | regex_findall(_qbittorrent_legacy_webui_regex)) }}"
+    qbittorrent_config_webui: "{{ dict(_qbittorrent_webui | regex_findall(_qbittorrent_key_regex)) }}"
+  vars:
+    _qbittorrent_config: "{{ qbittorrent_config_slurp.content | b64decode }}"
+    _qbittorrent_meta: "{{ _qbittorrent_config | regex_findall(_qbittorrent_meta_regex) | first | default('') }}"
+    _qbittorrent_preferences: "{{ _qbittorrent_config | regex_findall(_qbittorrent_preferences_regex) | first | default('') }}"
+    _qbittorrent_webui: "{{ _qbittorrent_config | regex_findall(_qbittorrent_webui_regex) | first | default('') }}"
+    _qbittorrent_meta_regex: '(?ms)^\[Meta\][ \t]*$(.*?)(?=^\[|\Z)'
+    _qbittorrent_preferences_regex: '(?ms)^\[Preferences\][ \t]*$(.*?)(?=^\[|\Z)'
+    _qbittorrent_webui_regex: '(?ms)^\[WebUI\][ \t]*$(.*?)(?=^\[|\Z)'
+    _qbittorrent_version_regex: '(?m)^MigrationVersion=(\d+)[ \t]*$'
+    _qbittorrent_legacy_webui_regex: '(?m)^(WebUI\\[^=\n]+)=(.*)$'
+    _qbittorrent_key_regex: '(?m)^([^=\n]+)=(.*)$'
+
+- name: Config Layout | Set config layout
+  ansible.builtin.set_fact:
+    qbittorrent_config_new_webui: "{{ (qbittorrent_config_migration_version | int >= 11)
+                                      and ((qbittorrent_target_version | length == 0)
+                                           or (qbittorrent_target_version is version('5.3.0', '>='))) }}"
+    qbittorrent_config_legacy_port: "{{ (qbittorrent_target_version is version('4.4.0', '<'))
+                                     if (qbittorrent_target_version | length > 0)
+                                     else (qbittorrent_config_migration_version | int < 9) }}"
+
+- name: Config Layout | Set WebUI settings location
+  ansible.builtin.set_fact:
+    qbittorrent_config_webui_section: "{{ 'WebUI' if (qbittorrent_config_new_webui | bool) else 'Preferences' }}"
+    qbittorrent_config_webui_option_prefix: "{{ '' if (qbittorrent_config_new_webui | bool) else _qbittorrent_legacy_webui_prefix }}"
+  vars:
+    _qbittorrent_legacy_webui_prefix: 'WebUI\'
+
+- name: Config Layout | Remove 'Preferences\Connection\PortRangeMin'
+  community.general.ini_file:
+    path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+    section: Preferences
+    option: Connection\PortRangeMin
+    no_extra_spaces: true
+    state: absent
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0664"
+  when: (not (qbittorrent_config_legacy_port | bool))
+
+# Earlier role versions kept writing the old keys after qBittorrent had
+# migrated them, so those values (including the initial WebUI credentials)
+# were ignored. Move values qBittorrent has never seen and drop the rest.
+- name: Config Layout | Migrate stale WebUI settings
+  when:
+    - (qbittorrent_config_new_webui | bool)
+    - (qbittorrent_config_legacy_webui | length > 0)
+  block:
+    - name: Config Layout | Move stale WebUI settings missing from '[WebUI]'
+      community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        section: WebUI
+        option: "{{ item.key[6:] }}"
+        value: "{{ item.value }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      loop: "{{ qbittorrent_config_legacy_webui | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: (item.key[6:] not in qbittorrent_config_webui)
+      no_log: true
+
+    - name: Config Layout | Remove stale WebUI settings from '[Preferences]'
+      community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        section: Preferences
+        option: "{{ item }}"
+        no_extra_spaces: true
+        state: absent
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      loop: "{{ qbittorrent_config_legacy_webui.keys() | list }}"
+
+# A pinned version older than 5.3.0 does not read '[WebUI]', so move a
+# migrated config's WebUI settings back to the keys it reads.
+- name: Config Layout | Revert WebUI settings for older versions
+  when:
+    - (not (qbittorrent_config_new_webui | bool))
+    - (qbittorrent_config_migration_version | int >= 11)
+    - (qbittorrent_config_webui | length > 0)
+  block:
+    - name: Config Layout | Move WebUI settings to '[Preferences]'
+      community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        section: Preferences
+        option: "{{ _qbittorrent_legacy_webui_prefix ~ item.key }}"
+        value: "{{ item.value }}"
+        no_extra_spaces: true
+        state: present
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      loop: "{{ qbittorrent_config_webui | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      vars:
+        _qbittorrent_legacy_webui_prefix: 'WebUI\'
+      no_log: true
+
+    - name: Config Layout | Remove WebUI settings from '[WebUI]'
+      community.general.ini_file:
+        path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
+        section: WebUI
+        option: "{{ item }}"
+        no_extra_spaces: true
+        state: absent
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0664"
+      loop: "{{ qbittorrent_config_webui.keys() | list }}"

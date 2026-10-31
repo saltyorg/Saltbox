@@ -18,6 +18,9 @@
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
   register: qbittorrent_role_paths_conf_stat
 
+- name: Resolve target qBittorrent version
+  ansible.builtin.include_tasks: subtasks/target_version.yml
+
 - name: Check if legacy '{{ qbittorrent_name }}.service' exists
   ansible.builtin.stat:
     path: "/etc/systemd/system/{{ qbittorrent_name }}.service"
@@ -83,14 +86,6 @@
 - name: Host Install
   when: lookup('role_var', '_host_install', role='qbittorrent')
   block:
-    - name: Get host version data
-      ansible.builtin.uri:
-        url: "{{ lookup('role_var', '_host_release_url', role='qbittorrent') }}"
-        method: GET
-        return_content: true
-        status_code: 200
-      register: qbittorrent_host_version_response
-
     - name: Download 'qbittorrent-nox'
       ansible.builtin.get_url:
         url: "{{ lookup('role_var', '_host_download_url', role='qbittorrent') }}"
@@ -125,6 +120,8 @@
   block:
     - name: Create Docker container
       ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      vars:
+        qbittorrent_role_docker_image_pull: false
 
 - name: Post-Install Tasks
   ansible.builtin.include_tasks: "subtasks/post-install/main.yml"

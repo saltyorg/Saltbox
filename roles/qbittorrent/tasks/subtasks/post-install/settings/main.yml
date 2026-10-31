@@ -7,6 +7,9 @@
 #                   GNU General Public License v3.0                                #
 ####################################################################################
 ---
+- name: Post-Install | Settings | Detect 'qBittorrent.conf' layout
+  ansible.builtin.include_tasks: "subtasks/config_layout.yml"
+
 - name: Post-Install | Settings | Update Session\Port in 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
@@ -30,12 +33,13 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     mode: "0664"
+  when: (qbittorrent_config_legacy_port | bool)
 
 - name: Post-Install | Settings | Update WebUI\HostHeaderValidation 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\HostHeaderValidation
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}HostHeaderValidation"
     value: "false"
     no_extra_spaces: true
     state: present
@@ -46,8 +50,8 @@
 - name: Post-Install | Settings | Update WebUI\CSRFProtection 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\CSRFProtection
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}CSRFProtection"
     value: "false"
     no_extra_spaces: true
     state: present
@@ -58,8 +62,8 @@
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeaders 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\CustomHTTPHeaders
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}CustomHTTPHeaders"
     value: "{{ lookup('role_var', '_webui_custom_headers', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
@@ -70,8 +74,8 @@
 - name: Post-Install | Settings | Update WebUI\CustomHTTPHeadersEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\CustomHTTPHeadersEnabled
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}CustomHTTPHeadersEnabled"
     value: "{{ lookup('role_var', '_webui_custom_headers_enabled', role='qbittorrent') }}"
     no_extra_spaces: true
     state: present
@@ -94,8 +98,8 @@
 - name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\Port
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}Port"
     value: "{{ qbittorrent_port_assignment.ports.web if lookup('role_var', '_host_install', role='qbittorrent') else '8080' }}"
     no_extra_spaces: true
     state: present
@@ -103,11 +107,11 @@
     group: "{{ user.name }}"
     mode: "0664"
 
-- name: Post-Install | Settings | Update WebUI\Port 'qBittorrent.conf' config settings
+- name: Post-Install | Settings | Update WebUI\Address 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\Address
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}Address"
     value: "{{ '172.19.0.1' if lookup('role_var', '_host_install', role='qbittorrent') else '*' }}"
     no_extra_spaces: true
     state: present
@@ -118,8 +122,8 @@
 - name: Post-Install | Settings | Update WebUI\TrustedReverseProxiesList 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\TrustedReverseProxiesList
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}TrustedReverseProxiesList"
     value: "172.19.0.0/16"
     no_extra_spaces: true
     state: present
@@ -130,8 +134,8 @@
 - name: Post-Install | Settings | Update WebUI\ReverseProxySupportEnabled 'qBittorrent.conf' config settings
   community.general.ini_file:
     path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-    section: Preferences
-    option: WebUI\ReverseProxySupportEnabled
+    section: "{{ qbittorrent_config_webui_section }}"
+    option: "{{ qbittorrent_config_webui_option_prefix }}ReverseProxySupportEnabled"
     value: "true"
     no_extra_spaces: true
     state: present
@@ -177,8 +181,8 @@
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Username'
       community.general.ini_file:
         path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-        section: Preferences
-        option: WebUI\Username
+        section: "{{ qbittorrent_config_webui_section }}"
+        option: "{{ qbittorrent_config_webui_option_prefix }}Username"
         value: '{{ user.name }}'
         no_extra_spaces: true
         state: present
@@ -189,8 +193,8 @@
     - name: Post-Install | Settings | Set qBittorrent 'WebUI\Password_PBKDF2'
       community.general.ini_file:
         path: "{{ lookup('role_var', '_paths_conf', role='qbittorrent') }}"
-        section: Preferences
-        option: WebUI\Password_PBKDF2
+        section: "{{ qbittorrent_config_webui_section }}"
+        option: "{{ qbittorrent_config_webui_option_prefix }}Password_PBKDF2"
         value: '{{ qbittorrent_hashed_passwd.hash }}'
         no_extra_spaces: true
         state: present
