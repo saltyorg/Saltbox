@@ -12,6 +12,8 @@
     set -o pipefail
 
     tar \
+      --warning=no-file-changed \
+      --warning=no-file-removed \
       --exclude='./snapshots' \
       --exclude-from '{{ backup_excludes_list_path }}' \
       -cf - -C '{{ async_item | dirname }}' './{{ async_item | basename }}' \
