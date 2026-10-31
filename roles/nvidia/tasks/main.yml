@@ -412,6 +412,11 @@
             - name: Nvidia driver installation tasks
               ansible.builtin.include_tasks: "subtasks/driver.yml"
 
+            - name: Check for Keylase patch backup after driver replacement
+              ansible.builtin.stat:
+                path: "{{ nvidia_patch_backup_file_location }}/libnvidia-encode.so.{{ nvidia_driver_resolution.resolved_version }}"
+              register: nvidia_existing_patch_backup
+
     - name: Validate Nvidia driver
       ansible.builtin.include_tasks: "subtasks/validate.yml"
       when:
