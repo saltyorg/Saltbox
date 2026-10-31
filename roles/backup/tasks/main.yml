@@ -743,7 +743,10 @@
       when: (backup_rclone_enabled or backup_rsync_enabled)
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      ansible.builtin.include_tasks:
+        file: "{{ resources_tasks_path }}/directories/chown.yml"
+        apply:
+          ignore_errors: true
       vars:
         chown_paths:
           - "{{ backup.local.destination }}/"
@@ -976,7 +979,10 @@
               when: (snapshot_deletion is failed)
 
     - name: "Reset folder ownership of '{{ backup.local.destination }}/'"
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      ansible.builtin.include_tasks:
+        file: "{{ resources_tasks_path }}/directories/chown.yml"
+        apply:
+          ignore_errors: true
       vars:
         chown_paths:
           - "{{ backup.local.destination }}/"
@@ -1057,7 +1063,10 @@
         state: absent
 
     - name: "Reset logs folder ownership."
-      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
+      ansible.builtin.include_tasks:
+        file: "{{ resources_tasks_path }}/directories/chown.yml"
+        apply:
+          ignore_errors: true
       vars:
         chown_paths:
           - "/home/{{ user.name }}/logs/"
