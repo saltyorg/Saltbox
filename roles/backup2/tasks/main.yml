@@ -540,7 +540,7 @@
                      if (backup2_user_agent | length > 0)
                      else [])
                   + ['--transfers=' + (backup_rclone_transfers | string)]
-                  + (lookup('vars', 'backup2_' + backup.rclone.template + '_template_args', default=[])
+                  + (lookup('vars', 'backup2_' + backup.rclone.template + '_template_args', default=lookup('vars', 'backup2_' + backup.rclone.template + '_template', default=''))
                      | saltbox_argv(error_label='backup2 rclone template arguments'))
                   + ['--stats=30s', '-vv', '--log-file=' + playbook_dir + '/backup_rclone.log',
                      backup.local.destination, backup.rclone.destination] }}"

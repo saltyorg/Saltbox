@@ -72,7 +72,7 @@
                  if (restore_user_agent | length > 0)
                  else [])
               + ['--transfers=8']
-              + (lookup('vars', 'restore_' + backup.rclone.template + '_template_args', default=[])
+              + (lookup('vars', 'restore_' + backup.rclone.template + '_template_args', default=lookup('vars', 'restore_' + backup.rclone.template + '_template', default=''))
                  | saltbox_argv(error_label='restore rclone template arguments'))
               + ['--exclude', 'archived/**', '--stats=30s', '-vv',
                  '--log-file=' + playbook_dir + '/restore_rclone.log',
