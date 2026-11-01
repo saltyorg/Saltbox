@@ -28,19 +28,60 @@ sanity_check_logs_playbook_path: "{{ playbook_dir }}/saltbox.yml"
 sanity_check_logs_logfile_path: "{{ playbook_dir }}/saltbox.log"
 
 ################################
+# Saltbox Facts
+################################
+
+sanity_check_saltbox_facts: "{{ ansible_facts['ansible_local']['saltbox'] | default({}, true) }}"
+
+sanity_check_required_fact_sections: ["cpu", "groups", "ip", "repo", "timezone", "ufw", "users", "virtualization"]
+
+################################
 # Update Status
 ################################
 
-sanity_check_up_to_date: "Saltbox is running the latest commit for branch: {{ git_branch.stdout }}"
-sanity_check_not_up_to_date: "Saltbox is not using the newest commit for branch: {{ git_branch.stdout }} - {{ git_origin_version.stdout }}"
+sanity_check_repo: "{{ sanity_check_saltbox_facts['repo'] }}"
+
+sanity_check_repo_branch: "{{ sanity_check_repo['branch'] | default('HEAD (detached)', true) }}"
+
+sanity_check_repo_status_messages:
+  identical: "Saltbox is running the latest commit for branch: {{ sanity_check_repo_branch }}"
+  behind: >-
+    Saltbox is {{ sanity_check_repo['behind_by'] }} commit(s) behind branch:
+    {{ sanity_check_repo_branch }} - {{ sanity_check_repo['upstream_commit'] }}
+  ahead: >-
+    Saltbox has {{ sanity_check_repo['ahead_by'] }} commit(s) not on branch:
+    {{ sanity_check_repo_branch }} - {{ sanity_check_repo['upstream_commit'] }}
+  diverged: >-
+    Saltbox has diverged from branch: {{ sanity_check_repo_branch }}
+    ({{ sanity_check_repo['ahead_by'] }} ahead, {{ sanity_check_repo['behind_by'] }} behind)
+    - {{ sanity_check_repo['upstream_commit'] }}
+  local_only: >-
+    Saltbox is running a commit that does not exist upstream for branch:
+    {{ sanity_check_repo_branch }} - {{ sanity_check_repo['upstream_commit'] }}
+  branch_not_upstream: "Saltbox branch '{{ sanity_check_repo_branch }}' does not exist in the official repository."
+  unsupported: >-
+    Saltbox is not using the official repository
+    ({{ sanity_check_repo['remote_url'] | default('no origin remote', true) }});
+    update status is not checked.
+  unknown: >-
+    Could not determine Saltbox update status:
+    {{ sanity_check_repo['error'] | default('no details were provided', true) }}
 
 ################################
 # CPU Check
 ################################
 
-x86_64_versions:
-  x86_64v2: ['sse4_2', 'popcnt']
-  x86_64v3: ['avx', 'f16c', 'rdrand']
-  x86_64v4: ['avx2', 'bmi1', 'bmi2', 'movbe', 'hle', 'rtm']
+sanity_check_cpu: "{{ sanity_check_saltbox_facts['cpu'] }}"
 
-supported_versions: []
+sanity_check_cpu_next_level: >-
+  {{ (' (v' ~ (sanity_check_cpu['x86_64_level'] + 1) ~ ' requires: '
+      ~ (sanity_check_cpu['flags_missing_for_next_level'] | join(', ')) ~ ')')
+  if (sanity_check_cpu['flags_missing_for_next_level'] | default([], true) | length > 0)
+  else '' }}
+
+sanity_check_cpu_message: >-
+  {{ ('CPU check failed: ' ~ sanity_check_cpu['error'])
+  if sanity_check_cpu['error']
+  else ('CPU architecture: ' ~ (sanity_check_cpu['arch'] | default('unknown', true)))
+       if (sanity_check_cpu['x86_64_level'] is none)
+       else ('Supported x86-64 level: v' ~ sanity_check_cpu['x86_64_level'] ~ sanity_check_cpu_next_level) }}

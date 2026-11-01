@@ -7,23 +7,10 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: UFW Check | Check if ufw is installed
-  ansible.builtin.command: which ufw
-  register: ufw_installed
-  changed_when: false
-  failed_when: false
-
-- name: UFW Check | Check if ufw is active
-  ansible.builtin.command: ufw status
-  register: ufw_status
-  changed_when: false
-  failed_when: false
-  when: (ufw_installed.rc == 0)
-
 - name: UFW Check | Ensure UFW is not active
   ansible.builtin.assert:
     that:
-      - "'Status: active' not in ufw_status.stdout"
+      - not (sanity_check_saltbox_facts['ufw']['active'] | default(false, true) | bool)
     fail_msg: >-
       UFW is currently enabled on this system. UFW and Docker are fundamentally
       incompatible because UFW manages iptables rules that Docker bypasses entirely,
@@ -31,4 +18,19 @@
       with 'sudo ufw disable' before continuing.
       See https://docs.docker.com/engine/network/packet-filtering-firewalls/#docker-and-ufw
     success_msg: "UFW is not active."
-  when: (ufw_installed.rc == 0)
+
+- name: UFW Check | Warn when UFW state could not be determined
+  ansible.builtin.debug:
+    msg: >-
+      UFW is installed but its state could not be determined:
+      {{ sanity_check_saltbox_facts['ufw']['error'] | default('no details were provided', true) }}
+  when:
+    - sanity_check_saltbox_facts['ufw']['installed']
+    - (sanity_check_saltbox_facts['ufw']['active'] is none)
+
+- name: UFW Check | Print UFW warning
+  ansible.builtin.debug:
+    msg: "UFW warning: {{ sanity_check_saltbox_facts['ufw']['error'] }}"
+  when:
+    - (sanity_check_saltbox_facts['ufw']['active'] is not none)
+    - (sanity_check_saltbox_facts['ufw']['error'] is not none)

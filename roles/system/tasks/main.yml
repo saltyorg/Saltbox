@@ -33,13 +33,13 @@
   ansible.builtin.include_tasks: "subtasks/cpufrequency.yml"
   when:
     - (cpu_performance_mode | bool)
-    - ("none" in systemd_detect_virt.stdout)
+    - (ansible_facts['ansible_local']['saltbox']['virtualization']['kind'] == 'none')
 
 - name: Remove CPU Power task
   ansible.builtin.include_tasks: "subtasks/remove_cpupower.yml"
   when:
     - (cpu_performance_mode | bool)
-    - ("none" in systemd_detect_virt.stdout)
+    - (ansible_facts['ansible_local']['saltbox']['virtualization']['kind'] == 'none')
 
 - name: Set Time Zone task
   ansible.builtin.include_tasks:

@@ -15,6 +15,18 @@
     fail_msg: "Saltbox supports Ubuntu Server 22.04, 24.04, and 26.04 LTS."
     success_msg: "System is running {{ ansible_facts['lsb']['description'] }}."
 
+- name: System | Ensure Saltbox facts are current
+  ansible.builtin.assert:
+    that:
+      - (sanity_check_saltbox_facts | default({}, true)) is mapping
+      - sanity_check_required_fact_sections
+        | difference(sanity_check_saltbox_facts | default({}, true) | list)
+        | length == 0
+    fail_msg: >-
+      The installed Saltbox facts are outdated or failed to run. Run
+      'sb reinstall-facts' and try again.
+    success_msg: "Saltbox facts provide all required sections."
+
 - name: System | Print authoritative Saltbox facts in CI
   ansible.builtin.debug:
     msg: "{{ ansible_facts['ansible_local']['saltbox'] }}"
@@ -31,11 +43,9 @@
     success_msg: "Saltbox public IPv4 address was determined."
   when: (sanity_check_public_ip_required | bool)
 
-- name: System | Virtualization Check
-  ansible.builtin.command: "systemd-detect-virt"
-  register: systemd_detect_virt
-  failed_when: false
-
 - name: System | Print Virtualization Status
   ansible.builtin.debug:
-    msg: "System Virtualization Status: {{ systemd_detect_virt.stdout | default('ERROR') }}"
+    msg: >-
+      System Virtualization Status:
+      {{ sanity_check_saltbox_facts['virtualization']['type']
+         | default('ERROR: ' ~ sanity_check_saltbox_facts['virtualization']['error'], true) }}
