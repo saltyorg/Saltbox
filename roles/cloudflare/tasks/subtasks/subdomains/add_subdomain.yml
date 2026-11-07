@@ -7,7 +7,7 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-- name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ip_address_public }}' was added. Proxy: {{ dns_proxied | default('no') }}"
+- name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ip_address_public }}' was added. Proxy: {{ lookup('role_var', '_dns_proxy', role=role_var_role, default=dns_proxied) | bool }}"
   community.general.cloudflare_dns:
     account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
     account_email: "{{ cloudflare_email | default(omit, true) }}"
@@ -15,13 +15,13 @@
     zone: "{{ domain_parsed.fld }}"
     state: present
     solo: true
-    proxied: "{{ dns_proxied | default('no') }}"
+    proxied: "{{ lookup('role_var', '_dns_proxy', role=role_var_role, default=dns_proxied) | bool }}"
     type: A
     value: "{{ ip_address_public }}"
     record: "{{ saltbox_type }}"
   when: dns_ipv4_enabled
 
-- name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ dns_proxied | default('no') }}"
+- name: "Subdomains | Add Subdomain | Cloudflare: DNS Record for '{{ saltbox_type }}' set to '{{ ipv6_address_public }}' was added. Proxy: {{ lookup('role_var', '_dns_proxy', role=role_var_role, default=dns_proxied) | bool }}"
   community.general.cloudflare_dns:
     account_api_key: "{{ cloudflare_api_key | default(omit, true) }}"
     account_email: "{{ cloudflare_email | default(omit, true) }}"
@@ -29,7 +29,7 @@
     zone: "{{ domain_parsed.fld }}"
     state: present
     solo: true
-    proxied: "{{ dns_proxied | default('no') }}"
+    proxied: "{{ lookup('role_var', '_dns_proxy', role=role_var_role, default=dns_proxied) | bool }}"
     type: AAAA
     value: "{{ ipv6_address_public }}"
     record: "{{ saltbox_type }}"
