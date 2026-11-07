@@ -15,7 +15,36 @@
     - "/srv/cloudflare"
     - "/srv/cloudflare-helper"
 
+## cloudflare_dns only appends the zone to a record that does not already end with the zone name,
+## so a zone-relative record such as 'saltbox.dev' (saltbox.dev.saltbox.dev) in zone 'saltbox.dev'
+## would be written to the zone apex instead.
+- name: Cloudflare | Set '_dns_record_is_ambiguous' variable
+  ansible.builtin.set_fact:
+    _dns_record_is_ambiguous: "{{ (dns_record != '@') and (dns_record is search((dns_zone | regex_escape) + '$')) }}"
+
+- name: Cloudflare | Fail on records Cloudflare would add to the wrong name
+  ansible.builtin.fail:
+    msg:
+      - "Saltbox cannot add DNS record '{{ dns_record }}.{{ dns_zone }}' in zone '{{ dns_zone }}'."
+      - "Its name relative to the zone ('{{ dns_record }}') ends with the zone name, so the Cloudflare module would write it to '{{ dns_record }}' instead."
+      - "Choose a different subdomain for this record or manage it manually."
+  when:
+    - _dns_record_is_ambiguous
+    - (dns_action != 'remove')
+
+## Removing would delete records at the wrong name, so the removal is skipped instead.
+- name: Cloudflare | Warn on records Cloudflare would remove from the wrong name
+  ansible.builtin.debug:
+    msg:
+      - "WARNING: Skipped removing DNS record '{{ dns_record }}.{{ dns_zone }}' in zone '{{ dns_zone }}'."
+      - "Its name relative to the zone ('{{ dns_record }}') ends with the zone name, so the Cloudflare module would remove records from '{{ dns_record }}' instead."
+      - "Remove '{{ dns_record }}.{{ dns_zone }}' manually if it exists."
+  when:
+    - _dns_record_is_ambiguous
+    - (dns_action == 'remove')
+
 - name: Cloudflare | Manage DNS Record
+  when: (not _dns_record_is_ambiguous)
   block:
     - name: Cloudflare | Add DNS Record
       ansible.builtin.include_tasks: "subtasks/add_dns_record.yml"
