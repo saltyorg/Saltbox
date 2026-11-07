@@ -7,11 +7,20 @@
 #                   GNU General Public License v3.0                     #
 #########################################################################
 ---
-## Add 'saltbox_type' subdomain
-- name: "Cloudflare | Subdomains | Add '{{ saltbox_type }}' subdomain to '{{ domain_parsed.fld }}'"
-  ansible.builtin.include_tasks: "subdomains/add_subdomain.yml"
+- name: "Cloudflare | Subdomains | Set 'cloudflare_server_hostname_is_enabled' variable"
+  ansible.builtin.set_fact:
+    cloudflare_server_hostname_is_enabled: "{{ cloudflare_server_hostname_enabled | bool }}"
 
-## Remove 'saltbox' subdomain for Mediabox/Feederbox setups.
-- name: "Cloudflare | Subdomains | Remove 'saltbox' subdomain from '{{ domain_parsed.fld }}'"
-  ansible.builtin.include_tasks: "subdomains/remove_subdomain.yml"
-  when: (saltbox_type is regex('mediabox|feederbox'))
+## Mediabox/Feederbox setups also remove the 'saltbox' subdomain.
+- name: "Cloudflare | Subdomains | Manage server hostname records"
+  ansible.builtin.include_tasks: "{{ resources_tasks_path }}/dns/tasker.yml"
+  vars:
+    dns_record: "{{ cloudflare_subdomain.record }}"
+    dns_zone: "{{ user.domain }}"
+    dns_action: "{{ cloudflare_subdomain.action }}"
+    dns_proxy: false
+  loop: "{{ [{'record': saltbox_type, 'action': ('add' if cloudflare_server_hostname_is_enabled else 'remove')}]
+            + ([{'record': 'saltbox', 'action': 'remove'}] if (saltbox_type is regex('mediabox|feederbox')) else []) }}"
+  loop_control:
+    loop_var: cloudflare_subdomain
+    label: "{{ cloudflare_subdomain.record }}: {{ cloudflare_subdomain.action }}"

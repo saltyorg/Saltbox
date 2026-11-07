@@ -1,3 +1,5 @@
 namespace_sharing:
   remote:
     - rclone
+  dns:
+    - cloudflare
