@@ -17,6 +17,7 @@
     gid: "{{ item.value if item.value else omit }}"
     state: present
   with_dict: "{{ user_group_dict }}"
+  register: user_groups_info
 
 - name: User Account | Copy skeleton files to '/etc/skel'
   ansible.builtin.copy:
@@ -102,6 +103,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     follow: false
+  register: user_home_dir
   when: (not continuous_integration)
 
 - name: User Account | Ensure '{{ srv_folder }}' exists
@@ -111,6 +113,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     follow: false
+  register: user_srv_dir
 
 - name: User Account | Ensure '{{ server_appdata_path }}' exists
   ansible.builtin.file:  # noqa risky-file-permissions
@@ -119,6 +122,7 @@
     owner: "{{ user.name }}"
     group: "{{ user.name }}"
     follow: false
+  register: user_appdata_dir
 
 - name: User Account | Reset directory ownership recursively
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/chown.yml"
@@ -127,6 +131,8 @@
       - "{{ user_paths_home_location if (not continuous_integration) else omit }}"
       - "{{ srv_folder }}"
       - "{{ server_appdata_path }}"
+  when: ((user_info is changed) or (user_groups_info is changed)
+         or (user_home_dir is changed) or (user_srv_dir is changed) or (user_appdata_dir is changed))
 
 - name: User Account | Set authorized keys
   ansible.posix.authorized_key:

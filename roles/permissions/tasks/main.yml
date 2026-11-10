@@ -14,3 +14,4 @@
       - "{{ server_local_folder_path }}"
       - "{{ server_appdata_path }}"
       - "/home/{{ user.name }}"
+      - "/srv"
