@@ -152,3 +152,6 @@ nzbhydra2_role_docker_networks: "{{ docker_networks_common
 
 # Restart Policy
 nzbhydra2_role_docker_restart_policy: unless-stopped
+
+# Stop Timeout
+nzbhydra2_role_docker_stop_timeout: 120
