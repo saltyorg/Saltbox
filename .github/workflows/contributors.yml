@@ -16,13 +16,13 @@ jobs:
 
       - name: Create contributor update token
         id: app-token
-        uses: actions/create-github-app-token@v3.3.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.SALTBOX_AUTOMATION_APP_ID }}
           private-key: ${{ secrets.SALTBOX_AUTOMATION_PRIVATE_KEY }}
           permission-contents: write
 
-      - uses: BobAnkh/add-contributors@master
+      - uses: BobAnkh/add-contributors@8bd02ce413bee09225ff2f27791ecb78ea273743 # master
         with:
           REPO_NAME: ${{ github.repository }}
           CONTRIBUTOR: '### Contributors'

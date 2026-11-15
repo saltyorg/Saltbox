@@ -107,7 +107,7 @@ jobs:
         run: cat ./requirements/requirements-saltbox.txt
 
       - name: Install sb binary
-        uses: jaxxstorm/action-install-gh-release@v4.0.0
+        uses: jaxxstorm/action-install-gh-release@b82b2052fdf822192f2119b7e289a6f63e668bc8 # v4.0.0
         with:
           repo: saltyorg/sb-go
           tag: latest
