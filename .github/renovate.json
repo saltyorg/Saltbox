@@ -4,7 +4,8 @@
         "config:recommended",
         ":semanticCommits",
         ":separateMajorReleases",
-        ":ignoreUnstable"
+        ":ignoreUnstable",
+        "helpers:pinGitHubActionDigestsToSemver"
     ],
     "prConcurrentLimit": 0,
     "prHourlyLimit": 0,
