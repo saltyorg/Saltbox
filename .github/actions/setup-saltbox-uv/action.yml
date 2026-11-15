@@ -8,7 +8,9 @@ runs:
       id: version
       shell: bash
       run: |
-        uv_version=$(tr -d '[:space:]' < "$GITHUB_WORKSPACE/.uv-version")
+        # The pin sits at the root of the Saltbox checkout that holds this
+        # action, wherever a workflow checked Saltbox out.
+        uv_version=$(tr -d '[:space:]' < "$GITHUB_ACTION_PATH/../../../.uv-version")
         if [[ ! "$uv_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           echo "Invalid uv version: $uv_version" >&2
           exit 1
