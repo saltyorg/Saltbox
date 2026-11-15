@@ -1,0 +1,77 @@
+##########################################################################
+# Title:         Saltbox: Arcane | Upgrade                               #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Upgrade | Wait for Postgres
+  community.docker.docker_container_info:
+    name: "{{ lookup('role_var', '_postgres_name', role='arcane') }}"
+  register: arcane_upgrade_postgres_container
+  until: ((arcane_upgrade_postgres_container.container.State.Health.Status | default('')) == 'healthy')
+  retries: 30
+  delay: 2
+  when:
+    - (lookup('role_var', '_postgres_enabled', role='arcane') | bool)
+    - (lookup('role_var', '_postgres_deploy', role='arcane') | bool)
+
+- name: Upgrade | Read Postgres schema version
+  community.postgresql.postgresql_query:
+    login_host: "{{ arcane_upgrade_postgres_url.hostname }}"
+    login_port: "{{ arcane_upgrade_postgres_url.port | default(5432, true) }}"
+    login_user: "{{ arcane_upgrade_postgres_url.username | default('', true) | urldecode }}"
+    login_password: "{{ arcane_upgrade_postgres_url.password | default('', true) | urldecode }}"
+    login_db: "{{ arcane_upgrade_postgres_url.path | regex_replace('^/', '') | urldecode }}"
+    ssl_mode: "{{ arcane_upgrade_postgres_params.sslmode | default('prefer') }}"
+    query: "SELECT COALESCE(MAX(version_id), 0) AS version FROM goose_db_version"
+  vars:
+    arcane_upgrade_postgres_url: "{{ lookup('role_var', '_postgres_url', role='arcane') | urlsplit }}"
+    arcane_upgrade_postgres_params: "{{ dict(arcane_upgrade_postgres_url.query.split('&') | select | map('split', '=', 1)) }}"
+  register: arcane_upgrade_postgres
+  failed_when: false
+  no_log: true
+  when: (lookup('role_var', '_postgres_enabled', role='arcane') | bool)
+
+- name: Upgrade | Read SQLite schema version
+  ansible.builtin.command:
+    argv:
+      - sqlite3
+      - -readonly
+      - "{{ lookup('role_var', '_paths_location', role='arcane') }}/arcane.db"
+      - "SELECT COALESCE(MAX(version_id), 0) FROM goose_db_version;"
+  register: arcane_upgrade_sqlite
+  changed_when: false
+  failed_when: false
+  when: (not (lookup('role_var', '_postgres_enabled', role='arcane') | bool))
+
+- name: Upgrade | Step through Arcane 2.17.3
+  when:
+    - (arcane_upgrade_schema_version | int > 0)
+    - (arcane_upgrade_schema_version | int < 94)
+  vars:
+    arcane_upgrade_schema_version: "{{ (arcane_upgrade_postgres.query_result | default([{'version': 0}]) | first).version
+                                    if (lookup('role_var', '_postgres_enabled', role='arcane') | bool)
+                                    else (arcane_upgrade_sqlite.stdout | default('') | trim) }}"
+  block:
+    - name: Upgrade | Create Arcane 2.17.3 container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      vars:
+        arcane_upgrade_envs: "{{ lookup('role_var', '_docker_envs_default', role='arcane') }}"
+        arcane_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='arcane') }}:v2.17.3"
+        arcane_role_docker_envs: "{{ dict(arcane_upgrade_envs.keys() | map('regex_replace', '^ARCANE_', '') | zip(arcane_upgrade_envs.values()))
+                                     | combine(lookup('role_var', '_docker_envs_custom', role='arcane')) }}"
+
+    - name: Upgrade | Wait for Arcane 2.17.3 to migrate the database
+      ansible.builtin.uri:
+        url: "{{ lookup('role_var', '_setup_url', role='arcane') }}/api/health"
+        status_code: 200
+      register: arcane_upgrade_health
+      until: (arcane_upgrade_health is succeeded)
+      retries: 60
+      delay: 5
+
+    - name: Upgrade | Remove Arcane 2.17.3 container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

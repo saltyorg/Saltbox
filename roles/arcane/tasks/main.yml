@@ -39,6 +39,11 @@
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 
+- name: "Check if '{{ lookup('role_var', '_paths_location', role='arcane') }}' exists"
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_location', role='arcane') }}"
+  register: arcane_data_folder
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
@@ -58,6 +63,10 @@
   when:
     - (lookup('role_var', '_postgres_enabled', role='arcane') | bool)
     - (lookup('role_var', '_postgres_deploy', role='arcane') | bool)
+
+- name: Check database upgrade path
+  ansible.builtin.include_tasks: "subtasks/upgrade.yml"
+  when: arcane_data_folder.stat.exists
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"

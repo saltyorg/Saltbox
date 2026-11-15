@@ -1,0 +1,60 @@
+##########################################################################
+# Title:         Saltbox: Arcane Agent | Upgrade                         #
+# Author(s):     salty                                                   #
+# URL:           https://github.com/saltyorg/Saltbox                     #
+# --                                                                     #
+##########################################################################
+#                   GNU General Public License v3.0                      #
+##########################################################################
+---
+- name: Upgrade | Read schema version
+  ansible.builtin.command:
+    argv:
+      - sqlite3
+      - -readonly
+      - "{{ lookup('role_var', '_paths_data_location', role='arcane_agent') }}/arcane.db"
+      - "SELECT COALESCE(MAX(version_id), 0) FROM goose_db_version;"
+  register: arcane_agent_upgrade_sqlite
+  changed_when: false
+  failed_when: false
+
+- name: Upgrade | Step through Arcane 2.17.3
+  when:
+    - (arcane_agent_upgrade_sqlite.stdout | default('') | trim | int > 0)
+    - (arcane_agent_upgrade_sqlite.stdout | default('') | trim | int < 94)
+  block:
+    - name: Upgrade | Create Arcane 2.17.3 container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
+      vars:
+        arcane_agent_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='arcane_agent') }}:v2.17.3"
+        arcane_agent_role_docker_envs_default:
+          PUID: "{{ uid }}"
+          PGID: "{{ gid }}"
+          TZ: "{{ tz }}"
+          EDGE_AGENT: "true"
+          EDGE_TRANSPORT: "{{ lookup('role_var', '_transport', role='arcane_agent') }}"
+          MANAGER_API_URL: "{{ lookup('role_var', '_manager_url', role='arcane_agent') }}"
+          AGENT_TOKEN: "{{ lookup('role_var', '_token', role='arcane_agent') }}"
+          PROJECTS_DIRECTORY: "{{ lookup('role_var', '_paths_projects_location', role='arcane_agent') }}"
+        arcane_agent_role_docker_healthcheck:
+          test:
+            - CMD
+            - ./arcane-agent
+            - health
+            - --timeout
+            - 2s
+          interval: 5s
+          timeout: 3s
+          retries: 5
+          start_period: 15s
+
+    - name: Upgrade | Wait for Arcane 2.17.3 to migrate the database
+      community.docker.docker_container_info:
+        name: "{{ lookup('role_var', '_docker_container', role='arcane_agent') }}"
+      register: arcane_agent_upgrade_container_info
+      until: ((arcane_agent_upgrade_container_info.container.State.Health.Status | default('')) == 'healthy')
+      retries: 60
+      delay: 5
+
+    - name: Upgrade | Remove Arcane 2.17.3 container
+      ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

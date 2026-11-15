@@ -14,24 +14,33 @@
 
 - name: Validate agent token
   ansible.builtin.fail:
-    msg: "Create an Edge environment in Arcane and set arcane_agent_role_token to its generated token without whitespace."
+    msg: "Add an agent in Arcane and set arcane_agent_role_token to its generated token without whitespace."
   when: (not (lookup('role_var', '_token', role='arcane_agent') is match('^\S+\Z')))
 
 - name: Validate transport
   ansible.builtin.fail:
-    msg: "Set arcane_agent_role_transport to websocket, auto, grpc or poll."
-  when: (lookup('role_var', '_transport', role='arcane_agent') not in ['websocket', 'auto', 'grpc', 'poll'])
+    msg: "Set arcane_agent_role_transport to websocket, auto or grpc."
+  when: (lookup('role_var', '_transport', role='arcane_agent') not in ['websocket', 'auto', 'grpc'])
 
 - name: Validate project directory
   ansible.builtin.fail:
     msg: "Set arcane_agent_role_paths_projects_location to an absolute host directory."
   when: (not (lookup('role_var', '_paths_projects_location', role='arcane_agent') is match('^/')))
 
+- name: "Check if '{{ lookup('role_var', '_paths_data_location', role='arcane_agent') }}' exists"
+  ansible.builtin.stat:
+    path: "{{ lookup('role_var', '_paths_data_location', role='arcane_agent') }}"
+  register: arcane_agent_data_folder
+
 - name: Create directories
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/directories/create_directories.yml"
 
 - name: Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
+
+- name: Check database upgrade path
+  ansible.builtin.include_tasks: "subtasks/upgrade.yml"
+  when: arcane_agent_data_folder.stat.exists
 
 - name: Create Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/create_docker_container.yml"
