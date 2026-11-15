@@ -1,6 +1,9 @@
 name: Workflow Result
 
 on:
+  # The result suite reacts to finished CI runs, which only workflow_run
+  # reports. It checks out no code and hands the event only to Saltyorg actions.
+  # jactionlint ignore=dangerous-triggers
   workflow_run:
     workflows: ["CI", "CI - Every OS"]
     types:
@@ -16,6 +19,7 @@ jobs:
   handle-failure:
     if: contains(fromJSON('["failure", "timed_out", "startup_failure"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     permissions:
       actions: write
       contents: read
@@ -47,6 +51,7 @@ jobs:
   notify-completion:
     if: contains(fromJSON('["success", "cancelled"]'), github.event.workflow_run.conclusion)
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     permissions:
       actions: read
       contents: read
