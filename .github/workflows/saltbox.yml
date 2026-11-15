@@ -42,7 +42,7 @@ jobs:
       matrix:
         os: ['22.04', '24.04', '26.04']
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-saltbox-uv
 
@@ -58,7 +58,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-saltbox-uv
 
@@ -83,7 +83,7 @@ jobs:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run Saltbox Linter
         uses: saltyorg/github-actions/saltbox-lint@v1.4.4
@@ -98,7 +98,7 @@ jobs:
       matrix: ${{ fromJson(needs.ansible-lint.outputs.matrix) }}
       fail-fast: false
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Tune GitHub-hosted runner network
         run: sudo ethtool -K eth0 tx off rx off
