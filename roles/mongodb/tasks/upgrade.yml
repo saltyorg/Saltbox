@@ -28,7 +28,7 @@
     src: /proc/version_signature
   register: mongodb_upgrade_kernel_signature
   failed_when: false
-  when: (mongodb_upgrade_target_series in ['8.0', '8.2'])
+  when: (mongodb_upgrade_target_series is version('8.0', '>='))
 
 # Ubuntu keeps uname at X.Y.0 even after backporting upstream patch releases.
 # /proc/version_signature identifies the running kernel's upstream version.
@@ -38,15 +38,6 @@
     mongodb_upgrade_kernel_version: "{{ ((mongodb_upgrade_kernel_signature.content | default('') | b64decode
                                           | regex_findall('^Ubuntu [^\\s]+ ([0-9]+[.][0-9]+[.][0-9]+)\\s*$'))
                                          + [ansible_facts['kernel'] | regex_search('^[0-9]+[.][0-9]+[.][0-9]+')]) | first }}"
-
-# Older MongoDB builds can still reject a fixed Ubuntu kernel during the target
-# image's mongod --version preflight. SERVER-131779 adds signature handling in 8.0.35.
-# https://jira.mongodb.org/browse/SERVER-131779
-- name: Upgrade | Reject unsafe MongoDB 8.x kernel
-  ansible.builtin.assert:
-    that:
-      - mongodb_upgrade_target_series not in ['8.0', '8.2'] or mongodb_upgrade_kernel_version is version('6.19.0', '<') or mongodb_upgrade_kernel_version is version('7.0.14', '>=')
-    fail_msg: "MongoDB 8.x is blocked on Linux kernels from 6.19 through 7.0.13. Running kernel {{ ansible_facts['kernel'] }} has upstream version {{ mongodb_upgrade_kernel_version }}."
 
 - name: Upgrade | Preflight target image
   ansible.builtin.include_tasks: upgrade_image.yml
@@ -81,7 +72,21 @@
 
 - name: Upgrade | Resolve release path
   ansible.builtin.set_fact:
-    mongodb_upgrade_path: "{{ mongodb_upgrade_releases[mongodb_upgrade_releases.index(mongodb_upgrade_source_series) : mongodb_upgrade_releases.index(mongodb_upgrade_target_series) + 1] }}"
+    mongodb_upgrade_path: "{{ mongodb_upgrade_releases[mongodb_upgrade_releases.index(mongodb_upgrade_source_series) : mongodb_upgrade_releases.index(mongodb_upgrade_target_series) + 1]
+                              | reject('in', mongodb_upgrade_minor_releases
+                                       if (mongodb_upgrade_source_series not in mongodb_upgrade_minor_releases) and (mongodb_upgrade_target_series not in mongodb_upgrade_minor_releases)
+                                       else [])
+                              | list }}"
+
+- name: Upgrade | Validate release path
+  ansible.builtin.assert:
+    that:
+      - mongodb_upgrade_path | first == mongodb_upgrade_source_series
+      - mongodb_upgrade_path | last == mongodb_upgrade_target_series
+      - mongodb_upgrade_path[mongodb_upgrade_path.index(item) - 1] in mongodb_upgrade_fcv_sources[item]
+    fail_msg: "MongoDB has no documented upgrade from {{ mongodb_upgrade_path[mongodb_upgrade_path.index(item) - 1] }} to {{ item }}."
+    quiet: true
+  loop: "{{ mongodb_upgrade_path[1:] }}"
 
 - name: Upgrade | Refuse an existing source backup
   ansible.builtin.assert:
@@ -97,6 +102,9 @@
     loop_var: mongodb_upgrade_image_series
 
 # Every check above is read-only, so a rejected upgrade leaves the existing container running.
+- name: Upgrade | Shut down existing MongoDB
+  ansible.builtin.include_tasks: upgrade_shutdown.yml
+
 - name: Upgrade | Remove existing Docker container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"
 

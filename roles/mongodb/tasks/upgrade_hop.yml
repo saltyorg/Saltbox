@@ -66,15 +66,77 @@
 - name: Upgrade | Hop | Validate current FCV
   ansible.builtin.assert:
     that:
-      - mongodb_upgrade_fcv_before.stdout | trim in mongodb_upgrade_releases
-      - mongodb_upgrade_releases.index(mongodb_upgrade_fcv_before.stdout | trim) <= mongodb_upgrade_releases.index(mongodb_upgrade_image_series)
-      - mongodb_upgrade_releases.index(mongodb_upgrade_fcv_before.stdout | trim) >= mongodb_upgrade_releases.index(mongodb_upgrade_image_series) - 1
-    fail_msg: "MongoDB {{ mongodb_upgrade_image_series }} started from an unsupported FCV."
+      - (mongodb_upgrade_fcv_before.stdout | trim == mongodb_upgrade_image_series) or (mongodb_upgrade_fcv_before.stdout | trim in mongodb_upgrade_fcv_sources[mongodb_upgrade_image_series])
+    fail_msg: "MongoDB {{ mongodb_upgrade_image_series }} started with FCV {{ mongodb_upgrade_fcv_before.stdout | trim }}, which is not a documented upgrade source for it."
+
+- name: Upgrade | Hop | Resolve next release
+  ansible.builtin.set_fact:
+    mongodb_upgrade_next_series: "{{ mongodb_upgrade_path[mongodb_upgrade_path.index(mongodb_upgrade_image_series) + 1]
+                                  if mongodb_upgrade_image_series != mongodb_upgrade_target_series
+                                  else '' }}"
+
+- name: Upgrade | Hop | Check TTL indexes
+  when: (mongodb_upgrade_next_series == '5.0')
+  block:
+    - name: Upgrade | Hop | Copy TTL index check
+      community.docker.docker_container_copy_into:
+        container: "{{ mongodb_upgrade_container }}"
+        path: "{{ role_path }}/files/upgrade-nan-ttl-indexes.js"
+        container_path: /tmp/saltbox-upgrade-nan-ttl-indexes.js
+        force: true
+        mode: "0644"
+        mode_parse: modern
+
+    - name: Upgrade | Hop | Find NaN TTL indexes
+      community.docker.docker_container_exec:
+        container: "{{ mongodb_upgrade_container }}"
+        argv: "{{ mongodb_upgrade_shell_argv + ['--eval', \"load('/tmp/saltbox-upgrade-nan-ttl-indexes.js')\"] }}"
+        stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+        stdin_add_newline: true
+      changed_when: false
+      no_log: "{{ mongodb_upgrade_auth_enabled }}"
+      register: mongodb_upgrade_nan_ttl
+
+    - name: Upgrade | Hop | Validate TTL indexes
+      ansible.builtin.assert:
+        that:
+          - mongodb_upgrade_nan_ttl.stdout | trim | from_json | length == 0
+        fail_msg: "MongoDB 5.0 requires removing or correcting TTL indexes with expireAfterSeconds set to NaN first: {{ mongodb_upgrade_nan_ttl.stdout | trim | from_json | join(', ') }}"
+
+- name: Upgrade | Hop | Check system.buckets collections
+  when:
+    - (mongodb_upgrade_next_series | length > 0)
+    - (mongodb_upgrade_next_series is version('8.0', '>='))
+  block:
+    - name: Upgrade | Hop | Copy system.buckets check
+      community.docker.docker_container_copy_into:
+        container: "{{ mongodb_upgrade_container }}"
+        path: "{{ role_path }}/files/upgrade-invalid-buckets.js"
+        container_path: /tmp/saltbox-upgrade-invalid-buckets.js
+        force: true
+        mode: "0644"
+        mode_parse: modern
+
+    - name: Upgrade | Hop | Find invalid system.buckets collections
+      community.docker.docker_container_exec:
+        container: "{{ mongodb_upgrade_container }}"
+        argv: "{{ mongodb_upgrade_shell_argv + ['--eval', \"load('/tmp/saltbox-upgrade-invalid-buckets.js')\"] }}"
+        stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+        stdin_add_newline: true
+      changed_when: false
+      no_log: "{{ mongodb_upgrade_auth_enabled }}"
+      register: mongodb_upgrade_invalid_buckets
+
+    - name: Upgrade | Hop | Validate system.buckets collections
+      ansible.builtin.assert:
+        that:
+          - mongodb_upgrade_invalid_buckets.stdout | trim | from_json | length == 0
+        fail_msg: "MongoDB {{ mongodb_upgrade_next_series }} requires dropping or renaming system.buckets collections that are not time series collections first: {{ mongodb_upgrade_invalid_buckets.stdout | trim | from_json | join(', ') }}"
 
 - name: Upgrade | Hop | Build FCV command
   ansible.builtin.set_fact:
     mongodb_upgrade_fcv_eval: "quit(db.adminCommand({setFeatureCompatibilityVersion:\"{{ mongodb_upgrade_image_series }}\"{{ ',confirm:true'
-                                                                                                                          if mongodb_upgrade_image_series in ['7.0', '8.0', '8.2']
+                                                                                                                          if mongodb_upgrade_image_series is version('7.0', '>=')
                                                                                                                           else '' }}}).ok === 1 ? 0 : 1)"
 
 - name: Upgrade | Hop | Set FCV
@@ -112,6 +174,10 @@
       - mongodb_upgrade_binary_after.stdout | trim is match('^' + mongodb_upgrade_image_series | regex_escape + '[.]')
       - mongodb_upgrade_fcv_after.stdout | trim == mongodb_upgrade_image_series
     fail_msg: "MongoDB {{ mongodb_upgrade_image_series }} did not complete its binary and FCV upgrade."
+
+- name: Upgrade | Hop | Shut down intermediate MongoDB
+  ansible.builtin.include_tasks: upgrade_shutdown.yml
+  when: (mongodb_upgrade_image_series != mongodb_upgrade_target_series)
 
 - name: Upgrade | Hop | Remove intermediate container
   ansible.builtin.include_tasks: "{{ resources_tasks_path }}/docker/remove_docker_container.yml"

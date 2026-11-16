@@ -67,6 +67,17 @@
       - mongodb_upgrade_image_binary_series == [mongodb_upgrade_image_series]
     fail_msg: "MongoDB image {{ mongodb_upgrade_image_reference }} is not series {{ mongodb_upgrade_image_series }}."
 
+- name: Upgrade | Image | Resolve binary version
+  ansible.builtin.set_fact:
+    mongodb_upgrade_image_binary_version: "{{ mongodb_upgrade_image_binary.stdout | regex_findall('(?m)^db version v([0-9]+[.][0-9]+[.][0-9]+)') | first }}"
+
+- name: Upgrade | Image | Validate kernel for unguarded build
+  ansible.builtin.assert:
+    that:
+      - (mongodb_upgrade_kernel_version is version('6.19.0', '<')) or (mongodb_upgrade_kernel_version is version('7.0.14', '>='))
+    fail_msg: "MongoDB image {{ mongodb_upgrade_image_reference }} ({{ mongodb_upgrade_image_binary_version }}) has no kernel guard and is unsafe on Linux kernels from 6.19 through 7.0.13. Running kernel {{ ansible_facts['kernel'] }} has upstream version {{ mongodb_upgrade_kernel_version }}. The existing MongoDB container and data were left unchanged."
+  when: (((mongodb_upgrade_image_binary_version is version('8.0.0', '>=')) and (mongodb_upgrade_image_binary_version is version('8.0.21', '<'))) or (mongodb_upgrade_image_series == '8.2'))
+
 - name: Upgrade | Image | Validate required tools
   ansible.builtin.command:
     argv:

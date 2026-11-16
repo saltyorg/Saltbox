@@ -1,0 +1,89 @@
+#########################################################################
+# Title:         Saltbox: MongoDB | Upgrade Shutdown                    #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Upgrade | Shutdown | Inspect container
+  community.docker.docker_container_info:
+    name: "{{ mongodb_upgrade_container }}"
+  register: mongodb_upgrade_shutdown_container
+
+- name: Upgrade | Shutdown | Stop MongoDB cleanly
+  when:
+    - mongodb_upgrade_shutdown_container.exists
+    - mongodb_upgrade_shutdown_container.container.State.Running
+  block:
+    - name: Upgrade | Shutdown | Disable restart policy
+      ansible.builtin.command:
+        argv:
+          - docker
+          - update
+          - --restart
+          - "no"
+          - "{{ mongodb_upgrade_container }}"
+      changed_when: true
+
+    - name: Upgrade | Shutdown | Select MongoDB shell
+      community.docker.docker_container_exec:
+        container: "{{ mongodb_upgrade_container }}"
+        argv:
+          - sh
+          - -c
+          - "command -v mongosh || command -v mongo"
+      changed_when: false
+      register: mongodb_upgrade_shutdown_shell
+
+    # The shell loses its connection when mongod exits, so the container state is checked instead.
+    - name: Upgrade | Shutdown | Send shutdown command
+      community.docker.docker_container_exec:
+        container: "{{ mongodb_upgrade_container }}"
+        argv: "{{ [mongodb_upgrade_shutdown_shell.stdout | trim, '--quiet']
+                  + (['--username', mongodb_upgrade_auth_username, '--authenticationDatabase', 'admin', '--password']
+                     if mongodb_upgrade_auth_enabled
+                     else [])
+                  + ['--eval', 'db.adminCommand({shutdown: 1})'] }}"
+        stdin: "{{ mongodb_upgrade_auth_password if mongodb_upgrade_auth_enabled else omit }}"
+        stdin_add_newline: true
+      changed_when: true
+      failed_when: false
+      no_log: "{{ mongodb_upgrade_auth_enabled }}"
+
+    - name: Upgrade | Shutdown | Wait for MongoDB to exit
+      community.docker.docker_container_info:
+        name: "{{ mongodb_upgrade_container }}"
+      register: mongodb_upgrade_shutdown_state
+      retries: 90
+      delay: 2
+      until: (not mongodb_upgrade_shutdown_state.container.State.Running)
+
+    - name: Upgrade | Shutdown | Validate clean exit
+      ansible.builtin.assert:
+        that:
+          - mongodb_upgrade_shutdown_state.container.State.ExitCode == 0
+        fail_msg: "MongoDB exited with code {{ mongodb_upgrade_shutdown_state.container.State.ExitCode }} instead of shutting down cleanly."
+  rescue:
+    - name: Upgrade | Shutdown | Restore restart policy
+      ansible.builtin.command:
+        argv:
+          - docker
+          - update
+          - --restart
+          - "{{ mongodb_upgrade_shutdown_container.container.HostConfig.RestartPolicy.Name | default('no', true) }}"
+          - "{{ mongodb_upgrade_container }}"
+      changed_when: true
+
+    - name: Upgrade | Shutdown | Restart MongoDB
+      ansible.builtin.command:
+        argv:
+          - docker
+          - start
+          - "{{ mongodb_upgrade_container }}"
+      changed_when: true
+
+    - name: Upgrade | Shutdown | Report failure
+      ansible.builtin.fail:
+        msg: "MongoDB container {{ mongodb_upgrade_container }} did not shut down cleanly during {{ ansible_failed_task.name }}."

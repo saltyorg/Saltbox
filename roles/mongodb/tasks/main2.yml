@@ -21,7 +21,17 @@
         mongodb_upgrade_container: "{{ lookup('role_var', '_docker_container', role='mongodb') }}"
         mongodb_upgrade_data_path: "{{ lookup('role_var', '_paths_location', role='mongodb') }}"
         mongodb_upgrade_image_pull: "{{ lookup('role_var', '_docker_image_pull', role='mongodb') }}"
-        mongodb_upgrade_releases: ["4.4", "5.0", "6.0", "7.0", "8.0", "8.2"]
+        mongodb_upgrade_releases: ["4.4", "5.0", "6.0", "7.0", "8.0", "8.2", "8.3", "9.0"]
+        mongodb_upgrade_minor_releases: ["8.2", "8.3"]
+        mongodb_upgrade_fcv_sources:
+          "4.4": []
+          "5.0": ["4.4"]
+          "6.0": ["5.0"]
+          "7.0": ["6.0"]
+          "8.0": ["7.0"]
+          "8.2": ["8.0"]
+          "8.3": ["8.0", "8.2"]
+          "9.0": ["8.0", "8.3"]
         mongodb_upgrade_target_image: "{{ lookup('role_var', '_docker_image', role='mongodb') }}"
         mongodb_upgrade_target_tag: "{{ lookup('role_var', '_docker_image_tag', role='mongodb') }}"
         mongodb_upgrade_volumes: "{{ lookup('role_var', '_docker_volumes', role='mongodb') }}"
