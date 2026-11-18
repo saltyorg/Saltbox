@@ -1,0 +1,3 @@
+#!/bin/sh
+[ "$PAM_TYPE" = open_session ] || exit 0
+exec /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin run-parts --lsbsysinit /etc/update-motd.d

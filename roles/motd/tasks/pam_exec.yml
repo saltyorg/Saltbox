@@ -1,0 +1,56 @@
+#########################################################################
+# Title:         Saltbox: MOTD | PAM Exec Tasks                         #
+# Author(s):     salty                                                  #
+# URL:           https://github.com/saltyorg/Saltbox                    #
+# --                                                                    #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: PAM Exec | Check if '/etc/pam.d/sshd' exists
+  ansible.builtin.stat:
+    path: "/etc/pam.d/sshd"
+  register: motd_pam_sshd
+
+- name: PAM Exec | Enable per-session motd
+  when: (motd_use_pam_exec | bool)
+  block:
+    - name: PAM Exec | Import 'saltbox-motd' script
+      ansible.builtin.template:
+        src: "saltbox-motd.j2"
+        dest: "/usr/local/sbin/saltbox-motd"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+        force: true
+
+    - name: PAM Exec | Replace pam_motd update line in '/etc/pam.d/sshd'
+      ansible.builtin.replace:
+        path: "/etc/pam.d/sshd"
+        regexp: '^session\s+optional\s+pam_motd\.so\s+motd=/run/motd\.dynamic\s*$'
+        replace: "session    optional     pam_exec.so stdout quiet /usr/local/sbin/saltbox-motd"
+        backup: true
+      when: motd_pam_sshd.stat.exists
+
+- name: PAM Exec | Disable per-session motd
+  when: (not (motd_use_pam_exec | bool))
+  block:
+    - name: PAM Exec | Restore pam_motd update line in '/etc/pam.d/sshd'
+      ansible.builtin.replace:
+        path: "/etc/pam.d/sshd"
+        regexp: '^session\s+optional\s+pam_exec\.so\s+stdout\s+quiet\s+/usr/local/sbin/saltbox-motd\s*$'
+        replace: "session    optional     pam_motd.so  motd=/run/motd.dynamic"
+        backup: true
+      when: motd_pam_sshd.stat.exists
+
+    - name: PAM Exec | Read '/etc/pam.d/sshd'
+      ansible.builtin.slurp:
+        src: "/etc/pam.d/sshd"
+      register: motd_pam_sshd_content
+      when: motd_pam_sshd.stat.exists
+
+    - name: PAM Exec | Remove 'saltbox-motd' script
+      ansible.builtin.file:
+        path: "/usr/local/sbin/saltbox-motd"
+        state: absent
+      when: ((not motd_pam_sshd.stat.exists) or ('/usr/local/sbin/saltbox-motd' not in (motd_pam_sshd_content.content | b64decode)))

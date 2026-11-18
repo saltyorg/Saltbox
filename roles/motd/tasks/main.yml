@@ -95,6 +95,9 @@
   ansible.builtin.include_tasks: cli_motd.yml
   when: (not (motd_use_python | bool))
 
+- name: PAM Exec
+  ansible.builtin.include_tasks: pam_exec.yml
+
 - name: Check if '/etc/ssh/sshd_config' exists
   ansible.builtin.stat:
     path: "/etc/ssh/sshd_config"
