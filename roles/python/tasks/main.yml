@@ -83,22 +83,49 @@
     chown_paths:
       - "{{ python_python_install_dir }}"
 
-- name: "Check if Python {{ python_version }} is already installed"
-  ansible.builtin.command: "{{ python_bin }} python list --managed-python --only-installed"
-  register: uv_python_list
-  changed_when: false
+- name: "Install or upgrade Python {{ python_version }} using uv"
+  ansible.builtin.command: >-
+    {{ python_bin }} python install --no-bin
+    {{ '--upgrade' if (python_version is match('^[0-9]+[.][0-9]+$')) else '' }}
+    {{ python_version }}
+  register: uv_python_install
+  changed_when: (uv_python_install.stderr is search('^Installed ', multiline=True))
   environment: "{{ python_environment }}"
   become: true
   become_user: "{{ user.name }}"
 
-- name: "Install Python {{ python_version }} using uv"
-  ansible.builtin.command: "{{ python_bin }} python install {{ python_version }}"
-  register: uv_python_install
-  changed_when: uv_python_install.rc == 0
+- name: Lookup Python executable directories
+  ansible.builtin.command: "{{ python_bin }} python dir --bin"
+  register: uv_python_bin_dirs
+  changed_when: false
   environment: "{{ python_environment }}"
   become: true
-  become_user: "{{ user.name }}"
-  when: (python_version not in uv_python_list.stdout)
+  become_user: "{{ item }}"
+  loop: "{{ [user.name, 'root'] | unique }}"
+
+- name: Find Python executables linked into the Python install directory
+  ansible.builtin.find:
+    paths: "{{ uv_python_bin_dirs.results | map(attribute='stdout') | unique }}"
+    patterns: "python*"
+    file_type: link
+  register: uv_python_bin_links
+
+- name: Get Python executable link targets
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+    get_checksum: false
+  loop: "{{ uv_python_bin_links.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: uv_python_bin_link_stats
+
+- name: Remove Python executables linked into the Python install directory
+  ansible.builtin.file:
+    path: "{{ item.stat.path }}"
+    state: absent
+  loop: "{{ uv_python_bin_link_stats.results | selectattr('stat.islnk', 'defined') | selectattr('stat.islnk') | selectattr('stat.lnk_target', 'match', (python_python_install_dir ~ '/') | regex_escape) | list }}"
+  loop_control:
+    label: "{{ item.stat.path }}"
 
 - name: "Verify Python {{ python_version }} installation"
   ansible.builtin.command: "{{ python_bin }} python find {{ python_version }} --managed-python"
