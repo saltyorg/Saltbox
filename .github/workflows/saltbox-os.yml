@@ -56,7 +56,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run Saltbox Linter
-        uses: saltyorg/github-actions/saltbox-lint@v1.5.0
+        uses: saltyorg/github-actions/saltbox-lint@v1.5.4
         with:
           version: v0.2.5
 
