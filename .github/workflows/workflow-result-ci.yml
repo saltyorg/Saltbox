@@ -31,7 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Validate workflow result integration
-        uses: saltyorg/github-actions/jactionlint@v1.5.0
+        uses: saltyorg/github-actions/jactionlint@v1.5.4
         with:
           files: |
             .github/workflows/workflow-result.yml
