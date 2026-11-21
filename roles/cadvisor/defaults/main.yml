@@ -52,7 +52,7 @@ cadvisor_role_docker_container: "{{ cadvisor_name }}"
 
 # Image
 cadvisor_role_docker_image_pull: true
-cadvisor_role_docker_image_repo: "gcr.io/cadvisor/cadvisor"
+cadvisor_role_docker_image_repo: "ghcr.io/google/cadvisor"
 cadvisor_role_docker_image_tag: "latest"
 cadvisor_role_docker_image: "{{ lookup('role_var', '_docker_image_repo', role='cadvisor') }}:{{ lookup('role_var', '_docker_image_tag', role='cadvisor') }}"
 
