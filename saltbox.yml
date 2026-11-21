@@ -5,13 +5,6 @@
       lock_timeout: "{{ apt_lock_timeout }}"
     ansible.builtin.setup:
       fact_path: "/srv/git/saltbox/ansible_facts.d"
-  vars_files:
-    - ['accounts.yml', 'defaults/accounts.yml.default']
-    - ['settings.yml', 'defaults/settings.yml.default']
-    - ['adv_settings.yml', 'defaults/adv_settings.yml.default']
-    - ['backup_config.yml', 'defaults/backup_config.yml.default']
-    - ['providers.yml', 'defaults/providers.yml.default']
-    - ['hetzner_vlan.yml', 'defaults/hetzner_vlan.yml.default']
   roles:
     - { role: user_check, tags: ['always'] }
     - { role: pre_tasks, tags: ['always', 'pre-tasks'] }

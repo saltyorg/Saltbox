@@ -3,11 +3,6 @@
   module_defaults:
     ansible.builtin.apt:
       lock_timeout: "{{ apt_lock_timeout }}"
-  vars_files:
-    - ['accounts.yml', 'defaults/accounts.yml.default']
-    - ['settings.yml', 'defaults/settings.yml.default']
-    - ['adv_settings.yml', 'defaults/adv_settings.yml.default']
-    - ['backup_config.yml', 'defaults/backup_config.yml.default']
   roles:
     - { role: backup, tags: ['backup'] }
     - { role: backup2, tags: ['backup2'] }
