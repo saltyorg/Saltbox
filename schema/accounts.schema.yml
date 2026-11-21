@@ -22,7 +22,7 @@ user:
       type: password
       required: true
       min_length: 1
-      not_equals: "password1234"
+      not_equals: "password12345678"
     ssh_key:
       type: ssh_key_or_url
       required: false
