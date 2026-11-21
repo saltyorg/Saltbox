@@ -37,6 +37,7 @@ saltbox_max_log_size: 2M
 # Skip docs
 sysctl_settings:
   fs.inotify.max_user_watches: "{{ system_inotify }}"
+  fs.inotify.max_user_instances: 1024
   net.core.default_qdisc: fq
   net.core.netdev_budget: 50000
   net.core.netdev_max_backlog: 100000
