@@ -64,17 +64,17 @@ consensus_count:
     description: Number of sources agreeing on the timezone
     type: int
     returned: always
-    sample: 11
+    sample: 12
 total_sources:
     description: Total number of sources queried
     type: int
     returned: always
-    sample: 11
+    sample: 12
 successful_lookups:
     description: Number of successful API calls returning valid timezones
     type: int
     returned: always
-    sample: 11
+    sample: 12
 sources:
     description: Dictionary containing results from each source
     type: dict
@@ -165,6 +165,7 @@ class IPTimezoneLookup:
         ("ipquery", "fetch_ipquery"),
         ("reallyfreegeoip", "fetch_reallyfreegeoip"),
         ("ipaddress_to", "fetch_ipaddress_to"),
+        ("internetdata", "fetch_internetdata"),
     )
 
     def __init__(self, module: AnsibleModule) -> None:
@@ -296,6 +297,15 @@ class IPTimezoneLookup:
             location = data.get("location")
             if isinstance(location, dict):
                 return location.get("timezone")
+        return None
+
+    async def fetch_internetdata(self, session: aiohttp.ClientSession) -> str | None:
+        """Fetch from internetdata.io (keyless)."""
+        url = f"https://api.internetdata.io/{self.ip_address}"
+        data = await self.make_request(session, url)
+        location = data.get("location")
+        if isinstance(location, dict):
+            return location.get("timezone")
         return None
 
     async def _fetch_from_source(
