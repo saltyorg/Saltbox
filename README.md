@@ -174,6 +174,13 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Aethenn>
+            <img src=https://avatars.githubusercontent.com/u/58144688?v=4 width="100;"  alt=Aethenn/>
+            <br />
+            <sub style="font-size:14px"><b>Aethenn</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/FML128>
             <img src=https://avatars.githubusercontent.com/u/33214722?v=4 width="100;"  alt=Merlin Jehli/>
             <br />
@@ -187,6 +194,8 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Migz93</b></sub>
         </a>
     </td>
+</tr>
+<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/lonix>
             <img src=https://avatars.githubusercontent.com/u/2330355?v=4 width="100;"  alt=Stian Buch Larsen/>
@@ -194,20 +203,11 @@ Thank you to [JetBrains](https://www.jetbrains.com/) for providing us with free 
             <sub style="font-size:14px"><b>Stian Buch Larsen</b></sub>
         </a>
     </td>
-</tr>
-<tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/r3dlobst3r>
             <img src=https://avatars.githubusercontent.com/u/33791877?v=4 width="100;"  alt=r3dlobst3r/>
             <br />
             <sub style="font-size:14px"><b>r3dlobst3r</b></sub>
-        </a>
-    </td>
-    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
-        <a href=https://github.com/Aethenn>
-            <img src=https://avatars.githubusercontent.com/u/58144688?v=4 width="100;"  alt=Aethenn/>
-            <br />
-            <sub style="font-size:14px"><b>Aethenn</b></sub>
         </a>
     </td>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
