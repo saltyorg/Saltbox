@@ -58,7 +58,7 @@ jobs:
       - name: Run Saltbox Linter
         uses: saltyorg/github-actions/saltbox-lint@v1.5.4
         with:
-          version: v0.2.5
+          version: v0.2.7
 
   install:
     name: '${{ matrix.roles }}-${{ matrix.os }}'
