@@ -83,17 +83,17 @@ motd_services:
 
 motd_colors:
   text:
-    label: "#FF79D0"
-    value: "#12C78F"
-    app_name: "#BF976F"
+    label: "#58A6FF"
+    value: "#58A6FF"
+    app_name: "#BC8CFF"
   status:
-    warning: "#F5EF34"
-    success: "#12C78F"
-    error: "#EB4268"
+    warning: "#D29922"
+    success: "#58A6FF"
+    error: "#EC8E2C"
   progress_bar:
-    low: "#A8CC8C"
-    high: "#DBAB79"
-    critical: "#E88388"
+    low: "#58A6FF"
+    high: "#D29922"
+    critical: "#EC8E2C"
 
 motd_systemd:
   enabled: true
