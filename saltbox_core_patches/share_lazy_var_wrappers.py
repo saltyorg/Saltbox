@@ -17,6 +17,15 @@ values get new wrappers; the last few states of a layer are kept. So every rende
 own fresh lazy dictionary with the same keys, order, tags and values as without the patch, and
 renders nothing more or less; rendered results are never shared between renders.
 
+Memory: a kept state holds the values it wrapped, so a value that a layer no longer holds (a
+replaced loop variable or registered result, or a whole earlier task's variables in the
+controller) stays in memory until its state is dropped: after STATES newer states of the same
+layer, or once KEEP other large layers have been lazified since. At most KEEP x STATES states are
+kept per process; task workers exit after their task.
+
+The patch relies on a _LazyValue never being changed or compared by identity once made; the
+fingerprint covers every ansible-core module that mentions it.
+
 Switch: SALTBOX_SHARE_LAZY_VAR_WRAPPERS, or share_lazy_var_wrappers in the
 [saltbox_core_patches] section of ansible.cfg (see _gate.py).
 """
@@ -52,7 +61,8 @@ PATCH = "share_lazy_var_wrappers"
 SWITCH = "SALTBOX_SHARE_LAZY_VAR_WRAPPERS"
 # The ansible-core code this patch relies on: the replaced function and its only caller, how
 # _try_create lazifies a dictionary layer (dispatch, wrapper, value source, tags, instance
-# factory) and how the lazy dictionary consumes the wrappers.
+# factory), how the lazy dictionary consumes the wrappers, and every module and function that
+# uses _LazyValue (so new code that changes or identity-compares wrappers is noticed).
 TARGETS: tuple[Target, ...] = (
     ("_internal/_templating/_jinja_bits.py", "_flatten_and_lazify_vars"),
     ("_internal/_templating/_jinja_bits.py", "_new_context"),
@@ -67,13 +77,16 @@ TARGETS: tuple[Target, ...] = (
     ("module_utils/_internal/_datatag/__init__.py", "_try_get_internal_tags_mapping"),
     ("module_utils/_internal/_datatag/__init__.py", "_AnsibleTaggedDict"),
     ("module_utils/_internal/_datatag/__init__.py", "AnsibleTaggedObject"),
+    (".", "files:_LazyValue"),
+    ("_internal/_templating/_lazy_containers.py", "refs:_LazyValue"),
+    ("_internal/_templating/_lazy_containers.py", "_AnsibleLazyTemplateList"),
 )
 # Releases this patch was run against.
 VERIFIED_RELEASES = frozenset({"2.21.2", "2.22.0"})
 # 2.21.2 and 2.22.0 (the same source).
 VERIFIED_FINGERPRINTS = frozenset(
     {
-        "8f2b9901ae3b139dbf44e3878180b78340059a1d1e247ada04c1eb666d71bbe5",
+        "5ad3ece6dd40320c8e1256e0c6d62ec5627c6f821cf250005e5451da69722cd4",
     }
 )
 # Smaller layers (task vars:, Jinja locals, loop scopes) are lazified as before.

@@ -67,6 +67,10 @@ DOCUMENTATION = """
           - Switch of the C(share_lazy_var_wrappers) ansible-core patch, which reuses the lazy
             wrappers of a large, unchanged variable layer across the templates of a task instead
             of wrapping every variable again for each template. Unset means on.
+          - The kept wrappers hold the values they wrap, so a value a variable layer no longer
+            holds (a replaced loop variable or registered result, an earlier task's variables)
+            stays in memory until a few newer layers or states replace it, at most 16 per
+            process.
           - Read by the patch itself when it is installed, as an Ansible boolean (yes/no,
             true/false, on/off, y/n, t/f, 1/0, any case). Any other value keeps the patch off and
             prints a warning. The environment variable takes precedence over C(ansible.cfg), and
