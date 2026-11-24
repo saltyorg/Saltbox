@@ -62,6 +62,23 @@ DOCUMENTATION = """
             key: tag_vars_dict_only
         env:
           - name: SALTBOX_TAG_VARS_DICT_ONLY
+      share_lazy_var_wrappers:
+        description:
+          - Switch of the C(share_lazy_var_wrappers) ansible-core patch, which reuses the lazy
+            wrappers of a large, unchanged variable layer across the templates of a task instead
+            of wrapping every variable again for each template. Unset means on.
+          - Read by the patch itself when it is installed, as an Ansible boolean (yes/no,
+            true/false, on/off, y/n, t/f, 1/0, any case). Any other value keeps the patch off and
+            prints a warning. The environment variable takes precedence over C(ansible.cfg), and
+            an empty one counts as unset; runs started through C(sb) only see C(ansible.cfg), as
+            sb drops the environment. Saltbox's own C(ansible.cfg) is tracked by git, so an edit
+            there lasts until the next update.
+        type: str
+        ini:
+          - section: saltbox_core_patches
+            key: share_lazy_var_wrappers
+        env:
+          - name: SALTBOX_SHARE_LAZY_VAR_WRAPPERS
     author: salty
     requirements:
       - Enabled in configuration
