@@ -3,8 +3,8 @@
 Standard library only, so the same function can fingerprint other ansible-core trees with any
 Python. What is hashed is ast.unparse() of each definition: source
 text regenerated from the syntax tree, so comments and formatting do not count, and the same on
-Python 3.12 to 3.15. ast.dump() output is not used, as it changes between Python releases (3.13
-and 3.15 changed it).
+Python 3.12.13 to 3.15.0 (an early 3.12 such as 3.12.3 unparses some Jinja2 source differently).
+ast.dump() output is not used, as it changes between Python releases (3.13 and 3.15 changed it).
 """
 
 from __future__ import annotations
@@ -14,9 +14,10 @@ import hashlib
 import os
 from collections.abc import Iterable
 
-# A target is (file relative to the ansible package, qualified name). The name is a function,
-# method or class ("Class.method"), "refs:<name>": the functions of the file that use <name>,
-# or, with "." as the file, "files:<name>": the files of the whole package that mention <name>.
+# A target is (file relative to the package root, qualified name). The name is a function,
+# method or class ("Class.method"), "<module>": the whole file, "refs:<name>": the functions of
+# the file that use <name>, or, with "." as the file, "files:<name>": the files of the whole
+# package that mention <name>.
 Target = tuple[str, str]
 _DEFINITIONS = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
 
@@ -66,7 +67,7 @@ def _files_mentioning(root: str, name: str) -> list[str]:
 
 
 def fingerprint(targets: Iterable[Target], root: str) -> str:
-    """Return the SHA-256 fingerprint of the targets in the ansible package at root."""
+    """Return the SHA-256 fingerprint of the targets in the package at root (ansible, jinja2)."""
     digest = hashlib.sha256()
     parsed: dict[str, ast.Module] = {}
     for relative, qualname in targets:
@@ -80,6 +81,8 @@ def fingerprint(targets: Iterable[Target], root: str) -> str:
         tree = parsed[relative]
         if qualname.startswith("refs:"):
             text = repr(_references(tree, qualname[len("refs:") :]))
+        elif qualname == "<module>":
+            text = ast.unparse(tree)
         else:
             nodes = _definitions(tree, qualname)
             if not nodes:

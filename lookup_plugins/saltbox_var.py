@@ -15,8 +15,10 @@ DOCUMENTATION = """
         every time (filters, tests, lookups and functions on a fixed list; anything else, such as
         password, random, now, pipe, file, env or url, always runs again). Messages the first render
         showed are shown again on every reuse, in the same order.
-      - Without a session (switched off, or an untested ansible-core version) every render runs
-        exactly as before the session existed.
+      - Without a session (switched off, or an ansible-core whose internals the session relies on
+        differ from every verified release) every render runs exactly as before the session
+        existed. When the internals differ, Saltbox, Sandbox and saltbox_mod runs print one line
+        saying so at normal verbosity (see C(saltbox_core_patches/_session_gate.py)).
       - Jinja resolves every variable name a template uses once, when the template starts, even
         in branches it does not take. To get exactly that from this lookup, call it once per name
         in a C({% set %}) at the start of the template and use only that binding. Error messages
@@ -62,6 +64,8 @@ RETURN = """
 """
 
 import copy
+import importlib
+import importlib.util
 import os
 import sys
 import threading
@@ -70,16 +74,20 @@ from typing import Any
 
 from ansible import constants as C  # type: ignore[import-untyped]
 from ansible.errors import AnsibleLookupError  # type: ignore[import-untyped]
-from ansible.module_utils.ansible_release import __version__ as _CORE_VERSION  # type: ignore[import-untyped]
 from ansible.plugins.lookup import LookupBase  # type: ignore[import-untyped]
 from ansible.utils.display import Display  # type: ignore[import-untyped]
 
 display = Display()
 
-# The session builds on ansible-core internals, so it only runs on versions it was tested with.
-# Any other version, a missing internal, or a failure while creating a session switches it off
-# for the rest of the process (with a warning) and every lookup takes its plain path.
-_TESTED_CORE_VERSIONS = frozenset({"2.21.2"})
+# The session builds on ansible-core internals, so it only runs when their source matches a
+# release it was verified against (saltbox_core_patches/_session_gate.py, which the saltbox_config
+# vars plugin loads in the controller and which prints why the session is off). An unverified
+# release or a missing internal switches it off without a message from this plugin; a failure
+# while creating a session switches it off with a warning. Either way it stays off for the rest
+# of the process and every lookup takes its plain path.
+_SALTBOX_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+_CORE_PATCHES = "saltbox_core_patches"
+_CORE_GATE = f"{_CORE_PATCHES}._session_gate"
 
 # Keys role_var and docker_vars keep their recursion guards under in the variable mapping.
 _STACK_KEYS = ("__saltbox_role_var_stack__", "__saltbox_docker_vars_stack__")
@@ -214,9 +222,7 @@ except ImportError as _error:
     _UNSUPPORTED: str | None = f"ansible-core internals unavailable ({_error})"
 else:
     _UNSUPPORTED = None
-    if _CORE_VERSION not in _TESTED_CORE_VERSIONS:
-        _UNSUPPORTED = f"ansible-core {_CORE_VERSION} is untested"
-    elif not (
+    if not (
         hasattr(Templar, "_from_template_engine")
         and hasattr(_AnsibleLazyTemplateMixin, "_try_create")
         and "_templar" in _AnsibleLazyTemplateMixin._SLOTS
@@ -376,11 +382,47 @@ def _frames() -> list[_Frame]:
     return frames
 
 
+def _core_gate() -> tuple[str | None, str]:
+    """Return why the installed ansible-core is not verified for sessions (None if it is), and
+    the notice for _switch_off.
+
+    The verdict comes from saltbox_core_patches/_session_gate.py, decided once per process; in
+    Saltbox, Sandbox and saltbox_mod runs the controller has decided it and printed why before
+    any task worker started. Elsewhere this loads the package from the repository and decides
+    here, saying why only with -vvvv.
+    """
+    try:
+        gate = sys.modules.get(_CORE_GATE)
+        if gate is None:
+            if _CORE_PATCHES not in sys.modules:
+                package_dir = os.path.join(_SALTBOX_ROOT, _CORE_PATCHES)
+                spec = importlib.util.spec_from_file_location(
+                    _CORE_PATCHES,
+                    os.path.join(package_dir, "__init__.py"),
+                    submodule_search_locations=[package_dir],
+                )
+                if spec is None or spec.loader is None:
+                    raise ImportError(f"cannot load {package_dir}")
+                package = importlib.util.module_from_spec(spec)
+                sys.modules[_CORE_PATCHES] = package
+                try:
+                    spec.loader.exec_module(package)
+                except BaseException:
+                    del sys.modules[_CORE_PATCHES]
+                    raise
+            gate = importlib.import_module(_CORE_GATE)
+        reason = gate.unverified()
+        return reason, "none" if gate.ANNOUNCED else "vvvv"
+    except Exception as error:  # noqa: BLE001 - no verdict means no session
+        return f"session gate unavailable ({error})", "vvvv"
+
+
 def _switch_off(reason: str, notice: str = "warning") -> None:
     """Switch sessions off for the rest of the process and say why.
 
-    notice: "warning" for an internal error on a tested ansible-core version; "none" for an
-    untested version or the session setting (output then stays exactly as without the session).
+    notice: "warning" for an internal error on a verified ansible-core; "none" when the
+    controller already said why or for the session setting (output then stays exactly as
+    without the session); "vvvv" for an unverified ansible-core nobody announced.
     """
     global _enabled
     _enabled = False
@@ -408,8 +450,13 @@ def _session_enabled() -> bool:
             except Exception as error:  # noqa: BLE001 - unreadable means off
                 _switch_off(f"session setting unreadable ({error})")
             else:
+                unverified, notice = (None, "none")
+                if switch:
+                    unverified, notice = _core_gate()
                 if not switch:
                     _switch_off("switched off by the session setting", notice="none")
+                elif unverified is not None:
+                    _switch_off(unverified, notice=notice)
                 else:
                     try:
                         _install_hooks()

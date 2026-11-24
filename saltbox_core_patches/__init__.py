@@ -11,6 +11,10 @@ Every module of the package that does not start with an underscore is one patch:
 checks its gate (_gate.py: switches, verified releases, source fingerprints) and installs it.
 With -vv every patch prints whether it was installed. A patch that cannot be installed on the
 running ansible-core prints one line at normal verbosity, and ansible-core's own code runs.
+
+install_all() also decides once whether the resolver session of the saltbox_var lookup may run on
+the installed ansible-core, and says so (_session_gate.py), so the task workers inherit the
+verdict.
 """
 
 from __future__ import annotations
@@ -36,3 +40,9 @@ def install_all() -> None:
             display.warning(
                 f"{PREFIX} {module.name}: not installed, failed to load: {ex}"
             )
+    try:
+        from . import _session_gate
+
+        _session_gate.announce()
+    except Exception as ex:  # noqa: BLE001 - the lookups then decide on their own
+        display.warning(f"{PREFIX} resolver session gate failed: {ex}")
