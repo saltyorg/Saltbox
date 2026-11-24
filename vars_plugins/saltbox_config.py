@@ -79,6 +79,23 @@ DOCUMENTATION = """
             key: share_lazy_var_wrappers
         env:
           - name: SALTBOX_SHARE_LAZY_VAR_WRAPPERS
+      freeze_worker_gc:
+        description:
+          - Switch of the C(freeze_worker_gc) ansible-core patch, which keeps the garbage
+            collector of each task worker from walking the objects it inherits from the
+            controller. Unset means on.
+          - Read by the patch itself when it is installed, as an Ansible boolean (yes/no,
+            true/false, on/off, y/n, t/f, 1/0, any case). Any other value keeps the patch off and
+            prints a warning. The environment variable takes precedence over C(ansible.cfg), and
+            an empty one counts as unset; runs started through C(sb) only see C(ansible.cfg), as
+            sb drops the environment. Saltbox's own C(ansible.cfg) is tracked by git, so an edit
+            there lasts until the next update.
+        type: str
+        ini:
+          - section: saltbox_core_patches
+            key: freeze_worker_gc
+        env:
+          - name: SALTBOX_FREEZE_WORKER_GC
     author: salty
     requirements:
       - Enabled in configuration
