@@ -25,24 +25,65 @@ DOCUMENTATION = """
         C(ansible-inventory --host) output, secrets included.
       - Inventories outside the Saltbox repository's C(inventories) directory receive no config
         variables.
+      - Loading this plugin also installs Saltbox's ansible-core patches from
+        C(saltbox_core_patches) in the root of the repository, once per process, whether or not
+        the plugin is enabled. Each patch has its own switch, described in its module and in
+        C(saltbox_core_patches/_gate.py).
+    options:
+      skip_bookkeeping_vars:
+        description:
+          - Switch of the C(skip_bookkeeping_vars) ansible-core patch, which builds no variables
+            for the meta tasks ansible-core adds to every play by itself. Unset means on.
+          - Read by the patch itself when it is installed, as an Ansible boolean (yes/no,
+            true/false, on/off, y/n, t/f, 1/0, any case). Any other value keeps the patch off and
+            prints a warning. The environment variable takes precedence over C(ansible.cfg), and
+            an empty one counts as unset; runs started through C(sb) only see C(ansible.cfg), as
+            sb drops the environment. Saltbox's own C(ansible.cfg) is tracked by git, so an edit
+            there lasts until the next update.
+        type: str
+        ini:
+          - section: saltbox_core_patches
+            key: skip_bookkeeping_vars
+        env:
+          - name: SALTBOX_SKIP_BOOKKEEPING_VARS
+      tag_vars_dict_only:
+        description:
+          - Switch of the C(tag_vars_dict_only) ansible-core patch, which tags only the
+            deprecated C(vars) dictionary instead of a copy of every value in it. Unset means on.
+          - Read by the patch itself when it is installed, as an Ansible boolean (yes/no,
+            true/false, on/off, y/n, t/f, 1/0, any case). Any other value keeps the patch off and
+            prints a warning. The environment variable takes precedence over C(ansible.cfg), and
+            an empty one counts as unset; runs started through C(sb) only see C(ansible.cfg), as
+            sb drops the environment. Saltbox's own C(ansible.cfg) is tracked by git, so an edit
+            there lasts until the next update.
+        type: str
+        ini:
+          - section: saltbox_core_patches
+            key: tag_vars_dict_only
+        env:
+          - name: SALTBOX_TAG_VARS_DICT_ONLY
     author: salty
     requirements:
       - Enabled in configuration
 """
 
+import importlib.util
 import os
+import sys
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
-from ansible.errors import AnsibleParserError
-from ansible.inventory.group import InventoryObjectType
-from ansible.plugins.vars import BaseVarsPlugin
-from ansible.utils.vars import combine_vars
+# ansible-core ships no py.typed marker, so its imports are untyped.
+from ansible.errors import AnsibleParserError  # type: ignore[import-untyped]
+from ansible.inventory.group import InventoryObjectType  # type: ignore[import-untyped]
+from ansible.plugins.vars import BaseVarsPlugin  # type: ignore[import-untyped]
+from ansible.utils.display import Display  # type: ignore[import-untyped]
+from ansible.utils.vars import combine_vars  # type: ignore[import-untyped]
 
 if TYPE_CHECKING:
-    from ansible.inventory.group import Group
-    from ansible.inventory.host import Host
-    from ansible.parsing.dataloader import DataLoader
+    from ansible.inventory.group import Group  # type: ignore[import-untyped]
+    from ansible.inventory.host import Host  # type: ignore[import-untyped]
+    from ansible.parsing.dataloader import DataLoader  # type: ignore[import-untyped]
 
 SALTBOX_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 INVENTORY_DIR = os.path.join(SALTBOX_ROOT, "inventories")
@@ -56,6 +97,31 @@ CONFIG_FILES = (
 )
 
 _IS_INVENTORY_DIR: dict[str, bool] = {}
+CORE_PATCHES = "saltbox_core_patches"
+
+
+def install_core_patches() -> None:
+    """Import the saltbox_core_patches package of this repository once per process."""
+    if CORE_PATCHES in sys.modules:
+        return
+    package_dir = os.path.join(SALTBOX_ROOT, CORE_PATCHES)
+    try:
+        spec = importlib.util.spec_from_file_location(
+            CORE_PATCHES,
+            os.path.join(package_dir, "__init__.py"),
+            submodule_search_locations=[package_dir],
+        )
+        if spec is None or spec.loader is None:
+            raise ImportError(f"cannot load {package_dir}")
+        package = importlib.util.module_from_spec(spec)
+        sys.modules[CORE_PATCHES] = package
+        spec.loader.exec_module(package)
+        package.install_all()
+    except Exception as ex:  # noqa: BLE001 - any failure must leave ansible-core's own code running
+        Display().warning(f"[{CORE_PATCHES}] not installed: {ex}")
+
+
+install_core_patches()
 
 
 def _is_inventory_dir(path: str) -> bool:
