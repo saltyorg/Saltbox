@@ -103,18 +103,28 @@
   become_user: "{{ item }}"
   loop: "{{ [user.name, 'root'] | unique }}"
 
+- name: Check Python executable directories
+  ansible.builtin.stat:
+    path: "{{ item }}"
+    get_checksum: false
+  loop: "{{ uv_python_bin_dirs.results | map(attribute='stdout') | unique }}"
+  register: uv_python_bin_dir_stats
+
 - name: Find Python executables linked into the Python install directory
   ansible.builtin.find:
-    paths: "{{ uv_python_bin_dirs.results | map(attribute='stdout') | unique }}"
+    paths: "{{ uv_python_bin_dir_paths }}"
     patterns: "python*"
     file_type: link
+  vars:
+    uv_python_bin_dir_paths: "{{ uv_python_bin_dir_stats.results | selectattr('stat.isdir', 'defined') | selectattr('stat.isdir') | map(attribute='item') | list }}"
   register: uv_python_bin_links
+  when: (uv_python_bin_dir_paths | length > 0)
 
 - name: Get Python executable link targets
   ansible.builtin.stat:
     path: "{{ item.path }}"
     get_checksum: false
-  loop: "{{ uv_python_bin_links.files }}"
+  loop: "{{ uv_python_bin_links.files | default([]) }}"
   loop_control:
     label: "{{ item.path }}"
   register: uv_python_bin_link_stats
