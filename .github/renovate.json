@@ -15,9 +15,6 @@
     "baseBranchPatterns": [
         "$default"
     ],
-    "constraints": {
-        "uv": "0.13.4"
-    },
     "labels": [
         "dependencies"
     ],
@@ -40,16 +37,6 @@
             ],
             "matchFileNames": [
                 ".python-version"
-            ],
-            "enabled": false
-        },
-        {
-            "description": "uv is managed by sb-go releases",
-            "matchManagers": [
-                "renovate-config"
-            ],
-            "matchPackageNames": [
-                "uv"
             ],
             "enabled": false
         },

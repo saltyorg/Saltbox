@@ -4,15 +4,9 @@ set -euo pipefail
 
 python_version=$(tr -d '[:space:]' < .python-version)
 uv_version=$(tr -d '[:space:]' < .uv-version)
-renovate_uv=$(jq -r '.constraints.uv' .github/renovate.json)
 workdir=$(mktemp -d)
 trap 'rm -rf "$workdir"' EXIT
 export UV_PYTHON_INSTALL_DIR="$workdir/python"
-
-if [[ "$renovate_uv" != "$uv_version" ]]; then
-    echo "Renovate uv constraint $renovate_uv does not match .uv-version $uv_version" >&2
-    exit 1
-fi
 
 if [[ "$(uv --version)" != "uv $uv_version"* ]]; then
     echo "Expected uv $uv_version, got $(uv --version)" >&2
