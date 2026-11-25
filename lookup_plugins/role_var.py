@@ -9,6 +9,8 @@ DOCUMENTATION = """
       - When the optional 'instance' parameter is also specified, resolves the variables of that instance of the role
       - For _name variables with dashes, checks both original and underscore-converted versions
       - Automatically converts lists of JSON strings to dictionaries when detected
+      - Renders through the resolver session of the saltbox_var lookup (same results and messages,
+        less repeated work within one template evaluation); see its C(session) option
     author: salty
     options:
       _terms:
@@ -60,19 +62,68 @@ EXAMPLES = """
     msg: "{{ lookup('role_var', '_web_subdomain', role='sonarr', instance='sonarr4k') }}"
 """
 
+import configparser
 import json
+import os
 from typing import Any
 
+from ansible import constants as C  # type: ignore[import-untyped]
 from ansible.errors import (
     AnsibleLookupError,
     AnsibleUndefinedVariable,
     AnsibleValueOmittedError,
 )
+from ansible.module_utils.parsing.convert_bool import (  # type: ignore[import-untyped]
+    boolean,
+)
+from ansible.plugins.loader import lookup_loader  # type: ignore[import-untyped]
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
 from jinja2 import Undefined
 
 display = Display()
+
+
+def _no_session(variables: Any, templar: Any) -> None:
+    return None
+
+
+_session_for: Any = None
+
+
+def _session_wanted() -> bool:
+    """Return saltbox_var's session setting without loading saltbox_var.
+
+    The environment variable wins over ansible.cfg, as for any ansible setting; off means the
+    plain path, exactly as before the session existed.
+    """
+    value = os.environ.get("SALTBOX_LOOKUP_SESSION")
+    if value is None:
+        config_file = getattr(C.config, "_config_file", None)
+        if config_file:
+            parser = configparser.ConfigParser()
+            try:
+                parser.read(config_file)
+                value = parser.get("saltbox_lookups", "session", fallback=None)
+            except configparser.Error:
+                return False
+    if value is None:
+        return True
+    return bool(boolean(value, strict=False))
+
+
+def _get_session(variables: Any, templar: Any) -> Any:
+    """Return the saltbox_var resolver session for these variables, or None."""
+    global _session_for
+    if _session_for is None and not _session_wanted():
+        _session_for = _no_session
+    if _session_for is None:
+        try:
+            plugin = lookup_loader.get("saltbox_var", class_only=True)
+        except Exception:  # noqa: BLE001 - any load failure means no session
+            plugin = None
+        _session_for = getattr(plugin, "session_for", None) or _no_session
+    return _session_for(variables, templar)
 
 
 class LookupModule(LookupBase):
@@ -187,7 +238,12 @@ class LookupModule(LookupBase):
 
         if self._templar is None:
             raise AnsibleLookupError("[role_var] Templar is not initialized")
-        self._templar.available_variables = variables
+        session = _get_session(variables, self._templar)
+        if session is None:
+            templar = self._templar
+            templar.available_variables = variables
+        else:
+            templar = session.templar
         stack_key = "__saltbox_role_var_stack__"
         stack_prev = variables.get(stack_key)
         stack_owner = False
@@ -201,13 +257,11 @@ class LookupModule(LookupBase):
             # Use specified role if provided, otherwise fall back to role_name
             role_name: str
             if specified_role:
-                role_name = self._templar.template(
-                    specified_role, fail_on_undefined=True
-                )
+                role_name = templar.template(specified_role, fail_on_undefined=True)
             else:
                 if "role_name" not in variables:
                     raise KeyError("[role_var] Required variable 'role_name' not found")
-                role_name = self._templar.template(
+                role_name = templar.template(
                     variables["role_name"], fail_on_undefined=True
                 )
 
@@ -217,7 +271,7 @@ class LookupModule(LookupBase):
                 # Replicate the logic: traefik_role_var: "{{ lookup('vars', role_name + '_name', default=role_name) }}"
                 custom_role_name_var: str = role_name + "_name"
                 if specified_instance:
-                    traefik_role_var = self._templar.template(
+                    traefik_role_var = templar.template(
                         specified_instance, fail_on_undefined=True
                     )
                     if not isinstance(traefik_role_var, str) or not traefik_role_var:
@@ -226,9 +280,15 @@ class LookupModule(LookupBase):
                         )
                     # Role defaults reference <role>_name, so resolve them against the instance
                     variables = {**variables, custom_role_name_var: traefik_role_var}
-                    self._templar.available_variables = variables
+                    if session is None:
+                        templar.available_variables = variables
+                    else:
+                        session = session.child(
+                            variables, custom_role_name_var, traefik_role_var
+                        )
+                        templar = session.templar
                 elif custom_role_name_var in variables:
-                    traefik_role_var = self._templar.template(
+                    traefik_role_var = templar.template(
                         variables[custom_role_name_var], fail_on_undefined=True
                     )
                 else:
@@ -241,7 +301,7 @@ class LookupModule(LookupBase):
                     raise KeyError(
                         "[role_var] Required variable 'traefik_role_var' not found"
                     )
-                traefik_role_var = self._templar.template(
+                traefik_role_var = templar.template(
                     variables["traefik_role_var"], fail_on_undefined=True
                 )
 
@@ -293,7 +353,10 @@ class LookupModule(LookupBase):
                         return [omit_token]
 
                     guard_id = f"role_var:{role_name}:{suffix}:{var_name}"
-                    if guard_id in stack:
+                    in_stack = guard_id in stack
+                    if session is not None:
+                        session.note_guard(stack_key, guard_id, in_stack)
+                    if in_stack:
                         cycle = " -> ".join(stack + [guard_id])
                         raise AnsibleLookupError(
                             f"[role_var] Circular reference detected while resolving '{var_name}' "
@@ -304,9 +367,7 @@ class LookupModule(LookupBase):
                         # Variable exists - if templating fails, that's an error (don't fall back to default)
                         # This ensures that variables referencing undefined vars are caught
                         try:
-                            result = self._templar.template(
-                                raw_value, fail_on_undefined=True
-                            )
+                            result = templar.template(raw_value, fail_on_undefined=True)
                         except AnsibleValueOmittedError:
                             display.vvv(
                                 f"[role_var] {var_name} templated to omit — returning omit"

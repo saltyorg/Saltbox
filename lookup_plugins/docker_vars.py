@@ -8,6 +8,8 @@ DOCUMENTATION = """
       - For instance names or variable prefixes with dashes, checks both original and underscore-converted versions.
       - Automatically converts lists of JSON strings to dictionaries when detected.
       - Returns a sparse mapping; unresolved omit specs are absent.
+      - Renders through the resolver session of the saltbox_var lookup (same results and messages,
+        less repeated work within one template evaluation); see its C(session) option.
     author: salty
     options:
       _terms:
@@ -43,14 +45,21 @@ EXAMPLES = """
     msg: "{{ lookup('docker_vars', specs=_docker_var_specs) }}"
 """
 
+import configparser
 import json
+import os
 from typing import Any
 
+from ansible import constants as C  # type: ignore[import-untyped]
 from ansible.errors import (
     AnsibleLookupError,
     AnsibleUndefinedVariable,
     AnsibleValueOmittedError,
 )
+from ansible.module_utils.parsing.convert_bool import (  # type: ignore[import-untyped]
+    boolean,
+)
+from ansible.plugins.loader import lookup_loader  # type: ignore[import-untyped]
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
 from jinja2 import Undefined
@@ -58,9 +67,55 @@ from jinja2 import Undefined
 display = Display()
 _ABSENT = object()
 _SPEC_KEYS = frozenset({"default", "omit", "required"})
+_STACK_KEY = "__saltbox_docker_vars_stack__"
+
+
+def _no_session(variables: Any, templar: Any) -> None:
+    return None
+
+
+_session_for: Any = None
+
+
+def _session_wanted() -> bool:
+    """Return saltbox_var's session setting without loading saltbox_var.
+
+    The environment variable wins over ansible.cfg, as for any ansible setting; off means the
+    plain path, exactly as before the session existed.
+    """
+    value = os.environ.get("SALTBOX_LOOKUP_SESSION")
+    if value is None:
+        config_file = getattr(C.config, "_config_file", None)
+        if config_file:
+            parser = configparser.ConfigParser()
+            try:
+                parser.read(config_file)
+                value = parser.get("saltbox_lookups", "session", fallback=None)
+            except configparser.Error:
+                return False
+    if value is None:
+        return True
+    return bool(boolean(value, strict=False))
+
+
+def _get_session(variables: Any, templar: Any) -> Any:
+    """Return the saltbox_var resolver session for these variables, or None."""
+    global _session_for
+    if _session_for is None and not _session_wanted():
+        _session_for = _no_session
+    if _session_for is None:
+        try:
+            plugin = lookup_loader.get("saltbox_var", class_only=True)
+        except Exception:  # noqa: BLE001 - any load failure means no session
+            plugin = None
+        _session_for = getattr(plugin, "session_for", None) or _no_session
+    return _session_for(variables, templar)
 
 
 class LookupModule(LookupBase):
+    _resolver_session: Any = None
+    _resolver_templar: Any = None
+
     @staticmethod
     def _resolve_explicit_omit(
         suffix: str,
@@ -230,7 +285,8 @@ class LookupModule(LookupBase):
         """Resolve one suffix to a value or the internal absent sentinel."""
         if self._templar is None:
             raise AnsibleLookupError("[docker_vars] Templar is not initialized")
-        templar = self._templar
+        templar = self._resolver_templar
+        session = self._resolver_session
         vars_to_check = self._build_vars_to_check(
             suffix,
             instance_names,
@@ -257,7 +313,10 @@ class LookupModule(LookupBase):
             guard_id = (
                 f"docker_vars:{variable_prefix}:{instance_name}:{suffix}:{var_name}"
             )
-            if guard_id in stack:
+            in_stack = guard_id in stack
+            if session is not None:
+                session.note_guard(_STACK_KEY, guard_id, in_stack)
+            if in_stack:
                 cycle = " -> ".join([*stack, guard_id])
                 raise AnsibleLookupError(
                     f"[docker_vars] Circular reference detected while resolving "
@@ -342,9 +401,16 @@ class LookupModule(LookupBase):
 
         if self._templar is None:
             raise AnsibleLookupError("[docker_vars] Templar is not initialized")
-        self._templar.available_variables = variables
+        session = _get_session(variables, self._templar)
+        if session is None:
+            templar = self._templar
+            templar.available_variables = variables
+        else:
+            templar = session.templar
+        self._resolver_session = session
+        self._resolver_templar = templar
 
-        stack_key = "__saltbox_docker_vars_stack__"
+        stack_key = _STACK_KEY
         previous_stack = variables.get(stack_key)
         owns_stack = False
         if not isinstance(previous_stack, list):
@@ -362,11 +428,11 @@ class LookupModule(LookupBase):
                     "[docker_vars] Required variable '_instance_name' not found"
                 )
 
-            variable_prefix: str = self._templar.template(
+            variable_prefix: str = templar.template(
                 variables["_var_prefix"],
                 fail_on_undefined=True,
             )
-            instance_name: str = self._templar.template(
+            instance_name: str = templar.template(
                 variables["_instance_name"],
                 fail_on_undefined=True,
             )
