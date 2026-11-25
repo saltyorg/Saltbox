@@ -41,6 +41,14 @@
             "enabled": false
         },
         {
+            "description": "uv follows the latest stable sb release through the python-toolchain workflow",
+            "matchPackageNames": [
+                "uv",
+                "astral-sh/uv"
+            ],
+            "enabled": false
+        },
+        {
             "description": "Major pip requirements updates",
             "matchManagers": [
                 "pip_requirements"
