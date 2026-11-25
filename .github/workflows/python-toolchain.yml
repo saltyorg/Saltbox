@@ -1,7 +1,8 @@
 name: Python toolchain
 
 on:
-  # Enabled once the maintainer confirms the stable sb release without update-saltbox-python is out.
+  # Enabled only once publish refuses auto-merge without master's required checks, the maintainer
+  # has allowed auto-merge, and master requires the Python environment and python-toolchain-tests checks.
   # schedule:
   #   - cron: '40 5 * * *'
   workflow_dispatch:

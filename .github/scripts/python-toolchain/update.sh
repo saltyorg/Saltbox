@@ -3,6 +3,11 @@
 #
 #   update.sh prepare <result-dir>   read-only: find targets, compile, preflight
 #   update.sh publish <result-dir>   write: commit, branch, PR and auto-merge
+#   update.sh required-checks        checks master must require for auto-merge
+#
+# publish enables auto-merge only when master requires every one of
+# required-checks; otherwise it leaves the PR open, says why in its body,
+# and fails.
 #
 # prepare environment:
 #   SB_RELEASE_REPO   sb repository whose latest stable release owns uv
@@ -27,6 +32,14 @@ commit_title='chore(deps): update python toolchain'
 age_floor_seconds=$((7 * 24 * 60 * 60))
 lock=requirements/requirements-saltbox.txt
 lock_in=requirements/requirements-saltbox.in
+# Checks master must require before the PR may auto-merge: every OS of
+# saltbox.yml's Python environment job, and this script's tests.
+required_checks=(
+    "Python environment-22.04"
+    "Python environment-24.04"
+    "Python environment-26.04"
+    python-toolchain-tests
+)
 saltbox_dir=${SALTBOX_DIR:-$PWD}
 temp_root=${RUNNER_TEMP:-${TMPDIR:-/tmp}}
 
@@ -257,6 +270,23 @@ uv follows the latest stable sb release ($(meta sb_release "$result")). The lock
     [[ $master_head == "$base" ]] ||
         toolchain_fail "$base_branch moved from $base to $master_head since prepare; rerun"
 
+    local merge_block="" number
+    merge_block=$(auto_merge_blocker "$repo")
+    number=$(gh api "repos/$repo/pulls?state=open&base=$base_branch&head=${repo%%/*}:$pr_branch" --jq '.[].number') ||
+        toolchain_fail "cannot list pull requests"
+    [[ $number != *[!0-9]* ]] || toolchain_fail "more than one open $pr_branch pull request: $number"
+    if [[ -n $merge_block ]]; then
+        toolchain_log "auto-merge refused: $merge_block"
+        body+="
+
+Auto-merge is off: $merge_block. Merge by hand once CI passes."
+        if [[ -n $number && $(gh api "repos/$repo/pulls/$number" --jq '.auto_merge != null') != false ]]; then
+            gh pr merge "$number" --repo "$repo" --disable-auto ||
+                toolchain_fail "cannot disable auto-merge on pull request #$number; not updating it"
+            toolchain_log "disabled auto-merge on pull request #$number"
+        fi
+    fi
+
     base_tree=$(gh api "repos/$repo/git/commits/$base" --jq .tree.sha) ||
         toolchain_fail "cannot read the base commit"
     tree=$(jq -n --arg base_tree "$base_tree" \
@@ -284,12 +314,7 @@ uv follows the latest stable sb release ($(meta sb_release "$result")). The lock
     fi
     toolchain_log "branch $pr_branch is at $commit"
 
-    local number
-    number=$(gh api "repos/$repo/pulls?state=open&base=$base_branch&head=${repo%%/*}:$pr_branch" --jq '.[].number') ||
-        toolchain_fail "cannot list pull requests"
-    if [[ $number == *[!0-9]* ]]; then
-        toolchain_fail "more than one open $pr_branch pull request: $number"
-    elif [[ -n $number ]]; then
+    if [[ -n $number ]]; then
         jq -n --arg title "$commit_title" --arg body "$body" '{title: $title, body: $body}' |
             gh api -X PATCH "repos/$repo/pulls/$number" --input - > /dev/null ||
             toolchain_fail "cannot update pull request #$number"
@@ -302,9 +327,41 @@ uv follows the latest stable sb release ($(meta sb_release "$result")). The lock
             toolchain_fail "cannot open the pull request"
         toolchain_log "opened pull request #$number"
     fi
+    [[ -z $merge_block ]] ||
+        toolchain_fail "pull request #$number left open without auto-merge: $merge_block"
     gh pr merge "$number" --repo "$repo" --auto --squash ||
         toolchain_fail "cannot enable auto-merge on pull request #$number"
     toolchain_log "auto-merge enabled on pull request #$number: $summary"
+}
+
+# Print why auto-merge must not be enabled, or nothing when master requires
+# every check in required_checks. Required checks come from branch
+# protection (the branch endpoint, readable with contents: read; the
+# protection endpoint needs administration: read, which the App token is
+# not given) and from active repository and organisation rulesets. A
+# failed read blocks auto-merge.
+auto_merge_blocker() {
+    local repo=$1 branch_json rules_json required check missing=()
+    if ! branch_json=$(gh api "repos/$repo/branches/$base_branch" 2> /dev/null) ||
+        ! rules_json=$(gh api --paginate "repos/$repo/rules/branches/$base_branch" 2> /dev/null) ||
+        ! required=$(
+            jq -r 'select(.protection.enabled == true and .protection.required_status_checks.enforcement_level != "off")
+                | .protection.required_status_checks | (.contexts[]?, .checks[]?.context)' <<< "$branch_json" &&
+                jq -r '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' <<< "$rules_json"
+        ); then
+        printf "cannot read %s's required status checks\n" "$base_branch"
+        return 0
+    fi
+    for check in "${required_checks[@]}"; do
+        grep -qxF -- "$check" <<< "$required" || missing+=("$check")
+    done
+    if ((${#missing[@]})); then
+        local joined=""
+        for check in "${missing[@]}"; do
+            joined+="${joined:+, }$check"
+        done
+        printf '%s does not require the status checks %s\n' "$base_branch" "$joined"
+    fi
 }
 
 # Print the branch's head when it already is exactly this change on base.
@@ -332,5 +389,6 @@ set_branch() {
 case "${1:-}" in
     prepare) prepare "${2:?result directory required}" ;;
     publish) publish "${2:?result directory required}" ;;
-    *) echo "usage: $0 prepare|publish <result-dir>" >&2; exit 2 ;;
+    required-checks) printf '%s\n' "${required_checks[@]}" ;;
+    *) echo "usage: $0 prepare|publish <result-dir> | required-checks" >&2; exit 2 ;;
 esac

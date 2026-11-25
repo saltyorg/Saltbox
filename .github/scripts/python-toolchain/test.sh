@@ -42,6 +42,7 @@ case $1 in
                 --input) cat "$2" > "$state/input"; shift 2 ;;
                 -f | -F) fields+=("$2"); shift 2 ;;
                 -H) shift 2 ;;
+                --paginate) shift ;;
                 *) path=$1; shift ;;
             esac
         done
@@ -69,6 +70,16 @@ case $1 in
             "GET repos/$FAKE_REPO/git/ref/heads/python-toolchain")
                 [[ -f "$state/branch" ]] || not_found "$path"
                 jq -n --arg sha "$(cat "$state/branch")" '{object: {sha: $sha}}' | respond
+                ;;
+            "GET repos/$FAKE_REPO/branches/master")
+                [[ ! -f "$state/protection-unreadable" ]] || { echo "HTTP 403: Resource not accessible by integration" >&2; exit 1; }
+                respond < "$state/branch-master.json"
+                ;;
+            "GET repos/$FAKE_REPO/rules/branches/master")
+                respond < "$state/rules-master.json"
+                ;;
+            "GET repos/$FAKE_REPO/pulls/"*)
+                jq --argjson n "${path##*/}" '.[] | select(.number == $n)' "$state/pulls.json" | respond
                 ;;
             "GET repos/$FAKE_REPO/git/commits/"*)
                 file="$state/commits/${path##*/}.json"
@@ -160,9 +171,18 @@ case $1 in
         ((found)) || { echo "no assets match the file pattern" >&2; exit 1; }
         ;;
     pr)
-        [[ $2 == merge && " $* " == *" --auto "* && " $* " == *" --squash "* ]] || exit 9
-        [[ ! -f "$state/automerge-disallowed" ]] || { echo "auto-merge is not allowed" >&2; exit 1; }
-        write "enable auto-merge $3"
+        [[ $2 == merge ]] || exit 9
+        if [[ " $* " == *" --disable-auto "* ]]; then
+            write "disable auto-merge $3"
+            auto=null
+        else
+            [[ " $* " == *" --auto "* && " $* " == *" --squash "* ]] || exit 9
+            write "enable auto-merge $3"
+            auto='{"merge_method": "squash"}'
+        fi
+        jq --argjson n "$3" --argjson auto "$auto" \
+            'map(if .number == $n then .auto_merge = $auto else . end)' "$state/pulls.json" > "$state/pulls.new"
+        mv "$state/pulls.new" "$state/pulls.json"
         ;;
     *)
         echo "fake gh: unexpected command: $*" >&2
@@ -300,6 +320,9 @@ setup() {
     mkdir -p "$state"/{releases,commits,trees} "$case_dir/bin" "$case_dir/temp" "$checkout/requirements"
     echo '[]' > "$state/pulls.json"
     write_fake_gh "$case_dir/bin"
+    mapfile -t all_checks < <("$update" required-checks)
+    protection "${all_checks[@]}"
+    ruleset
 
     printf '%s\n' "$python_pin" > "$checkout/.python-version"
     printf '%s\n' "$uv_pin" > "$checkout/.uv-version"
@@ -329,6 +352,32 @@ LOCK
         uv_release "$uv"
     done
     python_list "$@"
+}
+
+# Branch protection on master requiring the given checks; none: unprotected.
+protection() {
+    local checks
+    checks=$(printf '%s\n' "$@" | jq -R 'select(length > 0)' | jq -s .)
+    jq -n --argjson checks "$checks" '
+        ($checks | length > 0) as $on
+        | {name: "master", protected: $on, protection: {enabled: $on, required_status_checks: {
+             enforcement_level: (if $on then "non_admins" else "off" end),
+             contexts: $checks, checks: [$checks[] | {context: ., app_id: null}]}}}' \
+        > "$state/branch-master.json"
+}
+
+# Active rules on master: a required_status_checks rule with the given
+# checks next to an unrelated rule; none: only the unrelated rule.
+ruleset() {
+    local checks
+    checks=$(printf '%s\n' "$@" | jq -R 'select(length > 0)' | jq -s .)
+    jq -n --argjson checks "$checks" '
+        [{type: "deletion", ruleset_source_type: "Organization", ruleset_id: 7}]
+        + if ($checks | length > 0) then
+            [{type: "required_status_checks", ruleset_source_type: "Repository", ruleset_id: 8,
+              parameters: {strict_required_status_checks_policy: false,
+                required_status_checks: [$checks[] | {context: ., integration_id: 15368}]}}]
+          else [] end' > "$state/rules-master.json"
 }
 
 sb_release() {
@@ -436,8 +485,26 @@ expect_pr() {
         and .tree[0].content == ($python + "\n") and .tree[1].content == ($uv + "\n")
         and (.tree[2].content | contains("uv pip compile --python-version " + $python + " --generate-hashes --output-file requirements/requirements-saltbox.txt requirements/requirements-saltbox.in"))
     ' "$tree_file" > /dev/null || fail "commit does not change exactly the three pinned files as expected"
-    grep -qx "enable auto-merge $(jq -r '.[0].number' "$state/pulls.json")" "$state/gh-writes" ||
-        fail "auto-merge not enabled"
+    if [[ ${AUTO_MERGE:-on} == on ]]; then
+        grep -qx "enable auto-merge $(jq -r '.[0].number' "$state/pulls.json")" "$state/gh-writes" ||
+            fail "auto-merge not enabled"
+        jq -e '.[0].body | contains("Auto-merge is off") | not' "$state/pulls.json" > /dev/null ||
+            fail "PR body says auto-merge is off"
+    else
+        ! grep -q "^enable auto-merge" "$state/gh-writes" || fail "auto-merge enabled without master's required checks"
+        jq -e '.[0].body | contains("\n\nAuto-merge is off: ")' "$state/pulls.json" > /dev/null ||
+            fail "PR body does not say why auto-merge is off"
+    fi
+}
+
+# The job must fail, the PR stays open without auto-merge, and the reason
+# is in the log and the PR body.
+expect_merge_refused() {
+    local reason=$1
+    expect_failure "pull request #41 left open without auto-merge: $reason"
+    AUTO_MERGE=off expect_pr 3.12.41 0.91.0 "Python 3.12.40 → 3.12.41"
+    jq -e --arg r "$reason" '.[0].body | contains("Auto-merge is off: " + $r + ".")' "$state/pulls.json" > /dev/null ||
+        fail "PR body does not give the reason: $reason"
 }
 
 expect_compile() {
@@ -645,6 +712,81 @@ unsigned_commit() {
     ! grep -q "branch\|pull request" "$state/gh-writes" || fail "published an unsigned commit"
 }
 
+all_missing="master does not require the status checks Python environment-22.04, Python environment-24.04, Python environment-26.04, python-toolchain-tests"
+
+merge_no_protection() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection
+    expect_merge_refused "$all_missing"
+}
+
+merge_protection_without_checks() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection ansible-lint "Python environment-22.04" "python-toolchain-test"
+    expect_merge_refused "master does not require the status checks Python environment-24.04, Python environment-26.04, python-toolchain-tests"
+}
+
+merge_ruleset_without_checks() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection
+    ruleset saltbox-lint ansible-lint
+    expect_merge_refused "$all_missing"
+}
+
+merge_required_by_protection() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection "${all_checks[@]}" ansible-lint
+    expect_success
+    expect_pr 3.12.41 0.91.0 "Python 3.12.40 → 3.12.41"
+}
+
+merge_required_by_ruleset() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection
+    ruleset "${all_checks[@]}"
+    expect_success
+    expect_pr 3.12.41 0.91.0 "Python 3.12.40 → 3.12.41"
+}
+
+merge_required_by_both() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection "Python environment-22.04" "Python environment-24.04"
+    ruleset "Python environment-26.04" python-toolchain-tests
+    expect_success
+    expect_pr 3.12.41 0.91.0 "Python 3.12.40 → 3.12.41"
+}
+
+merge_protection_unreadable() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    touch "$state/protection-unreadable"
+    expect_merge_refused "cannot read master's required status checks"
+}
+
+merge_existing_pr_disabled_first() {
+    setup 3.12.40 0.91.0 0.91.0 3.12.41
+    protection
+    printf '%s\n' 2222222222222222222222222222222222222222 > "$state/branch"
+    jq -n '[{number: 41, state: "open", title: "chore(deps): update python toolchain", head: "python-toolchain",
+             base: "master", body: "old", auto_merge: {merge_method: "squash"}}]' > "$state/pulls.json"
+    expect_merge_refused "$all_missing"
+    [[ $(head -n 1 "$state/gh-writes") == "disable auto-merge 41" ]] ||
+        fail "auto-merge was not disabled before the branch moved: $(tr '\n' ';' < "$state/gh-writes")"
+    jq -e '.[0].auto_merge == null' "$state/pulls.json" > /dev/null || fail "auto-merge still enabled on #41"
+}
+
+required_checks_match_ci() {
+    local os expected
+    os=$(sed -n '/^  python-environment:/,/^  [a-z]/p' "$repo_root/.github/workflows/saltbox.yml" |
+        sed -n "s/^ *os: \[\(.*\)\]$/\1/p" | tr -d "' ")
+    [[ -n $os ]] || fail "cannot find the Python environment OS matrix in saltbox.yml"
+    sed -n '/^  python-environment:/,/^  [a-z]/p' "$repo_root/.github/workflows/saltbox.yml" |
+        grep -qF "name: 'Python environment-\${{ matrix.os }}'" || fail "Python environment check name changed"
+    grep -q '^  python-toolchain-tests:$' "$repo_root/.github/workflows/saltbox.yml" || fail "python-toolchain-tests job missing"
+    expected=$(tr ',' '\n' <<< "$os" | sed 's/^/Python environment-/'; echo python-toolchain-tests)
+    [[ $("$update" required-checks) == "$expected" ]] ||
+        fail "required checks differ from saltbox.yml: $("$update" required-checks | tr '\n' ';')"
+}
+
 ci_command_matches() {
     local ci expected
     ci=$(sed -n '/^uv pip compile/,/requirements-saltbox\.in$/p' "$repo_root/.github/scripts/check-python-environment.sh" |
@@ -677,7 +819,16 @@ run_case "reproducibility failure: no PR" reproducibility_failure
 run_case "existing PR: updated, not duplicated" existing_pr_updated
 run_case "master moved between steps: refuses" master_moved
 run_case "unsigned commit: not published" unsigned_commit
+run_case "auto-merge: no protection: refused" merge_no_protection
+run_case "auto-merge: protection without the checks: refused" merge_protection_without_checks
+run_case "auto-merge: ruleset without the checks: refused" merge_ruleset_without_checks
+run_case "auto-merge: checks required by protection: enabled" merge_required_by_protection
+run_case "auto-merge: checks required by a ruleset: enabled" merge_required_by_ruleset
+run_case "auto-merge: checks split over protection and ruleset: enabled" merge_required_by_both
+run_case "auto-merge: protection unreadable: refused" merge_protection_unreadable
+run_case "auto-merge: existing PR's auto-merge disabled before the branch moves" merge_existing_pr_disabled_first
 run_case "CI lock compile command matches" ci_command_matches
+run_case "required checks match saltbox.yml" required_checks_match_ci
 
 echo "$passes passed, $failures failed"
 ((failures == 0))
