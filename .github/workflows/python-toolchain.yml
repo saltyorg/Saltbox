@@ -1,0 +1,49 @@
+name: Python toolchain
+
+on:
+  # Enabled once the maintainer confirms the stable sb release without update-saltbox-python is out.
+  # schedule:
+  #   - cron: '40 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: python-toolchain
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: master
+          persist-credentials: false
+
+      - name: Find targets, compile, preflight and reproduce the lock
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SB_RELEASE_REPO: ${{ vars.SB_RELEASE_REPO || 'saltyorg/sb-go' }}
+        run: .github/scripts/python-toolchain/update.sh prepare "$RUNNER_TEMP/python-toolchain-result"
+
+      - name: Create toolchain PR token
+        if: steps.prepare.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        with:
+          client-id: ${{ vars.SALTBOX_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.SALTBOX_AUTOMATION_PRIVATE_KEY }}
+          repositories: Saltbox
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Open or update the toolchain PR
+        if: steps.prepare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: .github/scripts/python-toolchain/update.sh publish "$RUNNER_TEMP/python-toolchain-result"
