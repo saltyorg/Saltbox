@@ -1,6 +1,8 @@
 name: Python toolchain
 
 on:
+  schedule:
+    - cron: '40 5 * * *'
   workflow_dispatch:
 
 permissions:
