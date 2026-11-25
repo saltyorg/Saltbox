@@ -31,7 +31,7 @@
             "enabled": false
         },
         {
-            "description": "Python is updated from the sb-go uv catalogue",
+            "description": "Python is updated by the python-toolchain workflow",
             "matchManagers": [
                 "pyenv"
             ],
