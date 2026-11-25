@@ -52,6 +52,16 @@ jobs:
       - name: Validate locked Python environment
         run: .github/scripts/check-python-environment.sh
 
+  python-toolchain-tests:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Test the Python toolchain workflow script
+        run: .github/scripts/python-toolchain/test.sh
+
   ansible-lint:
     if: github.event_name == 'pull_request' || !(github.event_name == 'push' && github.actor == 'renovate[bot]')
     runs-on: ubuntu-26.04
