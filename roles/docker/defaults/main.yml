@@ -31,7 +31,10 @@ docker_memory_default: ""
 # If the kernel has been updated and a reboot will happen
 docker_skip_start_during_meta_tag: "{{ saltbox_auto_reboot }}"
 
-# Toggles pruning of dangling images after container creation.
+# Toggles pruning of unused images older than 24 hours.
+# The prune runs once, after all roles in the run have finished,
+# if the run created at least one container.
+# With the delay enabled, Saltbox waits the timeout (in seconds) before pruning.
 docker_create_image_prune: true
 docker_create_image_prune_delay: true
 docker_create_image_prune_delay_timeout: 10
